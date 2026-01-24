@@ -1,0 +1,1202 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "retry": "Erneut versuchen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "noResults": "Keine Ergebnisse gefunden",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "refresh": "Aktualisieren"
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melden Sie sich bei Ihrem Konto an",
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "name@beispiel.de",
+      "password": "Passwort",
+      "passwordPlaceholder": "Passwort eingeben",
+      "rememberMe": "Angemeldet bleiben",
+      "forgotPassword": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "register": "Jetzt registrieren",
+      "deviceMode": "Als Gerät verwenden (Kassen-Terminal)",
+      "errors": {
+        "invalidCredentials": "Ungültige E-Mail oder Passwort",
+        "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
+        "emailRequired": "E-Mail ist erforderlich",
+        "passwordRequired": "Passwort ist erforderlich",
+        "invalidEmail": "Ungültige E-Mail-Adresse"
+      }
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "subtitle": "Registrieren Sie sich für OpenEOS",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "organization": "Organisationsname",
+      "submit": "Registrieren",
+      "hasAccount": "Bereits ein Konto?",
+      "login": "Jetzt anmelden",
+      "errors": {
+        "passwordMismatch": "Passwörter stimmen nicht überein",
+        "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
+        "emailTaken": "Diese E-Mail wird bereits verwendet"
+      }
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
+      "email": "E-Mail-Adresse",
+      "submit": "Link senden",
+      "backToLogin": "Zurück zur Anmeldung",
+      "success": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail",
+      "successTitle": "E-Mail gesendet",
+      "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts."
+    },
+    "resetPassword": {
+      "title": "Neues Passwort setzen",
+      "subtitle": "Geben Sie Ihr neues Passwort ein",
+      "password": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "passwordHint": "Mindestens 8 Zeichen",
+      "submit": "Passwort ändern",
+      "success": "Ihr Passwort wurde erfolgreich geändert",
+      "successTitle": "Passwort geändert",
+      "successMessage": "Ihr Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
+      "backToLogin": "Zur Anmeldung",
+      "invalidToken": "Ungültiger oder abgelaufener Link",
+      "invalidTokenTitle": "Link ungültig",
+      "invalidTokenMessage": "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
+      "requestNewLink": "Neuen Link anfordern",
+      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "logout": "Abmelden"
+  },
+  "sidebar": {
+    "selectOrganization": "Organisation wählen",
+    "noOrganizations": {
+      "title": "Keine Organisation",
+      "description": "Du bist noch keiner Organisation zugeordnet."
+    },
+    "pendingInvitations": {
+      "title": "Ausstehende Einladungen",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
+      "asRole": "Als {role}",
+      "expires": "Läuft ab: {date}"
+    },
+    "credits": {
+      "label": "Credits",
+      "tooltip": "Event-Credits für die Aktivierung von Veranstaltungen"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Übersicht über Ihre aktuelle Geschäftstätigkeit",
+    "welcome": "Willkommen, {name}!",
+    "stats": {
+      "ordersToday": "Bestellungen heute",
+      "revenue": "Umsatz heute",
+      "activeEvents": "Aktive Events",
+      "activeUsers": "Aktive Benutzer",
+      "vsYesterday": "vs. gestern",
+      "eventsRunning": "Events laufen",
+      "usersOnline": "Benutzer online"
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivitäten",
+      "subtitle": "Ihre neuesten Bestellungen und Transaktionen",
+      "empty": {
+        "title": "Keine Aktivitäten",
+        "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie ein Event, um Bestellungen anzunehmen."
+      }
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "organizations": "Organisationen",
+    "events": "Veranstaltungen",
+    "products": "Produkte",
+    "categories": "Kategorien",
+    "orders": "Bestellungen",
+    "devices": "Geräte",
+    "printers": "Drucker",
+    "workflows": "Workflows",
+    "reports": "Berichte",
+    "settings": "Einstellungen",
+    "pos": "Kasse"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "tabs": {
+      "personal": "Persönlich",
+      "organization": "Organisation"
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Verwalten Sie Ihre persönlichen Informationen",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail-Adresse",
+      "avatar": "Profilbild",
+      "avatarDescription": "Laden Sie ein Profilbild hoch",
+      "uploadAvatar": "Bild hochladen",
+      "removeAvatar": "Bild entfernen",
+      "saveChanges": "Änderungen speichern",
+      "saving": "Speichern...",
+      "saved": "Profil erfolgreich aktualisiert"
+    },
+    "account": {
+      "title": "Konto",
+      "description": "E-Mail und Passwort verwalten",
+      "changeEmail": "E-Mail ändern",
+      "changeEmailDescription": "Ihre aktuelle E-Mail-Adresse ist {email}",
+      "newEmail": "Neue E-Mail-Adresse",
+      "currentPassword": "Aktuelles Passwort",
+      "emailChangeRequested": "Bestätigungslink wurde an die neue E-Mail-Adresse gesendet",
+      "changePassword": "Passwort ändern",
+      "changePasswordDescription": "Aktualisieren Sie Ihr Passwort regelmäßig für mehr Sicherheit.",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "passwordChanged": "Passwort erfolgreich geändert",
+      "sending": "Senden...",
+      "changing": "Ändern..."
+    },
+    "security": {
+      "title": "Sicherheit",
+      "description": "Zwei-Faktor-Authentifizierung und Sitzungen verwalten",
+      "twoFactor": {
+        "title": "Zwei-Faktor-Authentifizierung",
+        "description": "Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu",
+        "enabled": "2FA ist aktiviert",
+        "disabled": "2FA ist deaktiviert",
+        "enable": "2FA aktivieren",
+        "disable": "2FA deaktivieren",
+        "method": "Methode",
+        "methodTotp": "Authenticator App",
+        "methodEmail": "E-Mail",
+        "selectMethod": "Methode auswählen",
+        "setupTotp": "Authenticator App einrichten",
+        "setupEmail": "E-Mail-Codes einrichten",
+        "scanQrCode": "QR-Code scannen",
+        "scanQrCodeDescription": "Scannen Sie diesen QR-Code mit Ihrer Authenticator App",
+        "manualEntry": "Manuelle Eingabe",
+        "manualEntryDescription": "Oder geben Sie diesen Code manuell ein:",
+        "enterCode": "Code eingeben",
+        "enterCodeDescription": "Geben Sie den 6-stelligen Code aus Ihrer App ein",
+        "emailSent": "Bestätigungscode wurde an Ihre E-Mail gesendet",
+        "recoveryCodes": "Wiederherstellungscodes",
+        "recoveryCodesDescription": "Speichern Sie diese Codes sicher. Sie können verwendet werden, um auf Ihr Konto zuzugreifen, wenn Sie keinen Zugang zu Ihrer 2FA-Methode haben.",
+        "recoveryCodesCopied": "Wiederherstellungscodes kopiert",
+        "regenerateCodes": "Neue Codes generieren",
+        "disableConfirm": "2FA deaktivieren?",
+        "disableConfirmDescription": "Ihr Konto wird weniger sicher sein ohne Zwei-Faktor-Authentifizierung.",
+        "enterPassword": "Passwort zur Bestätigung",
+        "back": "Zurück",
+        "continue": "Weiter",
+        "confirm": "Bestätigen",
+        "checking": "Prüfen...",
+        "done": "Fertig",
+        "copyCodes": "Codes kopieren",
+        "disabling": "Deaktivieren..."
+      },
+      "trustedDevices": {
+        "title": "Vertrauenswürdige Geräte",
+        "description": "Geräte, die keine 2FA-Eingabe benötigen",
+        "empty": "Keine vertrauenswürdigen Geräte",
+        "lastUsed": "Zuletzt verwendet",
+        "remove": "Entfernen"
+      },
+      "sessions": {
+        "title": "Aktive Sitzungen",
+        "description": "Verwalten Sie Ihre aktiven Anmeldungen",
+        "current": "Aktuelle Sitzung",
+        "lastActive": "Zuletzt aktiv",
+        "revoke": "Abmelden",
+        "revokeAll": "Alle anderen Sitzungen beenden",
+        "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
+        "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet."
+      }
+    },
+    "preferences": {
+      "title": "Einstellungen",
+      "description": "Passen Sie Ihre App-Erfahrung an",
+      "theme": {
+        "title": "Erscheinungsbild",
+        "light": "Hell",
+        "dark": "Dunkel",
+        "system": "System"
+      },
+      "language": {
+        "title": "Sprache",
+        "de": "Deutsch",
+        "en": "English"
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "email": "E-Mail-Benachrichtigungen",
+        "emailDescription": "Wichtige Updates per E-Mail erhalten",
+        "push": "Push-Benachrichtigungen",
+        "pushDescription": "Browser-Benachrichtigungen erhalten"
+      },
+      "saved": "Einstellungen gespeichert"
+    },
+    "organizationGeneral": {
+      "title": "Allgemein",
+      "description": "Grundlegende Informationen Ihrer Organisation",
+      "name": "Name",
+      "description_field": "Beschreibung",
+      "logo": "Logo",
+      "uploadLogo": "Logo hochladen",
+      "removeLogo": "Logo entfernen",
+      "saving": "Speichern...",
+      "saveChanges": "Änderungen speichern"
+    },
+    "organizationContact": {
+      "title": "Kontakt",
+      "description": "Kontaktinformationen Ihrer Organisation",
+      "address": "Adresse",
+      "city": "Stadt",
+      "zipCode": "PLZ",
+      "country": "Land",
+      "phone": "Telefon",
+      "website": "Website",
+      "saving": "Speichern...",
+      "saveChanges": "Änderungen speichern"
+    },
+    "organizationBilling": {
+      "title": "Rechnungsadresse",
+      "description": "Informationen für Rechnungen",
+      "billingEmail": "Rechnungs-E-Mail",
+      "vatId": "USt-IdNr.",
+      "saving": "Speichern...",
+      "saveChanges": "Änderungen speichern"
+    },
+    "organizationPos": {
+      "title": "Kasse (POS)",
+      "orderingMode": {
+        "title": "Zahlungsmodus",
+        "description": "Wählen Sie, wie Bestellungen bezahlt werden",
+        "immediate": "Sofort bezahlen",
+        "immediateDescription": "Bestellungen werden direkt beim Kassieren bezahlt",
+        "tab": "Sammelrechnung",
+        "tabDescription": "Bestellungen sammeln und am Ende zusammen bezahlen (Tab-Modus)"
+      },
+      "options": {
+        "title": "Weitere Optionen",
+        "requireTableNumber": "Tischnummer erforderlich",
+        "requireTableNumberDescription": "Bei jeder Bestellung muss eine Tischnummer angegeben werden",
+        "autoPrintReceipt": "Bon automatisch drucken",
+        "autoPrintReceiptDescription": "Nach jeder Bestellung automatisch einen Bon drucken",
+        "soundEnabled": "Töne aktiviert",
+        "soundEnabledDescription": "Akustische Signale bei neuen Bestellungen"
+      }
+    },
+    "organizationNotifications": {
+      "title": "Benachrichtigungen",
+      "description": "E-Mail-Benachrichtigungen für Ihre Organisation",
+      "orderConfirmation": "Bestellbestätigungen",
+      "dailySummary": "Tägliche Zusammenfassung",
+      "newOrders": "Neue Bestellungen (Push)"
+    },
+    "organizationBranding": {
+      "title": "Branding",
+      "description": "Farben und Logos für Kassenbons",
+      "primaryColor": "Primärfarbe",
+      "secondaryColor": "Sekundärfarbe",
+      "receiptLogo": "Bon-Logo"
+    },
+    "organizationDefaults": {
+      "title": "Standardeinstellungen",
+      "description": "Standardwerte für neue Events",
+      "defaultTaxRate": "Standard-Steuersatz",
+      "defaultPrinter": "Standard-Drucker",
+      "requirePinForRefunds": "PIN für Stornierungen erforderlich"
+    },
+    "noOrganization": "Bitte wählen Sie zuerst eine Organisation aus.",
+    "saving": "Speichern...",
+    "saveChanges": "Änderungen speichern"
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+  "events": {
+    "title": "Veranstaltungen",
+    "subtitle": "Verwalten Sie Ihre Veranstaltungen",
+    "create": "Veranstaltung erstellen",
+    "empty": {
+      "title": "Keine Veranstaltungen",
+      "description": "Erstellen Sie Ihre erste Veranstaltung, um loszulegen."
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "date": "Datum",
+      "location": "Ort",
+      "createdAt": "Erstellt am",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Name der Veranstaltung",
+      "nameRequired": "Name ist erforderlich",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreibung der Veranstaltung",
+      "location": "Ort",
+      "locationPlaceholder": "Veranstaltungsort",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum"
+    },
+    "status": {
+      "draft": "Entwurf",
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgesagt"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "view": "Anzeigen",
+      "activate": "Aktivieren",
+      "complete": "Abschließen",
+      "cancel": "Absagen"
+    },
+    "deleteConfirm": {
+      "title": "Veranstaltung löschen",
+      "message": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "notifications": {
+      "created": "Veranstaltung erfolgreich erstellt",
+      "updated": "Veranstaltung erfolgreich aktualisiert",
+      "deleted": "Veranstaltung erfolgreich gelöscht",
+      "activated": "Veranstaltung aktiviert",
+      "completed": "Veranstaltung abgeschlossen",
+      "cancelled": "Veranstaltung abgesagt"
+    },
+    "insufficientCredits": {
+      "title": "Nicht genügend Credits",
+      "description": "Sie haben nicht genügend Event-Credits, um diese Veranstaltung zu aktivieren.",
+      "needed": "Benötigt",
+      "available": "Verfügbar",
+      "missing": "Fehlend",
+      "buyCredits": "Credits kaufen"
+    }
+  },
+  "categories": {
+    "title": "Kategorien",
+    "subtitle": "Verwalten Sie Ihre Produktkategorien",
+    "create": "Kategorie erstellen",
+    "edit": "Kategorie bearbeiten",
+    "selectEvent": "Veranstaltung",
+    "selectEventPlaceholder": "Veranstaltung auswählen...",
+    "noEvents": {
+      "title": "Keine Veranstaltungen",
+      "description": "Erstellen Sie zuerst eine Veranstaltung, um Kategorien verwalten zu können."
+    },
+    "selectEventFirst": {
+      "title": "Veranstaltung auswählen",
+      "description": "Bitte wählen Sie zuerst eine Veranstaltung aus, um die Kategorien zu sehen."
+    },
+    "empty": {
+      "title": "Keine Kategorien",
+      "description": "Erstellen Sie Ihre erste Kategorie, um Produkte zu organisieren."
+    },
+    "table": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "products": "Produkte",
+      "status": "Status",
+      "sortOrder": "Reihenfolge",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Name der Kategorie",
+      "nameRequired": "Name ist erforderlich",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreibung der Kategorie",
+      "color": "Farbe",
+      "colorPlaceholder": "Wählen Sie eine Farbe",
+      "icon": "Symbol",
+      "iconPlaceholder": "Symbol auswählen",
+      "parent": "Übergeordnete Kategorie",
+      "parentPlaceholder": "Keine (Hauptkategorie)",
+      "isActive": "Aktiv"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "deleteConfirm": {
+      "title": "Kategorie löschen",
+      "message": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten? Alle zugehörigen Produkte werden der Standardkategorie zugeordnet.",
+      "confirm": "Löschen"
+    },
+    "notifications": {
+      "created": "Kategorie erfolgreich erstellt",
+      "updated": "Kategorie erfolgreich aktualisiert",
+      "deleted": "Kategorie erfolgreich gelöscht"
+    }
+  },
+  "products": {
+    "title": "Produkte",
+    "subtitle": "Verwalten Sie Ihre Produkte und Preise",
+    "create": "Produkt erstellen",
+    "edit": "Produkt bearbeiten",
+    "manageCategories": "Kategorien verwalten",
+    "selectEvent": "Veranstaltung",
+    "selectEventPlaceholder": "Veranstaltung auswählen...",
+    "noEvents": {
+      "title": "Keine Veranstaltungen",
+      "description": "Erstellen Sie zuerst eine Veranstaltung, um Produkte verwalten zu können."
+    },
+    "selectEventFirst": {
+      "title": "Veranstaltung auswählen",
+      "description": "Bitte wählen Sie zuerst eine Veranstaltung aus, um die Produkte zu sehen."
+    },
+    "empty": {
+      "title": "Keine Produkte",
+      "description": "Erstellen Sie Ihr erstes Produkt, um es in der Kasse anzubieten."
+    },
+    "table": {
+      "name": "Name",
+      "category": "Kategorie",
+      "price": "Preis",
+      "stock": "Bestand",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Name des Produkts",
+      "nameRequired": "Name ist erforderlich",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreibung des Produkts",
+      "category": "Kategorie",
+      "categoryPlaceholder": "Kategorie auswählen",
+      "categoryRequired": "Kategorie ist erforderlich",
+      "createCategory": "Neue Kategorie erstellen",
+      "price": "Preis",
+      "pricePlaceholder": "0.00",
+      "priceRequired": "Preis ist erforderlich",
+      "isActive": "Aktiv",
+      "isAvailable": "Verfügbar",
+      "trackInventory": "Bestand verfolgen",
+      "trackInventoryDescription": "Lagerbestand für dieses Produkt verfolgen",
+      "stockQuantity": "Lagerbestand",
+      "stockUnit": "Einheit"
+    },
+    "extras": {
+      "title": "Extras",
+      "subtitle": "Optionale Zusatzoptionen für das Produkt",
+      "name": "Name",
+      "namePlaceholder": "z.B. Mit Käse",
+      "price": "Aufpreis",
+      "add": "Hinzufügen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "available": "Verfügbar",
+      "unavailable": "Nicht verfügbar",
+      "outOfStock": "Ausverkauft"
+    },
+    "stock": {
+      "title": "Bestand anpassen",
+      "currentStock": "Aktueller Bestand",
+      "adjustmentAmount": "Anpassungsmenge",
+      "reason": "Grund",
+      "reasonPlaceholder": "z.B. Wareneingang, Korrektur...",
+      "add": "Hinzufügen",
+      "subtract": "Abziehen",
+      "afterAdd": "Nach Hinzufügen",
+      "afterSubtract": "Nach Abzug"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "toggleAvailability": "Verfügbarkeit umschalten",
+      "adjustStock": "Bestand anpassen"
+    },
+    "deleteConfirm": {
+      "title": "Produkt löschen",
+      "message": "Sind Sie sicher, dass Sie dieses Produkt löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "notifications": {
+      "created": "Produkt erfolgreich erstellt",
+      "updated": "Produkt erfolgreich aktualisiert",
+      "deleted": "Produkt erfolgreich gelöscht",
+      "stockAdjusted": "Bestand erfolgreich angepasst"
+    }
+  },
+  "users": {
+    "title": "Benutzer",
+    "subtitle": "Verwalten Sie alle Benutzer im System",
+    "empty": {
+      "title": "Keine Benutzer",
+      "description": "Es wurden noch keine Benutzer registriert."
+    },
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "status": "Status",
+      "role": "Rolle",
+      "organizations": "Organisationen",
+      "lastLogin": "Letzter Login",
+      "createdAt": "Registriert am",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "locked": "Gesperrt"
+    },
+    "role": {
+      "superAdmin": "Super-Administrator",
+      "user": "Benutzer"
+    },
+    "actions": {
+      "view": "Details anzeigen",
+      "unlock": "Entsperren"
+    },
+    "notifications": {
+      "unlocked": "Benutzer erfolgreich entsperrt"
+    }
+  },
+  "members": {
+    "title": "Mitglieder",
+    "subtitle": "Verwalten Sie die Mitglieder Ihrer Organisation",
+    "invite": "Mitglied einladen",
+    "empty": {
+      "title": "Keine Mitglieder",
+      "description": "Laden Sie Mitglieder zu Ihrer Organisation ein."
+    },
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "joinedAt": "Beigetreten am",
+      "actions": "Aktionen"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "manager": "Manager",
+      "cashier": "Kassierer",
+      "kitchen": "Küche",
+      "delivery": "Ausgabe"
+    },
+    "form": {
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "mitglied@beispiel.de",
+      "role": "Rolle",
+      "roleRequired": "Rolle ist erforderlich"
+    },
+    "actions": {
+      "changeRole": "Rolle ändern",
+      "remove": "Entfernen",
+      "cancelInvitation": "Einladung zurückziehen"
+    },
+    "invitations": {
+      "title": "Ausstehende Einladungen",
+      "empty": "Keine ausstehenden Einladungen",
+      "pending": "Ausstehend",
+      "expiresAt": "Läuft ab am"
+    },
+    "removeConfirm": {
+      "title": "Mitglied entfernen",
+      "message": "Sind Sie sicher, dass Sie dieses Mitglied aus der Organisation entfernen möchten?",
+      "confirm": "Entfernen"
+    },
+    "notifications": {
+      "invited": "Einladung erfolgreich gesendet",
+      "roleChanged": "Rolle erfolgreich geändert",
+      "removed": "Mitglied erfolgreich entfernt"
+    }
+  },
+  "organizations": {
+    "title": "Organisationen",
+    "subtitle": "Verwalten Sie Ihre Organisationen und deren Einstellungen",
+    "create": "Organisation erstellen",
+    "empty": {
+      "title": "Keine Organisationen",
+      "description": "Erstellen Sie Ihre erste Organisation, um loszulegen."
+    },
+    "table": {
+      "name": "Name",
+      "slug": "Slug",
+      "eventCredits": "Event-Credits",
+      "createdAt": "Erstellt am",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Name der Organisation",
+      "nameRequired": "Name ist erforderlich",
+      "slug": "Slug",
+      "slugPlaceholder": "organisation-slug",
+      "currency": "Währung",
+      "timezone": "Zeitzone",
+      "locale": "Sprache"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "view": "Anzeigen",
+      "manageMembers": "Mitglieder verwalten",
+      "manageCredits": "Credits verwalten"
+    },
+    "credits": {
+      "title": "Event-Credits verwalten",
+      "current": "Aktuelle Credits",
+      "adjust": "Anpassen",
+      "amount": "Betrag",
+      "amountPlaceholder": "z.B. 10 oder -5",
+      "reason": "Grund",
+      "reasonPlaceholder": "Grund für die Anpassung",
+      "add": "Credits hinzufügen",
+      "remove": "Credits entfernen"
+    },
+    "deleteConfirm": {
+      "title": "Organisation löschen",
+      "message": "Sind Sie sicher, dass Sie diese Organisation löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "notifications": {
+      "created": "Organisation erfolgreich erstellt",
+      "updated": "Organisation erfolgreich aktualisiert",
+      "deleted": "Organisation erfolgreich gelöscht"
+    }
+  },
+  "workflows": {
+    "title": "Workflows",
+    "subtitle": "Automatisieren Sie Ihre Prozesse mit visuellen Workflows",
+    "create": "Workflow erstellen",
+    "edit": "Workflow bearbeiten",
+    "empty": {
+      "title": "Keine Workflows",
+      "description": "Erstellen Sie Ihren ersten Workflow, um Prozesse zu automatisieren."
+    },
+    "table": {
+      "name": "Name",
+      "trigger": "Auslöser",
+      "nodes": "Bausteine",
+      "nodesCount": "Bausteine",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "system": "System"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "test": "Testen"
+    },
+    "deleteConfirm": {
+      "title": "Workflow löschen",
+      "message": "Sind Sie sicher, dass Sie diesen Workflow löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "notifications": {
+      "created": "Workflow erfolgreich erstellt",
+      "updated": "Workflow erfolgreich aktualisiert",
+      "deleted": "Workflow erfolgreich gelöscht",
+      "activated": "Workflow aktiviert",
+      "deactivated": "Workflow deaktiviert"
+    }
+  },
+  "billing": {
+    "title": "Abrechnung",
+    "description": "Verwalten Sie Ihr Abonnement und kaufen Sie Credits",
+    "subscription": {
+      "title": "Abonnement",
+      "price": "Monatlicher Preis",
+      "creditsPerMonth": "Credits pro Monat",
+      "nextBilling": "Nächste Abrechnung",
+      "manageSubscription": "Abonnement verwalten",
+      "subscribe": "Abonnement starten",
+      "noSubscription": "Sie haben noch kein aktives Abonnement",
+      "status": {
+        "active": "Aktiv",
+        "pastDue": "Überfällig",
+        "canceled": "Gekündigt",
+        "trialing": "Testphase",
+        "none": "Kein Abo"
+      }
+    },
+    "credits": {
+      "title": "Event-Credits",
+      "available": "verfügbare Credits",
+      "infoText": "Credits werden benötigt, um Veranstaltungen zu aktivieren. Jede aktive Veranstaltung verbraucht Credits."
+    },
+    "packages": {
+      "title": "Credit-Pakete",
+      "description": "Kaufen Sie zusätzliche Credits für Ihre Veranstaltungen",
+      "buy": "Kaufen",
+      "empty": "Keine Credit-Pakete verfügbar"
+    },
+    "history": {
+      "title": "Zahlungsverlauf",
+      "empty": "Noch keine Zahlungen"
+    },
+    "payment": {
+      "status": {
+        "completed": "Abgeschlossen",
+        "pending": "Ausstehend",
+        "failed": "Fehlgeschlagen"
+      }
+    }
+  },
+  "admin": {
+    "pricing": {
+      "title": "Preisgestaltung",
+      "description": "Verwalten Sie Abonnement und Credit-Pakete",
+      "subscription": {
+        "title": "Abonnement-Konfiguration",
+        "description": "Einstellungen für das monatliche Abonnement",
+        "name": "Name",
+        "descriptionField": "Beschreibung",
+        "priceMonthly": "Monatlicher Preis (EUR)",
+        "creditsPerMonth": "Credits pro Monat",
+        "save": "Konfiguration speichern"
+      },
+      "packages": {
+        "title": "Credit-Pakete",
+        "description": "Einmalige Credit-Käufe für Kunden",
+        "add": "Paket hinzufügen",
+        "edit": "Paket bearbeiten",
+        "name": "Paketname",
+        "descriptionField": "Beschreibung",
+        "credits": "Anzahl Credits",
+        "price": "Preis (EUR)",
+        "sortOrder": "Reihenfolge",
+        "empty": "Keine Credit-Pakete vorhanden",
+        "deleteConfirm": {
+          "title": "Paket löschen",
+          "message": "Sind Sie sicher, dass Sie dieses Paket löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+        }
+      }
+    }
+  },
+  "pos": {
+    "title": "Kasse",
+    "noOrganization": "Bitte wählen Sie zuerst eine Organisation aus.",
+    "backToDashboard": "Zurück zum Dashboard",
+    "selectEventFirst": "Bitte wählen Sie zuerst eine Veranstaltung aus.",
+    "noActiveEvents": "Keine aktiven Veranstaltungen",
+    "selectEvent": "Veranstaltung wählen",
+    "loading": "Produkte werden geladen...",
+    "noProducts": "Keine Produkte verfügbar",
+    "allCategories": "Alle",
+    "cart": {
+      "title": "Warenkorb",
+      "empty": "Der Warenkorb ist leer",
+      "tableNumber": "Tisch-Nr.",
+      "tableNumberPlaceholder": "z.B. T5",
+      "customerName": "Kundenname",
+      "customerNamePlaceholder": "Optional",
+      "total": "Gesamt",
+      "payCash": "Bar",
+      "payCard": "Karte",
+      "placeOrder": "Bestellen",
+      "openTabs": "Offene Rechnungen",
+      "clear": "Warenkorb leeren",
+      "orderCreated": "Bestellung #{number} erstellt"
+    },
+    "tableNumber": {
+      "title": "Tischnummer eingeben",
+      "description": "Geben Sie die Tischnummer ein, um mit der Bestellung zu beginnen.",
+      "placeholder": "z.B. 5 oder A1",
+      "start": "Bestellung starten",
+      "table": "Tisch",
+      "endSession": "Session beenden",
+      "changeTable": "Tisch wechseln"
+    },
+    "logout": "Abmelden",
+    "openTabs": {
+      "title": "Offene Rechnungen",
+      "noOpenTabs": "Keine offenen Rechnungen",
+      "noOpenTabsDescription": "Alle Bestellungen wurden bezahlt",
+      "noTable": "Ohne Tisch",
+      "table": "Tisch",
+      "items": "Artikel",
+      "moreItems": "weitere Artikel",
+      "partlyPaid": "{amount} bereits bezahlt",
+      "selectedOrder": "Ausgewählte Bestellung",
+      "payCash": "Bar bezahlen",
+      "payCard": "Karte",
+      "splitBill": "Rechnung splitten"
+    },
+    "splitPayment": {
+      "title": "Rechnung splitten",
+      "selectItems": "Artikel auswählen",
+      "selectedAmount": "Ausgewählt",
+      "paySelected": "Auswahl bezahlen",
+      "payAll": "Alles bezahlen",
+      "remaining": "Verbleibend"
+    },
+    "checkout": {
+      "title": "Bezahlen",
+      "paymentMethod": "Zahlungsmethode",
+      "cash": "Barzahlung",
+      "card": "Kartenzahlung",
+      "amountDue": "Zu zahlen",
+      "amountReceived": "Erhalten",
+      "change": "Rückgeld",
+      "confirm": "Zahlung bestätigen",
+      "processing": "Verarbeite Zahlung..."
+    },
+    "options": {
+      "basePrice": "Grundpreis",
+      "required": "Pflicht",
+      "selectOne": "(Eine Auswahl)",
+      "selectMultiple": "(Mehrfachauswahl)",
+      "quantity": "Menge",
+      "total": "Gesamt",
+      "addToCart": "In den Warenkorb",
+      "selectRequiredOptions": "Bitte wählen Sie alle Pflichtoptionen aus",
+      "customNote": "Bemerkung",
+      "customNotePlaceholder": "z.B. ohne Zwiebeln, extra scharf..."
+    },
+    "cashPayment": {
+      "title": "Barzahlung",
+      "amountDue": "Zu zahlen",
+      "received": "Erhalten",
+      "change": "Rückgeld",
+      "confirm": "Zahlung bestätigen"
+    }
+  },
+  "orders": {
+    "title": "Bestellungen",
+    "description": "Alle Bestellungen Ihrer Organisation im Überblick",
+    "empty": "Keine Bestellungen",
+    "noOrders": "Keine Bestellungen",
+    "noOrdersDescription": "Es wurden noch keine Bestellungen aufgegeben",
+    "orderNumber": "Bestellung #{number}",
+    "orderCount": "{count, plural, =0 {Keine Bestellungen} =1 {1 Bestellung} other {# Bestellungen}}",
+    "customer": "Kunde",
+    "moreItems": "weitere",
+    "paid": "Bezahlt",
+    "status": {
+      "open": "Offen",
+      "in_progress": "In Bearbeitung",
+      "inProgress": "In Bearbeitung",
+      "ready": "Fertig",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert"
+    },
+    "paymentStatus": {
+      "unpaid": "Unbezahlt",
+      "partlyPaid": "Teilweise bezahlt",
+      "paid": "Bezahlt",
+      "refunded": "Erstattet"
+    },
+    "filters": {
+      "allStatuses": "Alle Status",
+      "allPayments": "Alle Zahlungen",
+      "allEvents": "Alle Events"
+    },
+    "columns": {
+      "orderNumber": "Bestellung",
+      "table": "Tisch",
+      "items": "Artikel",
+      "status": "Status",
+      "payment": "Zahlung",
+      "total": "Gesamt",
+      "createdAt": "Erstellt"
+    }
+  },
+  "device": {
+    "register": {
+      "title": "Gerät registrieren",
+      "subtitle": "Verbinden Sie dieses Gerät mit Ihrer Organisation",
+      "organizationSlug": "Organisations-Code",
+      "organizationSlugPlaceholder": "z.B. mein-verein",
+      "organizationSlugHint": "Der Code Ihrer Organisation (aus der URL)",
+      "deviceName": "Gerätename",
+      "deviceNamePlaceholder": "z.B. Kasse 1, Theke, Bar",
+      "submit": "Gerät registrieren",
+      "registering": "Registriere...",
+      "pendingTitle": "Warte auf Freigabe",
+      "pendingDescription": "Bitten Sie einen Administrator, dieses Gerät freizugeben.",
+      "organization": "Organisation",
+      "verificationCode": "Verifizierungscode",
+      "pendingHint": "Geben Sie diesen Code im Admin-Bereich ein, um das Gerät freizugeben.",
+      "cancel": "Registrierung abbrechen",
+      "verifiedTitle": "Gerät freigegeben",
+      "verifiedDescription": "Das Gerät wurde erfolgreich verifiziert.",
+      "redirecting": "Weiterleitung zur Kasse...",
+      "blockedTitle": "Gerät gesperrt",
+      "blockedDescription": "Dieses Gerät wurde gesperrt. Kontaktieren Sie einen Administrator.",
+      "tryAgain": "Erneut versuchen"
+    }
+  },
+  "devices": {
+    "title": "Geräte",
+    "description": "Verwalten Sie registrierte Geräte für Ihre Organisation",
+    "addDevice": "Gerät hinzufügen",
+    "noDevices": "Keine Geräte registriert",
+    "noDevicesDescription": "Registrieren Sie Geräte unter /device/register",
+    "deviceCount": "{count, plural, =0 {Keine Geräte} =1 {1 Gerät} other {# Geräte}}",
+    "status": {
+      "pending": "Ausstehend",
+      "verified": "Verifiziert",
+      "blocked": "Gesperrt"
+    },
+    "class": {
+      "pos": "Kasse",
+      "display_kitchen": "Küchendisplay",
+      "display_pickup": "Ausgabedisplay",
+      "admin": "Admin"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "class": "Typ",
+      "lastSeen": "Zuletzt aktiv",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "verify": "Freigeben",
+      "block": "Sperren",
+      "unblock": "Entsperren",
+      "delete": "Löschen"
+    },
+    "verifyDialog": {
+      "title": "Gerät freigeben",
+      "description": "Geben Sie den 6-stelligen Code ein, der auf dem Gerät angezeigt wird.",
+      "code": "Verifizierungscode",
+      "codePlaceholder": "000000",
+      "submit": "Gerät freigeben",
+      "invalidCode": "Ungültiger Verifizierungscode"
+    },
+    "deleteDialog": {
+      "title": "Gerät löschen",
+      "description": "Sind Sie sicher, dass Sie dieses Gerät löschen möchten? Das Gerät muss erneut registriert werden."
+    },
+    "registration": {
+      "title": "Neues Gerät registrieren",
+      "description": "Scannen Sie den QR-Code mit dem Gerät oder öffnen Sie den Link im Browser des Geräts.",
+      "link": "Registrierungslink",
+      "instructions": "So registrieren Sie ein neues Gerät:",
+      "step1": "Öffnen Sie den Link oder scannen Sie den QR-Code auf dem Gerät",
+      "step2": "Geben Sie einen Namen für das Gerät ein und bestätigen Sie",
+      "step3": "Geben Sie den angezeigten Code hier ein, um das Gerät freizugeben"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "broadcast": {
+      "title": "Nachricht senden",
+      "description": "Senden Sie eine Nachricht an alle verbundenen Geräte",
+      "message": "Nachricht",
+      "messagePlaceholder": "Nachricht eingeben...",
+      "messageType": "Typ",
+      "types": {
+        "info": "Info",
+        "warning": "Warnung",
+        "success": "Erfolg",
+        "error": "Fehler"
+      },
+      "send": "Senden",
+      "sending": "Wird gesendet...",
+      "success": "Nachricht gesendet",
+      "noDevicesOnline": "Keine Geräte online"
+    }
+  },
+  "errors": {
+    "notFound": "Seite nicht gefunden",
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Zugriff verweigert",
+    "serverError": "Serverfehler",
+    "networkError": "Netzwerkfehler",
+    "generic": "Etwas ist schiefgelaufen"
+  },
+  "shifts": {
+    "title": "Schichtpläne",
+    "description": "Erstelle und verwalte Schichtpläne für deine Events",
+    "createPlan": "Neuer Schichtplan",
+    "createFirstPlan": "Ersten Schichtplan erstellen",
+    "noPlans": "Keine Schichtpläne",
+    "noPlansDescription": "Erstelle deinen ersten Schichtplan, um Helfer für dein Event einzuteilen.",
+    "confirmDelete": "Möchtest du diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
+    "jobs": "{count, plural, =0 {keine Arbeiten} =1 {1 Arbeit} other {# Arbeiten}}",
+    "createdAt": "Erstellt am {date}",
+    "copyLink": "Link kopieren",
+    "exportPdf": "PDF Export",
+    "preview": "Vorschau",
+    "registrations": "Anmeldungen",
+    "status": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "closed": "Geschlossen"
+    },
+    "helperPlan": "Helferplanung",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z.B. Vereinsfest 2024 Schichtplan",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Öffentliche Beschreibung für Helfer...",
+      "event": "Event (optional)",
+      "eventPlaceholder": "Event auswählen...",
+      "eventHint": "Verknüpfe den Schichtplan mit einem Event, um Event-Daten zu nutzen."
+    },
+    "wizard": {
+      "title": "Schichten-Assistent",
+      "button": "Assistent",
+      "step": "Schritt {current} von {total}",
+      "selectDates": "Zeitraum wählen",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "eventDatesHint": "Event \"{name}\" ist verknüpft.",
+      "useEventDates": "Event-Datum übernehmen",
+      "daysCount": "{count, plural, =1 {1 Tag} other {# Tage}} ausgewählt",
+      "selectTimes": "Zeitfenster festlegen",
+      "timesDescription": "Wähle die tägliche Betriebszeit, in der Schichten stattfinden.",
+      "startTime": "Beginn",
+      "endTime": "Ende",
+      "totalHours": "{hours} Stunden pro Tag",
+      "configure": "Schichtverteilung",
+      "shiftsPerDay": "Schichten pro Tag",
+      "shiftDuration": "≈ {hours} Stunden pro Schicht",
+      "workersPerShift": "Helfer pro Schicht",
+      "overlap": "Schichtüberlappung",
+      "overlapDescription": "Zeit zur Einarbeitung/Übergabe zwischen den Schichten",
+      "noOverlap": "Keine",
+      "summary": "Zusammenfassung",
+      "summaryText": "{days} Tage × {shiftsPerDay} Schichten = {totalShifts} Schichten",
+      "preview": "Vorschau & Anpassen",
+      "selected": "ausgewählt",
+      "generatePreview": "Vorschau erstellen",
+      "createShifts": "{count, plural, =1 {1 Schicht} other {# Schichten}} erstellen"
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "requireApproval": "Bestätigung erforderlich",
+      "requireApprovalDescription": "Anmeldungen müssen vom Admin bestätigt werden",
+      "allowMultipleShifts": "Mehrere Schichten",
+      "allowMultipleShiftsDescription": "Helfer können sich für mehrere Schichten anmelden",
+      "reminderDays": "Erinnerung",
+      "reminderDaysDescription": "Tage vor der Schicht eine Erinnerung senden",
+      "maxShiftsPerPerson": "Max. Schichten pro Person",
+      "maxShiftsPerPersonDescription": "0 = unbegrenzt"
+    },
+    "editor": {
+      "jobs": "Arbeiten",
+      "addJob": "Arbeit hinzufügen",
+      "addShift": "Schicht hinzufügen",
+      "jobName": "Arbeit",
+      "jobNamePlaceholder": "z.B. Zapfen, Küche, Kasse",
+      "jobColor": "Farbe",
+      "shiftDate": "Datum",
+      "shiftStartTime": "Von",
+      "shiftEndTime": "Bis",
+      "requiredWorkers": "Benötigte Helfer",
+      "publish": "Veröffentlichen",
+      "close": "Schließen",
+      "noJobs": "Keine Arbeiten definiert",
+      "noJobsDescription": "Füge eine Arbeit hinzu, um Schichten zu erstellen.",
+      "noShifts": "Keine Schichten",
+      "noShiftsDescription": "Füge Schichten zu dieser Arbeit hinzu."
+    },
+    "calendar": {
+      "title": "Kalender",
+      "overview": "Übersicht",
+      "job": "Arbeit",
+      "noShifts": "Keine Schichten vorhanden",
+      "noRegistrations": "Keine Anmeldungen"
+    },
+    "registration": {
+      "title": "Anmeldungen",
+      "noRegistrations": "Keine Anmeldungen",
+      "noRegistrationsDescription": "Noch hat sich niemand angemeldet.",
+      "status": {
+        "pending_email": "E-Mail ausstehend",
+        "pending_approval": "Wartet auf Bestätigung",
+        "confirmed": "Bestätigt",
+        "rejected": "Abgelehnt",
+        "cancelled": "Storniert"
+      },
+      "approve": "Bestätigen",
+      "reject": "Ablehnen",
+      "sendMessage": "Nachricht senden",
+      "delete": "Löschen",
+      "confirmDelete": "Möchtest du diese Anmeldung wirklich löschen?",
+      "rejectReason": "Grund für Ablehnung (optional)",
+      "messagePlaceholder": "Nachricht an den Helfer..."
+    },
+    "public": {
+      "notFound": "Schichtplan nicht gefunden",
+      "notFoundDescription": "Der angeforderte Schichtplan existiert nicht oder wurde geschlossen.",
+      "listView": "Liste",
+      "calendarView": "Kalender",
+      "selected": "ausgewählt",
+      "full": "Voll",
+      "free": "frei",
+      "selectShifts": "Schichten auswählen",
+      "overlap": "Überschneidung",
+      "overlapsWith": "Überschneidet sich mit {job} ({time})",
+      "selectOne": "Wähle eine Schicht aus, für die du dich anmelden möchtest.",
+      "selectMultiple": "Wähle die Schichten aus, für die du dich anmelden möchtest.",
+      "selectMultipleMax": "Wähle bis zu {max} Schichten aus, für die du dich anmelden möchtest.",
+      "continue": "Weiter",
+      "backToSelection": "Zurück zur Auswahl",
+      "yourDetails": "Deine Daten",
+      "selectedShifts": "Ausgewählte Schichten",
+      "name": "Name",
+      "namePlaceholder": "Dein vollständiger Name",
+      "email": "E-Mail",
+      "emailPlaceholder": "deine@email.de",
+      "phone": "Telefon (optional)",
+      "phonePlaceholder": "+49 123 4567890",
+      "notes": "Anmerkungen (optional)",
+      "notesPlaceholder": "Besondere Hinweise oder Fragen...",
+      "emailHint": "Du erhältst eine E-Mail zur Bestätigung deiner Anmeldung.",
+      "register": "Anmelden",
+      "registrationSuccess": "Fast geschafft!",
+      "checkEmail": "Wir haben dir eine E-Mail geschickt. Bitte bestätige deine E-Mail-Adresse, um die Anmeldung abzuschließen.",
+      "registerMore": "Weitere Anmeldung",
+      "yourShifts": "Deine Schichten",
+      "addToGoogleCalendar": "In Google Kalender eintragen",
+      "downloadICS": "Alle als Kalenderdatei herunterladen"
+    },
+    "verify": {
+      "loading": "Verifizierung läuft...",
+      "pleaseWait": "Bitte warte einen Moment.",
+      "successTitle": "E-Mail bestätigt!",
+      "pendingApproval": "Deine Anmeldung wird nun geprüft. Du erhältst eine E-Mail, sobald sie bestätigt wurde.",
+      "confirmed": "Deine Schicht(en) sind bestätigt. Wir freuen uns auf dich!",
+      "errorTitle": "Verifizierung fehlgeschlagen",
+      "errorDescription": "Der Link ist ungültig oder bereits abgelaufen.",
+      "backToPlan": "Zurück zum Schichtplan"
+    }
+  }
+}
