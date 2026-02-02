@@ -10,6 +10,14 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
 
+  // Integrations
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+
   // Enable debug in development
   debug: process.env.NODE_ENV === 'development',
 

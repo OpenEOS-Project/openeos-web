@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - SENTRY_DSN=${SENTRY_DSN}
     networks:
       - frontend
     labels:

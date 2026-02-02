@@ -9,7 +9,7 @@ import { CheckCircle, AlertCircle, Tv01, Loading02 } from '@untitledui/icons';
 import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
-import { Select } from '@/components/ui/input/select';
+import { Select } from '@/components/ui/select/select';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, organizationsApi } from '@/lib/api-client';
 import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
