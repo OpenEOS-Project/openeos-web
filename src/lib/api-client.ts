@@ -664,6 +664,20 @@ export const devicesApi = {
       { skipAuth: true }
     ),
 
+  // Lookup pending device by verification code (public, no auth)
+  lookup: (code: string) =>
+    apiClient.get<ApiResponse<import('@/types/device').PendingDeviceLookup>>(
+      `/devices/lookup?code=${code}`,
+      { skipAuth: true }
+    ),
+
+  // Link a pending device to an organization (requires auth)
+  link: (data: import('@/types/device').LinkDeviceData) =>
+    apiClient.post<ApiResponse<import('@/types/device').Device>>(
+      '/devices/link',
+      data
+    ),
+
   // Device status check (uses device token)
   getStatus: () =>
     apiClient.get<ApiResponse<import('@/types/device').DeviceStatusResponse>>(

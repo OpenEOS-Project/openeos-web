@@ -974,8 +974,11 @@
     },
     "class": {
       "pos": "Kasse",
-      "display_kitchen": "Küchendisplay",
-      "display_pickup": "Ausgabedisplay",
+      "display_kitchen": "Küchen-Display",
+      "display_delivery": "Ausgabe-Display",
+      "display_menu": "Speisekarte",
+      "display_pickup": "Abholung",
+      "display_sales": "Kassen-Übersicht",
       "admin": "Admin"
     },
     "table": {
@@ -1030,6 +1033,29 @@
       "sending": "Wird gesendet...",
       "success": "Nachricht gesendet",
       "noDevicesOnline": "Keine Geräte online"
+    },
+    "verify": {
+      "title": "Gerät verknüpfen",
+      "enterCodeDescription": "Geben Sie den 6-stelligen Code vom TV ein",
+      "code": "Verifizierungscode",
+      "lookup": "Gerät suchen",
+      "deviceNotFound": "Gerät nicht gefunden oder bereits verknüpft",
+      "deviceFound": "Gerät gefunden",
+      "organization": "Organisation",
+      "selectOrganization": "Organisation wählen",
+      "deviceName": "Gerätename",
+      "deviceType": "Gerätetyp",
+      "link": "Verknüpfen",
+      "linkFailed": "Verknüpfung fehlgeschlagen",
+      "invalidCode": "Bitte geben Sie einen 6-stelligen Code ein",
+      "enterName": "Bitte geben Sie einen Namen ein",
+      "success": "Erfolgreich verknüpft!",
+      "successDescription": "Das Gerät wurde erfolgreich mit Ihrer Organisation verknüpft.",
+      "goToDashboard": "Zur Geräteübersicht",
+      "error": "Fehler",
+      "tryAgain": "Erneut versuchen",
+      "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
+      "login": "Anmelden"
     }
   },
   "errors": {

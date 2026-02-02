@@ -1,0 +1,26 @@
+services:
+  openeos-web:
+    image: ghcr.io/openeos-project/openeos-web:${IMAGE_TAG:-latest}
+    container_name: openeos-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openeos-web.rule=Host(`app.openeos.de`)"
+      - "traefik.http.routers.openeos-web.entrypoints=websecure"
+      - "traefik.http.routers.openeos-web.tls=true"
+      - "traefik.http.routers.openeos-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.openeos-web.loadbalancer.server.port=3000"
+      # Redirect HTTP to HTTPS
+      - "traefik.http.routers.openeos-web-http.rule=Host(`app.openeos.de`)"
+      - "traefik.http.routers.openeos-web-http.entrypoints=web"
+      - "traefik.http.routers.openeos-web-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+
+networks:
+  frontend:
+    external: true

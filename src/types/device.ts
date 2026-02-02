@@ -2,7 +2,7 @@
 export type DeviceStatus = 'pending' | 'verified' | 'blocked';
 
 // Device class/type
-export type DeviceClass = 'pos' | 'display_kitchen' | 'display_pickup' | 'admin';
+export type DeviceClass = 'pos' | 'display_kitchen' | 'display_delivery' | 'display_menu' | 'display_pickup' | 'display_sales' | 'admin';
 
 // Device entity
 export interface Device {
@@ -66,4 +66,21 @@ export interface UpdateDeviceClassData {
 // Query params
 export interface QueryDevicesParams {
   status?: DeviceStatus;
+}
+
+// Pending device lookup response (from /devices/lookup)
+export interface PendingDeviceLookup {
+  deviceId: string;
+  suggestedName: string | null;
+  userAgent: string | null;
+  deviceType: DeviceClass;
+  createdAt: string;
+}
+
+// Link device to organization data
+export interface LinkDeviceData {
+  code: string;
+  organizationId: string;
+  name?: string;
+  deviceType?: DeviceClass;
 }

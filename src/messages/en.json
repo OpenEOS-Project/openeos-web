@@ -975,7 +975,10 @@
     "class": {
       "pos": "POS",
       "display_kitchen": "Kitchen Display",
+      "display_delivery": "Delivery Display",
+      "display_menu": "Menu Display",
       "display_pickup": "Pickup Display",
+      "display_sales": "Sales Overview",
       "admin": "Admin"
     },
     "table": {
@@ -1030,6 +1033,29 @@
       "sending": "Sending...",
       "success": "Message sent",
       "noDevicesOnline": "No devices online"
+    },
+    "verify": {
+      "title": "Link Device",
+      "enterCodeDescription": "Enter the 6-digit code from the TV",
+      "code": "Verification Code",
+      "lookup": "Find Device",
+      "deviceNotFound": "Device not found or already linked",
+      "deviceFound": "Device Found",
+      "organization": "Organization",
+      "selectOrganization": "Select Organization",
+      "deviceName": "Device Name",
+      "deviceType": "Device Type",
+      "link": "Link",
+      "linkFailed": "Linking failed",
+      "invalidCode": "Please enter a 6-digit code",
+      "enterName": "Please enter a name",
+      "success": "Successfully Linked!",
+      "successDescription": "The device has been successfully linked to your organization.",
+      "goToDashboard": "Go to Devices",
+      "error": "Error",
+      "tryAgain": "Try Again",
+      "loginRequired": "Please sign in to continue",
+      "login": "Sign In"
     }
   },
   "errors": {
