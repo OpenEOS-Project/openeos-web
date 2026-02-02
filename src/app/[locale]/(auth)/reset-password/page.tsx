@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { ArrowLeft, CheckCircle, Lock01 } from '@untitledui/icons';
 
 import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
+import { FormInput } from '@/components/ui/input/form-input';
 import { authApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
 
@@ -127,7 +127,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
+            <FormInput
               label={t('password')}
               type="password"
               placeholder="********"
@@ -136,7 +136,7 @@ export default function ResetPasswordPage() {
               {...register('password')}
             />
 
-            <Input
+            <FormInput
               label={t('confirmPassword')}
               type="password"
               placeholder="********"

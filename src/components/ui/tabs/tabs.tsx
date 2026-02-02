@@ -93,7 +93,7 @@ interface TabListComponentProps<T extends object, K extends Orientation> extends
   size?: keyof typeof sizes;
   type?: TabTypeColors<K>;
   orientation?: K;
-  items: T[];
+  items?: T[];
   fullWidth?: boolean;
 }
 

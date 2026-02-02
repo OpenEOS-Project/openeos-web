@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { ArrowLeft, Mail01 } from '@untitledui/icons';
 
 import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
+import { FormInput } from '@/components/ui/input/form-input';
 import { authApi } from '@/lib/api-client';
 
 const forgotPasswordSchema = z.object({
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
+            <FormInput
               label={t('email')}
               type="email"
               placeholder="name@example.com"

@@ -22,6 +22,8 @@ export interface ShiftPlan {
   event?: {
     id: string;
     name: string;
+    startDate?: string;
+    endDate?: string;
   };
   jobs?: ShiftJob[];
 }

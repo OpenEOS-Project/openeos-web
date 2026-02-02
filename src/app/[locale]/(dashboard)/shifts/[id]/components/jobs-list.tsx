@@ -71,7 +71,7 @@ export function JobsList({ plan }: JobsListProps) {
     return (
       <>
         <EmptyState
-          icon="clipboard"
+          icon="users"
           title={t('shifts.editor.noJobs')}
           description={t('shifts.editor.noJobsDescription')}
           action={

@@ -78,9 +78,11 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           control={control}
           render={({ field }) => (
             <Input
-              {...field}
               label={t('shifts.form.name')}
               placeholder={t('shifts.form.namePlaceholder')}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
             />
           )}
         />
@@ -159,11 +161,11 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
                 {t('shifts.settings.maxShiftsPerPersonDescription')}
               </p>
               <Input
-                {...field}
                 type="number"
-                min={0}
                 className="w-32"
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                value={String(field.value)}
+                onChange={(value) => field.onChange(Math.max(0, parseInt(value) || 0))}
+                onBlur={field.onBlur}
               />
             </div>
           )}
@@ -181,12 +183,11 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
                 {t('shifts.settings.reminderDaysDescription')}
               </p>
               <Input
-                {...field}
                 type="number"
-                min={0}
-                max={30}
                 className="w-32"
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                value={String(field.value)}
+                onChange={(value) => field.onChange(Math.min(30, Math.max(0, parseInt(value) || 0)))}
+                onBlur={field.onBlur}
               />
             </div>
           )}

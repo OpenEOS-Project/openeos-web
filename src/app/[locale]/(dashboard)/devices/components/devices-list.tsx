@@ -36,7 +36,10 @@ const statusConfig: Record<DeviceStatus, { color: BadgeColors; icon: typeof Cloc
 const classLabels: Record<DeviceClass, string> = {
   pos: 'devices.class.pos',
   display_kitchen: 'devices.class.display_kitchen',
+  display_delivery: 'devices.class.display_delivery',
+  display_menu: 'devices.class.display_menu',
   display_pickup: 'devices.class.display_pickup',
+  display_sales: 'devices.class.display_sales',
   admin: 'devices.class.admin',
 };
 

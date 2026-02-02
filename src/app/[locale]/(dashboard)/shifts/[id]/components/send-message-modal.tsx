@@ -87,7 +87,7 @@ export function SendMessageModal({ open, registration, onClose }: SendMessageMod
 
                   <Textarea
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(value) => setMessage(value)}
                     placeholder={t('shifts.registration.messagePlaceholder')}
                     rows={4}
                   />

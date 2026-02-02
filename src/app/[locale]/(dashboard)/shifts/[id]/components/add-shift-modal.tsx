@@ -175,7 +175,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                         isInvalid={!!errors.requiredWorkers}
                         hint={errors.requiredWorkers?.message}
                         value={String(field.value)}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        onChange={(value) => field.onChange(parseInt(value) || 1)}
                         onBlur={field.onBlur}
                       />
                     )}

@@ -97,7 +97,7 @@ export default function ShiftsPage() {
 
       {plans.length === 0 ? (
         <EmptyState
-          icon="clipboard"
+          icon="calendar"
           title={t('shifts.noPlans')}
           description={t('shifts.noPlansDescription')}
           action={

@@ -318,7 +318,6 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
                         label={t('shifts.wizard.endDate')}
                         value={endDate}
                         onChange={(value) => setEndDate(value)}
-                        min={startDate}
                       />
                     </div>
 
@@ -386,9 +385,7 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
                       type="number"
                       label={t('shifts.wizard.shiftsPerDay')}
                       value={shiftsPerDay}
-                      onChange={setShiftsPerDay}
-                      min={1}
-                      max={10}
+                      onChange={(value) => setShiftsPerDay(String(Math.min(10, Math.max(1, parseInt(value) || 1))))}
                     />
 
                     {calculateShiftDuration > 0 && (
@@ -403,9 +400,7 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
                       type="number"
                       label={t('shifts.wizard.workersPerShift')}
                       value={workersPerShift}
-                      onChange={setWorkersPerShift}
-                      min={1}
-                      max={50}
+                      onChange={(value) => setWorkersPerShift(String(Math.min(50, Math.max(1, parseInt(value) || 1))))}
                     />
 
                     {/* Overlap selection */}

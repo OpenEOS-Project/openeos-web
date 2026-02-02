@@ -15,13 +15,26 @@ export function OrganizationPosSection() {
 
   const posSettings = currentOrganization?.organization?.settings?.pos;
 
+  const defaultPosSettings: {
+    requireTableNumber: boolean;
+    autoPrintReceipt: boolean;
+    soundEnabled: boolean;
+    orderingMode: 'immediate' | 'tab';
+  } = {
+    requireTableNumber: false,
+    autoPrintReceipt: false,
+    soundEnabled: true,
+    orderingMode: 'immediate',
+  };
+
   const updateSettings = useMutation({
-    mutationFn: async (settings: Partial<typeof posSettings>) => {
+    mutationFn: async (settings: Partial<typeof defaultPosSettings>) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, {
         settings: {
           ...currentOrganization.organization?.settings,
           pos: {
+            ...defaultPosSettings,
             ...posSettings,
             ...settings,
           },

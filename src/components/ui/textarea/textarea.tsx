@@ -11,7 +11,9 @@ import { HintText } from '@/components/ui/input/hint-text';
 import { Label } from '@/components/ui/input/label';
 import { cx } from '@/utils/cx';
 
-export interface TextareaProps extends Omit<AriaTextFieldProps, 'children'> {
+export interface TextareaProps extends Omit<AriaTextFieldProps, 'children' | 'className'> {
+  /** Additional CSS class name */
+  className?: string;
   /** Label text for the textarea */
   label?: string;
   /** Helper text displayed below the textarea */

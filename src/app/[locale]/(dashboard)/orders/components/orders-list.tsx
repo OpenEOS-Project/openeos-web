@@ -150,7 +150,7 @@ export function OrdersList() {
       {orders.length === 0 ? (
         <div className="p-6">
           <EmptyState
-            icon="shopping-cart"
+            icon="shopping-bag"
             title={t('orders.noOrders')}
             description={t('orders.noOrdersDescription')}
           />

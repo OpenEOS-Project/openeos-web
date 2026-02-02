@@ -63,7 +63,7 @@ export default function DeviceVerifyPage() {
   const lookupMutation = useMutation({
     mutationFn: (lookupCode: string) => devicesApi.lookup(lookupCode),
     onSuccess: (response) => {
-      const device = response.data.data;
+      const device = response.data;
       setPendingDevice(device);
       setDeviceName(device.suggestedName || 'TV Display');
       setDeviceType(device.deviceType || 'display_menu');
@@ -71,7 +71,7 @@ export default function DeviceVerifyPage() {
       setError(null);
     },
     onError: () => {
-      setError(t('verify.deviceNotFound', 'Gerät nicht gefunden oder bereits verknüpft'));
+      setError(t('verify.deviceNotFound'));
     },
   });
 
@@ -87,13 +87,13 @@ export default function DeviceVerifyPage() {
       setStep('success');
     },
     onError: () => {
-      setError(t('verify.linkFailed', 'Verknüpfung fehlgeschlagen'));
+      setError(t('verify.linkFailed'));
     },
   });
 
   const handleLookup = () => {
     if (code.length !== 6) {
-      setError(t('verify.invalidCode', 'Bitte geben Sie einen 6-stelligen Code ein'));
+      setError(t('verify.invalidCode'));
       return;
     }
     setError(null);
@@ -102,11 +102,11 @@ export default function DeviceVerifyPage() {
 
   const handleLink = () => {
     if (!selectedOrgId) {
-      setError(t('verify.selectOrganization', 'Bitte wählen Sie eine Organisation'));
+      setError(t('verify.selectOrganization'));
       return;
     }
     if (!deviceName.trim()) {
-      setError(t('verify.enterName', 'Bitte geben Sie einen Namen ein'));
+      setError(t('verify.enterName'));
       return;
     }
     setError(null);
@@ -125,13 +125,13 @@ export default function DeviceVerifyPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
             <Tv01 className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-primary">{t('verify.title', 'Gerät verknüpfen')}</h1>
-          <p className="mt-2 text-tertiary">{t('verify.loginRequired', 'Bitte melden Sie sich an, um fortzufahren')}</p>
+          <h1 className="text-2xl font-bold text-primary">{t('verify.title')}</h1>
+          <p className="mt-2 text-tertiary">{t('verify.loginRequired')}</p>
           <Button
             className="mt-6 w-full"
             onClick={() => router.push(`/login?redirect=/devices/verify${codeFromUrl ? `?code=${codeFromUrl}` : ''}`)}
           >
-            {t('verify.login', 'Anmelden')}
+            {t('verify.login')}
           </Button>
         </div>
       </div>
@@ -166,13 +166,13 @@ export default function DeviceVerifyPage() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
                 <Tv01 className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-primary">{t('verify.title', 'Gerät verknüpfen')}</h1>
-              <p className="mt-2 text-tertiary">{t('verify.enterCodeDescription', 'Geben Sie den 6-stelligen Code vom TV ein')}</p>
+              <h1 className="text-2xl font-bold text-primary">{t('verify.title')}</h1>
+              <p className="mt-2 text-tertiary">{t('verify.enterCodeDescription')}</p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="code">{t('verify.code', 'Verifizierungscode')}</Label>
+                <Label htmlFor="code">{t('verify.code')}</Label>
                 <Input
                   id="code"
                   value={code}
@@ -198,7 +198,7 @@ export default function DeviceVerifyPage() {
                 {lookupMutation.isPending ? (
                   <Loading02 className="h-5 w-5 animate-spin" />
                 ) : (
-                  t('verify.lookup', 'Gerät suchen')
+                  t('verify.lookup')
                 )}
               </Button>
             </div>
@@ -212,7 +212,7 @@ export default function DeviceVerifyPage() {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
                 <CheckCircle className="h-6 w-6 text-success-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-primary">{t('verify.deviceFound', 'Gerät gefunden')}</h2>
+              <h2 className="text-xl font-semibold text-primary">{t('verify.deviceFound')}</h2>
               <p className="mt-2 text-sm text-tertiary">
                 {pendingDevice.userAgent || 'OpenEOS TV'}
               </p>
@@ -222,23 +222,24 @@ export default function DeviceVerifyPage() {
               {/* Organization Select (if multiple) */}
               {organizations && organizations.length > 1 && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="organization">{t('verify.organization', 'Organisation')}</Label>
+                  <Label htmlFor="organization">{t('verify.organization')}</Label>
                   <Select
-                    id="organization"
-                    value={selectedOrgId}
-                    onChange={setSelectedOrgId}
-                    options={organizations.map((org) => ({
-                      value: org.organizationId,
-                      label: org.organizationName,
-                    }))}
-                    placeholder={t('verify.selectOrganization', 'Organisation wählen')}
-                  />
+                    selectedKey={selectedOrgId || null}
+                    onSelectionChange={(value) => setSelectedOrgId(value as string ?? '')}
+                    placeholder={t('verify.selectOrganization')}
+                  >
+                    {organizations.map((org) => (
+                      <Select.Item key={org.organizationId} id={org.organizationId}>
+                        {org.organization?.name ?? org.organizationId}
+                      </Select.Item>
+                    ))}
+                  </Select>
                 </div>
               )}
 
               {/* Device Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="deviceName">{t('verify.deviceName', 'Gerätename')}</Label>
+                <Label htmlFor="deviceName">{t('verify.deviceName')}</Label>
                 <Input
                   id="deviceName"
                   value={deviceName}
@@ -249,13 +250,17 @@ export default function DeviceVerifyPage() {
 
               {/* Device Type */}
               <div className="space-y-1.5">
-                <Label htmlFor="deviceType">{t('verify.deviceType', 'Gerätetyp')}</Label>
+                <Label htmlFor="deviceType">{t('verify.deviceType')}</Label>
                 <Select
-                  id="deviceType"
-                  value={deviceType}
-                  onChange={(value) => setDeviceType(value as DeviceClass)}
-                  options={DEVICE_TYPE_OPTIONS}
-                />
+                  selectedKey={deviceType}
+                  onSelectionChange={(value) => setDeviceType(value as DeviceClass)}
+                >
+                  {DEVICE_TYPE_OPTIONS.map((option) => (
+                    <Select.Item key={option.value} id={option.value}>
+                      {option.label}
+                    </Select.Item>
+                  ))}
+                </Select>
               </div>
 
               {error && (
@@ -283,7 +288,7 @@ export default function DeviceVerifyPage() {
                   {linkMutation.isPending ? (
                     <Loading02 className="h-5 w-5 animate-spin" />
                   ) : (
-                    t('verify.link', 'Verknüpfen')
+                    t('verify.link')
                   )}
                 </Button>
               </div>
@@ -297,10 +302,10 @@ export default function DeviceVerifyPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
               <CheckCircle className="h-6 w-6 text-success-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-primary">{t('verify.success', 'Erfolgreich verknüpft!')}</h2>
-            <p className="mt-2 text-tertiary">{t('verify.successDescription', 'Das Gerät wurde erfolgreich mit Ihrer Organisation verknüpft.')}</p>
+            <h2 className="text-xl font-semibold text-primary">{t('verify.success')}</h2>
+            <p className="mt-2 text-tertiary">{t('verify.successDescription')}</p>
             <Button className="mt-6 w-full" onClick={handleGoToDashboard}>
-              {t('verify.goToDashboard', 'Zur Geräteübersicht')}
+              {t('verify.goToDashboard')}
             </Button>
           </div>
         )}
@@ -311,7 +316,7 @@ export default function DeviceVerifyPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
               <AlertCircle className="h-6 w-6 text-error-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-primary">{t('verify.error', 'Fehler')}</h2>
+            <h2 className="text-xl font-semibold text-primary">{t('verify.error')}</h2>
             <p className="mt-2 text-tertiary">{error}</p>
             <Button
               color="secondary"
@@ -321,7 +326,7 @@ export default function DeviceVerifyPage() {
                 setError(null);
               }}
             >
-              {t('verify.tryAgain', 'Erneut versuchen')}
+              {t('verify.tryAgain')}
             </Button>
           </div>
         )}
