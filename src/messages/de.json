@@ -964,6 +964,7 @@
     "title": "Geräte",
     "description": "Verwalten Sie registrierte Geräte für Ihre Organisation",
     "addDevice": "Gerät hinzufügen",
+    "linkDevice": "Display verknüpfen",
     "noDevices": "Keine Geräte registriert",
     "noDevicesDescription": "Registrieren Sie Geräte unter /device/register",
     "deviceCount": "{count, plural, =0 {Keine Geräte} =1 {1 Gerät} other {# Geräte}}",

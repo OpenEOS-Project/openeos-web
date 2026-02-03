@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { DevicesList } from './components/devices-list';
 import { DeviceRegistrationInfo } from './components/device-registration-info';
+import { LinkDeviceButton } from './components/link-device-button';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('navigation');
@@ -21,9 +22,10 @@ export default async function DevicesPage() {
           <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
           <p className="mt-1 text-md text-tertiary">{t('description')}</p>
         </div>
+        <LinkDeviceButton />
       </div>
 
-      {/* Registration Info with QR Code */}
+      {/* Registration Info with QR Code (for POS devices) */}
       <DeviceRegistrationInfo />
 
       {/* Devices List */}

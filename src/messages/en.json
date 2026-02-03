@@ -964,6 +964,7 @@
     "title": "Devices",
     "description": "Manage registered devices for your organization",
     "addDevice": "Add Device",
+    "linkDevice": "Link Display",
     "noDevices": "No devices registered",
     "noDevicesDescription": "Register devices at /device/register",
     "deviceCount": "{count, plural, =0 {No devices} =1 {1 device} other {# devices}}",
