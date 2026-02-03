@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { Mail01, Tablet02 } from '@untitledui/icons';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/buttons/button';
 import { Checkbox } from '@/components/ui/checkbox/checkbox';
 import { Input } from '@/components/ui/input/input';
 import { Link } from '@/i18n/routing';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiClient, authApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
@@ -26,11 +26,22 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const t = useTranslations('auth.login');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { setUser, setOrganizations } = useAuthStore();
+  const { setUser, setOrganizations, isAuthenticated, isLoading: isAuthLoading } = useAuthStore();
+
+  // Get redirect URL from query params (set by AuthGuard)
+  const redirectUrl = searchParams.get('redirect') || '/dashboard';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.replace(decodeURIComponent(redirectUrl));
+    }
+  }, [isAuthLoading, isAuthenticated, router, redirectUrl]);
 
   const {
     control,
@@ -69,8 +80,8 @@ export function LoginForm() {
       setUser(response.data.user);
       setOrganizations(response.data.user.userOrganizations || []);
 
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      // Redirect to original destination or dashboard
+      window.location.href = decodeURIComponent(redirectUrl);
     } catch (err) {
       if (err instanceof ApiException) {
         switch (err.code) {
