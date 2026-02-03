@@ -1003,14 +1003,14 @@ export const shiftsPublicApi = {
 export const setupApi = {
   // Check if setup is required
   getStatus: () =>
-    apiClient.get<import('@/types/setup').SetupStatus>(
+    apiClient.get<ApiResponse<import('@/types/setup').SetupStatus>>(
       '/setup/status',
       { skipAuth: true }
     ),
 
   // Complete initial setup (create first admin + organization)
   complete: (data: import('@/types/setup').CompleteSetupData) =>
-    apiClient.post<import('@/types/setup').SetupResponse>(
+    apiClient.post<ApiResponse<import('@/types/setup').SetupResponse>>(
       '/setup',
       data,
       { skipAuth: true }

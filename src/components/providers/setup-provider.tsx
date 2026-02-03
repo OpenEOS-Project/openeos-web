@@ -36,8 +36,8 @@ export function SetupProvider({ children }: SetupProviderProps) {
 
   const fetchSetupStatus = async () => {
     try {
-      // API returns { required: boolean, reason?: string } directly (no data wrapper)
-      const status = await setupApi.getStatus();
+      const response = await setupApi.getStatus();
+      const status = response.data;
       setSetupStatus(status);
       return status;
     } catch (error) {
