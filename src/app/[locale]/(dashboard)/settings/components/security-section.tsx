@@ -67,7 +67,9 @@ export function SecuritySection() {
   const handleStartTotpSetup = async () => {
     try {
       const result = await setupTotp.mutateAsync();
-      setTotpSetupData(result);
+      // Handle both wrapped and unwrapped response formats
+      const data = result?.qrCodeDataUrl ? result : (result as any)?.data;
+      setTotpSetupData(data);
       setSetupStep('totp-scan');
     } catch {
       // Error handling
@@ -86,7 +88,9 @@ export function SecuritySection() {
   const handleVerifyTotp = async () => {
     try {
       const result = await verifyTotpSetup.mutateAsync(verificationCode);
-      setRecoveryCodes(result.recoveryCodes);
+      // Handle both wrapped and unwrapped response formats
+      const codes = result?.recoveryCodes || (result as any)?.data?.recoveryCodes || [];
+      setRecoveryCodes(codes);
       setSetupStep('recovery-codes');
       setVerificationCode('');
     } catch {
@@ -97,7 +101,9 @@ export function SecuritySection() {
   const handleVerifyEmailOtp = async () => {
     try {
       const result = await verifyEmailOtpSetup.mutateAsync(verificationCode);
-      setRecoveryCodes(result.recoveryCodes);
+      // Handle both wrapped and unwrapped response formats
+      const codes = result?.recoveryCodes || (result as any)?.data?.recoveryCodes || [];
+      setRecoveryCodes(codes);
       setSetupStep('recovery-codes');
       setVerificationCode('');
     } catch {
@@ -443,11 +449,15 @@ export function SecuritySection() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 p-4 bg-secondary rounded-lg">
-                {recoveryCodes.map((code, index) => (
-                  <code key={index} className="text-sm font-mono text-primary">
-                    {code}
-                  </code>
-                ))}
+                {recoveryCodes && recoveryCodes.length > 0 ? (
+                  recoveryCodes.map((code, index) => (
+                    <code key={index} className="text-sm font-mono text-primary">
+                      {code}
+                    </code>
+                  ))
+                ) : (
+                  <p className="col-span-2 text-sm text-tertiary">{t('twoFactor.noRecoveryCodes')}</p>
+                )}
               </div>
 
               <Button

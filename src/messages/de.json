@@ -1227,10 +1227,30 @@
   },
   "setup": {
     "title": "Willkommen bei OpenEOS",
-    "description": "Richte deinen Admin-Account und deine erste Organisation ein.",
     "submit": "Einrichtung abschließen",
+    "modeSelect": {
+      "description": "Wähle den Betriebsmodus für deine Installation.",
+      "single": {
+        "title": "Einzelbetrieb",
+        "description": "Für einen einzelnen Verein oder eine Organisation. Unbegrenzte Credits, keine Abrechnung."
+      },
+      "multi": {
+        "title": "Multi-Mandanten (SaaS)",
+        "description": "Für mehrere Organisationen mit Credit-System und Abrechnung."
+      }
+    },
+    "form": {
+      "back": "Zurück",
+      "single": {
+        "subtitle": "Erstelle Admin-Account und Organisation"
+      },
+      "multi": {
+        "subtitle": "Erstelle Super-Admin Account"
+      }
+    },
     "admin": {
       "sectionTitle": "Administrator",
+      "superAdminTitle": "Super-Administrator",
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail-Adresse",

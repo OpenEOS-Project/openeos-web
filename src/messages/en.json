@@ -1227,10 +1227,30 @@
   },
   "setup": {
     "title": "Welcome to OpenEOS",
-    "description": "Set up your admin account and first organization.",
     "submit": "Complete Setup",
+    "modeSelect": {
+      "description": "Choose the operating mode for your installation.",
+      "single": {
+        "title": "Single Organization",
+        "description": "For a single club or organization. Unlimited credits, no billing."
+      },
+      "multi": {
+        "title": "Multi-Tenant (SaaS)",
+        "description": "For multiple organizations with credit system and billing."
+      }
+    },
+    "form": {
+      "back": "Back",
+      "single": {
+        "subtitle": "Create admin account and organization"
+      },
+      "multi": {
+        "subtitle": "Create super admin account"
+      }
+    },
     "admin": {
       "sectionTitle": "Administrator",
+      "superAdminTitle": "Super Administrator",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email Address",
