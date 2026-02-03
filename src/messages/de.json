@@ -1224,5 +1224,31 @@
       "errorDescription": "Der Link ist ungültig oder bereits abgelaufen.",
       "backToPlan": "Zurück zum Schichtplan"
     }
+  },
+  "setup": {
+    "title": "Willkommen bei OpenEOS",
+    "description": "Richte deinen Admin-Account und deine erste Organisation ein.",
+    "submit": "Einrichtung abschließen",
+    "admin": {
+      "sectionTitle": "Administrator",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "passwordHint": "Mind. 8 Zeichen, Groß-/Kleinbuchstaben und Zahl",
+      "passwordConfirm": "Passwort bestätigen"
+    },
+    "organization": {
+      "sectionTitle": "Organisation",
+      "name": "Name der Organisation",
+      "namePlaceholder": "z.B. Mein Verein e.V."
+    },
+    "complete": {
+      "title": "Einrichtung abgeschlossen!",
+      "description": "Du wirst zur Anmeldung weitergeleitet..."
+    },
+    "errors": {
+      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut."
+    }
   }
 }

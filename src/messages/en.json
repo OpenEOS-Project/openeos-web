@@ -1224,5 +1224,31 @@
       "errorDescription": "The link is invalid or has expired.",
       "backToPlan": "Back to Shift Plan"
     }
+  },
+  "setup": {
+    "title": "Welcome to OpenEOS",
+    "description": "Set up your admin account and first organization.",
+    "submit": "Complete Setup",
+    "admin": {
+      "sectionTitle": "Administrator",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "passwordHint": "Min. 8 characters, upper/lowercase and number",
+      "passwordConfirm": "Confirm Password"
+    },
+    "organization": {
+      "sectionTitle": "Organization",
+      "name": "Organization Name",
+      "namePlaceholder": "e.g. My Club Inc."
+    },
+    "complete": {
+      "title": "Setup Complete!",
+      "description": "You'll be redirected to login..."
+    },
+    "errors": {
+      "setupFailed": "Setup failed. Please try again."
+    }
   }
 }

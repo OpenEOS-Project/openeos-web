@@ -997,3 +997,21 @@ export const shiftsPublicApi = {
       planSlug: string;
     }>>(`/public/shifts/verify/${token}`, { skipAuth: true }),
 };
+
+// Setup API (Initial setup, no auth required)
+export const setupApi = {
+  // Check if setup is required
+  getStatus: () =>
+    apiClient.get<import('@/types/setup').SetupStatus>(
+      '/setup/status',
+      { skipAuth: true }
+    ),
+
+  // Complete initial setup (create first admin + organization)
+  complete: (data: import('@/types/setup').CompleteSetupData) =>
+    apiClient.post<import('@/types/setup').SetupResponse>(
+      '/setup',
+      data,
+      { skipAuth: true }
+    ),
+};
