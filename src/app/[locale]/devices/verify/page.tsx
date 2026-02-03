@@ -16,13 +16,13 @@ import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
 
 type Step = 'enter-code' | 'configure' | 'success' | 'error';
 
-const DEVICE_TYPE_OPTIONS: { value: DeviceClass; label: string }[] = [
-  { value: 'display_menu', label: 'Speisekarte' },
-  { value: 'display_kitchen', label: 'Küchen-Display' },
-  { value: 'display_delivery', label: 'Ausgabe-Display' },
-  { value: 'display_pickup', label: 'Abholung' },
-  { value: 'display_sales', label: 'Kassen-Übersicht' },
-  { value: 'pos', label: 'Kasse' },
+const DEVICE_TYPE_VALUES: DeviceClass[] = [
+  'display_menu',
+  'display_kitchen',
+  'display_delivery',
+  'display_pickup',
+  'display_sales',
+  'pos',
 ];
 
 export default function DeviceVerifyPage() {
@@ -255,9 +255,9 @@ export default function DeviceVerifyPage() {
                   selectedKey={deviceType}
                   onSelectionChange={(value) => setDeviceType(value as DeviceClass)}
                 >
-                  {DEVICE_TYPE_OPTIONS.map((option) => (
-                    <Select.Item key={option.value} id={option.value}>
-                      {option.label}
+                  {DEVICE_TYPE_VALUES.map((type) => (
+                    <Select.Item key={type} id={type}>
+                      {t(`class.${type}`)}
                     </Select.Item>
                   ))}
                 </Select>

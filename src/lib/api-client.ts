@@ -657,7 +657,15 @@ export const adminApi = {
 
 // Devices API
 export const devicesApi = {
-  // Public device registration (no auth required)
+  // Initialize device (public - for TV apps, no organization required)
+  init: (data: import('@/types/device').InitDeviceData) =>
+    apiClient.post<ApiResponse<import('@/types/device').InitDeviceResponse>>(
+      '/devices/init',
+      data,
+      { skipAuth: true }
+    ),
+
+  // Legacy: Public device registration with organization (for POS devices)
   register: (data: import('@/types/device').RegisterDeviceData) =>
     apiClient.post<ApiResponse<import('@/types/device').DeviceRegistrationResponse>>(
       '/devices/register',
@@ -672,28 +680,28 @@ export const devicesApi = {
       { skipAuth: true }
     ),
 
-  // Link a pending device to an organization (requires auth)
+  // Link a pending device to an organization (requires JWT auth)
   link: (data: import('@/types/device').LinkDeviceData) =>
     apiClient.post<ApiResponse<import('@/types/device').Device>>(
       '/devices/link',
       data
     ),
 
-  // Device status check (uses device token)
+  // Device status check (public, uses X-Device-Token header)
   getStatus: () =>
     apiClient.get<ApiResponse<import('@/types/device').DeviceStatusResponse>>(
       '/devices/status',
       { useDeviceAuth: true }
     ),
 
-  // Get current device info (authenticated device)
+  // Get current device info (public, uses X-Device-Token header)
   getMe: () =>
     apiClient.get<ApiResponse<import('@/types/device').DeviceInfo>>(
       '/devices/me',
       { useDeviceAuth: true }
     ),
 
-  // Device logout
+  // Device logout (uses X-Device-Token header)
   logout: () =>
     apiClient.post<ApiResponse<void>>(
       '/devices/logout',

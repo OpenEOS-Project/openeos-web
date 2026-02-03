@@ -27,7 +27,10 @@ interface DeviceState {
 }
 
 interface DeviceActions {
-  // Registration
+  // Initialization (for TV apps - no organization required)
+  init: (suggestedName?: string, deviceType?: DeviceClass) => Promise<void>;
+
+  // Legacy Registration (for POS devices - requires organization slug)
   register: (name: string, organizationSlug: string) => Promise<void>;
 
   // Status polling
@@ -66,7 +69,41 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       isPolling: false,
       error: null,
 
-      // Register device
+      // Initialize device (for TV apps - no organization required)
+      init: async (suggestedName?: string, deviceType?: DeviceClass) => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await devicesApi.init({
+            suggestedName,
+            deviceType,
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+          });
+
+          const data = response.data;
+
+          // Store device token in api client
+          apiClient.setDeviceToken(data.deviceToken);
+
+          set({
+            deviceId: data.deviceId,
+            deviceToken: data.deviceToken,
+            verificationCode: data.verificationCode,
+            deviceName: suggestedName || null,
+            deviceClass: deviceType || null,
+            status: 'pending',
+            isLoading: false,
+          });
+        } catch (error) {
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'Initialization failed',
+          });
+          throw error;
+        }
+      },
+
+      // Legacy: Register device (for POS devices - requires organization slug)
       register: async (name: string, organizationSlug: string) => {
         set({ isLoading: true, error: null });
 

@@ -21,15 +21,21 @@ export interface Device {
   updatedAt: string;
 }
 
-// Registration response (from device perspective)
-export interface DeviceRegistrationResponse {
+// Init device data (for TV apps - public endpoint, no org required)
+export interface InitDeviceData {
+  suggestedName?: string;
+  userAgent?: string;
+  deviceType?: DeviceClass;
+}
+
+// Init device response
+export interface InitDeviceResponse {
   deviceId: string;
   deviceToken: string;
   verificationCode: string;
-  organizationName: string;
 }
 
-// Device status response
+// Device status response (for polling)
 export interface DeviceStatusResponse {
   status: DeviceStatus;
   deviceId: string;
@@ -38,7 +44,7 @@ export interface DeviceStatusResponse {
   deviceClass?: DeviceClass;
 }
 
-// Device info (authenticated device)
+// Device info (authenticated device - GET /devices/me)
 export interface DeviceInfo {
   id: string;
   name: string;
@@ -48,11 +54,19 @@ export interface DeviceInfo {
   status: DeviceStatus;
 }
 
-// DTOs
+// DTOs - Legacy (kept for compatibility with POS device flow)
 export interface RegisterDeviceData {
   name: string;
   organizationSlug: string;
   userAgent?: string;
+}
+
+// Registration response - Legacy (kept for compatibility)
+export interface DeviceRegistrationResponse {
+  deviceId: string;
+  deviceToken: string;
+  verificationCode: string;
+  organizationName: string;
 }
 
 export interface VerifyDeviceData {
