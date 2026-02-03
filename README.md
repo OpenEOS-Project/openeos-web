@@ -131,8 +131,6 @@ Folgende Werte müssen im GitHub Repository konfiguriert werden:
 | `SENTRY_ORG` | `openeos` | Sentry Organisations-Slug |
 | `SENTRY_PROJECT` | `openeos-web` | Sentry Projekt-Slug |
 
-> **Hinweis:** `GITHUB_TOKEN` wird automatisch von GitHub bereitgestellt.
-
 ### Image Tags
 
 Das CI erstellt automatisch folgende Tags:
