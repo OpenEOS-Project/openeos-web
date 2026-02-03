@@ -1,6 +1,7 @@
 import { ApiException, type ApiError, type ApiResponse } from '@/types/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = `${API_BASE}/api`;
 const TOKEN_STORAGE_KEY = 'openeos-access-token';
 const DEVICE_TOKEN_STORAGE_KEY = 'openeos-device-token';
 
@@ -435,7 +436,7 @@ export const userSettingsApi = {
   uploadAvatar: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/users/me/avatar`, {
+    const response = await fetch(`${API_URL}/users/me/avatar`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiClient.getAccessToken()}`,
@@ -854,7 +855,7 @@ export const shiftsApi = {
     ),
 
   exportPdfUrl: (organizationId: string, planId: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/organizations/${organizationId}/shift-plans/${planId}/export/pdf`,
+    `${API_URL}/organizations/${organizationId}/shift-plans/${planId}/export/pdf`,
 
   // Jobs
   listJobs: (organizationId: string, planId: string) =>
