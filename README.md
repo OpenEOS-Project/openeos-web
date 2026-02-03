@@ -149,10 +149,6 @@ Das CI erstellt automatisch folgende Tags:
 docker pull ghcr.io/openeos-project/openeos-web:latest
 ```
 
-## Dokumentation
-
-Siehe [PLAN/05-FRONTEND.md](../PLAN/05-FRONTEND.md)
-
 ## License
 
 AGPLv3
