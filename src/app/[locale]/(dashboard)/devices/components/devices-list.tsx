@@ -13,6 +13,11 @@ import {
   Shield01,
   RefreshCw01,
   Send01,
+  Tv01,
+  Edit05,
+  Monitor01,
+  ShoppingCart01,
+  Settings01,
 } from '@untitledui/icons';
 import { Button } from '@/components/ui/buttons/button';
 import { Badge } from '@/components/ui/badges/badges';
@@ -24,6 +29,8 @@ import { formatDate } from '@/utils/format';
 import { VerifyDeviceDialog } from './verify-device-dialog';
 import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
+import { LinkDeviceModal } from './link-device-modal';
+import { EditDeviceDialog } from './edit-device-dialog';
 import type { Device, DeviceStatus, DeviceClass } from '@/types/device';
 import type { BadgeColors } from '@/components/ui/badges/badge-types';
 
@@ -40,7 +47,20 @@ const classLabels: Record<DeviceClass, string> = {
   display_menu: 'devices.class.display_menu',
   display_pickup: 'devices.class.display_pickup',
   display_sales: 'devices.class.display_sales',
+  display_customer: 'devices.class.display_customer',
   admin: 'devices.class.admin',
+};
+
+// Icon and color config for device classes
+const classConfig: Record<DeviceClass, { icon: typeof Tablet02; color: string }> = {
+  pos: { icon: ShoppingCart01, color: 'bg-brand-primary/10 text-brand-primary' },
+  display_kitchen: { icon: Monitor01, color: 'bg-warning-primary/10 text-warning-primary' },
+  display_delivery: { icon: Monitor01, color: 'bg-success-primary/10 text-success-primary' },
+  display_menu: { icon: Tv01, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' },
+  display_pickup: { icon: Monitor01, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
+  display_sales: { icon: Tv01, color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400' },
+  display_customer: { icon: Tv01, color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400' },
+  admin: { icon: Settings01, color: 'bg-tertiary text-primary' },
 };
 
 export function DevicesList() {
@@ -51,7 +71,9 @@ export function DevicesList() {
 
   const [verifyDevice, setVerifyDevice] = useState<Device | null>(null);
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
+  const [editDevice, setEditDevice] = useState<Device | null>(null);
   const [showBroadcast, setShowBroadcast] = useState(false);
+  const [showLinkDevice, setShowLinkDevice] = useState(false);
 
   const { data: devicesData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['devices', organizationId],
@@ -110,6 +132,13 @@ export function DevicesList() {
         </p>
         <div className="flex items-center gap-2">
           <Button
+            size="sm"
+            onClick={() => setShowLinkDevice(true)}
+            iconLeading={Tv01}
+          >
+            {t('devices.linkDevice')}
+          </Button>
+          <Button
             color="secondary"
             size="sm"
             onClick={() => setShowBroadcast(true)}
@@ -152,16 +181,18 @@ export function DevicesList() {
           </thead>
           <tbody className="divide-y divide-secondary bg-primary">
             {devices.map((device) => {
-              const config = statusConfig[device.status];
-              const StatusIcon = config.icon;
+              const statusCfg = statusConfig[device.status];
+              const StatusIcon = statusCfg.icon;
               const isOnline = onlineDeviceIds.has(device.id);
+              const classCfg = device.deviceClass ? classConfig[device.deviceClass] : null;
+              const DeviceIcon = classCfg?.icon || Tablet02;
 
               return (
                 <tr key={device.id} className="hover:bg-secondary/50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-                        <Tablet02 className="h-5 w-5 text-tertiary" />
+                      <div className={`relative flex h-10 w-10 items-center justify-center rounded-lg ${classCfg?.color || 'bg-secondary text-tertiary'}`}>
+                        <DeviceIcon className="h-5 w-5" />
                         {/* Online indicator */}
                         <span
                           className={`absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-primary ${
@@ -186,7 +217,7 @@ export function DevicesList() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge color={config.color} size="sm">
+                    <Badge color={statusCfg.color} size="sm">
                       <StatusIcon className="mr-1 h-3 w-3" />
                       {t(`devices.status.${device.status}`)}
                     </Badge>
@@ -206,6 +237,11 @@ export function DevicesList() {
                       <Dropdown.DotsButton />
                       <Dropdown.Popover placement="bottom end">
                         <Dropdown.Menu>
+                          <Dropdown.Item
+                            onAction={() => setEditDevice(device)}
+                            icon={Edit05}
+                            label={t('devices.actions.edit')}
+                          />
                           {device.status === 'pending' && (
                             <Dropdown.Item
                               onAction={() => setVerifyDevice(device)}
@@ -267,6 +303,19 @@ export function DevicesList() {
         <BroadcastDialog
           onClose={() => setShowBroadcast(false)}
           onlineDeviceCount={onlineDeviceIds.size}
+        />
+      )}
+
+      {/* Link Device Modal */}
+      {showLinkDevice && (
+        <LinkDeviceModal onClose={() => setShowLinkDevice(false)} />
+      )}
+
+      {/* Edit Device Dialog */}
+      {editDevice && (
+        <EditDeviceDialog
+          device={editDevice}
+          onClose={() => setEditDevice(null)}
         />
       )}
     </>

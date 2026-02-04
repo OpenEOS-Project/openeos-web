@@ -2,7 +2,7 @@
 export type DeviceStatus = 'pending' | 'verified' | 'blocked';
 
 // Device class/type
-export type DeviceClass = 'pos' | 'display_kitchen' | 'display_delivery' | 'display_menu' | 'display_pickup' | 'display_sales' | 'admin';
+export type DeviceClass = 'pos' | 'display_kitchen' | 'display_delivery' | 'display_menu' | 'display_pickup' | 'display_sales' | 'display_customer' | 'admin';
 
 // Device entity
 export interface Device {

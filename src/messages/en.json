@@ -980,6 +980,7 @@
       "display_menu": "Menu Display",
       "display_pickup": "Pickup Display",
       "display_sales": "Sales Overview",
+      "display_customer": "Customer Display",
       "admin": "Admin"
     },
     "table": {
@@ -990,6 +991,7 @@
       "actions": "Actions"
     },
     "actions": {
+      "edit": "Edit",
       "verify": "Approve",
       "block": "Block",
       "unblock": "Unblock",
@@ -1006,6 +1008,16 @@
     "deleteDialog": {
       "title": "Delete Device",
       "description": "Are you sure you want to delete this device? The device will need to be registered again."
+    },
+    "edit": {
+      "title": "Edit Device",
+      "description": "Change the name and type of the device",
+      "name": "Device Name",
+      "namePlaceholder": "e.g. Kitchen Display 1",
+      "type": "Device Type",
+      "typeChangeWarning": "The device needs to reconnect after a type change.",
+      "nameRequired": "Please enter a name",
+      "failed": "Update failed"
     },
     "registration": {
       "title": "Register New Device",

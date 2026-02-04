@@ -22,7 +22,9 @@ const DEVICE_TYPE_VALUES: DeviceClass[] = [
   'display_delivery',
   'display_pickup',
   'display_sales',
+  'display_customer',
   'pos',
+  'admin',
 ];
 
 export default function DeviceVerifyPage() {

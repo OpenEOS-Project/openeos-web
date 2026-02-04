@@ -980,6 +980,7 @@
       "display_menu": "Speisekarte",
       "display_pickup": "Abholung",
       "display_sales": "Kassen-Übersicht",
+      "display_customer": "Kunden-Display",
       "admin": "Admin"
     },
     "table": {
@@ -990,6 +991,7 @@
       "actions": "Aktionen"
     },
     "actions": {
+      "edit": "Bearbeiten",
       "verify": "Freigeben",
       "block": "Sperren",
       "unblock": "Entsperren",
@@ -1006,6 +1008,16 @@
     "deleteDialog": {
       "title": "Gerät löschen",
       "description": "Sind Sie sicher, dass Sie dieses Gerät löschen möchten? Das Gerät muss erneut registriert werden."
+    },
+    "edit": {
+      "title": "Gerät bearbeiten",
+      "description": "Name und Typ des Geräts ändern",
+      "name": "Gerätename",
+      "namePlaceholder": "z.B. Küchen-Display 1",
+      "type": "Gerätetyp",
+      "typeChangeWarning": "Das Gerät muss sich nach der Typ-Änderung neu verbinden.",
+      "nameRequired": "Bitte geben Sie einen Namen ein",
+      "failed": "Aktualisierung fehlgeschlagen"
     },
     "registration": {
       "title": "Neues Gerät registrieren",

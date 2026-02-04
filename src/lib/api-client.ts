@@ -14,6 +14,8 @@ class ApiClient {
   private accessToken: string | null = null;
   private deviceToken: string | null = null;
   private initialized = false;
+  private isRefreshing = false;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor() {
     // Initialize token from localStorage on client side
@@ -114,7 +116,44 @@ class ApiClient {
     }
   }
 
-  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  // Attempt to refresh the access token
+  private async refreshAccessToken(): Promise<boolean> {
+    // If already refreshing, wait for that to complete
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        const response = await fetch(`${API_URL}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // Important: send cookies with the request
+        });
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const data = await response.json();
+        if (data?.data?.accessToken) {
+          this.setAccessToken(data.data.accessToken);
+          return true;
+        }
+        return false;
+      } catch {
+        return false;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
+  private async request<T>(endpoint: string, options: RequestOptions = {}, isRetry = false): Promise<T> {
     const { skipAuth = false, useDeviceAuth = false, ...fetchOptions } = options;
 
     // Ensure token is initialized before making request
@@ -150,8 +189,20 @@ class ApiClient {
           if (typeof window !== 'undefined') {
             window.location.href = '/device/register';
           }
+        } else if (!isRetry) {
+          // For user auth, try to refresh the token first
+          const refreshed = await this.refreshAccessToken();
+          if (refreshed) {
+            // Retry the original request with the new token
+            return this.request<T>(endpoint, options, true);
+          }
+          // Refresh failed, redirect to login
+          this.clearAccessToken();
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
         } else {
-          // For user auth, clear access token and redirect to login
+          // Already retried, redirect to login
           this.clearAccessToken();
           if (typeof window !== 'undefined') {
             window.location.href = '/login';
@@ -734,7 +785,14 @@ export const devicesApi = {
       `/organizations/${organizationId}/devices/${deviceId}/unblock`
     ),
 
-  // Admin: Update device class
+  // Admin: Update device
+  update: (organizationId: string, deviceId: string, data: { name?: string; type?: import('@/types/device').DeviceClass; isActive?: boolean; settings?: Record<string, unknown> }) =>
+    apiClient.patch<ApiResponse<import('@/types/device').Device>>(
+      `/organizations/${organizationId}/devices/${deviceId}`,
+      data
+    ),
+
+  // Admin: Update device class (legacy)
   updateClass: (organizationId: string, deviceId: string, data: import('@/types/device').UpdateDeviceClassData) =>
     apiClient.put<ApiResponse<import('@/types/device').Device>>(
       `/organizations/${organizationId}/devices/${deviceId}/class`,
