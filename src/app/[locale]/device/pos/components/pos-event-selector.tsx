@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Calendar } from '@untitledui/icons';
 import type { Event } from '@/types/event';
 
@@ -14,6 +15,8 @@ export function PosEventSelector({
   selectedEventId,
   onSelectEvent,
 }: PosEventSelectorProps) {
+  const t = useTranslations('pos');
+
   if (events.length === 0) {
     return (
       <div className="flex items-center gap-2 text-sm text-tertiary">
@@ -28,6 +31,16 @@ export function PosEventSelector({
       <div className="flex items-center gap-2 text-sm text-primary">
         <Calendar className="h-4 w-4 text-tertiary" />
         <span>{events[0].name}</span>
+        {events[0].status === 'draft' && (
+          <span className="rounded-full bg-warning-secondary px-2 py-0.5 text-xs font-medium text-warning-primary">
+            {t('testBadge')}
+          </span>
+        )}
+        {events[0].status === 'scheduled' && (
+          <span className="rounded-full bg-brand-secondary px-2 py-0.5 text-xs font-medium text-brand-primary">
+            {t('scheduledBadge')}
+          </span>
+        )}
       </div>
     );
   }
@@ -42,7 +55,7 @@ export function PosEventSelector({
       >
         {events.map((event) => (
           <option key={event.id} value={event.id}>
-            {event.name}
+            {event.name}{event.status === 'draft' ? ` (${t('testBadge')})` : event.status === 'scheduled' ? ` (${t('scheduledBadge')})` : ''}
           </option>
         ))}
       </select>

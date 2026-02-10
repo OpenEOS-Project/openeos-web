@@ -11,6 +11,7 @@ import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
 import { OrganizationBillingSection } from './organization-billing-section';
 import { OrganizationPosSection } from './organization-pos-section';
+import { OrganizationSumupSection } from './organization-sumup-section';
 import { useAuthStore } from '@/stores/auth-store';
 
 interface SettingsTab {
@@ -37,6 +38,7 @@ export function SettingsContainer() {
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
     { id: 'org-billing', label: t('organizationBilling.title'), children: <OrganizationBillingSection /> },
     { id: 'org-pos', label: t('organizationPos.title'), children: <OrganizationPosSection /> },
+    { id: 'org-sumup', label: t('organizationSumup.title'), children: <OrganizationSumupSection /> },
   ];
 
   // Super-admins don't see organization tab
@@ -50,7 +52,7 @@ export function SettingsContainer() {
   const currentTabs = activeTab === 'personal' ? personalTabs : organizationTabs;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Main Tabs: Personal / Organization */}
       <Tabs
         selectedKey={activeTab}

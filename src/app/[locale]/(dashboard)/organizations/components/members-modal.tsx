@@ -12,7 +12,7 @@ import { Dropdown } from '@/components/ui/dropdown/dropdown';
 import { Input } from '@/components/ui/input/input';
 import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { Select } from '@/components/ui/select/select';
-import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMemberRole, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
+import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMember, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
 import type { Organization } from '@/types/organization';
 import type { OrganizationRole, UserOrganization } from '@/types/auth';
 
@@ -22,20 +22,14 @@ interface MembersModalProps {
   onClose: () => void;
 }
 
-const roleColors: Record<OrganizationRole, 'purple' | 'blue' | 'success' | 'orange' | 'gray'> = {
+const roleColors: Record<OrganizationRole, 'purple' | 'blue'> = {
   admin: 'purple',
-  manager: 'blue',
-  cashier: 'success',
-  kitchen: 'orange',
-  delivery: 'gray',
+  member: 'blue',
 };
 
 const roles: { value: OrganizationRole; label: string }[] = [
   { value: 'admin', label: 'Administrator' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'cashier', label: 'Kassierer' },
-  { value: 'kitchen', label: 'Kueche' },
-  { value: 'delivery', label: 'Ausgabe' },
+  { value: 'member', label: 'Mitglied' },
 ];
 
 interface Invitation {
@@ -58,7 +52,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
   const createInvitation = useCreateInvitation(organizationId);
   const deleteInvitation = useDeleteInvitation(organizationId);
   const removeMember = useRemoveMember(organizationId);
-  const updateRole = useUpdateMemberRole(organizationId);
+  const updateMember = useUpdateMember(organizationId);
 
   // Extract invitations data from response
   const invitations = (invitationsResponse as { data?: Invitation[] })?.data || [];
@@ -69,7 +63,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
     reset,
     formState: { errors },
   } = useForm<{ email: string; role: OrganizationRole }>({
-    defaultValues: { email: '', role: 'cashier' },
+    defaultValues: { email: '', role: 'member' },
   });
 
   const isLoading = membersLoading || invitationsLoading;
@@ -103,7 +97,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
 
   const handleRoleChange = async (member: UserOrganization, newRole: OrganizationRole) => {
     try {
-      await updateRole.mutateAsync({ userId: member.userId, role: newRole });
+      await updateMember.mutateAsync({ userId: member.userId, role: newRole });
       setEditingMember(null);
     } catch {
       // Error handled by mutation

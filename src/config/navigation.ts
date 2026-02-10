@@ -9,7 +9,6 @@ import {
   Receipt,
   Settings01,
   ShoppingBag01,
-  Shield01,
   Tablet02,
   Users01,
   Zap,
@@ -39,11 +38,6 @@ export const superAdminNavItems: NavItemType[] = [
     href: '/admin/pricing',
     icon: CoinsStacked01,
   },
-  {
-    label: 'System',
-    href: '/system',
-    icon: Shield01,
-  },
 ];
 
 // Organization admin/member navigation items
@@ -62,36 +56,43 @@ export const dashboardNavItems: NavItemType[] = [
     label: 'Mitglieder',
     href: '/members',
     icon: Users01,
+    requiredPermission: 'members',
   },
   {
     label: 'Events',
     href: '/events',
     icon: Calendar,
+    requiredPermission: 'events',
   },
   {
     label: 'Produkte',
     href: '/products',
     icon: ShoppingBag01,
+    requiredPermission: 'products',
   },
   {
     label: 'Geräte',
     href: '/devices',
     icon: Tablet02,
+    requiredPermission: 'devices',
   },
   {
     label: 'Drucker',
     href: '/printers',
     icon: Printer,
+    requiredPermission: 'devices',
   },
   {
     label: 'Workflows',
     href: '/workflows',
     icon: Zap,
+    adminOnly: true,
   },
   {
     label: 'Schichtpläne',
     href: '/shifts',
     icon: ClipboardCheck,
+    requiredPermission: 'shiftPlans',
   },
 ];
 
@@ -100,7 +101,7 @@ export const dashboardFooterItems: NavItemType[] = [
     label: 'Abrechnung',
     href: '/billing',
     icon: CreditCard01,
-    roles: ['admin'], // Only organization admins can see billing
+    adminOnly: true, // Only organization admins can see billing
   },
   {
     label: 'Einstellungen',

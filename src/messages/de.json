@@ -127,6 +127,56 @@
         "title": "Keine Aktivitäten",
         "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie ein Event, um Bestellungen anzunehmen."
       }
+    },
+    "superAdmin": {
+      "stats": {
+        "totalOrganizations": "Organisationen",
+        "totalOrganizationsSubtitle": "Registrierte Organisationen",
+        "totalUsers": "Benutzer",
+        "totalUsersSubtitle": "Registrierte Benutzer",
+        "totalRevenue": "Gesamtumsatz",
+        "totalRevenueSubtitle": "Umsatz im aktuellen Jahr",
+        "activeEvents": "Aktive Events",
+        "activeEventsSubtitle": "Derzeit laufende Events",
+        "newUsersThisMonth": "Neue Benutzer",
+        "newUsersThisMonthSubtitle": "In diesem Monat registriert",
+        "newOrganizationsThisMonth": "Neue Organisationen",
+        "newOrganizationsThisMonthSubtitle": "In diesem Monat erstellt",
+        "totalCredits": "Credits im System",
+        "totalCreditsSubtitle": "Gesamte Event-Credits",
+        "pendingPurchases": "Offene Käufe",
+        "pendingPurchasesSubtitle": "Ausstehende Zahlungen"
+      },
+      "recentActivity": {
+        "title": "Letzte Admin-Aktivitäten",
+        "subtitle": "Die letzten Aktionen im System",
+        "columns": {
+          "action": "Aktion",
+          "admin": "Administrator",
+          "organization": "Organisation",
+          "date": "Datum"
+        },
+        "empty": {
+          "title": "Keine Aktivitäten",
+          "description": "Es wurden noch keine Admin-Aktionen aufgezeichnet."
+        }
+      },
+      "actions": {
+        "ADJUST_CREDITS": "Credits angepasst",
+        "CREATE_ORGANIZATION": "Organisation erstellt",
+        "UPDATE_ORGANIZATION": "Organisation aktualisiert",
+        "DELETE_ORGANIZATION": "Organisation gelöscht",
+        "UNLOCK_USER": "Benutzer entsperrt",
+        "CREATE_CREDIT_PACKAGE": "Credit-Paket erstellt",
+        "UPDATE_CREDIT_PACKAGE": "Credit-Paket aktualisiert",
+        "DELETE_CREDIT_PACKAGE": "Credit-Paket gelöscht",
+        "UPDATE_SUBSCRIPTION_CONFIG": "Abo-Konfiguration aktualisiert",
+        "ADD_RENTAL_HARDWARE": "Miet-Hardware hinzugefügt",
+        "UPDATE_RENTAL_HARDWARE": "Miet-Hardware aktualisiert",
+        "ASSIGN_RENTAL": "Miet-Zuweisung erstellt",
+        "RETURN_RENTAL": "Miet-Rückgabe",
+        "unknown": "Unbekannte Aktion"
+      }
     }
   },
   "navigation": {
@@ -309,6 +359,49 @@
         "soundEnabledDescription": "Akustische Signale bei neuen Bestellungen"
       }
     },
+    "organizationSumup": {
+      "title": "SumUp",
+      "credentials": {
+        "title": "Zugangsdaten",
+        "description": "API-Key und Merchant Code für die SumUp-Integration",
+        "apiKey": "API-Key",
+        "apiKeyPlaceholder": "SumUp API-Key (sup_sk_...)",
+        "merchantCode": "Merchant Code",
+        "merchantCodePlaceholder": "z.B. MXXXXXXXX",
+        "affiliateDescription": "Affiliate-Zugangsdaten für Terminal-Checkout (Solo Cloud API). Optional, nur für Kartenzahlungen nötig.",
+        "affiliateKey": "Affiliate Key",
+        "affiliateKeyPlaceholder": "SumUp Affiliate Key",
+        "appId": "App ID",
+        "appIdPlaceholder": "SumUp App ID",
+        "testConnection": "Verbindung testen",
+        "testFailed": "Verbindungstest fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.",
+        "saveFailed": "Speichern fehlgeschlagen",
+        "success": "Verbindung erfolgreich"
+      },
+      "readers": {
+        "title": "Kartenleser",
+        "empty": "Keine Kartenleser vorhanden. Koppeln Sie einen neuen Leser.",
+        "notConfigured": "Bitte konfigurieren Sie zuerst die SumUp-Zugangsdaten.",
+        "pairReader": "Leser koppeln",
+        "pairDescription": "Geben Sie den Pairing-Code des Kartenlesers ein",
+        "pairingCode": "Pairing-Code",
+        "pairingCodePlaceholder": "Code eingeben",
+        "pair": "Koppeln",
+        "pairFailed": "Kopplung fehlgeschlagen",
+        "rename": "Umbenennen",
+        "readerName": "Name",
+        "delete": "Löschen",
+        "serialNumber": "SN",
+        "model": "Modell",
+        "readerNamePlaceholder": "z.B. Kartenleser Bar",
+        "status": {
+          "paired": "Gekoppelt",
+          "processing": "Wird gekoppelt",
+          "expired": "Abgelaufen",
+          "unknown": "Unbekannt"
+        }
+      }
+    },
     "organizationNotifications": {
       "title": "Benachrichtigungen",
       "description": "E-Mail-Benachrichtigungen für Ihre Organisation",
@@ -368,6 +461,7 @@
     },
     "status": {
       "draft": "Entwurf",
+      "scheduled": "Geplant",
       "active": "Aktiv",
       "completed": "Abgeschlossen",
       "cancelled": "Abgesagt"
@@ -586,6 +680,50 @@
     },
     "notifications": {
       "unlocked": "Benutzer erfolgreich entsperrt"
+    },
+    "detail": {
+      "title": "Benutzerdetails",
+      "back": "Zurück",
+      "registeredAt": "Registriert am",
+      "emailVerified": "E-Mail verifiziert",
+      "notVerified": "Nicht verifiziert",
+      "failedLogins": "Fehlgeschlagene Logins",
+      "organizations": "Organisationen",
+      "noOrganizations": "Dieser Benutzer gehört keiner Organisation an.",
+      "accountLocked": "Konto gesperrt",
+      "lockedUntil": "Gesperrt bis {date}",
+      "failedAttempts": "{count} fehlgeschlagene Anmeldeversuche"
+    }
+  },
+  "invitation": {
+    "title": "Einladung",
+    "subtitle": "Sie wurden zu einer Organisation eingeladen",
+    "loading": "Einladung wird geladen...",
+    "roleLabel": "Rolle",
+    "accept": "Annehmen",
+    "decline": "Ablehnen",
+    "loginAndAccept": "Anmelden & Annehmen",
+    "loginRequired": "Sie müssen angemeldet sein, um die Einladung anzunehmen.",
+    "loginToAccept": "Melden Sie sich an oder erstellen Sie ein Konto, um die Einladung anzunehmen.",
+    "login": "Anmelden",
+    "register": "Konto erstellen",
+    "successTitle": "Einladung angenommen!",
+    "successMessage": "Sie sind jetzt Mitglied von {organization}.",
+    "redirecting": "Sie werden weitergeleitet...",
+    "errorTitle": "Einladung ungültig",
+    "backHome": "Zur Startseite",
+    "roles": {
+      "admin": "Administrator",
+      "member": "Mitglied"
+    },
+    "errors": {
+      "notFound": "Diese Einladung existiert nicht oder wurde zurückgezogen.",
+      "expired": "Diese Einladung ist abgelaufen.",
+      "alreadyAccepted": "Diese Einladung wurde bereits angenommen.",
+      "alreadyMember": "Sie sind bereits Mitglied dieser Organisation.",
+      "wrongEmail": "Diese Einladung ist für eine andere E-Mail-Adresse.",
+      "acceptFailed": "Einladung konnte nicht angenommen werden.",
+      "declineFailed": "Einladung konnte nicht abgelehnt werden."
     }
   },
   "members": {
@@ -605,21 +743,30 @@
     },
     "roles": {
       "admin": "Administrator",
-      "manager": "Manager",
-      "cashier": "Kassierer",
-      "kitchen": "Küche",
-      "delivery": "Ausgabe"
+      "member": "Mitglied"
+    },
+    "permissions": {
+      "title": "Berechtigungen",
+      "products": "Produkte",
+      "events": "Events",
+      "devices": "Geräte",
+      "members": "Mitglieder",
+      "shiftPlans": "Schichtpläne",
+      "adminHint": "Administratoren haben automatisch Zugriff auf alle Module."
     },
     "form": {
       "email": "E-Mail-Adresse",
       "emailPlaceholder": "mitglied@beispiel.de",
       "role": "Rolle",
-      "roleRequired": "Rolle ist erforderlich"
+      "roleRequired": "Rolle ist erforderlich",
+      "isAdmin": "Administrator",
+      "isAdminHint": "Administratoren haben Zugriff auf alle Module."
     },
     "actions": {
-      "changeRole": "Rolle ändern",
+      "editPermissions": "Berechtigungen bearbeiten",
       "remove": "Entfernen",
-      "cancelInvitation": "Einladung zurückziehen"
+      "cancelInvitation": "Einladung zurückziehen",
+      "resendInvitation": "Erneut senden"
     },
     "invitations": {
       "title": "Ausstehende Einladungen",
@@ -634,7 +781,7 @@
     },
     "notifications": {
       "invited": "Einladung erfolgreich gesendet",
-      "roleChanged": "Rolle erfolgreich geändert",
+      "permissionsUpdated": "Berechtigungen erfolgreich aktualisiert",
       "removed": "Mitglied erfolgreich entfernt"
     }
   },
@@ -778,32 +925,35 @@
   },
   "admin": {
     "pricing": {
-      "title": "Preisgestaltung",
-      "description": "Verwalten Sie Abonnement und Credit-Pakete",
-      "subscription": {
-        "title": "Abonnement-Konfiguration",
-        "description": "Einstellungen für das monatliche Abonnement",
-        "name": "Name",
-        "descriptionField": "Beschreibung",
-        "priceMonthly": "Monatlicher Preis (EUR)",
-        "creditsPerMonth": "Credits pro Monat",
-        "save": "Konfiguration speichern"
+      "title": "Preise & Pakete",
+      "description": "Preise für Event-Tage und Monatsabo festlegen",
+      "pricePerDay": "Preis pro Event-Tag (EUR)",
+      "priceMonthly": "Monatsabo (EUR)",
+      "save": "Preise speichern",
+      "saving": "Speichern...",
+      "syncStripe": {
+        "button": "Mit Stripe synchronisieren",
+        "syncing": "Synchronisieren..."
       },
       "packages": {
-        "title": "Credit-Pakete",
-        "description": "Einmalige Credit-Käufe für Kunden",
-        "add": "Paket hinzufügen",
-        "edit": "Paket bearbeiten",
-        "name": "Paketname",
-        "descriptionField": "Beschreibung",
-        "credits": "Anzahl Credits",
-        "price": "Preis (EUR)",
-        "sortOrder": "Reihenfolge",
-        "empty": "Keine Credit-Pakete vorhanden",
-        "deleteConfirm": {
-          "title": "Paket löschen",
-          "message": "Sind Sie sicher, dass Sie dieses Paket löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
-        }
+        "day": "1 Tag",
+        "weekend": "Wochenende",
+        "week": "1 Woche"
+      },
+      "subscription": {
+        "title": "Monatsabo",
+        "unlimited": "Unbegrenzt",
+        "perMonth": "/ Monat"
+      },
+      "preview": {
+        "title": "Vorschau",
+        "description": "So werden die Pakete auf der Webseite angezeigt",
+        "package": "Paket",
+        "days": "Event-Tage",
+        "price": "Preis",
+        "perDay": "Pro Tag",
+        "savings": "Ersparnis",
+        "stripeLinked": "Mit Stripe verknüpft"
       }
     }
   },
@@ -893,7 +1043,10 @@
       "received": "Erhalten",
       "change": "Rückgeld",
       "confirm": "Zahlung bestätigen"
-    }
+    },
+    "testMode": "Testmodus — Bestellungen werden beim Aktivieren gelöscht",
+    "testBadge": "Test",
+    "scheduledBadge": "Geplant"
   },
   "orders": {
     "title": "Bestellungen",
@@ -1017,7 +1170,10 @@
       "type": "Gerätetyp",
       "typeChangeWarning": "Das Gerät muss sich nach der Typ-Änderung neu verbinden.",
       "nameRequired": "Bitte geben Sie einen Namen ein",
-      "failed": "Aktualisierung fehlgeschlagen"
+      "failed": "Aktualisierung fehlgeschlagen",
+      "sumupReader": "SumUp-Kartenleser",
+      "sumupReaderNone": "Kein Kartenleser",
+      "sumupNotConfigured": "SumUp ist nicht konfiguriert. Konfiguration unter Einstellungen > SumUp."
     },
     "registration": {
       "title": "Neues Gerät registrieren",

@@ -172,16 +172,16 @@ export default function DeviceVerifyPage() {
               <p className="mt-2 text-tertiary">{t('verify.enterCodeDescription')}</p>
             </div>
 
-            <div className="space-y-4">
+            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleLookup(); }}>
               <div className="space-y-1.5">
-                <Label htmlFor="code">{t('verify.code')}</Label>
+                <Label htmlFor="code" className="text-center block">{t('verify.code')}</Label>
                 <Input
                   id="code"
                   value={code}
                   onChange={setCode}
                   placeholder="000000"
                   maxLength={6}
-                  className="text-center text-3xl tracking-[0.5em] font-mono"
+                  className="h-16 text-center text-4xl tracking-[0.4em] font-mono indent-[0.2em]"
                   autoFocus
                 />
               </div>
@@ -193,8 +193,8 @@ export default function DeviceVerifyPage() {
               )}
 
               <Button
+                type="submit"
                 className="w-full"
-                onClick={handleLookup}
                 disabled={code.length !== 6 || lookupMutation.isPending}
               >
                 {lookupMutation.isPending ? (
@@ -203,7 +203,7 @@ export default function DeviceVerifyPage() {
                   t('verify.lookup')
                 )}
               </Button>
-            </div>
+            </form>
           </div>
         )}
 

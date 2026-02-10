@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useEvents } from '@/hooks/use-events';
 import { ordersApi, devicesApi } from '@/lib/api-client';
 import type { Order } from '@/types/order';
+import { SuperAdminDashboard } from './super-admin-dashboard';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
@@ -45,7 +46,12 @@ function getStatusColor(status: Order['status']): string {
 export function DashboardContainer() {
   const t = useTranslations('dashboard');
   const tOrders = useTranslations('orders');
+  const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
+
+  if (user?.isSuperAdmin) {
+    return <SuperAdminDashboard />;
+  }
   const organizationId = currentOrganization?.organizationId || '';
 
   // Fetch events
@@ -61,8 +67,8 @@ export function DashboardContainer() {
     queryKey: ['orders', organizationId, 'today', today],
     queryFn: async () => {
       const response = await ordersApi.list(organizationId, {
-        from: today,
-        to: today,
+        dateFrom: today,
+        dateTo: today,
       });
       return response.data;
     },
@@ -83,7 +89,7 @@ export function DashboardContainer() {
   // Calculate stats
   const stats = useMemo(() => {
     const orders = ordersResponse || [];
-    const activeEvents = events?.filter((e) => e.status === 'active') || [];
+    const activeEvents = events?.filter((e) => e.status === 'active' || e.status === 'scheduled') || [];
     const onlineDevices = onlineDevicesResponse || [];
 
     // Orders today (excluding cancelled)
@@ -126,7 +132,7 @@ export function DashboardContainer() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
       <StatsGrid>
         <StatsCard
@@ -156,12 +162,14 @@ export function DashboardContainer() {
       </StatsGrid>
 
       {/* Recent Activity Section */}
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <h2 className="text-lg font-semibold text-primary">{t('recentActivity.title')}</h2>
-        <p className="mt-1 text-sm text-tertiary">{t('recentActivity.subtitle')}</p>
+      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
+        <div className="px-4 py-3 sm:px-6 sm:py-4">
+          <h2 className="text-base sm:text-lg font-semibold text-primary">{t('recentActivity.title')}</h2>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-tertiary">{t('recentActivity.subtitle')}</p>
+        </div>
 
         {isLoadingOrders ? (
-          <div className="mt-6 flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-8">
             <div className="text-tertiary">Laden...</div>
           </div>
         ) : recentOrders.length === 0 ? (
@@ -169,55 +177,77 @@ export function DashboardContainer() {
             icon="shopping-bag"
             title={t('recentActivity.empty.title')}
             description={t('recentActivity.empty.description')}
-            className="mt-6"
+            className="px-4 pb-4 sm:px-6 sm:pb-6"
           />
         ) : (
-          <div className="mt-6 overflow-hidden rounded-lg border border-secondary">
-            <table className="w-full">
-              <thead className="bg-secondary">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
-                    {tOrders('columns.orderNumber')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
-                    {tOrders('columns.createdAt')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
-                    {tOrders('columns.items')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
-                    {tOrders('columns.total')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
-                    {tOrders('columns.status')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-secondary">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-secondary/30">
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
-                      #{order.dailyNumber}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
-                      {formatTime(order.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
-                      {order.items?.length || 0} {order.items?.length === 1 ? 'Artikel' : 'Artikel'}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
-                      {formatCurrency(order.total)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>
-                        {tOrders(`status.${order.status}`)}
-                      </span>
-                    </td>
+          <>
+            {/* Mobile: Card Layout */}
+            <div className="divide-y divide-secondary md:hidden">
+              {recentOrders.map((order) => (
+                <div key={order.id} className="px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-primary">#{order.dailyNumber}</span>
+                    <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>
+                      {tOrders(`status.${order.status}`)}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-3 text-xs text-tertiary">
+                    <span>{formatTime(order.createdAt)}</span>
+                    <span>{order.items?.length || 0} Artikel</span>
+                    <span className="font-medium text-primary">{formatCurrency(order.total)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: Table Layout */}
+            <div className="hidden md:block overflow-hidden border-t border-secondary">
+              <table className="w-full">
+                <thead className="bg-secondary">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                      {tOrders('columns.orderNumber')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                      {tOrders('columns.createdAt')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                      {tOrders('columns.items')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                      {tOrders('columns.total')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                      {tOrders('columns.status')}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-secondary">
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-secondary/30">
+                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
+                        #{order.dailyNumber}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
+                        {formatTime(order.createdAt)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
+                        {order.items?.length || 0} {order.items?.length === 1 ? 'Artikel' : 'Artikel'}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
+                        {formatCurrency(order.total)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>
+                          {tOrders(`status.${order.status}`)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -14,8 +14,8 @@ export default async function AdminPricingPage() {
   const t = await getTranslations('admin.pricing');
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="hidden md:block">
         <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
         <p className="mt-1 text-md text-tertiary">{t('description')}</p>
       </div>

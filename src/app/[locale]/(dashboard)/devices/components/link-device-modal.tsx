@@ -137,7 +137,7 @@ export function LinkDeviceModal({ onClose }: LinkDeviceModalProps) {
     <DialogModal isOpen onClose={onClose} title={getTitle()} description={getDescription()}>
       {/* Enter Code Step */}
       {step === 'enter-code' && (
-        <>
+        <form onSubmit={(e) => { e.preventDefault(); handleLookup(); }}>
           <div className="space-y-4 px-6 py-4">
             <div className="flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
@@ -146,14 +146,14 @@ export function LinkDeviceModal({ onClose }: LinkDeviceModalProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="code">{t('verify.code')}</Label>
+              <Label htmlFor="code" className="text-center block">{t('verify.code')}</Label>
               <Input
                 id="code"
                 value={code}
                 onChange={setCode}
                 placeholder="000000"
                 maxLength={6}
-                className="text-center text-3xl tracking-[0.5em] font-mono"
+                className="h-16 text-center text-4xl tracking-[0.4em] font-mono indent-[0.2em]"
                 autoFocus
               />
             </div>
@@ -170,7 +170,7 @@ export function LinkDeviceModal({ onClose }: LinkDeviceModalProps) {
               {tCommon('cancel')}
             </Button>
             <Button
-              onClick={handleLookup}
+              type="submit"
               disabled={code.length !== 6 || lookupMutation.isPending}
             >
               {lookupMutation.isPending ? (
@@ -180,7 +180,7 @@ export function LinkDeviceModal({ onClose }: LinkDeviceModalProps) {
               )}
             </Button>
           </div>
-        </>
+        </form>
       )}
 
       {/* Configure Step */}

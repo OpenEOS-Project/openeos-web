@@ -34,6 +34,12 @@ export interface OrganizationSettings {
     requirePayment: boolean;
     maxItemsPerOrder: number;
   };
+  sumup?: {
+    apiKey: string;
+    merchantCode: string;
+    affiliateKey?: string;
+    appId?: string;
+  };
 }
 
 export interface BillingAddress {

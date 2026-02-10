@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loading02 } from '@untitledui/icons';
 import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { Button } from '@/components/ui/buttons/button';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
 import { Select } from '@/components/ui/select/select';
 import { useAuthStore } from '@/stores/auth-store';
-import { devicesApi } from '@/lib/api-client';
+import { devicesApi, sumupApi } from '@/lib/api-client';
 import type { Device, DeviceClass } from '@/types/device';
 
 interface EditDeviceDialogProps {
@@ -36,16 +36,41 @@ export function EditDeviceDialog({ device, onClose }: EditDeviceDialogProps) {
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
+  const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
+  const isPosDevice = device.deviceClass === 'pos';
+
   const [name, setName] = useState(device.name);
   const [deviceType, setDeviceType] = useState<DeviceClass>(device.deviceClass);
+  const [sumupReaderId, setSumupReaderId] = useState(device.settings?.sumupReaderId || '');
   const [error, setError] = useState<string | null>(null);
 
+  // Load SumUp readers for POS devices
+  const readersQuery = useQuery({
+    queryKey: ['sumup-readers', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      const response = await sumupApi.listReaders(organizationId);
+      return response.data || [];
+    },
+    enabled: !!organizationId && isPosDevice && sumupConfigured,
+  });
+
   const updateMutation = useMutation({
-    mutationFn: () =>
-      devicesApi.update(organizationId!, device.id, {
-        name: name !== device.name ? name : undefined,
-        type: deviceType !== device.deviceClass ? deviceType : undefined,
-      }),
+    mutationFn: () => {
+      const updateData: Record<string, unknown> = {};
+      if (name !== device.name) updateData.name = name;
+      if (deviceType !== device.deviceClass) updateData.type = deviceType;
+
+      // Include settings with sumupReaderId for POS devices
+      if (isPosDevice && sumupReaderId !== (device.settings?.sumupReaderId || '')) {
+        updateData.settings = {
+          ...device.settings,
+          sumupReaderId: sumupReaderId || undefined,
+        };
+      }
+
+      return devicesApi.update(organizationId!, device.id, updateData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices', organizationId] });
       onClose();
@@ -65,7 +90,10 @@ export function EditDeviceDialog({ device, onClose }: EditDeviceDialogProps) {
     updateMutation.mutate();
   };
 
-  const hasChanges = name !== device.name || deviceType !== device.deviceClass;
+  const hasChanges =
+    name !== device.name ||
+    deviceType !== device.deviceClass ||
+    (isPosDevice && sumupReaderId !== (device.settings?.sumupReaderId || ''));
 
   return (
     <DialogModal
@@ -107,6 +135,30 @@ export function EditDeviceDialog({ device, onClose }: EditDeviceDialogProps) {
               </p>
             )}
           </div>
+
+          {/* SumUp Reader (only for POS devices with SumUp configured) */}
+          {isPosDevice && sumupConfigured && (
+            <div className="space-y-1.5">
+              <Label htmlFor="sumupReader">{t('edit.sumupReader')}</Label>
+              <Select
+                selectedKey={sumupReaderId}
+                onSelectionChange={(value) => setSumupReaderId(value as string)}
+              >
+                <Select.Item key="" id="">
+                  {t('edit.sumupReaderNone')}
+                </Select.Item>
+                {(readersQuery.data || []).map((reader) => (
+                  <Select.Item key={reader.id} id={reader.id}>
+                    {reader.name}
+                  </Select.Item>
+                ))}
+              </Select>
+            </div>
+          )}
+
+          {isPosDevice && !sumupConfigured && (
+            <p className="text-xs text-tertiary">{t('edit.sumupNotConfigured')}</p>
+          )}
 
           {error && (
             <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">

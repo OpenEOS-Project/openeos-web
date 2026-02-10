@@ -308,6 +308,12 @@ export const authApi = {
   myInvitations: () =>
     apiClient.get<ApiResponse<import('@/types/auth').PendingInvitation[]>>('/auth/me/invitations'),
 
+  getInvitationByToken: (token: string) =>
+    apiClient.get<ApiResponse<{ email: string; organizationName: string; role: string; expiresAt: string }>>(
+      `/invitations/${token}`,
+      { skipAuth: true },
+    ),
+
   acceptInvitation: (token: string) =>
     apiClient.post<ApiResponse<import('@/types/auth').UserOrganization>>(`/invitations/${token}/accept`),
 
@@ -345,11 +351,11 @@ export const organizationsApi = {
   removeMember: (orgId: string, userId: string) =>
     apiClient.delete(`/organizations/${orgId}/members/${userId}`),
 
-  updateMemberRole: (orgId: string, userId: string, role: string) =>
-    apiClient.patch(`/organizations/${orgId}/members/${userId}`, { role }),
+  updateMember: (orgId: string, userId: string, data: { role?: string; permissions?: import('@/types/auth').OrganizationPermissions }) =>
+    apiClient.patch(`/organizations/${orgId}/members/${userId}`, data),
 
   // Invitations
-  createInvitation: (orgId: string, data: { email: string; role: string }) =>
+  createInvitation: (orgId: string, data: { email: string; role: string; permissions?: import('@/types/auth').OrganizationPermissions }) =>
     apiClient.post(`/organizations/${orgId}/invitations`, data),
 
   getInvitations: (orgId: string) =>
@@ -357,6 +363,9 @@ export const organizationsApi = {
 
   deleteInvitation: (orgId: string, invitationId: string) =>
     apiClient.delete(`/organizations/${orgId}/invitations/${invitationId}`),
+
+  resendInvitation: (orgId: string, invitationId: string) =>
+    apiClient.post(`/organizations/${orgId}/invitations/${invitationId}/resend`),
 
   // Broadcasts
   broadcast: (orgId: string, data: { message: string; type?: 'info' | 'warning' | 'success' | 'error'; title?: string; duration?: number }) =>
@@ -661,6 +670,9 @@ export const adminApi = {
       `/admin/users${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
     ),
 
+  getUser: (userId: string) =>
+    apiClient.get<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}`),
+
   unlockUser: (userId: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}/unlock`),
 
@@ -681,7 +693,18 @@ export const adminApi = {
 
   // Stats
   getOverviewStats: () =>
-    apiClient.get<ApiResponse<import('@/types/admin').AdminStats>>('/admin/stats/overview'),
+    apiClient.get<ApiResponse<import('@/types/admin').AdminOverviewStats>>('/admin/stats/overview'),
+
+  getRevenueStats: (params?: { startDate?: string; endDate?: string }) =>
+    apiClient.get<ApiResponse<import('@/types/admin').AdminRevenueStats>>(
+      `/admin/stats/revenue${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
+    ),
+
+  // Audit Logs
+  getAuditLogs: (params?: { page?: number; limit?: number }) =>
+    apiClient.get<ApiResponse<import('@/types/admin').AdminAuditLog[]> & { meta: import('@/types/api').PaginationMeta }>(
+      `/admin/audit-logs${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
+    ),
 
   // Pricing Management
   getSubscriptionConfig: () =>
@@ -703,7 +726,13 @@ export const adminApi = {
     apiClient.delete<void>(`/admin/credit-packages/${id}`),
 
   syncStripeProducts: () =>
-    apiClient.post<ApiResponse<void>>('/admin/stripe/sync'),
+    apiClient.post<ApiResponse<{ syncedPackages: number; syncedSubscription: boolean }>>('/admin/stripe/sync'),
+
+  ensureDefaultPackages: () =>
+    apiClient.post<ApiResponse<import('@/types/settings').CreditPackage[]>>('/admin/pricing/ensure-packages'),
+
+  updatePackagePrices: (data: { slug: string; price: number }[]) =>
+    apiClient.patch<ApiResponse<import('@/types/settings').CreditPackage[]>>('/admin/pricing/packages', { packages: data }),
 };
 
 // Devices API
@@ -1063,6 +1092,52 @@ export const shiftsPublicApi = {
       message: string;
       planSlug: string;
     }>>(`/public/shifts/verify/${token}`, { skipAuth: true }),
+};
+
+// SumUp API
+export const sumupApi = {
+  listReaders: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/sumup').SumUpReader[]>>(
+      `/organizations/${organizationId}/sumup/readers`
+    ),
+
+  pairReader: (organizationId: string, pairingCode: string, name?: string) =>
+    apiClient.post<ApiResponse<import('@/types/sumup').SumUpReader>>(
+      `/organizations/${organizationId}/sumup/readers`,
+      { pairingCode, ...(name ? { name } : {}) }
+    ),
+
+  getReaderStatus: (organizationId: string, readerId: string) =>
+    apiClient.get<ApiResponse<import('@/types/sumup').SumUpReaderStatus>>(
+      `/organizations/${organizationId}/sumup/readers/${readerId}/status`
+    ),
+
+  updateReader: (organizationId: string, readerId: string, name: string) =>
+    apiClient.patch<ApiResponse<import('@/types/sumup').SumUpReader>>(
+      `/organizations/${organizationId}/sumup/readers/${readerId}`,
+      { name }
+    ),
+
+  deleteReader: (organizationId: string, readerId: string) =>
+    apiClient.delete<void>(
+      `/organizations/${organizationId}/sumup/readers/${readerId}`
+    ),
+
+  initiateCheckout: (organizationId: string, readerId: string, amount: number, currency: string) =>
+    apiClient.post<ApiResponse<import('@/types/sumup').SumUpCheckoutResponse>>(
+      `/organizations/${organizationId}/sumup/readers/${readerId}/checkout`,
+      { amount, currency }
+    ),
+
+  terminateCheckout: (organizationId: string, readerId: string) =>
+    apiClient.post<void>(
+      `/organizations/${organizationId}/sumup/readers/${readerId}/terminate`
+    ),
+
+  testConnection: (organizationId: string) =>
+    apiClient.post<ApiResponse<{ success: boolean }>>(
+      `/organizations/${organizationId}/sumup/test-connection`
+    ),
 };
 
 // Setup API (Initial setup, no auth required)

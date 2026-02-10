@@ -1,4 +1,11 @@
-import type { UserOrganization } from './auth';
+export interface AdminUserOrganization {
+  id: string;
+  role: string;
+  organization: {
+    id: string;
+    name: string;
+  };
+}
 
 export interface AdminUser {
   id: string;
@@ -14,14 +21,37 @@ export interface AdminUser {
   failedLoginAttempts: number;
   createdAt: string;
   updatedAt: string;
-  userOrganizations?: UserOrganization[];
+  userOrganizations?: AdminUserOrganization[];
 }
 
-export interface AdminStats {
-  totalUsers: number;
+export interface AdminOverviewStats {
   totalOrganizations: number;
-  activeOrganizations: number;
-  totalEvents: number;
+  totalUsers: number;
+  totalCredits: number;
+  pendingPurchases: number;
+  activeRentals: number;
   activeEvents: number;
+  newUsersThisMonth: number;
+  newOrganizationsThisMonth: number;
+}
+
+export interface AdminRevenueStats {
   totalRevenue: number;
+  creditRevenue: number;
+  rentalRevenue: number;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  adminUserId: string;
+  organizationId: string | null;
+  action: string;
+  resourceType: string;
+  resourceId: string | null;
+  details: Record<string, unknown>;
+  reason: string | null;
+  ipAddress: string;
+  createdAt: string;
+  adminUser?: { id: string; firstName: string; lastName: string; email: string };
+  organization?: { id: string; name: string } | null;
 }

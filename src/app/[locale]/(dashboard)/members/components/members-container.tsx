@@ -7,6 +7,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useRemoveMember } from '@/hooks/use-members';
 import type { UserOrganization } from '@/types/auth';
 
+import { EditPermissionsModal } from './edit-permissions-modal';
+import { InvitationsList } from './invitations-list';
 import { InviteMemberModal } from './invite-member-modal';
 import { MembersList } from './members-list';
 
@@ -15,6 +17,7 @@ export function MembersContainer() {
   const { currentOrganization } = useAuthStore();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [removingMember, setRemovingMember] = useState<UserOrganization | null>(null);
+  const [editingMember, setEditingMember] = useState<UserOrganization | null>(null);
 
   const organizationId = currentOrganization?.organizationId;
   const removeMember = useRemoveMember(organizationId || '');
@@ -25,6 +28,10 @@ export function MembersContainer() {
 
   const handleRemoveClick = (member: UserOrganization) => {
     setRemovingMember(member);
+  };
+
+  const handleEditPermissionsClick = (member: UserOrganization) => {
+    setEditingMember(member);
   };
 
   const handleRemoveConfirm = async () => {
@@ -56,13 +63,25 @@ export function MembersContainer() {
         organizationId={organizationId}
         onInviteClick={handleInviteClick}
         onRemoveClick={handleRemoveClick}
+        onEditPermissionsClick={handleEditPermissionsClick}
       />
+
+      <InvitationsList organizationId={organizationId} />
 
       <InviteMemberModal
         isOpen={isInviteModalOpen}
         organizationId={organizationId}
         onClose={handleModalClose}
       />
+
+      {editingMember && (
+        <EditPermissionsModal
+          isOpen={!!editingMember}
+          organizationId={organizationId}
+          member={editingMember as UserOrganization & { user?: { firstName: string; lastName: string; email: string } }}
+          onClose={() => setEditingMember(null)}
+        />
+      )}
 
       {/* Remove confirmation modal */}
       {removingMember && (

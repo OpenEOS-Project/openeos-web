@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CoinsStacked01, Edit01, Plus, Trash01, Users01 } from '@untitledui/icons';
+import { ChevronRight, CoinsStacked01, Edit01, Plus, Trash01, Users01 } from '@untitledui/icons';
 
+import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
 import { Dropdown } from '@/components/ui/dropdown/dropdown';
 import { EmptyState } from '@/components/ui/empty-state/empty-state';
@@ -69,80 +70,145 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
   };
 
   return (
-    <TableCard.Root>
-      <TableCard.Header
-        title={t('title')}
-        badge={organizations.length}
-        description={t('subtitle')}
-        contentTrailing={
-          <Button iconLeading={Plus} onClick={onCreateClick}>
+    <>
+      {/* Mobile: Card Layout */}
+      <div className="space-y-3 md:hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-primary">{t('title')}</h2>
+            <Badge color="gray" size="sm">{organizations.length}</Badge>
+          </div>
+          <Button size="sm" iconLeading={Plus} onClick={onCreateClick}>
             {t('create')}
           </Button>
-        }
-      />
-      <Table aria-label={t('title')}>
-        <Table.Header>
-          <Table.Head label={t('table.name')} isRowHeader />
-          <Table.Head label={t('table.slug')} />
-          <Table.Head label={t('table.eventCredits')} />
-          <Table.Head label={t('table.createdAt')} />
-          <Table.Head label={t('table.actions')} />
-        </Table.Header>
-        <Table.Body items={organizations}>
-          {(organization) => (
-            <Table.Row key={organization.id} id={organization.id}>
-              <Table.Cell>
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-brand-secondary">
-                    <span className="text-sm font-semibold text-brand-primary">
-                      {organization.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-primary">{organization.name}</p>
-                    <p className="text-xs text-tertiary">{organization.settings?.currency || 'EUR'}</p>
-                  </div>
+        </div>
+        {organizations.map((org) => (
+          <div
+            key={org.id}
+            className="rounded-xl border border-secondary bg-primary p-4 shadow-xs"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-secondary">
+                <span className="text-sm font-semibold text-brand-primary">
+                  {org.name.substring(0, 2).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-primary truncate">{org.name}</p>
+                <p className="text-xs text-tertiary font-mono">{org.slug}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-tertiary">
+                  <span>{org.eventCredits} Credits</span>
+                  <span>{org.settings?.currency || 'EUR'}</span>
+                  <span>{formatDate(org.createdAt)}</span>
                 </div>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="font-mono text-sm">{organization.slug}</span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-sm">{organization.eventCredits}</span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-sm">{formatDate(organization.createdAt)}</span>
-              </Table.Cell>
-              <Table.Cell>
-                <Dropdown.Root>
-                  <Dropdown.DotsButton />
-                  <Dropdown.Popover className="w-min">
-                    <Dropdown.Menu>
-                      <Dropdown.Item icon={Edit01} onAction={() => onEditClick(organization)}>
-                        <span className="pr-4">{t('actions.edit')}</span>
-                      </Dropdown.Item>
-                      <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(organization)}>
-                        <span className="pr-4">{t('actions.manageMembers')}</span>
-                      </Dropdown.Item>
-                      <Dropdown.Item icon={CoinsStacked01} onAction={() => onManageCreditsClick(organization)}>
-                        <span className="pr-4">{t('actions.manageCredits')}</span>
-                      </Dropdown.Item>
-                      <Dropdown.Separator />
-                      <Dropdown.Item
-                        icon={Trash01}
-                        className="text-error-primary"
-                        onAction={() => onDeleteClick(organization)}
-                      >
-                        <span className="pr-4">{t('actions.delete')}</span>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown.Popover>
-                </Dropdown.Root>
-              </Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
-      </Table>
-    </TableCard.Root>
+              </div>
+              <Dropdown.Root>
+                <Dropdown.DotsButton />
+                <Dropdown.Popover className="w-min">
+                  <Dropdown.Menu>
+                    <Dropdown.Item icon={Edit01} onAction={() => onEditClick(org)}>
+                      <span className="pr-4">{t('actions.edit')}</span>
+                    </Dropdown.Item>
+                    <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(org)}>
+                      <span className="pr-4">{t('actions.manageMembers')}</span>
+                    </Dropdown.Item>
+                    <Dropdown.Item icon={CoinsStacked01} onAction={() => onManageCreditsClick(org)}>
+                      <span className="pr-4">{t('actions.manageCredits')}</span>
+                    </Dropdown.Item>
+                    <Dropdown.Separator />
+                    <Dropdown.Item
+                      icon={Trash01}
+                      className="text-error-primary"
+                      onAction={() => onDeleteClick(org)}
+                    >
+                      <span className="pr-4">{t('actions.delete')}</span>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown.Root>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Table Layout */}
+      <div className="hidden md:block">
+        <TableCard.Root>
+          <TableCard.Header
+            title={t('title')}
+            badge={organizations.length}
+            description={t('subtitle')}
+            contentTrailing={
+              <Button iconLeading={Plus} onClick={onCreateClick}>
+                {t('create')}
+              </Button>
+            }
+          />
+          <Table aria-label={t('title')}>
+            <Table.Header>
+              <Table.Head label={t('table.name')} isRowHeader />
+              <Table.Head label={t('table.slug')} />
+              <Table.Head label={t('table.eventCredits')} />
+              <Table.Head label={t('table.createdAt')} />
+              <Table.Head label={t('table.actions')} />
+            </Table.Header>
+            <Table.Body items={organizations}>
+              {(organization) => (
+                <Table.Row key={organization.id} id={organization.id}>
+                  <Table.Cell>
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-lg bg-brand-secondary">
+                        <span className="text-sm font-semibold text-brand-primary">
+                          {organization.name.substring(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-primary">{organization.name}</p>
+                        <p className="text-xs text-tertiary">{organization.settings?.currency || 'EUR'}</p>
+                      </div>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="font-mono text-sm">{organization.slug}</span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-sm">{organization.eventCredits}</span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-sm">{formatDate(organization.createdAt)}</span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Dropdown.Root>
+                      <Dropdown.DotsButton />
+                      <Dropdown.Popover className="w-min">
+                        <Dropdown.Menu>
+                          <Dropdown.Item icon={Edit01} onAction={() => onEditClick(organization)}>
+                            <span className="pr-4">{t('actions.edit')}</span>
+                          </Dropdown.Item>
+                          <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(organization)}>
+                            <span className="pr-4">{t('actions.manageMembers')}</span>
+                          </Dropdown.Item>
+                          <Dropdown.Item icon={CoinsStacked01} onAction={() => onManageCreditsClick(organization)}>
+                            <span className="pr-4">{t('actions.manageCredits')}</span>
+                          </Dropdown.Item>
+                          <Dropdown.Separator />
+                          <Dropdown.Item
+                            icon={Trash01}
+                            className="text-error-primary"
+                            onAction={() => onDeleteClick(organization)}
+                          >
+                            <span className="pr-4">{t('actions.delete')}</span>
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown.Popover>
+                    </Dropdown.Root>
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        </TableCard.Root>
+      </div>
+    </>
   );
 }

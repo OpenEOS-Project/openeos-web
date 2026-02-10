@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from "react";
-import type { OrganizationRole } from "@/types/auth";
+import type { OrganizationPermissions, OrganizationRole } from "@/types/auth";
 
 export type NavItemType = {
     /** Label text for the nav item. */
@@ -16,6 +16,10 @@ export type NavItemType = {
     divider?: boolean;
     /** Roles that can see this nav item. If not specified, all roles can see it. */
     roles?: OrganizationRole[];
+    /** Required permission to see this nav item. Admins always see it. */
+    requiredPermission?: keyof OrganizationPermissions;
+    /** If true, only admins can see this nav item. */
+    adminOnly?: boolean;
 };
 
 export type NavItemDividerType = Omit<NavItemType, "icon" | "label" | "divider"> & {

@@ -137,8 +137,8 @@ export interface QueryOrdersParams {
   source?: OrderSource;
   tableNumber?: string;
   search?: string;
-  from?: string;
-  to?: string;
+  dateFrom?: string;
+  dateTo?: string;
   page?: number;
   limit?: number;
 }

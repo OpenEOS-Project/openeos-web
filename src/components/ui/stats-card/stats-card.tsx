@@ -5,7 +5,9 @@ import type { ReactNode } from 'react';
 import {
   ArrowDown,
   ArrowUp,
+  Building07,
   Calendar,
+  CoinsStacked01,
   CreditCard02,
   ShoppingBag01,
   Users01,
@@ -18,6 +20,8 @@ const iconMap = {
   'credit-card': CreditCard02,
   calendar: Calendar,
   users: Users01,
+  building: Building07,
+  coins: CoinsStacked01,
 } as const;
 
 type IconName = keyof typeof iconMap;

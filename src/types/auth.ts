@@ -1,16 +1,14 @@
 import type { Organization } from './organization';
 
 // Matches backend OrganizationRole enum
-export type OrganizationRole = 'admin' | 'manager' | 'cashier' | 'kitchen' | 'delivery';
+export type OrganizationRole = 'admin' | 'member';
 
 export interface OrganizationPermissions {
-  canManageProducts?: boolean;
-  canManageOrders?: boolean;
-  canProcessPayments?: boolean;
-  canViewReports?: boolean;
-  canManageDevices?: boolean;
-  canManageWorkflows?: boolean;
-  [key: string]: boolean | undefined;
+  products?: boolean;
+  events?: boolean;
+  devices?: boolean;
+  members?: boolean;
+  shiftPlans?: boolean;
 }
 
 export interface UserOrganization {
@@ -81,6 +79,7 @@ export interface PendingInvitation {
   organizationId: string;
   email: string;
   role: OrganizationRole;
+  permissions?: OrganizationPermissions;
   token: string;
   expiresAt: string;
   createdAt: string;

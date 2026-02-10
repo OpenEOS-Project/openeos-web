@@ -100,14 +100,23 @@ export interface SubscriptionInfo {
 
 export interface CreditPackage {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
   credits: number;
   price: number;
+  pricePerCredit: number;
+  savingsPercent: number;
   isActive: boolean;
+  isFeatured: boolean;
   sortOrder: number;
   stripeProductId: string | null;
   stripePriceId: string | null;
+}
+
+export interface PublicPricing {
+  packages: Pick<CreditPackage, 'slug' | 'name' | 'description' | 'credits' | 'price' | 'savingsPercent'>[];
+  subscription: { name: string; description: string | null; priceMonthly: number } | null;
 }
 
 export interface BillingOverview {

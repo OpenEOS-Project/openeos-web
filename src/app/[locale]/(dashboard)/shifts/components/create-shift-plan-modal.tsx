@@ -46,7 +46,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
   });
 
   const events = eventsData?.data || [];
-  const activeEvents = events.filter((e) => e.status === 'draft' || e.status === 'active');
+  const activeEvents = events.filter((e) => e.status === 'draft' || e.status === 'scheduled' || e.status === 'active');
 
   const {
     control,

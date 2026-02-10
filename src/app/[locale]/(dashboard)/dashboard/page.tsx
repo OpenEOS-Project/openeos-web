@@ -15,9 +15,9 @@ export default async function DashboardPage() {
   const t = await getTranslations('dashboard');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
         <p className="mt-1 text-md text-tertiary">{t('subtitle')}</p>
       </div>

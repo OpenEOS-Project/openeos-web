@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -9,7 +10,6 @@ import {
   LogOut01,
   Mail01,
   Menu02,
-  SearchLg,
   X,
 } from '@untitledui/icons';
 
@@ -18,7 +18,6 @@ import { Avatar } from '@/components/ui/avatar/avatar';
 import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
 import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { Input } from '@/components/ui/input/input';
 import { Tooltip } from '@/components/ui/tooltip/tooltip';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
 import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/hooks/use-members';
@@ -27,15 +26,13 @@ import { useSidebarStore } from '@/stores/sidebar-store';
 import type { OrganizationRole } from '@/types/auth';
 import { cx } from '@/utils/cx';
 
+import type { NavItemType } from './config';
 import { NavItemBase } from './base-components/nav-item';
 import { NavList } from './base-components/nav-list';
 
 const roleLabels: Record<OrganizationRole, string> = {
   admin: 'Administrator',
-  manager: 'Manager',
-  cashier: 'Kassierer',
-  kitchen: 'Küche',
-  delivery: 'Ausgabe',
+  member: 'Mitglied',
 };
 
 const SIDEBAR_WIDTH = 280;
@@ -52,22 +49,34 @@ export function DashboardSidebar() {
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
 
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Remove locale prefix from pathname for comparison
   const activeUrl = pathname.replace(/^\/(de|en)/, '');
 
   const isSuperAdmin = user?.isSuperAdmin ?? false;
-  const navItems = isSuperAdmin ? superAdminNavItems : dashboardNavItems;
   const currentRole = currentOrganization?.role;
+  const currentPermissions = currentOrganization?.permissions;
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
 
-  // Filter footer items by role (super admins don't see role-restricted items)
+  // Check if user can see a nav item based on permissions
+  const canSeeNavItem = (item: NavItemType): boolean => {
+    if (item.adminOnly) return currentRole === 'admin';
+    if (!item.requiredPermission) return true;
+    if (currentRole === 'admin') return true;
+    return !!currentPermissions?.[item.requiredPermission];
+  };
+
+  const navItems = isSuperAdmin
+    ? superAdminNavItems
+    : dashboardNavItems.filter(canSeeNavItem);
+
   const filteredFooterItems = isSuperAdmin
-    ? dashboardFooterItems.filter((item) => !item.roles || item.roles.length === 0)
-    : dashboardFooterItems.filter((item) => {
-        if (!item.roles || item.roles.length === 0) return true;
-        if (!currentRole) return false;
-        return item.roles.includes(currentRole);
-      });
+    ? dashboardFooterItems.filter((item) => !item.adminOnly)
+    : dashboardFooterItems.filter(canSeeNavItem);
 
   const handleAcceptInvitation = async (token: string) => {
     try {
@@ -100,7 +109,7 @@ export function DashboardSidebar() {
     return (
       <>
         {/* Mobile placeholder */}
-        <div className="h-14 border-b border-secondary bg-primary lg:hidden" />
+        <div className="h-16 border-b border-secondary bg-primary lg:hidden" />
 
         {/* Desktop sidebar skeleton */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:flex">
@@ -272,10 +281,6 @@ export function DashboardSidebar() {
           </div>
         )}
 
-        {/* Search - hidden when collapsed */}
-        {!isCollapsed && (
-          <Input shortcut size="sm" aria-label="Suchen" placeholder="Suchen..." icon={SearchLg} />
-        )}
       </div>
 
       <NavList activeUrl={activeUrl} items={navItems} collapsed={isCollapsed} />
@@ -360,14 +365,14 @@ export function DashboardSidebar() {
     return (
       <>
         {/* Mobile header with menu button */}
-        <header className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-secondary bg-primary px-4 lg:hidden">
-          <Logo height={24} />
+        <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-secondary bg-primary px-4 lg:hidden">
+          <Logo height={28} />
           <button
             onClick={() => setMobileOpen(true)}
-            className="flex items-center justify-center rounded-lg p-2 text-fg-secondary hover:bg-primary_hover"
+            className="flex items-center justify-center rounded-lg p-2.5 text-fg-secondary hover:bg-primary_hover"
             aria-label="Navigation öffnen"
           >
-            <Menu02 className="size-5" />
+            <Menu02 className="size-6" />
           </button>
         </header>
 
@@ -392,7 +397,7 @@ export function DashboardSidebar() {
         )}
 
         {/* Spacer for mobile header */}
-        <div className="h-14 lg:hidden" />
+        <div className="h-16 lg:hidden" />
       </>
     );
   }
@@ -400,14 +405,14 @@ export function DashboardSidebar() {
   return (
     <>
       {/* Mobile header with menu button */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-secondary bg-primary px-4 lg:hidden">
-        <Logo height={24} />
+      <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-secondary bg-primary px-4 lg:hidden">
+        <Logo height={28} />
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex items-center justify-center rounded-lg p-2 text-fg-secondary hover:bg-primary_hover"
+          className="flex items-center justify-center rounded-lg p-2.5 text-fg-secondary hover:bg-primary_hover"
           aria-label="Navigation öffnen"
         >
-          <Menu02 className="size-5" />
+          <Menu02 className="size-6" />
         </button>
       </header>
 
@@ -447,7 +452,7 @@ export function DashboardSidebar() {
       </div>
 
       {/* Spacer for mobile header */}
-      <div className="h-14 lg:hidden" />
+      <div className="h-16 lg:hidden" />
 
       {/* Desktop spacer */}
       <div

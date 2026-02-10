@@ -1046,10 +1046,7 @@ const notifyActions: NodeDefinition[] = [
         type: 'select',
         options: [
           { value: 'admin', label: 'Administrator' },
-          { value: 'manager', label: 'Manager' },
-          { value: 'cashier', label: 'Kassierer' },
-          { value: 'kitchen', label: 'Küche' },
-          { value: 'delivery', label: 'Ausgabe' },
+          { value: 'member', label: 'Mitglied' },
         ],
         required: true,
       },

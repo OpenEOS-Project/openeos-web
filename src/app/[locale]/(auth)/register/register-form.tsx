@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail01, User01, Building07, Lock01 } from '@untitledui/icons';
 import { z } from 'zod';
@@ -30,10 +31,14 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
   const t = useTranslations('auth.register');
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { setUser, setOrganizations } = useAuthStore();
+
+  const redirectUrl = searchParams.get('redirect');
+  const prefillEmail = searchParams.get('email') || '';
 
   const {
     control,
@@ -44,7 +49,7 @@ export function RegisterForm() {
     defaultValues: {
       firstName: '',
       lastName: '',
-      email: '',
+      email: prefillEmail,
       password: '',
       confirmPassword: '',
       organizationName: '',
@@ -69,8 +74,8 @@ export function RegisterForm() {
       setUser(response.data.user);
       setOrganizations(response.data.user.userOrganizations || []);
 
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      // Redirect to original destination or dashboard
+      window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/dashboard';
     } catch (err) {
       if (err instanceof ApiException) {
         switch (err.code) {
@@ -194,22 +199,24 @@ export function RegisterForm() {
         )}
       />
 
-      {/* Organization Name (Optional) */}
-      <Controller
-        name="organizationName"
-        control={control}
-        render={({ field }) => (
-          <Input
-            label={t('organization')}
-            placeholder="Mein Verein e.V. (optional)"
-            icon={Building07}
-            value={field.value}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            hint="Optional - Du kannst auch spaeter eine Organisation erstellen"
-          />
-        )}
-      />
+      {/* Organization Name (Optional) - hidden when joining via invitation */}
+      {!redirectUrl && (
+        <Controller
+          name="organizationName"
+          control={control}
+          render={({ field }) => (
+            <Input
+              label={t('organization')}
+              placeholder="Mein Verein e.V. (optional)"
+              icon={Building07}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              hint="Optional - Du kannst auch spaeter eine Organisation erstellen"
+            />
+          )}
+        />
+      )}
 
       {/* Submit Button */}
       <Button type="submit" color="primary" size="md" isLoading={isLoading} className="w-full">

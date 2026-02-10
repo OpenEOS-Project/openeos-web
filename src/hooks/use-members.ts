@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { authApi, organizationsApi } from '@/lib/api-client';
+import type { OrganizationPermissions } from '@/types/auth';
 
 export function useMembers(organizationId: string | undefined) {
   return useQuery({
@@ -25,12 +26,12 @@ export function useRemoveMember(organizationId: string) {
   });
 }
 
-export function useUpdateMemberRole(organizationId: string) {
+export function useUpdateMember(organizationId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
-      organizationsApi.updateMemberRole(organizationId, userId, role),
+    mutationFn: ({ userId, role, permissions }: { userId: string; role?: string; permissions?: OrganizationPermissions }) =>
+      organizationsApi.updateMember(organizationId, userId, { role, permissions }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
     },
@@ -53,11 +54,18 @@ export function useCreateInvitation(organizationId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { email: string; role: string }) =>
+    mutationFn: (data: { email: string; role: string; permissions?: OrganizationPermissions }) =>
       organizationsApi.createInvitation(organizationId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'invitations'] });
     },
+  });
+}
+
+export function useResendInvitation(organizationId: string) {
+  return useMutation({
+    mutationFn: (invitationId: string) =>
+      organizationsApi.resendInvitation(organizationId, invitationId),
   });
 }
 

@@ -21,9 +21,9 @@ function getAvailableEvents(events: Event[] | undefined): Event[] {
   return events
     .filter((e) => e.status !== 'completed' && e.status !== 'cancelled')
     .sort((a, b) => {
-      // Active events first, then draft, then by start date
-      if (a.status === 'active' && b.status !== 'active') return -1;
-      if (b.status === 'active' && a.status !== 'active') return 1;
+      // Active/scheduled events first, then draft, then by start date
+      const priority = (s: string) => (s === 'active' || s === 'scheduled') ? 0 : 1;
+      if (priority(a.status) !== priority(b.status)) return priority(a.status) - priority(b.status);
       return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     });
 }
@@ -127,7 +127,7 @@ export function CategoriesContainer() {
         >
           {availableEvents.map((event) => (
             <option key={event.id} value={event.id}>
-              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'draft' ? '(Entwurf)' : ''}
+              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'scheduled' ? '(Geplant)' : event.status === 'draft' ? '(Entwurf)' : ''}
             </option>
           ))}
         </select>

@@ -7,11 +7,12 @@ import { z } from 'zod';
 import { X } from '@untitledui/icons';
 
 import { Button } from '@/components/ui/buttons/button';
+import { Checkbox } from '@/components/ui/checkbox/checkbox';
 import { Input } from '@/components/ui/input/input';
 import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Select } from '@/components/ui/select/select';
+import { Toggle } from '@/components/ui/toggle/toggle';
 import { useCreateInvitation } from '@/hooks/use-members';
-import type { OrganizationRole } from '@/types/auth';
+import type { OrganizationPermissions } from '@/types/auth';
 
 interface InviteMemberModalProps {
   isOpen: boolean;
@@ -19,25 +20,32 @@ interface InviteMemberModalProps {
   onClose: () => void;
 }
 
+const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
+  'products',
+  'events',
+  'devices',
+  'members',
+  'shiftPlans',
+];
+
 const inviteSchema = z.object({
   email: z.string().email(),
-  role: z.string().min(1),
 });
 
 type InviteFormData = z.infer<typeof inviteSchema>;
-
-const roles: { value: OrganizationRole; label: string }[] = [
-  { value: 'admin', label: 'Administrator' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'cashier', label: 'Kassierer' },
-  { value: 'kitchen', label: 'Kueche' },
-  { value: 'delivery', label: 'Ausgabe' },
-];
 
 export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMemberModalProps) {
   const t = useTranslations('members');
   const tCommon = useTranslations('common');
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [permissions, setPermissions] = useState<OrganizationPermissions>({
+    products: false,
+    events: false,
+    devices: false,
+    members: false,
+    shiftPlans: false,
+  });
 
   const createInvitation = useCreateInvitation(organizationId);
 
@@ -49,7 +57,6 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   } = useForm<InviteFormData>({
     defaultValues: {
       email: '',
-      role: 'cashier',
     },
   });
 
@@ -59,10 +66,10 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     try {
       await createInvitation.mutateAsync({
         email: data.email,
-        role: data.role,
+        role: isAdmin ? 'admin' : 'member',
+        permissions: isAdmin ? undefined : permissions,
       });
-      reset();
-      onClose();
+      handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     }
@@ -70,8 +77,20 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
 
   const handleClose = () => {
     reset();
+    setIsAdmin(false);
+    setPermissions({
+      products: false,
+      events: false,
+      devices: false,
+      members: false,
+      shiftPlans: false,
+    });
     setError(null);
     onClose();
+  };
+
+  const togglePermission = (key: keyof OrganizationPermissions) => {
+    setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -94,7 +113,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
+                <div className="space-y-5 px-6 py-5">
                   {error && (
                     <div className="rounded-lg bg-error-50 p-3 text-sm text-error-600 ring-1 ring-error-200 ring-inset dark:bg-error-950 dark:text-error-400 dark:ring-error-800">
                       {error}
@@ -119,32 +138,35 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
                     )}
                   />
 
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-secondary">
-                      {t('form.role')}
-                    </label>
-                    <Controller
-                      name="role"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => (
-                        <Select
-                          selectedKey={field.value}
-                          onSelectionChange={(key) => field.onChange(key)}
-                          isInvalid={!!errors.role}
-                        >
-                          {roles.map((role) => (
-                            <Select.Item key={role.value} id={role.value}>
-                              {role.label}
-                            </Select.Item>
-                          ))}
-                        </Select>
-                      )}
-                    />
-                    {errors.role && (
-                      <p className="mt-1.5 text-sm text-error-primary">{t('form.roleRequired')}</p>
-                    )}
-                  </div>
+                  {/* Admin toggle */}
+                  <Toggle
+                    size="md"
+                    label={t('form.isAdmin')}
+                    hint={t('form.isAdminHint')}
+                    isSelected={isAdmin}
+                    onChange={setIsAdmin}
+                  />
+
+                  {/* Module permissions (only shown for non-admin) */}
+                  {!isAdmin && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-secondary">{t('permissions.title')}</p>
+                      <div className="space-y-2.5">
+                        {PERMISSION_KEYS.map((key) => (
+                          <Checkbox
+                            key={key}
+                            isSelected={!!permissions[key]}
+                            onChange={() => togglePermission(key)}
+                            label={t(`permissions.${key}`)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {isAdmin && (
+                    <p className="text-sm text-tertiary">{t('permissions.adminHint')}</p>
+                  )}
                 </div>
 
                 {/* Footer */}

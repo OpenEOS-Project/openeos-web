@@ -17,6 +17,10 @@ export interface Device {
   lastSeen?: string;
   verifiedAt?: string;
   verifiedBy?: string;
+  settings?: {
+    sumupReaderId?: string;
+    [key: string]: unknown;
+  };
   createdAt: string;
   updatedAt: string;
 }

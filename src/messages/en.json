@@ -127,6 +127,56 @@
         "title": "No activity",
         "description": "No orders have been recorded yet. Start an event to begin accepting orders."
       }
+    },
+    "superAdmin": {
+      "stats": {
+        "totalOrganizations": "Organizations",
+        "totalOrganizationsSubtitle": "Registered organizations",
+        "totalUsers": "Users",
+        "totalUsersSubtitle": "Registered users",
+        "totalRevenue": "Total Revenue",
+        "totalRevenueSubtitle": "Revenue in current year",
+        "activeEvents": "Active Events",
+        "activeEventsSubtitle": "Currently running events",
+        "newUsersThisMonth": "New Users",
+        "newUsersThisMonthSubtitle": "Registered this month",
+        "newOrganizationsThisMonth": "New Organizations",
+        "newOrganizationsThisMonthSubtitle": "Created this month",
+        "totalCredits": "System Credits",
+        "totalCreditsSubtitle": "Total event credits",
+        "pendingPurchases": "Pending Purchases",
+        "pendingPurchasesSubtitle": "Awaiting payment"
+      },
+      "recentActivity": {
+        "title": "Recent Admin Activity",
+        "subtitle": "Latest actions in the system",
+        "columns": {
+          "action": "Action",
+          "admin": "Administrator",
+          "organization": "Organization",
+          "date": "Date"
+        },
+        "empty": {
+          "title": "No activity",
+          "description": "No admin actions have been recorded yet."
+        }
+      },
+      "actions": {
+        "ADJUST_CREDITS": "Credits adjusted",
+        "CREATE_ORGANIZATION": "Organization created",
+        "UPDATE_ORGANIZATION": "Organization updated",
+        "DELETE_ORGANIZATION": "Organization deleted",
+        "UNLOCK_USER": "User unlocked",
+        "CREATE_CREDIT_PACKAGE": "Credit package created",
+        "UPDATE_CREDIT_PACKAGE": "Credit package updated",
+        "DELETE_CREDIT_PACKAGE": "Credit package deleted",
+        "UPDATE_SUBSCRIPTION_CONFIG": "Subscription config updated",
+        "ADD_RENTAL_HARDWARE": "Rental hardware added",
+        "UPDATE_RENTAL_HARDWARE": "Rental hardware updated",
+        "ASSIGN_RENTAL": "Rental assigned",
+        "RETURN_RENTAL": "Rental returned",
+        "unknown": "Unknown action"
+      }
     }
   },
   "navigation": {
@@ -309,6 +359,49 @@
         "soundEnabledDescription": "Audio notifications for new orders"
       }
     },
+    "organizationSumup": {
+      "title": "SumUp",
+      "credentials": {
+        "title": "Credentials",
+        "description": "API key and merchant code for the SumUp integration",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "SumUp API key (sup_sk_...)",
+        "merchantCode": "Merchant Code",
+        "merchantCodePlaceholder": "e.g. MXXXXXXXX",
+        "affiliateDescription": "Affiliate credentials for terminal checkout (Solo Cloud API). Optional, only needed for card payments.",
+        "affiliateKey": "Affiliate Key",
+        "affiliateKeyPlaceholder": "SumUp Affiliate Key",
+        "appId": "App ID",
+        "appIdPlaceholder": "SumUp App ID",
+        "testConnection": "Test Connection",
+        "testFailed": "Connection test failed. Please check your credentials.",
+        "saveFailed": "Save failed",
+        "success": "Connection successful"
+      },
+      "readers": {
+        "title": "Card Readers",
+        "empty": "No card readers found. Pair a new reader.",
+        "notConfigured": "Please configure SumUp credentials first.",
+        "pairReader": "Pair Reader",
+        "pairDescription": "Enter the pairing code from the card reader",
+        "pairingCode": "Pairing Code",
+        "pairingCodePlaceholder": "Enter code",
+        "pair": "Pair",
+        "pairFailed": "Pairing failed",
+        "rename": "Rename",
+        "readerName": "Name",
+        "delete": "Delete",
+        "serialNumber": "SN",
+        "model": "Model",
+        "readerNamePlaceholder": "e.g. Bar Card Reader",
+        "status": {
+          "paired": "Paired",
+          "processing": "Pairing",
+          "expired": "Expired",
+          "unknown": "Unknown"
+        }
+      }
+    },
     "organizationNotifications": {
       "title": "Notifications",
       "description": "Email notifications for your organization",
@@ -378,32 +471,35 @@
   },
   "admin": {
     "pricing": {
-      "title": "Pricing",
-      "description": "Manage subscription and credit packages",
-      "subscription": {
-        "title": "Subscription Configuration",
-        "description": "Settings for the monthly subscription",
-        "name": "Name",
-        "descriptionField": "Description",
-        "priceMonthly": "Monthly price (EUR)",
-        "creditsPerMonth": "Credits per month",
-        "save": "Save configuration"
+      "title": "Pricing & Packages",
+      "description": "Set prices for event days and monthly subscription",
+      "pricePerDay": "Price per event day (EUR)",
+      "priceMonthly": "Monthly subscription (EUR)",
+      "save": "Save prices",
+      "saving": "Saving...",
+      "syncStripe": {
+        "button": "Sync with Stripe",
+        "syncing": "Syncing..."
       },
       "packages": {
-        "title": "Credit Packages",
-        "description": "One-time credit purchases for customers",
-        "add": "Add package",
-        "edit": "Edit package",
-        "name": "Package name",
-        "descriptionField": "Description",
-        "credits": "Number of credits",
-        "price": "Price (EUR)",
-        "sortOrder": "Sort order",
-        "empty": "No credit packages available",
-        "deleteConfirm": {
-          "title": "Delete package",
-          "message": "Are you sure you want to delete this package? This action cannot be undone."
-        }
+        "day": "1 Day",
+        "weekend": "Weekend",
+        "week": "1 Week"
+      },
+      "subscription": {
+        "title": "Monthly Subscription",
+        "unlimited": "Unlimited",
+        "perMonth": "/ month"
+      },
+      "preview": {
+        "title": "Preview",
+        "description": "This is how the packages will appear on the website",
+        "package": "Package",
+        "days": "Event days",
+        "price": "Price",
+        "perDay": "Per day",
+        "savings": "Savings",
+        "stripeLinked": "Linked with Stripe"
       }
     }
   },
@@ -441,6 +537,7 @@
     },
     "status": {
       "draft": "Draft",
+      "scheduled": "Scheduled",
       "active": "Active",
       "completed": "Completed",
       "cancelled": "Cancelled"
@@ -659,6 +756,50 @@
     },
     "notifications": {
       "unlocked": "User unlocked successfully"
+    },
+    "detail": {
+      "title": "User Details",
+      "back": "Back",
+      "registeredAt": "Registered at",
+      "emailVerified": "Email verified",
+      "notVerified": "Not verified",
+      "failedLogins": "Failed logins",
+      "organizations": "Organizations",
+      "noOrganizations": "This user does not belong to any organization.",
+      "accountLocked": "Account locked",
+      "lockedUntil": "Locked until {date}",
+      "failedAttempts": "{count} failed login attempts"
+    }
+  },
+  "invitation": {
+    "title": "Invitation",
+    "subtitle": "You have been invited to an organization",
+    "loading": "Loading invitation...",
+    "roleLabel": "Role",
+    "accept": "Accept",
+    "decline": "Decline",
+    "loginAndAccept": "Log in & Accept",
+    "loginRequired": "You must be logged in to accept the invitation.",
+    "loginToAccept": "Log in or create an account to accept the invitation.",
+    "login": "Log in",
+    "register": "Create account",
+    "successTitle": "Invitation accepted!",
+    "successMessage": "You are now a member of {organization}.",
+    "redirecting": "Redirecting...",
+    "errorTitle": "Invalid invitation",
+    "backHome": "Back to home",
+    "roles": {
+      "admin": "Administrator",
+      "member": "Member"
+    },
+    "errors": {
+      "notFound": "This invitation does not exist or has been revoked.",
+      "expired": "This invitation has expired.",
+      "alreadyAccepted": "This invitation has already been accepted.",
+      "alreadyMember": "You are already a member of this organization.",
+      "wrongEmail": "This invitation is for a different email address.",
+      "acceptFailed": "Failed to accept the invitation.",
+      "declineFailed": "Failed to decline the invitation."
     }
   },
   "members": {
@@ -678,21 +819,30 @@
     },
     "roles": {
       "admin": "Administrator",
-      "manager": "Manager",
-      "cashier": "Cashier",
-      "kitchen": "Kitchen",
-      "delivery": "Delivery"
+      "member": "Member"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "products": "Products",
+      "events": "Events",
+      "devices": "Devices",
+      "members": "Members",
+      "shiftPlans": "Shift Plans",
+      "adminHint": "Administrators automatically have access to all modules."
     },
     "form": {
       "email": "Email Address",
       "emailPlaceholder": "member@example.com",
       "role": "Role",
-      "roleRequired": "Role is required"
+      "roleRequired": "Role is required",
+      "isAdmin": "Administrator",
+      "isAdminHint": "Administrators have access to all modules."
     },
     "actions": {
-      "changeRole": "Change Role",
+      "editPermissions": "Edit Permissions",
       "remove": "Remove",
-      "cancelInvitation": "Cancel Invitation"
+      "cancelInvitation": "Cancel Invitation",
+      "resendInvitation": "Resend"
     },
     "invitations": {
       "title": "Pending Invitations",
@@ -707,7 +857,7 @@
     },
     "notifications": {
       "invited": "Invitation sent successfully",
-      "roleChanged": "Role changed successfully",
+      "permissionsUpdated": "Permissions updated successfully",
       "removed": "Member removed successfully"
     }
   },
@@ -893,7 +1043,10 @@
       "received": "Received",
       "change": "Change",
       "confirm": "Confirm Payment"
-    }
+    },
+    "testMode": "Test mode — Orders will be deleted on activation",
+    "testBadge": "Test",
+    "scheduledBadge": "Scheduled"
   },
   "orders": {
     "title": "Orders",
@@ -1017,7 +1170,10 @@
       "type": "Device Type",
       "typeChangeWarning": "The device needs to reconnect after a type change.",
       "nameRequired": "Please enter a name",
-      "failed": "Update failed"
+      "failed": "Update failed",
+      "sumupReader": "SumUp Card Reader",
+      "sumupReaderNone": "No card reader",
+      "sumupNotConfigured": "SumUp is not configured. Configure in Settings > SumUp."
     },
     "registration": {
       "title": "Register New Device",

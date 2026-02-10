@@ -1,5 +1,5 @@
 // Matches backend EventStatus enum
-export type EventStatus = 'draft' | 'active' | 'completed' | 'cancelled';
+export type EventStatus = 'draft' | 'scheduled' | 'active' | 'completed' | 'cancelled';
 
 export interface EventSettings {
   orderNumberPrefix?: string;

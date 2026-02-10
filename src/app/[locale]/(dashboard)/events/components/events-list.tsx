@@ -23,6 +23,7 @@ interface EventsListProps {
 
 const statusColorMap: Record<EventStatus, 'gray' | 'success' | 'brand' | 'error'> = {
   draft: 'gray',
+  scheduled: 'brand',
   active: 'success',
   completed: 'brand',
   cancelled: 'error',
@@ -164,12 +165,12 @@ export function EventsList({
                           <span className="pr-4">{t('actions.activate')}</span>
                         </Dropdown.Item>
                       )}
-                      {event.status === 'active' && (
+                      {(event.status === 'active' || event.status === 'scheduled') && (
                         <Dropdown.Item icon={Square} onAction={() => onCompleteClick(event)}>
                           <span className="pr-4">{t('actions.complete')}</span>
                         </Dropdown.Item>
                       )}
-                      {(event.status === 'draft' || event.status === 'active') && (
+                      {(event.status === 'draft' || event.status === 'active' || event.status === 'scheduled') && (
                         <Dropdown.Item icon={XClose} onAction={() => onCancelClick(event)}>
                           <span className="pr-4">{t('actions.cancel')}</span>
                         </Dropdown.Item>

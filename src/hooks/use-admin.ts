@@ -12,6 +12,16 @@ export function useAdminUsers(params?: { search?: string; page?: number; limit?:
   });
 }
 
+export function useAdminUser(userId: string) {
+  return useQuery({
+    queryKey: ['admin', 'users', userId],
+    queryFn: async () => {
+      const response = await adminApi.getUser(userId);
+      return response.data;
+    },
+  });
+}
+
 export function useUnlockUser() {
   const queryClient = useQueryClient();
 
@@ -35,9 +45,29 @@ export function useAdminOrganizations(params?: { search?: string; page?: number;
 
 export function useAdminStats() {
   return useQuery({
-    queryKey: ['admin', 'stats'],
+    queryKey: ['admin', 'stats', 'overview'],
     queryFn: async () => {
       const response = await adminApi.getOverviewStats();
+      return response.data;
+    },
+  });
+}
+
+export function useAdminRevenueStats() {
+  return useQuery({
+    queryKey: ['admin', 'stats', 'revenue'],
+    queryFn: async () => {
+      const response = await adminApi.getRevenueStats();
+      return response.data;
+    },
+  });
+}
+
+export function useAdminRecentActivity() {
+  return useQuery({
+    queryKey: ['admin', 'audit-logs', 'recent'],
+    queryFn: async () => {
+      const response = await adminApi.getAuditLogs({ limit: 10 });
       return response.data;
     },
   });

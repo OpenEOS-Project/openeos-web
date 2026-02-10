@@ -33,8 +33,9 @@ export function LoginForm() {
 
   const { setUser, setOrganizations, isAuthenticated, isLoading: isAuthLoading } = useAuthStore();
 
-  // Get redirect URL from query params (set by AuthGuard)
+  // Get redirect URL and prefill email from query params
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
+  const prefillEmail = searchParams.get('email') || '';
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -49,7 +50,7 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormData>({
     defaultValues: {
-      email: '',
+      email: prefillEmail,
       password: '',
     },
   });

@@ -113,7 +113,7 @@ export default function DevicePosPage() {
     enabled: hasHydrated && status === 'verified',
   });
 
-  // Device API already returns only active events
+  // Device API returns active and draft events
   const activeEvents = eventsData?.data || [];
 
   // Auto-select first active event if none selected
@@ -496,6 +496,13 @@ export default function DevicePosPage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Test Mode Banner */}
+      {(selectedEvent?.status === 'draft' || selectedEvent?.status === 'scheduled') && (
+        <div className="flex items-center justify-center gap-2 border-b border-warning-secondary bg-warning-secondary px-4 py-2 text-sm font-medium text-warning-primary">
+          {t('testMode')}
+        </div>
       )}
 
       {/* Main Content */}

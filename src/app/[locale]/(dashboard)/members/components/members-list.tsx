@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Plus, Trash01, UserEdit } from '@untitledui/icons';
+import { Plus, Settings01, Trash01 } from '@untitledui/icons';
 
 import { Avatar } from '@/components/ui/avatar/avatar';
 import { Badge } from '@/components/ui/badges/badges';
@@ -11,23 +11,24 @@ import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { Table, TableCard } from '@/components/ui/table/table';
 import { useMembers } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
-import type { OrganizationRole, UserOrganization } from '@/types/auth';
+import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 
 interface MembersListProps {
   organizationId: string;
   onInviteClick: () => void;
   onRemoveClick: (member: UserOrganization) => void;
+  onEditPermissionsClick: (member: UserOrganization) => void;
 }
 
-const roleColors: Record<OrganizationRole, 'purple' | 'blue' | 'success' | 'orange' | 'gray'> = {
-  admin: 'purple',
-  manager: 'blue',
-  cashier: 'success',
-  kitchen: 'orange',
-  delivery: 'gray',
-};
+const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
+  'products',
+  'events',
+  'devices',
+  'members',
+  'shiftPlans',
+];
 
-export function MembersList({ organizationId, onInviteClick, onRemoveClick }: MembersListProps) {
+export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEditPermissionsClick }: MembersListProps) {
   const t = useTranslations('members');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
@@ -101,6 +102,10 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick }: Me
           {(member) => {
             const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
             const isCurrentUser = member.userId === user?.id;
+            const isAdmin = member.role === 'admin';
+            const activePermissions = !isAdmin
+              ? PERMISSION_KEYS.filter((key) => member.permissions?.[key])
+              : [];
 
             return (
               <Table.Row key={member.id} id={member.id}>
@@ -125,9 +130,16 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick }: Me
                   <span className="text-sm">{memberUser?.email}</span>
                 </Table.Cell>
                 <Table.Cell>
-                  <Badge color={roleColors[member.role]}>
-                    {t(`roles.${member.role}`)}
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge color={isAdmin ? 'purple' : 'blue'}>
+                      {t(`roles.${member.role}`)}
+                    </Badge>
+                    {activePermissions.map((key) => (
+                      <Badge key={key} size="sm" color="gray">
+                        {t(`permissions.${key}`)}
+                      </Badge>
+                    ))}
+                  </div>
                 </Table.Cell>
                 <Table.Cell>
                   <span className="text-sm">{formatDate(member.createdAt)}</span>
@@ -138,8 +150,11 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick }: Me
                       <Dropdown.DotsButton />
                       <Dropdown.Popover className="w-min">
                         <Dropdown.Menu>
-                          <Dropdown.Item icon={UserEdit}>
-                            <span className="pr-4">{t('actions.changeRole')}</span>
+                          <Dropdown.Item
+                            icon={Settings01}
+                            onAction={() => onEditPermissionsClick(member)}
+                          >
+                            <span className="pr-4">{t('actions.editPermissions')}</span>
                           </Dropdown.Item>
                           <Dropdown.Separator />
                           <Dropdown.Item
