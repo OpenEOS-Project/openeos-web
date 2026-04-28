@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import { useCartStore } from '@/stores/cart-store';
-import { cx } from '@/utils/cx';
-import { ProductImage } from '@/components/shared/product-image';
 import type { Product } from '@/types/product';
-
 import { ProductOptionsModal } from './product-options-modal';
 
 interface PosProductGridProps {
@@ -24,11 +21,9 @@ export function PosProductGrid({ products }: PosProductGridProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const handleProductClick = (product: Product) => {
-    // If product has options, show modal
     if (product.options?.groups && product.options.groups.length > 0) {
       setSelectedProduct(product);
     } else {
-      // Otherwise, add directly to cart
       addItem(product, 1, []);
     }
   };
@@ -43,13 +38,22 @@ export function PosProductGrid({ products }: PosProductGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+          gap: 10,
+        }}
+      >
         {products.map((product) => {
           const isOutOfStock = product.trackInventory && product.stockQuantity <= 0;
           const isUnavailable = !product.isAvailable;
           const isDisabled = isOutOfStock || isUnavailable;
-
-          const hasBanner = isUnavailable || (!isUnavailable && product.trackInventory && product.stockQuantity > 0 && product.stockQuantity <= 5);
+          const lowStock =
+            !isUnavailable &&
+            product.trackInventory &&
+            product.stockQuantity > 0 &&
+            product.stockQuantity <= 5;
 
           return (
             <button
@@ -57,70 +61,192 @@ export function PosProductGrid({ products }: PosProductGridProps) {
               type="button"
               onClick={() => handleProductClick(product)}
               disabled={isDisabled}
-              className={cx(
-                'group relative flex rounded-xl border p-4 text-left shadow-sm transition-all',
-                hasBanner && 'pb-8',
-                isUnavailable
-                  ? 'cursor-not-allowed border-secondary bg-primary opacity-60'
-                  : isOutOfStock
-                    ? 'cursor-not-allowed border-secondary bg-primary opacity-50'
-                    : 'border-secondary bg-primary hover:border-brand-primary hover:shadow-md active:scale-[0.98]'
-              )}
+              style={{
+                position: 'relative',
+                textAlign: 'left',
+                background: 'var(--pos-surface)',
+                border: `1px solid ${isDisabled ? 'var(--pos-line)' : 'var(--pos-line)'}`,
+                borderRadius: 'var(--pos-r-md)',
+                padding: 11,
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                boxShadow: 'var(--pos-sh-1)',
+                opacity: isDisabled ? 0.55 : 1,
+                transition: 'border-color .12s, transform .08s, box-shadow .12s',
+              }}
+              onPointerDown={(e) => { if (!isDisabled) e.currentTarget.style.transform = 'scale(.98)'; }}
+              onPointerUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+              onPointerLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+              onMouseEnter={(e) => {
+                if (!isDisabled) {
+                  e.currentTarget.style.borderColor = 'var(--pos-accent)';
+                  e.currentTarget.style.boxShadow = 'var(--pos-sh-2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--pos-line)';
+                e.currentTarget.style.boxShadow = 'var(--pos-sh-1)';
+              }}
             >
-              {/* Left: Text content */}
-              <div className="flex min-w-0 flex-1 flex-col">
-                {/* Product Name */}
-                <h3 className="text-sm font-semibold text-primary line-clamp-2">
-                  {product.name}
-                </h3>
-
-                {/* Description */}
-                {product.description && (
-                  <p className="mt-1 text-xs text-tertiary line-clamp-1">
-                    {product.description}
-                  </p>
+              {/* Icon / image area */}
+              <div
+                style={{
+                  height: 72,
+                  borderRadius: 'var(--pos-r-sm)',
+                  background: 'var(--pos-accent-soft)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 40,
+                  lineHeight: 1,
+                  overflow: 'hidden',
+                }}
+                aria-hidden
+              >
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.imageUrl}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  /* Category icon fallback, then generic */
+                  product.category?.icon || '🍽️'
                 )}
-
-                {/* Options indicator */}
-                {product.options?.groups && product.options.groups.length > 0 && (
-                  <span className="mt-1 text-xs text-brand-primary">
-                    + Optionen
-                  </span>
-                )}
-
-                {/* Price */}
-                <div className="mt-auto pt-3">
-                  <span className="text-lg font-bold text-primary">
-                    {formatPrice(product.price)}
-                  </span>
-                </div>
               </div>
 
-              {/* Right: Product Image */}
-              {product.imageUrl && (
-                <div className="ml-3 flex shrink-0 items-center">
-                  <ProductImage imageUrl={product.imageUrl} productName={product.name} size="lg" />
+              {/* Name + variant */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    lineHeight: 1.25,
+                    color: 'var(--pos-ink)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {product.name}
                 </div>
-              )}
+                {product.description && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--pos-ink-3)',
+                      lineHeight: 1.2,
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {product.description}
+                  </div>
+                )}
+                {product.options?.groups && product.options.groups.length > 0 && (
+                  <div style={{ fontSize: 10, color: 'var(--pos-accent-ink)', fontWeight: 500 }}>
+                    + Optionen
+                  </div>
+                )}
+              </div>
+
+              {/* Price + add button */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 'auto',
+                }}
+              >
+                <span
+                  className="pos-mono"
+                  style={{ fontSize: 14, fontWeight: 700, color: 'var(--pos-ink)' }}
+                >
+                  {formatPrice(product.price)}
+                </span>
+                {!isDisabled && (
+                  <span
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 999,
+                      background: 'var(--pos-accent)',
+                      color: 'var(--pos-accent-contrast)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      flexShrink: 0,
+                    }}
+                    aria-hidden
+                  >
+                    +
+                  </span>
+                )}
+              </div>
 
               {/* Unavailable banner */}
               {isUnavailable && (
-                <span className="absolute inset-x-0 bottom-0 rounded-b-xl bg-error-secondary py-1 text-center text-xs font-medium text-error-primary dark:text-white">
+                <span
+                  style={{
+                    position: 'absolute',
+                    inset: 'auto 0 0 0',
+                    background: 'var(--pos-danger)',
+                    color: '#fff',
+                    borderBottomLeftRadius: 'var(--pos-r-md)',
+                    borderBottomRightRadius: 'var(--pos-r-md)',
+                    padding: '3px 0',
+                    textAlign: 'center',
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
                   Nicht verfügbar
                 </span>
               )}
 
-              {/* Stock warning banner */}
-              {!isUnavailable && product.trackInventory && product.stockQuantity > 0 && product.stockQuantity <= 5 && (
-                <span className="absolute inset-x-0 bottom-0 rounded-b-xl bg-warning-secondary py-1 text-center text-xs font-medium text-warning-primary dark:text-white">
+              {/* Low stock warning */}
+              {lowStock && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    inset: 'auto 0 0 0',
+                    background: 'var(--pos-warn)',
+                    color: 'var(--pos-ink)',
+                    borderBottomLeftRadius: 'var(--pos-r-md)',
+                    borderBottomRightRadius: 'var(--pos-r-md)',
+                    padding: '3px 0',
+                    textAlign: 'center',
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
                   {product.stockQuantity} übrig
                 </span>
               )}
 
               {/* Out of stock overlay */}
               {isOutOfStock && !isUnavailable && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-primary/80">
-                  <span className="text-sm font-medium text-error-primary">
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.75)',
+                    borderRadius: 'var(--pos-r-md)',
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--pos-danger)' }}>
                     Ausverkauft
                   </span>
                 </div>
@@ -130,7 +256,6 @@ export function PosProductGrid({ products }: PosProductGridProps) {
         })}
       </div>
 
-      {/* Product Options Modal */}
       {selectedProduct && (
         <ProductOptionsModal
           isOpen={!!selectedProduct}

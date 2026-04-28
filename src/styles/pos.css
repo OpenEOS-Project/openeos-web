@@ -1,0 +1,143 @@
+/* ==========================================================
+   POS — Design tokens & layout rules for device/pos route
+   Scoped to .pos-root so they never bleed into dashboard.
+   Mirror the prototype's pos/tokens.css variables.
+   ========================================================== */
+
+.pos-root {
+  /* Accent — deep green (matches landing brand) */
+  --pos-accent:          oklch(0.42 0.08 155);
+  --pos-accent-contrast: oklch(0.98 0.005 155);
+  --pos-accent-soft:     oklch(0.94 0.025 155);
+  --pos-accent-ink:      oklch(0.32 0.06 155);
+
+  /* Neutrals — warm paper */
+  --pos-bg:          oklch(0.985 0.004 85);
+  --pos-surface:     oklch(1 0 0);
+  --pos-surface-2:   oklch(0.975 0.005 85);
+  --pos-line:        oklch(0.9 0.006 85);
+  --pos-line-strong: oklch(0.82 0.008 85);
+  --pos-ink:         oklch(0.22 0.01 80);
+  --pos-ink-2:       oklch(0.42 0.01 80);
+  --pos-ink-3:       oklch(0.62 0.008 80);
+
+  /* Semantic */
+  --pos-danger: oklch(0.55 0.16 25);
+  --pos-warn:   oklch(0.72 0.14 75);
+  --pos-ok:     oklch(0.62 0.13 150);
+
+  /* Radii */
+  --pos-r-xs: 6px;
+  --pos-r-sm: 10px;
+  --pos-r-md: 14px;
+  --pos-r-lg: 20px;
+  --pos-r-xl: 28px;
+
+  /* Shadows */
+  --pos-sh-1: 0 1px 0 rgba(20, 18, 12, 0.04), 0 1px 2px rgba(20, 18, 12, 0.04);
+  --pos-sh-2: 0 4px 12px rgba(20, 18, 12, 0.06), 0 1px 3px rgba(20, 18, 12, 0.05);
+  --pos-sh-3: 0 18px 40px rgba(20, 18, 12, 0.10), 0 4px 12px rgba(20, 18, 12, 0.06);
+
+  /* Typography */
+  --pos-ff-ui:   'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --pos-ff-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Base */
+  font-family: var(--pos-ff-ui);
+  color: var(--pos-ink);
+  background: var(--pos-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
+}
+
+.pos-root *,
+.pos-root *::before,
+.pos-root *::after {
+  box-sizing: border-box;
+}
+
+.pos-root button {
+  font-family: inherit;
+}
+
+.pos-mono {
+  font-family: var(--pos-ff-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Thin scrollbars inside POS regions */
+.pos-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pos-line-strong) transparent;
+}
+.pos-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.pos-scroll::-webkit-scrollbar-thumb {
+  background: var(--pos-line-strong);
+  border-radius: 6px;
+}
+.pos-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Focus ring */
+.pos-root :focus-visible {
+  outline: 2px solid var(--pos-accent);
+  outline-offset: 2px;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pos-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes pos-slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes pos-slide-up-sheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive layout helpers ───────────────────────────────────────────── */
+
+/* Desktop ≥1024px: sidebar | products | cart */
+.pos-body {
+  grid-template-columns: 200px 1fr 380px;
+}
+.pos-pills-row  { display: none; }
+.pos-cart-col   { display: block; }
+.pos-mobile-bar { display: none; }
+
+/* Tablet 768–1023px: narrow sidebar | products | cart */
+@media (max-width: 1023px) {
+  .pos-body {
+    grid-template-columns: 80px 1fr 300px;
+  }
+}
+
+/* Mobile <768px: full-width products, bottom-sheet cart */
+@media (max-width: 767px) {
+  .pos-body {
+    grid-template-columns: 1fr;
+  }
+  /* Hide vertical sidebar and cart column */
+  .pos-body > aside:first-child,
+  .pos-cart-col {
+    display: none;
+  }
+  /* Show horizontal pills */
+  .pos-pills-row { display: block; }
+  /* Show bottom cart bar */
+  .pos-mobile-bar {
+    display: flex;
+    background: var(--pos-surface);
+    border-top: 1px solid var(--pos-line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    flex-shrink: 0;
+  }
+}

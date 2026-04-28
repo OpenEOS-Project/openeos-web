@@ -3,10 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash01, Plus, Minus, CreditCard01, BankNote01, X, Receipt, File01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
 import { useCartStore, useCartHydration } from '@/stores/cart-store';
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
@@ -23,7 +19,20 @@ interface PosCartProps {
   onOpenTabs?: () => void;
 }
 
-export function PosCart({ organizationId, tableNumber: sessionTableNumber, orderingMode = 'immediate', onClose, onOpenTabs }: PosCartProps) {
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price);
+}
+
+export function PosCart({
+  organizationId: _organizationId,
+  tableNumber: sessionTableNumber,
+  orderingMode = 'immediate',
+  onClose,
+  onOpenTabs,
+}: PosCartProps) {
   const t = useTranslations('pos');
   const queryClient = useQueryClient();
   const cartHydrated = useCartHydration();
@@ -31,16 +40,13 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
     items,
     eventId,
     tableNumber: cartTableNumber,
-    setTableNumber,
     updateItemQuantity,
     removeItem,
     clearCart,
     getTotal,
   } = useCartStore();
 
-  // Use session table number if provided, otherwise use cart table number
   const tableNumber = sessionTableNumber || cartTableNumber;
-
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
   const [showCashModal, setShowCashModal] = useState(false);
@@ -50,6 +56,7 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
   const fulfillmentType = settings?.serviceMode === 'table' ? 'table_service' : 'counter_pickup';
 
   const total = getTotal();
+  const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   const buildOrderItems = () =>
     items.map((item) => ({
@@ -60,12 +67,9 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
       ...(item.selectedOptions.length > 0 ? { selectedOptions: item.selectedOptions } : {}),
     }));
 
-  // Mutation for immediate payment mode (create order + payment)
   const createOrderWithPayment = useMutation({
     mutationFn: async (paymentMethod: PaymentMethod) => {
       if (!eventId) throw new Error('No event selected');
-
-      // Create order via device API
       const orderResponse = await deviceApi.createOrder({
         eventId,
         tableNumber: tableNumber || undefined,
@@ -73,16 +77,12 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         fulfillmentType,
         items: buildOrderItems(),
       });
-
       const order = orderResponse.data;
-
-      // Create payment via device API
       await deviceApi.createPayment({
         orderId: order.id,
         amount: total,
         paymentMethod,
       });
-
       return order;
     },
     onSuccess: (order) => {
@@ -90,18 +90,13 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
       queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
       setLastOrderNumber(order.orderNumber || order.dailyNumber?.toString());
       clearCart();
-
-      // Clear success message after 5 seconds
       setTimeout(() => setLastOrderNumber(null), 5000);
     },
   });
 
-  // Mutation for tab mode (create order without payment)
   const createOrderOnly = useMutation({
     mutationFn: async () => {
       if (!eventId) throw new Error('No event selected');
-
-      // Create order via device API (no payment)
       const orderResponse = await deviceApi.createOrder({
         eventId,
         tableNumber: tableNumber || undefined,
@@ -109,7 +104,6 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         fulfillmentType,
         items: buildOrderItems(),
       });
-
       return orderResponse.data;
     },
     onSuccess: (order) => {
@@ -117,15 +111,12 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
       queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
       setLastOrderNumber(order.orderNumber || order.dailyNumber?.toString());
       clearCart();
-
-      // Clear success message after 5 seconds
       setTimeout(() => setLastOrderNumber(null), 5000);
     },
   });
 
   const handleCheckout = async (paymentMethod: PaymentMethod) => {
     if (items.length === 0) return;
-
     setIsProcessing(true);
     try {
       await createOrderWithPayment.mutateAsync(paymentMethod);
@@ -139,7 +130,6 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
 
   const handleTabOrder = async () => {
     if (items.length === 0) return;
-
     setIsProcessing(true);
     try {
       await createOrderOnly.mutateAsync();
@@ -150,180 +140,418 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
     }
   };
 
-  const handleCashPaymentClick = () => {
-    if (items.length === 0) return;
-    setShowCashModal(true);
-  };
-
-  const handleCashPaymentConfirm = () => {
-    handleCheckout('cash');
-  };
-
   return (
-    <div className="flex h-full flex-col">
-      {/* Cart Header */}
-      <div className="border-b border-secondary p-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-primary">{t('cart.title')}</h2>
-        <div className="flex items-center gap-2">
-          {onOpenTabs && (
-            <Button
-              color="secondary"
-              size="sm"
-              onClick={onOpenTabs}
-              iconLeading={File01}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        background: 'var(--pos-surface)',
+        borderLeft: '1px solid var(--pos-line)',
+      }}
+    >
+      {/* ── Header ── */}
+      <div
+        style={{
+          padding: '14px 18px',
+          borderBottom: '1px solid var(--pos-line)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          <span
+            style={{
+              fontSize: 10,
+              color: 'var(--pos-ink-3)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontWeight: 600,
+            }}
+          >
+            {tableNumber ? `Tisch ${tableNumber}` : 'Neue Bestellung'}
+          </span>
+          <span
+            style={{ fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)', lineHeight: 1.2 }}
+          >
+            {t('cart.title')}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {itemCount > 0 && (
+            <span
+              className="pos-mono"
+              style={{
+                background: 'var(--pos-accent-soft)',
+                color: 'var(--pos-accent-ink)',
+                padding: '3px 9px',
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 600,
+              }}
             >
-              {t('cart.openTabs')}
-            </Button>
+              {itemCount} {itemCount === 1 ? 'Artikel' : 'Artikel'}
+            </span>
+          )}
+          {onOpenTabs && (
+            <button
+              type="button"
+              onClick={onOpenTabs}
+              style={{
+                padding: '6px 10px',
+                background: 'var(--pos-surface)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--pos-ink-2)',
+                cursor: 'pointer',
+              }}
+            >
+              Tabs
+            </button>
           )}
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-tertiary hover:bg-secondary"
+              style={{
+                width: 30,
+                height: 30,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--pos-surface)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-sm)',
+                cursor: 'pointer',
+                color: 'var(--pos-ink-2)',
+                fontSize: 14,
+              }}
+              aria-label="Schließen"
             >
-              <X className="h-5 w-5" />
+              ✕
             </button>
           )}
         </div>
       </div>
 
-      {/* Success Message */}
+      {/* ── Success banner ── */}
       {lastOrderNumber && (
-        <div className="border-b border-success-primary bg-success-secondary p-4">
-          <p className="text-center font-semibold text-success-primary dark:text-white">
-            {t('cart.orderCreated', { number: lastOrderNumber })}
-          </p>
+        <div
+          style={{
+            padding: '10px 18px',
+            background: 'var(--pos-accent-soft)',
+            borderBottom: '1px solid var(--pos-line)',
+            textAlign: 'center',
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--pos-accent-ink)',
+            animation: 'pos-slide-up .2s ease',
+          }}
+        >
+          ✓ {t('cart.orderCreated', { number: lastOrderNumber })}
         </div>
       )}
 
-      {/* Order Details */}
-      {!sessionTableNumber && (
-        <div className="border-b border-secondary p-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="tableNumber" className="text-xs">
-              {t('cart.tableNumber')}
-            </Label>
-            <Input
-              id="tableNumber"
-              value={cartTableNumber}
-              onChange={(value) => setTableNumber(value)}
-              placeholder={t('cart.tableNumberPlaceholder')}
-              size="sm"
+      {/* ── Items ── */}
+      <div
+        className="pos-scroll"
+        style={{ flex: 1, overflowY: 'auto', padding: '6px 18px' }}
+      >
+        {!cartHydrated ? (
+          <div
+            style={{
+              height: '100%',
+              minHeight: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 999,
+                border: '2px solid var(--pos-accent)',
+                borderTopColor: 'transparent',
+                animation: 'spin 0.7s linear infinite',
+              }}
             />
           </div>
-        </div>
-      )}
-
-      {/* Cart Items */}
-      <div className="flex-1 overflow-auto p-4">
-        {!cartHydrated ? (
-          <div className="flex h-full items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
-          </div>
         ) : items.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-tertiary">{t('cart.empty')}</p>
+          <div
+            style={{
+              height: '100%',
+              minHeight: 120,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--pos-ink-3)',
+              fontSize: 13,
+              textAlign: 'center',
+              padding: 20,
+            }}
+          >
+            Noch nichts bestellt.<br />Artikel antippen zum Hinzufügen.
           </div>
         ) : (
-          <div className="space-y-3">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-start gap-3 rounded-lg border border-secondary bg-secondary p-3"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-primary truncate">{item.product.name}</p>
-                  {item.selectedOptions.length > 0 && (
-                    <p className="text-xs text-tertiary">
-                      {item.selectedOptions.map((o) => o.excluded ? `ohne ${o.option}` : o.option).join(', ')}
-                    </p>
-                  )}
-                  <p className="text-sm text-brand-primary font-medium mt-1">
-                    {formatCurrency(item.unitPrice * item.quantity)}
-                  </p>
+          items.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                gap: 8,
+                padding: '9px 0',
+                borderBottom: '1px solid var(--pos-line)',
+              }}
+            >
+              {/* Left: name + options */}
+              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
+                  <span
+                    className="pos-mono"
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--pos-accent-ink)',
+                      fontWeight: 600,
+                      minWidth: 22,
+                    }}
+                  >
+                    {item.quantity}×
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: 'var(--pos-ink)',
+                      lineHeight: 1.25,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {item.product.name}
+                  </span>
                 </div>
+                {item.selectedOptions.length > 0 && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--pos-ink-3)',
+                      marginLeft: 29,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {item.selectedOptions
+                      .map((o) => (o.excluded ? `ohne ${o.option}` : o.option))
+                      .join(' · ')}
+                  </div>
+                )}
+                {item.notes && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--pos-accent-ink)',
+                      marginLeft: 29,
+                      fontStyle: 'italic',
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    „{item.notes}"
+                  </div>
+                )}
+              </div>
 
-                <div className="flex items-center gap-2">
+              {/* Right: qty controls + price */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: 'var(--pos-surface-2)',
+                    border: '1px solid var(--pos-line)',
+                    borderRadius: 'var(--pos-r-sm)',
+                    overflow: 'hidden',
+                  }}
+                >
                   <button
                     type="button"
-                    onClick={() => updateItemQuantity(item.id, item.quantity - 1)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary"
+                    onClick={() =>
+                      item.quantity === 1
+                        ? removeItem(item.id)
+                        : updateItemQuantity(item.id, item.quantity - 1)
+                    }
+                    style={{
+                      width: 28,
+                      height: 28,
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      color: 'var(--pos-ink-2)',
+                      fontSize: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <Minus className="h-4 w-4" />
+                    −
                   </button>
-                  <span className="w-8 text-center font-medium text-primary">
-                    {item.quantity}
-                  </span>
                   <button
                     type="button"
                     onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      color: 'var(--pos-ink-2)',
+                      fontSize: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <Plus className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-error-primary hover:bg-error-secondary"
-                  >
-                    <Trash01 className="h-4 w-4" />
+                    +
                   </button>
                 </div>
+                <span
+                  className="pos-mono"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    minWidth: 62,
+                    textAlign: 'right',
+                    color: 'var(--pos-ink)',
+                    paddingTop: 5,
+                  }}
+                >
+                  {formatPrice(item.unitPrice * item.quantity)}
+                </span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
 
-      {/* Cart Footer */}
-      <div className="border-t border-secondary p-4 space-y-4">
-        {/* Total */}
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-primary">{t('cart.total')}</span>
-          <span className="text-2xl font-bold text-brand-primary">{formatCurrency(total)}</span>
+      {/* ── Footer ── */}
+      <div
+        style={{
+          padding: '14px 18px',
+          borderTop: '1px solid var(--pos-line)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+        }}
+      >
+        {/* Subtotal row */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+            color: 'var(--pos-ink-2)',
+          }}
+        >
+          <span>Zwischensumme</span>
+          <span className="pos-mono">{formatPrice(total)}</span>
         </div>
 
-        {/* Actions - Different based on ordering mode */}
+        {/* Total row */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+          }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>
+            {t('cart.total')}
+          </span>
+          <span
+            className="pos-mono"
+            style={{ fontSize: 26, fontWeight: 700, color: 'var(--pos-ink)', letterSpacing: '-0.02em' }}
+          >
+            {formatCurrency(total)}
+          </span>
+        </div>
+
+        {/* Action buttons */}
         {orderingMode === 'immediate' ? (
-          <>
-            {/* Immediate Payment Mode */}
-            <div className={`grid gap-3 ${hasSumupReader ? 'grid-cols-2' : 'grid-cols-1'}`}>
-              <Button
-                color="secondary"
-                size="lg"
-                className="flex-1"
-                disabled={items.length === 0 || isProcessing}
-                onClick={handleCashPaymentClick}
-                iconLeading={BankNote01}
-              >
-                {t('cart.payCash')}
-              </Button>
-              {hasSumupReader && (
-                <Button
-                  size="lg"
-                  className="flex-1"
-                  disabled={items.length === 0 || isProcessing}
-                  onClick={() => setShowSumupModal(true)}
-                  iconLeading={CreditCard01}
-                >
-                  {t('cart.payCard')}
-                </Button>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Tab Mode */}
-            <Button
-              size="lg"
-              className="w-full"
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: hasSumupReader ? '1fr 1fr' : '1fr',
+              gap: 8,
+              marginTop: 4,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowCashModal(true)}
               disabled={items.length === 0 || isProcessing}
-              onClick={handleTabOrder}
-              iconLeading={Receipt}
+              style={{
+                padding: '13px 10px',
+                background: 'var(--pos-surface)',
+                color: 'var(--pos-ink)',
+                border: '1px solid var(--pos-line-strong)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: items.length > 0 && !isProcessing ? 'pointer' : 'not-allowed',
+                opacity: items.length > 0 && !isProcessing ? 1 : 0.5,
+                transition: 'opacity .12s',
+              }}
             >
-              {t('cart.placeOrder')}
-            </Button>
-          </>
+              💶 {t('cart.payCash')}
+            </button>
+            {hasSumupReader && (
+              <button
+                type="button"
+                onClick={() => setShowSumupModal(true)}
+                disabled={items.length === 0 || isProcessing}
+                style={{
+                  padding: '13px 10px',
+                  background: 'var(--pos-accent)',
+                  color: 'var(--pos-accent-contrast)',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: items.length > 0 && !isProcessing ? 'pointer' : 'not-allowed',
+                  opacity: items.length > 0 && !isProcessing ? 1 : 0.5,
+                  transition: 'opacity .12s',
+                }}
+              >
+                💳 {t('cart.payCard')}
+              </button>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handleTabOrder}
+            disabled={items.length === 0 || isProcessing}
+            style={{
+              padding: '14px',
+              background: 'var(--pos-accent)',
+              color: 'var(--pos-accent-contrast)',
+              border: 'none',
+              borderRadius: 'var(--pos-r-sm)',
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: items.length > 0 && !isProcessing ? 'pointer' : 'not-allowed',
+              opacity: items.length > 0 && !isProcessing ? 1 : 0.5,
+              marginTop: 4,
+            }}
+          >
+            {t('cart.placeOrder')} →
+          </button>
         )}
 
         {items.length > 0 && (
@@ -331,23 +559,31 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
             type="button"
             onClick={clearCart}
             disabled={isProcessing}
-            className="w-full text-center text-xs text-tertiary hover:text-error-primary disabled:opacity-50"
+            style={{
+              background: 'none',
+              border: 'none',
+              textAlign: 'center',
+              fontSize: 12,
+              color: 'var(--pos-ink-3)',
+              cursor: 'pointer',
+              padding: '2px 0',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--pos-danger)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--pos-ink-3)'; }}
           >
             {t('cart.clear')}
           </button>
         )}
       </div>
 
-      {/* Cash Payment Modal */}
+      {/* Modals */}
       <CashPaymentModal
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
         total={total}
-        onConfirm={handleCashPaymentConfirm}
+        onConfirm={() => handleCheckout('cash')}
         isProcessing={isProcessing}
       />
-
-      {/* SumUp Checkout Modal */}
       <SumUpCheckoutModal
         isOpen={showSumupModal}
         onClose={() => setShowSumupModal(false)}
