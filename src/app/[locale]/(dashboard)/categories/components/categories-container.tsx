@@ -15,17 +15,10 @@ import type { Event } from '@/types/event';
 import { CategoryFormModal } from './category-form-modal';
 import { CategoriesList } from './categories-list';
 
-// Helper to get available events (not completed/cancelled) sorted by relevance
+// Helper to get available events (active or test) sorted by relevance
 function getAvailableEvents(events: Event[] | undefined): Event[] {
   if (!events) return [];
-  return events
-    .filter((e) => e.status !== 'completed' && e.status !== 'cancelled')
-    .sort((a, b) => {
-      // Active/scheduled events first, then draft, then by start date
-      const priority = (s: string) => (s === 'active' || s === 'scheduled') ? 0 : 1;
-      if (priority(a.status) !== priority(b.status)) return priority(a.status) - priority(b.status);
-      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-    });
+  return events.filter(e => e.status === 'active' || e.status === 'test');
 }
 
 export function CategoriesContainer() {
@@ -127,7 +120,7 @@ export function CategoriesContainer() {
         >
           {availableEvents.map((event) => (
             <option key={event.id} value={event.id}>
-              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'scheduled' ? '(Geplant)' : event.status === 'draft' ? '(Entwurf)' : ''}
+              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'test' ? '(Test)' : ''}
             </option>
           ))}
         </select>

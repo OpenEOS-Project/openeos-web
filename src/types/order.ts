@@ -5,6 +5,7 @@ import type { Category } from './category';
 export type OrderStatus = 'open' | 'in_progress' | 'ready' | 'completed' | 'cancelled';
 export type OrderPaymentStatus = 'unpaid' | 'partly_paid' | 'paid' | 'refunded';
 export type OrderSource = 'pos' | 'online' | 'qr_order';
+export type OrderFulfillmentType = 'table_service' | 'counter_pickup';
 export type OrderPriority = 'normal' | 'high' | 'rush';
 export type OrderItemStatus = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
 
@@ -13,6 +14,7 @@ export interface SelectedOption {
   group: string;
   option: string;
   priceModifier: number;
+  excluded?: boolean;
 }
 
 export interface OrderItemOptions {
@@ -60,6 +62,7 @@ export interface Order {
   status: OrderStatus;
   paymentStatus: OrderPaymentStatus;
   source: OrderSource;
+  fulfillmentType: OrderFulfillmentType;
   subtotal: number;
   taxTotal: number;
   total: number;
@@ -99,6 +102,7 @@ export interface CreateOrderData {
   notes?: string;
   priority?: OrderPriority;
   source?: OrderSource;
+  fulfillmentType?: OrderFulfillmentType;
   items?: CreateOrderItemData[];
 }
 

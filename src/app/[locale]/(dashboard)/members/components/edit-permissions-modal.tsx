@@ -5,10 +5,11 @@ import { useTranslations } from 'next-intl';
 import { X } from '@untitledui/icons';
 
 import { Button } from '@/components/ui/buttons/button';
+import { Badge } from '@/components/ui/badges/badges';
 import { Checkbox } from '@/components/ui/checkbox/checkbox';
 import { DialogTrigger, Modal, ModalOverlay, Dialog } from '@/components/ui/modal/modal';
 import { Toggle } from '@/components/ui/toggle/toggle';
-import { useUpdateMember } from '@/hooks/use-members';
+import { useUpdateMember, useSetMemberPin, useRemoveMemberPin } from '@/hooks/use-members';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 
 interface EditPermissionsModalProps {
@@ -40,8 +41,12 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
     ...member.permissions,
   });
   const [error, setError] = useState<string | null>(null);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState<string | null>(null);
 
   const updateMember = useUpdateMember(organizationId);
+  const setMemberPin = useSetMemberPin(organizationId);
+  const removeMemberPin = useRemoveMemberPin(organizationId);
 
   // Reset state when member changes
   useEffect(() => {
@@ -55,6 +60,8 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
       ...member.permissions,
     });
     setError(null);
+    setPinInput('');
+    setPinError(null);
   }, [member]);
 
   const handleSave = async () => {
@@ -140,6 +147,76 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                 {isAdmin && (
                   <p className="text-sm text-tertiary">{t('permissions.adminHint')}</p>
                 )}
+
+                {/* PIN Section */}
+                <div className="space-y-3 border-t border-secondary pt-5">
+                  <p className="text-sm font-medium text-secondary">{t('pin.title')}</p>
+                  <p className="text-sm text-tertiary">{t('pin.hint')}</p>
+
+                  {member.hasPin ? (
+                    <div className="flex items-center gap-3">
+                      <Badge color="success" size="sm">{t('pin.hasPin')}</Badge>
+                      <Button
+                        type="button"
+                        color="secondary"
+                        size="sm"
+                        onClick={async () => {
+                          setPinError(null);
+                          try {
+                            await removeMemberPin.mutateAsync(member.userId);
+                          } catch (err) {
+                            setPinError(err instanceof Error ? err.message : 'Error');
+                          }
+                        }}
+                        isLoading={removeMemberPin.isPending}
+                      >
+                        {t('pin.remove')}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={pinInput}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setPinInput(val);
+                          setPinError(null);
+                        }}
+                        placeholder={t('pin.placeholder')}
+                        className="h-9 w-32 rounded-lg border border-secondary bg-primary px-3 text-sm text-primary placeholder:text-tertiary focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
+                      />
+                      <Button
+                        type="button"
+                        color="secondary"
+                        size="sm"
+                        onClick={async () => {
+                          if (!/^\d{4,6}$/.test(pinInput)) {
+                            setPinError(t('pin.invalid'));
+                            return;
+                          }
+                          setPinError(null);
+                          try {
+                            await setMemberPin.mutateAsync({ userId: member.userId, pin: pinInput });
+                            setPinInput('');
+                          } catch (err) {
+                            setPinError(err instanceof Error ? err.message : 'Error');
+                          }
+                        }}
+                        isLoading={setMemberPin.isPending}
+                        disabled={!pinInput}
+                      >
+                        {t('pin.set')}
+                      </Button>
+                    </div>
+                  )}
+
+                  {pinError && (
+                    <p className="text-sm text-error-primary">{pinError}</p>
+                  )}
+                </div>
               </div>
 
               {/* Footer */}

@@ -1,5 +1,5 @@
 // Matches backend EventStatus enum
-export type EventStatus = 'draft' | 'scheduled' | 'active' | 'completed' | 'cancelled';
+export type EventStatus = 'active' | 'inactive' | 'test';
 
 export interface EventSettings {
   orderNumberPrefix?: string;
@@ -15,8 +15,8 @@ export interface Event {
   organizationId: string;
   name: string;
   description: string | null;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   status: EventStatus;
   settings: EventSettings;
   createdAt: string;
@@ -26,8 +26,8 @@ export interface Event {
 export interface CreateEventData {
   name: string;
   description?: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   settings?: Partial<EventSettings>;
 }
 

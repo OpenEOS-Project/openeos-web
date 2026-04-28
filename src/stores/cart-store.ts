@@ -41,7 +41,9 @@ interface CartActions {
 const generateCartItemId = () => `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 const calculateUnitPrice = (product: Product, selectedOptions: SelectedOption[]): number => {
-  const optionsPrice = selectedOptions.reduce((sum, opt) => sum + opt.priceModifier, 0);
+  const optionsPrice = selectedOptions
+    .filter((opt) => !opt.excluded)
+    .reduce((sum, opt) => sum + opt.priceModifier, 0);
   return Number(product.price) + optionsPrice;
 };
 

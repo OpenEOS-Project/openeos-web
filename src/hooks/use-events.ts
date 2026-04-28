@@ -2,8 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { eventsApi, authApi } from '@/lib/api-client';
-import { useAuthStore } from '@/stores/auth-store';
+import { eventsApi } from '@/lib/api-client';
 import type { CreateEventData, Event, UpdateEventData } from '@/types/event';
 
 export const eventKeys = {
@@ -90,34 +89,10 @@ export function useDeleteEvent() {
 
 export function useActivateEvent() {
   const queryClient = useQueryClient();
-  const { setOrganizations } = useAuthStore();
 
   return useMutation({
     mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
       const response = await eventsApi.activate(organizationId, id);
-      return response.data;
-    },
-    onSuccess: async (data, { organizationId }) => {
-      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
-      queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
-
-      // Refresh user data to update organization credits in the auth store
-      try {
-        const response = await authApi.me();
-        setOrganizations(response.data.user.userOrganizations || []);
-      } catch {
-        // Silently fail - credits will update on next page load
-      }
-    },
-  });
-}
-
-export function useCompleteEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
-      const response = await eventsApi.complete(organizationId, id);
       return response.data;
     },
     onSuccess: (data, { organizationId }) => {
@@ -127,26 +102,32 @@ export function useCompleteEvent() {
   });
 }
 
-export function useCancelEvent() {
+export function useDeactivateEvent() {
   const queryClient = useQueryClient();
-  const { setOrganizations } = useAuthStore();
 
   return useMutation({
     mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
-      const response = await eventsApi.cancel(organizationId, id);
+      const response = await eventsApi.deactivate(organizationId, id);
       return response.data;
     },
-    onSuccess: async (data, { organizationId }) => {
+    onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
+    },
+  });
+}
 
-      // Refresh user data to update organization credits (refunds) in the auth store
-      try {
-        const response = await authApi.me();
-        setOrganizations(response.data.user.userOrganizations || []);
-      } catch {
-        // Silently fail - credits will update on next page load
-      }
+export function useSetTestMode() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
+      const response = await eventsApi.setTestMode(organizationId, id);
+      return response.data;
+    },
+    onSuccess: (data, { organizationId }) => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+      queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });
 }

@@ -145,10 +145,10 @@ export function CashPaymentModal({
           'rounded-lg p-4 text-center transition-colors',
           canConfirm ? 'bg-success-secondary' : 'bg-secondary'
         )}>
-          <p className="text-sm text-tertiary mb-1">{t('change')}</p>
+          <p className={cx('text-sm mb-1', canConfirm ? 'text-tertiary dark:text-white/70' : 'text-tertiary')}>{t('change')}</p>
           <p className={cx(
             'text-3xl font-bold',
-            canConfirm ? 'text-success-primary' : 'text-tertiary'
+            canConfirm ? 'text-success-primary dark:text-white' : 'text-tertiary'
           )}>
             {formatCurrency(change)}
           </p>

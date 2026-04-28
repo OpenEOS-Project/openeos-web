@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { useDeleteOrganization } from '@/hooks/use-organizations';
 import type { Organization } from '@/types';
 
-import { CreditsModal } from './credits-modal';
 import { MembersModal } from './members-modal';
 import { OrganizationFormModal } from './organization-form-modal';
 import { OrganizationsList } from './organizations-list';
@@ -18,7 +17,6 @@ export function OrganizationsContainer() {
   const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
   const [deletingOrganization, setDeletingOrganization] = useState<Organization | null>(null);
   const [membersOrganization, setMembersOrganization] = useState<Organization | null>(null);
-  const [creditsOrganization, setCreditsOrganization] = useState<Organization | null>(null);
 
   const deleteOrganization = useDeleteOrganization();
 
@@ -36,10 +34,6 @@ export function OrganizationsContainer() {
 
   const handleManageMembersClick = (organization: Organization) => {
     setMembersOrganization(organization);
-  };
-
-  const handleManageCreditsClick = (organization: Organization) => {
-    setCreditsOrganization(organization);
   };
 
   const handleDeleteConfirm = async () => {
@@ -65,7 +59,6 @@ export function OrganizationsContainer() {
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
         onManageMembersClick={handleManageMembersClick}
-        onManageCreditsClick={handleManageCreditsClick}
       />
 
       <OrganizationFormModal
@@ -78,12 +71,6 @@ export function OrganizationsContainer() {
         isOpen={!!membersOrganization}
         organization={membersOrganization}
         onClose={() => setMembersOrganization(null)}
-      />
-
-      <CreditsModal
-        isOpen={!!creditsOrganization}
-        organization={creditsOrganization}
-        onClose={() => setCreditsOrganization(null)}
       />
 
       {/* Delete confirmation modal */}

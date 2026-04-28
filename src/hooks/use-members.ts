@@ -115,3 +115,25 @@ export function useDeclineInvitation() {
     },
   });
 }
+
+export function useSetMemberPin(organizationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, pin }: { userId: string; pin: string }) =>
+      organizationsApi.setMemberPin(organizationId, userId, pin),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
+    },
+  });
+}
+
+export function useRemoveMemberPin(organizationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) =>
+      organizationsApi.removeMemberPin(organizationId, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
+    },
+  });
+}

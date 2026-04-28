@@ -17,6 +17,7 @@ export interface UserOrganization {
   organizationId: string;
   role: OrganizationRole;
   permissions: OrganizationPermissions;
+  hasPin?: boolean;
   createdAt: string;
   updatedAt: string;
   user?: User;

@@ -16,16 +16,7 @@ import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
 
 type Step = 'enter-code' | 'configure' | 'success' | 'error';
 
-const DEVICE_TYPE_VALUES: DeviceClass[] = [
-  'display_menu',
-  'display_kitchen',
-  'display_delivery',
-  'display_pickup',
-  'display_sales',
-  'display_customer',
-  'pos',
-  'admin',
-];
+const DEVICE_TYPE_VALUES: DeviceClass[] = ['display', 'pos', 'admin'];
 
 export default function DeviceVerifyPage() {
   const t = useTranslations('devices');
@@ -44,7 +35,7 @@ export default function DeviceVerifyPage() {
   // Form state for configuration
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [deviceName, setDeviceName] = useState('');
-  const [deviceType, setDeviceType] = useState<DeviceClass>('display_menu');
+  const [deviceType, setDeviceType] = useState<DeviceClass>('display');
 
   // Set default organization if user only has one
   useEffect(() => {
@@ -68,7 +59,7 @@ export default function DeviceVerifyPage() {
       const device = response.data;
       setPendingDevice(device);
       setDeviceName(device.suggestedName || 'TV Display');
-      setDeviceType(device.deviceType || 'display_menu');
+      setDeviceType(device.deviceType || 'display');
       setStep('configure');
       setError(null);
     },

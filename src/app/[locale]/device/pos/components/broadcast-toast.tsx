@@ -21,23 +21,23 @@ const typeStyles = {
   warning: {
     bg: 'bg-warning-secondary',
     border: 'border-warning-primary/30',
-    icon: 'text-warning-primary',
-    title: 'text-warning-primary',
-    text: 'text-primary',
+    icon: 'text-warning-primary dark:text-white',
+    title: 'text-warning-primary dark:text-white',
+    text: 'text-primary dark:text-white/80',
   },
   success: {
     bg: 'bg-success-secondary',
     border: 'border-success-primary/30',
-    icon: 'text-success-primary',
-    title: 'text-success-primary',
-    text: 'text-primary',
+    icon: 'text-success-primary dark:text-white',
+    title: 'text-success-primary dark:text-white',
+    text: 'text-primary dark:text-white/80',
   },
   error: {
     bg: 'bg-error-secondary',
     border: 'border-error-primary/30',
-    icon: 'text-error-primary',
-    title: 'text-error-primary',
-    text: 'text-primary',
+    icon: 'text-error-primary dark:text-white',
+    title: 'text-error-primary dark:text-white',
+    text: 'text-primary dark:text-white/80',
   },
 };
 

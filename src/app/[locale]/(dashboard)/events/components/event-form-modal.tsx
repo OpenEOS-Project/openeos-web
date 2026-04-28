@@ -18,8 +18,8 @@ import { ApiException } from '@/types/api';
 const eventSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().optional(),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
@@ -87,8 +87,8 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: data.startDate || undefined,
+            endDate: data.endDate || undefined,
           },
         });
       } else {
@@ -97,8 +97,8 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: data.startDate || undefined,
+            endDate: data.endDate || undefined,
           },
         });
       }
@@ -180,7 +180,6 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         <Input
                           label={t('form.startDate')}
                           type="date"
-                          isRequired
                           isInvalid={!!errors.startDate}
                           hint={errors.startDate?.message}
                           value={field.value}
@@ -197,7 +196,6 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         <Input
                           label={t('form.endDate')}
                           type="date"
-                          isRequired
                           isInvalid={!!errors.endDate}
                           hint={errors.endDate?.message}
                           value={field.value}

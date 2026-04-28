@@ -22,18 +22,29 @@
   },
   "auth": {
     "login": {
-      "title": "Welcome back",
-      "subtitle": "Sign in to your account",
+      "title": "Welcome back.",
+      "subtitle": "Sign in with your OpenEOS account.",
       "email": "Email address",
       "emailPlaceholder": "name@example.com",
       "password": "Password",
-      "passwordPlaceholder": "Enter your password",
-      "rememberMe": "Remember me",
+      "passwordPlaceholder": "Your password",
+      "rememberMe": "Stay signed in",
       "forgotPassword": "Forgot password?",
       "submit": "Sign in",
-      "noAccount": "Don't have an account?",
-      "register": "Sign up now",
+      "noAccount": "No account yet?",
+      "register": "Create one",
       "deviceMode": "Use as device (POS terminal)",
+      "highlights": {
+        "head": "Admin interface",
+        "mobile": "Mobile POS",
+        "mobileCopy": "Run it on phone or tablet — anywhere on the venue.",
+        "qrOrder": "Self-order (QR)",
+        "qrOrderCopy": "Guests order via QR themselves — less waiting, more revenue.",
+        "shifts": "Shift planning",
+        "shiftsCopy": "Plan shifts, volunteers sign up online — fully automatic.",
+        "stats": "Real-time analytics",
+        "statsCopy": "Revenue, best sellers, wait times — always in the loop."
+      },
       "errors": {
         "invalidCredentials": "Invalid email or password",
         "accountLocked": "Your account has been locked. Please try again later.",
@@ -43,7 +54,7 @@
       }
     },
     "register": {
-      "title": "Create an account",
+      "title": "Create your account.",
       "subtitle": "Sign up for OpenEOS",
       "firstName": "First name",
       "lastName": "Last name",
@@ -51,13 +62,60 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "organization": "Organization name",
-      "submit": "Sign up",
+      "submit": "Create account",
       "hasAccount": "Already have an account?",
       "login": "Sign in",
+      "stepLabel": "Step {current} of {total}",
+      "back": "Back",
+      "next": "Next",
+      "successTitle": "Almost there!",
+      "successCopy": "We've sent a confirmation to {email}. Click the link to activate your account.",
+      "successCta": "Go to dashboard",
+      "steps": {
+        "account": {
+          "label": "Account",
+          "title": "Your account",
+          "copy": "Email address and password for your OpenEOS account.",
+          "email": "Email address",
+          "password": "Password",
+          "passwordHint": "At least 8 characters, upper- and lowercase, and a number.",
+          "passwordConfirm": "Confirm password"
+        },
+        "personal": {
+          "label": "You",
+          "title": "About you",
+          "copy": "So we know who we're dealing with — for invoices and support.",
+          "firstName": "First name",
+          "lastName": "Last name"
+        },
+        "organization": {
+          "label": "Organization",
+          "title": "Your organization",
+          "copy": "Club, event organizer or business. You can also skip this and create an organization later.",
+          "name": "Organization name (optional)",
+          "hint": "Will appear on invoices and receipts. Can be changed later."
+        },
+        "confirm": {
+          "label": "Confirmation",
+          "title": "Final check",
+          "copy": "Please review your details and accept the terms.",
+          "summaryAccount": "Account",
+          "summaryPersonal": "Personal",
+          "summaryOrganization": "Organization",
+          "organizationLater": "— add later —",
+          "terms": "I accept the Terms and Privacy Policy.",
+          "newsletter": "I'd like to receive occasional updates."
+        }
+      },
       "errors": {
-        "passwordMismatch": "Passwords do not match",
+        "required": "Required",
+        "emailInvalid": "Invalid email address",
+        "passwordShort": "At least 8 characters",
+        "passwordMismatch": "Passwords don't match",
+        "termsRequired": "Please accept the terms",
         "passwordTooShort": "Password must be at least 8 characters",
-        "emailTaken": "This email is already in use"
+        "emailTaken": "This email is already in use",
+        "generic": "Something went wrong. Please try again."
       }
     },
     "forgotPassword": {
@@ -188,7 +246,6 @@
     "orders": "Orders",
     "devices": "Devices",
     "printers": "Printers",
-    "workflows": "Workflows",
     "reports": "Reports",
     "settings": "Settings",
     "pos": "POS"
@@ -501,6 +558,105 @@
         "savings": "Savings",
         "stripeLinked": "Linked with Stripe"
       }
+    },
+    "rental": {
+      "hardware": {
+        "title": "Rental Hardware",
+        "description": "Manage the hardware pool for rentals.",
+        "add": "Add Hardware",
+        "edit": "Edit Hardware",
+        "delete": "Delete Hardware",
+        "deleteConfirm": "Are you sure you want to delete the hardware \"{name}\"?",
+        "table": {
+          "name": "Name",
+          "type": "Type",
+          "serial": "Serial Number",
+          "model": "Model",
+          "rate": "Daily Rate",
+          "status": "Status",
+          "device": "Device",
+          "actions": "Actions"
+        },
+        "types": {
+          "printer": "Printer",
+          "display": "Display"
+        },
+        "status": {
+          "available": "Available",
+          "rented": "Rented",
+          "maintenance": "Maintenance",
+          "retired": "Retired"
+        },
+        "form": {
+          "type": "Type",
+          "name": "Name",
+          "namePlaceholder": "e.g. Epson TM-T20III",
+          "serial": "Serial Number",
+          "serialPlaceholder": "e.g. SN-12345678",
+          "model": "Model",
+          "modelPlaceholder": "e.g. Epson TM-T20III",
+          "description": "Description",
+          "descriptionPlaceholder": "Optional description",
+          "dailyRate": "Daily Rate (EUR)",
+          "device": "Printer Agent (Device)",
+          "deviceNone": "No device assigned",
+          "printerConfig": "Printer Configuration",
+          "printerType": "Printer Type",
+          "connectionType": "Connection Type",
+          "paperWidth": "Paper Width",
+          "ipAddress": "IP Address",
+          "port": "Port",
+          "usbVendorId": "USB Vendor ID",
+          "usbProductId": "USB Product ID",
+          "printerTypes": {
+            "receipt": "Receipt",
+            "kitchen": "Kitchen",
+            "label": "Label"
+          },
+          "connectionTypes": {
+            "network": "Network",
+            "usb": "USB",
+            "bluetooth": "Bluetooth"
+          },
+          "notes": "Notes",
+          "notesPlaceholder": "Internal notes"
+        }
+      },
+      "assignments": {
+        "title": "Assignments",
+        "add": "Create Assignment",
+        "activate": "Activate",
+        "return": "Return",
+        "days": "days",
+        "noAssignments": "No assignments yet.",
+        "table": {
+          "hardware": "Hardware",
+          "organization": "Organization",
+          "period": "Period",
+          "amount": "Amount",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "pending": "Pending",
+          "confirmed": "Confirmed",
+          "active": "Active",
+          "returned": "Returned",
+          "cancelled": "Cancelled"
+        },
+        "form": {
+          "hardware": "Hardware",
+          "hardwarePlaceholder": "Select hardware",
+          "organization": "Organization",
+          "organizationPlaceholder": "Select organization",
+          "startDate": "Start Date",
+          "endDate": "End Date",
+          "notes": "Notes",
+          "notesPlaceholder": "Optional notes",
+          "totalDays": "Total Days",
+          "totalAmount": "Total Amount"
+        }
+      }
     }
   },
   "theme": {
@@ -536,19 +692,17 @@
       "endDate": "End date"
     },
     "status": {
-      "draft": "Draft",
-      "scheduled": "Scheduled",
       "active": "Active",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
+      "inactive": "Inactive",
+      "test": "Test Mode"
     },
     "actions": {
       "edit": "Edit",
       "delete": "Delete",
       "view": "View",
       "activate": "Activate",
-      "complete": "Complete",
-      "cancel": "Cancel"
+      "deactivate": "Deactivate",
+      "testMode": "Test Mode"
     },
     "deleteConfirm": {
       "title": "Delete Event",
@@ -560,16 +714,7 @@
       "updated": "Event updated successfully",
       "deleted": "Event deleted successfully",
       "activated": "Event activated",
-      "completed": "Event completed",
-      "cancelled": "Event cancelled"
-    },
-    "insufficientCredits": {
-      "title": "Insufficient Credits",
-      "description": "You don't have enough event credits to activate this event.",
-      "needed": "Required",
-      "available": "Available",
-      "missing": "Missing",
-      "buyCredits": "Buy Credits"
+      "deactivated": "Event deactivated"
     }
   },
   "categories": {
@@ -611,7 +756,8 @@
       "iconPlaceholder": "Select icon",
       "parent": "Parent category",
       "parentPlaceholder": "None (root category)",
-      "isActive": "Active"
+      "isActive": "Active",
+      "productionStation": "Production Station"
     },
     "status": {
       "active": "Active",
@@ -678,15 +824,32 @@
       "trackInventory": "Track inventory",
       "trackInventoryDescription": "Track stock quantity for this product",
       "stockQuantity": "Stock quantity",
-      "stockUnit": "Unit"
-    },
-    "extras": {
-      "title": "Extras",
-      "subtitle": "Optional add-ons for the product",
-      "name": "Name",
-      "namePlaceholder": "e.g. With cheese",
-      "price": "Price",
-      "add": "Add"
+      "stockUnit": "Unit",
+      "optionGroups": "Option Groups",
+      "addGroup": "Add Group",
+      "groupName": "Group Name",
+      "groupNamePlaceholder": "Group name, e.g. Size",
+      "groupType": "Type",
+      "typeSingle": "Single choice",
+      "typeMultiple": "Multiple choice",
+      "typeIngredients": "Ingredients list",
+      "required": "Required",
+      "optionName": "Name",
+      "optionPrice": "Price (€)",
+      "defaultOption": "Default",
+      "includedOption": "Included",
+      "addOption": "Add option",
+      "activeDescription": "Product is shown in the product list",
+      "availableDescription": "Product can be ordered. Disable for 'Sold out'",
+      "productionStation": "Production Station",
+      "productionStationHint": "Overrides the category setting",
+      "image": {
+        "title": "Product image",
+        "upload": "Upload image",
+        "chooseIcon": "Choose icon",
+        "remove": "Remove",
+        "uploading": "Uploading..."
+      }
     },
     "status": {
       "active": "Active",
@@ -722,6 +885,59 @@
       "updated": "Product updated successfully",
       "deleted": "Product deleted successfully",
       "stockAdjusted": "Stock adjusted successfully"
+    }
+  },
+  "productionStations": {
+    "title": "Production Stations",
+    "subtitle": "Manage production stations for your event",
+    "create": "Create Station",
+    "edit": "Edit Station",
+    "delete": "Delete Station",
+    "empty": {
+      "title": "No Production Stations",
+      "description": "Create stations to route orders to kitchen, bar, or serving areas"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Kitchen, Beverage Stand, Serving Area",
+      "description": "Description",
+      "color": "Color",
+      "handoffStation": "Handoff Station",
+      "handoffStationHint": "Completed items will be forwarded to this station",
+      "noHandoff": "None (final station)",
+      "printer": "Printer",
+      "noPrinter": "No printer",
+      "displayDevice": "Display Device",
+      "noDisplayDevice": "No display",
+      "active": "Active"
+    },
+    "table": {
+      "name": "Name",
+      "handoffStation": "Handoff Station",
+      "printer": "Printer",
+      "displayDevice": "Display",
+      "categories": "Categories",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "deleteConfirm": {
+      "title": "Delete Station?",
+      "message": "Products and categories will lose their station assignment."
+    },
+    "selectEvent": "Select Event",
+    "flowDiagram": {
+      "title": "Workflow",
+      "order": "Order",
+      "ready": "Ready for Pickup"
+    },
+    "live": {
+      "title": "Live View",
+      "noOrders": "No open orders",
+      "table": "Table",
+      "orders": "Orders",
+      "openFullView": "Full view",
+      "ready": "Ready",
+      "moreOrders": "and {count} more"
     }
   },
   "users": {
@@ -859,6 +1075,18 @@
       "invited": "Invitation sent successfully",
       "permissionsUpdated": "Permissions updated successfully",
       "removed": "Member removed successfully"
+    },
+    "pin": {
+      "title": "Device PIN",
+      "hint": "The PIN is used for identification at POS devices.",
+      "set": "Set PIN",
+      "remove": "Remove PIN",
+      "hasPin": "PIN set",
+      "noPin": "No PIN",
+      "placeholder": "4-6 digits",
+      "invalid": "PIN must contain 4-6 digits",
+      "setSuccess": "PIN set successfully",
+      "removeSuccess": "PIN removed successfully"
     }
   },
   "organizations": {
@@ -915,48 +1143,6 @@
       "deleted": "Organization deleted successfully"
     }
   },
-  "workflows": {
-    "title": "Workflows",
-    "subtitle": "Automate your processes with visual workflows",
-    "create": "Create Workflow",
-    "edit": "Edit Workflow",
-    "empty": {
-      "title": "No Workflows",
-      "description": "Create your first workflow to automate processes."
-    },
-    "table": {
-      "name": "Name",
-      "trigger": "Trigger",
-      "nodes": "Nodes",
-      "nodesCount": "nodes",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive",
-      "system": "System"
-    },
-    "actions": {
-      "edit": "Edit",
-      "delete": "Delete",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "test": "Test"
-    },
-    "deleteConfirm": {
-      "title": "Delete Workflow",
-      "message": "Are you sure you want to delete this workflow? This action cannot be undone.",
-      "confirm": "Delete"
-    },
-    "notifications": {
-      "created": "Workflow created successfully",
-      "updated": "Workflow updated successfully",
-      "deleted": "Workflow deleted successfully",
-      "activated": "Workflow activated",
-      "deactivated": "Workflow deactivated"
-    }
-  },
   "pos": {
     "title": "POS",
     "noOrganization": "Please select an organization first.",
@@ -988,7 +1174,7 @@
       "placeholder": "e.g. 5 or A1",
       "start": "Start Order",
       "table": "Table",
-      "endSession": "End Session",
+      "endSession": "Close Table",
       "changeTable": "Change Table"
     },
     "logout": "Logout",
@@ -1001,8 +1187,9 @@
       "items": "items",
       "moreItems": "more items",
       "partlyPaid": "{amount} already paid",
-      "selectedOrder": "Selected order",
-      "payCash": "Pay cash",
+      "totalOpen": "Total open",
+      "orders": "{count, plural, =1 {order} other {orders}}",
+      "payCash": "Cash",
       "payCard": "Card",
       "splitBill": "Split bill"
     },
@@ -1012,7 +1199,17 @@
       "selectedAmount": "Selected",
       "paySelected": "Pay selected",
       "payAll": "Pay all",
-      "remaining": "Remaining"
+      "remaining": "Remaining",
+      "groupByOrder": "By order",
+      "groupByCategory": "By category",
+      "selectAllCategory": "All",
+      "selectAll": "Select all",
+      "clearSelection": "Clear selection",
+      "open": "open",
+      "table": "Table",
+      "payCash": "Cash",
+      "payCard": "Card",
+      "uncategorized": "Uncategorized"
     },
     "checkout": {
       "title": "Checkout",
@@ -1044,9 +1241,73 @@
       "change": "Change",
       "confirm": "Confirm Payment"
     },
+    "sumupCheckout": {
+      "title": "Card Payment",
+      "waiting": "Please hold card to the reader...",
+      "processing": "Processing payment...",
+      "success": "Payment successful!",
+      "failed": "Payment failed",
+      "cancelled": "Payment cancelled",
+      "retry": "Try again",
+      "cancel": "Cancel",
+      "noReader": "No card reader configured. Please link a reader in device settings.",
+      "errors": {
+        "READER_BUSY": "The card reader is still busy. Please wait a moment.",
+        "READER_OFFLINE": "The card reader is not reachable. Please check the connection.",
+        "READER_NOT_FOUND": "Card reader not found. Please check the configuration.",
+        "INVALID_AMOUNT": "Invalid amount.",
+        "CHECKOUT_ALREADY_IN_PROGRESS": "A payment is already in progress on this device."
+      }
+    },
+    "pin": {
+      "title": "Enter PIN",
+      "description": "Enter your personal PIN to identify yourself.",
+      "error": "Invalid PIN. Please try again.",
+      "verifying": "Verifying..."
+    },
+    "productOptions": {
+      "singleHint": "Choose one option",
+      "multipleHint": "Multiple selections possible",
+      "ingredientsHint": "Deselect what you don't want",
+      "total": "Total",
+      "add": "Add"
+    },
+    "cashDrawer": {
+      "open": "Open drawer",
+      "opened": "Drawer opened"
+    },
     "testMode": "Test mode — Orders will be deleted on activation",
     "testBadge": "Test",
-    "scheduledBadge": "Scheduled"
+    "scheduledBadge": "Scheduled",
+    "orderHistory": {
+      "title": "Order History",
+      "noOrders": "No orders",
+      "noOrdersDescription": "No orders have been placed yet",
+      "filterAll": "All",
+      "filterOpen": "Open",
+      "filterCompleted": "Completed",
+      "filterCancelled": "Cancelled",
+      "statusOpen": "Open",
+      "statusInProgress": "In Progress",
+      "statusCompleted": "Completed",
+      "statusCancelled": "Cancelled",
+      "paymentUnpaid": "Unpaid",
+      "paymentPartlyPaid": "Partly Paid",
+      "paymentPaid": "Paid",
+      "paymentRefunded": "Refunded",
+      "reprintTickets": "Reprint Tickets",
+      "reprintReceipt": "Reprint Receipt",
+      "cancelOrder": "Cancel",
+      "cancelConfirm": "Are you sure you want to cancel this order?",
+      "cancelReason": "Cancellation reason (optional)",
+      "confirmCancel": "Confirm Cancellation",
+      "cancelSuccess": "Order has been cancelled",
+      "reprintSuccess": "Print job has been sent",
+      "items": "items",
+      "moreItems": "more items",
+      "table": "Table",
+      "noTable": "No table"
+    }
   },
   "orders": {
     "title": "Orders",
@@ -1089,6 +1350,16 @@
     }
   },
   "device": {
+    "station": {
+      "title": "Station Display",
+      "noOrders": "No open orders",
+      "ready": "Ready",
+      "table": "Table",
+      "counter": "Counter",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "noStation": "No station configured. Please assign a station to this device."
+    },
     "register": {
       "title": "Register Device",
       "subtitle": "Connect this device to your organization",
@@ -1128,13 +1399,18 @@
     },
     "class": {
       "pos": "POS",
-      "display_kitchen": "Kitchen Display",
-      "display_delivery": "Delivery Display",
-      "display_menu": "Menu Display",
-      "display_pickup": "Pickup Display",
-      "display_sales": "Sales Overview",
-      "display_customer": "Customer Display",
+      "display": "Display",
       "admin": "Admin"
+    },
+    "displayMode": {
+      "label": "Display Mode",
+      "kitchen": "Kitchen",
+      "delivery": "Delivery",
+      "menu": "Menu",
+      "pickup": "Pickup",
+      "sales": "Sales Overview",
+      "customer": "Customer Display",
+      "station": "Station Display"
     },
     "table": {
       "name": "Name",
@@ -1225,6 +1501,81 @@
       "tryAgain": "Try Again",
       "loginRequired": "Please sign in to continue",
       "login": "Sign In"
+    },
+    "detail": {
+      "tabs": {
+        "overview": "Overview",
+        "settings": "Settings",
+        "printer": "Printer"
+      },
+      "stats": {
+        "orders": "Orders",
+        "payments": "Payments",
+        "revenue": "Revenue",
+        "status": "Status"
+      },
+      "info": {
+        "title": "Device Details",
+        "deviceId": "Device ID",
+        "deviceType": "Device Type",
+        "status": "Status",
+        "createdAt": "Created at",
+        "verifiedAt": "Verified at",
+        "userAgent": "User Agent",
+        "lastSeen": "Last seen",
+        "notVerified": "Not verified"
+      },
+      "settings": {
+        "basic": {
+          "title": "Basic Settings",
+          "description": "Name, type and display mode of the device"
+        },
+        "serviceMode": {
+          "title": "Service Mode",
+          "description": "Define how the device is used in point of sale operations",
+          "table": "Table Service",
+          "tableDescription": "Table number is requested before each order",
+          "counter": "Counter",
+          "counterDescription": "No table prompt, ideal for counter service"
+        },
+        "auth": {
+          "title": "Authentication",
+          "description": "Security settings for the device",
+          "requirePin": "Require PIN",
+          "requirePinDescription": "Users must authenticate with a PIN at the device",
+          "pinManagedPerMember": "PINs are managed per member under Members"
+        },
+        "station": {
+          "event": "Event",
+          "station": "Production Station",
+          "none": "No station selected"
+        }
+      },
+      "printer": {
+        "defaultPrinter": {
+          "title": "Default Printer",
+          "noPrinter": "No printer"
+        },
+        "routing": {
+          "title": "Print Routing",
+          "description": "Define how print jobs are distributed",
+          "device": "Device Printer",
+          "deviceDescription": "All receipts are printed via the device's default printer",
+          "category": "Category Printer",
+          "categoryDescription": "Receipts are printed via the category's assigned printer (fallback: device printer)",
+          "product": "Product Printer",
+          "productDescription": "Receipts are printed via the product's assigned printer (fallback: category → device)"
+        },
+        "cashDrawer": {
+          "title": "Cash drawer",
+          "description": "Select a printer with a cash drawer that will open automatically on cash payments.",
+          "selectPrinter": "Printer with drawer",
+          "noPrinter": "No cash drawer",
+          "noPrintersAvailable": "No printer with cash drawer configured"
+        }
+      },
+      "saved": "Settings saved",
+      "saveFailed": "Save failed"
     }
   },
   "errors": {
@@ -1438,6 +1789,167 @@
     },
     "errors": {
       "setupFailed": "Setup failed. Please try again."
+    }
+  },
+  "printers": {
+    "tabs": {
+      "printers": "Printers",
+      "templates": "Templates"
+    },
+    "addPrinter": "Add Printer",
+    "editPrinter": "Edit Printer",
+    "deletePrinter": "Delete Printer",
+    "deleteConfirm": "Are you sure you want to delete the printer \"{name}\"?",
+    "testPrint": "Test Print",
+    "testPrintSuccess": "Test print sent",
+    "table": {
+      "name": "Name",
+      "type": "Type",
+      "connection": "Connection",
+      "device": "Device",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "types": {
+      "receipt": "Receipt",
+      "kitchen": "Kitchen",
+      "label": "Label"
+    },
+    "connectionTypes": {
+      "network": "Network",
+      "usb": "USB",
+      "bluetooth": "Bluetooth"
+    },
+    "form": {
+      "name": "Printer Name",
+      "namePlaceholder": "e.g. Receipt Printer 1",
+      "type": "Printer Type",
+      "connectionType": "Connection Type",
+      "ipAddress": "IP Address",
+      "port": "Port",
+      "usbVendorId": "USB Vendor ID",
+      "usbProductId": "USB Product ID",
+      "paperWidth": "Paper Width",
+      "device": "Printer Agent (Device)",
+      "devicePlaceholder": "No device assigned",
+      "deviceNone": "No Device",
+      "hasCashDrawer": "Cash drawer connected"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "noPrinters": "No printers registered yet",
+    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started."
+  },
+  "posIconPicker": {
+    "title": "Choose icon",
+    "search": "Search icons...",
+    "noResults": "No icons found",
+    "close": "Close"
+  },
+  "printTemplates": {
+    "title": "Print Templates",
+    "description": "Manage your receipt and kitchen print templates.",
+    "create": "Create Template",
+    "edit": "Edit Template",
+    "delete": "Delete Template",
+    "deleteConfirm": "Are you sure you want to delete this print template?",
+    "name": "Name",
+    "namePlaceholder": "e.g. Standard Receipt",
+    "type": "Type",
+    "default": "Default",
+    "setAsDefault": "Set as default",
+    "noTemplates": "No print templates yet",
+    "noTemplatesDescription": "Create your first print template to get started.",
+    "types": {
+      "receipt": "Receipt",
+      "kitchen_ticket": "Kitchen Ticket",
+      "order_ticket": "Order Ticket"
+    },
+    "designer": {
+      "title": "Template Designer",
+      "palette": "Elements",
+      "canvas": "Preview",
+      "properties": "Properties",
+      "paperWidth": "Paper Width",
+      "paperWidth80": "80mm (42 columns)",
+      "paperWidth58": "58mm (32 columns)",
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "dragHint": "Drag elements here",
+      "noSelection": "Select an element to edit its properties",
+      "deleteElement": "Remove Element",
+      "layoutElements": "Layout",
+      "dataFields": "Data Fields",
+      "organizationFields": "Organization",
+      "orderFields": "Order",
+      "itemFields": "Items",
+      "paymentFields": "Payment",
+      "otherFields": "Other",
+      "elements": {
+        "separator": "Separator",
+        "text": "Text",
+        "spacer": "Spacer",
+        "feed": "Paper Feed",
+        "cut": "Paper Cut"
+      },
+      "fields": {
+        "organization_name": "Organization Name",
+        "organization_address": "Address",
+        "organization_phone": "Phone",
+        "event_name": "Event",
+        "order_number": "Order Number",
+        "daily_number": "Daily Number",
+        "table_number": "Table Number",
+        "customer_name": "Customer Name",
+        "date_time": "Date/Time",
+        "items_list": "Items List",
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "total": "Total",
+        "payment_method": "Payment Method",
+        "paid_amount": "Paid Amount",
+        "change": "Change",
+        "qr_code": "QR Code",
+        "priority": "Priority",
+        "notes": "Notes"
+      },
+      "props": {
+        "content": "Text Content",
+        "contentPlaceholder": "Enter text...",
+        "align": "Alignment",
+        "alignLeft": "Left",
+        "alignCenter": "Center",
+        "alignRight": "Right",
+        "alignJustifyHint": "Label left, amount right",
+        "bold": "Bold",
+        "big": "Large",
+        "char": "Character",
+        "charEquals": "Equals (=)",
+        "charDash": "Dash (-)",
+        "lines": "Lines",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Table:",
+        "condition": "Visibility",
+        "conditionHint": "Determines when this field is shown on the receipt",
+        "conditionAlways": "Always show",
+        "conditionTableNumber": "Only when table number exists",
+        "conditionCustomerName": "Only when customer name exists",
+        "conditionEventName": "Only when event exists",
+        "conditionAddress": "Only when address exists",
+        "conditionPhone": "Only when phone number exists",
+        "conditionPaymentMethod": "Only when payment method exists",
+        "conditionPaidAmount": "Only when paid amount exists",
+        "conditionSubtotal": "Only when subtotal exists",
+        "conditionTax": "Only when tax exists",
+        "conditionQrCode": "Only when QR code exists",
+        "conditionNotes": "Only when notes exist",
+        "showNotes": "Show notes",
+        "showKitchenNotes": "Show kitchen notes",
+        "showOptions": "Show options",
+        "showPrice": "Show prices",
+        "field": "Data field"
+      }
     }
   }
 }

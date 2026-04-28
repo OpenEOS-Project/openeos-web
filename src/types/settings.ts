@@ -74,69 +74,6 @@ export interface OrganizationSettings {
   defaults: OrganizationDefaultSettings;
 }
 
-// Subscription Config (Admin)
-export interface SubscriptionConfig {
-  id: string;
-  name: string;
-  description: string | null;
-  priceMonthly: number;
-  creditsPerMonth: number;
-  isActive: boolean;
-  stripeProductId: string | null;
-  stripePriceId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Billing Types
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'incomplete' | 'trialing';
-
-export interface SubscriptionInfo {
-  status: SubscriptionStatus | null;
-  currentPeriodEnd: Date | null;
-  priceMonthly: number | null;
-  creditsPerMonth: number | null;
-}
-
-export interface CreditPackage {
-  id: string;
-  slug: string;
-  name: string;
-  description: string | null;
-  credits: number;
-  price: number;
-  pricePerCredit: number;
-  savingsPercent: number;
-  isActive: boolean;
-  isFeatured: boolean;
-  sortOrder: number;
-  stripeProductId: string | null;
-  stripePriceId: string | null;
-}
-
-export interface PublicPricing {
-  packages: Pick<CreditPackage, 'slug' | 'name' | 'description' | 'credits' | 'price' | 'savingsPercent'>[];
-  subscription: { name: string; description: string | null; priceMonthly: number } | null;
-}
-
-export interface BillingOverview {
-  subscription: SubscriptionInfo;
-  credits: number;
-  packages: CreditPackage[];
-}
-
-export interface CreditPurchase {
-  id: string;
-  packageId: string;
-  credits: number;
-  amount: number;
-  paymentMethod: string;
-  paymentStatus: string;
-  completedAt: Date | null;
-  createdAt: Date;
-  package?: CreditPackage;
-}
-
 // DTO Types for API calls
 export interface UpdateProfileDto {
   firstName?: string;
@@ -182,12 +119,3 @@ export interface Disable2FADto {
   password: string;
 }
 
-export interface CreateCheckoutDto {
-  packageId: string;
-  successUrl: string;
-  cancelUrl: string;
-}
-
-export interface CreatePortalSessionDto {
-  returnUrl: string;
-}

@@ -22,18 +22,29 @@
   },
   "auth": {
     "login": {
-      "title": "Willkommen zurück",
-      "subtitle": "Melden Sie sich bei Ihrem Konto an",
+      "title": "Willkommen zurück.",
+      "subtitle": "Melde dich mit deinem OpenEOS-Konto an.",
       "email": "E-Mail-Adresse",
       "emailPlaceholder": "name@beispiel.de",
       "password": "Passwort",
-      "passwordPlaceholder": "Passwort eingeben",
-      "rememberMe": "Angemeldet bleiben",
+      "passwordPlaceholder": "Dein Passwort",
+      "rememberMe": "Eingeloggt bleiben",
       "forgotPassword": "Passwort vergessen?",
       "submit": "Anmelden",
       "noAccount": "Noch kein Konto?",
       "register": "Jetzt registrieren",
       "deviceMode": "Als Gerät verwenden (Kassen-Terminal)",
+      "highlights": {
+        "head": "Admin-Interface",
+        "mobile": "Mobile Kasse",
+        "mobileCopy": "Bedienung über Smartphone oder Tablet — überall auf dem Gelände.",
+        "qrOrder": "Online-Bestellung",
+        "qrOrderCopy": "Gäste bestellen per QR-Code selbst — weniger Wartezeit, mehr Umsatz.",
+        "shifts": "Schichtplan",
+        "shiftsCopy": "Schichten planen, Mitarbeiter melden sich online an — alles automatisch.",
+        "stats": "Echtzeit-Statistiken",
+        "statsCopy": "Umsatz, Bestseller, Wartezeiten — immer den Überblick behalten."
+      },
       "errors": {
         "invalidCredentials": "Ungültige E-Mail oder Passwort",
         "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
@@ -43,21 +54,68 @@
       }
     },
     "register": {
-      "title": "Konto erstellen",
-      "subtitle": "Registrieren Sie sich für OpenEOS",
+      "title": "Konto erstellen.",
+      "subtitle": "Registriere dich für OpenEOS",
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail-Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort bestätigen",
       "organization": "Organisationsname",
-      "submit": "Registrieren",
-      "hasAccount": "Bereits ein Konto?",
-      "login": "Jetzt anmelden",
+      "submit": "Konto erstellen",
+      "hasAccount": "Bereits registriert?",
+      "login": "Hier anmelden",
+      "stepLabel": "Schritt {current} von {total}",
+      "back": "Zurück",
+      "next": "Weiter",
+      "successTitle": "Fast geschafft!",
+      "successCopy": "Wir haben dir eine Bestätigung an {email} gesendet. Klicke den Link darin, um dein Konto zu aktivieren.",
+      "successCta": "Zum Dashboard",
+      "steps": {
+        "account": {
+          "label": "Konto",
+          "title": "Dein Konto",
+          "copy": "E-Mail-Adresse und Passwort für deinen OpenEOS-Account.",
+          "email": "E-Mail-Adresse",
+          "password": "Passwort",
+          "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
+          "passwordConfirm": "Passwort bestätigen"
+        },
+        "personal": {
+          "label": "Du",
+          "title": "Über dich",
+          "copy": "Damit wir wissen, mit wem wir es zu tun haben — für Rechnungen und Support.",
+          "firstName": "Vorname",
+          "lastName": "Nachname"
+        },
+        "organization": {
+          "label": "Organisation",
+          "title": "Deine Organisation",
+          "copy": "Verein, Veranstalter oder Betrieb. Du kannst diesen Schritt auch überspringen und später eine Organisation anlegen.",
+          "name": "Name der Organisation (optional)",
+          "hint": "Erscheint später auf Rechnungen und Bons. Kann jederzeit geändert werden."
+        },
+        "confirm": {
+          "label": "Bestätigung",
+          "title": "Letzter Check",
+          "copy": "Bitte überprüfe deine Angaben und bestätige die Bedingungen.",
+          "summaryAccount": "Konto",
+          "summaryPersonal": "Person",
+          "summaryOrganization": "Organisation",
+          "organizationLater": "— später anlegen —",
+          "terms": "Ich akzeptiere die AGB und die Datenschutzerklärung.",
+          "newsletter": "Ich möchte gelegentlich Updates und Neuigkeiten erhalten."
+        }
+      },
       "errors": {
+        "required": "Pflichtfeld",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
+        "passwordShort": "Mindestens 8 Zeichen",
         "passwordMismatch": "Passwörter stimmen nicht überein",
+        "termsRequired": "Bitte akzeptiere die Bedingungen",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
-        "emailTaken": "Diese E-Mail wird bereits verwendet"
+        "emailTaken": "Diese E-Mail wird bereits verwendet",
+        "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
       }
     },
     "forgotPassword": {
@@ -188,7 +246,6 @@
     "orders": "Bestellungen",
     "devices": "Geräte",
     "printers": "Drucker",
-    "workflows": "Workflows",
     "reports": "Berichte",
     "settings": "Einstellungen",
     "pos": "Kasse"
@@ -460,19 +517,17 @@
       "endDate": "Enddatum"
     },
     "status": {
-      "draft": "Entwurf",
-      "scheduled": "Geplant",
       "active": "Aktiv",
-      "completed": "Abgeschlossen",
-      "cancelled": "Abgesagt"
+      "inactive": "Inaktiv",
+      "test": "Testmodus"
     },
     "actions": {
       "edit": "Bearbeiten",
       "delete": "Löschen",
       "view": "Anzeigen",
       "activate": "Aktivieren",
-      "complete": "Abschließen",
-      "cancel": "Absagen"
+      "deactivate": "Deaktivieren",
+      "testMode": "Testmodus"
     },
     "deleteConfirm": {
       "title": "Veranstaltung löschen",
@@ -484,16 +539,7 @@
       "updated": "Veranstaltung erfolgreich aktualisiert",
       "deleted": "Veranstaltung erfolgreich gelöscht",
       "activated": "Veranstaltung aktiviert",
-      "completed": "Veranstaltung abgeschlossen",
-      "cancelled": "Veranstaltung abgesagt"
-    },
-    "insufficientCredits": {
-      "title": "Nicht genügend Credits",
-      "description": "Sie haben nicht genügend Event-Credits, um diese Veranstaltung zu aktivieren.",
-      "needed": "Benötigt",
-      "available": "Verfügbar",
-      "missing": "Fehlend",
-      "buyCredits": "Credits kaufen"
+      "deactivated": "Veranstaltung deaktiviert"
     }
   },
   "categories": {
@@ -535,7 +581,8 @@
       "iconPlaceholder": "Symbol auswählen",
       "parent": "Übergeordnete Kategorie",
       "parentPlaceholder": "Keine (Hauptkategorie)",
-      "isActive": "Aktiv"
+      "isActive": "Aktiv",
+      "productionStation": "Produktionsstandort"
     },
     "status": {
       "active": "Aktiv",
@@ -602,15 +649,32 @@
       "trackInventory": "Bestand verfolgen",
       "trackInventoryDescription": "Lagerbestand für dieses Produkt verfolgen",
       "stockQuantity": "Lagerbestand",
-      "stockUnit": "Einheit"
-    },
-    "extras": {
-      "title": "Extras",
-      "subtitle": "Optionale Zusatzoptionen für das Produkt",
-      "name": "Name",
-      "namePlaceholder": "z.B. Mit Käse",
-      "price": "Aufpreis",
-      "add": "Hinzufügen"
+      "stockUnit": "Einheit",
+      "optionGroups": "Optionsgruppen",
+      "addGroup": "Gruppe hinzufügen",
+      "groupName": "Gruppenname",
+      "groupNamePlaceholder": "Gruppenname, z.B. Größe",
+      "groupType": "Typ",
+      "typeSingle": "Einfachauswahl",
+      "typeMultiple": "Mehrfachauswahl",
+      "typeIngredients": "Zutatenliste",
+      "required": "Pflichtfeld",
+      "optionName": "Name",
+      "optionPrice": "Preis (€)",
+      "defaultOption": "Standard",
+      "includedOption": "Inkludiert",
+      "addOption": "Option hinzufügen",
+      "activeDescription": "Produkt wird in der Produktliste angezeigt",
+      "availableDescription": "Produkt kann bestellt werden. Deaktivieren für 'Ausverkauft'",
+      "productionStation": "Produktionsstandort",
+      "productionStationHint": "Überschreibt die Kategorie-Einstellung",
+      "image": {
+        "title": "Produktbild",
+        "upload": "Bild hochladen",
+        "chooseIcon": "Icon wählen",
+        "remove": "Entfernen",
+        "uploading": "Wird hochgeladen..."
+      }
     },
     "status": {
       "active": "Aktiv",
@@ -646,6 +710,59 @@
       "updated": "Produkt erfolgreich aktualisiert",
       "deleted": "Produkt erfolgreich gelöscht",
       "stockAdjusted": "Bestand erfolgreich angepasst"
+    }
+  },
+  "productionStations": {
+    "title": "Produktionsstandorte",
+    "subtitle": "Verwalten Sie die Produktionsstandorte für Ihr Event",
+    "create": "Standort erstellen",
+    "edit": "Standort bearbeiten",
+    "delete": "Standort löschen",
+    "empty": {
+      "title": "Keine Produktionsstandorte",
+      "description": "Erstellen Sie Standorte um Bestellungen gezielt an Küche, Bar oder Ausgabe zu senden"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z.B. Küche, Getränkestand, Essensausgabe",
+      "description": "Beschreibung",
+      "color": "Farbe",
+      "handoffStation": "Folge-Station",
+      "handoffStationHint": "Fertige Artikel werden an diese Station weitergeleitet",
+      "noHandoff": "Keine (letzte Station)",
+      "printer": "Drucker",
+      "noPrinter": "Kein Drucker",
+      "displayDevice": "Display-Gerät",
+      "noDisplayDevice": "Kein Display",
+      "active": "Aktiv"
+    },
+    "table": {
+      "name": "Name",
+      "handoffStation": "Folge-Station",
+      "printer": "Drucker",
+      "displayDevice": "Display",
+      "categories": "Kategorien",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "deleteConfirm": {
+      "title": "Standort löschen?",
+      "message": "Produkte und Kategorien verlieren ihre Standort-Zuweisung."
+    },
+    "selectEvent": "Event auswählen",
+    "flowDiagram": {
+      "title": "Ablauf",
+      "order": "Bestellung",
+      "ready": "Bereit zur Abholung"
+    },
+    "live": {
+      "title": "Live-Ansicht",
+      "noOrders": "Keine offenen Bestellungen",
+      "table": "Tisch",
+      "orders": "Bestellungen",
+      "openFullView": "Vollansicht",
+      "ready": "Fertig",
+      "moreOrders": "und {count} weitere"
     }
   },
   "users": {
@@ -783,6 +900,18 @@
       "invited": "Einladung erfolgreich gesendet",
       "permissionsUpdated": "Berechtigungen erfolgreich aktualisiert",
       "removed": "Mitglied erfolgreich entfernt"
+    },
+    "pin": {
+      "title": "Geräte-PIN",
+      "hint": "Die PIN wird zur Identifizierung an Kassengeräten verwendet.",
+      "set": "PIN setzen",
+      "remove": "PIN entfernen",
+      "hasPin": "PIN gesetzt",
+      "noPin": "Keine PIN",
+      "placeholder": "4-6 Ziffern",
+      "invalid": "PIN muss 4-6 Ziffern enthalten",
+      "setSuccess": "PIN erfolgreich gesetzt",
+      "removeSuccess": "PIN erfolgreich entfernt"
     }
   },
   "organizations": {
@@ -837,48 +966,6 @@
       "created": "Organisation erfolgreich erstellt",
       "updated": "Organisation erfolgreich aktualisiert",
       "deleted": "Organisation erfolgreich gelöscht"
-    }
-  },
-  "workflows": {
-    "title": "Workflows",
-    "subtitle": "Automatisieren Sie Ihre Prozesse mit visuellen Workflows",
-    "create": "Workflow erstellen",
-    "edit": "Workflow bearbeiten",
-    "empty": {
-      "title": "Keine Workflows",
-      "description": "Erstellen Sie Ihren ersten Workflow, um Prozesse zu automatisieren."
-    },
-    "table": {
-      "name": "Name",
-      "trigger": "Auslöser",
-      "nodes": "Bausteine",
-      "nodesCount": "Bausteine",
-      "status": "Status",
-      "actions": "Aktionen"
-    },
-    "status": {
-      "active": "Aktiv",
-      "inactive": "Inaktiv",
-      "system": "System"
-    },
-    "actions": {
-      "edit": "Bearbeiten",
-      "delete": "Löschen",
-      "activate": "Aktivieren",
-      "deactivate": "Deaktivieren",
-      "test": "Testen"
-    },
-    "deleteConfirm": {
-      "title": "Workflow löschen",
-      "message": "Sind Sie sicher, dass Sie diesen Workflow löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "confirm": "Löschen"
-    },
-    "notifications": {
-      "created": "Workflow erfolgreich erstellt",
-      "updated": "Workflow erfolgreich aktualisiert",
-      "deleted": "Workflow erfolgreich gelöscht",
-      "activated": "Workflow aktiviert",
-      "deactivated": "Workflow deaktiviert"
     }
   },
   "billing": {
@@ -955,6 +1042,105 @@
         "savings": "Ersparnis",
         "stripeLinked": "Mit Stripe verknüpft"
       }
+    },
+    "rental": {
+      "hardware": {
+        "title": "Miet-Hardware",
+        "description": "Verwalten Sie den Hardware-Pool für Vermietungen.",
+        "add": "Hardware hinzufügen",
+        "edit": "Hardware bearbeiten",
+        "delete": "Hardware löschen",
+        "deleteConfirm": "Möchten Sie die Hardware \"{name}\" wirklich löschen?",
+        "table": {
+          "name": "Name",
+          "type": "Typ",
+          "serial": "Seriennummer",
+          "model": "Modell",
+          "rate": "Tagessatz",
+          "status": "Status",
+          "device": "Device",
+          "actions": "Aktionen"
+        },
+        "types": {
+          "printer": "Drucker",
+          "display": "Display"
+        },
+        "status": {
+          "available": "Verfügbar",
+          "rented": "Vermietet",
+          "maintenance": "Wartung",
+          "retired": "Ausgemustert"
+        },
+        "form": {
+          "type": "Typ",
+          "name": "Name",
+          "namePlaceholder": "z.B. Epson TM-T20III",
+          "serial": "Seriennummer",
+          "serialPlaceholder": "z.B. SN-12345678",
+          "model": "Modell",
+          "modelPlaceholder": "z.B. Epson TM-T20III",
+          "description": "Beschreibung",
+          "descriptionPlaceholder": "Optionale Beschreibung",
+          "dailyRate": "Tagessatz (EUR)",
+          "device": "Printer Agent (Gerät)",
+          "deviceNone": "Kein Gerät zugewiesen",
+          "printerConfig": "Drucker-Konfiguration",
+          "printerType": "Druckertyp",
+          "connectionType": "Verbindungstyp",
+          "paperWidth": "Papierbreite",
+          "ipAddress": "IP-Adresse",
+          "port": "Port",
+          "usbVendorId": "USB Vendor ID",
+          "usbProductId": "USB Product ID",
+          "printerTypes": {
+            "receipt": "Kassenbon",
+            "kitchen": "Küchenbon",
+            "label": "Etikett"
+          },
+          "connectionTypes": {
+            "network": "Netzwerk",
+            "usb": "USB",
+            "bluetooth": "Bluetooth"
+          },
+          "notes": "Notizen",
+          "notesPlaceholder": "Interne Notizen"
+        }
+      },
+      "assignments": {
+        "title": "Zuweisungen",
+        "add": "Zuweisung erstellen",
+        "activate": "Aktivieren",
+        "return": "Rückgabe",
+        "days": "Tage",
+        "noAssignments": "Noch keine Zuweisungen vorhanden.",
+        "table": {
+          "hardware": "Hardware",
+          "organization": "Organisation",
+          "period": "Zeitraum",
+          "amount": "Betrag",
+          "status": "Status",
+          "actions": "Aktionen"
+        },
+        "status": {
+          "pending": "Ausstehend",
+          "confirmed": "Bestätigt",
+          "active": "Aktiv",
+          "returned": "Zurückgegeben",
+          "cancelled": "Storniert"
+        },
+        "form": {
+          "hardware": "Hardware",
+          "hardwarePlaceholder": "Hardware auswählen",
+          "organization": "Organisation",
+          "organizationPlaceholder": "Organisation auswählen",
+          "startDate": "Startdatum",
+          "endDate": "Enddatum",
+          "notes": "Notizen",
+          "notesPlaceholder": "Optionale Notizen",
+          "totalDays": "Gesamttage",
+          "totalAmount": "Gesamtbetrag"
+        }
+      }
     }
   },
   "pos": {
@@ -988,7 +1174,7 @@
       "placeholder": "z.B. 5 oder A1",
       "start": "Bestellung starten",
       "table": "Tisch",
-      "endSession": "Session beenden",
+      "endSession": "Tisch schließen",
       "changeTable": "Tisch wechseln"
     },
     "logout": "Abmelden",
@@ -1001,8 +1187,9 @@
       "items": "Artikel",
       "moreItems": "weitere Artikel",
       "partlyPaid": "{amount} bereits bezahlt",
-      "selectedOrder": "Ausgewählte Bestellung",
-      "payCash": "Bar bezahlen",
+      "totalOpen": "Gesamt offen",
+      "orders": "{count, plural, =1 {Bestellung} other {Bestellungen}}",
+      "payCash": "Bar",
       "payCard": "Karte",
       "splitBill": "Rechnung splitten"
     },
@@ -1012,7 +1199,17 @@
       "selectedAmount": "Ausgewählt",
       "paySelected": "Auswahl bezahlen",
       "payAll": "Alles bezahlen",
-      "remaining": "Verbleibend"
+      "remaining": "Verbleibend",
+      "groupByOrder": "Nach Bestellung",
+      "groupByCategory": "Nach Kategorie",
+      "selectAllCategory": "Alle",
+      "selectAll": "Alle auswählen",
+      "clearSelection": "Auswahl löschen",
+      "open": "offen",
+      "table": "Tisch",
+      "payCash": "Bar",
+      "payCard": "Karte",
+      "uncategorized": "Ohne Kategorie"
     },
     "checkout": {
       "title": "Bezahlen",
@@ -1044,9 +1241,73 @@
       "change": "Rückgeld",
       "confirm": "Zahlung bestätigen"
     },
+    "sumupCheckout": {
+      "title": "Kartenzahlung",
+      "waiting": "Bitte Karte an den Leser halten...",
+      "processing": "Zahlung wird verarbeitet...",
+      "success": "Zahlung erfolgreich!",
+      "failed": "Zahlung fehlgeschlagen",
+      "cancelled": "Zahlung abgebrochen",
+      "retry": "Erneut versuchen",
+      "cancel": "Abbrechen",
+      "noReader": "Kein Kartenleser konfiguriert. Bitte in den Geräteeinstellungen einen Leser verknüpfen.",
+      "errors": {
+        "READER_BUSY": "Der Kartenleser ist noch beschäftigt. Bitte warten Sie einen Moment.",
+        "READER_OFFLINE": "Der Kartenleser ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
+        "READER_NOT_FOUND": "Kartenleser nicht gefunden. Bitte prüfen Sie die Konfiguration.",
+        "INVALID_AMOUNT": "Ungültiger Betrag.",
+        "CHECKOUT_ALREADY_IN_PROGRESS": "Es läuft bereits eine Zahlung auf diesem Gerät."
+      }
+    },
+    "pin": {
+      "title": "PIN eingeben",
+      "description": "Geben Sie Ihre persönliche PIN ein, um sich zu identifizieren.",
+      "error": "Ungültige PIN. Bitte versuchen Sie es erneut.",
+      "verifying": "Wird überprüft..."
+    },
+    "productOptions": {
+      "singleHint": "Eine Option wählen",
+      "multipleHint": "Mehrere auswählbar",
+      "ingredientsHint": "Abwählen was nicht gewünscht ist",
+      "total": "Gesamt",
+      "add": "Hinzufügen"
+    },
+    "cashDrawer": {
+      "open": "Schublade öffnen",
+      "opened": "Schublade geöffnet"
+    },
     "testMode": "Testmodus — Bestellungen werden beim Aktivieren gelöscht",
     "testBadge": "Test",
-    "scheduledBadge": "Geplant"
+    "scheduledBadge": "Geplant",
+    "orderHistory": {
+      "title": "Bestellverlauf",
+      "noOrders": "Keine Bestellungen",
+      "noOrdersDescription": "Es wurden noch keine Bestellungen aufgegeben",
+      "filterAll": "Alle",
+      "filterOpen": "Offen",
+      "filterCompleted": "Abgeschlossen",
+      "filterCancelled": "Storniert",
+      "statusOpen": "Offen",
+      "statusInProgress": "In Bearbeitung",
+      "statusCompleted": "Abgeschlossen",
+      "statusCancelled": "Storniert",
+      "paymentUnpaid": "Unbezahlt",
+      "paymentPartlyPaid": "Teilbezahlt",
+      "paymentPaid": "Bezahlt",
+      "paymentRefunded": "Erstattet",
+      "reprintTickets": "Bons nachdrucken",
+      "reprintReceipt": "Quittung nachdrucken",
+      "cancelOrder": "Stornieren",
+      "cancelConfirm": "Möchten Sie diese Bestellung wirklich stornieren?",
+      "cancelReason": "Stornierungsgrund (optional)",
+      "confirmCancel": "Stornierung bestätigen",
+      "cancelSuccess": "Bestellung wurde storniert",
+      "reprintSuccess": "Druckauftrag wurde gesendet",
+      "items": "Artikel",
+      "moreItems": "weitere Artikel",
+      "table": "Tisch",
+      "noTable": "Ohne Tisch"
+    }
   },
   "orders": {
     "title": "Bestellungen",
@@ -1089,6 +1350,16 @@
     }
   },
   "device": {
+    "station": {
+      "title": "Stationsanzeige",
+      "noOrders": "Keine offenen Bestellungen",
+      "ready": "Fertig",
+      "table": "Tisch",
+      "counter": "Theke",
+      "connected": "Verbunden",
+      "disconnected": "Getrennt",
+      "noStation": "Keine Station konfiguriert. Bitte weisen Sie diesem Gerät eine Station zu."
+    },
     "register": {
       "title": "Gerät registrieren",
       "subtitle": "Verbinden Sie dieses Gerät mit Ihrer Organisation",
@@ -1128,13 +1399,18 @@
     },
     "class": {
       "pos": "Kasse",
-      "display_kitchen": "Küchen-Display",
-      "display_delivery": "Ausgabe-Display",
-      "display_menu": "Speisekarte",
-      "display_pickup": "Abholung",
-      "display_sales": "Kassen-Übersicht",
-      "display_customer": "Kunden-Display",
+      "display": "Display",
       "admin": "Admin"
+    },
+    "displayMode": {
+      "label": "Display-Modus",
+      "kitchen": "Küche",
+      "delivery": "Ausgabe",
+      "menu": "Speisekarte",
+      "pickup": "Abholung",
+      "sales": "Kassen-Übersicht",
+      "customer": "Kunden-Display",
+      "station": "Standort-Display"
     },
     "table": {
       "name": "Name",
@@ -1225,6 +1501,81 @@
       "tryAgain": "Erneut versuchen",
       "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
       "login": "Anmelden"
+    },
+    "detail": {
+      "tabs": {
+        "overview": "Übersicht",
+        "settings": "Einstellungen",
+        "printer": "Drucker"
+      },
+      "stats": {
+        "orders": "Bestellungen",
+        "payments": "Zahlungen",
+        "revenue": "Umsatz",
+        "status": "Status"
+      },
+      "info": {
+        "title": "Geräte-Details",
+        "deviceId": "Geräte-ID",
+        "deviceType": "Gerätetyp",
+        "status": "Status",
+        "createdAt": "Erstellt am",
+        "verifiedAt": "Verifiziert am",
+        "userAgent": "User Agent",
+        "lastSeen": "Zuletzt aktiv",
+        "notVerified": "Nicht verifiziert"
+      },
+      "settings": {
+        "basic": {
+          "title": "Grundeinstellungen",
+          "description": "Name, Typ und Display-Modus des Geräts"
+        },
+        "serviceMode": {
+          "title": "Betriebsmodus",
+          "description": "Legen Sie fest, wie das Gerät im Kassenbetrieb verwendet wird",
+          "table": "Bedienung",
+          "tableDescription": "Tischnummer wird vor jeder Bestellung abgefragt",
+          "counter": "Feste Kasse",
+          "counterDescription": "Keine Tischabfrage, ideal für Thekenbetrieb"
+        },
+        "auth": {
+          "title": "Authentifizierung",
+          "description": "Sicherheitseinstellungen für das Gerät",
+          "requirePin": "PIN erforderlich",
+          "requirePinDescription": "Benutzer müssen sich am Gerät mit einer PIN anmelden",
+          "pinManagedPerMember": "PINs werden pro Mitglied unter Mitglieder verwaltet"
+        },
+        "station": {
+          "event": "Event",
+          "station": "Produktionsstandort",
+          "none": "Kein Standort ausgewählt"
+        }
+      },
+      "printer": {
+        "defaultPrinter": {
+          "title": "Standarddrucker",
+          "noPrinter": "Kein Drucker"
+        },
+        "routing": {
+          "title": "Druck-Routing",
+          "description": "Legen Sie fest, wie Druckaufträge verteilt werden",
+          "device": "Gerätedrucker",
+          "deviceDescription": "Alle Bons werden über den Standarddrucker des Geräts gedruckt",
+          "category": "Kategorie-Drucker",
+          "categoryDescription": "Bons werden über den der Kategorie zugewiesenen Drucker gedruckt (Fallback: Gerätedrucker)",
+          "product": "Produkt-Drucker",
+          "productDescription": "Bons werden über den dem Produkt zugewiesenen Drucker gedruckt (Fallback: Kategorie → Gerät)"
+        },
+        "cashDrawer": {
+          "title": "Kassenschublade",
+          "description": "Wähle einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
+          "selectPrinter": "Drucker mit Schublade",
+          "noPrinter": "Keine Kassenschublade",
+          "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
+        }
+      },
+      "saved": "Einstellungen gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen"
     }
   },
   "errors": {
@@ -1438,6 +1789,167 @@
     },
     "errors": {
       "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut."
+    }
+  },
+  "printers": {
+    "tabs": {
+      "printers": "Drucker",
+      "templates": "Vorlagen"
+    },
+    "addPrinter": "Drucker hinzufügen",
+    "editPrinter": "Drucker bearbeiten",
+    "deletePrinter": "Drucker löschen",
+    "deleteConfirm": "Möchten Sie den Drucker \"{name}\" wirklich löschen?",
+    "testPrint": "Testdruck",
+    "testPrintSuccess": "Testdruck gesendet",
+    "table": {
+      "name": "Name",
+      "type": "Typ",
+      "connection": "Verbindung",
+      "device": "Gerät",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "types": {
+      "receipt": "Kassenbon",
+      "kitchen": "Küchenbon",
+      "label": "Etikett"
+    },
+    "connectionTypes": {
+      "network": "Netzwerk",
+      "usb": "USB",
+      "bluetooth": "Bluetooth"
+    },
+    "form": {
+      "name": "Druckername",
+      "namePlaceholder": "z.B. Kassendrucker 1",
+      "type": "Druckertyp",
+      "connectionType": "Verbindungstyp",
+      "ipAddress": "IP-Adresse",
+      "port": "Port",
+      "usbVendorId": "USB Vendor ID",
+      "usbProductId": "USB Product ID",
+      "paperWidth": "Papierbreite",
+      "device": "Printer Agent (Gerät)",
+      "devicePlaceholder": "Kein Gerät zugewiesen",
+      "deviceNone": "Ohne Gerät",
+      "hasCashDrawer": "Kassenschublade angeschlossen"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "noPrinters": "Noch keine Drucker registriert",
+    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen."
+  },
+  "posIconPicker": {
+    "title": "Icon auswählen",
+    "search": "Icons durchsuchen...",
+    "noResults": "Keine Icons gefunden",
+    "close": "Schließen"
+  },
+  "printTemplates": {
+    "title": "Druckvorlagen",
+    "description": "Verwalten Sie Ihre Bon- und Küchendruckvorlagen.",
+    "create": "Vorlage erstellen",
+    "edit": "Vorlage bearbeiten",
+    "delete": "Vorlage löschen",
+    "deleteConfirm": "Möchten Sie diese Druckvorlage wirklich löschen?",
+    "name": "Name",
+    "namePlaceholder": "z.B. Standard-Kassenbon",
+    "type": "Typ",
+    "default": "Standard",
+    "setAsDefault": "Als Standard festlegen",
+    "noTemplates": "Noch keine Druckvorlagen",
+    "noTemplatesDescription": "Erstellen Sie Ihre erste Druckvorlage, um loszulegen.",
+    "types": {
+      "receipt": "Kassenbon",
+      "kitchen_ticket": "Küchenbon",
+      "order_ticket": "Bestellbon"
+    },
+    "designer": {
+      "title": "Vorlagen-Designer",
+      "palette": "Elemente",
+      "canvas": "Vorschau",
+      "properties": "Eigenschaften",
+      "paperWidth": "Papierbreite",
+      "paperWidth80": "80mm (42 Spalten)",
+      "paperWidth58": "58mm (32 Spalten)",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "Gespeichert",
+      "dragHint": "Elemente hierher ziehen",
+      "noSelection": "Element auswählen, um Eigenschaften zu bearbeiten",
+      "deleteElement": "Element entfernen",
+      "layoutElements": "Layout",
+      "dataFields": "Datenfelder",
+      "organizationFields": "Organisation",
+      "orderFields": "Bestellung",
+      "itemFields": "Positionen",
+      "paymentFields": "Zahlung",
+      "otherFields": "Sonstiges",
+      "elements": {
+        "separator": "Trennlinie",
+        "text": "Text",
+        "spacer": "Leerzeile",
+        "feed": "Papiervorschub",
+        "cut": "Papierschnitt"
+      },
+      "fields": {
+        "organization_name": "Organisationsname",
+        "organization_address": "Adresse",
+        "organization_phone": "Telefon",
+        "event_name": "Veranstaltung",
+        "order_number": "Bestellnummer",
+        "daily_number": "Tagesnummer",
+        "table_number": "Tischnummer",
+        "customer_name": "Kundenname",
+        "date_time": "Datum/Uhrzeit",
+        "items_list": "Positionsliste",
+        "subtotal": "Zwischensumme",
+        "tax": "Mehrwertsteuer",
+        "total": "Gesamtbetrag",
+        "payment_method": "Zahlungsart",
+        "paid_amount": "Bezahlter Betrag",
+        "change": "Rückgeld",
+        "qr_code": "QR-Code",
+        "priority": "Priorität",
+        "notes": "Notizen"
+      },
+      "props": {
+        "content": "Textinhalt",
+        "contentPlaceholder": "Text eingeben...",
+        "align": "Ausrichtung",
+        "alignLeft": "Links",
+        "alignCenter": "Zentriert",
+        "alignRight": "Rechts",
+        "alignJustifyHint": "Text links, Betrag rechts",
+        "bold": "Fett",
+        "big": "Groß",
+        "char": "Zeichen",
+        "charEquals": "Gleichzeichen (=)",
+        "charDash": "Bindestrich (-)",
+        "lines": "Zeilen",
+        "label": "Beschriftung",
+        "labelPlaceholder": "z.B. Tisch:",
+        "condition": "Sichtbarkeit",
+        "conditionHint": "Legt fest, wann dieses Feld auf dem Bon angezeigt wird",
+        "conditionAlways": "Immer anzeigen",
+        "conditionTableNumber": "Nur wenn Tischnummer vorhanden",
+        "conditionCustomerName": "Nur wenn Kundenname vorhanden",
+        "conditionEventName": "Nur wenn Veranstaltung vorhanden",
+        "conditionAddress": "Nur wenn Adresse vorhanden",
+        "conditionPhone": "Nur wenn Telefonnummer vorhanden",
+        "conditionPaymentMethod": "Nur wenn Zahlungsart vorhanden",
+        "conditionPaidAmount": "Nur wenn bezahlter Betrag vorhanden",
+        "conditionSubtotal": "Nur wenn Zwischensumme vorhanden",
+        "conditionTax": "Nur wenn Steuer vorhanden",
+        "conditionQrCode": "Nur wenn QR-Code vorhanden",
+        "conditionNotes": "Nur wenn Notizen vorhanden",
+        "showNotes": "Notizen anzeigen",
+        "showKitchenNotes": "Küchennotizen anzeigen",
+        "showOptions": "Optionen anzeigen",
+        "showPrice": "Preise anzeigen",
+        "field": "Datenfeld"
+      }
     }
   }
 }

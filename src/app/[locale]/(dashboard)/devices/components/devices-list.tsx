@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Tablet02,
@@ -30,7 +31,6 @@ import { VerifyDeviceDialog } from './verify-device-dialog';
 import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
 import { LinkDeviceModal } from './link-device-modal';
-import { EditDeviceDialog } from './edit-device-dialog';
 import type { Device, DeviceStatus, DeviceClass } from '@/types/device';
 import type { BadgeColors } from '@/components/ui/badges/badge-types';
 
@@ -42,36 +42,28 @@ const statusConfig: Record<DeviceStatus, { color: BadgeColors; icon: typeof Cloc
 
 const classLabels: Record<DeviceClass, string> = {
   pos: 'devices.class.pos',
-  display_kitchen: 'devices.class.display_kitchen',
-  display_delivery: 'devices.class.display_delivery',
-  display_menu: 'devices.class.display_menu',
-  display_pickup: 'devices.class.display_pickup',
-  display_sales: 'devices.class.display_sales',
-  display_customer: 'devices.class.display_customer',
+  display: 'devices.class.display',
   admin: 'devices.class.admin',
+  printer_agent: 'devices.class.printer_agent',
 };
 
 // Icon and color config for device classes
 const classConfig: Record<DeviceClass, { icon: typeof Tablet02; color: string }> = {
   pos: { icon: ShoppingCart01, color: 'bg-brand-primary/10 text-brand-primary' },
-  display_kitchen: { icon: Monitor01, color: 'bg-warning-primary/10 text-warning-primary' },
-  display_delivery: { icon: Monitor01, color: 'bg-success-primary/10 text-success-primary' },
-  display_menu: { icon: Tv01, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' },
-  display_pickup: { icon: Monitor01, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
-  display_sales: { icon: Tv01, color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400' },
-  display_customer: { icon: Tv01, color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400' },
+  display: { icon: Monitor01, color: 'bg-warning-primary/10 text-warning-primary' },
   admin: { icon: Settings01, color: 'bg-tertiary text-primary' },
+  printer_agent: { icon: Settings01, color: 'bg-success-primary/10 text-success-primary' },
 };
 
 export function DevicesList() {
   const t = useTranslations();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
   const [verifyDevice, setVerifyDevice] = useState<Device | null>(null);
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
-  const [editDevice, setEditDevice] = useState<Device | null>(null);
   const [showBroadcast, setShowBroadcast] = useState(false);
   const [showLinkDevice, setShowLinkDevice] = useState(false);
 
@@ -184,7 +176,7 @@ export function DevicesList() {
               const statusCfg = statusConfig[device.status];
               const StatusIcon = statusCfg.icon;
               const isOnline = onlineDeviceIds.has(device.id);
-              const classCfg = device.deviceClass ? classConfig[device.deviceClass] : null;
+              const classCfg = device.type ? classConfig[device.type] : null;
               const DeviceIcon = classCfg?.icon || Tablet02;
 
               return (
@@ -203,7 +195,12 @@ export function DevicesList() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-primary">{device.name}</p>
+                          <button
+                            onClick={() => router.push(`/devices/${device.id}`)}
+                            className="font-medium text-primary hover:text-brand-primary hover:underline"
+                          >
+                            {device.name}
+                          </button>
                           {isOnline && (
                             <span className="text-xs text-success-primary">{t('devices.online')}</span>
                           )}
@@ -224,12 +221,12 @@ export function DevicesList() {
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-sm text-secondary">
-                      {device.deviceClass ? t(classLabels[device.deviceClass]) : '-'}
+                      {device.type ? t(classLabels[device.type]) : '-'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-sm text-tertiary">
-                      {device.lastSeen ? formatDate(device.lastSeen) : '-'}
+                      {device.lastSeenAt ? formatDate(device.lastSeenAt) : '-'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -238,7 +235,7 @@ export function DevicesList() {
                       <Dropdown.Popover placement="bottom end">
                         <Dropdown.Menu>
                           <Dropdown.Item
-                            onAction={() => setEditDevice(device)}
+                            onAction={() => router.push(`/devices/${device.id}?tab=settings`)}
                             icon={Edit05}
                             label={t('devices.actions.edit')}
                           />
@@ -309,14 +306,6 @@ export function DevicesList() {
       {/* Link Device Modal */}
       {showLinkDevice && (
         <LinkDeviceModal onClose={() => setShowLinkDevice(false)} />
-      )}
-
-      {/* Edit Device Dialog */}
-      {editDevice && (
-        <EditDeviceDialog
-          device={editDevice}
-          onClose={() => setEditDevice(null)}
-        />
       )}
     </>
   );

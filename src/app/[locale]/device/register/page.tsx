@@ -40,9 +40,13 @@ export default function DeviceRegisterPage() {
   useEffect(() => {
     if (status === 'verified') {
       setStep('verified');
-      // Redirect to device POS after a short delay
+      // Redirect to device POS or station display after a short delay
       const timer = setTimeout(() => {
-        router.push('/device/pos');
+        const { deviceClass, settings } = useDeviceStore.getState();
+        const targetRoute = deviceClass === 'display' && (settings as any)?.displayMode === 'station'
+          ? '/device/station'
+          : '/device/pos';
+        router.push(targetRoute);
       }, 2000);
       return () => clearTimeout(timer);
     } else if (status === 'blocked') {

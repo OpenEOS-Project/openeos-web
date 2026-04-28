@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input/input';
 import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { Toggle } from '@/components/ui/toggle/toggle';
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
+import { useProductionStations } from '@/hooks/use-production-stations';
 import type { Category } from '@/types/category';
 
 const categorySchema = z.object({
@@ -21,6 +22,7 @@ const categorySchema = z.object({
   parentId: z.string().optional(),
   sortOrder: z.coerce.number().min(0).optional(),
   isActive: z.boolean(),
+  productionStationId: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -38,6 +40,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
   const isEditing = !!category;
 
   const { data: categories } = useCategories(eventId);
+  const { data: productionStations } = useProductionStations(eventId);
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
 
@@ -55,6 +58,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
       parentId: '',
       sortOrder: 0,
       isActive: true,
+      productionStationId: '',
     },
   });
 
@@ -67,6 +71,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
         parentId: category.parentId || '',
         sortOrder: category.sortOrder,
         isActive: category.isActive,
+        productionStationId: category.productionStationId || '',
       });
     } else {
       reset({
@@ -76,6 +81,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
         parentId: '',
         sortOrder: 0,
         isActive: true,
+        productionStationId: '',
       });
     }
   }, [category, reset]);
@@ -95,6 +101,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
             parentId: data.parentId || null,
             sortOrder: data.sortOrder,
             isActive: data.isActive,
+            productionStationId: data.productionStationId || null,
           },
         });
       } else {
@@ -107,6 +114,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
             parentId: data.parentId || undefined,
             sortOrder: data.sortOrder,
             isActive: data.isActive,
+            productionStationId: data.productionStationId || undefined,
           },
         });
       }
@@ -228,6 +236,33 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                             {availableParents.map((cat) => (
                               <option key={cat.id} value={cat.id}>
                                 {cat.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    />
+                  )}
+
+                  {(productionStations?.length ?? 0) > 0 && (
+                    <Controller
+                      name="productionStationId"
+                      control={control}
+                      render={({ field }) => (
+                        <div>
+                          <label className="mb-1.5 block text-sm font-medium text-secondary">
+                            {t('form.productionStation')}
+                          </label>
+                          <select
+                            className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                          >
+                            <option value="">—</option>
+                            {productionStations?.map((station) => (
+                              <option key={station.id} value={station.id}>
+                                {station.name}
                               </option>
                             ))}
                           </select>

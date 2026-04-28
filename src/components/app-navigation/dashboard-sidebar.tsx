@@ -7,18 +7,15 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronSelectorVertical,
-  LogOut01,
   Mail01,
   Menu02,
   X,
 } from '@untitledui/icons';
 
 import { Logo } from '@/components/foundations/logo/logo';
-import { Avatar } from '@/components/ui/avatar/avatar';
 import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
 import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { Tooltip } from '@/components/ui/tooltip/tooltip';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
 import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
@@ -41,7 +38,7 @@ const SIDEBAR_COLLAPSED_WIDTH = 72;
 export function DashboardSidebar() {
   const pathname = usePathname();
   const t = useTranslations('sidebar');
-  const { user, logout, organizations, currentOrganization, setCurrentOrganization, setOrganizations, isLoading } = useAuthStore();
+  const { user, organizations, currentOrganization, setCurrentOrganization, setOrganizations, isLoading } = useAuthStore();
   const { isCollapsed, isFullscreen, isMobileOpen, toggleCollapsed, setMobileOpen } = useSidebarStore();
 
   // Fetch pending invitations for current user
@@ -154,28 +151,21 @@ export function DashboardSidebar() {
         {/* Organization Selector (for non-super-admins with multiple orgs) - hidden when collapsed */}
         {!isCollapsed && !isSuperAdmin && organizations.length > 1 && (
           <Dropdown.Root>
-            <Dropdown.Button className="flex w-full items-center justify-between rounded-lg border border-secondary bg-primary p-2 text-left hover:bg-primary_hover">
+            <Dropdown.Button className="flex w-full items-center gap-3 rounded-lg bg-secondary p-2.5 text-left transition hover:bg-secondary_hover">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">
+                {currentOrganization?.organization?.name?.[0]?.toUpperCase() || 'O'}
+              </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-primary">
+                <p className="truncate text-sm font-semibold text-primary">
                   {currentOrganization?.organization?.name || 'Organisation wählen'}
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {currentRole && (
                     <span className="text-xs text-tertiary">{roleLabels[currentRole]}</span>
                   )}
-                  {currentOrganization?.organization && (
-                    <>
-                      <span className="text-xs text-quaternary">•</span>
-                      <Tooltip title={t('credits.tooltip')}>
-                        <span className="cursor-help text-xs text-tertiary">
-                          {currentOrganization.organization.eventCredits} {t('credits.label')}
-                        </span>
-                      </Tooltip>
-                    </>
-                  )}
                 </div>
               </div>
-              <ChevronSelectorVertical className="size-4 text-quaternary" />
+              <ChevronSelectorVertical className="size-4 shrink-0 text-quaternary" />
             </Dropdown.Button>
             <Dropdown.Popover className="w-full">
               <Dropdown.Menu>
@@ -184,18 +174,15 @@ export function DashboardSidebar() {
                     key={org.organizationId}
                     onAction={() => setCurrentOrganization(org)}
                   >
-                    <div className="flex flex-col">
-                      <span className="font-medium">{org.organization?.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-tertiary">{roleLabels[org.role]}</span>
-                        {org.organization && (
-                          <>
-                            <span className="text-xs text-quaternary">•</span>
-                            <span className="text-xs text-tertiary">
-                              {org.organization.eventCredits} {t('credits.label')}
-                            </span>
-                          </>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">
+                        {org.organization?.name?.[0]?.toUpperCase() || 'O'}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{org.organization?.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-tertiary">{roleLabels[org.role]}</span>
+                        </div>
                       </div>
                     </div>
                   </Dropdown.Item>
@@ -207,24 +194,19 @@ export function DashboardSidebar() {
 
         {/* Show current org info for single org users - hidden when collapsed */}
         {!isCollapsed && !isSuperAdmin && organizations.length <= 1 && currentOrganization?.organization && (
-          <div className="rounded-lg border border-secondary bg-secondary p-2">
-            <p className="truncate text-sm font-medium text-primary">
-              {currentOrganization.organization.name}
-            </p>
-            <div className="flex items-center gap-2">
-              {currentRole && (
-                <span className="text-xs text-tertiary">{roleLabels[currentRole]}</span>
-              )}
-              {currentOrganization.organization && (
-                <>
-                  <span className="text-xs text-quaternary">•</span>
-                  <Tooltip title={t('credits.tooltip')}>
-                    <span className="cursor-help text-xs text-tertiary">
-                      {currentOrganization.organization.eventCredits} {t('credits.label')}
-                    </span>
-                  </Tooltip>
-                </>
-              )}
+          <div className="flex items-center gap-3 rounded-lg bg-secondary p-2.5">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">
+              {currentOrganization.organization.name?.[0]?.toUpperCase() || 'O'}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-primary">
+                {currentOrganization.organization.name}
+              </p>
+              <div className="flex items-center gap-1.5">
+                {currentRole && (
+                  <span className="text-xs text-tertiary">{roleLabels[currentRole]}</span>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -306,48 +288,10 @@ export function DashboardSidebar() {
           </ul>
         )}
 
-        {/* User Account Card */}
-        {isCollapsed ? (
-          <Tooltip title={`${user?.firstName} ${user?.lastName}`} placement="right">
-            <button
-              onClick={logout}
-              className="flex items-center justify-center rounded-xl p-2 ring-1 ring-secondary ring-inset hover:bg-primary_hover"
-              aria-label="Abmelden"
-            >
-              <Avatar
-                size="sm"
-                initials={user?.firstName?.[0]?.toUpperCase()}
-                status="online"
-              />
-            </button>
-          </Tooltip>
-        ) : (
-          <div className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
-            <Avatar
-              size="md"
-              initials={user?.firstName?.[0]?.toUpperCase()}
-              status="online"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-primary">
-                {user?.firstName} {user?.lastName}
-              </p>
-              <p className="truncate text-sm text-tertiary">{user?.email}</p>
-            </div>
-            <button
-              onClick={logout}
-              className="flex items-center justify-center rounded-md p-1.5 text-fg-quaternary transition duration-100 ease-linear hover:bg-primary_hover hover:text-fg-quaternary_hover"
-              aria-label="Abmelden"
-            >
-              <LogOut01 className="size-4" />
-            </button>
-          </div>
-        )}
-
         {/* Collapse toggle button - desktop only */}
         <button
           onClick={toggleCollapsed}
-          className="hidden lg:flex items-center justify-center rounded-lg border border-secondary bg-primary p-2 text-tertiary hover:bg-primary_hover hover:text-secondary"
+          className="hidden items-center justify-center rounded-lg p-2 text-fg-quaternary transition duration-100 ease-linear hover:bg-primary_hover hover:text-fg-quaternary_hover lg:flex"
           aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
         >
           {isCollapsed ? (

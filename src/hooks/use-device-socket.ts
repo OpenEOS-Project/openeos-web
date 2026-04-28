@@ -19,12 +19,15 @@ interface UseDeviceSocketOptions {
   onBroadcast?: (message: BroadcastMessage) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
+  on?: Record<string, (data: unknown) => void>;
 }
 
 export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
   const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { deviceToken, organizationId, status } = useDeviceStore();
+  const onRef = useRef(options.on);
+  onRef.current = options.on;
 
   const connect = useCallback(() => {
     if (!deviceToken || status !== 'verified') return;
@@ -73,6 +76,15 @@ export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
     socketRef.current.on('connect_error', (error) => {
       console.error('Socket connection error:', error.message);
     });
+
+    // Register custom event listeners via ref wrapper so handlers stay current
+    if (onRef.current) {
+      for (const eventName of Object.keys(onRef.current)) {
+        socketRef.current.on(eventName, (data: unknown) => {
+          onRef.current?.[eventName]?.(data);
+        });
+      }
+    }
   }, [deviceToken, status, options]);
 
   const disconnect = useCallback(() => {

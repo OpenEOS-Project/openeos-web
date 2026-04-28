@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Calendar, Edit01, Play, Plus, XClose, Square, Trash01 } from '@untitledui/icons';
+import { Calendar, Edit01, Play, Plus, XClose, FlipBackward, Trash01 } from '@untitledui/icons';
 
 import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
@@ -17,16 +17,14 @@ interface EventsListProps {
   onEditClick: (event: Event) => void;
   onDeleteClick: (event: Event) => void;
   onActivateClick: (event: Event) => void;
-  onCompleteClick: (event: Event) => void;
-  onCancelClick: (event: Event) => void;
+  onDeactivateClick: (event: Event) => void;
+  onSetTestModeClick: (event: Event) => void;
 }
 
-const statusColorMap: Record<EventStatus, 'gray' | 'success' | 'brand' | 'error'> = {
-  draft: 'gray',
-  scheduled: 'brand',
+const statusColorMap: Record<EventStatus, 'gray' | 'success' | 'warning'> = {
   active: 'success',
-  completed: 'brand',
-  cancelled: 'error',
+  inactive: 'gray',
+  test: 'warning',
 };
 
 export function EventsList({
@@ -34,8 +32,8 @@ export function EventsList({
   onEditClick,
   onDeleteClick,
   onActivateClick,
-  onCompleteClick,
-  onCancelClick,
+  onDeactivateClick,
+  onSetTestModeClick,
 }: EventsListProps) {
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
@@ -100,7 +98,7 @@ export function EventsList({
     });
   };
 
-  const formatDateTime = (startDate?: string, endDate?: string) => {
+  const formatDateTime = (startDate?: string | null, endDate?: string | null) => {
     if (!startDate) return '-';
     const start = formatDate(startDate);
     if (!endDate) return start;
@@ -160,19 +158,19 @@ export function EventsList({
                       <Dropdown.Item icon={Edit01} onAction={() => onEditClick(event)}>
                         <span className="pr-4">{t('actions.edit')}</span>
                       </Dropdown.Item>
-                      {event.status === 'draft' && (
+                      {(event.status === 'inactive' || event.status === 'test') && (
                         <Dropdown.Item icon={Play} onAction={() => onActivateClick(event)}>
                           <span className="pr-4">{t('actions.activate')}</span>
                         </Dropdown.Item>
                       )}
-                      {(event.status === 'active' || event.status === 'scheduled') && (
-                        <Dropdown.Item icon={Square} onAction={() => onCompleteClick(event)}>
-                          <span className="pr-4">{t('actions.complete')}</span>
+                      {event.status === 'inactive' && (
+                        <Dropdown.Item icon={FlipBackward} onAction={() => onSetTestModeClick(event)}>
+                          <span className="pr-4">{t('actions.testMode')}</span>
                         </Dropdown.Item>
                       )}
-                      {(event.status === 'draft' || event.status === 'active' || event.status === 'scheduled') && (
-                        <Dropdown.Item icon={XClose} onAction={() => onCancelClick(event)}>
-                          <span className="pr-4">{t('actions.cancel')}</span>
+                      {(event.status === 'active' || event.status === 'test') && (
+                        <Dropdown.Item icon={XClose} onAction={() => onDeactivateClick(event)}>
+                          <span className="pr-4">{t('actions.deactivate')}</span>
                         </Dropdown.Item>
                       )}
                       <Dropdown.Separator />

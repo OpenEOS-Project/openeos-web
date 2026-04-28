@@ -29,17 +29,34 @@ function formatTime(date: string): string {
 function getStatusColor(status: Order['status']): string {
   switch (status) {
     case 'open':
-      return 'text-warning-primary';
+      return 'text-warning-700 dark:text-warning-400';
     case 'in_progress':
-      return 'text-brand-primary';
+      return 'text-brand-700 dark:text-brand-400';
     case 'ready':
-      return 'text-success-primary';
+      return 'text-success-700 dark:text-success-400';
     case 'completed':
       return 'text-tertiary';
     case 'cancelled':
-      return 'text-error-primary';
+      return 'text-error-700 dark:text-error-400';
     default:
       return 'text-tertiary';
+  }
+}
+
+function getStatusBg(status: Order['status']): string {
+  switch (status) {
+    case 'open':
+      return 'bg-warning-50 dark:bg-warning-950';
+    case 'in_progress':
+      return 'bg-brand-50 dark:bg-brand-950';
+    case 'ready':
+      return 'bg-success-50 dark:bg-success-950';
+    case 'completed':
+      return 'bg-secondary';
+    case 'cancelled':
+      return 'bg-error-50 dark:bg-error-950';
+    default:
+      return 'bg-secondary';
   }
 }
 
@@ -89,7 +106,7 @@ export function DashboardContainer() {
   // Calculate stats
   const stats = useMemo(() => {
     const orders = ordersResponse || [];
-    const activeEvents = events?.filter((e) => e.status === 'active' || e.status === 'scheduled') || [];
+    const activeEvents = events?.filter((e) => e.status === 'active' || e.status === 'test') || [];
     const onlineDevices = onlineDevicesResponse || [];
 
     // Orders today (excluding cancelled)
@@ -163,82 +180,93 @@ export function DashboardContainer() {
 
       {/* Recent Activity Section */}
       <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="px-4 py-3 sm:px-6 sm:py-4">
-          <h2 className="text-base sm:text-lg font-semibold text-primary">{t('recentActivity.title')}</h2>
-          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-tertiary">{t('recentActivity.subtitle')}</p>
+        <div className="flex items-center justify-between px-5 py-4">
+          <div>
+            <h2 className="text-base font-semibold text-primary">{t('recentActivity.title')}</h2>
+            <p className="mt-0.5 text-sm text-tertiary">{t('recentActivity.subtitle')}</p>
+          </div>
         </div>
 
         {isLoadingOrders ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-tertiary">Laden...</div>
+          <div className="flex items-center justify-center border-t border-secondary py-12">
+            <div className="flex flex-col items-center gap-2">
+              <div className="size-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+              <span className="text-sm text-tertiary">Laden...</span>
+            </div>
           </div>
         ) : recentOrders.length === 0 ? (
-          <EmptyState
-            icon="shopping-bag"
-            title={t('recentActivity.empty.title')}
-            description={t('recentActivity.empty.description')}
-            className="px-4 pb-4 sm:px-6 sm:pb-6"
-          />
+          <div className="border-t border-secondary">
+            <EmptyState
+              icon="shopping-bag"
+              title={t('recentActivity.empty.title')}
+              description={t('recentActivity.empty.description')}
+              className="px-5 py-8"
+            />
+          </div>
         ) : (
           <>
             {/* Mobile: Card Layout */}
-            <div className="divide-y divide-secondary md:hidden">
+            <div className="divide-y divide-secondary border-t border-secondary md:hidden">
               {recentOrders.map((order) => (
-                <div key={order.id} className="px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-primary">#{order.dailyNumber}</span>
-                    <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {tOrders(`status.${order.status}`)}
-                    </span>
+                <div key={order.id} className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-brand-50 text-sm font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-400">
+                      #{order.dailyNumber}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-primary">{formatTime(order.createdAt)}</span>
+                        <span className="text-xs text-quaternary">{order.items?.length || 0} Artikel</span>
+                      </div>
+                      <span className="text-sm font-semibold text-primary">{formatCurrency(order.total)}</span>
+                    </div>
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-tertiary">
-                    <span>{formatTime(order.createdAt)}</span>
-                    <span>{order.items?.length || 0} Artikel</span>
-                    <span className="font-medium text-primary">{formatCurrency(order.total)}</span>
-                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(order.status)} ${getStatusBg(order.status)}`}>
+                    {tOrders(`status.${order.status}`)}
+                  </span>
                 </div>
               ))}
             </div>
 
             {/* Desktop: Table Layout */}
-            <div className="hidden md:block overflow-hidden border-t border-secondary">
+            <div className="hidden overflow-hidden border-t border-secondary md:block">
               <table className="w-full">
-                <thead className="bg-secondary">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                <thead>
+                  <tr className="border-b border-secondary bg-secondary">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
                       {tOrders('columns.orderNumber')}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
                       {tOrders('columns.createdAt')}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
                       {tOrders('columns.items')}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                    <th className="px-5 py-3 text-right text-xs font-medium text-tertiary">
                       {tOrders('columns.total')}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-tertiary">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
                       {tOrders('columns.status')}
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary">
                   {recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-secondary/30">
-                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
+                    <tr key={order.id} className="transition-colors hover:bg-primary_hover">
+                      <td className="whitespace-nowrap px-5 py-3.5 text-sm font-medium text-primary">
                         #{order.dailyNumber}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
+                      <td className="whitespace-nowrap px-5 py-3.5 text-sm text-tertiary">
                         {formatTime(order.createdAt)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-secondary">
-                        {order.items?.length || 0} {order.items?.length === 1 ? 'Artikel' : 'Artikel'}
+                      <td className="whitespace-nowrap px-5 py-3.5 text-sm text-tertiary">
+                        {order.items?.length || 0} Artikel
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-primary">
+                      <td className="whitespace-nowrap px-5 py-3.5 text-right text-sm font-medium text-primary">
                         {formatCurrency(order.total)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3">
-                        <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(order.status)} ${getStatusBg(order.status)}`}>
                           {tOrders(`status.${order.status}`)}
                         </span>
                       </td>

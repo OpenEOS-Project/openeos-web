@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ChevronRight, CoinsStacked01, Edit01, Plus, Trash01, Users01 } from '@untitledui/icons';
+import { ChevronRight, Edit01, Plus, Trash01, Users01 } from '@untitledui/icons';
 
 import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
@@ -16,10 +16,9 @@ interface OrganizationsListProps {
   onEditClick: (organization: Organization) => void;
   onDeleteClick: (organization: Organization) => void;
   onManageMembersClick: (organization: Organization) => void;
-  onManageCreditsClick: (organization: Organization) => void;
 }
 
-export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, onManageMembersClick, onManageCreditsClick }: OrganizationsListProps) {
+export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, onManageMembersClick }: OrganizationsListProps) {
   const t = useTranslations('organizations');
   const tCommon = useTranslations('common');
   const { data, isLoading, error } = useAdminOrganizations();
@@ -97,7 +96,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                 <p className="text-sm font-semibold text-primary truncate">{org.name}</p>
                 <p className="text-xs text-tertiary font-mono">{org.slug}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-tertiary">
-                  <span>{org.eventCredits} Credits</span>
                   <span>{org.settings?.currency || 'EUR'}</span>
                   <span>{formatDate(org.createdAt)}</span>
                 </div>
@@ -111,9 +109,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                     </Dropdown.Item>
                     <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(org)}>
                       <span className="pr-4">{t('actions.manageMembers')}</span>
-                    </Dropdown.Item>
-                    <Dropdown.Item icon={CoinsStacked01} onAction={() => onManageCreditsClick(org)}>
-                      <span className="pr-4">{t('actions.manageCredits')}</span>
                     </Dropdown.Item>
                     <Dropdown.Separator />
                     <Dropdown.Item
@@ -148,7 +143,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
             <Table.Header>
               <Table.Head label={t('table.name')} isRowHeader />
               <Table.Head label={t('table.slug')} />
-              <Table.Head label={t('table.eventCredits')} />
               <Table.Head label={t('table.createdAt')} />
               <Table.Head label={t('table.actions')} />
             </Table.Header>
@@ -172,9 +166,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                     <span className="font-mono text-sm">{organization.slug}</span>
                   </Table.Cell>
                   <Table.Cell>
-                    <span className="text-sm">{organization.eventCredits}</span>
-                  </Table.Cell>
-                  <Table.Cell>
                     <span className="text-sm">{formatDate(organization.createdAt)}</span>
                   </Table.Cell>
                   <Table.Cell>
@@ -187,9 +178,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                           </Dropdown.Item>
                           <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(organization)}>
                             <span className="pr-4">{t('actions.manageMembers')}</span>
-                          </Dropdown.Item>
-                          <Dropdown.Item icon={CoinsStacked01} onAction={() => onManageCreditsClick(organization)}>
-                            <span className="pr-4">{t('actions.manageCredits')}</span>
                           </Dropdown.Item>
                           <Dropdown.Separator />
                           <Dropdown.Item

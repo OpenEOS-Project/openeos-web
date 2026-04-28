@@ -16,6 +16,7 @@ interface DeviceState {
   deviceName: string | null;
   deviceClass: DeviceClass | null;
   status: DeviceStatus | null;
+  settings: Record<string, unknown> | null;
 
   // Session state (not persisted)
   tableNumber: string | null;
@@ -64,6 +65,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       deviceName: null,
       deviceClass: null,
       status: null,
+      settings: null,
       tableNumber: null,
       isLoading: false,
       isPolling: false,
@@ -152,6 +154,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
             organizationId: data.organizationId || null,
             organizationName: data.organizationName || get().organizationName,
             deviceClass: data.deviceClass || null,
+            settings: data.settings || get().settings,
           });
 
           // If verified, stop polling
@@ -212,6 +215,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
           deviceName: null,
           deviceClass: null,
           status: null,
+          settings: null,
           tableNumber: null,
           error: null,
         });
@@ -234,6 +238,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
         deviceName: state.deviceName,
         deviceClass: state.deviceClass,
         status: state.status,
+        settings: state.settings,
         // Persist session state for device POS
         tableNumber: state.tableNumber,
       }),

@@ -46,7 +46,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
   });
 
   const events = eventsData?.data || [];
-  const activeEvents = events.filter((e) => e.status === 'draft' || e.status === 'scheduled' || e.status === 'active');
+  const activeEvents = events.filter((e) => e.status === 'active' || e.status === 'test');
 
   const {
     control,
@@ -146,7 +146,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                       >
                         {activeEvents.map((event) => (
                           <Select.Item key={event.id} id={event.id} icon={Calendar}>
-                            {event.name} ({formatDate(event.startDate)})
+                            {event.name}{event.startDate ? ` (${formatDate(event.startDate)})` : ''}
                           </Select.Item>
                         ))}
                       </Select>

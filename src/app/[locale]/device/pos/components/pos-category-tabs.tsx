@@ -1,6 +1,6 @@
 'use client';
 
-import { cx } from '@/utils/cx';
+import { Tabs, TabList, Tab } from '@/components/ui/tabs/tabs';
 import type { Category } from '@/types/category';
 
 interface PosCategoryTabsProps {
@@ -14,44 +14,25 @@ export function PosCategoryTabs({
   selectedCategoryId,
   onSelectCategory,
 }: PosCategoryTabsProps) {
+  const activeCategories = categories
+    .filter((c) => c.isActive)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const selected = selectedCategoryId ?? activeCategories[0]?.id;
+
   return (
-    <div className="flex items-center gap-2 overflow-x-auto border-b border-secondary bg-primary px-4 py-3">
-      <button
-        type="button"
-        onClick={() => onSelectCategory(null)}
-        className={cx(
-          'shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-          selectedCategoryId === null
-            ? 'bg-brand-primary text-white'
-            : 'bg-secondary text-secondary hover:bg-tertiary'
-        )}
-      >
-        Alle
-      </button>
-      {categories
-        .filter((c) => c.isActive)
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((category) => (
-          <button
-            key={category.id}
-            type="button"
-            onClick={() => onSelectCategory(category.id)}
-            className={cx(
-              'shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-              selectedCategoryId === category.id
-                ? 'text-white'
-                : 'bg-secondary text-secondary hover:bg-tertiary'
-            )}
-            style={{
-              backgroundColor:
-                selectedCategoryId === category.id
-                  ? category.color || undefined
-                  : undefined,
-            }}
-          >
+    <Tabs
+      selectedKey={selected}
+      onSelectionChange={(key) => onSelectCategory(key as string)}
+      className="border-b border-secondary bg-primary"
+    >
+      <TabList type="button-gray" size="sm" className="overflow-x-auto px-4 py-2">
+        {activeCategories.map((category) => (
+          <Tab key={category.id} id={category.id}>
             {category.name}
-          </button>
+          </Tab>
         ))}
-    </div>
+      </TabList>
+    </Tabs>
   );
 }

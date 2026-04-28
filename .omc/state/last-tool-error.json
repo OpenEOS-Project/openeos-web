@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /home/lukas/Dokumente/openeos/openeos-api && npx tsc --noEmit 2>&1\",\"timeout\":60000,\"description\":\"TypeScript type-check the API project\"}",
+  "error": "Exit code 2\nnpm warn Unknown project config \"auto-install-peers\". This will stop working in the next major version of npm.\nnpm warn Unknown project config \"node-linker\". This will stop working in the next major version of npm.\nsrc/modules/online-orders/online-orders.service.ts(123,44): error TS2769: No overload matches this call.\n  Overload 1 of 3, '(entityLikeArray: DeepPartial<OnlineOrderSession>[]): OnlineOrderSession[]', gave the following error.\n    Object literal may only specify known pro...",
+  "timestamp": "2026-04-03T21:49:05.227Z",
+  "retry_count": 1
+}

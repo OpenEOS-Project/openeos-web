@@ -367,6 +367,13 @@ export const organizationsApi = {
   resendInvitation: (orgId: string, invitationId: string) =>
     apiClient.post(`/organizations/${orgId}/invitations/${invitationId}/resend`),
 
+  // Member PIN
+  setMemberPin: (orgId: string, userId: string, pin: string) =>
+    apiClient.post(`/organizations/${orgId}/members/${userId}/pin`, { pin }),
+
+  removeMemberPin: (orgId: string, userId: string) =>
+    apiClient.delete(`/organizations/${orgId}/members/${userId}/pin`),
+
   // Broadcasts
   broadcast: (orgId: string, data: { message: string; type?: 'info' | 'warning' | 'success' | 'error'; title?: string; duration?: number }) =>
     apiClient.post(`/organizations/${orgId}/broadcast`, data),
@@ -392,11 +399,11 @@ export const eventsApi = {
   activate: (organizationId: string, id: string) =>
     apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/activate`),
 
-  complete: (organizationId: string, id: string) =>
-    apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/complete`),
+  deactivate: (organizationId: string, id: string) =>
+    apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/deactivate`),
 
-  cancel: (organizationId: string, id: string) =>
-    apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/cancel`),
+  setTestMode: (organizationId: string, id: string) =>
+    apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/test`),
 
   copyProductsFrom: (
     organizationId: string,
@@ -431,6 +438,26 @@ export const categoriesApi = {
     apiClient.post(`/events/${eventId}/categories/reorder`, { items }),
 };
 
+// Uploads API
+export const uploadsApi = {
+  uploadProductImage: async (organizationId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(
+      `${API_URL}/organizations/${organizationId}/uploads/image?category=product`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiClient.getAccessToken()}`,
+        },
+        body: formData,
+      },
+    );
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json() as Promise<ApiResponse<{ url: string }>>;
+  },
+};
+
 // Products API (now under events)
 export const productsApi = {
   list: (eventId: string, params?: { categoryId?: string; isActive?: boolean }) =>
@@ -457,34 +484,47 @@ export const productsApi = {
     apiClient.post(`/events/${eventId}/products/reorder`, { items }),
 };
 
-// Workflows API
-export const workflowsApi = {
-  list: (organizationId: string) =>
-    apiClient.get<ApiResponse<import('@/types/workflow').Workflow[]>>(`/organizations/${organizationId}/workflows`),
+// Production Stations API (under events)
+export const productionStationsApi = {
+  list: (eventId: string) =>
+    apiClient.get<ApiResponse<import('@/types/production-station').ProductionStation[]>>(`/events/${eventId}/production-stations`),
 
-  get: (organizationId: string, id: string) =>
-    apiClient.get<ApiResponse<import('@/types/workflow').Workflow>>(`/organizations/${organizationId}/workflows/${id}`),
+  get: (eventId: string, id: string) =>
+    apiClient.get<ApiResponse<import('@/types/production-station').ProductionStation>>(`/events/${eventId}/production-stations/${id}`),
 
-  create: (organizationId: string, data: import('@/types/workflow').CreateWorkflowData) =>
-    apiClient.post<ApiResponse<import('@/types/workflow').Workflow>>(`/organizations/${organizationId}/workflows`, data),
+  create: (eventId: string, data: import('@/types/production-station').CreateProductionStationData) =>
+    apiClient.post<ApiResponse<import('@/types/production-station').ProductionStation>>(`/events/${eventId}/production-stations`, data),
 
-  update: (organizationId: string, id: string, data: import('@/types/workflow').UpdateWorkflowData) =>
-    apiClient.patch<ApiResponse<import('@/types/workflow').Workflow>>(`/organizations/${organizationId}/workflows/${id}`, data),
+  update: (eventId: string, id: string, data: import('@/types/production-station').UpdateProductionStationData) =>
+    apiClient.patch<ApiResponse<import('@/types/production-station').ProductionStation>>(`/events/${eventId}/production-stations/${id}`, data),
 
-  delete: (organizationId: string, id: string) =>
-    apiClient.delete(`/organizations/${organizationId}/workflows/${id}`),
+  delete: (eventId: string, id: string) =>
+    apiClient.delete(`/events/${eventId}/production-stations/${id}`),
 
-  activate: (organizationId: string, id: string) =>
-    apiClient.post<ApiResponse<import('@/types/workflow').Workflow>>(`/organizations/${organizationId}/workflows/${id}/activate`),
-
-  deactivate: (organizationId: string, id: string) =>
-    apiClient.post<ApiResponse<import('@/types/workflow').Workflow>>(`/organizations/${organizationId}/workflows/${id}/deactivate`),
-
-  test: (organizationId: string, id: string, testData?: Record<string, unknown>) =>
-    apiClient.post<ApiResponse<import('@/types/workflow').WorkflowRun>>(`/organizations/${organizationId}/workflows/${id}/test`, { testData }),
-
-  getRuns: (organizationId: string, id: string) =>
-    apiClient.get<ApiResponse<import('@/types/workflow').WorkflowRun[]>>(`/organizations/${organizationId}/workflows/${id}/runs`),
+  getLive: (eventId: string) =>
+    apiClient.get<ApiResponse<Array<{
+      id: string;
+      name: string;
+      color: string | null;
+      orders: Array<{
+        order: {
+          id: string;
+          orderNumber: string;
+          dailyNumber: number;
+          tableNumber: string | null;
+          customerName: string | null;
+          priority: string;
+          createdAt: string;
+        };
+        items: Array<{
+          id: string;
+          productName: string;
+          quantity: number;
+          status: string;
+          createdAt: string;
+        }>;
+      }>;
+    }>>>(`/events/${eventId}/production-stations/live`),
 };
 
 // User Settings API
@@ -576,24 +616,6 @@ export const twoFactorApi = {
 
   removeTrustedDevice: (deviceId: string) =>
     apiClient.delete<ApiResponse<void>>(`/auth/2fa/trusted-devices/${deviceId}`),
-};
-
-// Billing API
-export const billingApi = {
-  getOverview: (organizationId: string) =>
-    apiClient.get<ApiResponse<import('@/types/settings').BillingOverview>>(`/organizations/${organizationId}/billing`),
-
-  createCreditCheckout: (organizationId: string, data: import('@/types/settings').CreateCheckoutDto) =>
-    apiClient.post<ApiResponse<{ url: string }>>(`/organizations/${organizationId}/billing/checkout/credits`, data),
-
-  createSubscriptionCheckout: (organizationId: string, returnUrl: string) =>
-    apiClient.post<ApiResponse<{ url: string }>>(`/organizations/${organizationId}/billing/checkout/subscription`, { returnUrl }),
-
-  createPortalSession: (organizationId: string, returnUrl: string) =>
-    apiClient.post<ApiResponse<{ url: string }>>(`/organizations/${organizationId}/billing/portal`, { returnUrl }),
-
-  getPaymentHistory: (organizationId: string) =>
-    apiClient.get<ApiResponse<import('@/types/settings').CreditPurchase[]>>(`/organizations/${organizationId}/billing/history`),
 };
 
 // Orders API
@@ -688,9 +710,6 @@ export const adminApi = {
   updateOrganization: (id: string, data: Partial<import('@/types/organization').Organization>) =>
     apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(`/admin/organizations/${id}`, data),
 
-  adjustCredits: (orgId: string, data: { amount: number; reason: string }) =>
-    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(`/admin/organizations/${orgId}/credits`, data),
-
   // Stats
   getOverviewStats: () =>
     apiClient.get<ApiResponse<import('@/types/admin').AdminOverviewStats>>('/admin/stats/overview'),
@@ -706,33 +725,72 @@ export const adminApi = {
       `/admin/audit-logs${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
     ),
 
-  // Pricing Management
-  getSubscriptionConfig: () =>
-    apiClient.get<ApiResponse<import('@/types/settings').SubscriptionConfig>>('/admin/subscription-config'),
+  // Devices (Admin)
+  listDevices: (params?: { type?: string; unassigned?: string }) =>
+    apiClient.get<ApiResponse<import('@/types/device').Device[]>>(
+      `/admin/devices${params ? `?${new URLSearchParams(params)}` : ''}`
+    ),
 
-  updateSubscriptionConfig: (data: { priceMonthly?: number; creditsPerMonth?: number; name?: string; description?: string }) =>
-    apiClient.patch<ApiResponse<import('@/types/settings').SubscriptionConfig>>('/admin/subscription-config', data),
+  // Rental Hardware
+  listRentalHardware: (params?: { type?: string; status?: string; page?: number; limit?: number }) =>
+    apiClient.get<ApiResponse<import('@/types/rental').RentalHardware[]> & { meta: import('@/types/api').PaginationMeta }>(
+      `/admin/rental-hardware${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
+    ),
 
-  getCreditPackages: () =>
-    apiClient.get<ApiResponse<import('@/types/settings').CreditPackage[]>>('/admin/credit-packages'),
+  createRentalHardware: (data: import('@/types/rental').CreateRentalHardwareData) =>
+    apiClient.post<ApiResponse<import('@/types/rental').RentalHardware>>('/admin/rental-hardware', data),
 
-  createCreditPackage: (data: { name: string; description?: string; credits: number; price: number; sortOrder?: number }) =>
-    apiClient.post<ApiResponse<import('@/types/settings').CreditPackage>>('/admin/credit-packages', data),
+  updateRentalHardware: (id: string, data: import('@/types/rental').UpdateRentalHardwareData) =>
+    apiClient.patch<ApiResponse<import('@/types/rental').RentalHardware>>(`/admin/rental-hardware/${id}`, data),
 
-  updateCreditPackage: (id: string, data: { name?: string; description?: string; credits?: number; price?: number; isActive?: boolean; sortOrder?: number }) =>
-    apiClient.patch<ApiResponse<import('@/types/settings').CreditPackage>>(`/admin/credit-packages/${id}`, data),
+  deleteRentalHardware: (id: string) =>
+    apiClient.delete<void>(`/admin/rental-hardware/${id}`),
 
-  deleteCreditPackage: (id: string) =>
-    apiClient.delete<void>(`/admin/credit-packages/${id}`),
+  // Rental Assignments
+  listRentalAssignments: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiClient.get<ApiResponse<import('@/types/rental').RentalAssignment[]> & { meta: import('@/types/api').PaginationMeta }>(
+      `/admin/rental-assignments${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
+    ),
 
-  syncStripeProducts: () =>
-    apiClient.post<ApiResponse<{ syncedPackages: number; syncedSubscription: boolean }>>('/admin/stripe/sync'),
+  createRentalAssignment: (data: import('@/types/rental').CreateRentalAssignmentData) =>
+    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>('/admin/rental-assignments', data),
 
-  ensureDefaultPackages: () =>
-    apiClient.post<ApiResponse<import('@/types/settings').CreditPackage[]>>('/admin/pricing/ensure-packages'),
+  activateRental: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>(`/admin/rental-assignments/${id}/activate`),
 
-  updatePackagePrices: (data: { slug: string; price: number }[]) =>
-    apiClient.patch<ApiResponse<import('@/types/settings').CreditPackage[]>>('/admin/pricing/packages', { packages: data }),
+  returnRental: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>(`/admin/rental-assignments/${id}/return`),
+
+  // Events (Admin)
+  listAdminEvents: (params?: {
+    search?: string;
+    status?: string;
+    from?: string;
+    to?: string;
+    invoiced?: boolean;
+    page?: number;
+    limit?: number;
+  }) => {
+    const query = params
+      ? new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v !== undefined && v !== null)
+            .map(([k, v]) => [k, String(v)])
+        ).toString()
+      : '';
+    return apiClient.get<ApiResponse<import('@/types/admin').AdminEventListItem[]> & { meta: import('@/types/api').PaginationMeta }>(
+      `/admin/events${query ? `?${query}` : ''}`
+    );
+  },
+
+  getAdminEvent: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/admin').AdminEventDetail>>(`/admin/events/${id}`),
+
+  markEventInvoiced: (id: string, note?: string) =>
+    apiClient.patch<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/invoice`, { note }),
+
+  unmarkEventInvoiced: (id: string) =>
+    apiClient.delete<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/invoice`),
 };
 
 // Devices API
@@ -789,6 +847,18 @@ export const devicesApi = {
       { useDeviceAuth: true }
     ),
 
+  // Admin: Get single device
+  get: (organizationId: string, deviceId: string) =>
+    apiClient.get<ApiResponse<import('@/types/device').Device>>(
+      `/organizations/${organizationId}/devices/${deviceId}`
+    ),
+
+  // Admin: Get device statistics
+  getStats: (organizationId: string, deviceId: string) =>
+    apiClient.get<ApiResponse<import('@/types/device').DeviceStats>>(
+      `/organizations/${organizationId}/devices/${deviceId}/stats`
+    ),
+
   // Admin: List devices for organization
   list: (organizationId: string, params?: import('@/types/device').QueryDevicesParams) =>
     apiClient.get<ApiResponse<import('@/types/device').Device[]>>(
@@ -835,6 +905,76 @@ export const devicesApi = {
   // Admin: Get online device IDs
   getOnlineIds: (organizationId: string) =>
     apiClient.get<ApiResponse<string[]>>(`/organizations/${organizationId}/devices/online/ids`),
+};
+
+// Printers API
+export const printersApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/printer').Printer[]>>(
+      `/organizations/${organizationId}/printers`
+    ),
+
+  get: (organizationId: string, printerId: string) =>
+    apiClient.get<ApiResponse<import('@/types/printer').Printer>>(
+      `/organizations/${organizationId}/printers/${printerId}`
+    ),
+
+  create: (organizationId: string, data: import('@/types/printer').CreatePrinterData) =>
+    apiClient.post<ApiResponse<import('@/types/printer').Printer>>(
+      `/organizations/${organizationId}/printers`,
+      data
+    ),
+
+  update: (organizationId: string, printerId: string, data: import('@/types/printer').UpdatePrinterData) =>
+    apiClient.patch<ApiResponse<import('@/types/printer').Printer>>(
+      `/organizations/${organizationId}/printers/${printerId}`,
+      data
+    ),
+
+  delete: (organizationId: string, printerId: string) =>
+    apiClient.delete<void>(
+      `/organizations/${organizationId}/printers/${printerId}`
+    ),
+
+  testPrint: (organizationId: string, printerId: string) =>
+    apiClient.post<ApiResponse<{ success: boolean }>>(
+      `/organizations/${organizationId}/printers/${printerId}/test`
+    ),
+};
+
+// Print Templates API
+export const printTemplatesApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/print-template').PrintTemplate[]>>(
+      `/organizations/${organizationId}/print-templates`
+    ),
+
+  get: (organizationId: string, templateId: string) =>
+    apiClient.get<ApiResponse<import('@/types/print-template').PrintTemplate>>(
+      `/organizations/${organizationId}/print-templates/${templateId}`
+    ),
+
+  create: (organizationId: string, data: import('@/types/print-template').CreatePrintTemplateData) =>
+    apiClient.post<ApiResponse<import('@/types/print-template').PrintTemplate>>(
+      `/organizations/${organizationId}/print-templates`,
+      data
+    ),
+
+  update: (organizationId: string, templateId: string, data: import('@/types/print-template').UpdatePrintTemplateData) =>
+    apiClient.patch<ApiResponse<import('@/types/print-template').PrintTemplate>>(
+      `/organizations/${organizationId}/print-templates/${templateId}`,
+      data
+    ),
+
+  delete: (organizationId: string, templateId: string) =>
+    apiClient.delete<void>(
+      `/organizations/${organizationId}/print-templates/${templateId}`
+    ),
+
+  preview: (organizationId: string, templateId: string) =>
+    apiClient.post<ApiResponse<{ html: string }>>(
+      `/organizations/${organizationId}/print-templates/${templateId}/preview`
+    ),
 };
 
 // Device API (authenticated with device token)
@@ -907,6 +1047,87 @@ export const deviceApi = {
     apiClient.post<ApiResponse<import('@/types/payment').Payment>>(
       '/device-api/payments/split',
       data,
+      { useDeviceAuth: true }
+    ),
+
+  // SumUp card reader checkout
+  initiateCheckout: (amount: number, currency: string = 'EUR') =>
+    apiClient.post<ApiResponse<unknown>>(
+      '/device-api/sumup/checkout',
+      { amount, currency },
+      { useDeviceAuth: true }
+    ),
+
+  getCheckoutStatus: () =>
+    apiClient.get<ApiResponse<unknown>>(
+      '/device-api/sumup/status',
+      { useDeviceAuth: true }
+    ),
+
+  terminateCheckout: () =>
+    apiClient.post<ApiResponse<unknown>>(
+      '/device-api/sumup/terminate',
+      {},
+      { useDeviceAuth: true }
+    ),
+
+  // Cash drawer
+  openCashDrawer: () =>
+    apiClient.post<ApiResponse<{ success: boolean }>>(
+      '/device-api/cash-drawer/open',
+      {},
+      { useDeviceAuth: true }
+    ),
+
+  // PIN verification
+  verifyPin: (pin: string) =>
+    apiClient.post<ApiResponse<{ userId: string; firstName: string; lastName: string; role: string }>>(
+      '/device-api/verify-pin',
+      { pin },
+      { useDeviceAuth: true }
+    ),
+
+  // Order history
+  getAllOrders: (params?: { status?: string; eventId?: string; page?: number; limit?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.eventId) searchParams.set('eventId', params.eventId);
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    const qs = searchParams.toString();
+    return apiClient.get<ApiResponse<import('@/types/order').Order[]> & { meta: import('@/types/api').PaginationMeta }>(
+      `/device-api/orders${qs ? `?${qs}` : ''}`,
+      { useDeviceAuth: true }
+    );
+  },
+
+  // Cancel order
+  cancelOrder: (orderId: string, reason?: string) =>
+    apiClient.post<ApiResponse<import('@/types/order').Order>>(
+      `/device-api/orders/${orderId}/cancel`,
+      { reason },
+      { useDeviceAuth: true }
+    ),
+
+  // Reprint order tickets or receipt
+  reprintOrder: (orderId: string, type: 'tickets' | 'receipt' = 'tickets') =>
+    apiClient.post<ApiResponse<{ success: boolean }>>(
+      `/device-api/orders/${orderId}/reprint`,
+      { type },
+      { useDeviceAuth: true }
+    ),
+
+  // Station display
+  getStationItems: () =>
+    apiClient.get<ApiResponse<Array<{ order: any; items: any[] }>>>(
+      '/device-api/station/items',
+      { useDeviceAuth: true }
+    ),
+
+  markStationItemReady: (itemId: string) =>
+    apiClient.post<ApiResponse<import('@/types/order').Order>>(
+      `/device-api/station/items/${itemId}/ready`,
+      {},
       { useDeviceAuth: true }
     ),
 };

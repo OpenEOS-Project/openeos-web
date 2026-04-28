@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
 import { useCartStore, useCartHydration } from '@/stores/cart-store';
+import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
+import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import type { PaymentMethod } from '@/types/payment';
 
 interface PosCartProps {
@@ -42,8 +44,21 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
   const [showCashModal, setShowCashModal] = useState(false);
+  const [showSumupModal, setShowSumupModal] = useState(false);
+  const { settings } = useDeviceStore();
+  const hasSumupReader = !!settings?.sumupReaderId;
+  const fulfillmentType = settings?.serviceMode === 'table' ? 'table_service' : 'counter_pickup';
 
   const total = getTotal();
+
+  const buildOrderItems = () =>
+    items.map((item) => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+      ...(item.notes ? { notes: item.notes } : {}),
+      ...(item.kitchenNotes ? { kitchenNotes: item.kitchenNotes } : {}),
+      ...(item.selectedOptions.length > 0 ? { selectedOptions: item.selectedOptions } : {}),
+    }));
 
   // Mutation for immediate payment mode (create order + payment)
   const createOrderWithPayment = useMutation({
@@ -55,11 +70,8 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         eventId,
         tableNumber: tableNumber || undefined,
         source: 'pos',
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-          selectedOptions: item.selectedOptions,
-        })),
+        fulfillmentType,
+        items: buildOrderItems(),
       });
 
       const order = orderResponse.data;
@@ -94,11 +106,8 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         eventId,
         tableNumber: tableNumber || undefined,
         source: 'pos',
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-          selectedOptions: item.selectedOptions,
-        })),
+        fulfillmentType,
+        items: buildOrderItems(),
       });
 
       return orderResponse.data;
@@ -155,21 +164,33 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
       {/* Cart Header */}
       <div className="border-b border-secondary p-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-primary">{t('cart.title')}</h2>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-tertiary hover:bg-secondary"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onOpenTabs && (
+            <Button
+              color="secondary"
+              size="sm"
+              onClick={onOpenTabs}
+              iconLeading={File01}
+            >
+              {t('cart.openTabs')}
+            </Button>
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-tertiary hover:bg-secondary"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Success Message */}
       {lastOrderNumber && (
         <div className="border-b border-success-primary bg-success-secondary p-4">
-          <p className="text-center font-semibold text-success-primary">
+          <p className="text-center font-semibold text-success-primary dark:text-white">
             {t('cart.orderCreated', { number: lastOrderNumber })}
           </p>
         </div>
@@ -214,7 +235,7 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
                   <p className="font-medium text-primary truncate">{item.product.name}</p>
                   {item.selectedOptions.length > 0 && (
                     <p className="text-xs text-tertiary">
-                      {item.selectedOptions.map((o) => o.option).join(', ')}
+                      {item.selectedOptions.map((o) => o.excluded ? `ohne ${o.option}` : o.option).join(', ')}
                     </p>
                   )}
                   <p className="text-sm text-brand-primary font-medium mt-1">
@@ -266,7 +287,7 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         {orderingMode === 'immediate' ? (
           <>
             {/* Immediate Payment Mode */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className={`grid gap-3 ${hasSumupReader ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <Button
                 color="secondary"
                 size="lg"
@@ -277,15 +298,17 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
               >
                 {t('cart.payCash')}
               </Button>
-              <Button
-                size="lg"
-                className="flex-1"
-                disabled={items.length === 0 || isProcessing}
-                onClick={() => handleCheckout('card')}
-                iconLeading={CreditCard01}
-              >
-                {t('cart.payCard')}
-              </Button>
+              {hasSumupReader && (
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  disabled={items.length === 0 || isProcessing}
+                  onClick={() => setShowSumupModal(true)}
+                  iconLeading={CreditCard01}
+                >
+                  {t('cart.payCard')}
+                </Button>
+              )}
             </div>
           </>
         ) : (
@@ -300,28 +323,18 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
             >
               {t('cart.placeOrder')}
             </Button>
-            <Button
-              color="secondary"
-              size="lg"
-              className="w-full"
-              onClick={onOpenTabs}
-              iconLeading={File01}
-            >
-              {t('cart.openTabs')}
-            </Button>
           </>
         )}
 
         {items.length > 0 && (
-          <Button
-            color="tertiary"
-            size="sm"
-            className="w-full"
+          <button
+            type="button"
             onClick={clearCart}
             disabled={isProcessing}
+            className="w-full text-center text-xs text-tertiary hover:text-error-primary disabled:opacity-50"
           >
             {t('cart.clear')}
-          </Button>
+          </button>
         )}
       </div>
 
@@ -332,6 +345,17 @@ export function PosCart({ organizationId, tableNumber: sessionTableNumber, order
         total={total}
         onConfirm={handleCashPaymentConfirm}
         isProcessing={isProcessing}
+      />
+
+      {/* SumUp Checkout Modal */}
+      <SumUpCheckoutModal
+        isOpen={showSumupModal}
+        onClose={() => setShowSumupModal(false)}
+        amount={total}
+        onSuccess={() => {
+          setShowSumupModal(false);
+          handleCheckout('sumup_terminal' as PaymentMethod);
+        }}
       />
     </div>
   );

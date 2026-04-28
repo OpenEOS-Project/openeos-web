@@ -40,6 +40,27 @@ export interface OrganizationSettings {
     affiliateKey?: string;
     appId?: string;
   };
+  orderFlow?: {
+    receiptPrinting?: {
+      enabled: boolean;
+      trigger: 'payment_received' | 'order_completed' | 'manual';
+      printerId: string | null;
+      templateId: string | null;
+    };
+    kitchenTicketPrinting?: {
+      enabled: boolean;
+      printerId: string | null;
+      templateId: string | null;
+    };
+    orderTicketPrinting?: {
+      enabled: boolean;
+      printerId: string | null;
+      templateId: string | null;
+    };
+    kitchenDisplay?: { enabled: boolean };
+    customerDisplay?: { enabled: boolean };
+    autoComplete?: { enabled: boolean };
+  };
 }
 
 export interface BillingAddress {

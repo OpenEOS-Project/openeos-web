@@ -3,15 +3,13 @@ import {
   Building07,
   Calendar,
   ClipboardCheck,
-  CoinsStacked01,
-  CreditCard01,
+  HardDrive,
   Printer,
   Receipt,
   Settings01,
   ShoppingBag01,
   Tablet02,
   Users01,
-  Zap,
 } from '@untitledui/icons';
 
 import type { NavItemType } from '@/components/app-navigation/config';
@@ -34,9 +32,14 @@ export const superAdminNavItems: NavItemType[] = [
     icon: Users01,
   },
   {
-    label: 'Preise & Pakete',
-    href: '/admin/pricing',
-    icon: CoinsStacked01,
+    label: 'Miet-Hardware',
+    href: '/admin/rental-hardware',
+    icon: HardDrive,
+  },
+  {
+    label: 'Events & Abrechnung',
+    href: '/admin/events',
+    icon: Calendar,
   },
 ];
 
@@ -65,10 +68,15 @@ export const dashboardNavItems: NavItemType[] = [
     requiredPermission: 'events',
   },
   {
-    label: 'Produkte',
+    label: 'Produktverwaltung',
     href: '/products',
     icon: ShoppingBag01,
     requiredPermission: 'products',
+    items: [
+      { label: 'Produkte', href: '/products' },
+      { label: 'Kategorien', href: '/categories' },
+      { label: 'Standorte', href: '/production-stations' },
+    ],
   },
   {
     label: 'Geräte',
@@ -83,12 +91,6 @@ export const dashboardNavItems: NavItemType[] = [
     requiredPermission: 'devices',
   },
   {
-    label: 'Workflows',
-    href: '/workflows',
-    icon: Zap,
-    adminOnly: true,
-  },
-  {
     label: 'Schichtpläne',
     href: '/shifts',
     icon: ClipboardCheck,
@@ -97,12 +99,6 @@ export const dashboardNavItems: NavItemType[] = [
 ];
 
 export const dashboardFooterItems: NavItemType[] = [
-  {
-    label: 'Abrechnung',
-    href: '/billing',
-    icon: CreditCard01,
-    adminOnly: true, // Only organization admins can see billing
-  },
   {
     label: 'Einstellungen',
     href: '/settings',

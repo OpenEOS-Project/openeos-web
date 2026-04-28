@@ -2,23 +2,47 @@
 export type DeviceStatus = 'pending' | 'verified' | 'blocked';
 
 // Device class/type
-export type DeviceClass = 'pos' | 'display_kitchen' | 'display_delivery' | 'display_menu' | 'display_pickup' | 'display_sales' | 'display_customer' | 'admin';
+export type DeviceClass = 'pos' | 'display' | 'admin' | 'printer_agent';
+
+// Display mode (sub-type for display devices)
+export type DisplayMode = 'kitchen' | 'delivery' | 'menu' | 'pickup' | 'sales' | 'customer' | 'station';
+
+// Service mode for POS devices
+export type ServiceMode = 'table' | 'counter';
+
+// Printer routing mode
+export type PrinterMode = 'device' | 'category' | 'product';
+
+// Device statistics
+export interface DeviceStats {
+  ordersCount: number;
+  paymentsCount: number;
+  revenueTotal: number;
+  isOnline: boolean;
+  lastSeenAt: string | null;
+  createdAt: string;
+  verifiedAt: string | null;
+}
 
 // Device entity
 export interface Device {
   id: string;
   organizationId: string;
   name: string;
-  deviceClass: DeviceClass;
+  type: DeviceClass;
   status: DeviceStatus;
   deviceToken?: string; // Only returned on registration
   verificationCode?: string; // Only returned on registration
   userAgent?: string;
-  lastSeen?: string;
+  lastSeenAt?: string;
   verifiedAt?: string;
-  verifiedBy?: string;
+  verifiedById?: string;
   settings?: {
     sumupReaderId?: string;
+    displayMode?: DisplayMode;
+    serviceMode?: ServiceMode;
+    printerMode?: PrinterMode;
+    requirePin?: boolean;
     [key: string]: unknown;
   };
   createdAt: string;
@@ -46,6 +70,7 @@ export interface DeviceStatusResponse {
   organizationId?: string;
   organizationName?: string;
   deviceClass?: DeviceClass;
+  settings?: Record<string, unknown>;
 }
 
 // Device info (authenticated device - GET /devices/me)
@@ -56,6 +81,14 @@ export interface DeviceInfo {
   organizationName: string;
   deviceClass: DeviceClass;
   status: DeviceStatus;
+  settings?: {
+    sumupReaderId?: string;
+    displayMode?: DisplayMode;
+    serviceMode?: ServiceMode;
+    printerMode?: PrinterMode;
+    requirePin?: boolean;
+    [key: string]: unknown;
+  };
 }
 
 // DTOs - Legacy (kept for compatibility with POS device flow)

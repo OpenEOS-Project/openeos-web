@@ -16,6 +16,7 @@ export interface Category {
   sortOrder: number;
   isActive: boolean;
   printSettings: CategoryPrintSettings | null;
+  productionStationId: string | null;
   createdAt: string;
   updatedAt: string;
   children?: Category[];
@@ -31,6 +32,7 @@ export interface CreateCategoryData {
   sortOrder?: number;
   isActive?: boolean;
   printSettings?: CategoryPrintSettings;
+  productionStationId?: string | null;
 }
 
 export interface UpdateCategoryData {
@@ -42,4 +44,5 @@ export interface UpdateCategoryData {
   sortOrder?: number;
   isActive?: boolean;
   printSettings?: CategoryPrintSettings | null;
+  productionStationId?: string | null;
 }

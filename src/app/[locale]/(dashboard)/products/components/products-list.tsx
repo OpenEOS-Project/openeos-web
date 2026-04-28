@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Edit01, Package, Plus, ShoppingBag01, Trash01 } from '@untitledui/icons';
+import { Edit01, Package, Plus, Trash01 } from '@untitledui/icons';
 
 import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
 import { Dropdown } from '@/components/ui/dropdown/dropdown';
 import { EmptyState } from '@/components/ui/empty-state/empty-state';
+import { ProductImage } from '@/components/shared/product-image';
 import { Table, TableCard } from '@/components/ui/table/table';
 import { useProducts } from '@/hooks/use-products';
 import type { Product } from '@/types/product';
@@ -113,17 +114,7 @@ export function ProductsList({
             <Table.Row key={product.id} id={product.id}>
               <Table.Cell>
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="size-10 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <ShoppingBag01 className="size-5 text-gray-500" />
-                    )}
-                  </div>
+                  <ProductImage imageUrl={product.imageUrl} productName={product.name} size="sm" />
                   <div>
                     <p className="text-sm font-medium text-primary">{product.name}</p>
                     {product.description && (

@@ -3,11 +3,12 @@ import type { Category } from './category';
 export interface ProductOption {
   name: string;
   priceModifier: number;
+  default?: boolean;
 }
 
 export interface ProductOptionGroup {
   name: string;
-  type: 'single' | 'multiple';
+  type: 'single' | 'multiple' | 'ingredients';
   required: boolean;
   options: ProductOption[];
 }
@@ -38,6 +39,7 @@ export interface Product {
   stockUnit: string;
   options: ProductOptions;
   printSettings: ProductPrintSettings | null;
+  productionStationId: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -58,6 +60,7 @@ export interface CreateProductData {
   stockUnit?: string;
   options?: ProductOptions;
   printSettings?: ProductPrintSettings;
+  productionStationId?: string | null;
   sortOrder?: number;
 }
 
@@ -74,6 +77,7 @@ export interface UpdateProductData {
   stockUnit?: string;
   options?: ProductOptions;
   printSettings?: ProductPrintSettings | null;
+  productionStationId?: string | null;
   sortOrder?: number;
 }
 

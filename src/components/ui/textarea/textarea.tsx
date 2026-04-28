@@ -1,107 +1,125 @@
-'use client';
+"use client";
 
-import { type Ref, type ReactNode, forwardRef } from 'react';
-import { InfoCircle } from '@untitledui/icons';
-import {
-  TextField as AriaTextField,
-  TextArea as AriaTextArea,
-  type TextFieldProps as AriaTextFieldProps,
-} from 'react-aria-components';
-import { HintText } from '@/components/ui/input/hint-text';
-import { Label } from '@/components/ui/input/label';
-import { cx } from '@/utils/cx';
+import type { ReactNode, Ref } from "react";
+import React from "react";
+import type { TextAreaProps as AriaTextAreaProps, TextFieldProps as AriaTextFieldProps } from "react-aria-components";
+import { TextArea as AriaTextArea, TextField as AriaTextField } from "react-aria-components";
+import { HintText } from "@/components/ui/input/hint-text";
+import { Label } from "@/components/ui/input/label";
+import { cx } from "@/utils/cx";
 
-export interface TextareaProps extends Omit<AriaTextFieldProps, 'children' | 'className'> {
-  /** Additional CSS class name */
-  className?: string;
-  /** Label text for the textarea */
-  label?: string;
-  /** Helper text displayed below the textarea */
-  hint?: ReactNode;
-  /** Error message to display */
-  error?: string;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Number of visible text lines */
-  rows?: number;
-  /** Reference to the textarea element */
-  ref?: Ref<HTMLTextAreaElement>;
-  /** Whether to hide required indicator from label */
-  hideRequiredIndicator?: boolean;
+// Creates a data URL for an SVG resize handle with a given color.
+const getResizeHandleBg = (color: string) => {
+    return `url(data:image/svg+xml;base64,${btoa(`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L2 10" stroke="${color}" stroke-linecap="round"/><path d="M11 7L7 11" stroke="${color}" stroke-linecap="round"/></svg>`)})`;
+};
+
+interface TextAreaBaseProps extends AriaTextAreaProps {
+    ref?: Ref<HTMLTextAreaElement>;
+    size?: "sm" | "md";
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    {
-      label,
-      hint,
-      error,
-      placeholder,
-      rows = 3,
-      hideRequiredIndicator,
-      className,
-      isDisabled,
-      isRequired,
-      isInvalid: isInvalidProp,
-      ...props
-    },
-    ref
-  ) => {
-    const isInvalid = isInvalidProp || !!error;
-
+export const TextAreaBase = ({ className, size = "md", ...props }: TextAreaBaseProps) => {
     return (
-      <AriaTextField
-        {...props}
-        isDisabled={isDisabled}
-        isRequired={isRequired}
-        isInvalid={isInvalid}
-        aria-label={!label ? placeholder : undefined}
-        className={cx('group flex h-max w-full flex-col items-start justify-start gap-1.5', className)}
-      >
-        {({ isRequired: contextRequired, isInvalid: contextInvalid }) => (
-          <>
-            {label && (
-              <Label isRequired={hideRequiredIndicator ? false : contextRequired}>
-                {label}
-              </Label>
-            )}
+        <AriaTextArea
+            {...props}
+            style={
+                {
+                    "--resize-handle-bg": getResizeHandleBg("#D5D7DA"),
+                    "--resize-handle-bg-dark": getResizeHandleBg("#373A41"),
+                } as React.CSSProperties
+            }
+            className={(state) =>
+                cx(
+                    "w-full scroll-py-3 rounded-lg bg-primary text-primary shadow-xs ring-1 ring-primary transition duration-100 ease-linear ring-inset placeholder:text-placeholder autofill:rounded-lg autofill:text-primary focus:outline-hidden",
 
-            <div className="relative w-full">
-              <AriaTextArea
-                ref={ref}
-                rows={rows}
-                placeholder={placeholder}
-                className={cx(
-                  'w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset transition-shadow duration-100 ease-linear',
-                  'placeholder:text-placeholder',
-                  'focus:ring-2 focus:ring-brand focus:outline-none',
-                  'resize-y min-h-[80px]',
-                  // Disabled state
-                  isDisabled && 'cursor-not-allowed bg-disabled_subtle text-disabled ring-disabled',
-                  // Invalid state
-                  contextInvalid && 'ring-error_subtle',
-                  contextInvalid && 'focus:ring-2 focus:ring-error',
-                )}
-              />
+                    size === "sm" && "p-3 text-sm",
+                    size === "md" && "px-3.5 py-3 text-md",
 
-              {/* Invalid icon */}
-              {contextInvalid && (
-                <InfoCircle
-                  className="pointer-events-none absolute right-3 top-2.5 size-4 text-fg-error-secondary"
-                />
-              )}
-            </div>
+                    // Resize handle
+                    "[&::-webkit-resizer]:bg-(image:--resize-handle-bg) [&::-webkit-resizer]:bg-contain dark:[&::-webkit-resizer]:bg-(image:--resize-handle-bg-dark)",
 
-            {(hint || error) && (
-              <HintText isInvalid={contextInvalid}>
-                {error || hint}
-              </HintText>
-            )}
-          </>
-        )}
-      </AriaTextField>
+                    state.isFocused && !state.isDisabled && "ring-2 ring-brand",
+                    state.isDisabled && "cursor-not-allowed opacity-50",
+                    state.isInvalid && "ring-error_subtle",
+                    state.isInvalid && state.isFocused && "ring-2 ring-error",
+
+                    typeof className === "function" ? className(state) : className,
+                )
+            }
+        />
     );
-  }
-);
+};
 
-Textarea.displayName = 'Textarea';
+TextAreaBase.displayName = "TextAreaBase";
+
+interface TextFieldProps extends AriaTextFieldProps {
+    /** Label text for the textarea */
+    label?: string;
+    /** Helper text displayed below the textarea */
+    hint?: ReactNode;
+    /** Tooltip message displayed after the label. */
+    tooltip?: string;
+    /** Textarea size. */
+    size?: TextAreaBaseProps["size"];
+    /** Class name for the textarea wrapper */
+    textAreaClassName?: TextAreaBaseProps["className"];
+    /** Ref for the textarea wrapper */
+    ref?: Ref<HTMLDivElement>;
+    /** Ref for the textarea */
+    textAreaRef?: TextAreaBaseProps["ref"];
+    /** Whether to hide required indicator from label. */
+    hideRequiredIndicator?: boolean;
+    /** Placeholder text. */
+    placeholder?: string;
+    /** Visible height of textarea in rows . */
+    rows?: number;
+    /** Visible width of textarea in columns. */
+    cols?: number;
+}
+
+export const TextArea = ({
+    label,
+    hint,
+    tooltip,
+    textAreaRef,
+    hideRequiredIndicator,
+    textAreaClassName,
+    placeholder,
+    className,
+    rows,
+    cols,
+    size = "md",
+    ...props
+}: TextFieldProps) => {
+    return (
+        <AriaTextField
+            {...props}
+            className={(state) =>
+                cx("group flex h-max w-full flex-col items-start justify-start gap-1.5", typeof className === "function" ? className(state) : className)
+            }
+        >
+            {({ isInvalid, isRequired }) => (
+                <>
+                    {label && (
+                        <Label isRequired={hideRequiredIndicator ? !hideRequiredIndicator : isRequired} tooltip={tooltip}>
+                            {label}
+                        </Label>
+                    )}
+
+                    <TextAreaBase placeholder={placeholder} className={textAreaClassName} ref={textAreaRef} rows={rows} cols={cols} size={size} />
+
+                    {hint && (
+                        <HintText isInvalid={isInvalid} size={size}>
+                            {hint}
+                        </HintText>
+                    )}
+                </>
+            )}
+        </AriaTextField>
+    );
+};
+
+TextArea.displayName = "TextArea";
+
+// Alias for backward compatibility
+export const Textarea = TextArea;

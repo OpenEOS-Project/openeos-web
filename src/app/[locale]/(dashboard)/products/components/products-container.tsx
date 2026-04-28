@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar, Tag01 } from '@untitledui/icons';
+import { Calendar } from '@untitledui/icons';
 
 import { Button } from '@/components/ui/buttons/button';
 import { EmptyState } from '@/components/ui/empty-state/empty-state';
@@ -15,19 +15,11 @@ import type { Event } from '@/types/event';
 import { ProductFormModal } from './product-form-modal';
 import { ProductsList } from './products-list';
 import { StockAdjustmentModal } from './stock-adjustment-modal';
-import { CategoriesManagementModal } from './categories-management-modal';
 
-// Helper to get available events (not completed/cancelled) sorted by relevance
+// Helper to get available events (active or test) sorted by relevance
 function getAvailableEvents(events: Event[] | undefined): Event[] {
   if (!events) return [];
-  return events
-    .filter((e) => e.status !== 'completed' && e.status !== 'cancelled')
-    .sort((a, b) => {
-      // Active/scheduled events first, then draft, then by start date
-      const priority = (s: string) => (s === 'active' || s === 'scheduled') ? 0 : 1;
-      if (priority(a.status) !== priority(b.status)) return priority(a.status) - priority(b.status);
-      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-    });
+  return events.filter(e => e.status === 'active' || e.status === 'test');
 }
 
 export function ProductsContainer() {
@@ -38,7 +30,7 @@ export function ProductsContainer() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [adjustingStockProduct, setAdjustingStockProduct] = useState<Product | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string>('');
-  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -122,35 +114,23 @@ export function ProductsContainer() {
 
   return (
     <>
-      {/* Event Selector & Categories Button */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="size-5 text-tertiary" />
-            <label className="text-sm font-medium text-secondary">{t('selectEvent')}</label>
-          </div>
-          <select
-            className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-            value={selectedEventId}
-            onChange={(e) => setSelectedEventId(e.target.value)}
-          >
-            {availableEvents.map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'scheduled' ? '(Geplant)' : event.status === 'draft' ? '(Entwurf)' : ''}
-              </option>
-            ))}
-          </select>
+      {/* Event Selector */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Calendar className="size-5 text-tertiary" />
+          <label className="text-sm font-medium text-secondary">{t('selectEvent')}</label>
         </div>
-        {selectedEventId && (
-          <Button
-            color="secondary"
-            size="sm"
-            iconLeading={Tag01}
-            onClick={() => setIsCategoriesModalOpen(true)}
-          >
-            {t('manageCategories')}
-          </Button>
-        )}
+        <select
+          className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
+          value={selectedEventId}
+          onChange={(e) => setSelectedEventId(e.target.value)}
+        >
+          {availableEvents.map((event) => (
+            <option key={event.id} value={event.id}>
+              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'test' ? '(Test)' : ''}
+            </option>
+          ))}
+        </select>
       </div>
 
       {!selectedEventId ? (
@@ -212,13 +192,6 @@ export function ProductsContainer() {
           )}
         </>
       )}
-
-      {/* Categories Management Modal */}
-      <CategoriesManagementModal
-        isOpen={isCategoriesModalOpen}
-        eventId={selectedEventId}
-        onClose={() => setIsCategoriesModalOpen(false)}
-      />
     </>
   );
 }
