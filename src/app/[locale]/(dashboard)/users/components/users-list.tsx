@@ -2,27 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import {
-  ChevronRight,
-  Eye,
-  LockUnlocked01,
-  ShieldTick,
-  Building07,
-} from '@untitledui/icons';
 
-import { Avatar } from '@/components/ui/avatar/avatar';
-import { Badge, BadgeWithIcon } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Table, TableCard } from '@/components/ui/table/table';
 import { useAdminUsers, useUnlockUser } from '@/hooks/use-admin';
 import type { AdminUser } from '@/types/admin';
-
-const ROLE_COLORS: Record<string, 'purple' | 'blue'> = {
-  admin: 'purple',
-  member: 'blue',
-};
 
 export function UsersList() {
   const t = useTranslations('users');
@@ -34,19 +16,19 @@ export function UsersList() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--ink-faint)' }}>{tCommon('loading')}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-error-primary">{tCommon('error')}</div>
-        <Button color="secondary" onClick={() => window.location.reload()}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
-        </Button>
+        </button>
       </div>
     );
   }
@@ -55,12 +37,16 @@ export function UsersList() {
 
   if (users.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="users"
-          title={t('empty.title')}
-          description={t('empty.description')}
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+        </div>
       </div>
     );
   }
@@ -77,25 +63,17 @@ export function UsersList() {
   };
 
   const getUserStatus = (user: AdminUser) => {
-    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-      return 'locked';
-    }
-    if (!user.isActive) {
-      return 'inactive';
-    }
+    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) return 'locked';
+    if (!user.isActive) return 'inactive';
     return 'active';
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
-        return <Badge color="success" size="sm">{t('status.active')}</Badge>;
-      case 'inactive':
-        return <Badge color="gray" size="sm">{t('status.inactive')}</Badge>;
-      case 'locked':
-        return <Badge color="error" size="sm">{t('status.locked')}</Badge>;
-      default:
-        return null;
+      case 'active': return <span className="badge badge--success">{t('status.active')}</span>;
+      case 'inactive': return <span className="badge badge--neutral">{t('status.inactive')}</span>;
+      case 'locked': return <span className="badge badge--error">{t('status.locked')}</span>;
+      default: return null;
     }
   };
 
@@ -109,11 +87,11 @@ export function UsersList() {
 
   return (
     <>
-      {/* Mobile: Card Layout */}
-      <div className="space-y-3 md:hidden">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-primary">{t('title')}</h2>
-          <Badge color="gray" size="sm">{users.length}</Badge>
+      {/* Mobile card list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }} className="md:hidden">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>{t('title')}</h2>
+          <span className="badge badge--neutral">{users.length}</span>
         </div>
         {users.map((user) => {
           const status = getUserStatus(user);
@@ -123,56 +101,61 @@ export function UsersList() {
               key={user.id}
               type="button"
               onClick={() => router.push(`/users/${user.id}`)}
-              className="w-full rounded-xl border border-secondary bg-primary p-4 shadow-xs text-left active:bg-secondary transition-colors"
+              className="app-card"
+              style={{ textAlign: 'left', cursor: 'pointer', padding: 14 }}
             >
-              <div className="flex items-start gap-3">
-                <Avatar
-                  size="md"
-                  src={user.avatarUrl || undefined}
-                  initials={`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-primary truncate">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <div style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                  color: 'var(--green-ink)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  fontFamily: 'var(--f-mono)',
+                  flexShrink: 0,
+                }}>
+                  {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {user.firstName} {user.lastName}
-                    </p>
-                    <ChevronRight className="h-4 w-4 text-quaternary shrink-0" />
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, color: 'var(--ink-faint)' }}>
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
                   </div>
-                  <p className="text-xs text-tertiary truncate mt-0.5">{user.email}</p>
-
-                  {/* Badges row */}
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.email}
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {getStatusBadge(status)}
                     {user.isSuperAdmin ? (
-                      <BadgeWithIcon color="purple" size="sm" iconLeading={ShieldTick}>
-                        {t('role.superAdmin')}
-                      </BadgeWithIcon>
+                      <span className="badge badge--info">{t('role.superAdmin')}</span>
                     ) : orgs.length > 0 ? (
                       orgs.map((uo) => (
-                        <Badge key={uo.id} color={ROLE_COLORS[uo.role] ?? 'gray'} size="sm">
+                        <span key={uo.id} className={`badge ${uo.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
                           {tMembers(`roles.${uo.role}` as Parameters<typeof tMembers>[0])}
-                        </Badge>
+                        </span>
                       ))
                     ) : null}
                   </div>
-
-                  {/* Organizations */}
                   {orgs.length > 0 && (
-                    <div className="mt-2 flex flex-col gap-0.5">
+                    <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {orgs.map((uo) => (
-                        <span key={uo.id} className="flex items-center gap-1 text-xs text-tertiary">
-                          <Building07 className="h-3 w-3 shrink-0" />
+                        <span key={uo.id} style={{ fontSize: 11, color: 'var(--ink-faint)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+                          </svg>
                           {uo.organization?.name ?? '-'}
                         </span>
                       ))}
                     </div>
-                  )}
-
-                  {/* Last login */}
-                  {user.lastLoginAt && (
-                    <p className="mt-1.5 text-xs text-quaternary">
-                      {t('table.lastLogin')}: {formatDate(user.lastLoginAt)}
-                    </p>
                   )}
                 </div>
               </div>
@@ -181,118 +164,120 @@ export function UsersList() {
         })}
       </div>
 
-      {/* Desktop: Table Layout */}
-      <div className="hidden md:block">
-        <TableCard.Root>
-          <TableCard.Header
-            title={t('title')}
-            badge={users.length}
-            description={t('subtitle')}
-          />
-          <Table aria-label={t('title')}>
-            <Table.Header>
-              <Table.Head label={t('table.name')} isRowHeader />
-              <Table.Head label={t('table.email')} />
-              <Table.Head label={t('table.status')} />
-              <Table.Head label={t('table.role')} />
-              <Table.Head label={t('table.organizations')} />
-              <Table.Head label={t('table.lastLogin')} />
-              <Table.Head label={t('table.actions')} />
-            </Table.Header>
-            <Table.Body items={users}>
-              {(user) => {
+      {/* Desktop table */}
+      <div className="app-card app-card--flat hidden md:block">
+        <div className="app-card__head">
+          <div>
+            <h2 className="app-card__title">
+              {t('title')}
+              <span className="pill" style={{ marginLeft: 8 }}>{users.length}</span>
+            </h2>
+            <p className="app-card__sub">{t('subtitle')}</p>
+          </div>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('table.name')}</th>
+                <th>{t('table.email')}</th>
+                <th>{t('table.status')}</th>
+                <th>{t('table.role')}</th>
+                <th>{t('table.organizations')}</th>
+                <th>{t('table.lastLogin')}</th>
+                <th>{t('table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => {
                 const status = getUserStatus(user);
                 const orgs = user.userOrganizations ?? [];
                 return (
-                  <Table.Row key={user.id} id={user.id}>
-                    <Table.Cell>
-                      <div className="flex items-center gap-3">
-                        <Avatar
-                          size="sm"
-                          src={user.avatarUrl || undefined}
-                          initials={`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`}
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-primary">
-                            {user.firstName} {user.lastName}
-                          </p>
+                  <tr key={user.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                          color: 'var(--green-ink)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          fontFamily: 'var(--f-mono)',
+                          flexShrink: 0,
+                        }}>
+                          {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
                         </div>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{user.firstName} {user.lastName}</span>
                       </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <span className="text-sm">{user.email}</span>
-                    </Table.Cell>
-                    <Table.Cell>
-                      {getStatusBadge(status)}
-                    </Table.Cell>
-                    <Table.Cell>
+                    </td>
+                    <td className="mono" style={{ fontSize: 12 }}>{user.email}</td>
+                    <td>{getStatusBadge(status)}</td>
+                    <td>
                       {user.isSuperAdmin ? (
-                        <BadgeWithIcon color="purple" iconLeading={ShieldTick}>
-                          {t('role.superAdmin')}
-                        </BadgeWithIcon>
+                        <span className="badge badge--info">{t('role.superAdmin')}</span>
                       ) : orgs.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                           {orgs.map((uo) => (
-                            <Badge key={uo.id} color={ROLE_COLORS[uo.role] ?? 'gray'} size="sm">
+                            <span key={uo.id} className={`badge ${uo.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
                               {tMembers(`roles.${uo.role}` as Parameters<typeof tMembers>[0])}
-                            </Badge>
+                            </span>
                           ))}
                         </div>
                       ) : (
-                        <Badge color="gray">{t('role.user')}</Badge>
+                        <span className="badge badge--neutral">{t('role.user')}</span>
                       )}
-                    </Table.Cell>
-                    <Table.Cell>
+                    </td>
+                    <td>
                       {orgs.length > 0 ? (
-                        <div className="flex flex-col gap-0.5">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           {orgs.map((uo) => (
-                            <span key={uo.id} className="flex items-center gap-1 text-sm text-secondary">
-                              <Building07 className="h-3.5 w-3.5 text-tertiary shrink-0" />
+                            <span key={uo.id} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: 'var(--ink-faint)' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+                              </svg>
                               {uo.organization?.name ?? '-'}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-sm text-quaternary">-</span>
+                        <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>-</span>
                       )}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <span className="text-sm text-tertiary">
-                        {formatDate(user.lastLoginAt)}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Dropdown.Root>
-                        <Dropdown.DotsButton />
-                        <Dropdown.Popover className="w-min">
-                          <Dropdown.Menu>
-                            <Dropdown.Item
-                              icon={Eye}
-                              onAction={() => router.push(`/users/${user.id}`)}
-                            >
-                              <span className="pr-4">{t('actions.view')}</span>
-                            </Dropdown.Item>
-                            {status === 'locked' && (
-                              <>
-                                <Dropdown.Separator />
-                                <Dropdown.Item
-                                  icon={LockUnlocked01}
-                                  onAction={() => handleUnlock(user.id)}
-                                >
-                                  <span className="pr-4">{t('actions.unlock')}</span>
-                                </Dropdown.Item>
-                              </>
-                            )}
-                          </Dropdown.Menu>
-                        </Dropdown.Popover>
-                      </Dropdown.Root>
-                    </Table.Cell>
-                  </Table.Row>
+                    </td>
+                    <td className="mono" style={{ fontSize: 12 }}>{formatDate(user.lastLoginAt)}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ fontSize: 12, padding: '4px 10px' }}
+                          onClick={() => router.push(`/users/${user.id}`)}
+                        >
+                          {t('actions.view')}
+                        </button>
+                        {status === 'locked' && (
+                          <button
+                            type="button"
+                            className="btn btn--ghost"
+                            style={{ fontSize: 12, padding: '4px 10px' }}
+                            onClick={() => handleUnlock(user.id)}
+                            disabled={unlockUser.isPending}
+                          >
+                            {t('actions.unlock')}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
                 );
-              }}
-            </Table.Body>
-          </Table>
-        </TableCard.Root>
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

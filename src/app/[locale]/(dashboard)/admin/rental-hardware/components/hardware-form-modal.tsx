@@ -3,11 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Select } from '@/components/ui/select/select';
-import { Label } from '@/components/ui/input/label';
 import { adminApi } from '@/lib/api-client';
 import { useCreateRentalHardware, useUpdateRentalHardware } from '@/hooks/use-rentals';
 import type { RentalHardware, CreateRentalHardwareData, UpdateRentalHardwareData } from '@/types/rental';
@@ -25,10 +20,7 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
 
   const config = hardware?.hardwareConfig ?? {};
 
-  // Basic fields
-  const [type, setType] = useState<'printer' | 'display'>(
-    (hardware?.type as 'printer' | 'display') ?? 'printer'
-  );
+  const [type, setType] = useState<'printer' | 'display'>((hardware?.type as 'printer' | 'display') ?? 'printer');
   const [name, setName] = useState(hardware?.name ?? '');
   const [serialNumber, setSerialNumber] = useState(hardware?.serialNumber ?? '');
   const [model, setModel] = useState(hardware?.model ?? '');
@@ -37,16 +29,9 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
   const [notes, setNotes] = useState(hardware?.notes ?? '');
   const [deviceId, setDeviceId] = useState<string>(hardware?.deviceId ?? '');
 
-  // Printer-specific config
-  const [printerType, setPrinterType] = useState<string>(
-    (config.printerType as string) ?? 'receipt'
-  );
-  const [connectionType, setConnectionType] = useState<string>(
-    (config.connectionType as string) ?? 'usb'
-  );
-  const [paperWidth, setPaperWidth] = useState<number>(
-    (config.paperWidth as number) ?? 80
-  );
+  const [printerType, setPrinterType] = useState<string>((config.printerType as string) ?? 'receipt');
+  const [connectionType, setConnectionType] = useState<string>((config.connectionType as string) ?? 'usb');
+  const [paperWidth, setPaperWidth] = useState<number>((config.paperWidth as number) ?? 80);
   const [ipAddress, setIpAddress] = useState((config.ipAddress as string) ?? '');
   const [port, setPort] = useState(String((config.port as number) ?? 9100));
   const [usbVendorId, setUsbVendorId] = useState((config.usbVendorId as string) ?? '');
@@ -56,13 +41,11 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
   const updateMutation = useUpdateRentalHardware();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  // Fetch unassigned printer_agent devices for dropdown
   const { data: devicesData } = useQuery({
     queryKey: ['admin', 'devices', 'printer_agent', 'unassigned'],
     queryFn: () => adminApi.listDevices({ type: 'printer_agent', unassigned: 'true' }),
   });
 
-  // Include already-linked device if editing
   const unassignedDevices = (devicesData?.data ?? []) as Device[];
   const currentDevice = hardware?.device;
   const deviceOptions: { id: string; name: string }[] = [
@@ -74,13 +57,7 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
 
   function buildHardwareConfig(): Record<string, unknown> {
     if (type !== 'printer') return {};
-
-    const cfg: Record<string, unknown> = {
-      printerType,
-      connectionType,
-      paperWidth,
-    };
-
+    const cfg: Record<string, unknown> = { printerType, connectionType, paperWidth };
     if (connectionType === 'network') {
       cfg.ipAddress = ipAddress;
       cfg.port = parseInt(port, 10) || 9100;
@@ -88,7 +65,6 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
       cfg.usbVendorId = usbVendorId;
       cfg.usbProductId = usbProductId;
     }
-
     return cfg;
   }
 
@@ -98,224 +74,162 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
 
     if (isEdit && hardware) {
       const data: UpdateRentalHardwareData = {
-        type,
-        name,
-        serialNumber,
+        type, name, serialNumber,
         model: model || undefined,
         description: description || undefined,
-        dailyRate: rate,
-        hardwareConfig,
+        dailyRate: rate, hardwareConfig,
         deviceId: deviceId || null,
         notes: notes || undefined,
       };
-      updateMutation.mutate(
-        { id: hardware.id, data },
-        { onSuccess: () => onClose() }
-      );
+      updateMutation.mutate({ id: hardware.id, data }, { onSuccess: onClose });
     } else {
       const data: CreateRentalHardwareData = {
-        type,
-        name,
-        serialNumber,
+        type, name, serialNumber,
         model: model || undefined,
         description: description || undefined,
-        dailyRate: rate,
-        hardwareConfig,
+        dailyRate: rate, hardwareConfig,
         deviceId: deviceId || null,
         notes: notes || undefined,
       };
-      createMutation.mutate(data, { onSuccess: () => onClose() });
+      createMutation.mutate(data, { onSuccess: onClose });
     }
   }
 
   const isValid = name.trim().length > 0 && serialNumber.trim().length > 0 && parseFloat(dailyRate) > 0;
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title={isEdit ? t('edit') : t('add')}
-      size="lg"
-    >
-      <div className="max-h-[70vh] overflow-y-auto space-y-4 px-6 py-4">
-        {/* Type */}
-        <div className="space-y-1.5">
-          <Label>{t('form.type')}</Label>
-          <Select
-            selectedKey={type}
-            onSelectionChange={(key) => setType(key as 'printer' | 'display')}
-            aria-label={t('form.type')}
-          >
-            <Select.Item id="printer">{t('types.printer')}</Select.Item>
-            <Select.Item id="display">{t('types.display')}</Select.Item>
-          </Select>
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box" style={{ maxWidth: 600 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{isEdit ? t('edit') : t('add')}</div>
+          <button className="modal__close" onClick={onClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Name + Serial */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            label={t('form.name')}
-            placeholder={t('form.namePlaceholder')}
-            value={name}
-            onChange={(val) => setName(val)}
-            isRequired
-          />
-          <Input
-            label={t('form.serial')}
-            placeholder={t('form.serialPlaceholder')}
-            value={serialNumber}
-            onChange={(val) => setSerialNumber(val)}
-            isRequired
-          />
-        </div>
+        <div className="modal__body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Type */}
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.type')}</label>
+              <select className="select" value={type} onChange={(e) => setType(e.target.value as 'printer' | 'display')}>
+                <option value="printer">{t('types.printer')}</option>
+                <option value="display">{t('types.display')}</option>
+              </select>
+            </div>
 
-        {/* Model */}
-        <Input
-          label={t('form.model')}
-          placeholder={t('form.modelPlaceholder')}
-          value={model}
-          onChange={(val) => setModel(val)}
-        />
-
-        {/* Description */}
-        <Input
-          label={t('form.description')}
-          placeholder={t('form.descriptionPlaceholder')}
-          value={description}
-          onChange={(val) => setDescription(val)}
-        />
-
-        {/* Daily Rate */}
-        <Input
-          label={t('form.dailyRate')}
-          placeholder="0.00"
-          value={dailyRate}
-          onChange={(val) => setDailyRate(val)}
-          isRequired
-        />
-
-        {/* Device (Printer Agent) */}
-        <div className="space-y-1.5">
-          <Label>{t('form.device')}</Label>
-          <Select
-            selectedKey={deviceId || '__none__'}
-            onSelectionChange={(key) => setDeviceId(key === '__none__' ? '' : String(key))}
-            aria-label={t('form.device')}
-          >
-            <Select.Item id="__none__">{t('form.deviceNone')}</Select.Item>
-            {deviceOptions.map((device) => (
-              <Select.Item key={device.id} id={device.id}>
-                {device.name}
-              </Select.Item>
-            ))}
-          </Select>
-        </div>
-
-        {/* Printer-specific config */}
-        {type === 'printer' && (
-          <div className="space-y-4 rounded-lg border border-secondary p-4">
-            <p className="text-sm font-medium text-primary">{t('form.printerConfig')}</p>
-
-            <div className="grid grid-cols-3 gap-4">
-              {/* Printer Type */}
-              <div className="space-y-1.5">
-                <Label>{t('form.printerType')}</Label>
-                <Select
-                  selectedKey={printerType}
-                  onSelectionChange={(key) => setPrinterType(String(key))}
-                  aria-label={t('form.printerType')}
-                >
-                  <Select.Item id="receipt">{t('form.printerTypes.receipt')}</Select.Item>
-                  <Select.Item id="kitchen">{t('form.printerTypes.kitchen')}</Select.Item>
-                  <Select.Item id="label">{t('form.printerTypes.label')}</Select.Item>
-                </Select>
+            {/* Name + Serial */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('form.name')} *</label>
+                <input className="input" placeholder={t('form.namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} />
               </div>
-
-              {/* Connection Type */}
-              <div className="space-y-1.5">
-                <Label>{t('form.connectionType')}</Label>
-                <Select
-                  selectedKey={connectionType}
-                  onSelectionChange={(key) => setConnectionType(String(key))}
-                  aria-label={t('form.connectionType')}
-                >
-                  <Select.Item id="network">{t('form.connectionTypes.network')}</Select.Item>
-                  <Select.Item id="usb">{t('form.connectionTypes.usb')}</Select.Item>
-                  <Select.Item id="bluetooth">{t('form.connectionTypes.bluetooth')}</Select.Item>
-                </Select>
-              </div>
-
-              {/* Paper Width */}
-              <div className="space-y-1.5">
-                <Label>{t('form.paperWidth')}</Label>
-                <Select
-                  selectedKey={String(paperWidth)}
-                  onSelectionChange={(key) => setPaperWidth(Number(key))}
-                  aria-label={t('form.paperWidth')}
-                >
-                  <Select.Item id="58">58mm</Select.Item>
-                  <Select.Item id="80">80mm</Select.Item>
-                </Select>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('form.serial')} *</label>
+                <input className="input" placeholder={t('form.serialPlaceholder')} value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} />
               </div>
             </div>
 
-            {/* Connection-specific fields */}
-            {connectionType === 'network' && (
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label={t('form.ipAddress')}
-                  placeholder="192.168.1.100"
-                  value={ipAddress}
-                  onChange={(val) => setIpAddress(val)}
-                />
-                <Input
-                  label={t('form.port')}
-                  placeholder="9100"
-                  value={port}
-                  onChange={(val) => setPort(val)}
-                />
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.model')}</label>
+              <input className="input" placeholder={t('form.modelPlaceholder')} value={model} onChange={(e) => setModel(e.target.value)} />
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.description')}</label>
+              <input className="input" placeholder={t('form.descriptionPlaceholder')} value={description} onChange={(e) => setDescription(e.target.value)} />
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.dailyRate')} *</label>
+              <input className="input" placeholder="0.00" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} />
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.device')}</label>
+              <select className="select" value={deviceId || '__none__'} onChange={(e) => setDeviceId(e.target.value === '__none__' ? '' : e.target.value)}>
+                <option value="__none__">{t('form.deviceNone')}</option>
+                {deviceOptions.map((device) => (
+                  <option key={device.id} value={device.id}>{device.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Printer config */}
+            {type === 'printer' && (
+              <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{t('form.printerConfig')}</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('form.printerType')}</label>
+                    <select className="select" value={printerType} onChange={(e) => setPrinterType(e.target.value)}>
+                      <option value="receipt">{t('form.printerTypes.receipt')}</option>
+                      <option value="kitchen">{t('form.printerTypes.kitchen')}</option>
+                      <option value="label">{t('form.printerTypes.label')}</option>
+                    </select>
+                  </div>
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('form.connectionType')}</label>
+                    <select className="select" value={connectionType} onChange={(e) => setConnectionType(e.target.value)}>
+                      <option value="network">{t('form.connectionTypes.network')}</option>
+                      <option value="usb">{t('form.connectionTypes.usb')}</option>
+                      <option value="bluetooth">{t('form.connectionTypes.bluetooth')}</option>
+                    </select>
+                  </div>
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('form.paperWidth')}</label>
+                    <select className="select" value={String(paperWidth)} onChange={(e) => setPaperWidth(Number(e.target.value))}>
+                      <option value="58">58mm</option>
+                      <option value="80">80mm</option>
+                    </select>
+                  </div>
+                </div>
+
+                {connectionType === 'network' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('form.ipAddress')}</label>
+                      <input className="input" placeholder="192.168.1.100" value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} />
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('form.port')}</label>
+                      <input className="input" placeholder="9100" value={port} onChange={(e) => setPort(e.target.value)} />
+                    </div>
+                  </div>
+                )}
+
+                {connectionType === 'usb' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('form.usbVendorId')}</label>
+                      <input className="input" placeholder="0x04b8" value={usbVendorId} onChange={(e) => setUsbVendorId(e.target.value)} />
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('form.usbProductId')}</label>
+                      <input className="input" placeholder="0x0202" value={usbProductId} onChange={(e) => setUsbProductId(e.target.value)} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {connectionType === 'usb' && (
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label={t('form.usbVendorId')}
-                  placeholder="0x04b8"
-                  value={usbVendorId}
-                  onChange={(val) => setUsbVendorId(val)}
-                />
-                <Input
-                  label={t('form.usbProductId')}
-                  placeholder="0x0202"
-                  value={usbProductId}
-                  onChange={(val) => setUsbProductId(val)}
-                />
-              </div>
-            )}
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.notes')}</label>
+              <input className="input" placeholder={t('form.notesPlaceholder')} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Notes */}
-        <Input
-          label={t('form.notes')}
-          placeholder={t('form.notesPlaceholder')}
-          value={notes}
-          onChange={(val) => setNotes(val)}
-        />
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{tCommon('cancel')}</button>
+          <button className="btn btn--primary" onClick={handleSubmit} disabled={!isValid || isPending}>
+            {isPending ? '...' : tCommon('save')}
+          </button>
+        </div>
       </div>
-
-      <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-        <Button type="button" color="secondary" onClick={onClose}>
-          {tCommon('cancel')}
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!isValid || isPending}
-        >
-          {isPending ? '...' : tCommon('save')}
-        </Button>
-      </div>
-    </DialogModal>
+    </div>
   );
 }

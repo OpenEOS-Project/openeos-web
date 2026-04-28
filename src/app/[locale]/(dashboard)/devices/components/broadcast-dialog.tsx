@@ -3,16 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-} from '@untitledui/icons';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 
@@ -23,18 +13,11 @@ interface BroadcastDialogProps {
   onlineDeviceCount: number;
 }
 
-const typeIcons: Record<MessageType, typeof AlertCircle> = {
-  info: AlertCircle,
-  warning: AlertTriangle,
-  success: CheckCircle,
-  error: XCircle,
-};
-
-const typeColors: Record<MessageType, string> = {
-  info: 'bg-brand-primary/10 text-brand-primary border-brand-primary',
-  warning: 'bg-warning-primary/10 text-warning-primary border-warning-primary',
-  success: 'bg-success-primary/10 text-success-primary border-success-primary',
-  error: 'bg-error-primary/10 text-error-primary border-error-primary',
+const typeBadgeClass: Record<MessageType, string> = {
+  info: 'badge badge--info',
+  warning: 'badge badge--warning',
+  success: 'badge badge--success',
+  error: 'badge badge--error',
 };
 
 export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogProps) {
@@ -48,13 +31,8 @@ export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogP
 
   const broadcastMutation = useMutation({
     mutationFn: () =>
-      organizationsApi.broadcast(organizationId!, {
-        message,
-        type: messageType,
-      }),
-    onSuccess: () => {
-      onClose();
-    },
+      organizationsApi.broadcast(organizationId!, { message, type: messageType }),
+    onSuccess: () => { onClose(); },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,69 +44,86 @@ export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogP
   const types: MessageType[] = ['info', 'warning', 'success', 'error'];
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title={t('title')}
-      description={t('description')}
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4 px-6 py-4">
-          {onlineDeviceCount === 0 && (
-            <div className="rounded-lg bg-warning-primary/10 p-3 text-center">
-              <p className="text-sm text-warning-primary">{t('noDevicesOnline')}</p>
+    <div className="modal__overlay" onClick={onClose}>
+      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h2>{t('title')}</h2>
+          <button className="modal__close" type="button" onClick={onClose} aria-label={tCommon('close')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="modal__body">
+            <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 16 }}>
+              {t('description')}
+            </p>
+
+            {onlineDeviceCount === 0 && (
+              <div style={{
+                background: 'color-mix(in oklab, #f59e0b 10%, transparent)',
+                border: '1px solid color-mix(in oklab, #f59e0b 25%, transparent)',
+                borderRadius: 8, padding: '10px 14px', marginBottom: 16,
+              }}>
+                <p style={{ fontSize: 13, color: '#92400e', margin: 0 }}>{t('noDevicesOnline')}</p>
+              </div>
+            )}
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
+                {t('message')}
+              </label>
+              <input
+                className="input"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={t('messagePlaceholder')}
+                autoFocus
+              />
             </div>
-          )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="message">{t('message')}</Label>
-            <Input
-              id="message"
-              value={message}
-              onChange={setMessage}
-              placeholder={t('messagePlaceholder')}
-              autoFocus
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>{t('messageType')}</Label>
-            <div className="flex gap-2">
-              {types.map((type) => {
-                const Icon = typeIcons[type];
-                const isSelected = messageType === type;
-                return (
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--ink)' }}>
+                {t('messageType')}
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {types.map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setMessageType(type)}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                      isSelected
-                        ? typeColors[type]
-                        : 'border-secondary bg-primary text-secondary hover:bg-secondary'
-                    }`}
+                    style={{
+                      flex: 1, padding: '8px 6px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      border: `2px solid ${messageType === type ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)'}`,
+                      background: messageType === type ? 'color-mix(in oklab, var(--green-ink) 10%, transparent)' : 'transparent',
+                      color: messageType === type ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+                    }}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{t(`types.${type}`)}</span>
+                    <span className={typeBadgeClass[type]} style={{ pointerEvents: 'none' }}>
+                      {t(`types.${type}`)}
+                    </span>
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-          <Button type="button" color="secondary" onClick={onClose}>
-            {tCommon('cancel')}
-          </Button>
-          <Button
-            type="submit"
-            disabled={!message.trim() || broadcastMutation.isPending || onlineDeviceCount === 0}
-          >
-            {broadcastMutation.isPending ? t('sending') : t('send')}
-          </Button>
-        </div>
-      </form>
-    </DialogModal>
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {tCommon('cancel')}
+            </button>
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={!message.trim() || broadcastMutation.isPending || onlineDeviceCount === 0}
+            >
+              {broadcastMutation.isPending ? t('sending') : t('send')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

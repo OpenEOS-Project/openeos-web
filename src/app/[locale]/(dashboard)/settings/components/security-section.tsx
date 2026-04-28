@@ -3,23 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  ShieldTick,
-  Phone01,
-  Mail01,
-  Laptop01,
-  Trash01,
-  Copy01,
-  Check,
-  AlertTriangle,
-  RefreshCw01,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
-import { InputGroup } from '@/components/ui/input/input-group';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Badge } from '@/components/ui/badges/badges';
-import {
   use2FAStatus,
   useSetupTotp,
   useVerifyTotpSetup,
@@ -39,7 +22,6 @@ type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'reco
 export function SecuritySection() {
   const t = useTranslations('settings.security');
 
-  // 2FA State
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [showDisableModal, setShowDisableModal] = useState(false);
   const [setupStep, setSetupStep] = useState<SetupStep>('select');
@@ -49,12 +31,10 @@ export function SecuritySection() {
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [codesCopied, setCodesCopied] = useState(false);
 
-  // Queries
   const { data: twoFactorStatus, isLoading: is2FALoading } = use2FAStatus();
   const { data: trustedDevices } = useTrustedDevices();
   const { data: sessions } = useSessions();
 
-  // Mutations
   const setupTotp = useSetupTotp();
   const verifyTotpSetup = useVerifyTotpSetup();
   const setupEmailOtp = useSetupEmailOtp();
@@ -67,58 +47,34 @@ export function SecuritySection() {
   const handleStartTotpSetup = async () => {
     try {
       const result = await setupTotp.mutateAsync();
-      // Handle both wrapped and unwrapped response formats
       const data = result?.qrCodeDataUrl ? result : (result as any)?.data;
       setTotpSetupData(data);
       setSetupStep('totp-scan');
-    } catch {
-      // Error handling
-    }
+    } catch { /* handled */ }
   };
 
   const handleStartEmailSetup = async () => {
-    try {
-      await setupEmailOtp.mutateAsync();
-      setSetupStep('email-verify');
-    } catch {
-      // Error handling
-    }
+    try { await setupEmailOtp.mutateAsync(); setSetupStep('email-verify'); } catch { /* handled */ }
   };
 
   const handleVerifyTotp = async () => {
     try {
       const result = await verifyTotpSetup.mutateAsync(verificationCode);
-      // Handle both wrapped and unwrapped response formats
       const codes = result?.recoveryCodes || (result as any)?.data?.recoveryCodes || [];
-      setRecoveryCodes(codes);
-      setSetupStep('recovery-codes');
-      setVerificationCode('');
-    } catch {
-      // Error handling
-    }
+      setRecoveryCodes(codes); setSetupStep('recovery-codes'); setVerificationCode('');
+    } catch { /* handled */ }
   };
 
   const handleVerifyEmailOtp = async () => {
     try {
       const result = await verifyEmailOtpSetup.mutateAsync(verificationCode);
-      // Handle both wrapped and unwrapped response formats
       const codes = result?.recoveryCodes || (result as any)?.data?.recoveryCodes || [];
-      setRecoveryCodes(codes);
-      setSetupStep('recovery-codes');
-      setVerificationCode('');
-    } catch {
-      // Error handling
-    }
+      setRecoveryCodes(codes); setSetupStep('recovery-codes'); setVerificationCode('');
+    } catch { /* handled */ }
   };
 
   const handleDisable2FA = async () => {
-    try {
-      await disable2FA.mutateAsync(disablePassword);
-      setShowDisableModal(false);
-      setDisablePassword('');
-    } catch {
-      // Error handling
-    }
+    try { await disable2FA.mutateAsync(disablePassword); setShowDisableModal(false); setDisablePassword(''); } catch { /* handled */ }
   };
 
   const handleCopyRecoveryCodes = () => {
@@ -128,406 +84,246 @@ export function SecuritySection() {
   };
 
   const handleCloseSetupModal = () => {
-    setShowSetupModal(false);
-    setSetupStep('select');
-    setTotpSetupData(null);
-    setVerificationCode('');
-    setRecoveryCodes([]);
-    setCodesCopied(false);
+    setShowSetupModal(false); setSetupStep('select');
+    setTotpSetupData(null); setVerificationCode(''); setRecoveryCodes([]); setCodesCopied(false);
   };
 
-  const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatDate = (date: Date | string) =>
+    new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="space-y-6">
-      {/* 2FA Section */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4">
-          <div className="flex items-center gap-2">
-            <ShieldTick className="h-5 w-5 text-tertiary" />
-            <h2 className="text-lg font-semibold text-primary">{t('twoFactor.title')}</h2>
-          </div>
-          <p className="text-sm text-tertiary mt-1">{t('twoFactor.description')}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* 2FA */}
+      <div className="app-card">
+        <div style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.title')}</h2>
+          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.description')}</p>
         </div>
 
-        <div className="p-6">
-          {is2FALoading ? (
-            <div className="flex items-center justify-center py-8">
-              <RefreshCw01 className="h-6 w-6 animate-spin text-tertiary" />
-            </div>
-          ) : twoFactorStatus?.enabled ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success-secondary">
-                    <Check className="h-5 w-5 text-success-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-primary">{t('twoFactor.enabled')}</p>
-                    <p className="text-sm text-tertiary">
-                      {t('twoFactor.method')}: {' '}
-                      {twoFactorStatus.method === 'totp'
-                        ? t('twoFactor.methodTotp')
-                        : t('twoFactor.methodEmail')}
-                    </p>
-                  </div>
+        {is2FALoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        ) : twoFactorStatus?.enabled ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, #22c55e 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.enabled')}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                  {t('twoFactor.method')}: {twoFactorStatus.method === 'totp' ? t('twoFactor.methodTotp') : t('twoFactor.methodEmail')}
                 </div>
-                <Button
-                  color="primary-destructive"
-                  onClick={() => setShowDisableModal(true)}
-                >
-                  {t('twoFactor.disable')}
-                </Button>
               </div>
             </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning-secondary">
-                  <AlertTriangle className="h-5 w-5 text-warning-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-primary">{t('twoFactor.disabled')}</p>
-                  <p className="text-sm text-tertiary">{t('twoFactor.description')}</p>
-                </div>
+            <button className="btn btn--ghost" style={{ color: 'var(--red, #dc2626)', fontSize: 13 }} onClick={() => setShowDisableModal(true)}>
+              {t('twoFactor.disable')}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, #f59e0b 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </div>
-              <Button onClick={() => setShowSetupModal(true)}>
-                {t('twoFactor.enable')}
-              </Button>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.disabled')}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.description')}</div>
+              </div>
             </div>
-          )}
-        </div>
+            <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowSetupModal(true)}>
+              {t('twoFactor.enable')}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Trusted Devices */}
       {twoFactorStatus?.enabled && (
-        <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-          <div className="border-b border-secondary px-6 py-4">
-            <h3 className="text-lg font-semibold text-primary">{t('trustedDevices.title')}</h3>
-            <p className="text-sm text-tertiary mt-1">{t('trustedDevices.description')}</p>
+        <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{t('trustedDevices.title')}</h3>
+            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('trustedDevices.description')}</p>
           </div>
-
-          <div className="divide-y divide-secondary">
-            {trustedDevices && trustedDevices.length > 0 ? (
-              trustedDevices.map((device) => (
-                <div key={device.id} className="flex items-center justify-between px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <Laptop01 className="h-5 w-5 text-tertiary" />
-                    <div>
-                      <p className="font-medium text-primary">{device.deviceName}</p>
-                      <p className="text-sm text-tertiary">
-                        {t('trustedDevices.lastUsed')}: {formatDate(device.lastUsedAt)}
-                      </p>
-                    </div>
+          {trustedDevices && trustedDevices.length > 0 ? (
+            trustedDevices.map((device) => (
+              <div key={device.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{device.deviceName}</div>
+                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                    {t('trustedDevices.lastUsed')}: {formatDate(device.lastUsedAt)}
                   </div>
-                  <Button
-                    color="tertiary"
-                    size="sm"
-                    onClick={() => removeTrustedDevice.mutate(device.id)}
-                  >
-                    <Trash01 className="h-4 w-4" />
-                  </Button>
                 </div>
-              ))
-            ) : (
-              <div className="px-6 py-8 text-center text-tertiary">
-                {t('trustedDevices.empty')}
+                <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--red, #dc2626)' }} onClick={() => removeTrustedDevice.mutate(device.id)}>
+                  {t('sessions.revoke')}
+                </button>
               </div>
+            ))
+          ) : (
+            <div style={{ padding: '24px 20px', textAlign: 'center', color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontSize: 13 }}>
+              {t('trustedDevices.empty')}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Sessions */}
+      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{t('sessions.title')}</h3>
+            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('sessions.description')}</p>
+          </div>
+          {sessions && sessions.length > 1 && (
+            <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeAllOtherSessions.mutate()} disabled={revokeAllOtherSessions.isPending}>
+              {t('sessions.revokeAll')}
+            </button>
+          )}
+        </div>
+        {sessions?.map((session) => (
+          <div key={session.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>{session.deviceInfo}</span>
+                {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
+              </div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                {session.ipAddress} · {t('sessions.lastActive')}: {formatDate(session.lastActiveAt)}
+              </div>
+            </div>
+            {!session.isCurrent && (
+              <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeSession.mutate(session.id)}>
+                {t('sessions.revoke')}
+              </button>
             )}
+          </div>
+        ))}
+      </div>
+
+      {/* 2FA Setup Modal */}
+      {showSetupModal && (
+        <div className="modal__backdrop" onClick={handleCloseSetupModal}>
+          <div className="modal__box" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <div className="modal__title">{t('twoFactor.enable')}</div>
+              <button className="modal__close" onClick={handleCloseSetupModal} aria-label="Schließen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="modal__body">
+              {setupStep === 'select' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.selectMethod')}</p>
+                  <button type="button" onClick={handleStartTotpSetup} disabled={setupTotp.isPending}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, borderRadius: 10, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="1.75"><rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>
+                    <div><div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.methodTotp')}</div><div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.setupTotp')}</div></div>
+                  </button>
+                  <button type="button" onClick={handleStartEmailSetup} disabled={setupEmailOtp.isPending}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, borderRadius: 10, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="1.75"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                    <div><div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.methodEmail')}</div><div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.setupEmail')}</div></div>
+                  </button>
+                </div>
+              )}
+
+              {setupStep === 'totp-scan' && totpSetupData && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.scanQrCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.scanQrCodeDescription')}</p></div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <img src={totpSetupData.qrCodeDataUrl} alt="QR Code" style={{ width: 160, height: 160, borderRadius: 8 }} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.manualEntry')}</div>
+                    <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginBottom: 8 }}>{t('twoFactor.manualEntryDescription')}</p>
+                    <code style={{ display: 'block', padding: '10px 12px', background: 'color-mix(in oklab, var(--ink) 6%, transparent)', borderRadius: 8, fontSize: 12, fontFamily: 'var(--f-mono)', wordBreak: 'break-all' }}>{totpSetupData.manualEntryKey}</code>
+                  </div>
+                  <button className="btn btn--primary btn--block" onClick={() => setSetupStep('totp-verify')}>{t('twoFactor.continue')}</button>
+                </div>
+              )}
+
+              {setupStep === 'totp-verify' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.enterCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.enterCodeDescription')}</p></div>
+                  <div className="auth-field">
+                    <label className="auth-field__label">Code</label>
+                    <input className="input" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="000000" maxLength={6} style={{ textAlign: 'center', fontSize: 20, letterSpacing: 6 }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => setSetupStep('totp-scan')}>{t('twoFactor.back')}</button>
+                    <button className="btn btn--primary" style={{ flex: 1 }} onClick={handleVerifyTotp} disabled={verificationCode.length !== 6 || verifyTotpSetup.isPending}>
+                      {verifyTotpSetup.isPending ? t('twoFactor.checking') : t('twoFactor.confirm')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {setupStep === 'email-verify' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.enterCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.emailSent')}</p></div>
+                  <div className="auth-field">
+                    <label className="auth-field__label">Code</label>
+                    <input className="input" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="000000" maxLength={6} style={{ textAlign: 'center', fontSize: 20, letterSpacing: 6 }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => setSetupStep('select')}>{t('twoFactor.back')}</button>
+                    <button className="btn btn--primary" style={{ flex: 1 }} onClick={handleVerifyEmailOtp} disabled={verificationCode.length !== 6 || verifyEmailOtpSetup.isPending}>
+                      {verifyEmailOtpSetup.isPending ? t('twoFactor.checking') : t('twoFactor.confirm')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {setupStep === 'recovery-codes' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.recoveryCodes')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.recoveryCodesDescription')}</p></div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: 16, background: 'color-mix(in oklab, var(--ink) 5%, transparent)', borderRadius: 8 }}>
+                    {recoveryCodes.length > 0 ? recoveryCodes.map((code, i) => (
+                      <code key={i} style={{ fontSize: 12, fontFamily: 'var(--f-mono)' }}>{code}</code>
+                    )) : <p style={{ gridColumn: '1/-1', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.noRecoveryCodes')}</p>}
+                  </div>
+                  <button className="btn btn--ghost btn--block" onClick={handleCopyRecoveryCodes}>
+                    {codesCopied ? t('twoFactor.recoveryCodesCopied') : t('twoFactor.copyCodes')}
+                  </button>
+                  <button className="btn btn--primary btn--block" onClick={handleCloseSetupModal}>{t('twoFactor.done')}</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Active Sessions */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-primary">{t('sessions.title')}</h3>
-            <p className="text-sm text-tertiary mt-1">{t('sessions.description')}</p>
-          </div>
-          {sessions && sessions.length > 1 && (
-            <Button
-              color="secondary"
-              size="sm"
-              onClick={() => revokeAllOtherSessions.mutate()}
-              disabled={revokeAllOtherSessions.isPending}
-            >
-              {t('sessions.revokeAll')}
-            </Button>
-          )}
-        </div>
-
-        <div className="divide-y divide-secondary">
-          {sessions?.map((session) => (
-            <div key={session.id} className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-3">
-                <Laptop01 className="h-5 w-5 text-tertiary" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-primary">{session.deviceInfo}</p>
-                    {session.isCurrent && (
-                      <Badge size="sm" color="success">{t('sessions.current')}</Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-tertiary">
-                    {session.ipAddress} • {t('sessions.lastActive')}: {formatDate(session.lastActiveAt)}
-                  </p>
-                </div>
-              </div>
-              {!session.isCurrent && (
-                <Button
-                  color="tertiary"
-                  size="sm"
-                  onClick={() => revokeSession.mutate(session.id)}
-                >
-                  {t('sessions.revoke')}
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 2FA Setup Modal */}
-      <DialogModal
-        isOpen={showSetupModal}
-        onClose={handleCloseSetupModal}
-        title={t('twoFactor.enable')}
-        size="md"
-      >
-        <div className="p-6 space-y-6">
-          {setupStep === 'select' && (
-            <div className="space-y-4">
-              <p className="text-sm text-tertiary">{t('twoFactor.selectMethod')}</p>
-
-              <button
-                type="button"
-                onClick={handleStartTotpSetup}
-                disabled={setupTotp.isPending}
-                className="w-full flex items-center gap-4 p-4 rounded-lg border border-secondary hover:bg-secondary transition-colors text-left"
-              >
-                <Phone01 className="h-6 w-6 text-brand-primary" />
-                <div>
-                  <p className="font-medium text-primary">{t('twoFactor.methodTotp')}</p>
-                  <p className="text-sm text-tertiary">{t('twoFactor.setupTotp')}</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleStartEmailSetup}
-                disabled={setupEmailOtp.isPending}
-                className="w-full flex items-center gap-4 p-4 rounded-lg border border-secondary hover:bg-secondary transition-colors text-left"
-              >
-                <Mail01 className="h-6 w-6 text-brand-primary" />
-                <div>
-                  <p className="font-medium text-primary">{t('twoFactor.methodEmail')}</p>
-                  <p className="text-sm text-tertiary">{t('twoFactor.setupEmail')}</p>
-                </div>
-              </button>
-            </div>
-          )}
-
-          {setupStep === 'totp-scan' && totpSetupData && (
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-primary mb-2">{t('twoFactor.scanQrCode')}</h4>
-                <p className="text-sm text-tertiary">{t('twoFactor.scanQrCodeDescription')}</p>
-              </div>
-
-              <div className="flex justify-center">
-                <img
-                  src={totpSetupData.qrCodeDataUrl}
-                  alt="QR Code"
-                  className="w-48 h-48 rounded-lg"
-                />
-              </div>
-
-              <div>
-                <h4 className="font-medium text-primary mb-2">{t('twoFactor.manualEntry')}</h4>
-                <p className="text-sm text-tertiary mb-2">{t('twoFactor.manualEntryDescription')}</p>
-                <code className="block p-3 bg-secondary rounded-lg text-sm font-mono break-all">
-                  {totpSetupData.manualEntryKey}
-                </code>
-              </div>
-
-              <Button onClick={() => setSetupStep('totp-verify')} className="w-full">
-                {t('twoFactor.continue')}
-              </Button>
-            </div>
-          )}
-
-          {setupStep === 'totp-verify' && (
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-primary mb-2">{t('twoFactor.enterCode')}</h4>
-                <p className="text-sm text-tertiary">{t('twoFactor.enterCodeDescription')}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="totp-code">Code</Label>
-                <Input
-                  id="totp-code"
-                  value={verificationCode}
-                  onChange={(value) => setVerificationCode(value)}
-                  placeholder="000000"
-                  maxLength={6}
-                  inputClassName="text-center text-2xl tracking-widest"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  color="secondary"
-                  onClick={() => setSetupStep('totp-scan')}
-                  className="flex-1"
-                >
-                  {t('twoFactor.back')}
-                </Button>
-                <Button
-                  onClick={handleVerifyTotp}
-                  disabled={verificationCode.length !== 6 || verifyTotpSetup.isPending}
-                  className="flex-1"
-                >
-                  {verifyTotpSetup.isPending ? t('twoFactor.checking') : t('twoFactor.confirm')}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {setupStep === 'email-verify' && (
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-primary mb-2">{t('twoFactor.enterCode')}</h4>
-                <p className="text-sm text-tertiary">{t('twoFactor.emailSent')}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="email-code">Code</Label>
-                <Input
-                  id="email-code"
-                  value={verificationCode}
-                  onChange={(value) => setVerificationCode(value)}
-                  placeholder="000000"
-                  maxLength={6}
-                  inputClassName="text-center text-2xl tracking-widest"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  color="secondary"
-                  onClick={() => setSetupStep('select')}
-                  className="flex-1"
-                >
-                  {t('twoFactor.back')}
-                </Button>
-                <Button
-                  onClick={handleVerifyEmailOtp}
-                  disabled={verificationCode.length !== 6 || verifyEmailOtpSetup.isPending}
-                  className="flex-1"
-                >
-                  {verifyEmailOtpSetup.isPending ? t('twoFactor.checking') : t('twoFactor.confirm')}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {setupStep === 'recovery-codes' && (
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-primary mb-2">{t('twoFactor.recoveryCodes')}</h4>
-                <p className="text-sm text-tertiary">{t('twoFactor.recoveryCodesDescription')}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 p-4 bg-secondary rounded-lg">
-                {recoveryCodes && recoveryCodes.length > 0 ? (
-                  recoveryCodes.map((code, index) => (
-                    <code key={index} className="text-sm font-mono text-primary">
-                      {code}
-                    </code>
-                  ))
-                ) : (
-                  <p className="col-span-2 text-sm text-tertiary">{t('twoFactor.noRecoveryCodes')}</p>
-                )}
-              </div>
-
-              <Button
-                color="secondary"
-                onClick={handleCopyRecoveryCodes}
-                className="w-full"
-              >
-                {codesCopied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    {t('twoFactor.recoveryCodesCopied')}
-                  </>
-                ) : (
-                  <>
-                    <Copy01 className="h-4 w-4 mr-2" />
-                    {t('twoFactor.copyCodes')}
-                  </>
-                )}
-              </Button>
-
-              <Button onClick={handleCloseSetupModal} className="w-full">
-                {t('twoFactor.done')}
-              </Button>
-            </div>
-          )}
-        </div>
-      </DialogModal>
-
       {/* Disable 2FA Modal */}
-      <DialogModal
-        isOpen={showDisableModal}
-        onClose={() => setShowDisableModal(false)}
-        title={t('twoFactor.disableConfirm')}
-        size="sm"
-      >
-        <div className="p-6 space-y-6">
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-warning-secondary">
-            <AlertTriangle className="h-5 w-5 text-warning-primary shrink-0 mt-0.5" />
-            <p className="text-sm text-warning-primary">{t('twoFactor.disableConfirmDescription')}</p>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="disable-password">{t('twoFactor.enterPassword')}</Label>
-            <Input
-              id="disable-password"
-              type="password"
-              value={disablePassword}
-              onChange={(value) => setDisablePassword(value)}
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              color="secondary"
-              onClick={() => setShowDisableModal(false)}
-              className="flex-1"
-            >
-              {t('twoFactor.back')}
-            </Button>
-            <Button
-              color="primary-destructive"
-              onClick={handleDisable2FA}
-              disabled={!disablePassword || disable2FA.isPending}
-              className="flex-1"
-            >
-              {disable2FA.isPending ? t('twoFactor.disabling') : t('twoFactor.disable')}
-            </Button>
+      {showDisableModal && (
+        <div className="modal__backdrop" onClick={() => setShowDisableModal(false)}>
+          <div className="modal__box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <div className="modal__title">{t('twoFactor.disableConfirm')}</div>
+              <button className="modal__close" onClick={() => setShowDisableModal(false)} aria-label="Schließen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 12%, transparent)', display: 'flex', gap: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                <p style={{ fontSize: 13, color: '#92400e' }}>{t('twoFactor.disableConfirmDescription')}</p>
+              </div>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('twoFactor.enterPassword')}</label>
+                <input type="password" className="input" value={disablePassword} onChange={(e) => setDisablePassword(e.target.value)} />
+              </div>
+            </div>
+            <div className="modal__foot">
+              <button className="btn btn--ghost" onClick={() => setShowDisableModal(false)}>{t('twoFactor.back')}</button>
+              <button className="btn btn--primary" style={{ background: 'var(--red, #dc2626)' }} onClick={handleDisable2FA} disabled={!disablePassword || disable2FA.isPending}>
+                {disable2FA.isPending ? t('twoFactor.disabling') : t('twoFactor.disable')}
+              </button>
+            </div>
           </div>
         </div>
-      </DialogModal>
+      )}
     </div>
   );
 }

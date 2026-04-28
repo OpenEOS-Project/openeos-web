@@ -1,14 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Plus, Settings01, Trash01 } from '@untitledui/icons';
 
-import { Avatar } from '@/components/ui/avatar/avatar';
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Table, TableCard } from '@/components/ui/table/table';
 import { useMembers } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
@@ -36,36 +29,38 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--ink-faint)' }}>{tCommon('loading')}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-error-primary">{tCommon('error')}</div>
-        <Button color="secondary" onClick={() => window.location.reload()}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (!members || members.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="users"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          action={
-            <Button iconLeading={Plus} onClick={onInviteClick}>
-              {t('invite')}
-            </Button>
-          }
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+          <button type="button" className="btn btn--primary" onClick={onInviteClick}>
+            {t('invite')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -79,101 +74,110 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
   };
 
   return (
-    <TableCard.Root>
-      <TableCard.Header
-        title={t('title')}
-        badge={members.length}
-        description={t('subtitle')}
-        contentTrailing={
-          <Button iconLeading={Plus} onClick={onInviteClick}>
-            {t('invite')}
-          </Button>
-        }
-      />
-      <Table aria-label={t('title')}>
-        <Table.Header>
-          <Table.Head label={t('table.name')} isRowHeader />
-          <Table.Head label={t('table.email')} />
-          <Table.Head label={t('table.role')} />
-          <Table.Head label={t('table.joinedAt')} />
-          <Table.Head label={t('table.actions')} />
-        </Table.Header>
-        <Table.Body items={members}>
-          {(member) => {
-            const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
-            const isCurrentUser = member.userId === user?.id;
-            const isAdmin = member.role === 'admin';
-            const activePermissions = !isAdmin
-              ? PERMISSION_KEYS.filter((key) => member.permissions?.[key])
-              : [];
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">
+            {t('title')}
+            <span className="pill" style={{ marginLeft: 8 }}>{members.length}</span>
+          </h2>
+          <p className="app-card__sub">{t('subtitle')}</p>
+        </div>
+        <button type="button" className="btn btn--primary" onClick={onInviteClick}>
+          {t('invite')}
+        </button>
+      </div>
 
-            return (
-              <Table.Row key={member.id} id={member.id}>
-                <Table.Cell>
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      size="sm"
-                      src={memberUser?.avatarUrl || undefined}
-                      initials={`${memberUser?.firstName?.[0] || ''}${memberUser?.lastName?.[0] || ''}`}
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-primary">
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t('table.name')}</th>
+              <th>{t('table.email')}</th>
+              <th>{t('table.role')}</th>
+              <th>{t('table.joinedAt')}</th>
+              <th>{t('table.actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((member) => {
+              const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
+              const isCurrentUser = member.userId === user?.id;
+              const isAdmin = member.role === 'admin';
+              const activePermissions = !isAdmin
+                ? PERMISSION_KEYS.filter((key) => member.permissions?.[key])
+                : [];
+
+              return (
+                <tr key={member.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                        color: 'var(--green-ink)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        fontFamily: 'var(--f-mono)',
+                        flexShrink: 0,
+                      }}>
+                        {(memberUser?.firstName?.[0] || '').toUpperCase()}{(memberUser?.lastName?.[0] || '').toUpperCase()}
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>
                         {memberUser?.firstName} {memberUser?.lastName}
                         {isCurrentUser && (
-                          <span className="ml-2 text-xs text-tertiary">(Du)</span>
+                          <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--ink-faint)', fontWeight: 400 }}>(Du)</span>
                         )}
-                      </p>
+                      </span>
                     </div>
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="text-sm">{memberUser?.email}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge color={isAdmin ? 'purple' : 'blue'}>
-                      {t(`roles.${member.role}`)}
-                    </Badge>
-                    {activePermissions.map((key) => (
-                      <Badge key={key} size="sm" color="gray">
-                        {t(`permissions.${key}`)}
-                      </Badge>
-                    ))}
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="text-sm">{formatDate(member.createdAt)}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  {!isCurrentUser && (
-                    <Dropdown.Root>
-                      <Dropdown.DotsButton />
-                      <Dropdown.Popover className="w-min">
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            icon={Settings01}
-                            onAction={() => onEditPermissionsClick(member)}
-                          >
-                            <span className="pr-4">{t('actions.editPermissions')}</span>
-                          </Dropdown.Item>
-                          <Dropdown.Separator />
-                          <Dropdown.Item
-                            icon={Trash01}
-                            className="text-error-primary"
-                            onAction={() => onRemoveClick(member)}
-                          >
-                            <span className="pr-4">{t('actions.remove')}</span>
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown.Popover>
-                    </Dropdown.Root>
-                  )}
-                </Table.Cell>
-              </Table.Row>
-            );
-          }}
-        </Table.Body>
-      </Table>
-    </TableCard.Root>
+                  </td>
+                  <td className="mono" style={{ fontSize: 12 }}>{memberUser?.email}</td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
+                      <span className={`badge ${isAdmin ? 'badge--info' : 'badge--neutral'}`}>
+                        {t(`roles.${member.role}`)}
+                      </span>
+                      {activePermissions.map((key) => (
+                        <span key={key} className="badge badge--neutral" style={{ fontSize: 10 }}>
+                          {t(`permissions.${key}`)}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="mono" style={{ fontSize: 12 }}>{formatDate(member.createdAt)}</td>
+                  <td>
+                    {!isCurrentUser && (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ fontSize: 12, padding: '4px 10px' }}
+                          onClick={() => onEditPermissionsClick(member)}
+                        >
+                          {t('actions.editPermissions')}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ fontSize: 12, padding: '4px 10px', color: 'var(--red, #dc2626)' }}
+                          onClick={() => onRemoveClick(member)}
+                        >
+                          {t('actions.remove')}
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

@@ -7,12 +7,14 @@ export const metadata: Metadata = {
 
 export default function AdminEventsPage() {
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="hidden md:block">
-        <h1 className="text-display-sm font-semibold text-primary">Events & Abrechnung</h1>
-        <p className="mt-1 text-md text-tertiary">
-          Alle Events aller Organisationen mit Bestellungen und Umsatz. Abrechnung verwalten.
-        </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="app-page-head">
+        <div>
+          <h1 className="app-page-head__title">Events & Abrechnung</h1>
+          <p className="app-page-head__sub">
+            Alle Events aller Organisationen mit Bestellungen und Umsatz. Abrechnung verwalten.
+          </p>
+        </div>
       </div>
 
       <AdminEventsContainer />

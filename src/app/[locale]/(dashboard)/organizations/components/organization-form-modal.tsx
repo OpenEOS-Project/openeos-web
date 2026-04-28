@@ -2,14 +2,10 @@
 
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useCreateOrganization, useUpdateOrganization } from '@/hooks/use-organizations';
 import type { Organization } from '@/types';
 
@@ -39,7 +35,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const updateOrganization = useUpdateOrganization();
 
   const {
-    control,
+    register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -47,11 +43,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     resolver: zodResolver(organizationSchema),
     defaultValues: {
       name: '',
-      settings: {
-        currency: 'EUR',
-        timezone: 'Europe/Berlin',
-        locale: 'de-DE',
-      },
+      settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
     },
   });
 
@@ -68,11 +60,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     } else {
       reset({
         name: '',
-        settings: {
-          currency: 'EUR',
-          timezone: 'Europe/Berlin',
-          locale: 'de-DE',
-        },
+        settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
       });
     }
   }, [organization, reset]);
@@ -80,18 +68,9 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const onSubmit = async (data: OrganizationFormData) => {
     try {
       if (isEditing && organization) {
-        await updateOrganization.mutateAsync({
-          id: organization.id,
-          data: {
-            name: data.name,
-            settings: data.settings,
-          },
-        });
+        await updateOrganization.mutateAsync({ id: organization.id, data: { name: data.name, settings: data.settings } });
       } else {
-        await createOrganization.mutateAsync({
-          name: data.name,
-          settings: data.settings,
-        });
+        await createOrganization.mutateAsync({ name: data.name, settings: data.settings });
       }
       onClose();
     } catch {
@@ -104,112 +83,78 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-lg">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {isEditing ? t('actions.edit') : t('create')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className="modal__panel" style={{ maxWidth: 520 }}>
+        <div className="modal__head">
+          <h2 className="modal__title">
+            {isEditing ? t('actions.edit') : t('create')}
+          </h2>
+          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.name')}
-                        placeholder={t('form.namePlaceholder')}
-                        isRequired
-                        isInvalid={!!errors.name}
-                        hint={errors.name?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <label className="auth-field">
+              <span>{t('form.name')} *</span>
+              <input
+                type="text"
+                className={`input${errors.name ? ' input--error' : ''}`}
+                placeholder={t('form.namePlaceholder')}
+                {...register('name')}
+              />
+              {errors.name && (
+                <span style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}>{errors.name.message}</span>
+              )}
+            </label>
 
-                  <Controller
-                    name="settings.currency"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.currency')}
-                        placeholder="EUR"
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <label className="auth-field">
+                <span>{t('form.currency')}</span>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="EUR"
+                  {...register('settings.currency')}
+                />
+              </label>
 
-                  <Controller
-                    name="settings.timezone"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.timezone')}
-                        placeholder="Europe/Berlin"
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name="settings.locale"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.locale')}
-                        placeholder="de-DE"
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={handleClose}
-                    isDisabled={isSubmitting}
-                  >
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    isDisabled={isSubmitting}
-                  >
-                    {isEditing ? tCommon('save') : tCommon('create')}
-                  </Button>
-                </div>
-              </form>
+              <label className="auth-field">
+                <span>{t('form.locale')}</span>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="de-DE"
+                  {...register('settings.locale')}
+                />
+              </label>
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+
+            <label className="auth-field">
+              <span>{t('form.timezone')}</span>
+              <input
+                type="text"
+                className="input"
+                placeholder="Europe/Berlin"
+                {...register('settings.timezone')}
+              />
+            </label>
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+              {isSubmitting ? '...' : (isEditing ? tCommon('save') : tCommon('create'))}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

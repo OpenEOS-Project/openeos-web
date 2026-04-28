@@ -2,11 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ShoppingCart01, Check } from '@untitledui/icons';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
-import { cx } from '@/utils/cx';
 
 export function OrganizationPosSection() {
   const t = useTranslations('settings.organizationPos');
@@ -81,106 +78,105 @@ export function OrganizationPosSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Ordering Mode */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4">
-          <div className="flex items-center gap-2">
-            <ShoppingCart01 className="h-5 w-5 text-tertiary" />
-            <h3 className="text-lg font-semibold text-primary">{t('orderingMode.title')}</h3>
-          </div>
-          <p className="text-sm text-tertiary mt-1">{t('orderingMode.description')}</p>
+      <div className="app-card">
+        <div style={{ marginBottom: 16 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{t('orderingMode.title')}</h3>
+          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('orderingMode.description')}</p>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {orderingModes.map((mode) => {
-              const isActive = currentMode === mode.id;
-
-              return (
-                <button
-                  key={mode.id}
-                  type="button"
-                  onClick={() => handleModeChange(mode.id as 'immediate' | 'tab')}
-                  disabled={updateSettings.isPending}
-                  className={cx(
-                    'relative flex flex-col items-start gap-2 rounded-xl border-2 p-4 text-left transition-all',
-                    isActive
-                      ? 'border-brand-primary bg-brand-primary_alt'
-                      : 'border-secondary hover:border-primary hover:bg-secondary'
-                  )}
-                >
-                  {isActive && (
-                    <div className="absolute top-3 right-3">
-                      <Check className="h-5 w-5 text-brand-primary" />
-                    </div>
-                  )}
-                  <span
-                    className={cx(
-                      'text-md font-semibold',
-                      isActive ? 'text-brand-primary' : 'text-primary'
-                    )}
-                  >
-                    {mode.label}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {orderingModes.map((mode) => {
+            const isActive = currentMode === mode.id;
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => handleModeChange(mode.id as 'immediate' | 'tab')}
+                disabled={updateSettings.isPending}
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: 6,
+                  padding: '14px 16px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  border: isActive ? '2px solid var(--green-ink)' : '2px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                  background: isActive ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))' : 'none',
+                  transition: 'all 0.15s',
+                  textAlign: 'left',
+                }}
+              >
+                {isActive && (
+                  <span style={{ position: 'absolute', top: 8, right: 8 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="3"><path d="M20 6 9 17l-5-5" /></svg>
                   </span>
-                  <span
-                    className={cx(
-                      'text-sm',
-                      isActive ? 'text-brand-secondary' : 'text-tertiary'
-                    )}
-                  >
-                    {mode.description}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                )}
+                <span style={{ fontSize: 13, fontWeight: 600, color: isActive ? 'var(--green-ink)' : 'inherit' }}>
+                  {mode.label}
+                </span>
+                <span style={{ fontSize: 12, color: isActive ? 'color-mix(in oklab, var(--green-ink) 70%, transparent)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                  {mode.description}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Other POS Settings */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4">
-          <h3 className="text-lg font-semibold text-primary">{t('options.title')}</h3>
+      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('options.title')}</h3>
         </div>
 
-        <div className="divide-y divide-secondary">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div>
-              <p className="font-medium text-primary">{t('options.requireTableNumber')}</p>
-              <p className="text-sm text-tertiary">{t('options.requireTableNumberDescription')}</p>
+        {(
+          [
+            { key: 'requireTableNumber', defaultValue: false },
+            { key: 'autoPrintReceipt', defaultValue: false },
+            { key: 'soundEnabled', defaultValue: true },
+          ] as const
+        ).map(({ key, defaultValue }, i, arr) => {
+          const isChecked = posSettings?.[key] ?? defaultValue;
+          return (
+            <div
+              key={key}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 20px',
+                borderBottom: i < arr.length - 1 ? '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' : 'none',
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`options.${key}`)}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`options.${key}Description`)}</div>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isChecked}
+                disabled={updateSettings.isPending}
+                onClick={() => handleToggleChange(key, !isChecked)}
+                style={{
+                  width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
+                  background: isChecked ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
+                  position: 'relative', transition: 'background 0.2s',
+                }}
+              >
+                <span style={{
+                  position: 'absolute', top: 3, left: isChecked ? 21 : 3,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left 0.2s',
+                }} />
+              </button>
             </div>
-            <Toggle
-              isSelected={posSettings?.requireTableNumber ?? false}
-              onChange={(isSelected) => handleToggleChange('requireTableNumber', isSelected)}
-              isDisabled={updateSettings.isPending}
-            />
-          </div>
-
-          <div className="flex items-center justify-between px-6 py-4">
-            <div>
-              <p className="font-medium text-primary">{t('options.autoPrintReceipt')}</p>
-              <p className="text-sm text-tertiary">{t('options.autoPrintReceiptDescription')}</p>
-            </div>
-            <Toggle
-              isSelected={posSettings?.autoPrintReceipt ?? false}
-              onChange={(isSelected) => handleToggleChange('autoPrintReceipt', isSelected)}
-              isDisabled={updateSettings.isPending}
-            />
-          </div>
-
-          <div className="flex items-center justify-between px-6 py-4">
-            <div>
-              <p className="font-medium text-primary">{t('options.soundEnabled')}</p>
-              <p className="text-sm text-tertiary">{t('options.soundEnabledDescription')}</p>
-            </div>
-            <Toggle
-              isSelected={posSettings?.soundEnabled ?? true}
-              onChange={(isSelected) => handleToggleChange('soundEnabled', isSelected)}
-              isDisabled={updateSettings.isPending}
-            />
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );

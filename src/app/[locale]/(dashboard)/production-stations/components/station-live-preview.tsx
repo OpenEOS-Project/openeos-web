@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Expand06, XClose, Check } from '@untitledui/icons';
 import {
   useProductionStationsLive,
   useMarkStationItemReady,
 } from '@/hooks/use-production-stations';
-import { ModalOverlay, Modal, Dialog } from '@/components/ui/modal/modal';
 import { cx } from '@/utils/cx';
 
 interface StationLivePreviewProps {
@@ -26,27 +24,23 @@ function formatElapsed(createdAt: string): string {
   return `${hours}h ${minutes % 60}m`;
 }
 
-function getTimerColorClass(createdAt: string): string {
+function getTimerColor(createdAt: string): string {
   const diff = Date.now() - new Date(createdAt).getTime();
   const minutes = diff / 60000;
-  if (minutes > 15) return 'text-error-primary';
-  if (minutes > 5) return 'text-warning-primary';
-  return 'text-success-primary';
+  if (minutes > 15) return '#d24545';
+  if (minutes > 5) return '#d97706';
+  return 'var(--green-ink)';
 }
 
 function getPriorityBadge(priority: string) {
   if (priority === 'rush') {
     return (
-      <span className="rounded-full bg-error-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-error-primary">
-        RUSH
-      </span>
+      <span className="badge badge--error" style={{ fontSize: 10, padding: '2px 6px', textTransform: 'uppercase', fontWeight: 700 }}>RUSH</span>
     );
   }
   if (priority === 'high') {
     return (
-      <span className="rounded-full bg-warning-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-warning-primary">
-        HIGH
-      </span>
+      <span className="badge badge--warning" style={{ fontSize: 10, padding: '2px 6px', textTransform: 'uppercase', fontWeight: 700 }}>HIGH</span>
     );
   }
   return null;
@@ -60,7 +54,7 @@ function LiveTimer({ createdAt }: { createdAt: string }) {
     return () => clearInterval(id);
   }, []);
   return (
-    <span className={cx('font-mono text-xs', getTimerColorClass(createdAt))}>
+    <span style={{ fontFamily: 'var(--f-mono)', fontSize: 12, color: getTimerColor(createdAt) }}>
       {formatElapsed(createdAt)}
     </span>
   );
@@ -75,7 +69,7 @@ type StationOrder = StationLiveData['orders'][number];
 
 const MAX_PREVIEW_ORDERS = 3;
 
-// ── Mini Order Row (compact, for the sidebar card) ──────────────────
+// ── Mini Order Row ────────────────────────────────────────────────────
 
 function MiniOrderRow({ entry }: { entry: StationOrder }) {
   const t = useTranslations('productionStations.live');
@@ -83,24 +77,26 @@ function MiniOrderRow({ entry }: { entry: StationOrder }) {
   const summary = items.map((i) => `${i.quantity}x ${i.productName}`).join(', ');
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
-      <span className="font-semibold text-primary">#{order.dailyNumber}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', fontSize: 12 }}>
+      <span style={{ fontWeight: 700, color: 'var(--ink)' }}>#{order.dailyNumber}</span>
       {order.tableNumber && (
         <>
-          <span className="text-quaternary">&middot;</span>
-          <span className="text-tertiary">
+          <span style={{ color: 'color-mix(in oklab, var(--ink) 35%, transparent)' }}>·</span>
+          <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
             {t('table')} {order.tableNumber}
           </span>
         </>
       )}
-      <span className="text-quaternary">&middot;</span>
+      <span style={{ color: 'color-mix(in oklab, var(--ink) 35%, transparent)' }}>·</span>
       <LiveTimer createdAt={order.createdAt} />
-      <span className="ml-auto truncate text-secondary">{summary}</span>
+      <span style={{ marginLeft: 'auto', color: 'color-mix(in oklab, var(--ink) 55%, transparent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {summary}
+      </span>
     </div>
   );
 }
 
-// ── Full Order Card (for the fullscreen modal) ──────────────────────
+// ── Full Order Card ───────────────────────────────────────────────────
 
 function FullOrderCard({
   entry,
@@ -116,67 +112,70 @@ function FullOrderCard({
   const { order, items } = entry;
 
   return (
-    <div className="flex flex-col rounded-xl border border-secondary bg-primary shadow-xs">
+    <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
       {/* Order header */}
-      <div className="flex items-center gap-2 border-b border-secondary px-4 py-3">
-        <span className="text-base font-bold text-primary">#{order.dailyNumber}</span>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+        padding: '10px 16px',
+      }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>#{order.dailyNumber}</span>
         {order.tableNumber && (
-          <span className="text-sm text-tertiary">
+          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
             {t('table')} {order.tableNumber}
           </span>
         )}
         {order.customerName && (
-          <span className="text-sm text-secondary">{order.customerName}</span>
+          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>{order.customerName}</span>
         )}
         {getPriorityBadge(order.priority)}
-        <div className="ml-auto">
+        <div style={{ marginLeft: 'auto' }}>
           <LiveTimer createdAt={order.createdAt} />
         </div>
       </div>
 
       {/* Items */}
-      <div className="divide-y divide-secondary">
+      <div>
         {items.map((item) => {
           const isReady = item.status === 'ready' || item.status === 'delivered';
           return (
             <div
               key={item.id}
-              className={cx(
-                'flex items-center gap-3 px-4 py-2.5',
-                isReady && 'opacity-50',
-              )}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
+                borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                opacity: isReady ? 0.5 : 1,
+              }}
             >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-semibold text-primary">
-                    {item.quantity}x
-                  </span>
-                  <span className={cx('text-sm', isReady ? 'text-tertiary line-through' : 'text-primary')}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{item.quantity}x</span>
+                  <span style={{
+                    fontSize: 13,
+                    textDecoration: isReady ? 'line-through' : 'none',
+                    color: isReady ? 'color-mix(in oklab, var(--ink) 45%, transparent)' : 'var(--ink)',
+                  }}>
                     {item.productName}
                   </span>
                 </div>
               </div>
-              {!isReady && (
+              {!isReady ? (
                 <button
                   type="button"
-                  onClick={() =>
-                    markReady.mutate({
-                      organizationId,
-                      orderId: order.id,
-                      itemId: item.id,
-                    })
-                  }
+                  onClick={() => markReady.mutate({ organizationId, orderId: order.id, itemId: item.id })}
                   disabled={markReady.isPending}
-                  className="flex shrink-0 items-center gap-1 rounded-lg bg-success-secondary px-2.5 py-1.5 text-xs font-semibold text-success-primary transition-colors hover:bg-success-primary hover:text-white disabled:opacity-50"
+                  style={{
+                    flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
+                    padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)',
+                    color: 'var(--green-ink)', border: 'none',
+                    opacity: markReady.isPending ? 0.5 : 1,
+                  }}
                 >
-                  <Check className="h-3.5 w-3.5" />
-                  {t('ready')}
+                  ✓ {t('ready')}
                 </button>
-              )}
-              {isReady && (
-                <span className="text-xs font-medium text-success-primary">
-                  <Check className="inline h-3.5 w-3.5" /> {t('ready')}
-                </span>
+              ) : (
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--green-ink)' }}>✓ {t('ready')}</span>
               )}
             </div>
           );
@@ -186,7 +185,7 @@ function FullOrderCard({
   );
 }
 
-// ── Fullscreen Modal ────────────────────────────────────────────────
+// ── Fullscreen Modal ──────────────────────────────────────────────────
 
 function StationFullscreenModal({
   station,
@@ -202,61 +201,77 @@ function StationFullscreenModal({
   const t = useTranslations('productionStations.live');
 
   return (
-    <ModalOverlay isOpen onOpenChange={(open) => !open && onClose()} isDismissable>
-      <Modal className="sm:max-w-7xl">
-        <Dialog>
-          <div className="flex max-h-[90vh] w-full flex-col rounded-xl border border-secondary bg-primary shadow-xl">
-            {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-secondary px-6 py-4">
-              <div className="flex items-center gap-3">
-                {station.color && (
-                  <div
-                    className="h-3.5 w-3.5 rounded-full"
-                    style={{ backgroundColor: station.color }}
-                  />
-                )}
-                <h2 className="text-lg font-semibold text-primary">{station.name}</h2>
-                <span className="rounded-full bg-brand-secondary px-2 py-0.5 text-xs font-semibold text-brand-primary">
-                  {station.orders.length} {t('orders')}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-lg p-2 text-tertiary transition-colors hover:bg-secondary hover:text-secondary"
-                aria-label="Close"
-              >
-                <XClose className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {station.orders.length === 0 ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-tertiary">{t('noOrders')}</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {station.orders.map((entry) => (
-                    <FullOrderCard
-                      key={entry.order.id}
-                      entry={entry}
-                      organizationId={organizationId}
-                      eventId={eventId}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+    <div
+      className="modal__overlay"
+      style={{ alignItems: 'flex-start', padding: '5vh 20px' }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%', maxWidth: 1200, maxHeight: '90vh',
+          display: 'flex', flexDirection: 'column',
+          background: 'var(--paper)', borderRadius: 16,
+          border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+          boxShadow: '0 24px 64px color-mix(in oklab, var(--ink) 18%, transparent)',
+          overflow: 'hidden',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+          padding: '16px 24px', flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {station.color && (
+              <div style={{ width: 14, height: 14, borderRadius: '50%', background: station.color }} />
+            )}
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>{station.name}</h2>
+            <span className="badge badge--info">
+              {station.orders.length} {t('orders')}
+            </span>
           </div>
-        </Dialog>
-      </Modal>
-    </ModalOverlay>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 8, borderRadius: 8,
+              color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
+            }}
+            aria-label="Close"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+          {station.orders.length === 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+              <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{t('noOrders')}</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
+              {station.orders.map((entry) => (
+                <FullOrderCard
+                  key={entry.order.id}
+                  entry={entry}
+                  organizationId={organizationId}
+                  eventId={eventId}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ── Main Component ──────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────
 
 export function StationLivePreview({ eventId, organizationId }: StationLivePreviewProps) {
   const t = useTranslations('productionStations.live');
@@ -267,10 +282,17 @@ export function StationLivePreview({ eventId, organizationId }: StationLivePrevi
 
   if (isLoading) {
     return (
-      <div className="mb-6">
-        <h3 className="mb-3 text-sm font-semibold text-secondary">{t('title')}</h3>
-        <div className="flex items-center justify-center rounded-xl border border-secondary bg-primary py-8 shadow-xs">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
+      <div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginBottom: 12 }}>
+          {t('title')}
+        </p>
+        <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0' }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: '50%',
+            border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
+            animation: 'spin 0.75s linear infinite',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
     );
@@ -279,10 +301,12 @@ export function StationLivePreview({ eventId, organizationId }: StationLivePrevi
   if (!stations || stations.length === 0) return null;
 
   return (
-    <div className="mb-6">
-      <h3 className="mb-3 text-sm font-semibold text-secondary">{t('title')}</h3>
+    <div>
+      <p style={{ fontSize: 13, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginBottom: 12 }}>
+        {t('title')}
+      </p>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
         {stations.map((station) => {
           const orderCount = station.orders.length;
           const previewOrders = station.orders.slice(0, MAX_PREVIEW_ORDERS);
@@ -291,51 +315,56 @@ export function StationLivePreview({ eventId, organizationId }: StationLivePrevi
           return (
             <div
               key={station.id}
-              className="overflow-hidden rounded-xl border border-secondary bg-primary shadow-xs"
+              className="app-card"
+              style={{ padding: 0, overflow: 'hidden' }}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '10px 14px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {station.color && (
-                    <div
-                      className="h-3 w-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: station.color }}
-                    />
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: station.color, flexShrink: 0 }} />
                   )}
-                  <span className="text-sm font-semibold text-primary">{station.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{station.name}</span>
                   {orderCount > 0 && (
-                    <span className="rounded-full bg-brand-secondary px-2 py-0.5 text-xs font-semibold text-brand-primary">
-                      {orderCount}
-                    </span>
+                    <span className="badge badge--info" style={{ fontSize: 11 }}>{orderCount}</span>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => setOpenStationId(station.id)}
-                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-tertiary transition-colors hover:bg-secondary hover:text-primary"
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500,
+                    color: 'color-mix(in oklab, var(--ink) 45%, transparent)', padding: '4px 6px', borderRadius: 6,
+                  }}
                 >
-                  <Expand06 className="h-3.5 w-3.5" />
-                  {t('openFullView')}
+                  ⤢ {t('openFullView')}
                 </button>
               </div>
 
               {/* Compact order list */}
-              {orderCount === 0 ? (
-                <div className="border-t border-secondary px-4 py-3">
-                  <p className="text-xs text-tertiary">{t('noOrders')}</p>
-                </div>
-              ) : (
-                <div className="border-t border-secondary divide-y divide-secondary">
-                  {previewOrders.map((entry) => (
-                    <MiniOrderRow key={entry.order.id} entry={entry} />
-                  ))}
-                  {remaining > 0 && (
-                    <div className="px-3 py-1.5 text-xs text-tertiary">
-                      {t('moreOrders', { count: remaining })}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
+                {orderCount === 0 ? (
+                  <div style={{ padding: '10px 14px' }}>
+                    <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', margin: 0 }}>{t('noOrders')}</p>
+                  </div>
+                ) : (
+                  <>
+                    {previewOrders.map((entry) => (
+                      <div key={entry.order.id} style={{ borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+                        <MiniOrderRow entry={entry} />
+                      </div>
+                    ))}
+                    {remaining > 0 && (
+                      <div style={{ padding: '6px 12px', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                        {t('moreOrders', { count: remaining })}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           );
         })}

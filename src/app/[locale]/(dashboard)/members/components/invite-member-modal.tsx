@@ -1,16 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Checkbox } from '@/components/ui/checkbox/checkbox';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { useCreateInvitation } from '@/hooks/use-members';
 import type { OrganizationPermissions } from '@/types/auth';
 
@@ -50,19 +44,16 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   const createInvitation = useCreateInvitation(organizationId);
 
   const {
-    control,
+    register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<InviteFormData>({
-    defaultValues: {
-      email: '',
-    },
+    defaultValues: { email: '' },
   });
 
   const onSubmit = async (data: InviteFormData) => {
     setError(null);
-
     try {
       await createInvitation.mutateAsync({
         email: data.email,
@@ -78,13 +69,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   const handleClose = () => {
     reset();
     setIsAdmin(false);
-    setPermissions({
-      products: false,
-      events: false,
-      devices: false,
-      members: false,
-      shiftPlans: false,
-    });
+    setPermissions({ products: false, events: false, devices: false, members: false, shiftPlans: false });
     setError(null);
     onClose();
   };
@@ -93,96 +78,116 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-md">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">{t('invite')}</h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
+    <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className="modal__panel" style={{ maxWidth: 480 }}>
+        <div className="modal__head">
+          <h2 className="modal__title">{t('invite')}</h2>
+          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {error && (
+              <div style={{
+                borderRadius: 8,
+                background: 'color-mix(in oklab, var(--red, #dc2626) 10%, var(--paper))',
+                padding: '10px 14px',
+                fontSize: 13,
+                color: 'var(--red, #dc2626)',
+                border: '1px solid color-mix(in oklab, var(--red, #dc2626) 25%, transparent)',
+              }}>
+                {error}
               </div>
+            )}
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-5 px-6 py-5">
-                  {error && (
-                    <div className="rounded-lg bg-error-50 p-3 text-sm text-error-600 ring-1 ring-error-200 ring-inset dark:bg-error-950 dark:text-error-400 dark:ring-error-800">
-                      {error}
-                    </div>
-                  )}
+            <label className="auth-field">
+              <span>{t('form.email')}</span>
+              <input
+                type="email"
+                className={`input${errors.email ? ' input--error' : ''}`}
+                placeholder={t('form.emailPlaceholder')}
+                autoComplete="email"
+                {...register('email', { required: true })}
+              />
+            </label>
 
-                  <Controller
-                    name="email"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Input
-                        type="email"
-                        label={t('form.email')}
-                        placeholder={t('form.emailPlaceholder')}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        isInvalid={!!errors.email}
-                        autoComplete="email"
+            {/* Admin toggle */}
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+              <div
+                role="switch"
+                aria-checked={isAdmin}
+                tabIndex={0}
+                onClick={() => setIsAdmin((v) => !v)}
+                onKeyDown={(e) => e.key === ' ' && setIsAdmin((v) => !v)}
+                style={{
+                  width: 40,
+                  height: 22,
+                  borderRadius: 11,
+                  background: isAdmin ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, var(--paper))',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s',
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: 3,
+                  left: isAdmin ? 21 : 3,
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  background: '#fff',
+                  transition: 'left 0.15s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{t('form.isAdmin')}</div>
+                <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>{t('form.isAdminHint')}</div>
+              </div>
+            </label>
+
+            {/* Module permissions */}
+            {!isAdmin && (
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('permissions.title')}</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {PERMISSION_KEYS.map((key) => (
+                    <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                      <input
+                        type="checkbox"
+                        checked={!!permissions[key]}
+                        onChange={() => togglePermission(key)}
+                        style={{ width: 16, height: 16, accentColor: 'var(--green-ink)', cursor: 'pointer' }}
                       />
-                    )}
-                  />
-
-                  {/* Admin toggle */}
-                  <Toggle
-                    size="md"
-                    label={t('form.isAdmin')}
-                    hint={t('form.isAdminHint')}
-                    isSelected={isAdmin}
-                    onChange={setIsAdmin}
-                  />
-
-                  {/* Module permissions (only shown for non-admin) */}
-                  {!isAdmin && (
-                    <div className="space-y-3">
-                      <p className="text-sm font-medium text-secondary">{t('permissions.title')}</p>
-                      <div className="space-y-2.5">
-                        {PERMISSION_KEYS.map((key) => (
-                          <Checkbox
-                            key={key}
-                            isSelected={!!permissions[key]}
-                            onChange={() => togglePermission(key)}
-                            label={t(`permissions.${key}`)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {isAdmin && (
-                    <p className="text-sm text-tertiary">{t('permissions.adminHint')}</p>
-                  )}
+                      {t(`permissions.${key}`)}
+                    </label>
+                  ))}
                 </div>
+              </div>
+            )}
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button type="button" color="secondary" onClick={handleClose}>
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button type="submit" isLoading={createInvitation.isPending}>
-                    {t('invite')}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+            {isAdmin && (
+              <p style={{ fontSize: 13, color: 'var(--ink-faint)' }}>{t('permissions.adminHint')}</p>
+            )}
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={createInvitation.isPending}>
+              {createInvitation.isPending ? '...' : t('invite')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

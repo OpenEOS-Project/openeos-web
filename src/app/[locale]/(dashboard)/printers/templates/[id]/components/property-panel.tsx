@@ -1,11 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Trash01, AlignLeft, AlignCenter, AlignRight, AlignJustify } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
-import { Select } from '@/components/ui/select/select';
+import {
+  Trash01,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+} from '@untitledui/icons';
 import { cx } from '@/utils/cx';
 import type { TemplateElement, TextAlign } from '@/types/print-template';
 
@@ -32,15 +34,7 @@ interface PropertyPanelProps {
   onRemove: (id: string) => void;
 }
 
-function ToggleButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
+function ToggleButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
@@ -57,13 +51,7 @@ function ToggleButton({
   );
 }
 
-function AlignmentControl({
-  value,
-  onChange,
-  label,
-  showJustify,
-  justifyLabel,
-}: {
+function AlignmentControl({ value, onChange, label, showJustify, justifyLabel }: {
   value: TextAlign;
   onChange: (align: TextAlign) => void;
   label: string;
@@ -72,8 +60,8 @@ function AlignmentControl({
 }) {
   return (
     <div>
-      <Label className="text-xs">{label}</Label>
-      <div className="mt-1.5 flex gap-1">
+      <label className="text-xs text-secondary block mb-1.5">{label}</label>
+      <div className="flex gap-1">
         {showJustify && (
           <ToggleButton active={value === 'justify'} onClick={() => onChange('justify')}>
             <AlignJustify className="h-4 w-4" />
@@ -96,15 +84,7 @@ function AlignmentControl({
   );
 }
 
-function CheckboxField({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
+function CheckboxField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return (
     <label className="flex items-center gap-2 cursor-pointer">
       <input
@@ -124,9 +104,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
   if (!element) return null;
 
-  const update = (updates: Partial<TemplateElement>) => {
-    onUpdate(element.id, updates);
-  };
+  const update = (updates: Partial<TemplateElement>) => onUpdate(element.id, updates);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -134,7 +112,6 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
         <h3 className="text-sm font-semibold text-primary">{t('properties')}</h3>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Element type label */}
         <div>
           <span className="inline-flex rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary">
             {element.type === 'field' && element.field
@@ -143,35 +120,32 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
           </span>
         </div>
 
-        {/* Text content (for text type) */}
         {element.type === 'text' && (
           <div>
-            <Label htmlFor="content" className="text-xs">{tp('content')}</Label>
-            <Input
+            <label htmlFor="content" className="text-xs text-secondary block mb-1.5">{tp('content')}</label>
+            <input
               id="content"
+              className="input"
               value={element.content || ''}
-              onChange={(value) => update({ content: value })}
+              onChange={(e) => update({ content: e.target.value })}
               placeholder={tp('contentPlaceholder')}
-              size="sm"
             />
           </div>
         )}
 
-        {/* Label (for field type) */}
         {element.type === 'field' && element.field !== 'items_list' && element.field !== 'qr_code' && element.field !== 'priority' && (
           <div>
-            <Label htmlFor="label" className="text-xs">{tp('label')}</Label>
-            <Input
+            <label htmlFor="label" className="text-xs text-secondary block mb-1.5">{tp('label')}</label>
+            <input
               id="label"
+              className="input"
               value={element.label || ''}
-              onChange={(value) => update({ label: value })}
+              onChange={(e) => update({ label: e.target.value })}
               placeholder={tp('labelPlaceholder')}
-              size="sm"
             />
           </div>
         )}
 
-        {/* Alignment */}
         {(element.type === 'text' || element.type === 'field') && element.field !== 'items_list' && (
           <AlignmentControl
             value={element.align || (element.field && AMOUNT_FIELDS.has(element.field) ? 'justify' : 'left')}
@@ -182,117 +156,77 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
           />
         )}
 
-        {/* Bold & Big toggles */}
         {(element.type === 'text' || element.type === 'field') && (
           <div className="flex gap-3">
-            <CheckboxField
-              label={tp('bold')}
-              checked={element.bold || false}
-              onChange={(bold) => update({ bold })}
-            />
-            <CheckboxField
-              label={tp('big')}
-              checked={element.big || false}
-              onChange={(big) => update({ big })}
-            />
+            <CheckboxField label={tp('bold')} checked={element.bold || false} onChange={(bold) => update({ bold })} />
+            <CheckboxField label={tp('big')} checked={element.big || false} onChange={(big) => update({ big })} />
           </div>
         )}
 
-        {/* Separator character */}
         {element.type === 'separator' && (
           <div>
-            <Label className="text-xs">{tp('char')}</Label>
-            <div className="mt-1.5 flex gap-2">
-              <ToggleButton
-                active={element.char !== '-'}
-                onClick={() => update({ char: '=' })}
-              >
+            <label className="text-xs text-secondary block mb-1.5">{tp('char')}</label>
+            <div className="flex gap-2">
+              <ToggleButton active={element.char !== '-'} onClick={() => update({ char: '=' })}>
                 =
               </ToggleButton>
-              <ToggleButton
-                active={element.char === '-'}
-                onClick={() => update({ char: '-' })}
-              >
+              <ToggleButton active={element.char === '-'} onClick={() => update({ char: '-' })}>
                 -
               </ToggleButton>
             </div>
           </div>
         )}
 
-        {/* Lines count (spacer, feed) */}
         {(element.type === 'spacer' || element.type === 'feed') && (
           <div>
-            <Label htmlFor="lines" className="text-xs">{tp('lines')}</Label>
-            <Input
+            <label htmlFor="lines" className="text-xs text-secondary block mb-1.5">{tp('lines')}</label>
+            <input
               id="lines"
+              className="input"
               value={String(element.lines || 1)}
-              onChange={(value) => {
-                const num = parseInt(value) || 1;
+              onChange={(e) => {
+                const num = parseInt(e.target.value) || 1;
                 update({ lines: Math.max(1, Math.min(10, num)) });
               }}
-              size="sm"
             />
           </div>
         )}
 
-        {/* Condition */}
         {element.type === 'field' && (
           <div>
-            <Label className="text-xs">{tp('condition')}</Label>
-            <Select
-              selectedKey={element.condition || ''}
-              onSelectionChange={(key) =>
-                update({ condition: (key as string) || undefined })
-              }
-              aria-label={tp('condition')}
+            <label className="text-xs text-secondary block mb-1.5">{tp('condition')}</label>
+            <select
+              className="select"
+              value={element.condition || ''}
+              onChange={(e) => update({ condition: (e.target.value as string) || undefined })}
             >
               {CONDITION_OPTIONS.map((opt) => (
-                <Select.Item key={opt.value} id={opt.value}>
-                  {tp(opt.labelKey)}
-                </Select.Item>
+                <option key={opt.value} value={opt.value}>{tp(opt.labelKey)}</option>
               ))}
-            </Select>
+            </select>
             <p className="mt-1 text-xs text-quaternary">{tp('conditionHint')}</p>
           </div>
         )}
 
-        {/* Items list specific options */}
         {element.type === 'field' && element.field === 'items_list' && (
           <div className="space-y-2">
-            <CheckboxField
-              label={tp('showPrice')}
-              checked={element.showPrice !== false}
-              onChange={(showPrice) => update({ showPrice })}
-            />
-            <CheckboxField
-              label={tp('showNotes')}
-              checked={element.showNotes !== false}
-              onChange={(showNotes) => update({ showNotes })}
-            />
-            <CheckboxField
-              label={tp('showKitchenNotes')}
-              checked={element.showKitchenNotes || false}
-              onChange={(showKitchenNotes) => update({ showKitchenNotes })}
-            />
-            <CheckboxField
-              label={tp('showOptions')}
-              checked={element.showOptions !== false}
-              onChange={(showOptions) => update({ showOptions })}
-            />
+            <CheckboxField label={tp('showPrice')} checked={element.showPrice !== false} onChange={(showPrice) => update({ showPrice })} />
+            <CheckboxField label={tp('showNotes')} checked={element.showNotes !== false} onChange={(showNotes) => update({ showNotes })} />
+            <CheckboxField label={tp('showKitchenNotes')} checked={element.showKitchenNotes || false} onChange={(showKitchenNotes) => update({ showKitchenNotes })} />
+            <CheckboxField label={tp('showOptions')} checked={element.showOptions !== false} onChange={(showOptions) => update({ showOptions })} />
           </div>
         )}
 
-        {/* Delete button */}
         <div className="pt-4 border-t border-secondary">
-          <Button
-            color="tertiary"
-            size="sm"
-            className="w-full"
+          <button
+            type="button"
+            className="btn btn--ghost"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#d24545' }}
             onClick={() => onRemove(element.id)}
-            iconLeading={Trash01}
           >
+            <Trash01 className="h-4 w-4" />
             {t('deleteElement')}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

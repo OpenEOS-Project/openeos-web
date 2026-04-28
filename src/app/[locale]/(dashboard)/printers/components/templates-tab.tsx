@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/tabs/tabs';
 import { useAuthStore } from '@/stores/auth-store';
 import { usePrintTemplates } from '@/hooks/use-print-templates';
 import type { PrintTemplate, PrintTemplateType } from '@/types/print-template';
@@ -14,6 +13,19 @@ const TEMPLATE_TYPES: { id: PrintTemplateType; defaultName: string }[] = [
   { id: 'order_ticket', defaultName: 'Bestellbon' },
 ];
 
+function Spinner() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%',
+        border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
+        animation: 'spin 0.75s linear infinite',
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
 export function TemplatesTab() {
   const t = useTranslations('printTemplates');
   const { currentOrganization } = useAuthStore();
@@ -22,50 +34,51 @@ export function TemplatesTab() {
 
   const { data: templates, isLoading } = usePrintTemplates(organizationId);
 
-  // Map templates by type - pick first of each type
   const templatesByType = useMemo(() => {
     const map: Partial<Record<PrintTemplateType, PrintTemplate>> = {};
     if (templates) {
       for (const tmpl of templates) {
-        if (!map[tmpl.type]) {
-          map[tmpl.type] = tmpl;
-        }
+        if (!map[tmpl.type]) map[tmpl.type] = tmpl;
       }
     }
     return map;
   }, [templates]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
-      </div>
-    );
-  }
+  if (isLoading) return <Spinner />;
 
   return (
-    <Tabs
-      selectedKey={activeType}
-      onSelectionChange={(key) => setActiveType(key as string)}
-    >
-      <TabList type="button-gray" size="sm">
+    <div>
+      {/* Type tab bar */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         {TEMPLATE_TYPES.map(({ id }) => (
-          <Tab key={id} id={id}>
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActiveType(id)}
+            style={{
+              padding: '6px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              borderRadius: 8,
+              border: `1px solid ${activeType === id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)'}`,
+              background: activeType === id ? 'color-mix(in oklab, var(--green-ink) 10%, transparent)' : 'transparent',
+              color: activeType === id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+            }}
+          >
             {t(`types.${id}`)}
-          </Tab>
+          </button>
         ))}
-      </TabList>
+      </div>
 
       {TEMPLATE_TYPES.map(({ id, defaultName }) => (
-        <TabPanel key={id} id={id} className="pt-4">
+        activeType === id && (
           <InlineTemplateDesigner
+            key={id}
             organizationId={organizationId}
             templateType={id}
             existingTemplate={templatesByType[id] || null}
             defaultName={defaultName}
           />
-        </TabPanel>
+        )
       ))}
-    </Tabs>
+    </div>
   );
 }

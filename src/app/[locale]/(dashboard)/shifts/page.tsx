@@ -4,30 +4,16 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import {
-  Plus,
-  ClipboardCheck,
-  Edit03,
-  Trash01,
-  Link01,
-  Eye,
-  Users01,
-  Calendar,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
 import { CreateShiftPlanModal } from './components/create-shift-plan-modal';
 
-const statusConfig: Record<ShiftPlanStatus, { color: BadgeColors; label: string }> = {
-  draft: { color: 'gray', label: 'shifts.status.draft' },
-  published: { color: 'success', label: 'shifts.status.published' },
-  closed: { color: 'warning', label: 'shifts.status.closed' },
+const statusBadge: Record<ShiftPlanStatus, string> = {
+  draft: 'badge badge--neutral',
+  published: 'badge badge--success',
+  closed: 'badge badge--warning',
 };
 
 export default function ShiftsPage() {
@@ -60,7 +46,6 @@ export default function ShiftsPage() {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
       } else {
-        // Fallback for non-secure contexts
         const textArea = document.createElement('textarea');
         textArea.value = url;
         textArea.style.position = 'fixed';
@@ -77,125 +62,109 @@ export default function ShiftsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="app-page-head">
         <div>
-          <h1 className="text-2xl font-semibold text-primary">{t('shifts.title')}</h1>
-          <p className="text-secondary">{t('shifts.description')}</p>
+          <h1 className="app-page-head__title">{t('shifts.title')}</h1>
+          <p className="app-page-head__sub">{t('shifts.description')}</p>
         </div>
-        <Button color="primary" iconLeading={Plus} onClick={() => setShowCreateModal(true)}>
+        <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
           {t('shifts.createPlan')}
-        </Button>
+        </button>
       </div>
 
       {plans.length === 0 ? (
-        <EmptyState
-          icon="calendar"
-          title={t('shifts.noPlans')}
-          description={t('shifts.noPlansDescription')}
-          action={
-            <Button color="primary" iconLeading={Plus} onClick={() => setShowCreateModal(true)}>
+        <div className="app-card">
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">{t('shifts.noPlans')}</h3>
+            <p className="empty-state__sub">{t('shifts.noPlansDescription')}</p>
+            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
               {t('shifts.createFirstPlan')}
-            </Button>
-          }
-        />
+            </button>
+          </div>
+        </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
           {plans.map((plan: ShiftPlan) => {
-            const config = statusConfig[plan.status];
             const jobCount = plan.jobs?.length || 0;
 
             return (
-              <div
-                key={plan.id}
-                className="rounded-xl border border-secondary bg-primary p-6 shadow-sm"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-secondary">
-                      <ClipboardCheck className="h-5 w-5 text-brand-primary" />
+              <div key={plan.id} className="app-card">
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                      background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                      color: 'var(--green-ink)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
+                      </svg>
                     </div>
-                    <div>
-                      <h3 className="font-medium text-primary">{plan.name}</h3>
-                      <p className="text-sm text-tertiary">
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>{plan.name}</div>
+                      <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
                         {t('shifts.jobs', { count: jobCount })}
-                      </p>
+                      </div>
                     </div>
                   </div>
-                  <Badge color={config.color} size="sm">
-                    {t(config.label)}
-                  </Badge>
+                  <span className={statusBadge[plan.status]}>{t(`shifts.status.${plan.status}`)}</span>
                 </div>
 
                 {plan.description && (
-                  <p className="mt-3 text-sm text-secondary line-clamp-2">{plan.description}</p>
+                  <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {plan.description}
+                  </p>
                 )}
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-tertiary">
-                  {plan.event && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {plan.event.name}
-                    </span>
-                  )}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 12 }}>
+                  {plan.event && <span>{plan.event.name}</span>}
                   <span>{t('shifts.createdAt', { date: formatDate(plan.createdAt) })}</span>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-secondary pt-4">
-                  <Button
-                    color="secondary"
-                    size="sm"
-                    iconLeading={Edit03}
-                    onClick={() => router.push(`/shifts/${plan.id}`)}
-                  >
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => router.push(`/shifts/${plan.id}`)}>
                     {t('common.edit')}
-                  </Button>
-
-                  <Button
-                    color="secondary"
-                    size="sm"
-                    iconLeading={Users01}
-                    onClick={() => router.push(`/shifts/${plan.id}?tab=registrations`)}
-                  >
+                  </button>
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => router.push(`/shifts/${plan.id}?tab=registrations`)}>
                     {t('shifts.registrations')}
-                  </Button>
-
+                  </button>
                   {plan.status === 'published' && (
                     <>
-                      <Button
-                        color="secondary"
-                        size="sm"
-                        iconLeading={Link01}
-                        onClick={() => copyPublicLink(plan.publicSlug)}
-                      />
-                      <Button
-                        color="secondary"
-                        size="sm"
-                        iconLeading={Eye}
-                        onClick={() => window.open(`/s/${plan.publicSlug}`, '_blank')}
-                      />
+                      <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => copyPublicLink(plan.publicSlug)}>
+                        Link
+                      </button>
+                      <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => window.open(`/s/${plan.publicSlug}`, '_blank')}>
+                        Vorschau
+                      </button>
                     </>
                   )}
-
-                  <div className="flex-1" />
-
-                  <Button
-                    color="secondary-destructive"
-                    size="sm"
-                    iconLeading={Trash01}
+                  <div style={{ flex: 1 }} />
+                  <button
+                    className="btn btn--ghost"
+                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
                     onClick={() => {
                       if (confirm(t('shifts.confirmDelete'))) {
                         deleteMutation.mutate(plan.id);
                       }
                     }}
-                  />
+                  >
+                    {t('common.delete')}
+                  </button>
                 </div>
               </div>
             );

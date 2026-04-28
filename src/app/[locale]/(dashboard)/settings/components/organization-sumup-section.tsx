@@ -3,20 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  CreditCard02,
-  Loading02,
-  Plus,
-  Trash01,
-  Edit03,
-  CheckCircle,
-  AlertCircle,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
-import { Badge } from '@/components/ui/badges/badges';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi, sumupApi } from '@/lib/api-client';
 import type { SumUpReader } from '@/types/sumup';
@@ -167,60 +153,61 @@ export function OrganizationSumupSection() {
     appId !== (sumupSettings?.appId || '');
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Credentials Card */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4">
-          <div className="flex items-center gap-2">
-            <CreditCard02 className="h-5 w-5 text-tertiary" />
-            <h3 className="text-lg font-semibold text-primary">{t('credentials.title')}</h3>
-          </div>
-          <p className="text-sm text-tertiary mt-1">{t('credentials.description')}</p>
+      <div className="app-card">
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('credentials.title')}</h3>
+          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('credentials.description')}</p>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="sumupApiKey">{t('credentials.apiKey')}</Label>
-            <Input
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="sumupApiKey">{t('credentials.apiKey')}</label>
+            <input
               id="sumupApiKey"
               type="password"
+              className="input"
               value={apiKey}
-              onChange={setApiKey}
+              onChange={(e) => setApiKey(e.target.value)}
               placeholder={t('credentials.apiKeyPlaceholder')}
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="sumupMerchantCode">{t('credentials.merchantCode')}</Label>
-            <Input
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="sumupMerchantCode">{t('credentials.merchantCode')}</label>
+            <input
               id="sumupMerchantCode"
+              className="input"
               value={merchantCode}
-              onChange={setMerchantCode}
+              onChange={(e) => setMerchantCode(e.target.value)}
               placeholder={t('credentials.merchantCodePlaceholder')}
             />
           </div>
 
-          <div className="pt-2 border-t border-secondary">
-            <p className="text-sm text-tertiary mb-3">{t('credentials.affiliateDescription')}</p>
+          <div style={{ paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+            <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 12 }}>{t('credentials.affiliateDescription')}</p>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="sumupAffiliateKey">{t('credentials.affiliateKey')}</Label>
-                <Input
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="auth-field">
+                <label className="auth-field__label" htmlFor="sumupAffiliateKey">{t('credentials.affiliateKey')}</label>
+                <input
                   id="sumupAffiliateKey"
                   type="password"
+                  className="input"
                   value={affiliateKey}
-                  onChange={setAffiliateKey}
+                  onChange={(e) => setAffiliateKey(e.target.value)}
                   placeholder={t('credentials.affiliateKeyPlaceholder')}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="sumupAppId">{t('credentials.appId')}</Label>
-                <Input
+              <div className="auth-field">
+                <label className="auth-field__label" htmlFor="sumupAppId">{t('credentials.appId')}</label>
+                <input
                   id="sumupAppId"
+                  className="input"
                   value={appId}
-                  onChange={setAppId}
+                  onChange={(e) => setAppId(e.target.value)}
                   placeholder={t('credentials.appIdPlaceholder')}
                 />
               </div>
@@ -228,119 +215,122 @@ export function OrganizationSumupSection() {
           </div>
 
           {credentialsError && (
-            <div className="flex items-center gap-2 rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 10%, transparent)', padding: '10px 12px', fontSize: 13, color: '#dc2626' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
               {credentialsError}
             </div>
           )}
 
           {credentialsSuccess && (
-            <div className="flex items-center gap-2 rounded-lg bg-success-secondary p-3 text-sm text-success-primary">
-              <CheckCircle className="h-4 w-4 shrink-0" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--green-ink)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
               {t('credentials.success')}
             </div>
           )}
 
-          <div className="flex gap-3">
-            <Button
-              color="secondary"
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              className="btn btn--ghost"
               onClick={() => testConnection.mutate()}
               disabled={!isConfigured || testConnection.isPending}
             >
               {testConnection.isPending ? (
-                <Loading02 className="h-4 w-4 animate-spin" />
-              ) : (
-                t('credentials.testConnection')
-              )}
-            </Button>
-            <Button
+                <>
+                  <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', border: '2px solid currentColor', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </>
+              ) : t('credentials.testConnection')}
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
               onClick={() => saveCredentials.mutate()}
               disabled={!hasCredentialChanges || saveCredentials.isPending}
             >
               {saveCredentials.isPending ? (
-                <Loading02 className="h-4 w-4 animate-spin" />
-              ) : (
-                tCommon('save')
-              )}
-            </Button>
+                <>
+                  <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', border: '2px solid currentColor', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </>
+              ) : tCommon('save')}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Readers Card */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="border-b border-secondary px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-primary">{t('readers.title')}</h3>
-            </div>
-            {isConfigured && (
-              <Button
-                size="sm"
-                iconLeading={Plus}
-                onClick={() => setShowPairDialog(true)}
-              >
-                {t('readers.pairReader')}
-              </Button>
-            )}
-          </div>
+      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 600 }}>{t('readers.title')}</h3>
+          {isConfigured && (
+            <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setShowPairDialog(true)}>
+              + {t('readers.pairReader')}
+            </button>
+          )}
         </div>
 
-        <div className="p-6">
+        <div style={{ padding: 20 }}>
           {!isConfigured ? (
-            <div className="text-center py-8">
-              <AlertCircle className="h-8 w-8 text-tertiary mx-auto mb-2" />
-              <p className="text-sm text-tertiary">{t('readers.notConfigured')}</p>
+            <div className="empty-state">
+              <div className="empty-state__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+              </div>
+              <p className="empty-state__sub">{t('readers.notConfigured')}</p>
             </div>
           ) : readersQuery.isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loading02 className="h-6 w-6 animate-spin text-tertiary" />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : readersQuery.data && readersQuery.data.length > 0 ? (
-            <div className="divide-y divide-secondary -mx-6">
-              {readersQuery.data.map((reader) => (
-                <div key={reader.id} className="flex items-center justify-between px-6 py-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-primary truncate">{reader.name}</p>
-                      <ReaderStatusBadge status={reader.status} t={t} />
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-tertiary mt-0.5">
-                      {reader.device?.identifier && (
-                        <span>{t('readers.serialNumber')}: {reader.device.identifier}</span>
+            <table className="data-table">
+              <tbody>
+                {readersQuery.data.map((reader) => (
+                  <tr key={reader.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontWeight: 500 }}>{reader.name}</span>
+                        <ReaderStatusBadge status={reader.status} t={t} />
+                      </div>
+                      {(reader.device?.identifier || reader.device?.model) && (
+                        <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2, display: 'flex', gap: 12 }}>
+                          {reader.device?.identifier && <span>{t('readers.serialNumber')}: {reader.device.identifier}</span>}
+                          {reader.device?.model && <span>{t('readers.model')}: {reader.device.model}</span>}
+                        </div>
                       )}
-                      {reader.device?.model && (
-                        <span>{t('readers.model')}: {reader.device.model}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0 ml-4">
-                    <Button
-                      size="sm"
-                      color="tertiary"
-                      onClick={() => {
-                        setRenamingReader(reader);
-                        setNewReaderName(reader.name);
-                      }}
-                    >
-                      <Edit03 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      color="tertiary-destructive"
-                      onClick={() => deleteReaderMutation.mutate(reader.id)}
-                      disabled={deleteReaderMutation.isPending}
-                    >
-                      <Trash01 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ padding: '4px 8px' }}
+                          onClick={() => { setRenamingReader(reader); setNewReaderName(reader.name); }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ padding: '4px 8px', color: '#dc2626' }}
+                          onClick={() => deleteReaderMutation.mutate(reader.id)}
+                          disabled={deleteReaderMutation.isPending}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
-            <div className="text-center py-8">
-              <CreditCard02 className="h-8 w-8 text-tertiary mx-auto mb-2" />
-              <p className="text-sm text-tertiary">{t('readers.empty')}</p>
+            <div className="empty-state">
+              <div className="empty-state__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+              </div>
+              <p className="empty-state__sub">{t('readers.empty')}</p>
             </div>
           )}
         </div>
@@ -348,129 +338,124 @@ export function OrganizationSumupSection() {
 
       {/* Pair Reader Dialog */}
       {showPairDialog && (
-        <DialogModal
-          isOpen
-          onClose={() => {
-            setShowPairDialog(false);
-            setPairingCode('');
-            setPairReaderName('');
-          }}
-          title={t('readers.pairReader')}
-          description={t('readers.pairDescription')}
-        >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              pairReaderMutation.mutate();
-            }}
-          >
-            <div className="px-6 py-4 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="pairingCode">{t('readers.pairingCode')}</Label>
-                <Input
-                  id="pairingCode"
-                  value={pairingCode}
-                  onChange={setPairingCode}
-                  placeholder={t('readers.pairingCodePlaceholder')}
-                  autoFocus
-                />
+        <div className="modal__backdrop" onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}>
+          <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+            <div className="modal__header">
+              <div>
+                <h2 className="modal__title">{t('readers.pairReader')}</h2>
+                <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{t('readers.pairDescription')}</p>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="pairReaderName">{t('readers.readerName')}</Label>
-                <Input
-                  id="pairReaderName"
-                  value={pairReaderName}
-                  onChange={setPairReaderName}
-                  placeholder={t('readers.readerNamePlaceholder')}
-                />
-              </div>
+              <button className="modal__close" type="button" onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
 
-              {pairReaderMutation.isError && (
-                <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                  {t('readers.pairFailed')}
+            <form onSubmit={(e) => { e.preventDefault(); pairReaderMutation.mutate(); }}>
+              <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="auth-field">
+                  <label className="auth-field__label" htmlFor="pairingCode">{t('readers.pairingCode')}</label>
+                  <input
+                    id="pairingCode"
+                    className="input"
+                    value={pairingCode}
+                    onChange={(e) => setPairingCode(e.target.value)}
+                    placeholder={t('readers.pairingCodePlaceholder')}
+                    autoFocus
+                  />
                 </div>
-              )}
-            </div>
+                <div className="auth-field">
+                  <label className="auth-field__label" htmlFor="pairReaderName">{t('readers.readerName')}</label>
+                  <input
+                    id="pairReaderName"
+                    className="input"
+                    value={pairReaderName}
+                    onChange={(e) => setPairReaderName(e.target.value)}
+                    placeholder={t('readers.readerNamePlaceholder')}
+                  />
+                </div>
 
-            <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-              <Button
-                type="button"
-                color="secondary"
-                onClick={() => {
-                  setShowPairDialog(false);
-                  setPairingCode('');
-                  setPairReaderName('');
-                }}
-              >
-                {tCommon('cancel')}
-              </Button>
-              <Button
-                type="submit"
-                disabled={!pairingCode.trim() || pairReaderMutation.isPending}
-              >
-                {pairReaderMutation.isPending ? (
-                  <Loading02 className="h-5 w-5 animate-spin" />
-                ) : (
-                  t('readers.pair')
+                {pairReaderMutation.isError && (
+                  <div style={{ borderRadius: 8, background: 'color-mix(in oklab, #dc2626 10%, transparent)', padding: '10px 12px', fontSize: 13, color: '#dc2626' }}>
+                    {t('readers.pairFailed')}
+                  </div>
                 )}
-              </Button>
-            </div>
-          </form>
-        </DialogModal>
+              </div>
+
+              <div className="modal__footer">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}
+                >
+                  {tCommon('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn--primary"
+                  disabled={!pairingCode.trim() || pairReaderMutation.isPending}
+                >
+                  {pairReaderMutation.isPending ? (
+                    <>
+                      <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', border: '2px solid currentColor', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+                      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    </>
+                  ) : t('readers.pair')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Rename Reader Dialog */}
       {renamingReader && (
-        <DialogModal
-          isOpen
-          onClose={() => {
-            setRenamingReader(null);
-            setNewReaderName('');
-          }}
-          title={t('readers.rename')}
-        >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              renameReaderMutation.mutate();
-            }}
-          >
-            <div className="px-6 py-4 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="readerName">{t('readers.readerName')}</Label>
-                <Input
-                  id="readerName"
-                  value={newReaderName}
-                  onChange={setNewReaderName}
-                  autoFocus
-                />
-              </div>
+        <div className="modal__backdrop" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
+          <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+            <div className="modal__header">
+              <h2 className="modal__title">{t('readers.rename')}</h2>
+              <button className="modal__close" type="button" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-              <Button
-                type="button"
-                color="secondary"
-                onClick={() => {
-                  setRenamingReader(null);
-                  setNewReaderName('');
-                }}
-              >
-                {tCommon('cancel')}
-              </Button>
-              <Button
-                type="submit"
-                disabled={!newReaderName.trim() || renameReaderMutation.isPending}
-              >
-                {renameReaderMutation.isPending ? (
-                  <Loading02 className="h-5 w-5 animate-spin" />
-                ) : (
-                  tCommon('save')
-                )}
-              </Button>
-            </div>
-          </form>
-        </DialogModal>
+            <form onSubmit={(e) => { e.preventDefault(); renameReaderMutation.mutate(); }}>
+              <div className="modal__body">
+                <div className="auth-field">
+                  <label className="auth-field__label" htmlFor="readerName">{t('readers.readerName')}</label>
+                  <input
+                    id="readerName"
+                    className="input"
+                    value={newReaderName}
+                    onChange={(e) => setNewReaderName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="modal__footer">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => { setRenamingReader(null); setNewReaderName(''); }}
+                >
+                  {tCommon('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn--primary"
+                  disabled={!newReaderName.trim() || renameReaderMutation.isPending}
+                >
+                  {renameReaderMutation.isPending ? (
+                    <>
+                      <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', border: '2px solid currentColor', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+                      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    </>
+                  ) : tCommon('save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -479,12 +464,12 @@ export function OrganizationSumupSection() {
 function ReaderStatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   switch (status) {
     case 'paired':
-      return <Badge color="success" size="sm">{t('readers.status.paired')}</Badge>;
+      return <span className="badge badge--success">{t('readers.status.paired')}</span>;
     case 'processing':
-      return <Badge color="warning" size="sm">{t('readers.status.processing')}</Badge>;
+      return <span className="badge badge--warning">{t('readers.status.processing')}</span>;
     case 'expired':
-      return <Badge color="error" size="sm">{t('readers.status.expired')}</Badge>;
+      return <span className="badge badge--error">{t('readers.status.expired')}</span>;
     default:
-      return <Badge color="gray" size="sm">{t('readers.status.unknown')}</Badge>;
+      return <span className="badge badge--neutral">{t('readers.status.unknown')}</span>;
   }
 }

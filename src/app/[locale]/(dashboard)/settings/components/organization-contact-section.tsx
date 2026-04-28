@@ -4,11 +4,6 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MarkerPin01, Phone01, Globe01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { InputGroup } from '@/components/ui/input/input-group';
-import { FormInput } from '@/components/ui/input/form-input';
-import { Label } from '@/components/ui/input/label';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,29 +31,19 @@ export function OrganizationContactSection() {
     mutationFn: async (data: ContactFormData) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, {
-        settings: {
-          ...settings,
-          contact: data,
-        },
+        settings: { ...settings, contact: data },
       });
       return response.data;
     },
     onSuccess: (data) => {
       if (currentOrganization?.organization) {
-        setCurrentOrganization({
-          ...currentOrganization,
-          organization: data,
-        });
+        setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty },
-  } = useForm<ContactFormData>({
+  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       address: settings.contact?.address || '',
@@ -70,110 +55,52 @@ export function OrganizationContactSection() {
     },
   });
 
-  const onSubmit = async (data: ContactFormData) => {
-    await updateOrg.mutateAsync(data);
-  };
-
-  if (!currentOrganization) {
-    return null;
-  }
+  if (!currentOrganization) return null;
 
   return (
-    <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-      <div className="border-b border-secondary px-6 py-4">
-        <div className="flex items-center gap-2">
-          <MarkerPin01 className="h-5 w-5 text-tertiary" />
-          <h2 className="text-lg font-semibold text-primary">{t('title')}</h2>
-        </div>
-        <p className="text-sm text-tertiary mt-1">{t('description')}</p>
+    <div className="app-card">
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h2>
+        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('description')}</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-        {/* Address */}
-        <div className="space-y-1.5">
-          <Label htmlFor="address">{t('address')}</Label>
-          <FormInput
-            id="address"
-            {...register('address')}
-            placeholder="Musterstraße 123"
-          />
+      <form onSubmit={handleSubmit((data) => updateOrg.mutateAsync(data))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="address">{t('address')}</label>
+          <input id="address" className="input" placeholder="Musterstraße 123" {...register('address')} />
         </div>
 
-        {/* City & ZIP */}
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="zipCode">{t('zipCode')}</Label>
-            <FormInput
-              id="zipCode"
-              {...register('zipCode')}
-              placeholder="12345"
-            />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="zipCode">{t('zipCode')}</label>
+            <input id="zipCode" className="input" placeholder="12345" {...register('zipCode')} />
           </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="city">{t('city')}</Label>
-            <FormInput
-              id="city"
-              {...register('city')}
-              placeholder="Musterstadt"
-            />
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="city">{t('city')}</label>
+            <input id="city" className="input" placeholder="Musterstadt" {...register('city')} />
           </div>
         </div>
 
-        {/* Country */}
-        <div className="space-y-1.5">
-          <Label htmlFor="country">{t('country')}</Label>
-          <FormInput
-            id="country"
-            {...register('country')}
-            placeholder="Deutschland"
-          />
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="country">{t('country')}</label>
+          <input id="country" className="input" placeholder="Deutschland" {...register('country')} />
         </div>
 
-        {/* Phone */}
-        <div className="space-y-1.5">
-          <Label htmlFor="phone">
-            <span className="flex items-center gap-2">
-              <Phone01 className="h-4 w-4" />
-              {t('phone')}
-            </span>
-          </Label>
-          <FormInput
-            id="phone"
-            type="tel"
-            {...register('phone')}
-            placeholder="+49 123 456789"
-          />
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="phone">{t('phone')}</label>
+          <input id="phone" type="tel" className="input" placeholder="+49 123 456789" {...register('phone')} />
         </div>
 
-        {/* Website */}
-        <div className="space-y-1.5">
-          <Label htmlFor="website">
-            <span className="flex items-center gap-2">
-              <Globe01 className="h-4 w-4" />
-              {t('website')}
-            </span>
-          </Label>
-          <FormInput
-            id="website"
-            type="url"
-            {...register('website')}
-            placeholder="https://example.com"
-            isInvalid={!!errors.website}
-          />
-          {errors.website && (
-            <p className="text-sm text-error-primary">{errors.website.message}</p>
-          )}
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="website">{t('website')}</label>
+          <input id="website" type="url" className={`input${errors.website ? ' input--error' : ''}`} placeholder="https://example.com" {...register('website')} />
+          {errors.website && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.website.message}</p>}
         </div>
 
-        {/* Submit */}
-        <div className="flex justify-end pt-4 border-t border-secondary">
-          <Button
-            type="submit"
-            disabled={!isDirty || updateOrg.isPending}
-          >
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+          <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
             {updateOrg.isPending ? t('saving') : t('saveChanges')}
-          </Button>
+          </button>
         </div>
       </form>
     </div>

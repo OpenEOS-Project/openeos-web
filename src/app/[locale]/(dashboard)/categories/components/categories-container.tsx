@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { useDeleteCategory } from '@/hooks/use-categories';
 import { useEvents } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
@@ -15,7 +12,6 @@ import type { Event } from '@/types/event';
 import { CategoryFormModal } from './category-form-modal';
 import { CategoriesList } from './categories-list';
 
-// Helper to get available events (active or test) sorted by relevance
 function getAvailableEvents(events: Event[] | undefined): Event[] {
   if (!events) return [];
   return events.filter(e => e.status === 'active' || e.status === 'test');
@@ -35,10 +31,8 @@ export function CategoriesContainer() {
   const { data: events, isLoading: isLoadingEvents } = useEvents(organizationId);
   const deleteCategory = useDeleteCategory();
 
-  // Get available events (not completed/cancelled)
   const availableEvents = useMemo(() => getAvailableEvents(events), [events]);
 
-  // Auto-select first available event when events load
   useEffect(() => {
     if (availableEvents.length > 0 && !selectedEventId) {
       setSelectedEventId(availableEvents[0].id);
@@ -75,32 +69,43 @@ export function CategoriesContainer() {
 
   if (!organizationId) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="building"
-          title="Keine Organisation ausgewählt"
-          description="Bitte wählen Sie zuerst eine Organisation aus."
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
+          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
+        </div>
       </div>
     );
   }
 
   if (isLoadingEvents) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
       </div>
     );
   }
 
   if (availableEvents.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="calendar"
-          title={t('noEvents.title')}
-          description={t('noEvents.description')}
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('noEvents.title')}</h3>
+          <p className="empty-state__sub">{t('noEvents.description')}</p>
+        </div>
       </div>
     );
   }
@@ -108,13 +113,12 @@ export function CategoriesContainer() {
   return (
     <>
       {/* Event Selector */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Calendar className="size-5 text-tertiary" />
-          <label className="text-sm font-medium text-secondary">{t('selectEvent')}</label>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7 }}>
+          {t('selectEvent')}
+        </label>
         <select
-          className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
+          className="select"
           value={selectedEventId}
           onChange={(e) => setSelectedEventId(e.target.value)}
         >
@@ -127,12 +131,19 @@ export function CategoriesContainer() {
       </div>
 
       {!selectedEventId ? (
-        <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-          <EmptyState
-            icon="calendar"
-            title={t('selectEventFirst.title')}
-            description={t('selectEventFirst.description')}
-          />
+        <div className="app-card">
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">{t('selectEventFirst.title')}</h3>
+            <p className="empty-state__sub">{t('selectEventFirst.description')}</p>
+          </div>
         </div>
       ) : (
         <>
@@ -150,27 +161,34 @@ export function CategoriesContainer() {
             onClose={handleModalClose}
           />
 
-          {/* Delete confirmation modal */}
           {deletingCategory && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/70 backdrop-blur-[6px]">
-              <div className="w-full max-w-md rounded-xl bg-primary p-6 shadow-lg">
-                <h3 className="text-lg font-semibold text-primary">{t('deleteConfirm.title')}</h3>
-                <p className="mt-2 text-sm text-tertiary">{t('deleteConfirm.message')}</p>
-                <div className="mt-6 flex justify-end gap-3">
-                  <Button
-                    color="secondary"
+            <div className="modal__overlay" onClick={() => setDeletingCategory(null)}>
+              <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+                <div className="modal__head">
+                  <h2>{t('deleteConfirm.title')}</h2>
+                </div>
+                <div className="modal__body">
+                  <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
+                    {t('deleteConfirm.message')}
+                  </p>
+                </div>
+                <div className="modal__foot">
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
                     onClick={() => setDeletingCategory(null)}
                   >
                     {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    color="primary-destructive"
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    style={{ background: 'var(--error, #d24545)' }}
                     onClick={handleDeleteConfirm}
-                    isLoading={deleteCategory.isPending}
-                    isDisabled={deleteCategory.isPending}
+                    disabled={deleteCategory.isPending}
                   >
-                    {t('deleteConfirm.confirm')}
-                  </Button>
+                    {deleteCategory.isPending ? '...' : t('deleteConfirm.confirm')}
+                  </button>
                 </div>
               </div>
             </div>

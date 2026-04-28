@@ -3,10 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash01, Edit03, Calendar, MagicWand01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
@@ -15,7 +11,6 @@ import { AddJobModal } from './add-job-modal';
 import { AddShiftModal } from './add-shift-modal';
 import { ShiftWizardModal } from './shift-wizard-modal';
 
-// Format time to HH:MM (remove seconds if present)
 const formatTime = (time: string): string => {
   const parts = time.split(':');
   return `${parts[0]}:${parts[1]}`;
@@ -35,7 +30,6 @@ export function JobsList({ plan }: JobsListProps) {
   const [showAddShiftModal, setShowAddShiftModal] = useState(false);
   const [showWizardModal, setShowWizardModal] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [editingJob, setEditingJob] = useState<ShiftJob | null>(null);
 
   const deleteJobMutation = useMutation({
     mutationFn: (jobId: string) => shiftsApi.deleteJob(organizationId!, jobId),
@@ -63,102 +57,86 @@ export function JobsList({ plan }: JobsListProps) {
     setShowWizardModal(true);
   };
 
-  const getConfirmedCount = (shift: Shift) => {
-    return shift.registrations?.filter((r) => r.status === 'confirmed').length || 0;
-  };
+  const getConfirmedCount = (shift: Shift) =>
+    shift.registrations?.filter((r) => r.status === 'confirmed').length || 0;
 
   if (jobs.length === 0) {
     return (
       <>
-        <EmptyState
-          icon="users"
-          title={t('shifts.editor.noJobs')}
-          description={t('shifts.editor.noJobsDescription')}
-          action={
-            <Button color="primary" iconLeading={Plus} onClick={() => setShowAddJobModal(true)}>
-              {t('shifts.editor.addJob')}
-            </Button>
-          }
-        />
-        <AddJobModal
-          open={showAddJobModal}
-          planId={plan.id}
-          onClose={() => setShowAddJobModal(false)}
-        />
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('shifts.editor.noJobs')}</h3>
+          <p className="empty-state__sub">{t('shifts.editor.noJobsDescription')}</p>
+          <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowAddJobModal(true)}>
+            {t('shifts.editor.addJob')}
+          </button>
+        </div>
+        <AddJobModal open={showAddJobModal} planId={plan.id} onClose={() => setShowAddJobModal(false)} />
       </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium text-primary">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>
           {t('shifts.editor.addJob').replace('hinzufügen', '').replace('Add ', '')} ({jobs.length})
-        </h2>
-        <Button color="primary" size="sm" iconLeading={Plus} onClick={() => setShowAddJobModal(true)}>
+        </span>
+        <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowAddJobModal(true)}>
           {t('shifts.editor.addJob')}
-        </Button>
+        </button>
       </div>
 
-      <div className="space-y-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {jobs
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map((job) => (
-            <div
-              key={job.id}
-              className="rounded-xl border border-secondary bg-primary overflow-hidden"
-            >
-              {/* Job Header */}
+            <div key={job.id} className="app-card app-card--flat" style={{ padding: 0, overflow: 'hidden' }}>
+              {/* Job header */}
               <div
-                className="flex items-center justify-between p-4 border-b border-secondary"
-                style={{ borderLeftWidth: 4, borderLeftColor: job.color || '#6b7280' }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  borderLeft: `4px solid ${job.color || '#6b7280'}`,
+                  borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                }}
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: job.color || '#6b7280' }}
-                  />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: job.color || '#6b7280', flexShrink: 0 }} />
                   <div>
-                    <h3 className="font-medium text-primary">{job.name}</h3>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{job.name}</div>
                     {job.description && (
-                      <p className="text-sm text-tertiary">{job.description}</p>
+                      <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{job.description}</div>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    color="secondary"
-                    size="sm"
-                    iconLeading={MagicWand01}
-                    onClick={() => handleOpenWizard(job.id)}
-                  >
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleOpenWizard(job.id)}>
                     {t('shifts.wizard.button')}
-                  </Button>
-                  <Button
-                    color="secondary"
-                    size="sm"
-                    iconLeading={Plus}
-                    onClick={() => handleAddShift(job.id)}
-                  >
+                  </button>
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleAddShift(job.id)}>
                     {t('shifts.editor.addShift')}
-                  </Button>
-                  <Button
-                    color="secondary-destructive"
-                    size="sm"
-                    iconLeading={Trash01}
+                  </button>
+                  <button
+                    className="btn btn--ghost"
+                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
                     onClick={() => {
-                      if (confirm(t('shifts.confirmDelete'))) {
-                        deleteJobMutation.mutate(job.id);
-                      }
+                      if (confirm(t('shifts.confirmDelete'))) deleteJobMutation.mutate(job.id);
                     }}
-                  />
+                  >
+                    {t('common.delete')}
+                  </button>
                 </div>
               </div>
 
-              {/* Shifts List */}
-              <div className="divide-y divide-secondary">
+              {/* Shifts */}
+              <div>
                 {(!job.shifts || job.shifts.length === 0) ? (
-                  <div className="p-4 text-center text-sm text-tertiary">
+                  <div style={{ padding: '12px 16px', textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
                     {t('shifts.editor.noShifts')}
                   </div>
                 ) : (
@@ -171,35 +149,32 @@ export function JobsList({ plan }: JobsListProps) {
                     .map((shift) => {
                       const confirmedCount = getConfirmedCount(shift);
                       const isFull = confirmedCount >= shift.requiredWorkers;
-
                       return (
                         <div
                           key={shift.id}
-                          className="flex items-center justify-between p-4 hover:bg-secondary/50"
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '10px 16px',
+                            borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)',
+                          }}
                         >
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="h-4 w-4 text-tertiary" />
-                              <span className="font-medium text-primary">
-                                {formatDate(shift.date)}
-                              </span>
-                            </div>
-                            <span className="text-sm text-secondary">
-                              {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600 }}>{formatDate(shift.date)}</span>
+                            <span className="mono" style={{ fontSize: 12 }}>
+                              {formatTime(shift.startTime)} – {formatTime(shift.endTime)}
                             </span>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span
-                              className={`text-sm ${isFull ? 'text-success-primary font-medium' : 'text-tertiary'}`}
-                            >
-                              {confirmedCount} / {shift.requiredWorkers} {t('shifts.editor.requiredWorkers').toLowerCase()}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <span style={{ fontSize: 13, color: isFull ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 45%, transparent)', fontWeight: isFull ? 600 : 400 }}>
+                              {confirmedCount} / {shift.requiredWorkers}
                             </span>
-                            <Button
-                              color="secondary-destructive"
-                              size="sm"
-                              iconLeading={Trash01}
+                            <button
+                              className="btn btn--ghost"
+                              style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
                               onClick={() => deleteShiftMutation.mutate(shift.id)}
-                            />
+                            >
+                              {t('common.delete')}
+                            </button>
                           </div>
                         </div>
                       );
@@ -210,30 +185,18 @@ export function JobsList({ plan }: JobsListProps) {
           ))}
       </div>
 
-      <AddJobModal
-        open={showAddJobModal}
-        planId={plan.id}
-        onClose={() => setShowAddJobModal(false)}
-      />
-
+      <AddJobModal open={showAddJobModal} planId={plan.id} onClose={() => setShowAddJobModal(false)} />
       <AddShiftModal
         open={showAddShiftModal}
         jobId={selectedJobId}
         planId={plan.id}
-        onClose={() => {
-          setShowAddShiftModal(false);
-          setSelectedJobId(null);
-        }}
+        onClose={() => { setShowAddShiftModal(false); setSelectedJobId(null); }}
       />
-
       <ShiftWizardModal
         open={showWizardModal}
         jobId={selectedJobId}
         plan={plan}
-        onClose={() => {
-          setShowWizardModal(false);
-          setSelectedJobId(null);
-        }}
+        onClose={() => { setShowWizardModal(false); setSelectedJobId(null); }}
       />
     </div>
   );

@@ -5,12 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ImagePlus, Plus, Trash01, X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { ProductImage } from '@/components/shared/product-image';
 import { PosIconPicker } from '@/components/shared/pos-icon-picker';
 import { useCategories } from '@/hooks/use-categories';
@@ -58,16 +53,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
 
-  // Option groups state (managed separately from react-hook-form)
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroup[]>([]);
-
-  // Image state
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Category form modal state
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
 
   const {
@@ -95,6 +85,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   });
 
   const trackInventory = watch('trackInventory');
+  const isActiveVal = watch('isActive');
+  const isAvailableVal = watch('isAvailable');
 
   useEffect(() => {
     if (product) {
@@ -132,12 +124,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     }
   }, [product, reset]);
 
-  // Option group helpers
   const handleAddGroup = () => {
-    setOptionGroups([
-      ...optionGroups,
-      { name: '', type: 'multiple', required: false, options: [] },
-    ]);
+    setOptionGroups([...optionGroups, { name: '', type: 'multiple', required: false, options: [] }]);
   };
 
   const handleRemoveGroup = (groupIndex: number) => {
@@ -168,21 +156,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     );
   };
 
-  const handleUpdateOption = (
-    groupIndex: number,
-    optionIndex: number,
-    field: string,
-    value: unknown,
-  ) => {
+  const handleUpdateOption = (groupIndex: number, optionIndex: number, field: string, value: unknown) => {
     setOptionGroups(
       optionGroups.map((g, i) =>
         i === groupIndex
-          ? {
-              ...g,
-              options: g.options.map((o, oi) =>
-                oi === optionIndex ? { ...o, [field]: value } : o,
-              ),
-            }
+          ? { ...g, options: g.options.map((o, oi) => (oi === optionIndex ? { ...o, [field]: value } : o)) }
           : g,
       ),
     );
@@ -191,7 +169,6 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !organizationId) return;
-
     setIsUploading(true);
     try {
       const result = await uploadsApi.uploadProductImage(organizationId, file);
@@ -213,13 +190,9 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     if (!eventId) return;
 
     try {
-      // Filter out option groups with no name and options with no name
       const cleanedGroups = optionGroups
         .filter((g) => g.name.trim())
-        .map((g) => ({
-          ...g,
-          options: g.options.filter((o) => o.name.trim()),
-        }));
+        .map((g) => ({ ...g, options: g.options.filter((o) => o.name.trim()) }));
 
       const payload = {
         name: data.name,
@@ -237,16 +210,9 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       };
 
       if (isEditing && product) {
-        await updateProduct.mutateAsync({
-          eventId,
-          id: product.id,
-          data: { ...payload, imageUrl: imageUrl || null },
-        });
+        await updateProduct.mutateAsync({ eventId, id: product.id, data: { ...payload, imageUrl: imageUrl || null } });
       } else {
-        await createProduct.mutateAsync({
-          eventId,
-          data: { ...payload, imageUrl: imageUrl || undefined },
-        });
+        await createProduct.mutateAsync({ eventId, data: { ...payload, imageUrl: imageUrl || undefined } });
       }
       onClose();
     } catch {
@@ -261,472 +227,355 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     onClose();
   };
 
+  const toggleStyle = (active: boolean): React.CSSProperties => ({
+    width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+    background: active ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, transparent)',
+    position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+  });
+
+  const toggleKnob = (active: boolean): React.CSSProperties => ({
+    position: 'absolute', top: 2, left: active ? 22 : 2,
+    width: 20, height: 20, borderRadius: 10, background: 'var(--paper)',
+    transition: 'left 0.2s', display: 'block',
+  });
+
+  const inputRow: React.CSSProperties = {
+    width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
+    border: '1px solid color-mix(in oklab, var(--ink) 14%, transparent)',
+    background: 'var(--paper)', color: 'var(--ink)', outline: 'none',
+  };
+
+  if (!isOpen) return null;
+
   return (
     <>
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-2xl">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {isEditing ? t('edit') : t('create')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
+      <div className="modal__overlay" onClick={handleClose}>
+        <div className="modal__panel" style={{ maxWidth: 680 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__head">
+            <h2>{isEditing ? t('edit') : t('create')}</h2>
+            <button type="button" className="modal__close" onClick={handleClose}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* Image */}
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 8 }}>
+                  {t('form.image.title')}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <ProductImage imageUrl={imageUrl} productName={watch('name') || '?'} size="lg" />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      style={{ display: 'none' }}
+                      onChange={handleFileUpload}
+                    />
+                    <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} disabled={isUploading} onClick={() => fileInputRef.current?.click()}>
+                      {isUploading ? t('form.image.uploading') : t('form.image.upload')}
+                    </button>
+                    <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setIsIconPickerOpen(true)}>
+                      {t('form.image.chooseIcon')}
+                    </button>
+                    {imageUrl && (
+                      <button type="button" className="btn btn--ghost" style={{ fontSize: 12, color: '#d24545' }} onClick={() => setImageUrl(null)}>
+                        {t('form.image.remove')}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-5">
-                  {/* Product Image */}
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-secondary">
-                      {t('form.image.title')}
+              {/* Name + Category */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                      <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
+                      {errors.name && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>}
                     </label>
-                    <div className="flex items-center gap-4">
-                      <ProductImage imageUrl={imageUrl} productName={watch('name') || '?'} size="lg" />
-                      <div className="flex flex-wrap gap-2">
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp,image/gif"
-                          className="hidden"
-                          onChange={handleFileUpload}
-                        />
-                        <Button
-                          type="button"
-                          color="secondary"
-                          size="sm"
-                          iconLeading={ImagePlus}
-                          isLoading={isUploading}
-                          isDisabled={isUploading}
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          {isUploading ? t('form.image.uploading') : t('form.image.upload')}
-                        </Button>
-                        <Button
-                          type="button"
-                          color="secondary"
-                          size="sm"
-                          onClick={() => setIsIconPickerOpen(true)}
-                        >
-                          {t('form.image.chooseIcon')}
-                        </Button>
-                        {imageUrl && (
-                          <Button
-                            type="button"
-                            color="secondary"
-                            size="sm"
-                            iconLeading={Trash01}
-                            onClick={() => setImageUrl(null)}
-                          >
-                            {t('form.image.remove')}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Basic Info */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <Controller
-                      name="name"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          label={t('form.name')}
-                          placeholder={t('form.namePlaceholder')}
-                          isRequired
-                          isInvalid={!!errors.name}
-                          hint={errors.name?.message}
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
-
-                    <Controller
-                      name="categoryId"
-                      control={control}
-                      render={({ field }) => (
-                        <div>
-                          <label className="mb-1.5 block text-sm font-medium text-secondary">
-                            {t('form.category')} <span className="text-error-primary">*</span>
-                          </label>
-                          <div className="flex gap-2">
-                            <select
-                              className="flex-1 rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                              value={field.value || ''}
-                              onChange={(e) => field.onChange(e.target.value)}
-                              onBlur={field.onBlur}
-                            >
-                              <option value="">{t('form.categoryPlaceholder')}</option>
-                              {categories?.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                  {cat.name}
-                                </option>
-                              ))}
-                            </select>
-                            <Button
-                              type="button"
-                              color="secondary"
-                              size="md"
-                              iconLeading={Plus}
-                              onClick={() => setIsCategoryFormOpen(true)}
-                              title={t('form.createCategory')}
-                            />
-                          </div>
-                          {errors.categoryId && (
-                            <p className="mt-1 text-sm text-error-primary">{errors.categoryId.message}</p>
-                          )}
-                        </div>
-                      )}
-                    />
-                  </div>
-
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.description')}
-                        placeholder={t('form.descriptionPlaceholder')}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  {/* Price */}
-                  <Controller
-                    name="price"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.price')}
-                        placeholder={t('form.pricePlaceholder')}
-                        type="number"
-                        isRequired
-                        isInvalid={!!errors.price}
-                        hint={errors.price?.message}
-                        value={String(field.value)}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  {/* Production Station */}
-                  {(productionStations?.length ?? 0) > 0 && (
-                    <Controller
-                      name="productionStationId"
-                      control={control}
-                      render={({ field }) => (
-                        <div>
-                          <label className="mb-1.5 block text-sm font-medium text-secondary">
-                            {t('form.productionStation')}
-                          </label>
-                          <select
-                            className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                            value={field.value || ''}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                          >
-                            <option value="">—</option>
-                            {productionStations?.map((station) => (
-                              <option key={station.id} value={station.id}>
-                                {station.name}
-                              </option>
-                            ))}
-                          </select>
-                          <p className="mt-1 text-xs text-tertiary">
-                            {t('form.productionStationHint')}
-                          </p>
-                        </div>
-                      )}
-                    />
                   )}
+                />
 
-                  {/* Option Groups Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-primary">{t('form.optionGroups')}</h3>
-                      <Button
-                        type="button"
-                        color="secondary"
-                        size="sm"
-                        iconLeading={Plus}
-                        onClick={handleAddGroup}
-                      >
-                        {t('form.addGroup')}
-                      </Button>
-                    </div>
-
-                    {optionGroups.map((group, groupIndex) => (
-                      <div
-                        key={groupIndex}
-                        className="space-y-3 rounded-lg border border-secondary p-4"
-                      >
-                        {/* Group config row */}
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary placeholder:text-quaternary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                              placeholder={t('form.groupNamePlaceholder')}
-                              value={group.name}
-                              onChange={(e) =>
-                                handleUpdateGroup(groupIndex, 'name', e.target.value)
-                              }
-                            />
-                          </div>
-                          <select
-                            className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                            value={group.type}
-                            onChange={(e) =>
-                              handleUpdateGroup(groupIndex, 'type', e.target.value)
-                            }
-                          >
-                            <option value="single">{t('form.typeSingle')}</option>
-                            <option value="multiple">{t('form.typeMultiple')}</option>
-                            <option value="ingredients">{t('form.typeIngredients')}</option>
-                          </select>
-                          <label className="flex items-center gap-1.5 whitespace-nowrap py-2 text-sm text-secondary">
-                            <input
-                              type="checkbox"
-                              className="size-4 rounded border-primary text-brand-solid focus:ring-brand-solid/20"
-                              checked={group.required}
-                              onChange={(e) =>
-                                handleUpdateGroup(groupIndex, 'required', e.target.checked)
-                              }
-                            />
-                            {t('form.required')}
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveGroup(groupIndex)}
-                            className="rounded-lg p-2 text-tertiary transition hover:bg-secondary hover:text-error-primary"
-                          >
-                            <Trash01 className="size-4" />
-                          </button>
-                        </div>
-
-                        {/* Options table */}
-                        {group.options.length > 0 && (
-                          <div className="space-y-1">
-                            <div className="grid grid-cols-[1fr_100px_auto_auto] items-center gap-2 px-1 text-xs font-medium text-tertiary">
-                              <span>{t('form.optionName')}</span>
-                              <span>{t('form.optionPrice')}</span>
-                              <span>
-                                {group.type === 'ingredients'
-                                  ? t('form.includedOption')
-                                  : t('form.defaultOption')}
-                              </span>
-                              <span />
-                            </div>
-                            {group.options.map((option, optionIndex) => (
-                              <div
-                                key={optionIndex}
-                                className="grid grid-cols-[1fr_100px_auto_auto] items-center gap-2"
-                              >
-                                <input
-                                  type="text"
-                                  className="rounded-md border border-primary bg-primary px-2.5 py-1.5 text-sm text-primary placeholder:text-quaternary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                                  placeholder={t('form.optionName')}
-                                  value={option.name}
-                                  onChange={(e) =>
-                                    handleUpdateOption(
-                                      groupIndex,
-                                      optionIndex,
-                                      'name',
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  className="rounded-md border border-primary bg-primary px-2.5 py-1.5 text-sm text-primary placeholder:text-quaternary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                                  placeholder="0.00"
-                                  value={option.priceModifier}
-                                  onChange={(e) =>
-                                    handleUpdateOption(
-                                      groupIndex,
-                                      optionIndex,
-                                      'priceModifier',
-                                      parseFloat(e.target.value) || 0,
-                                    )
-                                  }
-                                />
-                                <div className="flex justify-center">
-                                  <input
-                                    type="checkbox"
-                                    className="size-4 rounded border-primary text-brand-solid focus:ring-brand-solid/20"
-                                    checked={option.default ?? false}
-                                    onChange={(e) =>
-                                      handleUpdateOption(
-                                        groupIndex,
-                                        optionIndex,
-                                        'default',
-                                        e.target.checked,
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveOption(groupIndex, optionIndex)}
-                                  className="rounded p-1 text-tertiary transition hover:bg-secondary hover:text-error-primary"
-                                >
-                                  <X className="size-4" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Add option button */}
+                <Controller
+                  name="categoryId"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 6 }}>
+                        {t('form.category')} <span style={{ color: '#d24545' }}>*</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <select
+                          className="select"
+                          style={{ flex: 1 }}
+                          value={field.value || ''}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onBlur={field.onBlur}
+                        >
+                          <option value="">{t('form.categoryPlaceholder')}</option>
+                          {categories?.map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                        </select>
                         <button
                           type="button"
-                          onClick={() => handleAddOption(groupIndex)}
-                          className="flex items-center gap-1 text-sm text-brand-secondary transition hover:text-brand-secondary_hover"
+                          className="btn btn--ghost"
+                          style={{ flexShrink: 0, padding: '0 10px' }}
+                          onClick={() => setIsCategoryFormOpen(true)}
+                          title={t('form.createCategory')}
                         >
-                          <Plus className="size-4" />
-                          {t('form.addOption')}
+                          +
                         </button>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Status Toggles */}
-                  <div className="space-y-3 rounded-lg border border-secondary p-4">
-                    <Controller
-                      name="isActive"
-                      control={control}
-                      render={({ field }) => (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-primary">{t('form.isActive')}</p>
-                            <p className="text-xs text-tertiary">
-                              {t('form.activeDescription')}
-                            </p>
-                          </div>
-                          <Toggle
-                            isSelected={field.value}
-                            onChange={field.onChange}
-                          />
-                        </div>
+                      {errors.categoryId && (
+                        <div style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.categoryId.message}</div>
                       )}
-                    />
-
-                    <Controller
-                      name="isAvailable"
-                      control={control}
-                      render={({ field }) => (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-primary">{t('form.isAvailable')}</p>
-                            <p className="text-xs text-tertiary">
-                              {t('form.availableDescription')}
-                            </p>
-                          </div>
-                          <Toggle
-                            isSelected={field.value}
-                            onChange={field.onChange}
-                          />
-                        </div>
-                      )}
-                    />
-
-                    <Controller
-                      name="trackInventory"
-                      control={control}
-                      render={({ field }) => (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-primary">{t('form.trackInventory')}</p>
-                            <p className="text-xs text-tertiary">
-                              {t('form.trackInventoryDescription')}
-                            </p>
-                          </div>
-                          <Toggle
-                            isSelected={field.value}
-                            onChange={field.onChange}
-                          />
-                        </div>
-                      )}
-                    />
-                  </div>
-
-                  {/* Inventory Fields (conditional) */}
-                  {trackInventory && (
-                    <div className="grid grid-cols-2 gap-4 rounded-lg border border-secondary p-4">
-                      <Controller
-                        name="stockQuantity"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            label={t('form.stockQuantity')}
-                            type="number"
-                            value={String(field.value ?? 0)}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                          />
-                        )}
-                      />
-
-                      <Controller
-                        name="stockUnit"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            label={t('form.stockUnit')}
-                            placeholder="Stück"
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                          />
-                        )}
-                      />
                     </div>
                   )}
+                />
+              </div>
+
+              {/* Description */}
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.description')}</span>
+                    <input type="text" placeholder={t('form.descriptionPlaceholder')} {...field} />
+                  </label>
+                )}
+              />
+
+              {/* Price */}
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.price')} <span style={{ color: '#d24545' }}>*</span></span>
+                    <input type="number" step="0.01" placeholder={t('form.pricePlaceholder')} value={String(field.value)} onChange={field.onChange} onBlur={field.onBlur} />
+                    {errors.price && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.price.message}</span>}
+                  </label>
+                )}
+              />
+
+              {/* Production Station */}
+              {(productionStations?.length ?? 0) > 0 && (
+                <Controller
+                  name="productionStationId"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.productionStation')}</span>
+                      <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                        <option value="">—</option>
+                        {productionStations?.map((station) => (
+                          <option key={station.id} value={station.id}>{station.name}</option>
+                        ))}
+                      </select>
+                      <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>{t('form.productionStationHint')}</span>
+                    </label>
+                  )}
+                />
+              )}
+
+              {/* Option Groups */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.optionGroups')}</div>
+                  <button type="button" className="btn btn--ghost" style={{ fontSize: 12, padding: '4px 10px' }} onClick={handleAddGroup}>
+                    + {t('form.addGroup')}
+                  </button>
                 </div>
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={handleClose}
-                    isDisabled={isSubmitting}
-                  >
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    isDisabled={isSubmitting}
-                  >
-                    {isEditing ? tCommon('save') : tCommon('create')}
-                  </Button>
+                {optionGroups.map((group, groupIndex) => (
+                  <div key={groupIndex} style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12, marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input
+                        type="text"
+                        style={{ ...inputRow, flex: 1 }}
+                        placeholder={t('form.groupNamePlaceholder')}
+                        value={group.name}
+                        onChange={(e) => handleUpdateGroup(groupIndex, 'name', e.target.value)}
+                      />
+                      <select
+                        style={inputRow}
+                        value={group.type}
+                        onChange={(e) => handleUpdateGroup(groupIndex, 'type', e.target.value)}
+                      >
+                        <option value="single">{t('form.typeSingle')}</option>
+                        <option value="multiple">{t('form.typeMultiple')}</option>
+                        <option value="ingredients">{t('form.typeIngredients')}</option>
+                      </select>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--ink)', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={group.required}
+                          onChange={(e) => handleUpdateGroup(groupIndex, 'required', e.target.checked)}
+                        />
+                        {t('form.required')}
+                      </label>
+                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: '#d24545', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)}>
+                        ✕
+                      </button>
+                    </div>
+
+                    {group.options.length > 0 && (
+                      <div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px auto auto', gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>{t('form.optionName')}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>{t('form.optionPrice')}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>
+                            {group.type === 'ingredients' ? t('form.includedOption') : t('form.defaultOption')}
+                          </span>
+                          <span />
+                        </div>
+                        {group.options.map((option, optionIndex) => (
+                          <div key={optionIndex} style={{ display: 'grid', gridTemplateColumns: '1fr 100px auto auto', gap: 6, marginBottom: 4, alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              style={inputRow}
+                              placeholder={t('form.optionName')}
+                              value={option.name}
+                              onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'name', e.target.value)}
+                            />
+                            <input
+                              type="number"
+                              step="0.01"
+                              style={inputRow}
+                              placeholder="0.00"
+                              value={option.priceModifier}
+                              onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'priceModifier', parseFloat(e.target.value) || 0)}
+                            />
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                              <input
+                                type="checkbox"
+                                checked={option.default ?? false}
+                                onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'default', e.target.checked)}
+                              />
+                            </div>
+                            <button type="button" className="btn btn--ghost" style={{ padding: '2px 6px', fontSize: 12 }} onClick={() => handleRemoveOption(groupIndex, optionIndex)}>
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--green-ink)', textAlign: 'left', padding: 0 }}
+                      onClick={() => handleAddOption(groupIndex)}
+                    >
+                      + {t('form.addOption')}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Status Toggles */}
+              <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <Controller
+                  name="isActive"
+                  control={control}
+                  render={({ field }) => (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
+                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.activeDescription')}</div>
+                      </div>
+                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
+                        <span style={toggleKnob(field.value)} />
+                      </button>
+                    </div>
+                  )}
+                />
+
+                <Controller
+                  name="isAvailable"
+                  control={control}
+                  render={({ field }) => (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isAvailable')}</div>
+                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.availableDescription')}</div>
+                      </div>
+                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
+                        <span style={toggleKnob(field.value)} />
+                      </button>
+                    </div>
+                  )}
+                />
+
+                <Controller
+                  name="trackInventory"
+                  control={control}
+                  render={({ field }) => (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.trackInventory')}</div>
+                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.trackInventoryDescription')}</div>
+                      </div>
+                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
+                        <span style={toggleKnob(field.value)} />
+                      </button>
+                    </div>
+                  )}
+                />
+              </div>
+
+              {/* Inventory Fields */}
+              {trackInventory && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12 }}>
+                  <Controller
+                    name="stockQuantity"
+                    control={control}
+                    render={({ field }) => (
+                      <label className="auth-field">
+                        <span>{t('form.stockQuantity')}</span>
+                        <input type="number" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                      </label>
+                    )}
+                  />
+
+                  <Controller
+                    name="stockUnit"
+                    control={control}
+                    render={({ field }) => (
+                      <label className="auth-field">
+                        <span>{t('form.stockUnit')}</span>
+                        <input type="text" placeholder="Stück" {...field} />
+                      </label>
+                    )}
+                  />
                 </div>
-              </form>
+              )}
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
 
-      {/* Category Form Modal */}
+            <div className="modal__foot">
+              <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
+                {tCommon('cancel')}
+              </button>
+              <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+                {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <CategoryFormModal
         isOpen={isCategoryFormOpen}
         eventId={eventId}
@@ -734,7 +583,6 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         onCreated={handleCategoryCreated}
       />
 
-      {/* POS Icon Picker Modal */}
       <PosIconPicker
         isOpen={isIconPickerOpen}
         onClose={() => setIsIconPickerOpen(false)}

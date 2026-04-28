@@ -6,13 +6,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { X, Calendar } from '@untitledui/icons';
-
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Textarea } from '@/components/ui/textarea/textarea';
-import { Select } from '@/components/ui/select/select';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi, eventsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
@@ -57,18 +50,14 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      eventId: '',
-      name: '',
-      description: '',
-    },
+    defaultValues: { eventId: '', name: '', description: '' },
   });
 
   const selectedEventId = watch('eventId');
   const currentName = watch('name');
 
-  const handleEventChange = (eventId: string | null) => {
-    setValue('eventId', eventId || '');
+  const handleEventChange = (eventId: string) => {
+    setValue('eventId', eventId);
     if (eventId && !currentName) {
       const event = events.find((e) => e.id === eventId);
       if (event) {
@@ -105,108 +94,99 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
     onClose();
   };
 
+  if (!open) return null;
+
   return (
-    <DialogTrigger isOpen={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-lg">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {t('shifts.createPlan')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__backdrop" onClick={handleClose}>
+      <div className="modal__box" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('shifts.createPlan')}</div>
+          <button className="modal__close" onClick={handleClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  {error && (
-                    <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                      {error}
-                    </div>
-                  )}
-
-                  {activeEvents.length > 0 && (
-                    <div>
-                      <label className="mb-1.5 block text-sm font-medium text-primary">
-                        {t('shifts.form.event')}
-                      </label>
-                      <Select
-                        placeholder={t('shifts.form.eventPlaceholder')}
-                        selectedKey={selectedEventId || null}
-                        onSelectionChange={(key) => handleEventChange(key as string | null)}
-                      >
-                        {activeEvents.map((event) => (
-                          <Select.Item key={event.id} id={event.id} icon={Calendar}>
-                            {event.name}{event.startDate ? ` (${formatDate(event.startDate)})` : ''}
-                          </Select.Item>
-                        ))}
-                      </Select>
-                      <p className="mt-1 text-xs text-tertiary">
-                        {t('shifts.form.eventHint')}
-                      </p>
-                    </div>
-                  )}
-
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('shifts.form.name')}
-                        placeholder={t('shifts.form.namePlaceholder')}
-                        isRequired
-                        isInvalid={!!errors.name}
-                        hint={errors.name?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <Textarea
-                        label={t('shifts.form.description')}
-                        placeholder={t('shifts.form.descriptionPlaceholder')}
-                        rows={3}
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {error && (
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>
+                  {error}
                 </div>
+              )}
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button type="button" color="secondary" onClick={handleClose}>
-                    {t('common.cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    isDisabled={createMutation.isPending}
-                    isLoading={createMutation.isPending}
+              {activeEvents.length > 0 && (
+                <div className="auth-field">
+                  <label className="auth-field__label">{t('shifts.form.event')}</label>
+                  <select
+                    className="select"
+                    value={selectedEventId || ''}
+                    onChange={(e) => handleEventChange(e.target.value)}
                   >
-                    {t('shifts.createPlan')}
-                  </Button>
+                    <option value="">{t('shifts.form.eventPlaceholder')}</option>
+                    {activeEvents.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.name}{event.startDate ? ` (${formatDate(event.startDate)})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginTop: 4 }}>
+                    {t('shifts.form.eventHint')}
+                  </p>
                 </div>
-              </form>
+              )}
+
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('shifts.form.name')} *</label>
+                    <input
+                      className={`input${errors.name ? ' input--error' : ''}`}
+                      placeholder={t('shifts.form.namePlaceholder')}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                    {errors.name && (
+                      <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.name.message}</p>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('shifts.form.description')}</label>
+                    <textarea
+                      className="textarea"
+                      rows={3}
+                      placeholder={t('shifts.form.descriptionPlaceholder')}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </div>
+                )}
+              />
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose}>
+              {t('common.cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={createMutation.isPending}>
+              {createMutation.isPending ? '...' : t('shifts.createPlan')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

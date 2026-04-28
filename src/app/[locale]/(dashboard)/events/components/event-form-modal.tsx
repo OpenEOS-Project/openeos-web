@@ -5,11 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Event } from '@/types';
@@ -118,124 +114,96 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-lg">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {isEditing ? t('actions.edit') : t('create')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__overlay" onClick={handleClose}>
+      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h2>{isEditing ? t('actions.edit') : t('create')}</h2>
+          <button type="button" className="modal__close" onClick={handleClose}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.name')}
-                        placeholder={t('form.namePlaceholder')}
-                        isRequired
-                        isInvalid={!!errors.name}
-                        hint={errors.name?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field" style={errors.name ? { '--field-border': '#d24545' } as React.CSSProperties : {}}>
+                  <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                  <input
+                    type="text"
+                    placeholder={t('form.namePlaceholder')}
+                    {...field}
                   />
-
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.description')}
-                        placeholder={t('form.descriptionPlaceholder')}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Controller
-                      name="startDate"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          label={t('form.startDate')}
-                          type="date"
-                          isInvalid={!!errors.startDate}
-                          hint={errors.startDate?.message}
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
-
-                    <Controller
-                      name="endDate"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          label={t('form.endDate')}
-                          type="date"
-                          isInvalid={!!errors.endDate}
-                          hint={errors.endDate?.message}
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                      {error}
-                    </div>
+                  {errors.name && (
+                    <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>
                   )}
-                </div>
+                </label>
+              )}
+            />
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={handleClose}
-                    isDisabled={isSubmitting}
-                  >
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    isDisabled={isSubmitting}
-                  >
-                    {isEditing ? tCommon('save') : tCommon('create')}
-                  </Button>
-                </div>
-              </form>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.description')}</span>
+                  <input
+                    type="text"
+                    placeholder={t('form.descriptionPlaceholder')}
+                    {...field}
+                  />
+                </label>
+              )}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.startDate')}</span>
+                    <input type="date" {...field} />
+                  </label>
+                )}
+              />
+
+              <Controller
+                name="endDate"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.endDate')}</span>
+                    <input type="date" {...field} />
+                  </label>
+                )}
+              />
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+
+            {error && (
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: 'color-mix(in oklab, #d24545 10%, var(--paper))', color: '#d24545', fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

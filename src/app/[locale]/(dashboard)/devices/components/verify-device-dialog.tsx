@@ -3,10 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import type { Device } from '@/types/device';
@@ -45,48 +41,62 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
   };
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title={t('verifyDialog.title')}
-      description={t('verifyDialog.description')}
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4 px-6 py-4">
-          <div className="rounded-lg bg-secondary p-4 text-center">
-            <p className="text-sm text-tertiary">{device.name}</p>
-          </div>
+    <div className="modal__overlay" onClick={onClose}>
+      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h2>{t('verifyDialog.title')}</h2>
+          <button className="modal__close" type="button" onClick={onClose} aria-label={tCommon('close')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="code">{t('verifyDialog.code')}</Label>
-            <Input
-              id="code"
+        <form onSubmit={handleSubmit}>
+          <div className="modal__body">
+            <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 16 }}>
+              {t('verifyDialog.description')}
+            </p>
+
+            <div style={{
+              background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
+              borderRadius: 10, padding: 12, textAlign: 'center', marginBottom: 16,
+            }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{device.name}</p>
+            </div>
+
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
+              {t('verifyDialog.code')}
+            </label>
+            <input
+              className="input"
               value={code}
-              onChange={setCode}
+              onChange={(e) => setCode(e.target.value)}
               placeholder={t('verifyDialog.codePlaceholder')}
               maxLength={6}
-              className="text-center text-2xl tracking-widest"
               autoFocus
+              style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontFamily: 'var(--f-mono)' }}
             />
+
+            {error && (
+              <p style={{ color: '#d24545', fontSize: 13, marginTop: 8, margin: 0 }}>{error}</p>
+            )}
           </div>
 
-          {error && (
-            <p className="text-sm text-error-primary">{error}</p>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-          <Button type="button" color="secondary" onClick={onClose}>
-            {tCommon('cancel')}
-          </Button>
-          <Button
-            type="submit"
-            disabled={!code.trim() || verifyMutation.isPending}
-          >
-            {verifyMutation.isPending ? '...' : t('verifyDialog.submit')}
-          </Button>
-        </div>
-      </form>
-    </DialogModal>
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {tCommon('cancel')}
+            </button>
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={!code.trim() || verifyMutation.isPending}
+            >
+              {verifyMutation.isPending ? '...' : t('verifyDialog.submit')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

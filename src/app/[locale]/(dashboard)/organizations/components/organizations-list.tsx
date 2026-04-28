@@ -1,13 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ChevronRight, Edit01, Plus, Trash01, Users01 } from '@untitledui/icons';
 
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Table, TableCard } from '@/components/ui/table/table';
 import { useAdminOrganizations } from '@/hooks/use-organizations';
 import type { Organization } from '@/types';
 
@@ -26,36 +20,38 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--ink-faint)' }}>{tCommon('loading')}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-error-primary">{tCommon('error')}</div>
-        <Button color="secondary" onClick={() => window.location.reload()}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
+        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (!organizations || organizations.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="building"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          action={
-            <Button iconLeading={Plus} onClick={onCreateClick}>
-              {t('create')}
-            </Button>
-          }
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+          <button type="button" className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -70,132 +66,162 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
 
   return (
     <>
-      {/* Mobile: Card Layout */}
-      <div className="space-y-3 md:hidden">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-primary">{t('title')}</h2>
-            <Badge color="gray" size="sm">{organizations.length}</Badge>
+      {/* Mobile card list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }} className="md:hidden">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 700 }}>{t('title')}</h2>
+            <span className="badge badge--neutral">{organizations.length}</span>
           </div>
-          <Button size="sm" iconLeading={Plus} onClick={onCreateClick}>
+          <button type="button" className="btn btn--primary" style={{ fontSize: 12, padding: '6px 12px' }} onClick={onCreateClick}>
             {t('create')}
-          </Button>
+          </button>
         </div>
         {organizations.map((org) => (
-          <div
-            key={org.id}
-            className="rounded-xl border border-secondary bg-primary p-4 shadow-xs"
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-secondary">
-                <span className="text-sm font-semibold text-brand-primary">
-                  {org.name.substring(0, 2).toUpperCase()}
-                </span>
+          <div key={org.id} className="app-card" style={{ padding: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                color: 'var(--green-ink)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                fontWeight: 700,
+                flexShrink: 0,
+              }}>
+                {org.name.substring(0, 2).toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-primary truncate">{org.name}</p>
-                <p className="text-xs text-tertiary font-mono">{org.slug}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-tertiary">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {org.name}
+                </p>
+                <p className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px' }}>{org.slug}</p>
+                <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--ink-faint)' }}>
                   <span>{org.settings?.currency || 'EUR'}</span>
                   <span>{formatDate(org.createdAt)}</span>
                 </div>
               </div>
-              <Dropdown.Root>
-                <Dropdown.DotsButton />
-                <Dropdown.Popover className="w-min">
-                  <Dropdown.Menu>
-                    <Dropdown.Item icon={Edit01} onAction={() => onEditClick(org)}>
-                      <span className="pr-4">{t('actions.edit')}</span>
-                    </Dropdown.Item>
-                    <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(org)}>
-                      <span className="pr-4">{t('actions.manageMembers')}</span>
-                    </Dropdown.Item>
-                    <Dropdown.Separator />
-                    <Dropdown.Item
-                      icon={Trash01}
-                      className="text-error-primary"
-                      onAction={() => onDeleteClick(org)}
-                    >
-                      <span className="pr-4">{t('actions.delete')}</span>
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown.Popover>
-              </Dropdown.Root>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 11, padding: '3px 8px' }}
+                  onClick={() => onEditClick(org)}
+                >
+                  {t('actions.edit')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 11, padding: '3px 8px' }}
+                  onClick={() => onManageMembersClick(org)}
+                >
+                  {t('actions.manageMembers')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 11, padding: '3px 8px', color: 'var(--red, #dc2626)' }}
+                  onClick={() => onDeleteClick(org)}
+                >
+                  {t('actions.delete')}
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Desktop: Table Layout */}
-      <div className="hidden md:block">
-        <TableCard.Root>
-          <TableCard.Header
-            title={t('title')}
-            badge={organizations.length}
-            description={t('subtitle')}
-            contentTrailing={
-              <Button iconLeading={Plus} onClick={onCreateClick}>
-                {t('create')}
-              </Button>
-            }
-          />
-          <Table aria-label={t('title')}>
-            <Table.Header>
-              <Table.Head label={t('table.name')} isRowHeader />
-              <Table.Head label={t('table.slug')} />
-              <Table.Head label={t('table.createdAt')} />
-              <Table.Head label={t('table.actions')} />
-            </Table.Header>
-            <Table.Body items={organizations}>
-              {(organization) => (
-                <Table.Row key={organization.id} id={organization.id}>
-                  <Table.Cell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-lg bg-brand-secondary">
-                        <span className="text-sm font-semibold text-brand-primary">
-                          {organization.name.substring(0, 2).toUpperCase()}
-                        </span>
+      {/* Desktop table */}
+      <div className="app-card app-card--flat hidden md:block">
+        <div className="app-card__head">
+          <div>
+            <h2 className="app-card__title">
+              {t('title')}
+              <span className="pill" style={{ marginLeft: 8 }}>{organizations.length}</span>
+            </h2>
+            <p className="app-card__sub">{t('subtitle')}</p>
+          </div>
+          <button type="button" className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('table.name')}</th>
+                <th>{t('table.slug')}</th>
+                <th>{t('table.createdAt')}</th>
+                <th>{t('table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {organizations.map((org) => (
+                <tr key={org.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                        color: 'var(--green-ink)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}>
+                        {org.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-primary">{organization.name}</p>
-                        <p className="text-xs text-tertiary">{organization.settings?.currency || 'EUR'}</p>
+                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{org.name}</p>
+                        <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>{org.settings?.currency || 'EUR'}</p>
                       </div>
                     </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="font-mono text-sm">{organization.slug}</span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-sm">{formatDate(organization.createdAt)}</span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Dropdown.Root>
-                      <Dropdown.DotsButton />
-                      <Dropdown.Popover className="w-min">
-                        <Dropdown.Menu>
-                          <Dropdown.Item icon={Edit01} onAction={() => onEditClick(organization)}>
-                            <span className="pr-4">{t('actions.edit')}</span>
-                          </Dropdown.Item>
-                          <Dropdown.Item icon={Users01} onAction={() => onManageMembersClick(organization)}>
-                            <span className="pr-4">{t('actions.manageMembers')}</span>
-                          </Dropdown.Item>
-                          <Dropdown.Separator />
-                          <Dropdown.Item
-                            icon={Trash01}
-                            className="text-error-primary"
-                            onAction={() => onDeleteClick(organization)}
-                          >
-                            <span className="pr-4">{t('actions.delete')}</span>
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown.Popover>
-                    </Dropdown.Root>
-                  </Table.Cell>
-                </Table.Row>
-              )}
-            </Table.Body>
-          </Table>
-        </TableCard.Root>
+                  </td>
+                  <td className="mono" style={{ fontSize: 12 }}>{org.slug}</td>
+                  <td className="mono" style={{ fontSize: 12 }}>{formatDate(org.createdAt)}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() => onEditClick(org)}
+                      >
+                        {t('actions.edit')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() => onManageMembersClick(org)}
+                      >
+                        {t('actions.manageMembers')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px', color: 'var(--red, #dc2626)' }}
+                        onClick={() => onDeleteClick(org)}
+                      >
+                        {t('actions.delete')}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

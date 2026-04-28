@@ -3,10 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Textarea } from '@/components/ui/textarea/textarea';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan } from '@/types/shift';
@@ -33,6 +29,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
   const {
     control,
     handleSubmit,
+    register,
     formState: { isDirty },
   } = useForm<FormData>({
     defaultValues: {
@@ -61,71 +58,65 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    updateMutation.mutate(data);
-  };
+  const onSubmit = (data: FormData) => updateMutation.mutate(data);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 640, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
-        <h2 className="text-lg font-medium text-primary">{t('shifts.settings.title')}</h2>
-        <p className="text-sm text-tertiary">Grundeinstellungen für diesen Schichtplan</p>
+        <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>{t('shifts.settings.title')}</h2>
+        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>Grundeinstellungen für diesen Schichtplan</p>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-secondary bg-primary p-6">
-        <Controller
-          name="name"
-          control={control}
-          render={({ field }) => (
-            <Input
-              label={t('shifts.form.name')}
-              placeholder={t('shifts.form.namePlaceholder')}
-              value={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-            />
-          )}
-        />
+      {/* Basic info */}
+      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="auth-field">
+          <label className="auth-field__label">{t('shifts.form.name')}</label>
+          <input className="input" placeholder={t('shifts.form.namePlaceholder')} {...register('name')} />
+        </div>
 
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <Textarea
-              {...field}
-              label={t('shifts.form.description')}
-              placeholder={t('shifts.form.descriptionPlaceholder')}
-              rows={3}
-            />
-          )}
-        />
+        <div className="auth-field">
+          <label className="auth-field__label">{t('shifts.form.description')}</label>
+          <textarea className="textarea" rows={3} placeholder={t('shifts.form.descriptionPlaceholder')} {...register('description')} />
+        </div>
 
-        <div className="pt-2 text-sm text-tertiary">
+        <div style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
           <strong>Öffentlicher Link:</strong>{' '}
-          <code className="bg-secondary px-2 py-1 rounded">
+          <code style={{ background: 'color-mix(in oklab, var(--ink) 6%, transparent)', padding: '2px 6px', borderRadius: 4, fontFamily: 'var(--f-mono)', fontSize: 12 }}>
             {typeof window !== 'undefined' ? window.location.origin : ''}/s/{plan.publicSlug}
           </code>
         </div>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-secondary bg-primary p-6">
-        <h3 className="font-medium text-primary">Anmeldungs-Einstellungen</h3>
+      {/* Registration settings */}
+      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Anmeldungs-Einstellungen</div>
 
         <Controller
           name="requireApproval"
           control={control}
           render={({ field }) => (
-            <div className="flex items-center justify-between">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
               <div>
-                <p className="font-medium text-primary">{t('shifts.settings.requireApproval')}</p>
-                <p className="text-sm text-tertiary">
-                  {t('shifts.settings.requireApprovalDescription')}
-                </p>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t('shifts.settings.requireApproval')}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('shifts.settings.requireApprovalDescription')}</div>
               </div>
-              <Toggle
-                isSelected={field.value}
-                onChange={field.onChange}
-              />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={field.value}
+                onClick={() => field.onChange(!field.value)}
+                style={{
+                  width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
+                  background: field.value ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
+                  position: 'relative', transition: 'background 0.2s',
+                }}
+              >
+                <span style={{
+                  position: 'absolute', top: 3, left: field.value ? 21 : 3,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left 0.2s',
+                }} />
+              </button>
             </div>
           )}
         />
@@ -134,17 +125,28 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           name="allowMultipleShifts"
           control={control}
           render={({ field }) => (
-            <div className="flex items-center justify-between">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
               <div>
-                <p className="font-medium text-primary">{t('shifts.settings.allowMultipleShifts')}</p>
-                <p className="text-sm text-tertiary">
-                  {t('shifts.settings.allowMultipleShiftsDescription')}
-                </p>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t('shifts.settings.allowMultipleShifts')}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('shifts.settings.allowMultipleShiftsDescription')}</div>
               </div>
-              <Toggle
-                isSelected={field.value}
-                onChange={field.onChange}
-              />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={field.value}
+                onClick={() => field.onChange(!field.value)}
+                style={{
+                  width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
+                  background: field.value ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
+                  position: 'relative', transition: 'background 0.2s',
+                }}
+              >
+                <span style={{
+                  position: 'absolute', top: 3, left: field.value ? 21 : 3,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left 0.2s',
+                }} />
+              </button>
             </div>
           )}
         />
@@ -153,18 +155,15 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           name="maxShiftsPerPerson"
           control={control}
           render={({ field }) => (
-            <div>
-              <label className="block font-medium text-primary">
-                {t('shifts.settings.maxShiftsPerPerson')}
-              </label>
-              <p className="text-sm text-tertiary mb-2">
-                {t('shifts.settings.maxShiftsPerPersonDescription')}
-              </p>
-              <Input
+            <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{t('shifts.settings.maxShiftsPerPerson')}</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>{t('shifts.settings.maxShiftsPerPersonDescription')}</div>
+              <input
+                className="input"
                 type="number"
-                className="w-32"
+                style={{ width: 100 }}
                 value={String(field.value)}
-                onChange={(value) => field.onChange(Math.max(0, parseInt(value) || 0))}
+                onChange={(e) => field.onChange(Math.max(0, parseInt(e.target.value) || 0))}
                 onBlur={field.onBlur}
               />
             </div>
@@ -176,17 +175,14 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           control={control}
           render={({ field }) => (
             <div>
-              <label className="block font-medium text-primary">
-                {t('shifts.settings.reminderDays')}
-              </label>
-              <p className="text-sm text-tertiary mb-2">
-                {t('shifts.settings.reminderDaysDescription')}
-              </p>
-              <Input
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{t('shifts.settings.reminderDays')}</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>{t('shifts.settings.reminderDaysDescription')}</div>
+              <input
+                className="input"
                 type="number"
-                className="w-32"
+                style={{ width: 100 }}
                 value={String(field.value)}
-                onChange={(value) => field.onChange(Math.min(30, Math.max(0, parseInt(value) || 0)))}
+                onChange={(e) => field.onChange(Math.min(30, Math.max(0, parseInt(e.target.value) || 0)))}
                 onBlur={field.onBlur}
               />
             </div>
@@ -194,15 +190,14 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
         />
       </div>
 
-      <div className="flex justify-end">
-        <Button
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <button
           type="submit"
-          color="primary"
-          isDisabled={!isDirty || updateMutation.isPending}
-          isLoading={updateMutation.isPending}
+          className="btn btn--primary"
+          disabled={!isDirty || updateMutation.isPending}
         >
-          {t('common.save')}
-        </Button>
+          {updateMutation.isPending ? '...' : t('common.save')}
+        </button>
       </div>
     </form>
   );

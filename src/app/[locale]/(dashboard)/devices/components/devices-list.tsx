@@ -4,26 +4,6 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Tablet02,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Trash01,
-  ShieldOff,
-  Shield01,
-  RefreshCw01,
-  Send01,
-  Tv01,
-  Edit05,
-  Monitor01,
-  ShoppingCart01,
-  Settings01,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
@@ -32,12 +12,11 @@ import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
 import { LinkDeviceModal } from './link-device-modal';
 import type { Device, DeviceStatus, DeviceClass } from '@/types/device';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
 
-const statusConfig: Record<DeviceStatus, { color: BadgeColors; icon: typeof Clock }> = {
-  pending: { color: 'gray', icon: Clock },
-  verified: { color: 'success', icon: CheckCircle },
-  blocked: { color: 'error', icon: XCircle },
+const statusBadgeClass: Record<DeviceStatus, string> = {
+  pending: 'badge badge--warning',
+  verified: 'badge badge--success',
+  blocked: 'badge badge--error',
 };
 
 const classLabels: Record<DeviceClass, string> = {
@@ -47,13 +26,18 @@ const classLabels: Record<DeviceClass, string> = {
   printer_agent: 'devices.class.printer_agent',
 };
 
-// Icon and color config for device classes
-const classConfig: Record<DeviceClass, { icon: typeof Tablet02; color: string }> = {
-  pos: { icon: ShoppingCart01, color: 'bg-brand-primary/10 text-brand-primary' },
-  display: { icon: Monitor01, color: 'bg-warning-primary/10 text-warning-primary' },
-  admin: { icon: Settings01, color: 'bg-tertiary text-primary' },
-  printer_agent: { icon: Settings01, color: 'bg-success-primary/10 text-success-primary' },
-};
+function Spinner() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%',
+        border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
+        animation: 'spin 0.75s linear infinite',
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
 
 export function DevicesList() {
   const t = useTranslations();
@@ -66,19 +50,20 @@ export function DevicesList() {
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
   const [showBroadcast, setShowBroadcast] = useState(false);
   const [showLinkDevice, setShowLinkDevice] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const { data: devicesData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['devices', organizationId],
     queryFn: () => devicesApi.list(organizationId!),
     enabled: !!organizationId,
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: 5000,
   });
 
   const { data: onlineIdsData } = useQuery({
     queryKey: ['devices-online', organizationId],
     queryFn: () => devicesApi.getOnlineIds(organizationId!),
     enabled: !!organizationId,
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: 5000,
   });
 
   const devices = devicesData?.data || [];
@@ -98,179 +83,195 @@ export function DevicesList() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
-      </div>
-    );
-  }
+  if (isLoading) return <Spinner />;
 
   if (devices.length === 0) {
     return (
-      <EmptyState
-        icon="tablet"
-        title={t('devices.noDevices')}
-        description={t('devices.noDevicesDescription')}
-      />
+      <div className="empty-state">
+        <div className="empty-state__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <rect x="5" y="2" width="14" height="20" rx="2" />
+            <line x1="12" y1="18" x2="12" y2="18.01" />
+          </svg>
+        </div>
+        <h3 className="empty-state__title">{t('devices.noDevices')}</h3>
+        <p className="empty-state__sub">{t('devices.noDevicesDescription')}</p>
+        <button className="btn btn--primary" onClick={() => setShowLinkDevice(true)}>
+          {t('devices.linkDevice')}
+        </button>
+      </div>
     );
   }
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-tertiary">
-          {t('devices.deviceCount', { count: devices.length })}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            onClick={() => setShowLinkDevice(true)}
-            iconLeading={Tv01}
-          >
+      <div className="app-card__head">
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>
+            {t('devices.deviceCount', { count: devices.length })}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--primary" onClick={() => setShowLinkDevice(true)}>
             {t('devices.linkDevice')}
-          </Button>
-          <Button
-            color="secondary"
-            size="sm"
-            onClick={() => setShowBroadcast(true)}
-            iconLeading={Send01}
-          >
+          </button>
+          <button className="btn btn--ghost" onClick={() => setShowBroadcast(true)}>
             {t('devices.broadcast.title')}
-          </Button>
-          <Button
-            color="secondary"
-            size="sm"
+          </button>
+          <button
+            className="btn btn--ghost"
             onClick={() => refetch()}
-            isDisabled={isFetching}
-            iconLeading={RefreshCw01}
-            className={isFetching ? '[&_[data-icon]]:animate-spin' : ''}
+            disabled={isFetching}
           >
-            {t('common.refresh')}
-          </Button>
+            {isFetching ? '...' : t('common.refresh')}
+          </button>
         </div>
       </div>
-      <div className="overflow-hidden rounded-xl border border-secondary">
-        <table className="w-full">
-          <thead className="bg-secondary">
+
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('devices.table.name')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('devices.table.status')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('devices.table.class')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('devices.table.lastSeen')}
-              </th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">
-                {t('devices.table.actions')}
-              </th>
+              <th>{t('devices.table.name')}</th>
+              <th>{t('devices.table.status')}</th>
+              <th>{t('devices.table.class')}</th>
+              <th>{t('devices.table.lastSeen')}</th>
+              <th className="text-right">{t('devices.table.actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-secondary bg-primary">
+          <tbody>
             {devices.map((device) => {
-              const statusCfg = statusConfig[device.status];
-              const StatusIcon = statusCfg.icon;
               const isOnline = onlineDeviceIds.has(device.id);
-              const classCfg = device.type ? classConfig[device.type] : null;
-              const DeviceIcon = classCfg?.icon || Tablet02;
-
               return (
-                <tr key={device.id} className="hover:bg-secondary/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`relative flex h-10 w-10 items-center justify-center rounded-lg ${classCfg?.color || 'bg-secondary text-tertiary'}`}>
-                        <DeviceIcon className="h-5 w-5" />
-                        {/* Online indicator */}
-                        <span
-                          className={`absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-primary ${
-                            isOnline ? 'bg-success-primary' : 'bg-tertiary'
-                          }`}
-                          title={isOnline ? t('devices.online') : t('devices.offline')}
-                        />
+                <tr key={device.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <div style={{
+                          width: 36, height: 36, borderRadius: 8,
+                          background: 'color-mix(in oklab, var(--ink) 6%, transparent)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                            <rect x="5" y="2" width="14" height="20" rx="2" />
+                            <line x1="12" y1="18" x2="12" y2="18.01" />
+                          </svg>
+                        </div>
+                        <span style={{
+                          position: 'absolute', top: -3, right: -3,
+                          width: 10, height: 10, borderRadius: '50%',
+                          background: isOnline ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 30%, transparent)',
+                          border: '2px solid var(--paper)',
+                        }} title={isOnline ? t('devices.online') : t('devices.offline')} />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => router.push(`/devices/${device.id}`)}
-                            className="font-medium text-primary hover:text-brand-primary hover:underline"
-                          >
-                            {device.name}
-                          </button>
-                          {isOnline && (
-                            <span className="text-xs text-success-primary">{t('devices.online')}</span>
-                          )}
-                        </div>
+                        <button
+                          onClick={() => router.push(`/devices/${device.id}`)}
+                          style={{
+                            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                            fontWeight: 600, color: 'var(--ink)', fontSize: 14,
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--green-ink)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink)')}
+                        >
+                          {device.name}
+                        </button>
+                        {isOnline && (
+                          <span style={{ display: 'block', fontSize: 11, color: 'var(--green-ink)' }}>
+                            {t('devices.online')}
+                          </span>
+                        )}
                         {device.userAgent && (
-                          <p className="max-w-xs truncate text-xs text-tertiary">
+                          <span style={{
+                            display: 'block', fontSize: 11,
+                            color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
+                            maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          }}>
                             {device.userAgent}
-                          </p>
+                          </span>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge color={statusCfg.color} size="sm">
-                      <StatusIcon className="mr-1 h-3 w-3" />
+                  <td>
+                    <span className={statusBadgeClass[device.status]}>
                       {t(`devices.status.${device.status}`)}
-                    </Badge>
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-secondary">
+                  <td>
+                    <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
                       {device.type ? t(classLabels[device.type]) : '-'}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-tertiary">
+                  <td>
+                    <span className="mono" style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
                       {device.lastSeenAt ? formatDate(device.lastSeenAt) : '-'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Dropdown.Root>
-                      <Dropdown.DotsButton />
-                      <Dropdown.Popover placement="bottom end">
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onAction={() => router.push(`/devices/${device.id}?tab=settings`)}
-                            icon={Edit05}
-                            label={t('devices.actions.edit')}
+                  <td className="text-right">
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <button
+                        className="btn btn--ghost"
+                        style={{ padding: '4px 10px', fontSize: 13 }}
+                        onClick={() => setOpenMenuId(openMenuId === device.id ? null : device.id)}
+                      >
+                        ···
+                      </button>
+                      {openMenuId === device.id && (
+                        <>
+                          <div
+                            style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+                            onClick={() => setOpenMenuId(null)}
                           />
-                          {device.status === 'pending' && (
-                            <Dropdown.Item
-                              onAction={() => setVerifyDevice(device)}
-                              icon={CheckCircle}
-                              label={t('devices.actions.verify')}
-                            />
-                          )}
-                          {device.status === 'verified' && (
-                            <Dropdown.Item
-                              onAction={() => blockMutation.mutate(device.id)}
-                              isDisabled={blockMutation.isPending}
-                              icon={ShieldOff}
-                              label={t('devices.actions.block')}
-                            />
-                          )}
-                          {device.status === 'blocked' && (
-                            <Dropdown.Item
-                              onAction={() => unblockMutation.mutate(device.id)}
-                              isDisabled={unblockMutation.isPending}
-                              icon={Shield01}
-                              label={t('devices.actions.unblock')}
-                            />
-                          )}
-                          <Dropdown.Item
-                            onAction={() => setDeleteDevice(device)}
-                            className="text-error-primary"
-                            icon={Trash01}
-                            label={t('devices.actions.delete')}
-                          />
-                        </Dropdown.Menu>
-                      </Dropdown.Popover>
-                    </Dropdown.Root>
+                          <div style={{
+                            position: 'absolute', right: 0, top: '100%', zIndex: 20,
+                            background: 'var(--paper)', border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                            borderRadius: 10, boxShadow: '0 8px 24px color-mix(in oklab, var(--ink) 12%, transparent)',
+                            minWidth: 160, padding: '4px 0',
+                          }}>
+                            <button
+                              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
+                              onClick={() => { setOpenMenuId(null); router.push(`/devices/${device.id}?tab=settings`); }}
+                            >
+                              {t('devices.actions.edit')}
+                            </button>
+                            {device.status === 'pending' && (
+                              <button
+                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
+                                onClick={() => { setOpenMenuId(null); setVerifyDevice(device); }}
+                              >
+                                {t('devices.actions.verify')}
+                              </button>
+                            )}
+                            {device.status === 'verified' && (
+                              <button
+                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
+                                onClick={() => { setOpenMenuId(null); blockMutation.mutate(device.id); }}
+                                disabled={blockMutation.isPending}
+                              >
+                                {t('devices.actions.block')}
+                              </button>
+                            )}
+                            {device.status === 'blocked' && (
+                              <button
+                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
+                                onClick={() => { setOpenMenuId(null); unblockMutation.mutate(device.id); }}
+                                disabled={unblockMutation.isPending}
+                              >
+                                {t('devices.actions.unblock')}
+                              </button>
+                            )}
+                            <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
+                            <button
+                              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: '#d24545' }}
+                              onClick={() => { setOpenMenuId(null); setDeleteDevice(device); }}
+                            >
+                              {t('devices.actions.delete')}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -279,31 +280,15 @@ export function DevicesList() {
         </table>
       </div>
 
-      {/* Verify Dialog */}
       {verifyDevice && (
-        <VerifyDeviceDialog
-          device={verifyDevice}
-          onClose={() => setVerifyDevice(null)}
-        />
+        <VerifyDeviceDialog device={verifyDevice} onClose={() => setVerifyDevice(null)} />
       )}
-
-      {/* Delete Dialog */}
       {deleteDevice && (
-        <DeleteDeviceDialog
-          device={deleteDevice}
-          onClose={() => setDeleteDevice(null)}
-        />
+        <DeleteDeviceDialog device={deleteDevice} onClose={() => setDeleteDevice(null)} />
       )}
-
-      {/* Broadcast Dialog */}
       {showBroadcast && (
-        <BroadcastDialog
-          onClose={() => setShowBroadcast(false)}
-          onlineDeviceCount={onlineDeviceIds.size}
-        />
+        <BroadcastDialog onClose={() => setShowBroadcast(false)} onlineDeviceCount={onlineDeviceIds.size} />
       )}
-
-      {/* Link Device Modal */}
       {showLinkDevice && (
         <LinkDeviceModal onClose={() => setShowLinkDevice(false)} />
       )}

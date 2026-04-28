@@ -5,12 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
 import { useProductionStations } from '@/hooks/use-production-stations';
 import type { Category } from '@/types/category';
@@ -48,6 +43,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
@@ -61,6 +57,8 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
       productionStationId: '',
     },
   });
+
+  const isActiveValue = watch('isActive');
 
   useEffect(() => {
     if (category) {
@@ -129,191 +127,156 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
     onClose();
   };
 
-  // Filter out current category and its children for parent selection
   const availableParents = categories?.filter((c) => c.id !== category?.id) || [];
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-lg">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {isEditing ? t('edit') : t('create')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__overlay" onClick={handleClose}>
+      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h2>{isEditing ? t('edit') : t('create')}</h2>
+          <button type="button" className="modal__close" onClick={handleClose}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.name')}
-                        placeholder={t('form.namePlaceholder')}
-                        isRequired
-                        isInvalid={!!errors.name}
-                        hint={errors.name?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.description')}
-                        placeholder={t('form.descriptionPlaceholder')}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Controller
-                      name="color"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          label={t('form.color')}
-                          placeholder={t('form.colorPlaceholder')}
-                          type="color"
-                          value={field.value || '#6366f1'}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
-
-                    <Controller
-                      name="sortOrder"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          label={t('table.sortOrder')}
-                          type="number"
-                          value={String(field.value ?? 0)}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
-                  </div>
-
-                  {availableParents.length > 0 && (
-                    <Controller
-                      name="parentId"
-                      control={control}
-                      render={({ field }) => (
-                        <div>
-                          <label className="mb-1.5 block text-sm font-medium text-secondary">
-                            {t('form.parent')}
-                          </label>
-                          <select
-                            className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                            value={field.value || ''}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                          >
-                            <option value="">{t('form.parentPlaceholder')}</option>
-                            {availableParents.map((cat) => (
-                              <option key={cat.id} value={cat.id}>
-                                {cat.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                  <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
+                  {errors.name && (
+                    <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>
                   )}
+                </label>
+              )}
+            />
 
-                  {(productionStations?.length ?? 0) > 0 && (
-                    <Controller
-                      name="productionStationId"
-                      control={control}
-                      render={({ field }) => (
-                        <div>
-                          <label className="mb-1.5 block text-sm font-medium text-secondary">
-                            {t('form.productionStation')}
-                          </label>
-                          <select
-                            className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                            value={field.value || ''}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                          >
-                            <option value="">—</option>
-                            {productionStations?.map((station) => (
-                              <option key={station.id} value={station.id}>
-                                {station.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    />
-                  )}
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.description')}</span>
+                  <input type="text" placeholder={t('form.descriptionPlaceholder')} {...field} />
+                </label>
+              )}
+            />
 
-                  <Controller
-                    name="isActive"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="flex items-center justify-between rounded-lg border border-secondary px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-primary">{t('form.isActive')}</p>
-                          <p className="text-xs text-tertiary">
-                            {field.value ? t('status.active') : t('status.inactive')}
-                          </p>
-                        </div>
-                        <Toggle
-                          isSelected={field.value}
-                          onChange={field.onChange}
-                        />
-                      </div>
-                    )}
-                  />
-                </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Controller
+                name="color"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.color')}</span>
+                    <input type="color" value={field.value || '#6366f1'} onChange={field.onChange} onBlur={field.onBlur} style={{ height: 40, padding: 4 }} />
+                  </label>
+                )}
+              />
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={handleClose}
-                    isDisabled={isSubmitting}
-                  >
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    isDisabled={isSubmitting}
-                  >
-                    {isEditing ? tCommon('save') : tCommon('create')}
-                  </Button>
-                </div>
-              </form>
+              <Controller
+                name="sortOrder"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('table.sortOrder')}</span>
+                    <input type="number" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                  </label>
+                )}
+              />
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+
+            {availableParents.length > 0 && (
+              <Controller
+                name="parentId"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.parent')}</span>
+                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                      <option value="">{t('form.parentPlaceholder')}</option>
+                      {availableParents.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+              />
+            )}
+
+            {(productionStations?.length ?? 0) > 0 && (
+              <Controller
+                name="productionStationId"
+                control={control}
+                render={({ field }) => (
+                  <label className="auth-field">
+                    <span>{t('form.productionStation')}</span>
+                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                      <option value="">—</option>
+                      {productionStations?.map((station) => (
+                        <option key={station.id} value={station.id}>{station.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+              />
+            )}
+
+            <Controller
+              name="isActive"
+              control={control}
+              render={({ field }) => (
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                  borderRadius: 10, padding: '12px 16px',
+                }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.55 }}>
+                      {isActiveValue ? t('status.active') : t('status.inactive')}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={field.value}
+                    onClick={() => field.onChange(!field.value)}
+                    style={{
+                      width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                      background: field.value ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, transparent)',
+                      position: 'relative', transition: 'background 0.2s',
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: 2, left: field.value ? 22 : 2,
+                      width: 20, height: 20, borderRadius: 10, background: 'var(--paper)',
+                      transition: 'left 0.2s', display: 'block',
+                    }} />
+                  </button>
+                </div>
+              )}
+            />
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

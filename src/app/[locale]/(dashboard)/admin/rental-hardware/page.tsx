@@ -14,10 +14,12 @@ export default async function AdminRentalHardwarePage() {
   const t = await getTranslations('admin.rental.hardware');
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="hidden md:block">
-        <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
-        <p className="mt-1 text-md text-tertiary">{t('description')}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="app-page-head">
+        <div>
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('description')}</p>
+        </div>
       </div>
 
       <RentalHardwareContainer />

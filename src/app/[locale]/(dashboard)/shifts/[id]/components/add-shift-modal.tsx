@@ -6,11 +6,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X } from '@untitledui/icons';
-
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 
@@ -37,19 +32,9 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
   const organizationId = currentOrganization?.organizationId;
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      date: '',
-      startTime: '10:00',
-      endTime: '14:00',
-      requiredWorkers: 2,
-    },
+    defaultValues: { date: '', startTime: '10:00', endTime: '14:00', requiredWorkers: 2 },
   });
 
   const createMutation = useMutation({
@@ -65,142 +50,96 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
       reset();
       onClose();
     },
-    onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
-    },
+    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
   });
 
-  const onSubmit = (data: FormData) => {
-    if (!jobId) return;
-    setError(null);
-    createMutation.mutate(data);
-  };
+  const onSubmit = (data: FormData) => { if (!jobId) return; setError(null); createMutation.mutate(data); };
+  const handleClose = () => { reset(); setError(null); onClose(); };
 
-  const handleClose = () => {
-    reset();
-    setError(null);
-    onClose();
-  };
+  if (!open) return null;
 
   return (
-    <DialogTrigger isOpen={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-md">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {t('shifts.editor.addShift')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__backdrop" onClick={handleClose}>
+      <div className="modal__box" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('shifts.editor.addShift')}</div>
+          <button className="modal__close" onClick={handleClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  {error && (
-                    <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                      {error}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {error && (
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              )}
+
+              <Controller
+                name="date"
+                control={control}
+                render={({ field }) => (
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('shifts.editor.shiftDate')} *</label>
+                    <input className="input" type="date" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                    {errors.date && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.date.message}</p>}
+                  </div>
+                )}
+              />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <Controller
+                  name="startTime"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('shifts.editor.shiftStartTime')} *</label>
+                      <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                      {errors.startTime && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.startTime.message}</p>}
                     </div>
                   )}
+                />
+                <Controller
+                  name="endTime"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="auth-field">
+                      <label className="auth-field__label">{t('shifts.editor.shiftEndTime')} *</label>
+                      <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                      {errors.endTime && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.endTime.message}</p>}
+                    </div>
+                  )}
+                />
+              </div>
 
-                  <Controller
-                    name="date"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="date"
-                        label={t('shifts.editor.shiftDate')}
-                        isRequired
-                        isInvalid={!!errors.date}
-                        hint={errors.date?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Controller
-                      name="startTime"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          type="time"
-                          label={t('shifts.editor.shiftStartTime')}
-                          isRequired
-                          isInvalid={!!errors.startTime}
-                          hint={errors.startTime?.message}
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
+              <Controller
+                name="requiredWorkers"
+                control={control}
+                render={({ field }) => (
+                  <div className="auth-field">
+                    <label className="auth-field__label">{t('shifts.editor.requiredWorkers')} *</label>
+                    <input
+                      className="input"
+                      type="number"
+                      value={String(field.value)}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      onBlur={field.onBlur}
                     />
-
-                    <Controller
-                      name="endTime"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          type="time"
-                          label={t('shifts.editor.shiftEndTime')}
-                          isRequired
-                          isInvalid={!!errors.endTime}
-                          hint={errors.endTime?.message}
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      )}
-                    />
+                    {errors.requiredWorkers && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.requiredWorkers.message}</p>}
                   </div>
-
-                  <Controller
-                    name="requiredWorkers"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="number"
-                        label={t('shifts.editor.requiredWorkers')}
-                        isRequired
-                        isInvalid={!!errors.requiredWorkers}
-                        hint={errors.requiredWorkers?.message}
-                        value={String(field.value)}
-                        onChange={(value) => field.onChange(parseInt(value) || 1)}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button type="button" color="secondary" onClick={handleClose}>
-                    {t('common.cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    isDisabled={createMutation.isPending}
-                    isLoading={createMutation.isPending}
-                  >
-                    {t('shifts.editor.addShift')}
-                  </Button>
-                </div>
-              </form>
+                )}
+              />
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
+            <button type="submit" className="btn btn--primary" disabled={createMutation.isPending}>
+              {createMutation.isPending ? '...' : t('shifts.editor.addShift')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

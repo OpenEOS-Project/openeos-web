@@ -3,10 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/buttons/button';
-import { Label } from '@/components/ui/input/label';
-import { Select } from '@/components/ui/select/select';
-import { RadioGroup, RadioButton } from '@/components/ui/radio-buttons/radio-buttons';
 import { devicesApi, printersApi } from '@/lib/api-client';
 import type { Device, PrinterMode } from '@/types/device';
 
@@ -15,19 +11,29 @@ interface DevicePrinterConfigProps {
   organizationId: string;
 }
 
+function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="app-card">
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">{title}</h2>
+          {description && <p className="app-card__sub">{description}</p>}
+        </div>
+      </div>
+      <div className="app-card__body">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function DevicePrinterConfig({ device, organizationId }: DevicePrinterConfigProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
 
-  const [defaultPrinterId, setDefaultPrinterId] = useState(
-    (device.settings?.defaultPrinterId as string) || ''
-  );
-  const [printerMode, setPrinterMode] = useState<PrinterMode>(
-    device.settings?.printerMode || 'device'
-  );
-  const [cashDrawerPrinterId, setCashDrawerPrinterId] = useState(
-    (device.settings?.cashDrawerPrinterId as string) || ''
-  );
+  const [defaultPrinterId, setDefaultPrinterId] = useState((device.settings?.defaultPrinterId as string) || '');
+  const [printerMode, setPrinterMode] = useState<PrinterMode>(device.settings?.printerMode || 'device');
+  const [cashDrawerPrinterId, setCashDrawerPrinterId] = useState((device.settings?.cashDrawerPrinterId as string) || '');
 
   useEffect(() => {
     setDefaultPrinterId((device.settings?.defaultPrinterId as string) || '');
@@ -58,132 +64,102 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
     },
   });
 
+  const routingModes: { value: PrinterMode; labelKey: string; descKey: string }[] = [
+    { value: 'device', labelKey: 'devices.detail.printer.routing.device', descKey: 'devices.detail.printer.routing.deviceDescription' },
+    { value: 'category', labelKey: 'devices.detail.printer.routing.category', descKey: 'devices.detail.printer.routing.categoryDescription' },
+    { value: 'product', labelKey: 'devices.detail.printer.routing.product', descKey: 'devices.detail.printer.routing.productDescription' },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Default Printer */}
-      <div className="rounded-xl border border-secondary bg-primary p-6">
-        <h3 className="text-lg font-semibold text-primary">
-          {t('devices.detail.printer.defaultPrinter.title')}
-        </h3>
-
-        <div className="mt-6">
-          <Label>{t('devices.detail.printer.defaultPrinter.title')}</Label>
-          <Select
-            selectedKey={defaultPrinterId || ''}
-            onSelectionChange={(key) => setDefaultPrinterId(key as string)}
-            aria-label={t('devices.detail.printer.defaultPrinter.title')}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <SectionCard title={t('devices.detail.printer.defaultPrinter.title')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+            {t('devices.detail.printer.defaultPrinter.title')}
+          </label>
+          <select
+            className="select"
+            value={defaultPrinterId}
+            onChange={(e) => setDefaultPrinterId(e.target.value)}
           >
-            <Select.Item key="" id="" textValue={t('devices.detail.printer.defaultPrinter.noPrinter')}>
-              {t('devices.detail.printer.defaultPrinter.noPrinter')}
-            </Select.Item>
+            <option value="">{t('devices.detail.printer.defaultPrinter.noPrinter')}</option>
             {printers.map((printer) => (
-              <Select.Item key={printer.id} id={printer.id} textValue={printer.name}>
-                <span className="flex items-center gap-2">
-                  <span
-                    className={`inline-block h-2 w-2 rounded-full ${
-                      printer.isOnline ? 'bg-success-primary' : 'bg-tertiary'
-                    }`}
-                  />
-                  {printer.name}
-                </span>
-              </Select.Item>
+              <option key={printer.id} value={printer.id}>
+                {printer.isOnline ? '● ' : '○ '}{printer.name}
+              </option>
             ))}
-          </Select>
+          </select>
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Print Routing */}
-      <div className="rounded-xl border border-secondary bg-primary p-6">
-        <h3 className="text-lg font-semibold text-primary">
-          {t('devices.detail.printer.routing.title')}
-        </h3>
-        <p className="mt-1 text-sm text-tertiary">
-          {t('devices.detail.printer.routing.description')}
-        </p>
-
-        <div className="mt-6">
-          <RadioGroup
-            value={printerMode}
-            onChange={(value) => setPrinterMode(value as PrinterMode)}
-          >
-            <RadioButton
-              value="device"
-              label={t('devices.detail.printer.routing.device')}
-              hint={t('devices.detail.printer.routing.deviceDescription')}
-            />
-            <RadioButton
-              value="category"
-              label={t('devices.detail.printer.routing.category')}
-              hint={t('devices.detail.printer.routing.categoryDescription')}
-            />
-            <RadioButton
-              value="product"
-              label={t('devices.detail.printer.routing.product')}
-              hint={t('devices.detail.printer.routing.productDescription')}
-            />
-          </RadioGroup>
+      <SectionCard
+        title={t('devices.detail.printer.routing.title')}
+        description={t('devices.detail.printer.routing.description')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {routingModes.map((mode) => (
+            <label key={mode.value} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="printerMode"
+                value={mode.value}
+                checked={printerMode === mode.value}
+                onChange={() => setPrinterMode(mode.value)}
+                style={{ marginTop: 2, flexShrink: 0, accentColor: 'var(--green-ink)' }}
+              />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{t(mode.labelKey)}</p>
+                <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: '2px 0 0' }}>{t(mode.descKey)}</p>
+              </div>
+            </label>
+          ))}
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Cash Drawer */}
-      <div className="rounded-xl border border-secondary bg-primary p-6">
-        <h3 className="text-lg font-semibold text-primary">
-          {t('devices.detail.printer.cashDrawer.title')}
-        </h3>
-        <p className="mt-1 text-sm text-tertiary">
-          {t('devices.detail.printer.cashDrawer.description')}
-        </p>
-
-        <div className="mt-6">
-          <Label>{t('devices.detail.printer.cashDrawer.selectPrinter')}</Label>
+      <SectionCard
+        title={t('devices.detail.printer.cashDrawer.title')}
+        description={t('devices.detail.printer.cashDrawer.description')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+            {t('devices.detail.printer.cashDrawer.selectPrinter')}
+          </label>
           {printers.filter((p) => p.hasCashDrawer).length === 0 ? (
-            <p className="mt-2 text-sm text-tertiary">
+            <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: 0 }}>
               {t('devices.detail.printer.cashDrawer.noPrintersAvailable')}
             </p>
           ) : (
-            <Select
-              selectedKey={cashDrawerPrinterId || ''}
-              onSelectionChange={(key) => setCashDrawerPrinterId(key as string)}
-              aria-label={t('devices.detail.printer.cashDrawer.selectPrinter')}
+            <select
+              className="select"
+              value={cashDrawerPrinterId}
+              onChange={(e) => setCashDrawerPrinterId(e.target.value)}
             >
-              <Select.Item key="" id="" textValue={t('devices.detail.printer.cashDrawer.noPrinter')}>
-                {t('devices.detail.printer.cashDrawer.noPrinter')}
-              </Select.Item>
-              {printers
-                .filter((p) => p.hasCashDrawer)
-                .map((printer) => (
-                  <Select.Item key={printer.id} id={printer.id} textValue={printer.name}>
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`inline-block h-2 w-2 rounded-full ${
-                          printer.isOnline ? 'bg-success-primary' : 'bg-tertiary'
-                        }`}
-                      />
-                      {printer.name}
-                    </span>
-                  </Select.Item>
-                ))}
-            </Select>
+              <option value="">{t('devices.detail.printer.cashDrawer.noPrinter')}</option>
+              {printers.filter((p) => p.hasCashDrawer).map((printer) => (
+                <option key={printer.id} value={printer.id}>
+                  {printer.isOnline ? '● ' : '○ '}{printer.name}
+                </option>
+              ))}
+            </select>
           )}
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
+        {updateMutation.isSuccess && (
+          <span style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('devices.detail.saved')}</span>
+        )}
+        {updateMutation.isError && (
+          <span style={{ fontSize: 13, color: '#d24545' }}>{t('devices.detail.saveFailed')}</span>
+        )}
+        <button
+          className="btn btn--primary"
           onClick={() => updateMutation.mutate()}
-          isLoading={updateMutation.isPending}
+          disabled={updateMutation.isPending}
         >
-          {t('common.save')}
-        </Button>
+          {updateMutation.isPending ? '...' : t('common.save')}
+        </button>
       </div>
-
-      {updateMutation.isSuccess && (
-        <p className="text-sm text-success-primary text-right">{t('devices.detail.saved')}</p>
-      )}
-      {updateMutation.isError && (
-        <p className="text-sm text-error-primary text-right">{t('devices.detail.saveFailed')}</p>
-      )}
     </div>
   );
 }

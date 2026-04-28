@@ -3,11 +3,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Select } from '@/components/ui/select/select';
-import { Label } from '@/components/ui/input/label';
 import { adminApi } from '@/lib/api-client';
 import { useRentalHardware, useCreateRentalAssignment } from '@/hooks/use-rentals';
 import type { CreateRentalAssignmentData } from '@/types/rental';
@@ -32,18 +27,15 @@ export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
 
   const createMutation = useCreateRentalAssignment();
 
-  // Fetch available hardware
   const { data: hardware } = useRentalHardware({ status: 'available' });
   const availableHardware = hardware ?? [];
 
-  // Fetch all organizations
   const { data: orgsData } = useQuery({
     queryKey: ['admin', 'organizations'],
     queryFn: () => adminApi.listOrganizations({ limit: 100 }),
   });
   const organizations = orgsData?.data ?? [];
 
-  // Calculate preview
   const selectedHardware = availableHardware.find((hw) => hw.id === hardwareId);
   const preview = useMemo(() => {
     if (!startDate || !endDate || !selectedHardware) return null;
@@ -63,105 +55,85 @@ export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
       endDate,
       notes: notes || undefined,
     };
-    createMutation.mutate(data, { onSuccess: () => onClose() });
+    createMutation.mutate(data, { onSuccess: onClose });
   }
 
   const isValid = hardwareId && organizationId && startDate && endDate;
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title={t('add')}
-      size="lg"
-    >
-      <div className="space-y-4 px-6 py-4">
-        {/* Hardware */}
-        <div className="space-y-1.5">
-          <Label>{t('form.hardware')}</Label>
-          <Select
-            selectedKey={hardwareId || undefined}
-            onSelectionChange={(key) => setHardwareId(String(key))}
-            aria-label={t('form.hardware')}
-            placeholder={t('form.hardwarePlaceholder')}
-          >
-            {availableHardware.map((hw) => (
-              <Select.Item key={hw.id} id={hw.id}>
-                {hw.name} ({hw.serialNumber}) - {formatCurrency(hw.dailyRate)}/Tag
-              </Select.Item>
-            ))}
-          </Select>
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('add')}</div>
+          <button className="modal__close" onClick={onClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Organization */}
-        <div className="space-y-1.5">
-          <Label>{t('form.organization')}</Label>
-          <Select
-            selectedKey={organizationId || undefined}
-            onSelectionChange={(key) => setOrganizationId(String(key))}
-            aria-label={t('form.organization')}
-            placeholder={t('form.organizationPlaceholder')}
-          >
-            {organizations.map((org) => (
-              <Select.Item key={org.id} id={org.id}>
-                {org.name}
-              </Select.Item>
-            ))}
-          </Select>
-        </div>
-
-        {/* Date Range */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            label={t('form.startDate')}
-            type="date"
-            value={startDate}
-            onChange={(val) => setStartDate(val)}
-            isRequired
-          />
-          <Input
-            label={t('form.endDate')}
-            type="date"
-            value={endDate}
-            onChange={(val) => setEndDate(val)}
-            isRequired
-          />
-        </div>
-
-        {/* Notes */}
-        <Input
-          label={t('form.notes')}
-          placeholder={t('form.notesPlaceholder')}
-          value={notes}
-          onChange={(val) => setNotes(val)}
-        />
-
-        {/* Preview */}
-        {preview && (
-          <div className="rounded-lg bg-secondary p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-tertiary">{t('form.totalDays')}</span>
-              <span className="text-sm font-medium text-primary">{preview.totalDays}</span>
+        <div className="modal__body">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.hardware')}</label>
+              <select className="select" value={hardwareId} onChange={(e) => setHardwareId(e.target.value)}>
+                <option value="">{t('form.hardwarePlaceholder')}</option>
+                {availableHardware.map((hw) => (
+                  <option key={hw.id} value={hw.id}>
+                    {hw.name} ({hw.serialNumber}) — {formatCurrency(hw.dailyRate)}/Tag
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-sm text-tertiary">{t('form.totalAmount')}</span>
-              <span className="text-lg font-semibold text-primary">{formatCurrency(preview.totalAmount)}</span>
+
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.organization')}</label>
+              <select className="select" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)}>
+                <option value="">{t('form.organizationPlaceholder')}</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
+              </select>
             </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('form.startDate')}</label>
+                <input className="input" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </div>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('form.endDate')}</label>
+                <input className="input" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-field__label">{t('form.notes')}</label>
+              <input className="input" placeholder={t('form.notesPlaceholder')} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </div>
+
+            {preview && (
+              <div style={{ background: 'color-mix(in oklab, var(--ink) 4%, transparent)', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('form.totalDays')}</span>
+                  <span style={{ fontWeight: 600 }}>{preview.totalDays}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('form.totalAmount')}</span>
+                  <span style={{ fontSize: 16, fontWeight: 700 }}>{formatCurrency(preview.totalAmount)}</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-        <Button type="button" color="secondary" onClick={onClose}>
-          {tCommon('cancel')}
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!isValid || createMutation.isPending}
-        >
-          {createMutation.isPending ? '...' : tCommon('create')}
-        </Button>
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{tCommon('cancel')}</button>
+          <button className="btn btn--primary" onClick={handleSubmit} disabled={!isValid || createMutation.isPending}>
+            {createMutation.isPending ? '...' : tCommon('create')}
+          </button>
+        </div>
       </div>
-    </DialogModal>
+    </div>
   );
 }

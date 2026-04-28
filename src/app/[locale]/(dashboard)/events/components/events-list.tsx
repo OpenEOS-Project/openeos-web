@@ -1,13 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar, Edit01, Play, Plus, XClose, FlipBackward, Trash01 } from '@untitledui/icons';
 
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Table, TableCard } from '@/components/ui/table/table';
 import { useEvents } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Event, EventStatus } from '@/types';
@@ -21,10 +16,10 @@ interface EventsListProps {
   onSetTestModeClick: (event: Event) => void;
 }
 
-const statusColorMap: Record<EventStatus, 'gray' | 'success' | 'warning'> = {
-  active: 'success',
-  inactive: 'gray',
-  test: 'warning',
+const statusBadge: Record<EventStatus, string> = {
+  active: 'badge badge--success',
+  inactive: 'badge badge--neutral',
+  test: 'badge badge--warning',
 };
 
 export function EventsList({
@@ -41,51 +36,61 @@ export function EventsList({
   const organizationId = currentOrganization?.organizationId || '';
 
   const { data: events, isLoading, error } = useEvents(organizationId);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   if (!organizationId) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="building"
-          title="Keine Organisation ausgewählt"
-          description="Bitte wählen Sie zuerst eine Organisation aus."
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
+          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
+        </div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-error-primary">{tCommon('error')}</div>
-        <Button color="secondary" onClick={() => window.location.reload()}>
+      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
+        <div style={{ color: '#d24545' }}>{tCommon('error')}</div>
+        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (!events || events.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="calendar"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          action={
-            <Button iconLeading={Plus} onClick={onCreateClick}>
-              {t('create')}
-            </Button>
-          }
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+          <button className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -102,93 +107,96 @@ export function EventsList({
     if (!startDate) return '-';
     const start = formatDate(startDate);
     if (!endDate) return start;
-    return `${start} - ${formatDate(endDate)}`;
+    return `${start} – ${formatDate(endDate)}`;
   };
 
   return (
-    <TableCard.Root>
-      <TableCard.Header
-        title={t('title')}
-        badge={events.length}
-        description={t('subtitle')}
-        contentTrailing={
-          <Button iconLeading={Plus} onClick={onCreateClick}>
-            {t('create')}
-          </Button>
-        }
-      />
-      <Table aria-label={t('title')}>
-        <Table.Header>
-          <Table.Head label={t('table.name')} isRowHeader />
-          <Table.Head label={t('table.status')} />
-          <Table.Head label={t('table.date')} />
-          <Table.Head label={t('table.actions')} />
-        </Table.Header>
-        <Table.Body items={events}>
-          {(event) => (
-            <Table.Row key={event.id} id={event.id}>
-              <Table.Cell>
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-brand-secondary">
-                    <Calendar className="size-5 text-brand-primary" />
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">{t('title')}</h2>
+          <p className="app-card__sub">{t('subtitle')}</p>
+        </div>
+        <button className="btn btn--primary" onClick={onCreateClick}>
+          {t('create')}
+        </button>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t('table.name')}</th>
+              <th>{t('table.status')}</th>
+              <th>{t('table.date')}</th>
+              <th style={{ width: 160 }}>{t('table.actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((event) => (
+              <tr key={event.id}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8,
+                      background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                      color: 'var(--green-ink)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{event.name}</div>
+                      {event.description && (
+                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>
+                          {event.description}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-primary">{event.name}</p>
-                    {event.description && (
-                      <p className="text-xs text-tertiary line-clamp-1">{event.description}</p>
+                </td>
+                <td>
+                  <span className={statusBadge[event.status]}>
+                    {t(`status.${event.status}`)}
+                  </span>
+                </td>
+                <td className="mono">{formatDateTime(event.startDate, event.endDate)}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onEditClick(event)}>
+                      {t('actions.edit')}
+                    </button>
+                    {(event.status === 'inactive' || event.status === 'test') && (
+                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onActivateClick(event)}>
+                        {t('actions.activate')}
+                      </button>
                     )}
+                    {event.status === 'inactive' && (
+                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onSetTestModeClick(event)}>
+                        {t('actions.testMode')}
+                      </button>
+                    )}
+                    {(event.status === 'active' || event.status === 'test') && (
+                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onDeactivateClick(event)}>
+                        {t('actions.deactivate')}
+                      </button>
+                    )}
+                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: '#d24545' }} onClick={() => onDeleteClick(event)}>
+                      {t('actions.delete')}
+                    </button>
                   </div>
-                </div>
-              </Table.Cell>
-              <Table.Cell>
-                <Badge color={statusColorMap[event.status]} size="sm">
-                  {t(`status.${event.status}`)}
-                </Badge>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-sm">
-                  {formatDateTime(event.startDate, event.endDate)}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <Dropdown.Root>
-                  <Dropdown.DotsButton />
-                  <Dropdown.Popover className="w-min">
-                    <Dropdown.Menu>
-                      <Dropdown.Item icon={Edit01} onAction={() => onEditClick(event)}>
-                        <span className="pr-4">{t('actions.edit')}</span>
-                      </Dropdown.Item>
-                      {(event.status === 'inactive' || event.status === 'test') && (
-                        <Dropdown.Item icon={Play} onAction={() => onActivateClick(event)}>
-                          <span className="pr-4">{t('actions.activate')}</span>
-                        </Dropdown.Item>
-                      )}
-                      {event.status === 'inactive' && (
-                        <Dropdown.Item icon={FlipBackward} onAction={() => onSetTestModeClick(event)}>
-                          <span className="pr-4">{t('actions.testMode')}</span>
-                        </Dropdown.Item>
-                      )}
-                      {(event.status === 'active' || event.status === 'test') && (
-                        <Dropdown.Item icon={XClose} onAction={() => onDeactivateClick(event)}>
-                          <span className="pr-4">{t('actions.deactivate')}</span>
-                        </Dropdown.Item>
-                      )}
-                      <Dropdown.Separator />
-                      <Dropdown.Item
-                        icon={Trash01}
-                        className="text-error-primary"
-                        onAction={() => onDeleteClick(event)}
-                      >
-                        <span className="pr-4">{t('actions.delete')}</span>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown.Popover>
-                </Dropdown.Root>
-              </Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
-      </Table>
-    </TableCard.Root>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

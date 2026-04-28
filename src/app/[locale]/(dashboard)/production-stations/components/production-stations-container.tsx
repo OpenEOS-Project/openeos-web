@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { useDeleteProductionStation } from '@/hooks/use-production-stations';
 import { useEvents } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
@@ -17,7 +14,6 @@ import { ProductionStationsList } from './production-stations-list';
 import { StationFlowDiagram } from './station-flow-diagram';
 import { StationLivePreview } from './station-live-preview';
 
-// Helper to get available events (active or test) sorted by relevance
 function getAvailableEvents(events: Event[] | undefined): Event[] {
   if (!events) return [];
   return events.filter(e => e.status === 'active' || e.status === 'test');
@@ -37,72 +33,66 @@ export function ProductionStationsContainer() {
   const { data: events, isLoading: isLoadingEvents } = useEvents(organizationId);
   const deleteStation = useDeleteProductionStation();
 
-  // Get available events (not completed/cancelled)
   const availableEvents = useMemo(() => getAvailableEvents(events), [events]);
 
-  // Auto-select first available event when events load
   useEffect(() => {
     if (availableEvents.length > 0 && !selectedEventId) {
       setSelectedEventId(availableEvents[0].id);
     }
   }, [availableEvents, selectedEventId]);
 
-  const handleCreateClick = () => {
-    setIsCreateModalOpen(true);
-  };
-
-  const handleEditClick = (station: ProductionStation) => {
-    setEditingStation(station);
-  };
-
-  const handleDeleteClick = (station: ProductionStation) => {
-    setDeletingStation(station);
-  };
-
   const handleDeleteConfirm = async () => {
     if (!deletingStation || !selectedEventId) return;
-
     try {
       await deleteStation.mutateAsync({ eventId: selectedEventId, id: deletingStation.id });
       setDeletingStation(null);
     } catch {
-      // Error is handled by the mutation
+      // Error handled by mutation
     }
-  };
-
-  const handleModalClose = () => {
-    setIsCreateModalOpen(false);
-    setEditingStation(null);
   };
 
   if (!organizationId) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="building"
-          title="Keine Organisation ausgewählt"
-          description="Bitte wählen Sie zuerst eine Organisation aus."
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
+          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
+        </div>
       </div>
     );
   }
 
   if (isLoadingEvents) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: '50%',
+          border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
+          animation: 'spin 0.75s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   if (availableEvents.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="calendar"
-          title={t('empty.title')}
-          description={t('empty.description')}
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+        </div>
       </div>
     );
   }
@@ -110,43 +100,42 @@ export function ProductionStationsContainer() {
   return (
     <>
       {/* Event Selector */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Calendar className="size-5 text-tertiary" />
-          <label className="text-sm font-medium text-secondary">{t('selectEvent')}</label>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+        <label style={{ fontSize: 13, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', whiteSpace: 'nowrap' }}>
+          {t('selectEvent')}
+        </label>
         <select
-          className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
+          className="select"
+          style={{ maxWidth: 320 }}
           value={selectedEventId}
           onChange={(e) => setSelectedEventId(e.target.value)}
         >
           {availableEvents.map((event) => (
             <option key={event.id} value={event.id}>
-              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'test' ? '(Test)' : ''}
+              {event.name}{event.status === 'active' ? ' (Aktiv)' : event.status === 'test' ? ' (Test)' : ''}
             </option>
           ))}
         </select>
       </div>
 
       {!selectedEventId ? (
-        <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-          <EmptyState
-            icon="calendar"
-            title={t('selectEvent')}
-            description={t('empty.description')}
-          />
+        <div className="app-card">
+          <div className="empty-state">
+            <h3 className="empty-state__title">{t('selectEvent')}</h3>
+            <p className="empty-state__sub">{t('empty.description')}</p>
+          </div>
         </div>
       ) : (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <StationFlowDiagram eventId={selectedEventId} />
 
           <StationLivePreview eventId={selectedEventId} organizationId={organizationId} />
 
           <ProductionStationsList
             eventId={selectedEventId}
-            onCreateClick={handleCreateClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
+            onCreateClick={() => setIsCreateModalOpen(true)}
+            onEditClick={(station) => setEditingStation(station)}
+            onDeleteClick={(station) => setDeletingStation(station)}
           />
 
           <ProductionStationFormModal
@@ -154,35 +143,51 @@ export function ProductionStationsContainer() {
             eventId={selectedEventId}
             organizationId={organizationId}
             station={editingStation}
-            onClose={handleModalClose}
+            onClose={() => { setIsCreateModalOpen(false); setEditingStation(null); }}
           />
 
-          {/* Delete confirmation modal */}
           {deletingStation && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/70 backdrop-blur-[6px]">
-              <div className="w-full max-w-md rounded-xl bg-primary p-6 shadow-lg">
-                <h3 className="text-lg font-semibold text-primary">{t('deleteConfirm.title')}</h3>
-                <p className="mt-2 text-sm text-tertiary">{t('deleteConfirm.message')}</p>
-                <div className="mt-6 flex justify-end gap-3">
-                  <Button
-                    color="secondary"
+            <div className="modal__overlay" onClick={() => setDeletingStation(null)}>
+              <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+                <div className="modal__head">
+                  <h2>{t('deleteConfirm.title')}</h2>
+                  <button
+                    className="modal__close"
+                    type="button"
+                    onClick={() => setDeletingStation(null)}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="modal__body">
+                  <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
+                    {t('deleteConfirm.message')}
+                  </p>
+                </div>
+                <div className="modal__foot">
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
                     onClick={() => setDeletingStation(null)}
                   >
                     {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    color="primary-destructive"
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    style={{ background: '#d24545', borderColor: '#d24545' }}
                     onClick={handleDeleteConfirm}
-                    isLoading={deleteStation.isPending}
-                    isDisabled={deleteStation.isPending}
+                    disabled={deleteStation.isPending}
                   >
-                    {tCommon('delete')}
-                  </Button>
+                    {deleteStation.isPending ? '...' : tCommon('delete')}
+                  </button>
                 </div>
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </>
   );

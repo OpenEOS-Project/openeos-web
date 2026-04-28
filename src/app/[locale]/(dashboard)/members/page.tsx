@@ -15,10 +15,12 @@ export default async function MembersPage() {
   const t = await getTranslations('members');
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
-        <p className="mt-1 text-md text-tertiary">{t('subtitle')}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="app-page-head">
+        <div>
+          <h1 className="section-title">{t('title')}</h1>
+          <p style={{ marginTop: 4, fontSize: 14, color: 'var(--ink-faint)' }}>{t('subtitle')}</p>
+        </div>
       </div>
 
       <MembersContainer />

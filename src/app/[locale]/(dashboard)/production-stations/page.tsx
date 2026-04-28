@@ -5,20 +5,19 @@ import { ProductionStationsContainer } from './components/production-stations-co
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('productionStations');
-
-  return {
-    title: t('title'),
-  };
+  return { title: t('title') };
 }
 
 export default async function ProductionStationsPage() {
   const t = await getTranslations('productionStations');
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
-        <p className="mt-1 text-md text-tertiary">{t('subtitle')}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="app-page-head">
+        <div className="app-page-head__copy">
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('subtitle')}</p>
+        </div>
       </div>
 
       <ProductionStationsContainer />

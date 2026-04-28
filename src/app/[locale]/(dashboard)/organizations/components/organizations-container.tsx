@@ -20,25 +20,13 @@ export function OrganizationsContainer() {
 
   const deleteOrganization = useDeleteOrganization();
 
-  const handleCreateClick = () => {
-    setIsCreateModalOpen(true);
-  };
-
-  const handleEditClick = (organization: Organization) => {
-    setEditingOrganization(organization);
-  };
-
-  const handleDeleteClick = (organization: Organization) => {
-    setDeletingOrganization(organization);
-  };
-
-  const handleManageMembersClick = (organization: Organization) => {
-    setMembersOrganization(organization);
-  };
+  const handleCreateClick = () => setIsCreateModalOpen(true);
+  const handleEditClick = (organization: Organization) => setEditingOrganization(organization);
+  const handleDeleteClick = (organization: Organization) => setDeletingOrganization(organization);
+  const handleManageMembersClick = (organization: Organization) => setMembersOrganization(organization);
 
   const handleDeleteConfirm = async () => {
     if (!deletingOrganization) return;
-
     try {
       await deleteOrganization.mutateAsync(deletingOrganization.id);
       setDeletingOrganization(null);
@@ -75,21 +63,26 @@ export function OrganizationsContainer() {
 
       {/* Delete confirmation modal */}
       {deletingOrganization && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/70 backdrop-blur-[6px]">
-          <div className="w-full max-w-md rounded-xl bg-primary p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-primary">{t('deleteConfirm.title')}</h3>
-            <p className="mt-2 text-sm text-tertiary">{t('deleteConfirm.message')}</p>
-            <div className="mt-6 flex justify-end gap-3">
+        <div className="modal__overlay" style={{ display: 'flex' }}>
+          <div className="modal__panel" style={{ maxWidth: 440 }}>
+            <div className="modal__head">
+              <h3 className="modal__title">{t('deleteConfirm.title')}</h3>
+            </div>
+            <div className="modal__body">
+              <p style={{ fontSize: 14, color: 'var(--ink-faint)', margin: 0 }}>{t('deleteConfirm.message')}</p>
+            </div>
+            <div className="modal__foot">
               <button
                 type="button"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-secondary hover:bg-secondary"
+                className="btn btn--ghost"
                 onClick={() => setDeletingOrganization(null)}
               >
                 {tCommon('cancel')}
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-error-solid px-4 py-2 text-sm font-medium text-white hover:bg-error-solid_hover"
+                className="btn"
+                style={{ background: 'var(--red, #dc2626)', color: '#fff' }}
                 onClick={handleDeleteConfirm}
                 disabled={deleteOrganization.isPending}
               >

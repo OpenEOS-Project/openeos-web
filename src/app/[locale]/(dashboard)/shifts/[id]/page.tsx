@@ -1,41 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  Plus,
-  Trash01,
-  Edit03,
-  Check,
-  Link01,
-  Globe02,
-  Lock01,
-  Users01,
-  Settings01,
-  ClipboardCheck,
-  FileDownload02,
-  Calendar,
-} from '@untitledui/icons';
-import { formatDate } from '@/utils/format';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/tabs/tabs';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
 import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
 import { ShiftCalendar } from './components/shift-calendar';
 
-const statusConfig: Record<ShiftPlanStatus, { color: BadgeColors; label: string }> = {
-  draft: { color: 'gray', label: 'shifts.status.draft' },
-  published: { color: 'success', label: 'shifts.status.published' },
-  closed: { color: 'warning', label: 'shifts.status.closed' },
+const statusBadge: Record<ShiftPlanStatus, string> = {
+  draft: 'badge badge--neutral',
+  published: 'badge badge--success',
+  closed: 'badge badge--warning',
 };
 
 export default function ShiftPlanEditorPage() {
@@ -82,7 +62,6 @@ export default function ShiftPlanEditorPage() {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
       } else {
-        // Fallback for non-secure contexts
         const textArea = document.createElement('textarea');
         textArea.value = url;
         textArea.style.position = 'fixed';
@@ -100,144 +79,125 @@ export default function ShiftPlanEditorPage() {
   const downloadPdf = () => {
     if (!plan || !organizationId) return;
     const url = shiftsApi.exportPdfUrl(organizationId, planId);
-    // Open in new tab to trigger download with auth
     window.open(url, '_blank');
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   if (!plan) {
     return (
-      <div className="p-6">
-        <p className="text-secondary">{t('shifts.noPlans')}</p>
+      <div className="app-card">
+        <p style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('shifts.noPlans')}</p>
       </div>
     );
   }
 
-  const config = statusConfig[plan.status];
+  const tabs = [
+    { id: 'jobs', label: t('shifts.editor.jobs') },
+    { id: 'calendar', label: t('shifts.calendar.title') },
+    { id: 'registrations', label: t('shifts.registrations') },
+    { id: 'settings', label: t('shifts.settings.title') },
+  ];
 
   return (
-    <div className="-m-4 lg:-m-6 flex h-[calc(100vh-4rem)] flex-col bg-primary">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: '-16px -24px', minHeight: 'calc(100vh - 4rem)' }}>
       {/* Header */}
-      <div className="border-b border-secondary px-6 py-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-          {/* Left side: Back button, info, badge */}
-          <div className="flex items-center gap-4 min-w-0">
-            <Button
-              color="tertiary"
-              size="sm"
-              iconLeading={ArrowLeft}
+      <div style={{ padding: '16px 24px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', background: 'var(--paper)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+          {/* Left */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+            <button
+              className="btn btn--ghost"
+              style={{ flexShrink: 0 }}
               onClick={() => router.push('/shifts')}
-            />
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-secondary">
-                <ClipboardCheck className="h-5 w-5 text-brand-primary" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="truncate text-xl font-semibold text-primary">{plan.name}</h1>
-                <div className="flex items-center gap-3 text-sm text-tertiary">
-                  <span className="truncate">{plan.publicSlug}</span>
-                  {plan.event && (
-                    <>
-                      <span className="text-quaternary">•</span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{plan.event.name}</span>
-                      </span>
-                    </>
-                  )}
-                </div>
+              aria-label="Zurück"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+              </svg>
+            </button>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+              background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+              color: 'var(--green-ink)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', display: 'flex', gap: 8 }}>
+                <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
+                {plan.event && <><span>•</span><span>{plan.event.name}</span></>}
               </div>
             </div>
-            <Badge color={config.color} size="md" className="flex-shrink-0">
-              {t(config.label)}
-            </Badge>
+            <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
           </div>
 
-          {/* Right side: Actions */}
-          <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
+          {/* Actions */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {plan.status === 'draft' && (
-              <Button
-                color="primary"
-                iconLeading={Globe02}
-                onClick={() => publishMutation.mutate()}
-                isLoading={publishMutation.isPending}
-              >
-                {t('shifts.editor.publish')}
-              </Button>
+              <button className="btn btn--primary" onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
+                {publishMutation.isPending ? '...' : t('shifts.editor.publish')}
+              </button>
             )}
-
             {plan.status === 'published' && (
-              <Button color="secondary" iconLeading={Link01} onClick={copyPublicLink}>
+              <button className="btn btn--ghost" onClick={copyPublicLink}>
                 {t('shifts.copyLink')}
-              </Button>
+              </button>
             )}
-
-            <Button color="secondary" iconLeading={FileDownload02} onClick={downloadPdf}>
+            <button className="btn btn--ghost" onClick={downloadPdf}>
               {t('shifts.exportPdf')}
-            </Button>
-
+            </button>
             {plan.status === 'published' && (
-              <Button
-                color="secondary"
-                iconLeading={Lock01}
-                onClick={() => closeMutation.mutate()}
-                isLoading={closeMutation.isPending}
-              >
-                {t('shifts.editor.close')}
-              </Button>
+              <button className="btn btn--ghost" onClick={() => closeMutation.mutate()} disabled={closeMutation.isPending}>
+                {closeMutation.isPending ? '...' : t('shifts.editor.close')}
+              </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs
-        selectedKey={activeTab}
-        onSelectionChange={(key) => setActiveTab(key as string)}
-        className="flex-1 flex flex-col"
-      >
-        <TabList className="border-b border-secondary px-6">
-          <Tab id="jobs" className="flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4" />
-            {t('shifts.editor.jobs')}
-          </Tab>
-          <Tab id="calendar" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            {t('shifts.calendar.title')}
-          </Tab>
-          <Tab id="registrations" className="flex items-center gap-2">
-            <Users01 className="h-4 w-4" />
-            {t('shifts.registrations')}
-          </Tab>
-          <Tab id="settings" className="flex items-center gap-2">
-            <Settings01 className="h-4 w-4" />
-            {t('shifts.settings.title')}
-          </Tab>
-        </TabList>
+      {/* Tab bar */}
+      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', background: 'var(--paper)', padding: '0 24px' }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '10px 16px',
+              fontSize: 13,
+              fontWeight: activeTab === tab.id ? 600 : 500,
+              color: activeTab === tab.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === tab.id ? '2px solid var(--green-ink)' : '2px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              marginBottom: -1,
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        <TabPanel id="jobs" className="flex-1 overflow-auto p-6">
-          <JobsList plan={plan} />
-        </TabPanel>
-
-        <TabPanel id="calendar" className="flex-1 overflow-auto p-6">
-          <ShiftCalendar plan={plan} />
-        </TabPanel>
-
-        <TabPanel id="registrations" className="flex-1 overflow-auto p-6">
-          <RegistrationsList planId={plan.id} />
-        </TabPanel>
-
-        <TabPanel id="settings" className="flex-1 overflow-auto p-6">
-          <PlanSettings plan={plan} />
-        </TabPanel>
-      </Tabs>
+      {/* Tab content */}
+      <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+        {activeTab === 'jobs' && <JobsList plan={plan} />}
+        {activeTab === 'calendar' && <ShiftCalendar plan={plan} />}
+        {activeTab === 'registrations' && <RegistrationsList planId={plan.id} />}
+        {activeTab === 'settings' && <PlanSettings plan={plan} />}
+      </div>
     </div>
   );
 }

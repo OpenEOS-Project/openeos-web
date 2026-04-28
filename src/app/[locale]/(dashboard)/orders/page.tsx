@@ -14,16 +14,15 @@ export default async function OrdersPage() {
   const t = await getTranslations('orders');
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="app-page-head">
         <div>
-          <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
-          <p className="mt-1 text-md text-tertiary">{t('description')}</p>
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('description')}</p>
         </div>
       </div>
 
-      {/* Orders List */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
+      <div className="app-card app-card--flat">
         <OrdersList />
       </div>
     </div>

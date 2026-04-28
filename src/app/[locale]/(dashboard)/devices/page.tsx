@@ -15,17 +15,19 @@ export default async function DevicesPage() {
   const t = await getTranslations('devices');
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">{t('title')}</h1>
-        <p className="mt-1 text-md text-tertiary">{t('description')}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="app-page-head">
+        <div className="app-page-head__copy">
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('description')}</p>
+        </div>
       </div>
 
       {/* Registration Info with QR Code (for POS devices) */}
       <DeviceRegistrationInfo />
 
       {/* Devices List */}
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
+      <div className="app-card app-card--flat">
         <DevicesList />
       </div>
     </div>

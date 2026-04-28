@@ -1,17 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { Clock, Mail01, Plus, Trash01, UserEdit, X } from '@untitledui/icons';
 
-import { Avatar } from '@/components/ui/avatar/avatar';
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Select } from '@/components/ui/select/select';
 import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMember, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
 import type { Organization } from '@/types/organization';
 import type { OrganizationRole, UserOrganization } from '@/types/auth';
@@ -21,11 +13,6 @@ interface MembersModalProps {
   organization: Organization | null;
   onClose: () => void;
 }
-
-const roleColors: Record<OrganizationRole, 'purple' | 'blue'> = {
-  admin: 'purple',
-  member: 'blue',
-};
 
 const roles: { value: OrganizationRole; label: string }[] = [
   { value: 'admin', label: 'Administrator' },
@@ -45,6 +32,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
   const tCommon = useTranslations('common');
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingMember, setEditingMember] = useState<UserOrganization | null>(null);
+  const [editingRole, setEditingRole] = useState<OrganizationRole>('member');
 
   const organizationId = organization?.id || '';
   const { data: members, isLoading: membersLoading } = useMembers(organizationId);
@@ -54,13 +42,14 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
   const removeMember = useRemoveMember(organizationId);
   const updateMember = useUpdateMember(organizationId);
 
-  // Extract invitations data from response
   const invitations = (invitationsResponse as { data?: Invitation[] })?.data || [];
 
   const {
-    control,
+    register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<{ email: string; role: OrganizationRole }>({
     defaultValues: { email: '', role: 'member' },
@@ -95,9 +84,9 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
     }
   };
 
-  const handleRoleChange = async (member: UserOrganization, newRole: OrganizationRole) => {
+  const handleRoleChange = async (member: UserOrganization) => {
     try {
-      await updateMember.mutateAsync({ userId: member.userId, role: newRole });
+      await updateMember.mutateAsync({ userId: member.userId, role: editingRole });
       setEditingMember(null);
     } catch {
       // Error handled by mutation
@@ -119,227 +108,268 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
     });
   };
 
-  // Don't render anything if not open - prevents flashing
   if (!isOpen) return null;
 
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-2xl">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {t('title')} - {organization?.name}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
+    <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className="modal__panel" style={{ maxWidth: 640 }}>
+        <div className="modal__head">
+          <h2 className="modal__title">
+            {t('title')} &ndash; {organization?.name}
+          </h2>
+          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+
+        <div className="modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Invite form toggle */}
+          {showInviteForm ? (
+            <form
+              onSubmit={handleSubmit(handleInvite)}
+              style={{
+                borderRadius: 10,
+                border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                background: 'color-mix(in oklab, var(--ink) 3%, var(--paper))',
+                padding: 14,
+              }}
+            >
+              <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('invite')}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end' }}>
+                <label className="auth-field" style={{ flex: 1, minWidth: 180 }}>
+                  <span style={{ fontSize: 12 }}>{t('form.email')}</span>
+                  <input
+                    type="email"
+                    className={`input${errors.email ? ' input--error' : ''}`}
+                    placeholder={t('form.emailPlaceholder')}
+                    {...register('email', { required: true })}
+                  />
+                </label>
+                <label className="auth-field" style={{ width: 160 }}>
+                  <span style={{ fontSize: 12 }}>Rolle</span>
+                  <select className="select" {...register('role')}>
+                    {roles.map((role) => (
+                      <option key={role.value} value={role.value}>{role.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button type="submit" className="btn btn--primary" style={{ fontSize: 13 }} disabled={createInvitation.isPending}>
+                    {createInvitation.isPending ? '...' : t('invite')}
+                  </button>
+                  <button type="button" className="btn btn--ghost" style={{ fontSize: 13 }} onClick={() => setShowInviteForm(false)}>
+                    {tCommon('cancel')}
+                  </button>
+                </div>
               </div>
+            </form>
+          ) : (
+            <button type="button" className="btn btn--primary" style={{ alignSelf: 'flex-start' }} onClick={() => setShowInviteForm(true)}>
+              {t('invite')}
+            </button>
+          )}
 
-              {/* Body */}
-              <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-5">
-                {/* Invite Form */}
-                {showInviteForm ? (
-                  <form onSubmit={handleSubmit(handleInvite)} className="rounded-lg border border-secondary bg-secondary p-4">
-                    <h4 className="mb-3 text-sm font-medium text-primary">{t('invite')}</h4>
-                    <div className="flex flex-wrap gap-3">
-                      <Controller
-                        name="email"
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field }) => (
-                          <Input
-                            type="email"
-                            placeholder={t('form.emailPlaceholder')}
-                            value={field.value}
-                            onChange={field.onChange}
-                            isInvalid={!!errors.email}
-                            className="min-w-[200px] flex-1"
-                          />
-                        )}
-                      />
-                      <Controller
-                        name="role"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            selectedKey={field.value}
-                            onSelectionChange={(key) => field.onChange(key)}
-                            className="w-40"
-                          >
-                            {roles.map((role) => (
-                              <Select.Item key={role.value} id={role.value}>
-                                {role.label}
-                              </Select.Item>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      <div className="flex gap-2">
-                        <Button type="submit" isLoading={createInvitation.isPending}>
-                          {t('invite')}
-                        </Button>
-                        <Button type="button" color="secondary" onClick={() => setShowInviteForm(false)}>
-                          {tCommon('cancel')}
-                        </Button>
+          {/* Loading */}
+          {isLoading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} style={{ height: 56, borderRadius: 8, background: 'color-mix(in oklab, var(--ink) 6%, var(--paper))' }} />
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Pending invitations */}
+              {invitations.length > 0 && (
+                <div>
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--ink-faint)', marginBottom: 8 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    {t('invitations.title')} ({invitations.length})
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {invitations.map((invitation) => (
+                      <div
+                        key={invitation.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          borderRadius: 8,
+                          border: '1px dashed color-mix(in oklab, var(--amber, #f59e0b) 50%, transparent)',
+                          background: 'color-mix(in oklab, var(--amber, #f59e0b) 6%, var(--paper))',
+                          padding: '10px 12px',
+                        }}
+                      >
+                        <div style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: '50%',
+                          background: 'color-mix(in oklab, var(--amber, #f59e0b) 20%, var(--paper))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber, #f59e0b)" strokeWidth="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
+                          </svg>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {invitation.email}
+                          </p>
+                          <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>
+                            {t('invitations.expiresAt')}: {formatDate(invitation.expiresAt)}
+                          </p>
+                        </div>
+                        <span className="badge badge--warning">{t('invitations.pending')}</span>
+                        <span className={`badge ${invitation.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
+                          {t(`roles.${invitation.role}`)}
+                        </span>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ fontSize: 12, padding: '3px 8px' }}
+                          onClick={() => handleCancelInvitation(invitation.id)}
+                          disabled={deleteInvitation.isPending}
+                        >
+                          {t('actions.cancelInvitation')}
+                        </button>
                       </div>
-                    </div>
-                  </form>
-                ) : (
-                  <Button iconLeading={Plus} onClick={() => setShowInviteForm(true)}>
-                    {t('invite')}
-                  </Button>
-                )}
-
-                {/* Loading State */}
-                {isLoading ? (
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-16 animate-pulse rounded-lg bg-secondary" />
                     ))}
                   </div>
-                ) : (
-                  <>
-                    {/* Pending Invitations */}
-                    {invitations.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="flex items-center gap-2 text-sm font-medium text-tertiary">
-                          <Clock className="size-4" />
-                          {t('invitations.title')} ({invitations.length})
-                        </h4>
-                        {invitations.map((invitation) => (
-                          <div
-                            key={invitation.id}
-                            className="flex items-center gap-3 rounded-lg border border-dashed border-warning-solid bg-warning-secondary/20 p-3"
-                          >
-                            <div className="flex size-8 items-center justify-center rounded-full bg-warning-secondary">
-                              <Mail01 className="size-4 text-warning-primary" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-primary">
-                                {invitation.email}
-                              </p>
-                              <p className="text-xs text-tertiary">
-                                {t('invitations.expiresAt')}: {formatDate(invitation.expiresAt)}
-                              </p>
-                            </div>
-                            <Badge color="warning">{t('invitations.pending')}</Badge>
-                            <Badge color={roleColors[invitation.role]}>
-                              {t(`roles.${invitation.role}`)}
-                            </Badge>
-                            <Button
-                              size="sm"
-                              color="secondary"
-                              onClick={() => handleCancelInvitation(invitation.id)}
-                              isLoading={deleteInvitation.isPending}
-                            >
-                              {t('actions.cancelInvitation')}
-                            </Button>
+                </div>
+              )}
+
+              {/* Members list */}
+              {!members || members.length === 0 ? (
+                invitations.length === 0 && (
+                  <div className="empty-state" style={{ padding: '24px 0' }}>
+                    <p className="empty-state__sub">{t('empty.description')}</p>
+                  </div>
+                )
+              ) : (
+                <div>
+                  <h4 style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-faint)', marginBottom: 8 }}>
+                    {t('title')} ({members.length})
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {members.map((member) => {
+                      const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
+                      const isEditing = editingMember?.id === member.id;
+
+                      return (
+                        <div
+                          key={member.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            borderRadius: 8,
+                            border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+                            padding: '10px 12px',
+                          }}
+                        >
+                          <div style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: '50%',
+                            background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                            color: 'var(--green-ink)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            fontFamily: 'var(--f-mono)',
+                            flexShrink: 0,
+                          }}>
+                            {(memberUser?.firstName?.[0] || '').toUpperCase()}{(memberUser?.lastName?.[0] || '').toUpperCase()}
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {memberUser?.firstName} {memberUser?.lastName}
+                            </p>
+                            <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {memberUser?.email}
+                            </p>
+                          </div>
 
-                    {/* Members List */}
-                    {!members || members.length === 0 ? (
-                      invitations.length === 0 && (
-                        <div className="py-8 text-center text-tertiary">{t('empty.description')}</div>
-                      )
-                    ) : (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-tertiary">
-                          {t('title')} ({members.length})
-                        </h4>
-                        {members.map((member) => {
-                          const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
-
-                          return (
-                            <div
-                              key={member.id}
-                              className="flex items-center gap-3 rounded-lg border border-secondary p-3"
-                            >
-                              <Avatar
-                                size="sm"
-                                src={memberUser?.avatarUrl || undefined}
-                                initials={`${memberUser?.firstName?.[0] || ''}${memberUser?.lastName?.[0] || ''}`}
-                              />
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-medium text-primary">
-                                  {memberUser?.firstName} {memberUser?.lastName}
-                                </p>
-                                <p className="truncate text-xs text-tertiary">{memberUser?.email}</p>
-                              </div>
-
-                              {editingMember?.id === member.id ? (
-                                <div className="flex items-center gap-2">
-                                  <Select
-                                    selectedKey={member.role}
-                                    onSelectionChange={(key) => handleRoleChange(member, key as OrganizationRole)}
-                                    className="w-36"
-                                  >
-                                    {roles.map((role) => (
-                                      <Select.Item key={role.value} id={role.value}>
-                                        {role.label}
-                                      </Select.Item>
-                                    ))}
-                                  </Select>
-                                  <Button size="sm" color="secondary" onClick={() => setEditingMember(null)}>
-                                    {tCommon('cancel')}
-                                  </Button>
-                                </div>
-                              ) : (
-                                <>
-                                  <Badge color={roleColors[member.role]}>
-                                    {t(`roles.${member.role}`)}
-                                  </Badge>
-                                  <span className="hidden text-xs text-tertiary sm:inline">
-                                    {formatDate(member.createdAt)}
-                                  </span>
-                                  <Dropdown.Root>
-                                    <Dropdown.DotsButton />
-                                    <Dropdown.Popover className="w-min">
-                                      <Dropdown.Menu>
-                                        <Dropdown.Item icon={UserEdit} onAction={() => setEditingMember(member)}>
-                                          <span className="pr-4">{t('actions.changeRole')}</span>
-                                        </Dropdown.Item>
-                                        <Dropdown.Separator />
-                                        <Dropdown.Item
-                                          icon={Trash01}
-                                          className="text-error-primary"
-                                          onAction={() => handleRemove(member)}
-                                        >
-                                          <span className="pr-4">{t('actions.remove')}</span>
-                                        </Dropdown.Item>
-                                      </Dropdown.Menu>
-                                    </Dropdown.Popover>
-                                  </Dropdown.Root>
-                                </>
-                              )}
+                          {isEditing ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <select
+                                className="select"
+                                style={{ width: 140 }}
+                                value={editingRole}
+                                onChange={(e) => setEditingRole(e.target.value as OrganizationRole)}
+                              >
+                                {roles.map((role) => (
+                                  <option key={role.value} value={role.value}>{role.label}</option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                className="btn btn--primary"
+                                style={{ fontSize: 12, padding: '4px 10px' }}
+                                onClick={() => handleRoleChange(member)}
+                                disabled={updateMember.isPending}
+                              >
+                                {updateMember.isPending ? '...' : tCommon('save')}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn--ghost"
+                                style={{ fontSize: 12, padding: '4px 10px' }}
+                                onClick={() => setEditingMember(null)}
+                              >
+                                {tCommon('cancel')}
+                              </button>
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+                          ) : (
+                            <>
+                              <span className={`badge ${member.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
+                                {t(`roles.${member.role}`)}
+                              </span>
+                              <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                                {formatDate(member.createdAt)}
+                              </span>
+                              <div style={{ display: 'flex', gap: 4 }}>
+                                <button
+                                  type="button"
+                                  className="btn btn--ghost"
+                                  style={{ fontSize: 12, padding: '3px 8px' }}
+                                  onClick={() => { setEditingMember(member); setEditingRole(member.role); }}
+                                >
+                                  {t('actions.changeRole')}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn--ghost"
+                                  style={{ fontSize: 12, padding: '3px 8px', color: 'var(--red, #dc2626)' }}
+                                  onClick={() => handleRemove(member)}
+                                >
+                                  {t('actions.remove')}
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                <Button color="secondary" onClick={handleClose}>
-                  {tCommon('close')}
-                </Button>
-              </div>
-            </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+        <div className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={handleClose}>
+            {tCommon('close')}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

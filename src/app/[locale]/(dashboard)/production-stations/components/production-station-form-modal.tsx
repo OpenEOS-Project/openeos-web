@@ -5,17 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { Toggle } from '@/components/ui/toggle/toggle';
-import {
-  useProductionStations,
-  useCreateProductionStation,
-  useUpdateProductionStation,
-} from '@/hooks/use-production-stations';
+import { useProductionStations, useCreateProductionStation, useUpdateProductionStation } from '@/hooks/use-production-stations';
 import { usePrinters } from '@/hooks/use-printers';
 import { devicesApi } from '@/lib/api-client';
 import { useQuery } from '@tanstack/react-query';
@@ -39,6 +30,16 @@ interface ProductionStationFormModalProps {
   organizationId: string;
   station?: ProductionStation | null;
   onClose: () => void;
+}
+
+function FormRow({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</label>
+      {children}
+      {hint && <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: 0 }}>{hint}</p>}
+    </div>
+  );
 }
 
 export function ProductionStationFormModal({
@@ -71,13 +72,8 @@ export function ProductionStationFormModal({
   } = useForm<ProductionStationFormData>({
     resolver: zodResolver(productionStationSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      color: '',
-      handoffStationId: '',
-      printerId: '',
-      displayDeviceId: '',
-      isActive: true,
+      name: '', description: '', color: '', handoffStationId: '',
+      printerId: '', displayDeviceId: '', isActive: true,
     },
   });
 
@@ -93,29 +89,18 @@ export function ProductionStationFormModal({
         isActive: station.isActive,
       });
     } else {
-      reset({
-        name: '',
-        description: '',
-        color: '',
-        handoffStationId: '',
-        printerId: '',
-        displayDeviceId: '',
-        isActive: true,
-      });
+      reset({ name: '', description: '', color: '', handoffStationId: '', printerId: '', displayDeviceId: '', isActive: true });
     }
   }, [station, reset]);
 
   const onSubmit = async (data: ProductionStationFormData) => {
     if (!eventId) return;
-
     try {
       if (isEditing && station) {
         await updateStation.mutateAsync({
-          eventId,
-          id: station.id,
+          eventId, id: station.id,
           data: {
-            name: data.name,
-            description: data.description || undefined,
+            name: data.name, description: data.description || undefined,
             color: data.color || undefined,
             handoffStationId: data.handoffStationId || null,
             printerId: data.printerId || null,
@@ -127,8 +112,7 @@ export function ProductionStationFormModal({
         await createStation.mutateAsync({
           eventId,
           data: {
-            name: data.name,
-            description: data.description || undefined,
+            name: data.name, description: data.description || undefined,
             color: data.color || undefined,
             handoffStationId: data.handoffStationId || null,
             printerId: data.printerId || null,
@@ -139,204 +123,159 @@ export function ProductionStationFormModal({
       }
       onClose();
     } catch {
-      // Error is handled by the mutation
+      // Error handled by mutation
     }
   };
 
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
+  const handleClose = () => { reset(); onClose(); };
 
-  // Filter out current station for handoff selection (cannot hand off to self)
   const availableHandoffStations = stations?.filter((s) => s.id !== station?.id) || [];
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-lg">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {isEditing ? t('edit') : t('create')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__overlay" onClick={handleClose}>
+      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h2>{isEditing ? t('edit') : t('create')}</h2>
+          <button className="modal__close" type="button" onClick={handleClose} aria-label={tCommon('close')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="space-y-4 px-6 py-5">
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.name')}
-                        placeholder={t('form.namePlaceholder')}
-                        isRequired
-                        isInvalid={!!errors.name}
-                        hint={errors.name?.message}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal__body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.name')} hint={errors.name?.message}>
+                    <input
+                      className="input"
+                      placeholder={t('form.namePlaceholder')}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.description')}
-                        placeholder=""
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.description')}>
+                    <input
+                      className="input"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="color"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        label={t('form.color')}
+              <Controller
+                name="color"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.color')}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <input
                         type="color"
                         value={field.value || '#6366f1'}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
+                        style={{ width: 44, height: 36, borderRadius: 8, border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)', cursor: 'pointer', padding: 2 }}
                       />
-                    )}
-                  />
+                      <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{field.value || '#6366f1'}</span>
+                    </div>
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="handoffStationId"
-                    control={control}
-                    render={({ field }) => (
-                      <div>
-                        <label className="mb-1.5 block text-sm font-medium text-secondary">
-                          {t('form.handoffStation')}
-                        </label>
-                        <select
-                          className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        >
-                          <option value="">{t('form.noHandoff')}</option>
-                          {availableHandoffStations.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="mt-1 text-xs text-tertiary">
-                          {t('form.handoffStationHint')}
-                        </p>
-                      </div>
-                    )}
-                  />
+              <Controller
+                name="handoffStationId"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.handoffStation')} hint={t('form.handoffStationHint')}>
+                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                      <option value="">{t('form.noHandoff')}</option>
+                      {availableHandoffStations.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="printerId"
-                    control={control}
-                    render={({ field }) => (
-                      <div>
-                        <label className="mb-1.5 block text-sm font-medium text-secondary">
-                          {t('form.printer')}
-                        </label>
-                        <select
-                          className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        >
-                          <option value="">{t('form.noPrinter')}</option>
-                          {printers?.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  />
+              <Controller
+                name="printerId"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.printer')}>
+                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                      <option value="">{t('form.noPrinter')}</option>
+                      {printers?.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="displayDeviceId"
-                    control={control}
-                    render={({ field }) => (
-                      <div>
-                        <label className="mb-1.5 block text-sm font-medium text-secondary">
-                          {t('form.displayDevice')}
-                        </label>
-                        <select
-                          className="w-full rounded-lg border border-primary bg-primary px-3 py-2 text-sm text-primary focus:border-brand-solid focus:outline-none focus:ring-2 focus:ring-brand-solid/20"
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        >
-                          <option value="">{t('form.noDisplayDevice')}</option>
-                          {devices?.map((d) => (
-                            <option key={d.id} value={d.id}>
-                              {d.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  />
+              <Controller
+                name="displayDeviceId"
+                control={control}
+                render={({ field }) => (
+                  <FormRow label={t('form.displayDevice')}>
+                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                      <option value="">{t('form.noDisplayDevice')}</option>
+                      {devices?.map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                    </select>
+                  </FormRow>
+                )}
+              />
 
-                  <Controller
-                    name="isActive"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="flex items-center justify-between rounded-lg border border-secondary px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-primary">{t('form.active')}</p>
-                        </div>
-                        <Toggle
-                          isSelected={field.value}
-                          onChange={field.onChange}
-                        />
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={handleClose}
-                    isDisabled={isSubmitting}
-                  >
-                    {tCommon('cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    isDisabled={isSubmitting}
-                  >
-                    {isEditing ? tCommon('save') : tCommon('create')}
-                  </Button>
-                </div>
-              </form>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <label style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 16px', borderRadius: 10,
+                    border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                    cursor: 'pointer',
+                  }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{t('form.active')}</p>
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      style={{ width: 18, height: 18, accentColor: 'var(--green-ink)' }}
+                    />
+                  </label>
+                )}
+              />
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -1,20 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, CheckCircle, XCircle } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced } from '@/hooks/use-admin-events';
 import type { AdminEventListItem } from '@/types/admin';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
-
-const statusColors: Record<string, BadgeColors> = {
-  active: 'success',
-  inactive: 'gray',
-  test: 'warning',
-};
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -25,12 +13,24 @@ function formatDate(date: string | null): string {
   return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(date));
 }
 
-interface InvoiceModalProps {
+const statusBadge: Record<string, string> = {
+  active: 'badge badge--success',
+  inactive: 'badge badge--neutral',
+  test: 'badge badge--warning',
+};
+
+const statusLabel: Record<string, string> = {
+  active: 'Aktiv',
+  inactive: 'Inaktiv',
+  test: 'Test',
+};
+
+interface MarkInvoicedModalProps {
   event: AdminEventListItem;
   onClose: () => void;
 }
 
-function MarkInvoicedModal({ event, onClose }: InvoiceModalProps) {
+function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
   const [note, setNote] = useState('');
   const markInvoiced = useMarkEventInvoiced();
 
@@ -42,55 +42,57 @@ function MarkInvoicedModal({ event, onClose }: InvoiceModalProps) {
   }
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title="Als abgerechnet markieren"
-      description={`Event: ${event.name} (${event.organizationName})`}
-      size="md"
-    >
-      <div className="px-6 py-4 space-y-4">
-        <div>
-          <div className="grid grid-cols-2 gap-3 rounded-lg bg-secondary p-4 text-sm">
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div>
+            <div className="modal__title">Als abgerechnet markieren</div>
+            <div className="modal__sub">{event.name} — {event.organizationName}</div>
+          </div>
+          <button className="modal__close" onClick={onClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="modal__body">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, background: 'color-mix(in oklab, var(--ink) 4%, transparent)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
             <div>
-              <p className="text-tertiary">Bestellungen</p>
-              <p className="font-semibold text-primary">{event.orderCount}</p>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>Bestellungen</div>
+              <div style={{ fontWeight: 600 }}>{event.orderCount}</div>
             </div>
             <div>
-              <p className="text-tertiary">Umsatz</p>
-              <p className="font-semibold text-primary">{formatCurrency(event.revenueTotal)}</p>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>Umsatz</div>
+              <div style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</div>
             </div>
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="invoice-note">Notiz (optional)</label>
+            <textarea
+              id="invoice-note"
+              className="textarea"
+              rows={3}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="z.B. Rechnung 2024-001 erstellt"
+            />
           </div>
         </div>
 
-        <div>
-          <label htmlFor="invoice-note" className="block text-sm font-medium text-secondary mb-1">
-            Notiz (optional)
-          </label>
-          <textarea
-            id="invoice-note"
-            rows={3}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="z.B. Rechnung 2024-001 erstellt"
-            className="w-full rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary placeholder:text-quaternary focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
-          />
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button
+            className="btn btn--primary"
+            onClick={handleSubmit}
+            disabled={markInvoiced.isPending}
+          >
+            {markInvoiced.isPending ? '...' : 'Als abgerechnet markieren'}
+          </button>
         </div>
       </div>
-
-      <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-        <Button type="button" color="secondary" onClick={onClose}>
-          Abbrechen
-        </Button>
-        <Button
-          color="primary"
-          onClick={handleSubmit}
-          disabled={markInvoiced.isPending}
-        >
-          {markInvoiced.isPending ? '...' : 'Als abgerechnet markieren'}
-        </Button>
-      </div>
-    </DialogModal>
+    </div>
   );
 }
 
@@ -107,32 +109,37 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
   }
 
   return (
-    <DialogModal
-      isOpen
-      onClose={onClose}
-      title="Abrechnung zurücksetzen"
-      description={`Event: ${event.name} (${event.organizationName})`}
-      size="sm"
-    >
-      <div className="px-6 py-4">
-        <p className="text-sm text-secondary">
-          Die Abrechnungsmarkierung wird entfernt. Das Event gilt dann wieder als nicht abgerechnet.
-        </p>
-      </div>
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">Abrechnung zurücksetzen</div>
+          <button className="modal__close" onClick={onClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-      <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-        <Button type="button" color="secondary" onClick={onClose}>
-          Abbrechen
-        </Button>
-        <Button
-          color="primary-destructive"
-          onClick={handleConfirm}
-          disabled={unmarkInvoiced.isPending}
-        >
-          {unmarkInvoiced.isPending ? '...' : 'Zurücksetzen'}
-        </Button>
+        <div className="modal__body">
+          <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
+            Die Abrechnungsmarkierung wird entfernt. Das Event gilt dann wieder als nicht abgerechnet.
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
+        </div>
+
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button
+            className="btn btn--primary"
+            style={{ background: 'var(--red, #dc2626)' }}
+            onClick={handleConfirm}
+            disabled={unmarkInvoiced.isPending}
+          >
+            {unmarkInvoiced.isPending ? '...' : 'Zurücksetzen'}
+          </button>
+        </div>
       </div>
-    </DialogModal>
+    </div>
   );
 }
 
@@ -165,8 +172,9 @@ export function AdminEventsContainer() {
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -174,176 +182,152 @@ export function AdminEventsContainer() {
   return (
     <>
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <input
-          type="text"
-          placeholder="Event oder Organisation suchen..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary placeholder:text-quaternary focus:outline-none focus:ring-2 focus:ring-brand-primary min-w-[200px]"
-        />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-        >
-          <option value="">Alle Status</option>
-          <option value="active">Aktiv</option>
-          <option value="inactive">Inaktiv</option>
-          <option value="test">Test</option>
-        </select>
-
-        <select
-          value={invoicedFilter}
-          onChange={(e) => { setInvoicedFilter(e.target.value); setPage(1); }}
-          className="rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-        >
-          <option value="">Alle (Abrechnung)</option>
-          <option value="yes">Abgerechnet</option>
-          <option value="no">Nicht abgerechnet</option>
-        </select>
-
-        <input
-          type="date"
-          value={from}
-          onChange={(e) => { setFrom(e.target.value); setPage(1); }}
-          className="rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          placeholder="Von"
-        />
-        <input
-          type="date"
-          value={to}
-          onChange={(e) => { setTo(e.target.value); setPage(1); }}
-          className="rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          placeholder="Bis"
-        />
+      <div className="app-card" style={{ padding: '16px 20px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          <input
+            type="text"
+            className="input"
+            placeholder="Event oder Organisation suchen..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            style={{ minWidth: 200, flex: '1 1 200px' }}
+          />
+          <select
+            className="select"
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          >
+            <option value="">Alle Status</option>
+            <option value="active">Aktiv</option>
+            <option value="inactive">Inaktiv</option>
+            <option value="test">Test</option>
+          </select>
+          <select
+            className="select"
+            value={invoicedFilter}
+            onChange={(e) => { setInvoicedFilter(e.target.value); setPage(1); }}
+          >
+            <option value="">Alle (Abrechnung)</option>
+            <option value="yes">Abgerechnet</option>
+            <option value="no">Nicht abgerechnet</option>
+          </select>
+          <input
+            type="date"
+            className="input"
+            value={from}
+            onChange={(e) => { setFrom(e.target.value); setPage(1); }}
+          />
+          <input
+            type="date"
+            className="input"
+            value={to}
+            onChange={(e) => { setTo(e.target.value); setPage(1); }}
+          />
+        </div>
       </div>
 
       {/* Table */}
       {events.length === 0 ? (
-        <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-          <EmptyState
-            icon="settings"
-            title="Keine Events gefunden"
-            description="Es gibt keine Events, die den Filterkriterien entsprechen."
-          />
+        <div className="app-card">
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">Keine Events gefunden</h3>
+            <p className="empty-state__sub">Es gibt keine Events, die den Filterkriterien entsprechen.</p>
+          </div>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-secondary">
-          <table className="w-full">
-            <thead className="bg-secondary">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">Event</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">Organisation</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">Datum</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">Status</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">Bestellungen</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">Umsatz</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">Abgerechnet</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-secondary bg-primary">
-              {events.map((event) => (
-                <tr key={event.id} className="hover:bg-secondary/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-tertiary">
-                        <Calendar className="h-4 w-4" />
-                      </div>
-                      <p className="font-medium text-primary text-sm">{event.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-secondary">{event.organizationName}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-secondary whitespace-nowrap">
+        <div className="app-card app-card--flat">
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Organisation</th>
+                  <th>Datum</th>
+                  <th>Status</th>
+                  <th className="text-right">Bestellungen</th>
+                  <th className="text-right">Umsatz</th>
+                  <th>Abgerechnet</th>
+                  <th className="text-right">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map((event) => (
+                  <tr key={event.id}>
+                    <td style={{ fontWeight: 600 }}>{event.name}</td>
+                    <td>{event.organizationName}</td>
+                    <td className="mono">
                       {formatDate(event.startDate)}
                       {event.endDate && event.endDate !== event.startDate ? ` – ${formatDate(event.endDate)}` : ''}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge color={statusColors[event.status] ?? 'gray'} size="sm">
-                      {event.status === 'active' ? 'Aktiv' : event.status === 'test' ? 'Test' : 'Inaktiv'}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-medium text-primary">{event.orderCount}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-semibold text-primary">{formatCurrency(event.revenueTotal)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {event.invoicedAt ? (
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle className="h-4 w-4 text-success-primary flex-shrink-0" />
-                        <div>
-                          <p className="text-xs font-medium text-success-primary">{formatDate(event.invoicedAt)}</p>
+                    </td>
+                    <td>
+                      <span className={statusBadge[event.status] ?? 'badge badge--neutral'}>
+                        {statusLabel[event.status] ?? event.status}
+                      </span>
+                    </td>
+                    <td className="mono text-right">{event.orderCount}</td>
+                    <td className="mono text-right" style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</td>
+                    <td>
+                      {event.invoicedAt ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <span className="badge badge--success">{formatDate(event.invoicedAt)}</span>
                           {event.invoiceNote && (
-                            <p className="text-xs text-tertiary truncate max-w-[140px]">{event.invoiceNote}</p>
+                            <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {event.invoiceNote}
+                            </span>
                           )}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-tertiary">
-                        <XCircle className="h-4 w-4 flex-shrink-0" />
-                        <span className="text-xs">Nein</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {event.invoicedAt ? (
-                      <Button
-                        size="sm"
-                        color="secondary"
-                        onClick={() => setUnmarkEvent(event)}
-                      >
-                        Zurücksetzen
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => setMarkEvent(event)}
-                      >
-                        Abrechnen
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      ) : (
+                        <span className="badge badge--neutral">Nein</span>
+                      )}
+                    </td>
+                    <td className="text-right">
+                      {event.invoicedAt ? (
+                        <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
+                          Zurücksetzen
+                        </button>
+                      ) : (
+                        <button className="btn btn--primary" style={{ fontSize: 12 }} onClick={() => setMarkEvent(event)}>
+                          Abrechnen
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Pagination */}
       {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-tertiary">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px' }}>
+          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
             {meta.total} Events gesamt
-          </p>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              color="secondary"
+          </span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              className="btn btn--ghost"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={!meta.hasPrev}
             >
               Zurück
-            </Button>
-            <span className="flex items-center px-3 text-sm text-secondary">
+            </button>
+            <span style={{ fontSize: 13, padding: '0 8px' }}>
               Seite {page} von {meta.totalPages}
             </span>
-            <Button
-              size="sm"
-              color="secondary"
+            <button
+              className="btn btn--ghost"
               onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
               disabled={!meta.hasNext}
             >
               Weiter
-            </Button>
+            </button>
           </div>
         </div>
       )}

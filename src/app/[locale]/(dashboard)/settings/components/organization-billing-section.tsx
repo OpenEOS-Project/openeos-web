@@ -4,11 +4,6 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Receipt } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { InputGroup } from '@/components/ui/input/input-group';
-import { FormInput } from '@/components/ui/input/form-input';
-import { Label } from '@/components/ui/input/label';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,20 +31,13 @@ export function OrganizationBillingSection() {
     },
     onSuccess: (data) => {
       if (currentOrganization?.organization) {
-        setCurrentOrganization({
-          ...currentOrganization,
-          organization: data,
-        });
+        setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty },
-  } = useForm<BillingFormData>({
+  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<BillingFormData>({
     resolver: zodResolver(billingSchema),
     defaultValues: {
       billingEmail: currentOrganization?.organization?.billingEmail || '',
@@ -57,58 +45,31 @@ export function OrganizationBillingSection() {
     },
   });
 
-  const onSubmit = async (data: BillingFormData) => {
-    await updateOrg.mutateAsync(data);
-  };
-
-  if (!currentOrganization) {
-    return null;
-  }
+  if (!currentOrganization) return null;
 
   return (
-    <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-      <div className="border-b border-secondary px-6 py-4">
-        <div className="flex items-center gap-2">
-          <Receipt className="h-5 w-5 text-tertiary" />
-          <h2 className="text-lg font-semibold text-primary">{t('title')}</h2>
-        </div>
-        <p className="text-sm text-tertiary mt-1">{t('description')}</p>
+    <div className="app-card">
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h2>
+        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('description')}</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-        {/* Billing Email */}
-        <div className="space-y-1.5">
-          <Label htmlFor="billingEmail">{t('billingEmail')}</Label>
-          <FormInput
-            id="billingEmail"
-            type="email"
-            {...register('billingEmail')}
-            placeholder="rechnung@example.com"
-            isInvalid={!!errors.billingEmail}
-          />
-          {errors.billingEmail && (
-            <p className="text-sm text-error-primary">{errors.billingEmail.message}</p>
-          )}
+      <form onSubmit={handleSubmit((data) => updateOrg.mutateAsync(data))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="billingEmail">{t('billingEmail')}</label>
+          <input id="billingEmail" type="email" className={`input${errors.billingEmail ? ' input--error' : ''}`} placeholder="rechnung@example.com" {...register('billingEmail')} />
+          {errors.billingEmail && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.billingEmail.message}</p>}
         </div>
 
-        {/* VAT ID */}
-        <div className="space-y-1.5">
-          <Label htmlFor="vatId">{t('vatId')}</Label>
-          <FormInput
-            id="vatId"
-            {...register('vatId')}
-            placeholder="DE123456789"
-          />
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="vatId">{t('vatId')}</label>
+          <input id="vatId" className="input" placeholder="DE123456789" {...register('vatId')} />
         </div>
 
-        {/* Submit */}
-        <div className="flex justify-end pt-4 border-t border-secondary">
-          <Button
-            type="submit"
-            disabled={!isDirty || updateOrg.isPending}
-          >
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+          <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
             {updateOrg.isPending ? t('saving') : t('saveChanges')}
-          </Button>
+          </button>
         </div>
       </form>
     </div>

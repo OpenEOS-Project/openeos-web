@@ -1,14 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Edit01, Package, Plus, Trash01 } from '@untitledui/icons';
 
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
 import { ProductImage } from '@/components/shared/product-image';
-import { Table, TableCard } from '@/components/ui/table/table';
 import { useProducts } from '@/hooks/use-products';
 import type { Product } from '@/types/product';
 
@@ -34,36 +28,38 @@ export function ProductsList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-tertiary">{tCommon('loading')}</div>
+      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-error-primary">{tCommon('error')}</div>
-        <Button color="secondary" onClick={() => window.location.reload()}>
+      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
+        <div style={{ color: '#d24545' }}>{tCommon('error')}</div>
+        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (!products || products.length === 0) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="shopping-bag"
-          title={t('empty.title')}
-          description={t('empty.description')}
-          action={
-            <Button iconLeading={Plus} onClick={onCreateClick}>
-              {t('create')}
-            </Button>
-          }
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+          <button className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -76,102 +72,85 @@ export function ProductsList({
   };
 
   const getStatusBadge = (product: Product) => {
-    if (!product.isActive) {
-      return <Badge color="gray" size="sm">{t('status.inactive')}</Badge>;
-    }
-    if (!product.isAvailable) {
-      return <Badge color="warning" size="sm">{t('status.unavailable')}</Badge>;
-    }
-    if (product.trackInventory && product.stockQuantity <= 0) {
-      return <Badge color="error" size="sm">{t('status.outOfStock')}</Badge>;
-    }
-    return <Badge color="success" size="sm">{t('status.available')}</Badge>;
+    if (!product.isActive) return <span className="badge badge--neutral">{t('status.inactive')}</span>;
+    if (!product.isAvailable) return <span className="badge badge--warning">{t('status.unavailable')}</span>;
+    if (product.trackInventory && product.stockQuantity <= 0) return <span className="badge badge--error">{t('status.outOfStock')}</span>;
+    return <span className="badge badge--success">{t('status.available')}</span>;
   };
 
   return (
-    <TableCard.Root>
-      <TableCard.Header
-        title={t('title')}
-        badge={products.length}
-        description={t('subtitle')}
-        contentTrailing={
-          <Button iconLeading={Plus} onClick={onCreateClick}>
-            {t('create')}
-          </Button>
-        }
-      />
-      <Table aria-label={t('title')}>
-        <Table.Header>
-          <Table.Head label={t('table.name')} isRowHeader />
-          <Table.Head label={t('table.category')} />
-          <Table.Head label={t('table.price')} />
-          <Table.Head label={t('table.stock')} />
-          <Table.Head label={t('table.status')} />
-          <Table.Head label={t('table.actions')} />
-        </Table.Header>
-        <Table.Body items={products}>
-          {(product) => (
-            <Table.Row key={product.id} id={product.id}>
-              <Table.Cell>
-                <div className="flex items-center gap-3">
-                  <ProductImage imageUrl={product.imageUrl} productName={product.name} size="sm" />
-                  <div>
-                    <p className="text-sm font-medium text-primary">{product.name}</p>
-                    {product.description && (
-                      <p className="text-xs text-tertiary">{product.description}</p>
-                    )}
-                  </div>
-                </div>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-sm text-tertiary">
-                  {product.category?.name || '-'}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-sm font-medium">{formatPrice(product.price)}</span>
-              </Table.Cell>
-              <Table.Cell>
-                {product.trackInventory ? (
-                  <span className="text-sm">
-                    {product.stockQuantity} {product.stockUnit}
-                  </span>
-                ) : (
-                  <span className="text-sm text-tertiary">-</span>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                {getStatusBadge(product)}
-              </Table.Cell>
-              <Table.Cell>
-                <Dropdown.Root>
-                  <Dropdown.DotsButton />
-                  <Dropdown.Popover className="w-min">
-                    <Dropdown.Menu>
-                      <Dropdown.Item icon={Edit01} onAction={() => onEditClick(product)}>
-                        <span className="pr-4">{t('actions.edit')}</span>
-                      </Dropdown.Item>
-                      {product.trackInventory && (
-                        <Dropdown.Item icon={Package} onAction={() => onAdjustStockClick(product)}>
-                          <span className="pr-4">{t('actions.adjustStock')}</span>
-                        </Dropdown.Item>
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">{t('title')}</h2>
+          <p className="app-card__sub">{t('subtitle')}</p>
+        </div>
+        <button className="btn btn--primary" onClick={onCreateClick}>
+          {t('create')}
+        </button>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t('table.name')}</th>
+              <th>{t('table.category')}</th>
+              <th className="text-right">{t('table.price')}</th>
+              <th className="text-right">{t('table.stock')}</th>
+              <th>{t('table.status')}</th>
+              <th style={{ width: 160 }}>{t('table.actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <ProductImage imageUrl={product.imageUrl} productName={product.name} size="sm" />
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{product.name}</div>
+                      {product.description && (
+                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
+                          {product.description}
+                        </div>
                       )}
-                      <Dropdown.Separator />
-                      <Dropdown.Item
-                        icon={Trash01}
-                        className="text-error-primary"
-                        onAction={() => onDeleteClick(product)}
-                      >
-                        <span className="pr-4">{t('actions.delete')}</span>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown.Popover>
-                </Dropdown.Root>
-              </Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
-      </Table>
-    </TableCard.Root>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.6 }}>
+                    {product.category?.name || '-'}
+                  </span>
+                </td>
+                <td className="mono text-right">{formatPrice(product.price)}</td>
+                <td className="mono text-right">
+                  {product.trackInventory
+                    ? `${product.stockQuantity} ${product.stockUnit}`
+                    : <span style={{ opacity: 0.4 }}>-</span>
+                  }
+                </td>
+                <td>{getStatusBadge(product)}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onEditClick(product)}>
+                      {t('actions.edit')}
+                    </button>
+                    {product.trackInventory && (
+                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onAdjustStockClick(product)}>
+                        {t('actions.adjustStock')}
+                      </button>
+                    )}
+                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: '#d24545' }} onClick={() => onDeleteClick(product)}>
+                      {t('actions.delete')}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

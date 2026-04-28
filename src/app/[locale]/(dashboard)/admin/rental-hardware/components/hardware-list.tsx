@@ -2,27 +2,15 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  Plus,
-  HardDrive,
-  Edit05,
-  Trash01,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useRentalHardware, useDeleteRentalHardware } from '@/hooks/use-rentals';
 import { HardwareFormModal } from './hardware-form-modal';
 import type { RentalHardware, RentalHardwareStatus } from '@/types/rental';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
 
-const statusConfig: Record<RentalHardwareStatus, BadgeColors> = {
-  available: 'success',
-  rented: 'brand',
-  maintenance: 'warning',
-  retired: 'gray',
+const statusBadge: Record<RentalHardwareStatus, string> = {
+  available: 'badge badge--success',
+  rented: 'badge badge--info',
+  maintenance: 'badge badge--warning',
+  retired: 'badge badge--neutral',
 };
 
 function formatCurrency(amount: number): string {
@@ -42,8 +30,9 @@ export function HardwareList() {
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -51,177 +40,124 @@ export function HardwareList() {
   if (!hardware || hardware.length === 0) {
     return (
       <>
-        <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-          <EmptyState
-            icon="settings"
-            title={t('title')}
-            description={t('description')}
-            action={
-              <Button
-                size="sm"
-                iconLeading={Plus}
-                onClick={() => setShowCreateModal(true)}
-              >
-                {t('add')}
-              </Button>
-            }
-          />
+        <div className="app-card">
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">{t('title')}</h3>
+            <p className="empty-state__sub">{t('description')}</p>
+            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
+              {t('add')}
+            </button>
+          </div>
         </div>
-
-        {showCreateModal && (
-          <HardwareFormModal onClose={() => setShowCreateModal(false)} />
-        )}
+        {showCreateModal && <HardwareFormModal onClose={() => setShowCreateModal(false)} />}
       </>
     );
   }
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-tertiary">
-          {hardware.length} {t('title')}
-        </p>
-        <Button
-          size="sm"
-          iconLeading={Plus}
-          onClick={() => setShowCreateModal(true)}
-        >
-          {t('add')}
-        </Button>
-      </div>
+      <div className="app-card app-card--flat">
+        <div className="app-card__head">
+          <div>
+            <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+              {hardware.length} {t('title')}
+            </span>
+          </div>
+          <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
+            {t('add')}
+          </button>
+        </div>
 
-      <div className="overflow-hidden rounded-xl border border-secondary">
-        <table className="w-full">
-          <thead className="bg-secondary">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.name')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.type')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.serial')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.rate')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.status')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.device')}
-              </th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">
-                {t('table.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-secondary bg-primary">
-            {hardware.map((hw) => (
-              <tr key={hw.id} className="hover:bg-secondary/50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-tertiary">
-                      <HardDrive className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-primary">{hw.name}</p>
-                      {hw.model && <p className="text-xs text-tertiary">{hw.model}</p>}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-secondary">
-                    {t(`types.${hw.type}`)}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-tertiary font-mono">{hw.serialNumber}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-secondary">{formatCurrency(hw.dailyRate)}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <Badge color={statusConfig[hw.status]} size="sm">
-                    {t(`status.${hw.status}`)}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3">
-                  {hw.device ? (
-                    <span className="text-sm text-secondary">{hw.device.name}</span>
-                  ) : (
-                    <span className="text-sm text-tertiary">-</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Dropdown.Root>
-                    <Dropdown.DotsButton />
-                    <Dropdown.Popover placement="bottom end">
-                      <Dropdown.Menu>
-                        <Dropdown.Item
-                          onAction={() => setEditHardware(hw)}
-                          icon={Edit05}
-                          label={t('edit')}
-                        />
-                        <Dropdown.Item
-                          onAction={() => setDeleteHardware(hw)}
-                          className="text-error-primary"
-                          icon={Trash01}
-                          label={t('delete')}
-                        />
-                      </Dropdown.Menu>
-                    </Dropdown.Popover>
-                  </Dropdown.Root>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('table.name')}</th>
+                <th>{t('table.type')}</th>
+                <th>{t('table.serial')}</th>
+                <th className="text-right">{t('table.rate')}</th>
+                <th>{t('table.status')}</th>
+                <th>{t('table.device')}</th>
+                <th className="text-right">{t('table.actions')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {hardware.map((hw) => (
+                <tr key={hw.id}>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{hw.name}</div>
+                    {hw.model && <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>{hw.model}</div>}
+                  </td>
+                  <td>{t(`types.${hw.type}`)}</td>
+                  <td className="mono" style={{ fontSize: 12 }}>{hw.serialNumber}</td>
+                  <td className="mono text-right">{formatCurrency(hw.dailyRate)}</td>
+                  <td>
+                    <span className={statusBadge[hw.status]}>
+                      {t(`status.${hw.status}`)}
+                    </span>
+                  </td>
+                  <td>{hw.device ? hw.device.name : <span style={{ color: 'color-mix(in oklab, var(--ink) 35%, transparent)' }}>-</span>}</td>
+                  <td className="text-right">
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setEditHardware(hw)}>
+                        {t('edit')}
+                      </button>
+                      <button
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                        onClick={() => setDeleteHardware(hw)}
+                      >
+                        {t('delete')}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {showCreateModal && (
-        <HardwareFormModal onClose={() => setShowCreateModal(false)} />
-      )}
-
-      {editHardware && (
-        <HardwareFormModal
-          hardware={editHardware}
-          onClose={() => setEditHardware(null)}
-        />
-      )}
+      {showCreateModal && <HardwareFormModal onClose={() => setShowCreateModal(false)} />}
+      {editHardware && <HardwareFormModal hardware={editHardware} onClose={() => setEditHardware(null)} />}
 
       {deleteHardware && (
-        <DialogModal
-          isOpen
-          onClose={() => setDeleteHardware(null)}
-          title={t('delete')}
-          description={t('deleteConfirm', { name: deleteHardware.name })}
-        >
-          <div className="px-6 py-4">
-            <div className="rounded-lg bg-secondary p-4 text-center">
-              <p className="font-medium text-primary">{deleteHardware.name}</p>
-              <p className="text-sm text-tertiary">{deleteHardware.serialNumber}</p>
+        <div className="modal__backdrop" onClick={() => setDeleteHardware(null)}>
+          <div className="modal__box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <div className="modal__title">{t('delete')}</div>
+              <button className="modal__close" onClick={() => setDeleteHardware(null)} aria-label="Schließen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal__body">
+              <div style={{ textAlign: 'center', padding: '12px 0', background: 'color-mix(in oklab, var(--ink) 4%, transparent)', borderRadius: 8 }}>
+                <div style={{ fontWeight: 600 }}>{deleteHardware.name}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontFamily: 'var(--f-mono)' }}>{deleteHardware.serialNumber}</div>
+              </div>
+            </div>
+            <div className="modal__foot">
+              <button className="btn btn--ghost" onClick={() => setDeleteHardware(null)}>{tCommon('cancel')}</button>
+              <button
+                className="btn btn--primary"
+                style={{ background: 'var(--red, #dc2626)' }}
+                onClick={() => {
+                  deleteMutation.mutate(deleteHardware.id, { onSuccess: () => setDeleteHardware(null) });
+                }}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? '...' : tCommon('delete')}
+              </button>
             </div>
           </div>
-
-          <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-            <Button type="button" color="secondary" onClick={() => setDeleteHardware(null)}>
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              color="primary-destructive"
-              onClick={() => {
-                deleteMutation.mutate(deleteHardware.id, {
-                  onSuccess: () => setDeleteHardware(null),
-                });
-              }}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? '...' : tCommon('delete')}
-            </Button>
-          </div>
-        </DialogModal>
+        </div>
       )}
     </>
   );

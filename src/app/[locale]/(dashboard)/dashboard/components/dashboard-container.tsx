@@ -4,8 +4,6 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { StatsCard, StatsGrid } from '@/components/ui/stats-card/stats-card';
 import { useAuthStore } from '@/stores/auth-store';
 import { useEvents } from '@/hooks/use-events';
 import { ordersApi, devicesApi } from '@/lib/api-client';
@@ -26,39 +24,13 @@ function formatTime(date: string): string {
   }).format(new Date(date));
 }
 
-function getStatusColor(status: Order['status']): string {
-  switch (status) {
-    case 'open':
-      return 'text-warning-700 dark:text-warning-400';
-    case 'in_progress':
-      return 'text-brand-700 dark:text-brand-400';
-    case 'ready':
-      return 'text-success-700 dark:text-success-400';
-    case 'completed':
-      return 'text-tertiary';
-    case 'cancelled':
-      return 'text-error-700 dark:text-error-400';
-    default:
-      return 'text-tertiary';
-  }
-}
-
-function getStatusBg(status: Order['status']): string {
-  switch (status) {
-    case 'open':
-      return 'bg-warning-50 dark:bg-warning-950';
-    case 'in_progress':
-      return 'bg-brand-50 dark:bg-brand-950';
-    case 'ready':
-      return 'bg-success-50 dark:bg-success-950';
-    case 'completed':
-      return 'bg-secondary';
-    case 'cancelled':
-      return 'bg-error-50 dark:bg-error-950';
-    default:
-      return 'bg-secondary';
-  }
-}
+const statusBadge: Record<Order['status'], { cls: string; label: string }> = {
+  open: { cls: 'badge badge--warning', label: 'Offen' },
+  in_progress: { cls: 'badge badge--info', label: 'In Bearbeitung' },
+  ready: { cls: 'badge badge--success', label: 'Bereit' },
+  completed: { cls: 'badge badge--neutral', label: 'Abgeschlossen' },
+  cancelled: { cls: 'badge badge--error', label: 'Storniert' },
+};
 
 export function DashboardContainer() {
   const t = useTranslations('dashboard');
@@ -69,6 +41,7 @@ export function DashboardContainer() {
   if (user?.isSuperAdmin) {
     return <SuperAdminDashboard />;
   }
+
   const organizationId = currentOrganization?.organizationId || '';
 
   // Fetch events
@@ -100,7 +73,7 @@ export function DashboardContainer() {
       return response.data;
     },
     enabled: !!organizationId,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 
   // Calculate stats
@@ -109,24 +82,22 @@ export function DashboardContainer() {
     const activeEvents = events?.filter((e) => e.status === 'active' || e.status === 'test') || [];
     const onlineDevices = onlineDevicesResponse || [];
 
-    // Orders today (excluding cancelled)
     const validOrders = orders.filter((o) => o.status !== 'cancelled');
     const ordersCount = validOrders.length;
 
-    // Revenue today (only paid orders)
     const revenue = validOrders
       .filter((o) => o.paymentStatus === 'paid' || o.paymentStatus === 'partly_paid')
       .reduce((sum, o) => sum + o.paidAmount, 0);
 
     return {
       ordersToday: ordersCount,
-      revenue: revenue,
+      revenue,
       activeEvents: activeEvents.length,
       activeDevices: onlineDevices.length,
     };
   }, [ordersResponse, events, onlineDevicesResponse]);
 
-  // Recent orders (last 10, sorted by creation date)
+  // Recent orders (last 10)
   const recentOrders = useMemo(() => {
     const orders = ordersResponse || [];
     return [...orders]
@@ -138,140 +109,176 @@ export function DashboardContainer() {
 
   if (!organizationId) {
     return (
-      <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-        <EmptyState
-          icon="building"
-          title="Keine Organisation ausgewählt"
-          description="Bitte wählen Sie zuerst eine Organisation aus."
-        />
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
+          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Stats Cards */}
-      <StatsGrid>
-        <StatsCard
-          title={t('stats.ordersToday')}
-          value={isLoading ? '...' : String(stats.ordersToday)}
-          subtitle={t('stats.vsYesterday')}
-          icon="shopping-bag"
-        />
-        <StatsCard
-          title={t('stats.revenue')}
-          value={isLoading ? '...' : formatCurrency(stats.revenue)}
-          subtitle={t('stats.vsYesterday')}
-          icon="credit-card"
-        />
-        <StatsCard
-          title={t('stats.activeEvents')}
-          value={isLoading ? '...' : String(stats.activeEvents)}
-          subtitle={t('stats.eventsRunning')}
-          icon="calendar"
-        />
-        <StatsCard
-          title={t('stats.activeUsers')}
-          value={String(stats.activeDevices)}
-          subtitle={t('stats.usersOnline')}
-          icon="users"
-        />
-      </StatsGrid>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Stat cards */}
+      <div className="stat-cards">
+        <div className="stat-card">
+          <div className="stat-card__label">{t('stats.ordersToday')}</div>
+          <div className="stat-card__value">{isLoading ? '—' : stats.ordersToday}</div>
+          <div className="stat-card__sub">{t('stats.vsYesterday')}</div>
+        </div>
+        <div className="stat-card stat-card--accent">
+          <div className="stat-card__label">{t('stats.revenue')}</div>
+          <div className="stat-card__value">{isLoading ? '—' : formatCurrency(stats.revenue)}</div>
+          <div className="stat-card__sub">{t('stats.vsYesterday')}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card__label">{t('stats.activeEvents')}</div>
+          <div className="stat-card__value">{isLoading ? '—' : stats.activeEvents}</div>
+          <div className="stat-card__sub">{t('stats.eventsRunning')}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card__label">{t('stats.activeUsers')}</div>
+          <div className="stat-card__value">{stats.activeDevices}</div>
+          <div className="stat-card__sub">{t('stats.usersOnline')}</div>
+        </div>
+      </div>
 
-      {/* Recent Activity Section */}
-      <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-        <div className="flex items-center justify-between px-5 py-4">
+      {/* Recent activity card */}
+      <div className="app-card app-card--flat">
+        <div className="app-card__head">
           <div>
-            <h2 className="text-base font-semibold text-primary">{t('recentActivity.title')}</h2>
-            <p className="mt-0.5 text-sm text-tertiary">{t('recentActivity.subtitle')}</p>
+            <h2 className="app-card__title">{t('recentActivity.title')}</h2>
+            <p className="app-card__sub">{t('recentActivity.subtitle')}</p>
           </div>
         </div>
 
         {isLoadingOrders ? (
-          <div className="flex items-center justify-center border-t border-secondary py-12">
-            <div className="flex flex-col items-center gap-2">
-              <div className="size-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-              <span className="text-sm text-tertiary">Laden...</span>
-            </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '48px 24px',
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                border: '2px solid var(--green-ink)',
+                borderTopColor: 'transparent',
+                animation: 'spin 0.75s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : recentOrders.length === 0 ? (
-          <div className="border-t border-secondary">
-            <EmptyState
-              icon="shopping-bag"
-              title={t('recentActivity.empty.title')}
-              description={t('recentActivity.empty.description')}
-              className="px-5 py-8"
-            />
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">{t('recentActivity.empty.title')}</h3>
+            <p className="empty-state__sub">{t('recentActivity.empty.description')}</p>
           </div>
         ) : (
           <>
-            {/* Mobile: Card Layout */}
-            <div className="divide-y divide-secondary border-t border-secondary md:hidden">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between px-5 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-brand-50 text-sm font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-400">
-                      #{order.dailyNumber}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-primary">{formatTime(order.createdAt)}</span>
-                        <span className="text-xs text-quaternary">{order.items?.length || 0} Artikel</span>
+            {/* Mobile card list */}
+            <div
+              style={{
+                borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+              }}
+              className="md:hidden"
+            >
+              {recentOrders.map((order) => {
+                const badge = statusBadge[order.status] ?? { cls: 'badge badge--neutral', label: order.status };
+                return (
+                  <div
+                    key={order.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 20px',
+                      borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 8,
+                          background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                          color: 'var(--green-ink)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          fontFamily: 'var(--f-mono)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        #{order.dailyNumber}
                       </div>
-                      <span className="text-sm font-semibold text-primary">{formatCurrency(order.total)}</span>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+                          {formatTime(order.createdAt)} · {order.items?.length ?? 0} Artikel
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: 'var(--ink)',
+                            fontFamily: 'var(--f-mono)',
+                          }}
+                        >
+                          {formatCurrency(order.total)}
+                        </div>
+                      </div>
                     </div>
+                    <span className={badge.cls}>{tOrders(`status.${order.status}`)}</span>
                   </div>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(order.status)} ${getStatusBg(order.status)}`}>
-                    {tOrders(`status.${order.status}`)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Desktop: Table Layout */}
-            <div className="hidden overflow-hidden border-t border-secondary md:block">
-              <table className="w-full">
+            {/* Desktop table */}
+            <div style={{ overflowX: 'auto' }} className="hidden md:block">
+              <table className="data-table">
                 <thead>
-                  <tr className="border-b border-secondary bg-secondary">
-                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
-                      {tOrders('columns.orderNumber')}
-                    </th>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
-                      {tOrders('columns.createdAt')}
-                    </th>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
-                      {tOrders('columns.items')}
-                    </th>
-                    <th className="px-5 py-3 text-right text-xs font-medium text-tertiary">
-                      {tOrders('columns.total')}
-                    </th>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-tertiary">
-                      {tOrders('columns.status')}
-                    </th>
+                  <tr>
+                    <th>{tOrders('columns.orderNumber')}</th>
+                    <th>{tOrders('columns.createdAt')}</th>
+                    <th>{tOrders('columns.items')}</th>
+                    <th className="text-right">{tOrders('columns.total')}</th>
+                    <th>{tOrders('columns.status')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-secondary">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="transition-colors hover:bg-primary_hover">
-                      <td className="whitespace-nowrap px-5 py-3.5 text-sm font-medium text-primary">
-                        #{order.dailyNumber}
-                      </td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-sm text-tertiary">
-                        {formatTime(order.createdAt)}
-                      </td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-sm text-tertiary">
-                        {order.items?.length || 0} Artikel
-                      </td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-right text-sm font-medium text-primary">
-                        {formatCurrency(order.total)}
-                      </td>
-                      <td className="whitespace-nowrap px-5 py-3.5">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(order.status)} ${getStatusBg(order.status)}`}>
-                          {tOrders(`status.${order.status}`)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                <tbody>
+                  {recentOrders.map((order) => {
+                    const badge = statusBadge[order.status] ?? { cls: 'badge badge--neutral', label: order.status };
+                    return (
+                      <tr key={order.id}>
+                        <td className="mono">#{order.dailyNumber}</td>
+                        <td className="mono">{formatTime(order.createdAt)}</td>
+                        <td>{order.items?.length ?? 0} Artikel</td>
+                        <td className="mono text-right">{formatCurrency(order.total)}</td>
+                        <td>
+                          <span className={badge.cls}>{tOrders(`status.${order.status}`)}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

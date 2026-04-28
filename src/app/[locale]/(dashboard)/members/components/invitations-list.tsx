@@ -1,10 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Clock, Mail01, RefreshCw01, Trash01 } from '@untitledui/icons';
 
-import { Badge } from '@/components/ui/badges/badges';
-import { Button } from '@/components/ui/buttons/button';
 import { useInvitations, useDeleteInvitation, useResendInvitation } from '@/hooks/use-members';
 import type { OrganizationPermissions } from '@/types/auth';
 
@@ -67,13 +64,20 @@ export function InvitationsList({ organizationId }: InvitationsListProps) {
   };
 
   return (
-    <div className="rounded-xl border border-secondary bg-primary shadow-xs">
-      <div className="flex items-center gap-2 border-b border-secondary px-6 py-4">
-        <Clock className="size-4 text-tertiary" />
-        <h3 className="text-sm font-semibold text-primary">{t('invitations.title')}</h3>
-        <Badge size="sm" color="warning">{invitations.length}</Badge>
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" style={{ color: 'var(--ink-faint)' }}>
+            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+          </svg>
+          <h3 className="app-card__title">
+            {t('invitations.title')}
+            <span className="badge badge--warning" style={{ marginLeft: 8 }}>{invitations.length}</span>
+          </h3>
+        </div>
       </div>
-      <div className="divide-y divide-secondary">
+
+      <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
         {invitations.map((invitation) => {
           const isAdmin = invitation.role === 'admin';
           const activePermissions = !isAdmin
@@ -83,49 +87,69 @@ export function InvitationsList({ organizationId }: InvitationsListProps) {
           return (
             <div
               key={invitation.id}
-              className="flex items-center gap-3 px-6 py-3"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 20px',
+                borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+              }}
             >
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-warning-secondary">
-                <Mail01 className="size-4 text-warning-primary" />
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'color-mix(in oklab, var(--amber, #f59e0b) 15%, var(--paper))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber, #f59e0b)" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
+                </svg>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-primary">
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {invitation.email}
                 </p>
-                <p className="text-xs text-tertiary">
+                <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>
                   {t('invitations.expiresAt')}: {formatDate(invitation.expiresAt)}
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <Badge color="warning">{t('invitations.pending')}</Badge>
-                <Badge color={isAdmin ? 'purple' : 'blue'}>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
+                <span className="badge badge--warning">{t('invitations.pending')}</span>
+                <span className={`badge ${isAdmin ? 'badge--info' : 'badge--neutral'}`}>
                   {t(`roles.${invitation.role}`)}
-                </Badge>
+                </span>
                 {activePermissions.map((key) => (
-                  <Badge key={key} size="sm" color="gray">
+                  <span key={key} className="badge badge--neutral" style={{ fontSize: 10 }}>
                     {t(`permissions.${key}`)}
-                  </Badge>
+                  </span>
                 ))}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Button
-                  size="sm"
-                  color="tertiary"
-                  iconLeading={RefreshCw01}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
                   onClick={() => handleResend(invitation.id)}
-                  isLoading={resendInvitation.isPending}
+                  disabled={resendInvitation.isPending}
                 >
                   {t('actions.resendInvitation')}
-                </Button>
-                <Button
-                  size="sm"
-                  color="tertiary"
-                  iconLeading={Trash01}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
                   onClick={() => handleCancel(invitation.id)}
-                  isLoading={deleteInvitation.isPending}
+                  disabled={deleteInvitation.isPending}
                 >
                   {t('actions.cancelInvitation')}
-                </Button>
+                </button>
               </div>
             </div>
           );

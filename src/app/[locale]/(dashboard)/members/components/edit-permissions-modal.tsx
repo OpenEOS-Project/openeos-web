@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { X } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { Checkbox } from '@/components/ui/checkbox/checkbox';
-import { DialogTrigger, Modal, ModalOverlay, Dialog } from '@/components/ui/modal/modal';
-import { Toggle } from '@/components/ui/toggle/toggle';
 import { useUpdateMember, useSetMemberPin, useRemoveMemberPin } from '@/hooks/use-members';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 
@@ -48,7 +42,6 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
   const setMemberPin = useSetMemberPin(organizationId);
   const removeMemberPin = useRemoveMemberPin(organizationId);
 
-  // Reset state when member changes
   useEffect(() => {
     setIsAdmin(member.role === 'admin');
     setPermissions({
@@ -87,155 +80,183 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
     setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-md">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-primary">{t('permissions.title')}</h2>
-                  <p className="text-sm text-tertiary">
-                    {member.user?.firstName} {member.user?.lastName}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
+    <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className="modal__panel" style={{ maxWidth: 480 }}>
+        <div className="modal__head">
+          <div>
+            <h2 className="modal__title">{t('permissions.title')}</h2>
+            <p style={{ fontSize: 13, color: 'var(--ink-faint)', margin: 0 }}>
+              {member.user?.firstName} {member.user?.lastName}
+            </p>
+          </div>
+          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
 
-              {/* Content */}
-              <div className="space-y-5 px-6 py-5">
-                {error && (
-                  <div className="rounded-lg bg-error-50 p-3 text-sm text-error-600 ring-1 ring-error-200 ring-inset dark:bg-error-950 dark:text-error-400 dark:ring-error-800">
-                    {error}
-                  </div>
-                )}
+        <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {error && (
+            <div style={{
+              borderRadius: 8,
+              background: 'color-mix(in oklab, var(--red, #dc2626) 10%, var(--paper))',
+              padding: '10px 14px',
+              fontSize: 13,
+              color: 'var(--red, #dc2626)',
+              border: '1px solid color-mix(in oklab, var(--red, #dc2626) 25%, transparent)',
+            }}>
+              {error}
+            </div>
+          )}
 
-                {/* Admin toggle */}
-                <Toggle
-                  size="md"
-                  label={t('form.isAdmin')}
-                  hint={t('form.isAdminHint')}
-                  isSelected={isAdmin}
-                  onChange={setIsAdmin}
-                />
+          {/* Admin toggle */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+            <div
+              role="switch"
+              aria-checked={isAdmin}
+              tabIndex={0}
+              onClick={() => setIsAdmin((v) => !v)}
+              onKeyDown={(e) => e.key === ' ' && setIsAdmin((v) => !v)}
+              style={{
+                width: 40,
+                height: 22,
+                borderRadius: 11,
+                background: isAdmin ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, var(--paper))',
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+                flexShrink: 0,
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: 3,
+                left: isAdmin ? 21 : 3,
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.15s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+              }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>{t('form.isAdmin')}</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>{t('form.isAdminHint')}</div>
+            </div>
+          </label>
 
-                {/* Module permissions (only shown for non-admin) */}
-                {!isAdmin && (
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-secondary">{t('permissions.title')}</p>
-                    <div className="space-y-2.5">
-                      {PERMISSION_KEYS.map((key) => (
-                        <Checkbox
-                          key={key}
-                          isSelected={!!permissions[key]}
-                          onChange={() => togglePermission(key)}
-                          label={t(`permissions.${key}`)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {isAdmin && (
-                  <p className="text-sm text-tertiary">{t('permissions.adminHint')}</p>
-                )}
-
-                {/* PIN Section */}
-                <div className="space-y-3 border-t border-secondary pt-5">
-                  <p className="text-sm font-medium text-secondary">{t('pin.title')}</p>
-                  <p className="text-sm text-tertiary">{t('pin.hint')}</p>
-
-                  {member.hasPin ? (
-                    <div className="flex items-center gap-3">
-                      <Badge color="success" size="sm">{t('pin.hasPin')}</Badge>
-                      <Button
-                        type="button"
-                        color="secondary"
-                        size="sm"
-                        onClick={async () => {
-                          setPinError(null);
-                          try {
-                            await removeMemberPin.mutateAsync(member.userId);
-                          } catch (err) {
-                            setPinError(err instanceof Error ? err.message : 'Error');
-                          }
-                        }}
-                        isLoading={removeMemberPin.isPending}
-                      >
-                        {t('pin.remove')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="password"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={pinInput}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                          setPinInput(val);
-                          setPinError(null);
-                        }}
-                        placeholder={t('pin.placeholder')}
-                        className="h-9 w-32 rounded-lg border border-secondary bg-primary px-3 text-sm text-primary placeholder:text-tertiary focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                      />
-                      <Button
-                        type="button"
-                        color="secondary"
-                        size="sm"
-                        onClick={async () => {
-                          if (!/^\d{4,6}$/.test(pinInput)) {
-                            setPinError(t('pin.invalid'));
-                            return;
-                          }
-                          setPinError(null);
-                          try {
-                            await setMemberPin.mutateAsync({ userId: member.userId, pin: pinInput });
-                            setPinInput('');
-                          } catch (err) {
-                            setPinError(err instanceof Error ? err.message : 'Error');
-                          }
-                        }}
-                        isLoading={setMemberPin.isPending}
-                        disabled={!pinInput}
-                      >
-                        {t('pin.set')}
-                      </Button>
-                    </div>
-                  )}
-
-                  {pinError && (
-                    <p className="text-sm text-error-primary">{pinError}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                <Button type="button" color="secondary" onClick={handleClose}>
-                  {tCommon('cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSave}
-                  isLoading={updateMember.isPending}
-                >
-                  {tCommon('save')}
-                </Button>
+          {/* Module permissions */}
+          {!isAdmin && (
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('permissions.title')}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {PERMISSION_KEYS.map((key) => (
+                  <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                    <input
+                      type="checkbox"
+                      checked={!!permissions[key]}
+                      onChange={() => togglePermission(key)}
+                      style={{ width: 16, height: 16, accentColor: 'var(--green-ink)', cursor: 'pointer' }}
+                    />
+                    {t(`permissions.${key}`)}
+                  </label>
+                ))}
               </div>
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          )}
+
+          {isAdmin && (
+            <p style={{ fontSize: 13, color: 'var(--ink-faint)' }}>{t('permissions.adminHint')}</p>
+          )}
+
+          {/* PIN Section */}
+          <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', paddingTop: 16 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t('pin.title')}</p>
+            <p style={{ fontSize: 12, color: 'var(--ink-faint)', marginBottom: 12 }}>{t('pin.hint')}</p>
+
+            {member.hasPin ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="badge badge--success">{t('pin.hasPin')}</span>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
+                  onClick={async () => {
+                    setPinError(null);
+                    try {
+                      await removeMemberPin.mutateAsync(member.userId);
+                    } catch (err) {
+                      setPinError(err instanceof Error ? err.message : 'Error');
+                    }
+                  }}
+                  disabled={removeMemberPin.isPending}
+                >
+                  {removeMemberPin.isPending ? '...' : t('pin.remove')}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={pinInput}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setPinInput(val);
+                    setPinError(null);
+                  }}
+                  placeholder={t('pin.placeholder')}
+                  className="input"
+                  style={{ width: 120 }}
+                />
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
+                  onClick={async () => {
+                    if (!/^\d{4,6}$/.test(pinInput)) {
+                      setPinError(t('pin.invalid'));
+                      return;
+                    }
+                    setPinError(null);
+                    try {
+                      await setMemberPin.mutateAsync({ userId: member.userId, pin: pinInput });
+                      setPinInput('');
+                    } catch (err) {
+                      setPinError(err instanceof Error ? err.message : 'Error');
+                    }
+                  }}
+                  disabled={setMemberPin.isPending || !pinInput}
+                >
+                  {setMemberPin.isPending ? '...' : t('pin.set')}
+                </button>
+              </div>
+            )}
+
+            {pinError && (
+              <p style={{ marginTop: 6, fontSize: 12, color: 'var(--red, #dc2626)' }}>{pinError}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={handleClose}>
+            {tCommon('cancel')}
+          </button>
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={handleSave}
+            disabled={updateMember.isPending}
+          >
+            {updateMember.isPending ? '...' : tCommon('save')}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

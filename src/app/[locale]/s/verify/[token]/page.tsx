@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import { CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
@@ -51,64 +51,107 @@ export default function VerifyEmailPage() {
     verifyEmail();
   }, [token]);
 
+  const iconBox = (bg: string, children: React.ReactNode) => (
+    <div style={{
+      width: 56, height: 56, borderRadius: '50%', margin: '0 auto 1.25rem',
+      background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
-      <div className="w-full max-w-md">
-        {/* Loading */}
-        {status === 'loading' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-secondary">
-              <Loading02 className="h-6 w-6 text-brand-primary animate-spin" />
-            </div>
-            <h2 className="text-xl font-semibold text-primary">
-              {t('shifts.verify.loading')}
-            </h2>
-            <p className="mt-2 text-tertiary">
-              {t('shifts.verify.pleaseWait')}
-            </p>
-          </div>
-        )}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <header style={{
+        padding: '1rem 1.25rem',
+        borderBottom: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <Image src="/logo_dark.png" alt="OpenEOS" width={100} height={28} style={{ height: 28, width: 'auto' }} />
+      </header>
 
-        {/* Success */}
-        {status === 'success' && resultData && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-              <CheckCircle className="h-6 w-6 text-success-primary" />
-            </div>
-            <h2 className="text-xl font-semibold text-primary">
-              {t('shifts.verify.successTitle')}
-            </h2>
-            <p className="mt-2 text-tertiary">
-              {resultData.status === 'pending_approval'
-                ? t('shifts.verify.pendingApproval')
-                : t('shifts.verify.confirmed')}
-            </p>
+      {/* Body */}
+      <main style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '2rem 1rem',
+      }}>
+        <div className="app-card" style={{ maxWidth: 440, width: '100%' }}>
+          <div className="app-card__body" style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
 
-            <div className="mt-6 space-y-3">
-              <Link href={`/s/${resultData.planSlug}`}>
-                <Button color="secondary" className="w-full">
-                  {t('shifts.verify.backToPlan')}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
+            {/* Loading */}
+            {status === 'loading' && (
+              <>
+                {iconBox(
+                  'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                  <Loading02 style={{ width: 28, height: 28, color: 'var(--green-ink)', animation: 'spin 1s linear infinite' }} />
+                )}
+                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                  {t('shifts.verify.loading')}
+                </h2>
+                <p style={{ color: 'var(--mute)', fontSize: 15 }}>{t('shifts.verify.pleaseWait')}</p>
+              </>
+            )}
 
-        {/* Error */}
-        {status === 'error' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
-              <XCircle className="h-6 w-6 text-error-primary" />
-            </div>
-            <h2 className="text-xl font-semibold text-primary">
-              {t('shifts.verify.errorTitle')}
-            </h2>
-            <p className="mt-2 text-tertiary">
-              {errorMessage || t('shifts.verify.errorDescription')}
-            </p>
+            {/* Success */}
+            {status === 'success' && resultData && (
+              <>
+                {iconBox(
+                  'color-mix(in oklab, var(--green-soft) 70%, transparent)',
+                  <CheckCircle style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
+                )}
+                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                  {t('shifts.verify.successTitle')}
+                </h2>
+                <p style={{ color: 'var(--mute)', fontSize: 15, marginBottom: '1.5rem' }}>
+                  {resultData.status === 'pending_approval'
+                    ? t('shifts.verify.pendingApproval')
+                    : t('shifts.verify.confirmed')}
+                </p>
+
+                <div style={{ marginTop: 8 }}>
+                  <Link href={`/s/${resultData.planSlug}`}>
+                    <span className="btn btn--ghost btn--block">{t('shifts.verify.backToPlan')}</span>
+                  </Link>
+                </div>
+              </>
+            )}
+
+            {/* Error */}
+            {status === 'error' && (
+              <>
+                {iconBox(
+                  'color-mix(in oklab, #d24545 12%, transparent)',
+                  <XCircle style={{ width: 28, height: 28, color: '#d24545' }} />
+                )}
+                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                  {t('shifts.verify.errorTitle')}
+                </h2>
+                <p style={{ color: 'var(--mute)', fontSize: 15 }}>
+                  {errorMessage || t('shifts.verify.errorDescription')}
+                </p>
+              </>
+            )}
+
           </div>
-        )}
-      </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer style={{
+        padding: '1.25rem', textAlign: 'center',
+        borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+        fontSize: 13, color: 'var(--mute)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+      }}>
+        <span>© {new Date().getFullYear()} OpenEOS</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <a href="/impressum" style={{ color: 'inherit' }}>Impressum</a>
+      </footer>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }

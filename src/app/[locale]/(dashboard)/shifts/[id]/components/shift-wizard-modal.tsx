@@ -11,13 +11,8 @@ import {
   Clock,
   Users01,
   Check,
-  Trash01,
 } from '@untitledui/icons';
 
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Checkbox } from '@/components/ui/checkbox/checkbox';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan } from '@/types/shift';
@@ -39,6 +34,8 @@ interface ShiftWizardModalProps {
 }
 
 type WizardStep = 1 | 2 | 3 | 4;
+
+const STEP_LABELS = ['Datum', 'Zeit', 'Konfiguration', 'Vorschau'];
 
 export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModalProps) {
   const t = useTranslations();
@@ -254,346 +251,436 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
   const canProceedStep2 = timeToMinutes(endTime) > timeToMinutes(startTime);
   const canProceedStep3 = shiftsPerDayNum >= 1 && workersPerShiftNum >= 1;
 
+  if (!open) return null;
+
   return (
-    <DialogTrigger isOpen={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-xl">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <div className="flex items-center gap-3">
-                  {step > 1 && (
+    <div
+      className="modal__overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+    >
+      <div className="modal__panel" style={{ maxWidth: 560, width: '100%' }}>
+        {/* Header */}
+        <div className="modal__head">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={() => setStep((s) => (s - 1) as WizardStep)}
+                className="btn btn--ghost"
+                style={{ padding: '6px', minWidth: 'unset' }}
+                aria-label="Zurück"
+              >
+                <ArrowLeft className="size-5" />
+              </button>
+            )}
+            <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>
+              {t('shifts.wizard.title')}
+            </h2>
+          </div>
+
+          {/* Step indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {STEP_LABELS.map((label, i) => {
+                const stepNum = (i + 1) as WizardStep;
+                const isActive = stepNum === step;
+                const isDone = stepNum < step;
+                return (
+                  <div
+                    key={label}
+                    title={label}
+                    style={{
+                      width: isActive ? 24 : 8,
+                      height: 8,
+                      borderRadius: 4,
+                      transition: 'all 0.2s',
+                      background: isActive
+                        ? 'var(--green-ink)'
+                        : isDone
+                        ? 'color-mix(in oklab, var(--green-ink) 40%, transparent)'
+                        : 'color-mix(in oklab, var(--ink) 12%, transparent)',
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>
+              {t('shifts.wizard.step', { current: step, total: 4 })}
+            </span>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="btn btn--ghost"
+              style={{ padding: '6px', minWidth: 'unset' }}
+              aria-label="Schließen"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="modal__body">
+          {error && (
+            <div
+              style={{
+                marginBottom: 16,
+                borderRadius: 8,
+                padding: '10px 14px',
+                fontSize: 13,
+                background: 'color-mix(in oklab, var(--red, #dc2626) 10%, transparent)',
+                color: 'var(--red, #dc2626)',
+                border: '1px solid color-mix(in oklab, var(--red, #dc2626) 20%, transparent)',
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* Step 1: Date Range */}
+          {step === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
+                <Calendar className="size-5" />
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.selectDates')}</h3>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <label className="auth-field">
+                  <span>{t('shifts.wizard.startDate')}</span>
+                  <input
+                    type="date"
+                    className="input"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>{t('shifts.wizard.endDate')}</span>
+                  <input
+                    type="date"
+                    className="input"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              {startDate && endDate && (
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                  {t('shifts.wizard.daysCount', {
+                    count: Math.ceil(
+                      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    ) + 1,
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Time Range */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
+                <Clock className="size-5" />
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.selectTimes')}</h3>
+              </div>
+
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                {t('shifts.wizard.timesDescription')}
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <label className="auth-field">
+                  <span>{t('shifts.wizard.startTime')}</span>
+                  <input
+                    type="time"
+                    className="input"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>{t('shifts.wizard.endTime')}</span>
+                  <input
+                    type="time"
+                    className="input"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              {canProceedStep2 && (
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                  {t('shifts.wizard.totalHours', {
+                    hours: Math.round(
+                      (timeToMinutes(endTime) - timeToMinutes(startTime)) / 60 * 10
+                    ) / 10,
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Step 3: Configuration */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
+                <Users01 className="size-5" />
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.configure')}</h3>
+              </div>
+
+              <label className="auth-field">
+                <span>{t('shifts.wizard.shiftsPerDay')}</span>
+                <input
+                  type="number"
+                  className="input"
+                  value={shiftsPerDay}
+                  onChange={(e) =>
+                    setShiftsPerDay(String(Math.min(10, Math.max(1, parseInt(e.target.value) || 1))))
+                  }
+                />
+              </label>
+
+              {calculateShiftDuration > 0 && (
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                  {t('shifts.wizard.shiftDuration', {
+                    hours: Math.round(calculateShiftDuration / 60 * 10) / 10,
+                  })}
+                </p>
+              )}
+
+              <label className="auth-field">
+                <span>{t('shifts.wizard.workersPerShift')}</span>
+                <input
+                  type="number"
+                  className="input"
+                  value={workersPerShift}
+                  onChange={(e) =>
+                    setWorkersPerShift(String(Math.min(50, Math.max(1, parseInt(e.target.value) || 1))))
+                  }
+                />
+              </label>
+
+              {/* Overlap selection */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>
+                  {t('shifts.wizard.overlap')}
+                </label>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--ink-faint)' }}>
+                  {t('shifts.wizard.overlapDescription')}
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {[0, 15, 30, 45].map((mins) => (
                     <button
+                      key={mins}
                       type="button"
-                      onClick={() => setStep((s) => (s - 1) as WizardStep)}
-                      className="rounded-lg p-1.5 text-fg-quaternary transition hover:bg-secondary"
+                      onClick={() => setOverlapMinutes(String(mins))}
+                      className={overlapMins === mins ? 'btn btn--primary' : 'btn btn--ghost'}
+                      style={{ fontSize: 13 }}
                     >
-                      <ArrowLeft className="size-5" />
+                      {mins === 0 ? t('shifts.wizard.noOverlap') : `${mins} min`}
                     </button>
-                  )}
-                  <h2 className="text-lg font-semibold text-primary">
-                    {t('shifts.wizard.title')}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-tertiary">
-                    {t('shifts.wizard.step', { current: step, total: 4 })}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                  >
-                    <X className="size-5" />
-                  </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="px-6 py-5">
-                {error && (
-                  <div className="mb-4 rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                    {error}
-                  </div>
-                )}
+              <div
+                style={{
+                  borderRadius: 8,
+                  padding: '12px 14px',
+                  background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
+                }}
+              >
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>
+                  {t('shifts.wizard.summary')}:
+                </p>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--ink-faint)' }}>
+                  {t('shifts.wizard.summaryText', {
+                    days: Math.ceil(
+                      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    ) + 1,
+                    shiftsPerDay: shiftsPerDayNum,
+                    totalShifts:
+                      (Math.ceil(
+                        (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      ) + 1) * shiftsPerDayNum,
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
 
-                {/* Step 1: Date Range */}
-                {step === 1 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-secondary">
-                      <Calendar className="h-5 w-5" />
-                      <h3 className="font-medium">{t('shifts.wizard.selectDates')}</h3>
+          {/* Step 4: Preview & Adjust */}
+          {step === 4 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
+                  <Check className="size-5" />
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.preview')}</h3>
+                </div>
+                <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>
+                  {enabledShiftsCount} / {generatedShifts.length} {t('shifts.wizard.selected')}
+                </span>
+              </div>
+
+              <div style={{ maxHeight: 280, overflowY: 'auto', paddingRight: 4, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {Object.entries(shiftsByDate).map(([date, shifts]) => (
+                  <div
+                    key={date}
+                    style={{
+                      borderRadius: 8,
+                      border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+                        background: 'color-mix(in oklab, var(--ink) 3%, transparent)',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      {formatDateDisplay(date)}
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        type="date"
-                        label={t('shifts.wizard.startDate')}
-                        value={startDate}
-                        onChange={(value) => setStartDate(value)}
-                      />
-                      <Input
-                        type="date"
-                        label={t('shifts.wizard.endDate')}
-                        value={endDate}
-                        onChange={(value) => setEndDate(value)}
-                      />
-                    </div>
-
-                    {startDate && endDate && (
-                      <p className="text-sm text-tertiary">
-                        {t('shifts.wizard.daysCount', {
-                          count: Math.ceil(
-                            (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          ) + 1,
-                        })}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 2: Time Range */}
-                {step === 2 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-secondary">
-                      <Clock className="h-5 w-5" />
-                      <h3 className="font-medium">{t('shifts.wizard.selectTimes')}</h3>
-                    </div>
-
-                    <p className="text-sm text-tertiary">
-                      {t('shifts.wizard.timesDescription')}
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        type="time"
-                        label={t('shifts.wizard.startTime')}
-                        value={startTime}
-                        onChange={(value) => setStartTime(value)}
-                      />
-                      <Input
-                        type="time"
-                        label={t('shifts.wizard.endTime')}
-                        value={endTime}
-                        onChange={(value) => setEndTime(value)}
-                      />
-                    </div>
-
-                    {canProceedStep2 && (
-                      <p className="text-sm text-tertiary">
-                        {t('shifts.wizard.totalHours', {
-                          hours: Math.round(
-                            (timeToMinutes(endTime) - timeToMinutes(startTime)) / 60 * 10
-                          ) / 10,
-                        })}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 3: Configuration */}
-                {step === 3 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-secondary">
-                      <Users01 className="h-5 w-5" />
-                      <h3 className="font-medium">{t('shifts.wizard.configure')}</h3>
-                    </div>
-
-                    <Input
-                      type="number"
-                      label={t('shifts.wizard.shiftsPerDay')}
-                      value={shiftsPerDay}
-                      onChange={(value) => setShiftsPerDay(String(Math.min(10, Math.max(1, parseInt(value) || 1))))}
-                    />
-
-                    {calculateShiftDuration > 0 && (
-                      <p className="text-sm text-tertiary">
-                        {t('shifts.wizard.shiftDuration', {
-                          hours: Math.round(calculateShiftDuration / 60 * 10) / 10,
-                        })}
-                      </p>
-                    )}
-
-                    <Input
-                      type="number"
-                      label={t('shifts.wizard.workersPerShift')}
-                      value={workersPerShift}
-                      onChange={(value) => setWorkersPerShift(String(Math.min(50, Math.max(1, parseInt(value) || 1))))}
-                    />
-
-                    {/* Overlap selection */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-secondary">
-                        {t('shifts.wizard.overlap')}
-                      </label>
-                      <p className="text-xs text-tertiary">
-                        {t('shifts.wizard.overlapDescription')}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {[0, 15, 30, 45].map((mins) => (
-                          <button
-                            key={mins}
-                            type="button"
-                            onClick={() => setOverlapMinutes(String(mins))}
-                            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                              overlapMins === mins
-                                ? 'bg-brand-primary text-white'
-                                : 'bg-secondary text-secondary hover:bg-secondary/80'
-                            }`}
-                          >
-                            {mins === 0 ? t('shifts.wizard.noOverlap') : `${mins} min`}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg bg-secondary/50 p-3">
-                      <p className="text-sm font-medium text-secondary">
-                        {t('shifts.wizard.summary')}:
-                      </p>
-                      <p className="mt-1 text-sm text-tertiary">
-                        {t('shifts.wizard.summaryText', {
-                          days: Math.ceil(
-                            (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          ) + 1,
-                          shiftsPerDay: shiftsPerDayNum,
-                          totalShifts:
-                            (Math.ceil(
-                              (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1) * shiftsPerDayNum,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Preview & Adjust */}
-                {step === 4 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-secondary">
-                        <Check className="h-5 w-5" />
-                        <h3 className="font-medium">{t('shifts.wizard.preview')}</h3>
-                      </div>
-                      <span className="text-sm text-tertiary">
-                        {enabledShiftsCount} / {generatedShifts.length} {t('shifts.wizard.selected')}
-                      </span>
-                    </div>
-
-                    <div className="max-h-64 space-y-3 overflow-y-auto pr-2">
-                      {Object.entries(shiftsByDate).map(([date, shifts]) => (
-                        <div key={date} className="rounded-lg border border-secondary">
-                          <div className="border-b border-secondary bg-secondary/30 px-3 py-2">
-                            <span className="font-medium text-primary">
-                              {formatDateDisplay(date)}
-                            </span>
+                    <div>
+                      {shifts.map((shift, idx) => (
+                        <div
+                          key={shift.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '8px 12px',
+                            opacity: shift.enabled ? 1 : 0.45,
+                            borderTop: idx > 0 ? '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' : undefined,
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={shift.enabled}
+                            onChange={() => toggleShift(shift.id)}
+                            style={{ width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+                          />
+                          <div style={{ display: 'flex', flex: 1, alignItems: 'center', gap: 4 }}>
+                            <input
+                              type="time"
+                              value={shift.startTime}
+                              onChange={(e) => updateShiftStartTime(shift.id, e.target.value)}
+                              disabled={!shift.enabled}
+                              className="input"
+                              style={{ width: 90, padding: '3px 8px', fontSize: 13 }}
+                            />
+                            <span style={{ color: 'var(--ink-faint)', fontSize: 13 }}>–</span>
+                            <input
+                              type="time"
+                              value={shift.endTime}
+                              onChange={(e) => updateShiftEndTime(shift.id, e.target.value)}
+                              disabled={!shift.enabled}
+                              className="input"
+                              style={{ width: 90, padding: '3px 8px', fontSize: 13 }}
+                            />
                           </div>
-                          <div className="divide-y divide-secondary">
-                            {shifts.map((shift) => (
-                              <div
-                                key={shift.id}
-                                className={`flex items-center gap-2 px-3 py-2 ${
-                                  !shift.enabled ? 'opacity-50' : ''
-                                }`}
-                              >
-                                <Checkbox
-                                  isSelected={shift.enabled}
-                                  onChange={() => toggleShift(shift.id)}
-                                />
-                                <div className="flex flex-1 items-center gap-1">
-                                  <input
-                                    type="time"
-                                    value={shift.startTime}
-                                    onChange={(e) =>
-                                      updateShiftStartTime(shift.id, e.target.value)
-                                    }
-                                    disabled={!shift.enabled}
-                                    className="w-20 rounded border border-secondary bg-primary px-1.5 py-0.5 text-sm text-primary focus:border-brand-primary focus:outline-none disabled:opacity-50"
-                                  />
-                                  <span className="text-tertiary">-</span>
-                                  <input
-                                    type="time"
-                                    value={shift.endTime}
-                                    onChange={(e) =>
-                                      updateShiftEndTime(shift.id, e.target.value)
-                                    }
-                                    disabled={!shift.enabled}
-                                    className="w-20 rounded border border-secondary bg-primary px-1.5 py-0.5 text-sm text-primary focus:border-brand-primary focus:outline-none disabled:opacity-50"
-                                  />
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    type="button"
-                                    className="rounded p-1 hover:bg-secondary disabled:opacity-50"
-                                    onClick={() =>
-                                      updateShiftWorkers(shift.id, shift.requiredWorkers - 1)
-                                    }
-                                    disabled={!shift.enabled}
-                                  >
-                                    <span className="text-sm font-medium text-secondary">-</span>
-                                  </button>
-                                  <span className="w-6 text-center text-sm text-primary">
-                                    {shift.requiredWorkers}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="rounded p-1 hover:bg-secondary disabled:opacity-50"
-                                    onClick={() =>
-                                      updateShiftWorkers(shift.id, shift.requiredWorkers + 1)
-                                    }
-                                    disabled={!shift.enabled}
-                                  >
-                                    <span className="text-sm font-medium text-secondary">+</span>
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <button
+                              type="button"
+                              className="btn btn--ghost"
+                              style={{ padding: '2px 8px', minWidth: 'unset', fontSize: 14, fontWeight: 600 }}
+                              onClick={() => updateShiftWorkers(shift.id, shift.requiredWorkers - 1)}
+                              disabled={!shift.enabled}
+                            >
+                              -
+                            </button>
+                            <span style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 600 }}>
+                              {shift.requiredWorkers}
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn--ghost"
+                              style={{ padding: '2px 8px', minWidth: 'unset', fontSize: 14, fontWeight: 600 }}
+                              onClick={() => updateShiftWorkers(shift.id, shift.requiredWorkers + 1)}
+                              disabled={!shift.enabled}
+                            >
+                              +
+                            </button>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                <Button type="button" color="secondary" onClick={handleClose}>
-                  {t('common.cancel')}
-                </Button>
-
-                {step === 1 && (
-                  <Button
-                    color="primary"
-                    iconTrailing={ArrowRight}
-                    onClick={() => setStep(2)}
-                    isDisabled={!canProceedStep1}
-                  >
-                    {t('common.next')}
-                  </Button>
-                )}
-
-                {step === 2 && (
-                  <Button
-                    color="primary"
-                    iconTrailing={ArrowRight}
-                    onClick={() => setStep(3)}
-                    isDisabled={!canProceedStep2}
-                  >
-                    {t('common.next')}
-                  </Button>
-                )}
-
-                {step === 3 && (
-                  <Button
-                    color="primary"
-                    iconTrailing={ArrowRight}
-                    onClick={generateShiftsPreview}
-                    isDisabled={!canProceedStep3}
-                  >
-                    {t('shifts.wizard.generatePreview')}
-                  </Button>
-                )}
-
-                {step === 4 && (
-                  <Button
-                    color="primary"
-                    onClick={() => createMutation.mutate()}
-                    isLoading={createMutation.isPending}
-                    isDisabled={enabledShiftsCount === 0 || createMutation.isPending}
-                  >
-                    {t('shifts.wizard.createShifts', { count: enabledShiftsCount })}
-                  </Button>
-                )}
+                ))}
               </div>
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={handleClose}>
+            {t('common.cancel')}
+          </button>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            {step === 1 && (
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => setStep(2)}
+                disabled={!canProceedStep1}
+              >
+                {t('common.next')}
+                <ArrowRight className="size-4" />
+              </button>
+            )}
+
+            {step === 2 && (
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => setStep(3)}
+                disabled={!canProceedStep2}
+              >
+                {t('common.next')}
+                <ArrowRight className="size-4" />
+              </button>
+            )}
+
+            {step === 3 && (
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={generateShiftsPreview}
+                disabled={!canProceedStep3}
+              >
+                {t('shifts.wizard.generatePreview')}
+                <ArrowRight className="size-4" />
+              </button>
+            )}
+
+            {step === 4 && (
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => createMutation.mutate()}
+                disabled={enabledShiftsCount === 0 || createMutation.isPending}
+              >
+                {createMutation.isPending
+                  ? '...'
+                  : t('shifts.wizard.createShifts', { count: enabledShiftsCount })}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

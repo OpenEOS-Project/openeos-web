@@ -13,8 +13,6 @@ import {
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useTranslations } from 'next-intl';
-import { Check, Loading01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
 import {
   useCreatePrintTemplate,
   useUpdatePrintTemplate,
@@ -45,49 +43,17 @@ function createElementFromPalette(item: PaletteItem): TemplateElement {
 
   if (item.type === 'field' && item.field) {
     base.field = item.field;
-
     switch (item.field) {
-      case 'organization_name':
-        base.align = 'center';
-        base.bold = true;
-        base.big = true;
-        break;
-      case 'organization_address':
-        base.align = 'center';
-        break;
-      case 'organization_phone':
-        base.align = 'center';
-        base.label = 'Tel: ';
-        base.condition = 'organization.phone';
-        break;
-      case 'event_name':
-        base.align = 'center';
-        base.condition = 'event_name';
-        break;
-      case 'table_number':
-        base.label = 'Tisch: ';
-        base.condition = 'table_number';
-        break;
-      case 'customer_name':
-        base.label = 'Kunde: ';
-        base.condition = 'customer_name';
-        break;
-      case 'order_number':
-        base.label = '#';
-        base.bold = true;
-        break;
-      case 'daily_number':
-        base.label = '#';
-        base.big = true;
-        break;
-      case 'total':
-        base.bold = true;
-        break;
-      case 'items_list':
-        base.showNotes = true;
-        base.showOptions = true;
-        base.showPrice = true;
-        break;
+      case 'organization_name': base.align = 'center'; base.bold = true; base.big = true; break;
+      case 'organization_address': base.align = 'center'; break;
+      case 'organization_phone': base.align = 'center'; base.label = 'Tel: '; base.condition = 'organization.phone'; break;
+      case 'event_name': base.align = 'center'; base.condition = 'event_name'; break;
+      case 'table_number': base.label = 'Tisch: '; base.condition = 'table_number'; break;
+      case 'customer_name': base.label = 'Kunde: '; base.condition = 'customer_name'; break;
+      case 'order_number': base.label = '#'; base.bold = true; break;
+      case 'daily_number': base.label = '#'; base.big = true; break;
+      case 'total': base.bold = true; break;
+      case 'items_list': base.showNotes = true; base.showOptions = true; base.showPrice = true; break;
     }
   } else if (item.type === 'separator') {
     base.char = '=';
@@ -110,47 +76,30 @@ export function InlineTemplateDesigner({
   const createTemplate = useCreatePrintTemplate(organizationId);
   const updateTemplate = useUpdatePrintTemplate(organizationId);
 
-  // Track the template ID (may be null if not yet created)
-  const [templateId, setTemplateId] = useState<string | null>(
-    existingTemplate?.id || null,
-  );
+  const [templateId, setTemplateId] = useState<string | null>(existingTemplate?.id || null);
 
-  // Initialize design from existing template or defaults
   const [design, setDesign] = useState<PrintTemplateDesign>(() => {
-    if (
-      existingTemplate?.template?.elements &&
-      existingTemplate.template.elements.length > 0
-    ) {
+    if (existingTemplate?.template?.elements && existingTemplate.template.elements.length > 0) {
       return existingTemplate.template;
     }
-    return {
-      paperWidth: 80,
-      elements: getDefaultElements(templateType),
-    };
+    return { paperWidth: 80, elements: getDefaultElements(templateType) };
   });
 
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
 
-  const selectedElement =
-    design.elements.find((el) => el.id === selectedElementId) || null;
+  const selectedElement = design.elements.find((el) => el.id === selectedElementId) || null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  // Sync templateId when existingTemplate changes (e.g. after creation)
   useEffect(() => {
-    if (existingTemplate?.id && !templateId) {
-      setTemplateId(existingTemplate.id);
-    }
+    if (existingTemplate?.id && !templateId) setTemplateId(existingTemplate.id);
   }, [existingTemplate?.id, templateId]);
 
-  // Reset save indicator
   useEffect(() => {
     if (saveState === 'saved') {
       const timeout = setTimeout(() => setSaveState('idle'), 2000);
@@ -165,27 +114,19 @@ export function InlineTemplateDesigner({
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
-
     if (!over) return;
 
     const data = active.data.current;
     if (data?.type === 'palette-item') {
       const paletteItem = data.item as PaletteItem;
       const newElement = createElementFromPalette(paletteItem);
-
       setDesign((prev) => {
         const overIndex = prev.elements.findIndex((el) => el.id === over.id);
         const elements = [...prev.elements];
-
-        if (overIndex >= 0) {
-          elements.splice(overIndex + 1, 0, newElement);
-        } else {
-          elements.push(newElement);
-        }
-
+        if (overIndex >= 0) elements.splice(overIndex + 1, 0, newElement);
+        else elements.push(newElement);
         return { ...prev, elements };
       });
-
       setSelectedElementId(newElement.id);
       return;
     }
@@ -194,41 +135,23 @@ export function InlineTemplateDesigner({
       setDesign((prev) => {
         const oldIndex = prev.elements.findIndex((el) => el.id === active.id);
         const newIndex = prev.elements.findIndex((el) => el.id === over.id);
-
         if (oldIndex === -1 || newIndex === -1) return prev;
-
-        return {
-          ...prev,
-          elements: arrayMove(prev.elements, oldIndex, newIndex),
-        };
+        return { ...prev, elements: arrayMove(prev.elements, oldIndex, newIndex) };
       });
     }
   }, []);
 
-  const handleUpdateElement = useCallback(
-    (id: string, updates: Partial<TemplateElement>) => {
-      setDesign((prev) => ({
-        ...prev,
-        elements: prev.elements.map((el) =>
-          el.id === id ? { ...el, ...updates } : el,
-        ),
-      }));
-    },
-    [],
-  );
+  const handleUpdateElement = useCallback((id: string, updates: Partial<TemplateElement>) => {
+    setDesign((prev) => ({
+      ...prev,
+      elements: prev.elements.map((el) => el.id === id ? { ...el, ...updates } : el),
+    }));
+  }, []);
 
-  const handleRemoveElement = useCallback(
-    (id: string) => {
-      setDesign((prev) => ({
-        ...prev,
-        elements: prev.elements.filter((el) => el.id !== id),
-      }));
-      if (selectedElementId === id) {
-        setSelectedElementId(null);
-      }
-    },
-    [selectedElementId],
-  );
+  const handleRemoveElement = useCallback((id: string) => {
+    setDesign((prev) => ({ ...prev, elements: prev.elements.filter((el) => el.id !== id) }));
+    if (selectedElementId === id) setSelectedElementId(null);
+  }, [selectedElementId]);
 
   const handlePaperWidthChange = useCallback((width: 80 | 58) => {
     setDesign((prev) => ({ ...prev, paperWidth: width }));
@@ -241,13 +164,8 @@ export function InlineTemplateDesigner({
       const updatedDesign = { ...design, generatedTemplate };
 
       if (templateId) {
-        // Update existing template
-        await updateTemplate.mutateAsync({
-          templateId,
-          data: { template: updatedDesign },
-        });
+        await updateTemplate.mutateAsync({ templateId, data: { template: updatedDesign } });
       } else {
-        // Create new template on first save
         const response = await createTemplate.mutateAsync({
           name: defaultName,
           type: templateType,
@@ -255,9 +173,7 @@ export function InlineTemplateDesigner({
           isDefault: true,
         });
         const created = (response as { data: PrintTemplate }).data;
-        if (created?.id) {
-          setTemplateId(created.id);
-        }
+        if (created?.id) setTemplateId(created.id);
       }
 
       setDesign(updatedDesign);
@@ -274,67 +190,66 @@ export function InlineTemplateDesigner({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-col" style={{ height: 'calc(100vh - 280px)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 280px)' }}>
         {/* Toolbar */}
-        <div className="flex items-center justify-between border-b border-secondary bg-primary px-4 py-2 rounded-t-xl">
-          <div className="flex items-center gap-3">
-            {/* Paper width toggle */}
-            <span className="text-xs text-tertiary">{t('paperWidth')}:</span>
-            <div className="flex rounded-lg border border-secondary">
-              <button
-                type="button"
-                onClick={() => handlePaperWidthChange(80)}
-                className={`px-3 py-1 text-xs font-medium transition-colors rounded-l-lg ${
-                  design.paperWidth === 80
-                    ? 'bg-brand-secondary text-brand-primary'
-                    : 'text-tertiary hover:bg-secondary'
-                }`}
-              >
-                80mm
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePaperWidthChange(58)}
-                className={`px-3 py-1 text-xs font-medium transition-colors rounded-r-lg ${
-                  design.paperWidth === 58
-                    ? 'bg-brand-secondary text-brand-primary'
-                    : 'text-tertiary hover:bg-secondary'
-                }`}
-              >
-                58mm
-              </button>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+          background: 'var(--paper)', padding: '8px 16px', borderRadius: '10px 10px 0 0',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+              {t('paperWidth')}:
+            </span>
+            <div style={{
+              display: 'flex', borderRadius: 8,
+              border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)', overflow: 'hidden',
+            }}>
+              {([80, 58] as const).map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => handlePaperWidthChange(w)}
+                  style={{
+                    padding: '4px 12px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                    background: design.paperWidth === w ? 'color-mix(in oklab, var(--green-ink) 10%, transparent)' : 'transparent',
+                    color: design.paperWidth === w ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+                    border: 'none',
+                  }}
+                >
+                  {w}mm
+                </button>
+              ))}
             </div>
           </div>
 
-          <Button
+          <button
+            className="btn btn--primary"
             onClick={handleSave}
-            isDisabled={saveState === 'saving'}
-            size="sm"
-            iconLeading={
-              saveState === 'saving'
-                ? Loading01
-                : saveState === 'saved'
-                  ? Check
-                  : undefined
-            }
+            disabled={saveState === 'saving'}
+            style={{ padding: '6px 14px', fontSize: 13 }}
           >
-            {saveState === 'saving'
-              ? t('saving')
-              : saveState === 'saved'
-                ? t('saved')
-                : t('save')}
-          </Button>
+            {saveState === 'saving' ? t('saving') : saveState === 'saved' ? `✓ ${t('saved')}` : t('save')}
+          </button>
         </div>
 
         {/* 3-column layout */}
-        <div className="flex flex-1 overflow-hidden rounded-b-xl border border-t-0 border-secondary">
+        <div style={{
+          display: 'flex', flex: 1, overflow: 'hidden',
+          border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+          borderTop: 'none', borderRadius: '0 0 10px 10px',
+        }}>
           {/* Left: Palette */}
-          <div className="w-60 shrink-0 border-r border-secondary bg-primary">
+          <div style={{
+            width: 240, flexShrink: 0,
+            borderRight: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+            background: 'var(--paper)',
+          }}>
             <ElementPalette />
           </div>
 
           {/* Center: Canvas */}
-          <div className="flex-1 bg-secondary">
+          <div style={{ flex: 1, background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
             <ReceiptCanvas
               design={design}
               selectedElementId={selectedElementId}
@@ -343,12 +258,15 @@ export function InlineTemplateDesigner({
             />
           </div>
 
-          {/* Right: Properties (slides in when element selected) */}
-          <div
-            className="shrink-0 overflow-hidden border-secondary bg-primary transition-[width,border-width] duration-200 ease-in-out"
-            style={{ width: selectedElement ? '320px' : '0px', borderLeftWidth: selectedElement ? '1px' : '0px' }}
-          >
-            <div className="w-80">
+          {/* Right: Properties */}
+          <div style={{
+            flexShrink: 0, overflow: 'hidden',
+            borderLeft: selectedElement ? '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' : 'none',
+            background: 'var(--paper)',
+            transition: 'width 200ms ease-in-out',
+            width: selectedElement ? '320px' : '0px',
+          }}>
+            <div style={{ width: 320 }}>
               {selectedElement && (
                 <PropertyPanel
                   element={selectedElement}
@@ -363,7 +281,12 @@ export function InlineTemplateDesigner({
 
       <DragOverlay>
         {activeId ? (
-          <div className="rounded-lg border border-brand-solid bg-brand-secondary px-3 py-2 text-sm font-medium text-brand-primary shadow-lg">
+          <div style={{
+            borderRadius: 8, border: '1px solid var(--green-ink)',
+            background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)',
+            padding: '6px 12px', fontSize: 13, fontWeight: 500,
+            color: 'var(--green-ink)', boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+          }}>
             Verschieben...
           </div>
         ) : null}

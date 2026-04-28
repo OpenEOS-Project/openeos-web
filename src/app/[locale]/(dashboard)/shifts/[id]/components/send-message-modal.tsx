@@ -3,11 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
-import { X } from '@untitledui/icons';
-
-import { Button } from '@/components/ui/buttons/button';
-import { Textarea } from '@/components/ui/textarea/textarea';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftRegistration } from '@/types/shift';
@@ -26,22 +21,12 @@ export function SendMessageModal({ open, registration, onClose }: SendMessageMod
   const [error, setError] = useState<string | null>(null);
 
   const sendMutation = useMutation({
-    mutationFn: () =>
-      shiftsApi.sendMessage(organizationId!, registration!.id, message),
-    onSuccess: () => {
-      setMessage('');
-      onClose();
-    },
-    onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
-    },
+    mutationFn: () => shiftsApi.sendMessage(organizationId!, registration!.id, message),
+    onSuccess: () => { setMessage(''); onClose(); },
+    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
   });
 
-  const handleClose = () => {
-    setMessage('');
-    setError(null);
-    onClose();
-  };
+  const handleClose = () => { setMessage(''); setError(null); onClose(); };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,68 +35,49 @@ export function SendMessageModal({ open, registration, onClose }: SendMessageMod
     sendMutation.mutate();
   };
 
+  if (!open) return null;
+
   return (
-    <DialogTrigger isOpen={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-md">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">
-                  {t('shifts.registration.sendMessage')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
-                >
-                  <X className="size-5" />
-                </button>
+    <div className="modal__backdrop" onClick={handleClose}>
+      <div className="modal__box" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('shifts.registration.sendMessage')}</div>
+          <button className="modal__close" onClick={handleClose} aria-label="Schließen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="modal__body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {error && (
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              )}
+              {registration && (
+                <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
+                  Nachricht an: <strong>{registration.name}</strong> ({registration.email})
+                </p>
+              )}
+              <div className="auth-field">
+                <textarea
+                  className="textarea"
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={t('shifts.registration.messagePlaceholder')}
+                />
               </div>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4 px-6 py-5">
-                  {error && (
-                    <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                      {error}
-                    </div>
-                  )}
-
-                  {registration && (
-                    <p className="text-sm text-secondary">
-                      Nachricht an: <strong>{registration.name}</strong> ({registration.email})
-                    </p>
-                  )}
-
-                  <Textarea
-                    value={message}
-                    onChange={(value) => setMessage(value)}
-                    placeholder={t('shifts.registration.messagePlaceholder')}
-                    rows={4}
-                  />
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-secondary px-6 py-4">
-                  <Button type="button" color="secondary" onClick={handleClose}>
-                    {t('common.cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    isDisabled={!message.trim() || sendMutation.isPending}
-                    isLoading={sendMutation.isPending}
-                  >
-                    {t('shifts.registration.sendMessage')}
-                  </Button>
-                </div>
-              </form>
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          </div>
+
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
+            <button type="submit" className="btn btn--primary" disabled={!message.trim() || sendMutation.isPending}>
+              {sendMutation.isPending ? '...' : t('shifts.registration.sendMessage')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

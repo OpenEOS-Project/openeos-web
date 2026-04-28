@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/buttons/button';
 import {
   useActivateEvent,
   useDeactivateEvent,
@@ -103,27 +102,34 @@ export function EventsContainer() {
         onClose={handleModalClose}
       />
 
-      {/* Delete confirmation modal */}
       {deletingEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/70 backdrop-blur-[6px]">
-          <div className="w-full max-w-md rounded-xl bg-primary p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-primary">{t('deleteConfirm.title')}</h3>
-            <p className="mt-2 text-sm text-tertiary">{t('deleteConfirm.message')}</p>
-            <div className="mt-6 flex justify-end gap-3">
-              <Button
-                color="secondary"
+        <div className="modal__overlay" onClick={() => setDeletingEvent(null)}>
+          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <h2>{t('deleteConfirm.title')}</h2>
+            </div>
+            <div className="modal__body">
+              <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
+                {t('deleteConfirm.message')}
+              </p>
+            </div>
+            <div className="modal__foot">
+              <button
+                type="button"
+                className="btn btn--ghost"
                 onClick={() => setDeletingEvent(null)}
               >
                 {tCommon('cancel')}
-              </Button>
-              <Button
-                color="primary-destructive"
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                style={{ background: 'var(--error, #d24545)' }}
                 onClick={handleDeleteConfirm}
-                isLoading={deleteEvent.isPending}
-                isDisabled={deleteEvent.isPending}
+                disabled={deleteEvent.isPending}
               >
-                {t('deleteConfirm.confirm')}
-              </Button>
+                {deleteEvent.isPending ? '...' : t('deleteConfirm.confirm')}
+              </button>
             </div>
           </div>
         </div>

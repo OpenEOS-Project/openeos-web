@@ -3,29 +3,19 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  Plus,
-  Play,
-  CornerDownLeft,
-} from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Badge } from '@/components/ui/badges/badges';
-import { EmptyState } from '@/components/ui/empty-state/empty-state';
-import { Dropdown } from '@/components/ui/dropdown/dropdown';
-import {
   useRentalAssignments,
   useActivateRental,
   useReturnRental,
 } from '@/hooks/use-rentals';
 import { AssignmentFormModal } from './assignment-form-modal';
 import type { RentalAssignmentStatus } from '@/types/rental';
-import type { BadgeColors } from '@/components/ui/badges/badge-types';
 
-const statusConfig: Record<RentalAssignmentStatus, BadgeColors> = {
-  pending: 'gray',
-  confirmed: 'brand',
-  active: 'success',
-  returned: 'gray',
-  cancelled: 'error',
+const statusBadge: Record<RentalAssignmentStatus, string> = {
+  pending: 'badge badge--neutral',
+  confirmed: 'badge badge--info',
+  active: 'badge badge--success',
+  returned: 'badge badge--neutral',
+  cancelled: 'badge badge--error',
 };
 
 function formatCurrency(amount: number): string {
@@ -50,8 +40,9 @@ export function AssignmentsList() {
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -59,132 +50,102 @@ export function AssignmentsList() {
   if (!assignments || assignments.length === 0) {
     return (
       <>
-        <div className="rounded-xl border border-secondary bg-primary p-6 shadow-xs">
-          <EmptyState
-            icon="settings"
-            title={t('title')}
-            description={t('noAssignments')}
-            action={
-              <Button
-                size="sm"
-                iconLeading={Plus}
-                onClick={() => setShowCreateModal(true)}
-              >
-                {t('add')}
-              </Button>
-            }
-          />
+        <div className="app-card">
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="empty-state__title">{t('title')}</h3>
+            <p className="empty-state__sub">{t('noAssignments')}</p>
+            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
+              {t('add')}
+            </button>
+          </div>
         </div>
-
-        {showCreateModal && (
-          <AssignmentFormModal onClose={() => setShowCreateModal(false)} />
-        )}
+        {showCreateModal && <AssignmentFormModal onClose={() => setShowCreateModal(false)} />}
       </>
     );
   }
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-tertiary">
-          {assignments.length} {t('title')}
-        </p>
-        <Button
-          size="sm"
-          iconLeading={Plus}
-          onClick={() => setShowCreateModal(true)}
-        >
-          {t('add')}
-        </Button>
-      </div>
+      <div className="app-card app-card--flat">
+        <div className="app-card__head">
+          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+            {assignments.length} {t('title')}
+          </span>
+          <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
+            {t('add')}
+          </button>
+        </div>
 
-      <div className="overflow-hidden rounded-xl border border-secondary">
-        <table className="w-full">
-          <thead className="bg-secondary">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.hardware')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.organization')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.period')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.amount')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-tertiary">
-                {t('table.status')}
-              </th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-tertiary">
-                {t('table.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-secondary bg-primary">
-            {assignments.map((assignment) => (
-              <tr key={assignment.id} className="hover:bg-secondary/50">
-                <td className="px-4 py-3">
-                  <p className="font-medium text-primary">
-                    {assignment.rentalHardware?.name ?? '-'}
-                  </p>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-secondary">
-                    {assignment.organization?.name ?? '-'}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-secondary">
-                    {formatDate(assignment.startDate)} - {formatDate(assignment.endDate)}
-                  </span>
-                  <p className="text-xs text-tertiary">{assignment.totalDays} {t('days')}</p>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm font-medium text-primary">
-                    {formatCurrency(assignment.totalAmount)}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <Badge color={statusConfig[assignment.status]} size="sm">
-                    {t(`status.${assignment.status}`)}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Dropdown.Root>
-                    <Dropdown.DotsButton />
-                    <Dropdown.Popover placement="bottom end">
-                      <Dropdown.Menu>
-                        {(assignment.status === 'confirmed' || assignment.status === 'pending') && (
-                          <Dropdown.Item
-                            onAction={() => activateMutation.mutate(assignment.id)}
-                            isDisabled={activateMutation.isPending}
-                            icon={Play}
-                            label={t('activate')}
-                          />
-                        )}
-                        {assignment.status === 'active' && (
-                          <Dropdown.Item
-                            onAction={() => returnMutation.mutate(assignment.id)}
-                            isDisabled={returnMutation.isPending}
-                            icon={CornerDownLeft}
-                            label={t('return')}
-                          />
-                        )}
-                      </Dropdown.Menu>
-                    </Dropdown.Popover>
-                  </Dropdown.Root>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('table.hardware')}</th>
+                <th>{t('table.organization')}</th>
+                <th>{t('table.period')}</th>
+                <th className="text-right">{t('table.amount')}</th>
+                <th>{t('table.status')}</th>
+                <th className="text-right">{t('table.actions')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {assignments.map((assignment) => (
+                <tr key={assignment.id}>
+                  <td style={{ fontWeight: 600 }}>{assignment.rentalHardware?.name ?? '-'}</td>
+                  <td>{assignment.organization?.name ?? '-'}</td>
+                  <td>
+                    <div className="mono" style={{ fontSize: 13 }}>
+                      {formatDate(assignment.startDate)} – {formatDate(assignment.endDate)}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
+                      {assignment.totalDays} {t('days')}
+                    </div>
+                  </td>
+                  <td className="mono text-right" style={{ fontWeight: 600 }}>
+                    {formatCurrency(assignment.totalAmount)}
+                  </td>
+                  <td>
+                    <span className={statusBadge[assignment.status]}>
+                      {t(`status.${assignment.status}`)}
+                    </span>
+                  </td>
+                  <td className="text-right">
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      {(assignment.status === 'confirmed' || assignment.status === 'pending') && (
+                        <button
+                          className="btn btn--primary"
+                          style={{ fontSize: 12 }}
+                          onClick={() => activateMutation.mutate(assignment.id)}
+                          disabled={activateMutation.isPending}
+                        >
+                          {t('activate')}
+                        </button>
+                      )}
+                      {assignment.status === 'active' && (
+                        <button
+                          className="btn btn--ghost"
+                          style={{ fontSize: 12 }}
+                          onClick={() => returnMutation.mutate(assignment.id)}
+                          disabled={returnMutation.isPending}
+                        >
+                          {t('return')}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {showCreateModal && (
-        <AssignmentFormModal onClose={() => setShowCreateModal(false)} />
-      )}
+      {showCreateModal && <AssignmentFormModal onClose={() => setShowCreateModal(false)} />}
     </>
   );
 }
