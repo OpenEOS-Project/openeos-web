@@ -1,0 +1,56 @@
+{
+  "name": "@openeos/pos-icons",
+  "version": "0.1.1",
+  "description": "Konsistente, KI-generierte Food & Drink Icons für Kassensysteme",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "icons/256",
+    "data/index.json"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "generate": "node --env-file=.env scripts/generate-icons.mjs",
+    "build-index": "node scripts/build-index.mjs",
+    "build-readme": "node scripts/build-readme.mjs",
+    "prepublishOnly": "npm run build-index && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "openai": "^4.77.0",
+    "sharp": "^0.33.2",
+    "typescript": "^5.7.0",
+    "tsup": "^8.3.0",
+    "react": "^18.3.0",
+    "@types/react": "^18.3.0"
+  },
+  "keywords": [
+    "pos",
+    "icons",
+    "food",
+    "drink",
+    "kassensystem",
+    "openeos"
+  ],
+  "license": "CC0-1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenEOS-Project/pos-icon-database"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  }
+}
