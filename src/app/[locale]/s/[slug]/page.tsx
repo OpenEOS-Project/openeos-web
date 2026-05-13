@@ -157,62 +157,35 @@ export default function PublicShiftPlanPage() {
     return hours * 60 + minutes;
   };
 
-  // Mobile-view grouping: cluster overlapping shifts on the same date into a
-  // single section so 'Bar 18:00–01:00' + '12 other jobs 19:00–01:00' end up
-  // in ONE block instead of two near-empty ones (the bar being alone at 18,
-  // everyone else alone at 19). Within a cluster the section header shows the
-  // earliest-start to latest-end window, and each card displays the job's own
-  // time so the slight differences stay visible.
+  // Mobile-view grouping: one section per unique (date, startTime, endTime)
+  // slot. Each section lists ONLY the jobs that actually have a shift in
+  // that slot — no greyed placeholders, no merging across slightly different
+  // time windows. So a 'Bar 18:00–01:00' slot lives in its own section with
+  // its single card, and the 19:00–01:00 slot is its own section with all
+  // the other jobs.
   const mobileGroups = useMemo(() => {
     type Item = { job: JobData; shift: ShiftData };
-    type Group = { date: string; key: string; startMin: number; endMin: number; shifts: Item[] };
+    type Group = { date: string; startTime: string; endTime: string; key: string; shifts: Item[] };
     if (!plan) return [] as Group[];
 
-    const byDate: Record<string, Item[]> = {};
+    const groupMap = new Map<string, Group>();
     for (const job of plan.jobs) {
       for (const shift of job.shifts) {
-        if (!byDate[shift.date]) byDate[shift.date] = [];
-        byDate[shift.date].push({ job, shift });
-      }
-    }
-
-    const bounds = (s: ShiftData): [number, number] => {
-      const start = timeToMinutes(s.startTime);
-      let end = timeToMinutes(s.endTime);
-      if (end <= start) end += 1440; // overnight → push end into next day
-      return [start, end];
-    };
-
-    const groups: Group[] = [];
-
-    for (const date of Object.keys(byDate).sort()) {
-      const items = byDate[date].slice().sort(
-        (a, b) => timeToMinutes(a.shift.startTime) - timeToMinutes(b.shift.startTime),
-      );
-
-      let cluster: Group | null = null;
-      for (const item of items) {
-        const [s, e] = bounds(item.shift);
-        if (cluster && s < cluster.endMin && e > cluster.startMin) {
-          cluster.startMin = Math.min(cluster.startMin, s);
-          cluster.endMin = Math.max(cluster.endMin, e);
-          cluster.shifts.push(item);
-        } else {
-          cluster = { date, key: `${date}|${groups.length}`, startMin: s, endMin: e, shifts: [item] };
-          groups.push(cluster);
+        const key = `${shift.date}|${shift.startTime}|${shift.endTime}`;
+        let g = groupMap.get(key);
+        if (!g) {
+          g = { date: shift.date, startTime: shift.startTime, endTime: shift.endTime, key, shifts: [] };
+          groupMap.set(key, g);
         }
+        g.shifts.push({ job, shift });
       }
     }
 
-    // Within each cluster, sort cards by job name + start time so the grid
-    // is stable and predictable.
+    const groups = Array.from(groupMap.values());
+    groups.sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
     for (const g of groups) {
-      g.shifts.sort((a, b) =>
-        a.job.name.localeCompare(b.job.name)
-        || a.shift.startTime.localeCompare(b.shift.startTime),
-      );
+      g.shifts.sort((a, b) => a.job.name.localeCompare(b.job.name));
     }
-
     return groups;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan]);
@@ -602,16 +575,7 @@ export default function PublicShiftPlanPage() {
                 ) : (
                   mobileGroups.map((group) => {
                     const dateObj = new Date(group.date);
-                    const headerStart = `${String(Math.floor(group.startMin / 60)).padStart(2, '0')}:${String(group.startMin % 60).padStart(2, '0')}`;
-                    const headerEndMins = group.endMin % 1440;
-                    const headerEnd = `${String(Math.floor(headerEndMins / 60)).padStart(2, '0')}:${String(headerEndMins % 60).padStart(2, '0')}`;
-                    const crossesMidnight = group.endMin >= 1440;
-                    // Detect whether any shift in this cluster has a non-uniform
-                    // time window — if so we show the time per-card too.
-                    const distinctTimes = new Set(
-                      group.shifts.map((s) => `${s.shift.startTime}|${s.shift.endTime}`),
-                    );
-                    const showPerCardTime = distinctTimes.size > 1;
+                    const crossesMidnight = timeToMinutes(group.endTime) <= timeToMinutes(group.startTime);
                     return (
                       <section key={group.key} className="shifts-public__card" style={{ padding: 0, overflow: 'hidden' }}>
                         <header style={{
@@ -627,7 +591,7 @@ export default function PublicShiftPlanPage() {
                             </div>
                             <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
                               <Clock style={{ width: 11, height: 11 }} />
-                              {headerStart} – {headerEnd}{crossesMidnight ? ' (am Folgetag)' : ''}
+                              {formatTime(group.startTime)} – {formatTime(group.endTime)}{crossesMidnight ? ' (am Folgetag)' : ''}
                             </div>
                           </div>
                         </header>
@@ -676,12 +640,6 @@ export default function PublicShiftPlanPage() {
                                     {job.name}
                                   </span>
                                 </div>
-                                {showPerCardTime && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--mute)', fontFamily: 'var(--f-mono)' }}>
-                                    <Clock style={{ width: 10, height: 10 }} />
-                                    {formatTime(shift.startTime)}–{formatTime(shift.endTime)}
-                                  </div>
-                                )}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                   {isSelected ? (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
