@@ -1363,6 +1363,18 @@ export const shiftsApi = {
       `/organizations/${organizationId}/shift-plans/registrations/${registrationId}`,
       data
     ),
+
+  /** Send the helper a token-based accept/decline email for a proposed shift
+   *  move. The registration stays on its current shift until the helper acts. */
+  proposeShiftMove: (
+    organizationId: string,
+    registrationId: string,
+    data: { shiftId: string; message?: string }
+  ) =>
+    apiClient.post<ApiResponse<import('@/types/shift').ShiftRegistration>>(
+      `/organizations/${organizationId}/shift-plans/registrations/${registrationId}/propose-move`,
+      data
+    ),
 };
 
 // Shifts Public API (no auth)
@@ -1421,6 +1433,14 @@ export const shiftsPublicApi = {
       message: string;
       planSlug: string;
     }>>(`/public/shifts/verify/${token}`, { skipAuth: true }),
+
+  respondToProposal: (token: string, action: 'accept' | 'decline') =>
+    apiClient.post<ApiResponse<{
+      success: boolean;
+      status: 'accepted' | 'declined';
+      message: string;
+      planSlug: string | null;
+    }>>(`/public/shifts/proposal/${token}`, { action }, { skipAuth: true }),
 };
 
 // SumUp API

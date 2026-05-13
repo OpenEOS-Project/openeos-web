@@ -69,19 +69,34 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
   }, [plan]);
 
   const shiftIsBeingMoved = registration && shiftId !== registration.shiftId;
+  const [moveMode, setMoveMode] = useState<'direct' | 'propose'>('propose');
 
   const mutation = useMutation({
-    mutationFn: () =>
-      shiftsApi.adminUpdateRegistration(organizationId!, registration!.id, {
+    mutationFn: async () => {
+      // Always persist the contact-detail edits via the normal update path,
+      // but DON'T pass shiftId if we're going to propose it (the proposal
+      // endpoint handles the move separately).
+      const reg = await shiftsApi.adminUpdateRegistration(organizationId!, registration!.id, {
         name,
         email,
         phone: phone || undefined,
         notes: notes || undefined,
         adminNotes: adminNotes || undefined,
-        shiftId,
-        notify: shiftIsBeingMoved ? notify : false,
-        notifyMessage: shiftIsBeingMoved && notifyMessage ? notifyMessage : undefined,
-      }),
+        shiftId: shiftIsBeingMoved && moveMode === 'direct' ? shiftId : undefined,
+        notify: shiftIsBeingMoved && moveMode === 'direct' ? notify : false,
+        notifyMessage: shiftIsBeingMoved && moveMode === 'direct' && notifyMessage
+          ? notifyMessage
+          : undefined,
+      });
+
+      if (shiftIsBeingMoved && moveMode === 'propose') {
+        await shiftsApi.proposeShiftMove(organizationId!, registration!.id, {
+          shiftId,
+          message: notifyMessage || undefined,
+        });
+      }
+      return reg;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, plan.id] });
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
@@ -153,24 +168,53 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
             </div>
 
             {shiftIsBeingMoved && (
-              <>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
-                  <span>Helfer per E-Mail über die Verschiebung informieren</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 8%, transparent)', border: '1px solid color-mix(in oklab, #f59e0b 25%, transparent)' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#b45309' }}>Schicht wird verschoben — wie soll der Helfer reagieren?</div>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="moveMode"
+                    checked={moveMode === 'propose'}
+                    onChange={() => setMoveMode('propose')}
+                    style={{ accentColor: 'var(--green-ink)', marginTop: 2 }}
+                  />
+                  <span>
+                    <strong>Vorschlag schicken</strong> — der Helfer bekommt eine Mail mit „Annehmen"/„Ablehnen"-Buttons. Erst nach Bestätigung wird verschoben.
+                  </span>
                 </label>
-                {notify && (
-                  <div className="auth-field">
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="moveMode"
+                    checked={moveMode === 'direct'}
+                    onChange={() => setMoveMode('direct')}
+                    style={{ accentColor: 'var(--green-ink)', marginTop: 2 }}
+                  />
+                  <span>
+                    <strong>Direkt verschieben</strong> — die Schicht wird sofort geändert. Helfer kann optional benachrichtigt werden.
+                  </span>
+                </label>
+
+                {moveMode === 'direct' && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink)', marginLeft: 22 }}>
+                    <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
+                    <span>Helfer per E-Mail informieren</span>
+                  </label>
+                )}
+
+                {(moveMode === 'propose' || (moveMode === 'direct' && notify)) && (
+                  <div className="auth-field" style={{ marginLeft: 22 }}>
                     <label className="auth-field__label">Optionale Notiz für den Helfer</label>
                     <textarea
                       className="textarea"
                       rows={2}
-                      placeholder="z.B. Grund der Verschiebung — bitte gib Bescheid, wenn du nicht kannst."
+                      placeholder="z.B. Grund der Verschiebung."
                       value={notifyMessage}
                       onChange={(e) => setNotifyMessage(e.target.value)}
                     />
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -183,7 +227,11 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
             disabled={!canSubmit || mutation.isPending}
             onClick={() => { setError(null); mutation.mutate(); }}
           >
-            {mutation.isPending ? '...' : 'Speichern'}
+            {mutation.isPending
+              ? '...'
+              : shiftIsBeingMoved && moveMode === 'propose'
+              ? 'Vorschlag senden'
+              : 'Speichern'}
           </button>
         </div>
       </div>
