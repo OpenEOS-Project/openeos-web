@@ -35,6 +35,8 @@ export interface ShiftJob {
   description: string | null;
   color: string | null;
   sortOrder: number;
+  /** Default number of helpers per shift for this job; individual shifts can override. */
+  requiredWorkers: number;
   createdAt: string;
   shifts?: Shift[];
 }
@@ -85,7 +87,10 @@ export interface CreateShiftJobDto {
   description?: string;
   color?: string;
   sortOrder?: number;
+  requiredWorkers?: number;
 }
+
+export type UpdateShiftJobDto = Partial<CreateShiftJobDto>;
 
 export interface CreateShiftDto {
   date: string;
@@ -94,3 +99,5 @@ export interface CreateShiftDto {
   requiredWorkers?: number;
   notes?: string;
 }
+
+export type UpdateShiftDto = Partial<CreateShiftDto>;

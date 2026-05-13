@@ -179,15 +179,23 @@ export default function PublicShiftPlanPage() {
 
   const HANDOVER_TOLERANCE_MINUTES = 45;
 
+  // Convert a (date, startTime, endTime) tuple into an absolute minutes-since-
+  // epoch interval. Critically, overnight shifts (endTime <= startTime, e.g.
+  // 19:00–01:00) get their end pushed into the next day so the interval is
+  // monotonic — otherwise the naïve same-day check below mis-classifies them
+  // and lets the user double-book through midnight.
+  const shiftBoundsInMinutes = (date: string, startTime: string, endTime: string): [number, number] => {
+    const day = Math.floor(new Date(date).getTime() / 86_400_000);
+    const startMins = timeToMinutes(startTime);
+    let endMins = timeToMinutes(endTime);
+    if (endMins <= startMins) endMins += 1440; // wraps midnight
+    return [day * 1440 + startMins, day * 1440 + endMins];
+  };
+
   const shiftsOverlap = (shift1: ShiftData, date1: string, shift2: ShiftData, date2: string): boolean => {
-    if (date1 !== date2) return false;
-    const start1 = timeToMinutes(shift1.startTime);
-    const end1 = timeToMinutes(shift1.endTime);
-    const start2 = timeToMinutes(shift2.startTime);
-    const end2 = timeToMinutes(shift2.endTime);
-    const overlapStart = Math.max(start1, start2);
-    const overlapEnd = Math.min(end1, end2);
-    const overlapMinutes = Math.max(0, overlapEnd - overlapStart);
+    const [start1, end1] = shiftBoundsInMinutes(date1, shift1.startTime, shift1.endTime);
+    const [start2, end2] = shiftBoundsInMinutes(date2, shift2.startTime, shift2.endTime);
+    const overlapMinutes = Math.min(end1, end2) - Math.max(start1, start2);
     return overlapMinutes > HANDOVER_TOLERANCE_MINUTES;
   };
 

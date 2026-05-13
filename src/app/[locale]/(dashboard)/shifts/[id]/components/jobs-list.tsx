@@ -10,6 +10,8 @@ import type { ShiftPlan, ShiftJob, Shift } from '@/types/shift';
 import { AddJobModal } from './add-job-modal';
 import { AddShiftModal } from './add-shift-modal';
 import { ShiftWizardModal } from './shift-wizard-modal';
+import { EditJobModal } from './edit-job-modal';
+import { EditShiftModal } from './edit-shift-modal';
 
 const formatTime = (time: string): string => {
   const parts = time.split(':');
@@ -32,6 +34,8 @@ export function JobsList({ plan }: JobsListProps) {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   // When set, the wizard targets every job in the plan rather than a single one.
   const [wizardJobIds, setWizardJobIds] = useState<string[]>([]);
+  const [editingJob, setEditingJob] = useState<ShiftJob | null>(null);
+  const [editingShift, setEditingShift] = useState<Shift | null>(null);
 
   const deleteJobMutation = useMutation({
     mutationFn: (jobId: string) => shiftsApi.deleteJob(organizationId!, jobId),
@@ -130,9 +134,15 @@ export function JobsList({ plan }: JobsListProps) {
                     {job.description && (
                       <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{job.description}</div>
                     )}
+                    <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>
+                      Standard: {job.requiredWorkers ?? 1} Helfer pro Schicht
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setEditingJob(job)}>
+                    Bearbeiten
+                  </button>
                   <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleOpenWizard(job.id)}>
                     {t('shifts.wizard.button')}
                   </button>
@@ -188,6 +198,13 @@ export function JobsList({ plan }: JobsListProps) {
                             </span>
                             <button
                               className="btn btn--ghost"
+                              style={{ fontSize: 12 }}
+                              onClick={() => setEditingShift(shift)}
+                            >
+                              Bearbeiten
+                            </button>
+                            <button
+                              className="btn btn--ghost"
                               style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
                               onClick={() => deleteShiftMutation.mutate(shift.id)}
                             >
@@ -215,6 +232,18 @@ export function JobsList({ plan }: JobsListProps) {
         jobIds={wizardJobIds}
         plan={plan}
         onClose={() => { setShowWizardModal(false); setWizardJobIds([]); }}
+      />
+      <EditJobModal
+        open={!!editingJob}
+        job={editingJob}
+        planId={plan.id}
+        onClose={() => setEditingJob(null)}
+      />
+      <EditShiftModal
+        open={!!editingShift}
+        shift={editingShift}
+        planId={plan.id}
+        onClose={() => setEditingShift(null)}
       />
     </div>
   );

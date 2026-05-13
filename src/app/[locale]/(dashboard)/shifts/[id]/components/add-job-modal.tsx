@@ -19,6 +19,7 @@ const schema = z.object({
       'Mindestens ein Name ist erforderlich',
     ),
   description: z.string().optional(),
+  requiredWorkers: z.number().int().min(1).max(50),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -38,7 +39,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
 
   const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { names: '', description: '' },
+    defaultValues: { names: '', description: '', requiredWorkers: 2 },
   });
 
   const namesPreview = watch('names')
@@ -55,6 +56,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
         await shiftsApi.createJob(organizationId!, planId, {
           name,
           description: data.description || undefined,
+          requiredWorkers: data.requiredWorkers,
         });
       }
     },
@@ -117,6 +119,27 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                   <div className="auth-field">
                     <label className="auth-field__label">{t('shifts.form.description')}</label>
                     <textarea className="textarea" rows={2} placeholder={t('shifts.form.descriptionPlaceholder')} value={field.value} onChange={field.onChange} />
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="requiredWorkers"
+                control={control}
+                render={({ field }) => (
+                  <div className="auth-field">
+                    <label className="auth-field__label">Helfer pro Schicht *</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={String(field.value)}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                    />
+                    <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
+                      Standardwert für alle Schichten in dieser Arbeit. Einzelne Schichten kannst du danach überschreiben.
+                    </p>
                   </div>
                 )}
               />
