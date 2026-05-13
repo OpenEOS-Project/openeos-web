@@ -80,9 +80,9 @@ export default function PublicShiftPlanPage() {
   const [selectedShifts, setSelectedShifts] = useState<Set<string>>(new Set());
   const [registeredShiftsData, setRegisteredShiftsData] = useState<Array<{ job: JobData; shift: ShiftData }>>([]);
   const [error, setError] = useState<string | null>(null);
-  // Matrix is the default: helpers can quickly scan availability across all
-  // jobs × time slots and tick the cells they want.
-  const [viewMode, setViewMode] = useState<'matrix' | 'list' | 'calendar'>('matrix');
+  // 'Mobil' is the default — vertical-scroll layout with big touch targets
+  // that doesn't require horizontal scrolling when there are many jobs.
+  const [viewMode, setViewMode] = useState<'mobile' | 'matrix' | 'list' | 'calendar'>('mobile');
 
   const {
     control,
@@ -535,14 +535,16 @@ export default function PublicShiftPlanPage() {
                 {selectedShifts.size > 0 ? `${selectedShifts.size} ${t('shifts.public.selected')}` : ''}
               </span>
               <div className="shifts-public__view-toggle">
-                {(['matrix', 'list', 'calendar'] as const).map((mode) => (
+                {(['mobile', 'matrix', 'list', 'calendar'] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setViewMode(mode)}
                     className={viewMode === mode ? 'is-active' : ''}
                   >
-                    {mode === 'matrix' ? (
+                    {mode === 'mobile' ? (
+                      <><List style={{ width: 14, height: 14 }} />Mobil</>
+                    ) : mode === 'matrix' ? (
                       <><Grid01 style={{ width: 14, height: 14 }} />Matrix</>
                     ) : mode === 'list' ? (
                       <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>
@@ -553,6 +555,130 @@ export default function PublicShiftPlanPage() {
                 ))}
               </div>
             </div>
+
+            {/* Mobile view — vertical stream of time-slot sections, each with a
+                2-column grid of large job tap-targets. Avoids horizontal scroll
+                that the matrix/calendar layouts force when there are many jobs. */}
+            {viewMode === 'mobile' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: '1.25rem' }}>
+                {matrixSlots.length === 0 ? (
+                  <div className="shifts-public__card" style={{ padding: 32, textAlign: 'center', color: 'var(--mute)', fontSize: 14 }}>
+                    Keine Schichten vorhanden.
+                  </div>
+                ) : (
+                  matrixSlots.map((slot) => {
+                    const dateObj = new Date(slot.date);
+                    return (
+                      <section key={slot.key} className="shifts-public__card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <header style={{
+                          padding: '12px 14px',
+                          borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+                          background: 'color-mix(in oklab, var(--ink) 3%, transparent)',
+                          display: 'flex', alignItems: 'center', gap: 10,
+                        }}>
+                          <Calendar style={{ width: 16, height: 16, color: 'var(--green-ink)', flexShrink: 0 }} />
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+                              {dateObj.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit' })}
+                            </div>
+                            <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                              <Clock style={{ width: 11, height: 11 }} />
+                              {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
+                            </div>
+                          </div>
+                        </header>
+
+                        <div style={{
+                          padding: 8,
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                          gap: 8,
+                        }}>
+                          {plan.jobs.map((job) => {
+                            const shift = job.shifts.find(
+                              (s) => s.date === slot.date && s.startTime === slot.startTime && s.endTime === slot.endTime,
+                            );
+                            if (!shift) {
+                              return (
+                                <div key={job.id} style={{
+                                  borderRadius: 'var(--r-sm)',
+                                  border: '1px dashed color-mix(in oklab, var(--ink) 10%, transparent)',
+                                  padding: 10, fontSize: 12, color: 'var(--mute-2)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  minHeight: 64, textAlign: 'center',
+                                }}>
+                                  <div>
+                                    <div style={{ fontWeight: 600 }}>{job.name}</div>
+                                    <div style={{ marginTop: 2 }}>—</div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            const isSelected = selectedShifts.has(shift.id);
+                            const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
+                            const hasOverlap = !!overlappingShift;
+                            const isDisabled = shift.isFull || hasOverlap;
+
+                            const cellBg = isSelected
+                              ? 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))'
+                              : shift.isFull
+                              ? 'color-mix(in oklab, var(--ink) 8%, transparent)'
+                              : hasOverlap
+                              ? 'color-mix(in oklab, #f59e0b 10%, transparent)'
+                              : 'var(--paper)';
+                            const cellBorder = isSelected ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)';
+
+                            return (
+                              <button
+                                key={job.id}
+                                type="button"
+                                disabled={isDisabled}
+                                onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
+                                style={{
+                                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                                  justifyContent: 'space-between', gap: 6,
+                                  padding: '12px 12px', borderRadius: 'var(--r-sm)',
+                                  border: `1.5px solid ${cellBorder}`, background: cellBg,
+                                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                  opacity: isDisabled && !isSelected ? 0.6 : 1,
+                                  fontFamily: 'inherit', transition: 'background .15s, border-color .15s',
+                                  minHeight: 78, width: '100%', textAlign: 'left',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
+                                  <span style={{ width: 9, height: 9, borderRadius: '50%', background: job.color || '#6b7280', flexShrink: 0 }} />
+                                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {job.name}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                  {isSelected ? (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
+                                      <CheckCircle style={{ width: 14, height: 14 }} />
+                                      {t('shifts.public.selected')}
+                                    </span>
+                                  ) : shift.isFull ? (
+                                    <span className="badge badge--success" style={{ fontSize: 10 }}>{t('shifts.public.full')}</span>
+                                  ) : hasOverlap ? (
+                                    <span className="badge badge--warning" style={{ fontSize: 10 }}>{t('shifts.public.overlap')}</span>
+                                  ) : (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
+                                      <Users01 style={{ width: 12, height: 12, color: 'var(--mute)' }} />
+                                      <span>{shift.availableSpots}</span>
+                                      <span style={{ color: 'var(--mute)', fontWeight: 400 }}>/{shift.requiredWorkers} frei</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    );
+                  })
+                )}
+              </div>
+            )}
 
             {/* Matrix view — slots × jobs grid. Each cell is a directly-clickable
                 signup target, with the same full/overlap/booked semantics as the
