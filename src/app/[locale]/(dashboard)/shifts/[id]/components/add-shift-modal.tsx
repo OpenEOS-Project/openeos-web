@@ -32,10 +32,22 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
   const organizationId = currentOrganization?.organizationId;
   const [error, setError] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
+  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { date: '', startTime: '10:00', endTime: '14:00', requiredWorkers: 2 },
   });
+
+  // Overnight shifts: when end < start, the shift crosses midnight (e.g. 22:00–01:00).
+  // The DB stores only start/end times (not a real interval), so the server treats them
+  // as-is and the consumer interprets end < start as "next day".
+  const watchedStart = watch('startTime');
+  const watchedEnd = watch('endTime');
+  const isOvernight = (() => {
+    if (!watchedStart || !watchedEnd) return false;
+    const [sh, sm] = watchedStart.split(':').map(Number);
+    const [eh, em] = watchedEnd.split(':').map(Number);
+    return eh * 60 + em < sh * 60 + sm;
+  })();
 
   const createMutation = useMutation({
     mutationFn: (data: FormData) =>
@@ -86,6 +98,13 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                   </div>
                 )}
               />
+
+              {isOvernight && (
+                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>🌙</span>
+                  <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <Controller

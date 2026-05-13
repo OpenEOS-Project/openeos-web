@@ -51,9 +51,13 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Step 2: Time range
+  // Step 2: Time range — single default + optional per-day overrides.
+  // Festival example: Saturday 14:00–01:00 (overnight!), Sunday 10:00–18:00.
+  // `dayTimes[YYYY-MM-DD] = { start, end }` overrides the default for that day.
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('22:00');
+  const [perDay, setPerDay] = useState(false);
+  const [dayTimes, setDayTimes] = useState<Record<string, { start: string; end: string }>>({});
 
   // Step 3: Configuration (stored as strings for better UX during editing)
   const [shiftsPerDay, setShiftsPerDay] = useState('3');
@@ -89,26 +93,39 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
   };
 
   const minutesToTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    // Wrap into 0..1440 so an overnight value like 25:00 becomes 01:00.
+    const wrapped = ((minutes % 1440) + 1440) % 1440;
+    const hours = Math.floor(wrapped / 60);
+    const mins = wrapped % 60;
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
+
+  // Returns the shift length in minutes, treating end < start as "next day"
+  // so overnight ranges like 22:00–01:00 yield 180 (3 h) instead of -1260.
+  const durationMinutes = (start: string, end: string): number => {
+    const s = timeToMinutes(start);
+    const e = timeToMinutes(end);
+    return e <= s ? 1440 - s + e : e - s;
+  };
+
+  // Resolves the effective {start,end} for a given date, falling back to the
+  // wizard's default if no per-day override is set.
+  const timesFor = (date: string) => dayTimes[date] || { start: startTime, end: endTime };
 
   // Parse configuration values
   const shiftsPerDayNum = parseInt(shiftsPerDay) || 0;
   const workersPerShiftNum = parseInt(workersPerShift) || 0;
   const overlapMins = parseInt(overlapMinutes) || 0;
 
-  // Calculate shift duration
+  // Default-time shift duration used by Step 3's preview text. Overnight-safe.
   const calculateShiftDuration = useMemo(() => {
-    const startMins = timeToMinutes(startTime);
-    const endMins = timeToMinutes(endTime);
-    const totalMinutes = endMins - startMins;
+    const totalMinutes = durationMinutes(startTime, endTime);
     if (totalMinutes <= 0 || shiftsPerDayNum <= 0) return 0;
     return Math.floor(totalMinutes / shiftsPerDayNum);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTime, shiftsPerDayNum]);
 
-  // Generate shifts for preview
+  // Generate shifts for preview — respects per-day overrides and overnight ranges.
   const generateShiftsPreview = () => {
     const shifts: GeneratedShift[] = [];
     const start = new Date(startDate);
@@ -119,33 +136,29 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
       return;
     }
 
-    const startMins = timeToMinutes(startTime);
-    const endMins = timeToMinutes(endTime);
-    const totalMinutes = endMins - startMins;
-
-    if (totalMinutes <= 0) {
-      setError('Endzeit muss nach Startzeit liegen');
-      return;
-    }
-
-    const shiftDuration = Math.floor(totalMinutes / shiftsPerDayNum);
-
-    // For each day
     for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
       const dateStr = date.toISOString().split('T')[0];
+      const { start: s, end: e } = timesFor(dateStr);
+      const startMins = timeToMinutes(s);
+      const total = durationMinutes(s, e);
 
-      // For each shift in the day
+      if (total <= 0) {
+        setError(`Endzeit für ${dateStr} muss nach Startzeit liegen`);
+        return;
+      }
+
+      const shiftDuration = Math.floor(total / shiftsPerDayNum);
+
       for (let i = 0; i < shiftsPerDayNum; i++) {
-        const shiftStart = startMins + i * shiftDuration;
-        // Add overlap to end time for handover (except last shift of the day)
+        const shiftStartMins = startMins + i * shiftDuration;
         const isLastShift = i === shiftsPerDayNum - 1;
-        const shiftEnd = shiftStart + shiftDuration + (isLastShift ? 0 : overlapMins);
+        const shiftEndMins = shiftStartMins + shiftDuration + (isLastShift ? 0 : overlapMins);
 
         shifts.push({
           id: generateId(),
           date: dateStr,
-          startTime: minutesToTime(shiftStart),
-          endTime: minutesToTime(shiftEnd),
+          startTime: minutesToTime(shiftStartMins),
+          endTime: minutesToTime(shiftEndMins),
           requiredWorkers: workersPerShiftNum,
           enabled: true,
         });
@@ -230,6 +243,8 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
     setEndDate('');
     setStartTime('10:00');
     setEndTime('22:00');
+    setPerDay(false);
+    setDayTimes({});
     setShiftsPerDay('3');
     setWorkersPerShift('2');
     setOverlapMinutes('0');
@@ -247,8 +262,28 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
     });
   };
 
+  // Enumerate dates in the chosen range so per-day editing can render rows.
+  const datesInRange = useMemo(() => {
+    if (!startDate || !endDate) return [] as string[];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return [];
+    const out: string[] = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      out.push(d.toISOString().split('T')[0]);
+    }
+    return out;
+  }, [startDate, endDate]);
+
   const canProceedStep1 = startDate && endDate && new Date(startDate) <= new Date(endDate);
-  const canProceedStep2 = timeToMinutes(endTime) > timeToMinutes(startTime);
+  // Allow overnight ranges in the default OR any per-day override; only block
+  // exact equality (zero-length shifts have no meaning).
+  const canProceedStep2 = perDay
+    ? datesInRange.every((d) => {
+        const { start: s, end: e } = timesFor(d);
+        return s !== e;
+      })
+    : startTime !== endTime;
   const canProceedStep3 = shiftsPerDayNum >= 1 && workersPerShiftNum >= 1;
 
   if (!open) return null;
@@ -384,44 +419,87 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
           {/* Step 2: Time Range */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
-                <Clock className="size-5" />
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.selectTimes')}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
+                  <Clock className="size-5" />
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.selectTimes')}</h3>
+                </div>
+                {datesInRange.length > 1 && (
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-faint)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={perDay} onChange={(e) => setPerDay(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
+                    <span>Zeiten pro Tag</span>
+                  </label>
+                )}
               </div>
 
               <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
-                {t('shifts.wizard.timesDescription')}
+                {perDay
+                  ? 'Trage für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z.B. 22:00–01:00), sind erlaubt.'
+                  : 'Endzeit vor Startzeit bedeutet, dass die Schicht über Mitternacht in den nächsten Tag läuft.'}
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <label className="auth-field">
-                  <span>{t('shifts.wizard.startTime')}</span>
-                  <input
-                    type="time"
-                    className="input"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
-                </label>
-                <label className="auth-field">
-                  <span>{t('shifts.wizard.endTime')}</span>
-                  <input
-                    type="time"
-                    className="input"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
-                </label>
-              </div>
+              {!perDay ? (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <label className="auth-field">
+                      <span>{t('shifts.wizard.startTime')}</span>
+                      <input
+                        type="time"
+                        className="input"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </label>
+                    <label className="auth-field">
+                      <span>{t('shifts.wizard.endTime')}</span>
+                      <input
+                        type="time"
+                        className="input"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                    </label>
+                  </div>
 
-              {canProceedStep2 && (
-                <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
-                  {t('shifts.wizard.totalHours', {
-                    hours: Math.round(
-                      (timeToMinutes(endTime) - timeToMinutes(startTime)) / 60 * 10
-                    ) / 10,
+                  {canProceedStep2 && (
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                      {t('shifts.wizard.totalHours', {
+                        hours: Math.round((durationMinutes(startTime, endTime) / 60) * 10) / 10,
+                      })}
+                      {timeToMinutes(endTime) <= timeToMinutes(startTime) && ' 🌙 über Nacht'}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {datesInRange.map((d) => {
+                    const { start: s, end: e } = timesFor(d);
+                    const overnight = timeToMinutes(e) <= timeToMinutes(s);
+                    return (
+                      <div key={d} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 12px 1fr 90px', gap: 8, alignItems: 'center' }}>
+                        <div style={{ fontSize: 13, fontWeight: 500 }}>{formatDateDisplay(d)}</div>
+                        <input
+                          type="time"
+                          className="input"
+                          value={s}
+                          onChange={(ev) => setDayTimes((m) => ({ ...m, [d]: { start: ev.target.value, end: timesFor(d).end } }))}
+                          style={{ padding: '6px 10px', fontSize: 13 }}
+                        />
+                        <span style={{ color: 'var(--ink-faint)', textAlign: 'center' }}>–</span>
+                        <input
+                          type="time"
+                          className="input"
+                          value={e}
+                          onChange={(ev) => setDayTimes((m) => ({ ...m, [d]: { start: timesFor(d).start, end: ev.target.value } }))}
+                          style={{ padding: '6px 10px', fontSize: 13 }}
+                        />
+                        <span style={{ fontSize: 11, color: overnight ? '#b45309' : 'var(--ink-faint)' }}>
+                          {Math.round((durationMinutes(s, e) / 60) * 10) / 10}h{overnight ? ' 🌙' : ''}
+                        </span>
+                      </div>
+                    );
                   })}
-                </p>
+                </div>
               )}
             </div>
           )}

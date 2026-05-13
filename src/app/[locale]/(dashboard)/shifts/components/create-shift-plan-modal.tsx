@@ -42,7 +42,14 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
   });
 
   const events = eventsData?.data || [];
-  const activeEvents = events.filter((e) => e.status === 'active' || e.status === 'test');
+  // Show all events — active, test AND inactive — sorted by status priority
+  // so the most relevant ones are on top. The user complained that an active
+  // event wasn't selectable even when one existed, so we no longer hide
+  // anything; status is shown as a badge instead.
+  const sortedEvents = [...events].sort((a, b) => {
+    const rank = (s: string) => (s === 'active' ? 0 : s === 'test' ? 1 : 2);
+    return rank(a.status) - rank(b.status);
+  });
 
   const {
     control,
@@ -175,9 +182,9 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                   <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
                     Wähle (optional) ein Event aus, zu dem dieser Schichtplan gehört. So bekommen die Helfer das Event-Datum direkt angezeigt.
                   </p>
-                  {activeEvents.length === 0 ? (
+                  {sortedEvents.length === 0 ? (
                     <div style={{ padding: 14, borderRadius: 8, background: 'color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                      Kein aktives Event vorhanden — du kannst den Plan auch ohne Event erstellen.
+                      Noch keine Events angelegt — du kannst den Plan auch ohne Event erstellen.
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -199,33 +206,46 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                         />
                         <span style={{ fontSize: 13, fontWeight: 500 }}>Kein Event (eigenständiger Plan)</span>
                       </label>
-                      {activeEvents.map((event) => (
-                        <label
-                          key={event.id}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-                            padding: '10px 12px', borderRadius: 8,
-                            border: `1px solid ${selectedEventId === event.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)'}`,
-                            background: selectedEventId === event.id ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))' : 'var(--paper)',
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name="event"
-                            checked={selectedEventId === event.id}
-                            onChange={() => handleEventSelect(event.id)}
-                            style={{ accentColor: 'var(--green-ink)' }}
-                          />
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600 }}>{event.name}</div>
-                            {event.startDate && (
-                              <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                {formatDate(event.startDate)}
+                      {sortedEvents.map((event) => {
+                        const statusBadge =
+                          event.status === 'active'
+                            ? { label: 'Aktiv', bg: 'color-mix(in oklab, var(--green-ink) 18%, transparent)', fg: 'var(--green-ink)' }
+                            : event.status === 'test'
+                            ? { label: 'Test', bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#b45309' }
+                            : { label: 'Inaktiv', bg: 'color-mix(in oklab, var(--ink) 8%, transparent)', fg: 'color-mix(in oklab, var(--ink) 50%, transparent)' };
+                        return (
+                          <label
+                            key={event.id}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+                              padding: '10px 12px', borderRadius: 8,
+                              border: `1px solid ${selectedEventId === event.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)'}`,
+                              background: selectedEventId === event.id ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))' : 'var(--paper)',
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="event"
+                              checked={selectedEventId === event.id}
+                              onChange={() => handleEventSelect(event.id)}
+                              style={{ accentColor: 'var(--green-ink)' }}
+                            />
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ fontSize: 13, fontWeight: 600 }}>{event.name}</span>
+                                <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em', padding: '2px 6px', borderRadius: 4, background: statusBadge.bg, color: statusBadge.fg }}>
+                                  {statusBadge.label}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        </label>
-                      ))}
+                              {event.startDate && (
+                                <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                                  {formatDate(event.startDate)}
+                                </div>
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

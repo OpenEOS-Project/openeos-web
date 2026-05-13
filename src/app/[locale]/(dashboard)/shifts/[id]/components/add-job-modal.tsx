@@ -9,15 +9,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 
-const COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280',
-];
-
 const schema = z.object({
-  name: z.string().min(1, 'Name ist erforderlich').max(100),
+  // Multi-line textarea — one job name per non-empty line.
+  names: z
+    .string()
+    .min(1, 'Mindestens ein Name ist erforderlich')
+    .refine(
+      (v) => v.split('\n').map((s) => s.trim()).filter(Boolean).length > 0,
+      'Mindestens ein Name ist erforderlich',
+    ),
   description: z.string().optional(),
-  color: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -35,20 +36,28 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
   const organizationId = currentOrganization?.organizationId;
   const [error, setError] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<FormData>({
+  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', description: '', color: COLORS[0] },
+    defaultValues: { names: '', description: '' },
   });
 
-  const selectedColor = watch('color');
+  const namesPreview = watch('names')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   const createMutation = useMutation({
-    mutationFn: (data: FormData) =>
-      shiftsApi.createJob(organizationId!, planId, {
-        name: data.name,
-        description: data.description || undefined,
-        color: data.color || undefined,
-      }),
+    mutationFn: async (data: FormData) => {
+      const lines = data.names.split('\n').map((s) => s.trim()).filter(Boolean);
+      // Create jobs sequentially so the sortOrder reflects input order
+      // (a Promise.all race would leave them ordered by save-time).
+      for (const name of lines) {
+        await shiftsApi.createJob(organizationId!, planId, {
+          name,
+          description: data.description || undefined,
+        });
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
       reset();
@@ -80,13 +89,23 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
               )}
 
               <Controller
-                name="name"
+                name="names"
                 control={control}
                 render={({ field }) => (
                   <div className="auth-field">
                     <label className="auth-field__label">{t('shifts.editor.jobName')} *</label>
-                    <input className="input" placeholder={t('shifts.editor.jobNamePlaceholder')} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                    {errors.name && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.name.message}</p>}
+                    <textarea
+                      className="textarea"
+                      rows={5}
+                      placeholder={`Zapfen${'\n'}Grill${'\n'}Kasse`}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                    <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
+                      Pro Zeile eine Arbeit — alle werden gleichzeitig angelegt.
+                    </p>
+                    {errors.names && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.names.message}</p>}
                   </div>
                 )}
               />
@@ -101,34 +120,17 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                   </div>
                 )}
               />
-
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>{t('shifts.editor.jobColor')}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {COLORS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setValue('color', color)}
-                      style={{
-                        width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                        background: color,
-                        outline: selectedColor === color ? `3px solid ${color}` : 'none',
-                        outlineOffset: 2,
-                        transform: selectedColor === color ? 'scale(1.15)' : 'scale(1)',
-                        transition: 'transform 0.15s',
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
           <div className="modal__foot">
             <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
-            <button type="submit" className="btn btn--primary" disabled={createMutation.isPending}>
-              {createMutation.isPending ? '...' : t('shifts.editor.addJob')}
+            <button type="submit" className="btn btn--primary" disabled={createMutation.isPending || namesPreview.length === 0}>
+              {createMutation.isPending
+                ? '...'
+                : namesPreview.length > 1
+                ? `${namesPreview.length} Arbeiten anlegen`
+                : t('shifts.editor.addJob')}
             </button>
           </div>
         </form>
