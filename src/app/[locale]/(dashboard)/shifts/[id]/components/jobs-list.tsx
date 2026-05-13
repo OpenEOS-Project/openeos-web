@@ -30,6 +30,8 @@ export function JobsList({ plan }: JobsListProps) {
   const [showAddShiftModal, setShowAddShiftModal] = useState(false);
   const [showWizardModal, setShowWizardModal] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  // When set, the wizard targets every job in the plan rather than a single one.
+  const [wizardJobIds, setWizardJobIds] = useState<string[]>([]);
 
   const deleteJobMutation = useMutation({
     mutationFn: (jobId: string) => shiftsApi.deleteJob(organizationId!, jobId),
@@ -53,7 +55,12 @@ export function JobsList({ plan }: JobsListProps) {
   };
 
   const handleOpenWizard = (jobId: string) => {
-    setSelectedJobId(jobId);
+    setWizardJobIds([jobId]);
+    setShowWizardModal(true);
+  };
+
+  const handleOpenWizardForAll = () => {
+    setWizardJobIds(jobs.map((j) => j.id));
     setShowWizardModal(true);
   };
 
@@ -82,13 +89,24 @@ export function JobsList({ plan }: JobsListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
           {t('shifts.editor.addJob').replace('hinzufügen', '').replace('Add ', '')} ({jobs.length})
         </span>
-        <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowAddJobModal(true)}>
-          {t('shifts.editor.addJob')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className="btn btn--ghost"
+            style={{ fontSize: 13 }}
+            onClick={handleOpenWizardForAll}
+            disabled={jobs.length === 0}
+            title="Generiere die gleichen Schichten für alle Arbeiten — pro Arbeit kann danach überschrieben werden"
+          >
+            Schichten für alle Arbeiten
+          </button>
+          <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowAddJobModal(true)}>
+            {t('shifts.editor.addJob')}
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -194,9 +212,9 @@ export function JobsList({ plan }: JobsListProps) {
       />
       <ShiftWizardModal
         open={showWizardModal}
-        jobId={selectedJobId}
+        jobIds={wizardJobIds}
         plan={plan}
-        onClose={() => { setShowWizardModal(false); setSelectedJobId(null); }}
+        onClose={() => { setShowWizardModal(false); setWizardJobIds([]); }}
       />
     </div>
   );

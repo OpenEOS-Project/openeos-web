@@ -28,7 +28,9 @@ interface GeneratedShift {
 
 interface ShiftWizardModalProps {
   open: boolean;
-  jobId: string | null;
+  /** Jobs that should receive the generated shifts. Pass a single job-id array
+   *  for per-job use, or every job in the plan to apply globally. */
+  jobIds: string[];
   plan: ShiftPlan;
   onClose: () => void;
 }
@@ -37,7 +39,8 @@ type WizardStep = 1 | 2 | 3 | 4;
 
 const STEP_LABELS = ['Datum', 'Zeit', 'Konfiguration', 'Vorschau'];
 
-export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModalProps) {
+export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardModalProps) {
+  const applyToAll = jobIds.length > 1;
   const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -216,7 +219,7 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      if (!organizationId || !jobId) return;
+      if (!organizationId || jobIds.length === 0) return;
 
       const enabledShifts = generatedShifts.filter((s) => s.enabled);
       const shiftsToCreate = enabledShifts.map((s) => ({
@@ -226,7 +229,12 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
         requiredWorkers: s.requiredWorkers,
       }));
 
-      return shiftsApi.createShiftsBulk(organizationId, jobId, shiftsToCreate);
+      // When the wizard runs in plan-wide mode (multiple jobIds), create the
+      // same shift template for every job. Per-job overrides remain possible:
+      // the user can still edit/delete individual shifts on each job after.
+      for (const jobId of jobIds) {
+        await shiftsApi.createShiftsBulk(organizationId, jobId, shiftsToCreate);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
@@ -311,7 +319,7 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
               </button>
             )}
             <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>
-              {t('shifts.wizard.title')}
+              {applyToAll ? 'Schichten für alle Arbeiten' : t('shifts.wizard.title')}
             </h2>
           </div>
 
@@ -358,6 +366,16 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
 
         {/* Body */}
         <div className="modal__body">
+          {applyToAll && (
+            <div style={{
+              marginBottom: 16, padding: '10px 14px', borderRadius: 8, fontSize: 13,
+              background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)',
+              color: 'var(--green-ink)',
+              border: '1px solid color-mix(in oklab, var(--green-ink) 25%, transparent)',
+            }}>
+              Die generierten Schichten werden für alle {jobIds.length} Arbeiten in diesem Plan angelegt. Du kannst einzelne Schichten danach jederzeit pro Arbeit überschreiben.
+            </div>
+          )}
           {error && (
             <div
               style={{
@@ -753,6 +771,8 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
               >
                 {createMutation.isPending
                   ? '...'
+                  : applyToAll
+                  ? `${enabledShiftsCount * jobIds.length} Schichten für ${jobIds.length} Arbeiten anlegen`
                   : t('shifts.wizard.createShifts', { count: enabledShiftsCount })}
               </button>
             )}
