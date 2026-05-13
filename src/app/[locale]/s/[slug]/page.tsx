@@ -80,7 +80,9 @@ export default function PublicShiftPlanPage() {
   const [selectedShifts, setSelectedShifts] = useState<Set<string>>(new Set());
   const [registeredShiftsData, setRegisteredShiftsData] = useState<Array<{ job: JobData; shift: ShiftData }>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  // Matrix is the default: helpers can quickly scan availability across all
+  // jobs × time slots and tick the cells they want.
+  const [viewMode, setViewMode] = useState<'matrix' | 'list' | 'calendar'>('matrix');
 
   const {
     control,
@@ -149,6 +151,26 @@ export default function PublicShiftPlanPage() {
   }, [plan]);
 
   const sortedDates = useMemo(() => Object.keys(shiftsByDate).sort(), [shiftsByDate]);
+
+  // Matrix view: one row per unique (date + time window) across all jobs.
+  // A row + job cell holds the shift that matches both, or null if that job
+  // has nothing during that slot. Sorted chronologically so the layout reads
+  // top-down through the event.
+  const matrixSlots = useMemo(() => {
+    if (!plan) return [] as Array<{ date: string; startTime: string; endTime: string; key: string }>;
+    const seen = new Set<string>();
+    const slots: Array<{ date: string; startTime: string; endTime: string; key: string }> = [];
+    for (const job of plan.jobs) {
+      for (const shift of job.shifts) {
+        const key = `${shift.date}|${shift.startTime}|${shift.endTime}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        slots.push({ date: shift.date, startTime: shift.startTime, endTime: shift.endTime, key });
+      }
+    }
+    slots.sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
+    return slots;
+  }, [plan]);
 
   const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -505,21 +527,181 @@ export default function PublicShiftPlanPage() {
                 {selectedShifts.size > 0 ? `${selectedShifts.size} ${t('shifts.public.selected')}` : ''}
               </span>
               <div className="shifts-public__view-toggle">
-                {(['list', 'calendar'] as const).map((mode) => (
+                {(['matrix', 'list', 'calendar'] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setViewMode(mode)}
                     className={viewMode === mode ? 'is-active' : ''}
                   >
-                    {mode === 'list'
-                      ? <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>
-                      : <><Grid01 style={{ width: 14, height: 14 }} />{t('shifts.public.calendarView')}</>
-                    }
+                    {mode === 'matrix' ? (
+                      <><Grid01 style={{ width: 14, height: 14 }} />Matrix</>
+                    ) : mode === 'list' ? (
+                      <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>
+                    ) : (
+                      <><Calendar style={{ width: 14, height: 14 }} />{t('shifts.public.calendarView')}</>
+                    )}
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Matrix view — slots × jobs grid. Each cell is a directly-clickable
+                signup target, with the same full/overlap/booked semantics as the
+                other views so unbookable shifts are clearly marked. */}
+            {viewMode === 'matrix' && (
+              <div className="shifts-public__card" style={{ marginBottom: '1.25rem', overflowX: 'auto' }}>
+                {matrixSlots.length === 0 ? (
+                  <div style={{ padding: 32, textAlign: 'center', color: 'var(--mute)', fontSize: 14 }}>
+                    Keine Schichten vorhanden.
+                  </div>
+                ) : (
+                  <table style={{ width: '100%', minWidth: 540, borderCollapse: 'separate', borderSpacing: 0 }}>
+                    <thead>
+                      <tr style={{ background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
+                        <th style={{
+                          padding: '10px 14px', textAlign: 'left', fontFamily: 'var(--f-mono)',
+                          fontSize: 10, textTransform: 'uppercase', letterSpacing: '.06em',
+                          color: 'var(--mute)', fontWeight: 600, position: 'sticky', left: 0, zIndex: 2,
+                          background: 'color-mix(in oklab, var(--ink) 4%, var(--paper))',
+                          borderBottom: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
+                          minWidth: 140,
+                        }}>
+                          Zeitfenster
+                        </th>
+                        {plan.jobs.map((job) => (
+                          <th key={job.id} style={{
+                            padding: '10px 12px', textAlign: 'center', fontFamily: 'var(--f-mono)',
+                            fontSize: 11, color: 'var(--ink)', fontWeight: 600,
+                            borderBottom: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
+                            minWidth: 130,
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: job.color || '#6b7280', flexShrink: 0 }} />
+                              <span>{job.name}</span>
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {matrixSlots.map((slot) => {
+                        const dateObj = new Date(slot.date);
+                        return (
+                          <tr key={slot.key}>
+                            <th style={{
+                              padding: '10px 14px', textAlign: 'left', position: 'sticky', left: 0, zIndex: 1,
+                              background: 'var(--paper)',
+                              borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                              borderRight: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                            }}>
+                              <div style={{ fontSize: 11, color: 'var(--mute-2)', fontFamily: 'var(--f-mono)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                                {dateObj.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })}
+                              </div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Clock style={{ width: 11, height: 11, color: 'var(--mute)' }} />
+                                {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
+                              </div>
+                            </th>
+                            {plan.jobs.map((job) => {
+                              const shift = job.shifts.find(
+                                (s) => s.date === slot.date && s.startTime === slot.startTime && s.endTime === slot.endTime,
+                              );
+                              if (!shift) {
+                                return (
+                                  <td key={job.id} style={{
+                                    padding: 8, textAlign: 'center', color: 'var(--mute-2)', fontSize: 13,
+                                    borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                                  }}>
+                                    —
+                                  </td>
+                                );
+                              }
+                              const isSelected = selectedShifts.has(shift.id);
+                              const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
+                              const hasOverlap = !!overlappingShift;
+                              const isDisabled = shift.isFull || hasOverlap;
+
+                              const cellBg = isSelected
+                                ? 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))'
+                                : shift.isFull
+                                ? 'color-mix(in oklab, var(--ink) 8%, transparent)'
+                                : hasOverlap
+                                ? 'color-mix(in oklab, #f59e0b 10%, transparent)'
+                                : 'var(--paper)';
+                              const cellBorder = isSelected
+                                ? 'var(--green-ink)'
+                                : 'color-mix(in oklab, var(--ink) 10%, transparent)';
+
+                              return (
+                                <td key={job.id} style={{
+                                  padding: 6, verticalAlign: 'middle',
+                                  borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+                                }}>
+                                  <button
+                                    type="button"
+                                    disabled={isDisabled}
+                                    onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
+                                    title={
+                                      shift.isFull
+                                        ? t('shifts.public.full')
+                                        : hasOverlap
+                                        ? t('shifts.public.overlap')
+                                        : `${shift.availableSpots} ${t('shifts.public.free')}`
+                                    }
+                                    style={{
+                                      width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                      gap: 4, padding: '10px 8px', borderRadius: 'var(--r-sm)',
+                                      border: `1px solid ${cellBorder}`, background: cellBg,
+                                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                      opacity: isDisabled && !isSelected ? 0.55 : 1,
+                                      fontFamily: 'inherit', transition: 'background .15s, border-color .15s',
+                                      minHeight: 56,
+                                    }}
+                                  >
+                                    {isSelected ? (
+                                      <>
+                                        <CheckCircle style={{ width: 18, height: 18, color: 'var(--green-ink)' }} />
+                                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--green-ink)' }}>
+                                          {t('shifts.public.selected')}
+                                        </span>
+                                      </>
+                                    ) : shift.isFull ? (
+                                      <>
+                                        <span className="badge badge--success" style={{ fontSize: 10 }}>{t('shifts.public.full')}</span>
+                                        <span style={{ fontSize: 11, color: 'var(--mute)' }}>
+                                          {shift.confirmedCount}/{shift.requiredWorkers}
+                                        </span>
+                                      </>
+                                    ) : hasOverlap ? (
+                                      <>
+                                        <span className="badge badge--warning" style={{ fontSize: 10 }}>{t('shifts.public.overlap')}</span>
+                                        <span style={{ fontSize: 11, color: 'var(--mute)' }}>
+                                          {shift.confirmedCount}/{shift.requiredWorkers}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
+                                          <Users01 style={{ width: 12, height: 12, color: 'var(--mute)' }} />
+                                          {shift.availableSpots}
+                                          <span style={{ color: 'var(--mute)', fontWeight: 400 }}>/{shift.requiredWorkers}</span>
+                                        </span>
+                                        <span style={{ fontSize: 10, color: 'var(--mute)' }}>{t('shifts.public.free')}</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
 
             {/* Calendar view */}
             {viewMode === 'calendar' && (
