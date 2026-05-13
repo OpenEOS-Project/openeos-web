@@ -12,49 +12,71 @@ const formatTime = (t: string) => t.slice(0, 5);
 interface Props {
   open: boolean;
   plan: ShiftPlan;
+  /** Any registration in the helper's group; the modal pulls all sibling
+   *  shifts from that group via plan.jobs. */
   registration: ShiftRegistration | null;
+  /** All registrations for the plan, used to resolve the helper's other shifts
+   *  by registrationGroupId. */
+  allRegistrations: ShiftRegistration[];
   onClose: () => void;
 }
 
-/** Edit a registration's contact details and/or move it to another shift.
- *  When the shift changes, the helper is notified by default. */
-export function EditRegistrationModal({ open, plan, registration, onClose }: Props) {
+interface ShiftCard {
+  shiftId: string;
+  jobId: string;
+  jobName: string;
+  jobColor: string | null;
+  date: string;
+  startTime: string;
+  endTime: string;
+  isFull: boolean;
+  confirmedCount: number;
+  requiredWorkers: number;
+}
+
+export function EditRegistrationModal({ open, plan, registration, allRegistrations, onClose }: Props) {
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
-  const [shiftId, setShiftId] = useState<string>('');
+  // Contact-detail fields (apply to the helper, not the individual shifts).
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
-  const [notify, setNotify] = useState(true);
-  const [notifyMessage, setNotifyMessage] = useState('');
+
+  // Staged changes against the helper's current registrations.
+  // Each existing reg row's shiftId is in `currentShiftIds`. The admin can
+  // remove rows (regId in `removedRegIds`) and add new ones
+  // (`addedShiftIds`). On Save we apply removes + adds in one go.
+  const [removedRegIds, setRemovedRegIds] = useState<Set<string>>(new Set());
+  const [addedShiftIds, setAddedShiftIds] = useState<Set<string>>(new Set());
+  const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Hydrate form when a registration is selected.
-  useEffect(() => {
-    if (!open || !registration) return;
-    setShiftId(registration.shiftId);
-    setName(registration.name);
-    setEmail(registration.email);
-    setPhone(registration.phone ?? '');
-    setNotes(registration.notes ?? '');
-    setAdminNotes(registration.adminNotes ?? '');
-    setNotify(true);
-    setNotifyMessage('');
-    setError(null);
-  }, [open, registration]);
+  const groupRegs = useMemo(() => {
+    if (!registration) return [] as ShiftRegistration[];
+    return allRegistrations
+      .filter((r) => r.registrationGroupId === registration.registrationGroupId)
+      .sort((a, b) => {
+        const aDate = (a.shift?.date || '').localeCompare(b.shift?.date || '');
+        if (aDate !== 0) return aDate;
+        return (a.shift?.startTime || '').localeCompare(b.shift?.startTime || '');
+      });
+  }, [registration, allRegistrations]);
 
-  const allShifts = useMemo(() => {
-    const out: Array<{ shiftId: string; jobName: string; date: string; startTime: string; endTime: string; isFull: boolean; confirmedCount: number; requiredWorkers: number }> = [];
+  // Flat catalogue of every shift in the plan for the picker.
+  const allShifts: ShiftCard[] = useMemo(() => {
+    const out: ShiftCard[] = [];
     for (const job of plan.jobs || []) {
       for (const shift of job.shifts || []) {
         const confirmed = shift.registrations?.filter((r) => r.status === 'confirmed').length || 0;
         out.push({
           shiftId: shift.id,
+          jobId: job.id,
           jobName: job.name,
+          jobColor: job.color || null,
           date: shift.date,
           startTime: shift.startTime,
           endTime: shift.endTime,
@@ -64,38 +86,91 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
         });
       }
     }
-    out.sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
+    out.sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime) || a.jobName.localeCompare(b.jobName));
     return out;
   }, [plan]);
 
-  const shiftIsBeingMoved = registration && shiftId !== registration.shiftId;
-  const [moveMode, setMoveMode] = useState<'direct' | 'propose'>('propose');
+  // Group picker entries by date for a 2-column card layout.
+  const pickerGroups = useMemo(() => {
+    const map = new Map<string, ShiftCard[]>();
+    for (const s of allShifts) {
+      const arr = map.get(s.date) || [];
+      arr.push(s);
+      map.set(s.date, arr);
+    }
+    return Array.from(map.entries()).map(([date, shifts]) => ({ date, shifts }));
+  }, [allShifts]);
+
+  // Shift IDs the helper currently has assigned (post-staged-changes).
+  const activeShiftIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const reg of groupRegs) {
+      if (!removedRegIds.has(reg.id)) ids.add(reg.shiftId);
+    }
+    for (const id of addedShiftIds) ids.add(id);
+    return ids;
+  }, [groupRegs, removedRegIds, addedShiftIds]);
+
+  useEffect(() => {
+    if (!open || !registration) return;
+    setName(registration.name);
+    setEmail(registration.email);
+    setPhone(registration.phone ?? '');
+    setNotes(registration.notes ?? '');
+    setAdminNotes(registration.adminNotes ?? '');
+    setRemovedRegIds(new Set());
+    setAddedShiftIds(new Set());
+    setShowPicker(false);
+    setError(null);
+  }, [open, registration]);
 
   const mutation = useMutation({
     mutationFn: async () => {
-      // Always persist the contact-detail edits via the normal update path,
-      // but DON'T pass shiftId if we're going to propose it (the proposal
-      // endpoint handles the move separately).
-      const reg = await shiftsApi.adminUpdateRegistration(organizationId!, registration!.id, {
-        name,
-        email,
-        phone: phone || undefined,
-        notes: notes || undefined,
-        adminNotes: adminNotes || undefined,
-        shiftId: shiftIsBeingMoved && moveMode === 'direct' ? shiftId : undefined,
-        notify: shiftIsBeingMoved && moveMode === 'direct' ? notify : false,
-        notifyMessage: shiftIsBeingMoved && moveMode === 'direct' && notifyMessage
-          ? notifyMessage
-          : undefined,
-      });
+      if (!registration) return;
 
-      if (shiftIsBeingMoved && moveMode === 'propose') {
-        await shiftsApi.proposeShiftMove(organizationId!, registration!.id, {
-          shiftId,
-          message: notifyMessage || undefined,
+      // 1. Update contact details on the FIRST surviving registration (covers
+      //    all rows in the group, since they share fields by convention).
+      const survivor = groupRegs.find((r) => !removedRegIds.has(r.id));
+      if (survivor) {
+        await shiftsApi.adminUpdateRegistration(organizationId!, survivor.id, {
+          name,
+          email,
+          phone: phone || undefined,
+          notes: notes || undefined,
+          adminNotes: adminNotes || undefined,
         });
       }
-      return reg;
+
+      // 2. Mirror the contact details onto the OTHER surviving rows too so a
+      //    later list query stays consistent.
+      for (const reg of groupRegs) {
+        if (reg.id === survivor?.id) continue;
+        if (removedRegIds.has(reg.id)) continue;
+        await shiftsApi.adminUpdateRegistration(organizationId!, reg.id, {
+          name,
+          email,
+          phone: phone || undefined,
+          notes: notes || undefined,
+          adminNotes: adminNotes || undefined,
+        });
+      }
+
+      // 3. Remove staged-removed rows.
+      for (const regId of removedRegIds) {
+        await shiftsApi.removeSingleRegistration(organizationId!, regId);
+      }
+
+      // 4. Append new shifts onto the helper's group.
+      for (const shiftId of addedShiftIds) {
+        await shiftsApi.adminCreateRegistration(organizationId!, shiftId, {
+          name,
+          email,
+          phone: phone || undefined,
+          notes: notes || undefined,
+          adminNotes: adminNotes || undefined,
+          registrationGroupId: registration.registrationGroupId,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, plan.id] });
@@ -107,11 +182,12 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
 
   if (!open || !registration) return null;
 
-  const canSubmit = shiftId && name.trim().length >= 2 && /\S+@\S+\.\S+/.test(email);
+  const canSubmit = name.trim().length >= 2 && /\S+@\S+\.\S+/.test(email);
+  const addedShiftCards = allShifts.filter((s) => addedShiftIds.has(s.shiftId));
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box" style={{ maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">Anmeldung bearbeiten</div>
           <button className="modal__close" onClick={onClose} aria-label="Schließen">
@@ -120,27 +196,12 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
         </div>
 
         <div className="modal__body">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {error && (
               <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
             )}
 
-            <div className="auth-field">
-              <label className="auth-field__label">Schicht *</label>
-              <select className="input" value={shiftId} onChange={(e) => setShiftId(e.target.value)}>
-                {allShifts.map((s) => (
-                  <option key={s.shiftId} value={s.shiftId} disabled={s.isFull && s.shiftId !== registration.shiftId}>
-                    {s.jobName} — {formatDate(s.date)} {formatTime(s.startTime)}–{formatTime(s.endTime)} ({s.confirmedCount}/{s.requiredWorkers}){s.isFull ? ' — voll' : ''}
-                  </option>
-                ))}
-              </select>
-              {shiftIsBeingMoved && (
-                <p style={{ fontSize: 12, color: '#b45309', marginTop: 6, padding: '6px 10px', borderRadius: 6, background: 'color-mix(in oklab, #f59e0b 10%, transparent)' }}>
-                  Schicht wird verschoben. Der Helfer wird per E-Mail über die Änderung informiert (sofern „benachrichtigen" aktiv ist).
-                </p>
-              )}
-            </div>
-
+            {/* Helper details */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
                 <label className="auth-field__label">Name *</label>
@@ -157,65 +218,161 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
 
-            <div className="auth-field">
-              <label className="auth-field__label">Anmerkungen (vom Helfer)</label>
-              <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
-            </div>
-
-            <div className="auth-field">
-              <label className="auth-field__label">Admin-Notizen (intern)</label>
-              <textarea className="textarea" rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
-            </div>
-
-            {shiftIsBeingMoved && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 8%, transparent)', border: '1px solid color-mix(in oklab, #f59e0b 25%, transparent)' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#b45309' }}>Schicht wird verschoben — wie soll der Helfer reagieren?</div>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="moveMode"
-                    checked={moveMode === 'propose'}
-                    onChange={() => setMoveMode('propose')}
-                    style={{ accentColor: 'var(--green-ink)', marginTop: 2 }}
-                  />
-                  <span>
-                    <strong>Vorschlag schicken</strong> — der Helfer bekommt eine Mail mit „Annehmen"/„Ablehnen"-Buttons. Erst nach Bestätigung wird verschoben.
-                  </span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="moveMode"
-                    checked={moveMode === 'direct'}
-                    onChange={() => setMoveMode('direct')}
-                    style={{ accentColor: 'var(--green-ink)', marginTop: 2 }}
-                  />
-                  <span>
-                    <strong>Direkt verschieben</strong> — die Schicht wird sofort geändert. Helfer kann optional benachrichtigt werden.
-                  </span>
-                </label>
-
-                {moveMode === 'direct' && (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink)', marginLeft: 22 }}>
-                    <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
-                    <span>Helfer per E-Mail informieren</span>
-                  </label>
-                )}
-
-                {(moveMode === 'propose' || (moveMode === 'direct' && notify)) && (
-                  <div className="auth-field" style={{ marginLeft: 22 }}>
-                    <label className="auth-field__label">Optionale Notiz für den Helfer</label>
-                    <textarea
-                      className="textarea"
-                      rows={2}
-                      placeholder="z.B. Grund der Verschiebung."
-                      value={notifyMessage}
-                      onChange={(e) => setNotifyMessage(e.target.value)}
-                    />
-                  </div>
-                )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="auth-field">
+                <label className="auth-field__label">Anmerkungen (vom Helfer)</label>
+                <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
-            )}
+              <div className="auth-field">
+                <label className="auth-field__label">Admin-Notizen</label>
+                <textarea className="textarea" rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
+              </div>
+            </div>
+
+            {/* Shifts list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>Eingetragene Schichten</span>
+                <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                  {groupRegs.length - removedRegIds.size + addedShiftIds.size} aktiv
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {groupRegs.map((reg) => {
+                  const isRemoved = removedRegIds.has(reg.id);
+                  return (
+                    <div
+                      key={reg.id}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '8px 12px', borderRadius: 8,
+                        border: `1px solid ${isRemoved ? 'color-mix(in oklab, #dc2626 30%, transparent)' : 'color-mix(in oklab, var(--ink) 10%, transparent)'}`,
+                        background: isRemoved ? 'color-mix(in oklab, #dc2626 6%, transparent)' : 'var(--paper)',
+                        opacity: isRemoved ? 0.6 : 1,
+                      }}
+                    >
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: reg.shift?.job?.color || '#6b7280', flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: isRemoved ? 'color-mix(in oklab, var(--ink) 50%, transparent)' : 'var(--ink)', textDecoration: isRemoved ? 'line-through' : 'none' }}>
+                          {reg.shift?.job?.name || '—'}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                          {reg.shift ? formatDate(reg.shift.date) : ''} · {reg.shift ? `${formatTime(reg.shift.startTime)}–${formatTime(reg.shift.endTime)}` : ''}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() =>
+                          setRemovedRegIds((s) => {
+                            const next = new Set(s);
+                            if (next.has(reg.id)) next.delete(reg.id);
+                            else next.add(reg.id);
+                            return next;
+                          })
+                        }
+                      >
+                        {isRemoved ? 'Wiederherstellen' : 'Entfernen'}
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {addedShiftCards.map((s) => (
+                  <div
+                    key={`add-${s.shiftId}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '8px 12px', borderRadius: 8,
+                      border: '1px solid color-mix(in oklab, var(--green-ink) 35%, transparent)',
+                      background: 'color-mix(in oklab, var(--green-soft) 30%, var(--paper))',
+                    }}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{s.jobName}</div>
+                      <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                        {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · NEU
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ fontSize: 12, padding: '4px 10px' }}
+                      onClick={() => setAddedShiftIds((set) => { const next = new Set(set); next.delete(s.shiftId); return next; })}
+                    >
+                      Entfernen
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="btn btn--ghost"
+                style={{ fontSize: 12, alignSelf: 'flex-start' }}
+                onClick={() => setShowPicker((v) => !v)}
+              >
+                {showPicker ? '× Picker schließen' : '+ Schicht hinzufügen'}
+              </button>
+
+              {showPicker && (
+                <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
+                  {pickerGroups.length === 0 ? (
+                    <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                      Keine Schichten im Plan.
+                    </div>
+                  ) : (
+                    pickerGroups.map(({ date, shifts }) => (
+                      <div key={date} style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', textTransform: 'uppercase', letterSpacing: '.04em', padding: '4px 6px' }}>
+                          {formatDate(date)}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 6 }}>
+                          {shifts.map((s) => {
+                            const alreadyHas = activeShiftIds.has(s.shiftId);
+                            const disabled = alreadyHas || s.isFull;
+                            return (
+                              <button
+                                key={s.shiftId}
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => setAddedShiftIds((set) => { const next = new Set(set); next.add(s.shiftId); return next; })}
+                                style={{
+                                  textAlign: 'left', padding: '8px 10px', borderRadius: 6,
+                                  border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                                  background: alreadyHas
+                                    ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))'
+                                    : s.isFull
+                                    ? 'color-mix(in oklab, var(--ink) 6%, transparent)'
+                                    : 'var(--paper)',
+                                  cursor: disabled ? 'not-allowed' : 'pointer',
+                                  opacity: disabled ? 0.6 : 1,
+                                  fontFamily: 'inherit',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
+                                  <span style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.jobName}</span>
+                                </div>
+                                <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)' }}>
+                                  {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                                </div>
+                                <div style={{ fontSize: 10, marginTop: 2, color: alreadyHas ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                                  {alreadyHas ? '✓ Bereits eingetragen' : s.isFull ? 'Voll' : `${s.confirmedCount}/${s.requiredWorkers} belegt`}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -227,11 +384,7 @@ export function EditRegistrationModal({ open, plan, registration, onClose }: Pro
             disabled={!canSubmit || mutation.isPending}
             onClick={() => { setError(null); mutation.mutate(); }}
           >
-            {mutation.isPending
-              ? '...'
-              : shiftIsBeingMoved && moveMode === 'propose'
-              ? 'Vorschlag senden'
-              : 'Speichern'}
+            {mutation.isPending ? '...' : 'Speichern'}
           </button>
         </div>
       </div>

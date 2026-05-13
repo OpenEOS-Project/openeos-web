@@ -247,6 +247,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
         open={editOpen}
         plan={plan}
         registration={selectedRegistration}
+        allRegistrations={registrations}
         onClose={() => { setEditOpen(false); setSelectedRegistration(null); }}
       />
     </div>

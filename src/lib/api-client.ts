@@ -1338,11 +1338,23 @@ export const shiftsApi = {
       notes?: string;
       adminNotes?: string;
       notify?: boolean;
+      /** Pass an existing helper group's id to append this shift to that group
+       *  (= adding another shift to an existing helper). Omit to create a new
+       *  standalone helper. */
+      registrationGroupId?: string;
     }
   ) =>
     apiClient.post<ApiResponse<import('@/types/shift').ShiftRegistration>>(
       `/organizations/${organizationId}/shift-plans/shifts/${shiftId}/registrations`,
       data
+    ),
+
+  /** Remove a single shift row from a helper's registration without deleting
+   *  the whole helper's signup. The `deleteRegistration` endpoint above keeps
+   *  its group-wide semantics. */
+  removeSingleRegistration: (organizationId: string, registrationId: string) =>
+    apiClient.delete<void>(
+      `/organizations/${organizationId}/shift-plans/registrations/${registrationId}/one`
     ),
 
   adminUpdateRegistration: (
