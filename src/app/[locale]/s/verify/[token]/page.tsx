@@ -146,7 +146,7 @@ export default function VerifyEmailPage() {
       }}>
         <span>© {new Date().getFullYear()} OpenEOS</span>
         <span style={{ opacity: 0.4 }}>·</span>
-        <a href="/impressum" style={{ color: 'inherit' }}>Impressum</a>
+        <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Impressum</a>
       </footer>
 
       <style>{`

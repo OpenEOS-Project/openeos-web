@@ -80,9 +80,9 @@ export default function PublicShiftPlanPage() {
   const [selectedShifts, setSelectedShifts] = useState<Set<string>>(new Set());
   const [registeredShiftsData, setRegisteredShiftsData] = useState<Array<{ job: JobData; shift: ShiftData }>>([]);
   const [error, setError] = useState<string | null>(null);
-  // 'Mobil' is the default — vertical-scroll layout with big touch targets
-  // that doesn't require horizontal scrolling when there are many jobs.
-  const [viewMode, setViewMode] = useState<'mobile' | 'matrix' | 'list' | 'calendar'>('mobile');
+  // Mobil and Liste only — matrix/calendar were dropped because they require
+  // horizontal scrolling once the plan has many jobs.
+  const [viewMode, setViewMode] = useState<'mobile' | 'list'>('mobile');
 
   const {
     control,
@@ -152,30 +152,70 @@ export default function PublicShiftPlanPage() {
 
   const sortedDates = useMemo(() => Object.keys(shiftsByDate).sort(), [shiftsByDate]);
 
-  // Matrix view: one row per unique (date + time window) across all jobs.
-  // A row + job cell holds the shift that matches both, or null if that job
-  // has nothing during that slot. Sorted chronologically so the layout reads
-  // top-down through the event.
-  const matrixSlots = useMemo(() => {
-    if (!plan) return [] as Array<{ date: string; startTime: string; endTime: string; key: string }>;
-    const seen = new Set<string>();
-    const slots: Array<{ date: string; startTime: string; endTime: string; key: string }> = [];
-    for (const job of plan.jobs) {
-      for (const shift of job.shifts) {
-        const key = `${shift.date}|${shift.startTime}|${shift.endTime}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        slots.push({ date: shift.date, startTime: shift.startTime, endTime: shift.endTime, key });
-      }
-    }
-    slots.sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
-    return slots;
-  }, [plan]);
-
   const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
   };
+
+  // Mobile-view grouping: cluster overlapping shifts on the same date into a
+  // single section so 'Bar 18:00–01:00' + '12 other jobs 19:00–01:00' end up
+  // in ONE block instead of two near-empty ones (the bar being alone at 18,
+  // everyone else alone at 19). Within a cluster the section header shows the
+  // earliest-start to latest-end window, and each card displays the job's own
+  // time so the slight differences stay visible.
+  const mobileGroups = useMemo(() => {
+    type Item = { job: JobData; shift: ShiftData };
+    type Group = { date: string; key: string; startMin: number; endMin: number; shifts: Item[] };
+    if (!plan) return [] as Group[];
+
+    const byDate: Record<string, Item[]> = {};
+    for (const job of plan.jobs) {
+      for (const shift of job.shifts) {
+        if (!byDate[shift.date]) byDate[shift.date] = [];
+        byDate[shift.date].push({ job, shift });
+      }
+    }
+
+    const bounds = (s: ShiftData): [number, number] => {
+      const start = timeToMinutes(s.startTime);
+      let end = timeToMinutes(s.endTime);
+      if (end <= start) end += 1440; // overnight → push end into next day
+      return [start, end];
+    };
+
+    const groups: Group[] = [];
+
+    for (const date of Object.keys(byDate).sort()) {
+      const items = byDate[date].slice().sort(
+        (a, b) => timeToMinutes(a.shift.startTime) - timeToMinutes(b.shift.startTime),
+      );
+
+      let cluster: Group | null = null;
+      for (const item of items) {
+        const [s, e] = bounds(item.shift);
+        if (cluster && s < cluster.endMin && e > cluster.startMin) {
+          cluster.startMin = Math.min(cluster.startMin, s);
+          cluster.endMin = Math.max(cluster.endMin, e);
+          cluster.shifts.push(item);
+        } else {
+          cluster = { date, key: `${date}|${groups.length}`, startMin: s, endMin: e, shifts: [item] };
+          groups.push(cluster);
+        }
+      }
+    }
+
+    // Within each cluster, sort cards by job name + start time so the grid
+    // is stable and predictable.
+    for (const g of groups) {
+      g.shifts.sort((a, b) =>
+        a.job.name.localeCompare(b.job.name)
+        || a.shift.startTime.localeCompare(b.shift.startTime),
+      );
+    }
+
+    return groups;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan]);
 
   const HANDOVER_TOLERANCE_MINUTES = 45;
 
@@ -535,22 +575,16 @@ export default function PublicShiftPlanPage() {
                 {selectedShifts.size > 0 ? `${selectedShifts.size} ${t('shifts.public.selected')}` : ''}
               </span>
               <div className="shifts-public__view-toggle">
-                {(['mobile', 'matrix', 'list', 'calendar'] as const).map((mode) => (
+                {(['mobile', 'list'] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setViewMode(mode)}
                     className={viewMode === mode ? 'is-active' : ''}
                   >
-                    {mode === 'mobile' ? (
-                      <><List style={{ width: 14, height: 14 }} />Mobil</>
-                    ) : mode === 'matrix' ? (
-                      <><Grid01 style={{ width: 14, height: 14 }} />Matrix</>
-                    ) : mode === 'list' ? (
-                      <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>
-                    ) : (
-                      <><Calendar style={{ width: 14, height: 14 }} />{t('shifts.public.calendarView')}</>
-                    )}
+                    {mode === 'mobile'
+                      ? <><Grid01 style={{ width: 14, height: 14 }} />Karten</>
+                      : <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>}
                   </button>
                 ))}
               </div>
@@ -561,15 +595,25 @@ export default function PublicShiftPlanPage() {
                 that the matrix/calendar layouts force when there are many jobs. */}
             {viewMode === 'mobile' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: '1.25rem' }}>
-                {matrixSlots.length === 0 ? (
+                {mobileGroups.length === 0 ? (
                   <div className="shifts-public__card" style={{ padding: 32, textAlign: 'center', color: 'var(--mute)', fontSize: 14 }}>
                     Keine Schichten vorhanden.
                   </div>
                 ) : (
-                  matrixSlots.map((slot) => {
-                    const dateObj = new Date(slot.date);
+                  mobileGroups.map((group) => {
+                    const dateObj = new Date(group.date);
+                    const headerStart = `${String(Math.floor(group.startMin / 60)).padStart(2, '0')}:${String(group.startMin % 60).padStart(2, '0')}`;
+                    const headerEndMins = group.endMin % 1440;
+                    const headerEnd = `${String(Math.floor(headerEndMins / 60)).padStart(2, '0')}:${String(headerEndMins % 60).padStart(2, '0')}`;
+                    const crossesMidnight = group.endMin >= 1440;
+                    // Detect whether any shift in this cluster has a non-uniform
+                    // time window — if so we show the time per-card too.
+                    const distinctTimes = new Set(
+                      group.shifts.map((s) => `${s.shift.startTime}|${s.shift.endTime}`),
+                    );
+                    const showPerCardTime = distinctTimes.size > 1;
                     return (
-                      <section key={slot.key} className="shifts-public__card" style={{ padding: 0, overflow: 'hidden' }}>
+                      <section key={group.key} className="shifts-public__card" style={{ padding: 0, overflow: 'hidden' }}>
                         <header style={{
                           padding: '12px 14px',
                           borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
@@ -583,7 +627,7 @@ export default function PublicShiftPlanPage() {
                             </div>
                             <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
                               <Clock style={{ width: 11, height: 11 }} />
-                              {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
+                              {headerStart} – {headerEnd}{crossesMidnight ? ' (am Folgetag)' : ''}
                             </div>
                           </div>
                         </header>
@@ -594,26 +638,7 @@ export default function PublicShiftPlanPage() {
                           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
                           gap: 8,
                         }}>
-                          {plan.jobs.map((job) => {
-                            const shift = job.shifts.find(
-                              (s) => s.date === slot.date && s.startTime === slot.startTime && s.endTime === slot.endTime,
-                            );
-                            if (!shift) {
-                              return (
-                                <div key={job.id} style={{
-                                  borderRadius: 'var(--r-sm)',
-                                  border: '1px dashed color-mix(in oklab, var(--ink) 10%, transparent)',
-                                  padding: 10, fontSize: 12, color: 'var(--mute-2)',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  minHeight: 64, textAlign: 'center',
-                                }}>
-                                  <div>
-                                    <div style={{ fontWeight: 600 }}>{job.name}</div>
-                                    <div style={{ marginTop: 2 }}>—</div>
-                                  </div>
-                                </div>
-                              );
-                            }
+                          {group.shifts.map(({ job, shift }) => {
                             const isSelected = selectedShifts.has(shift.id);
                             const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
                             const hasOverlap = !!overlappingShift;
@@ -630,7 +655,7 @@ export default function PublicShiftPlanPage() {
 
                             return (
                               <button
-                                key={job.id}
+                                key={shift.id}
                                 type="button"
                                 disabled={isDisabled}
                                 onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
@@ -642,7 +667,7 @@ export default function PublicShiftPlanPage() {
                                   cursor: isDisabled ? 'not-allowed' : 'pointer',
                                   opacity: isDisabled && !isSelected ? 0.6 : 1,
                                   fontFamily: 'inherit', transition: 'background .15s, border-color .15s',
-                                  minHeight: 78, width: '100%', textAlign: 'left',
+                                  minHeight: 86, width: '100%', textAlign: 'left',
                                 }}
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
@@ -651,6 +676,12 @@ export default function PublicShiftPlanPage() {
                                     {job.name}
                                   </span>
                                 </div>
+                                {showPerCardTime && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--mute)', fontFamily: 'var(--f-mono)' }}>
+                                    <Clock style={{ width: 10, height: 10 }} />
+                                    {formatTime(shift.startTime)}–{formatTime(shift.endTime)}
+                                  </div>
+                                )}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                   {isSelected ? (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
@@ -677,290 +708,6 @@ export default function PublicShiftPlanPage() {
                     );
                   })
                 )}
-              </div>
-            )}
-
-            {/* Matrix view — slots × jobs grid. Each cell is a directly-clickable
-                signup target, with the same full/overlap/booked semantics as the
-                other views so unbookable shifts are clearly marked. */}
-            {viewMode === 'matrix' && (
-              <div className="shifts-public__card" style={{ marginBottom: '1.25rem', overflowX: 'auto' }}>
-                {matrixSlots.length === 0 ? (
-                  <div style={{ padding: 32, textAlign: 'center', color: 'var(--mute)', fontSize: 14 }}>
-                    Keine Schichten vorhanden.
-                  </div>
-                ) : (
-                  <table style={{ width: '100%', minWidth: 540, borderCollapse: 'separate', borderSpacing: 0 }}>
-                    <thead>
-                      <tr style={{ background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
-                        <th style={{
-                          padding: '10px 14px', textAlign: 'left', fontFamily: 'var(--f-mono)',
-                          fontSize: 10, textTransform: 'uppercase', letterSpacing: '.06em',
-                          color: 'var(--mute)', fontWeight: 600, position: 'sticky', left: 0, zIndex: 2,
-                          background: 'color-mix(in oklab, var(--ink) 4%, var(--paper))',
-                          borderBottom: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                          minWidth: 140,
-                        }}>
-                          Zeitfenster
-                        </th>
-                        {plan.jobs.map((job) => (
-                          <th key={job.id} style={{
-                            padding: '10px 12px', textAlign: 'center', fontFamily: 'var(--f-mono)',
-                            fontSize: 11, color: 'var(--ink)', fontWeight: 600,
-                            borderBottom: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                            minWidth: 130,
-                          }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: job.color || '#6b7280', flexShrink: 0 }} />
-                              <span>{job.name}</span>
-                            </div>
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {matrixSlots.map((slot) => {
-                        const dateObj = new Date(slot.date);
-                        return (
-                          <tr key={slot.key}>
-                            <th style={{
-                              padding: '10px 14px', textAlign: 'left', position: 'sticky', left: 0, zIndex: 1,
-                              background: 'var(--paper)',
-                              borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                              borderRight: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                            }}>
-                              <div style={{ fontSize: 11, color: 'var(--mute-2)', fontFamily: 'var(--f-mono)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
-                                {dateObj.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })}
-                              </div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <Clock style={{ width: 11, height: 11, color: 'var(--mute)' }} />
-                                {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
-                              </div>
-                            </th>
-                            {plan.jobs.map((job) => {
-                              const shift = job.shifts.find(
-                                (s) => s.date === slot.date && s.startTime === slot.startTime && s.endTime === slot.endTime,
-                              );
-                              if (!shift) {
-                                return (
-                                  <td key={job.id} style={{
-                                    padding: 8, textAlign: 'center', color: 'var(--mute-2)', fontSize: 13,
-                                    borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                                  }}>
-                                    —
-                                  </td>
-                                );
-                              }
-                              const isSelected = selectedShifts.has(shift.id);
-                              const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
-                              const hasOverlap = !!overlappingShift;
-                              const isDisabled = shift.isFull || hasOverlap;
-
-                              const cellBg = isSelected
-                                ? 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))'
-                                : shift.isFull
-                                ? 'color-mix(in oklab, var(--ink) 8%, transparent)'
-                                : hasOverlap
-                                ? 'color-mix(in oklab, #f59e0b 10%, transparent)'
-                                : 'var(--paper)';
-                              const cellBorder = isSelected
-                                ? 'var(--green-ink)'
-                                : 'color-mix(in oklab, var(--ink) 10%, transparent)';
-
-                              return (
-                                <td key={job.id} style={{
-                                  padding: 6, verticalAlign: 'middle',
-                                  borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                                }}>
-                                  <button
-                                    type="button"
-                                    disabled={isDisabled}
-                                    onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
-                                    title={
-                                      shift.isFull
-                                        ? t('shifts.public.full')
-                                        : hasOverlap
-                                        ? t('shifts.public.overlap')
-                                        : `${shift.availableSpots} ${t('shifts.public.free')}`
-                                    }
-                                    style={{
-                                      width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                      gap: 4, padding: '10px 8px', borderRadius: 'var(--r-sm)',
-                                      border: `1px solid ${cellBorder}`, background: cellBg,
-                                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                      opacity: isDisabled && !isSelected ? 0.55 : 1,
-                                      fontFamily: 'inherit', transition: 'background .15s, border-color .15s',
-                                      minHeight: 56,
-                                    }}
-                                  >
-                                    {isSelected ? (
-                                      <>
-                                        <CheckCircle style={{ width: 18, height: 18, color: 'var(--green-ink)' }} />
-                                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--green-ink)' }}>
-                                          {t('shifts.public.selected')}
-                                        </span>
-                                      </>
-                                    ) : shift.isFull ? (
-                                      <>
-                                        <span className="badge badge--success" style={{ fontSize: 10 }}>{t('shifts.public.full')}</span>
-                                        <span style={{ fontSize: 11, color: 'var(--mute)' }}>
-                                          {shift.confirmedCount}/{shift.requiredWorkers}
-                                        </span>
-                                      </>
-                                    ) : hasOverlap ? (
-                                      <>
-                                        <span className="badge badge--warning" style={{ fontSize: 10 }}>{t('shifts.public.overlap')}</span>
-                                        <span style={{ fontSize: 11, color: 'var(--mute)' }}>
-                                          {shift.confirmedCount}/{shift.requiredWorkers}
-                                        </span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
-                                          <Users01 style={{ width: 12, height: 12, color: 'var(--mute)' }} />
-                                          {shift.availableSpots}
-                                          <span style={{ color: 'var(--mute)', fontWeight: 400 }}>/{shift.requiredWorkers}</span>
-                                        </span>
-                                        <span style={{ fontSize: 10, color: 'var(--mute)' }}>{t('shifts.public.free')}</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
-
-            {/* Calendar view */}
-            {viewMode === 'calendar' && (
-              <div className="shifts-public__card" style={{ marginBottom: '1.25rem', overflowX: 'auto' }}>
-                <table style={{ width: '100%', minWidth: 600, borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
-                      <th style={{
-                        padding: '10px 16px', textAlign: 'left', fontFamily: 'var(--f-mono)',
-                        fontSize: 10, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--mute)',
-                        fontWeight: 600, borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-                        minWidth: 140,
-                      }}>
-                        {t('shifts.calendar.job')}
-                      </th>
-                      {sortedDates.map((date) => {
-                        const dateObj = new Date(date);
-                        return (
-                          <th key={date} style={{
-                            padding: '10px 8px', textAlign: 'center', fontFamily: 'var(--f-mono)',
-                            fontSize: 11, color: 'var(--mute)', fontWeight: 600,
-                            borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-                            minWidth: 120,
-                          }}>
-                            <div style={{ fontSize: 10, color: 'var(--mute-2)' }}>
-                              {dateObj.toLocaleDateString('de-DE', { weekday: 'short' })}
-                            </div>
-                            <div>{dateObj.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' })}</div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {plan.jobs.map((job) => (
-                      <tr key={job.id} style={{ borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-                        <td style={{ padding: '10px 16px', borderRight: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: job.color || '#6b7280' }} />
-                            <div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{job.name}</div>
-                              {job.description && (
-                                <div style={{ fontSize: 11, color: 'var(--mute)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {job.description}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        {sortedDates.map((date) => {
-                          const shiftsForDay = job.shifts
-                            .filter(s => s.date === date)
-                            .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-                          if (shiftsForDay.length === 0) {
-                            return (
-                              <td key={date} style={{ padding: '8px', textAlign: 'center', fontSize: 12, color: 'var(--mute-2)', verticalAlign: 'top' }}>
-                                —
-                              </td>
-                            );
-                          }
-
-                          return (
-                            <td key={date} style={{ padding: '6px', verticalAlign: 'top' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                {shiftsForDay.map((shift) => {
-                                  const isSelected = selectedShifts.has(shift.id);
-                                  const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
-                                  const hasOverlap = !!overlappingShift;
-                                  const isDisabled = shift.isFull || hasOverlap;
-
-                                  return (
-                                    <button
-                                      key={shift.id}
-                                      type="button"
-                                      disabled={isDisabled}
-                                      onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
-                                      style={{
-                                        width: '100%', borderRadius: 'var(--r-sm)', padding: '6px 8px',
-                                        textAlign: 'left', fontSize: 12, cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                        opacity: isDisabled && !isSelected ? 0.5 : 1,
-                                        fontFamily: 'inherit', border: '1px solid',
-                                        borderColor: isSelected ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 10%, transparent)',
-                                        background: isSelected
-                                          ? 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))'
-                                          : isDisabled
-                                          ? 'color-mix(in oklab, var(--ink) 4%, transparent)'
-                                          : 'var(--paper)',
-                                        transition: 'background .15s, border-color .15s',
-                                      }}
-                                    >
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--mute)', marginBottom: 3 }}>
-                                        <Clock style={{ width: 10, height: 10 }} />
-                                        <span style={{ fontWeight: 600 }}>{formatTime(shift.startTime)}–{formatTime(shift.endTime)}</span>
-                                      </div>
-                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: 3, color: 'var(--mute)', fontSize: 11 }}>
-                                          <Users01 style={{ width: 10, height: 10 }} />
-                                          {shift.confirmedCount}/{shift.requiredWorkers}
-                                        </span>
-                                        {shift.isFull ? (
-                                          <span className="badge badge--success" style={{ fontSize: 9 }}>{t('shifts.public.full')}</span>
-                                        ) : hasOverlap ? (
-                                          <span className="badge badge--warning" style={{ fontSize: 9 }}>{t('shifts.public.overlap')}</span>
-                                        ) : (
-                                          <span className="badge badge--neutral" style={{ fontSize: 9 }}>{shift.availableSpots} {t('shifts.public.free')}</span>
-                                        )}
-                                      </div>
-                                      {isSelected && (
-                                        <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 3, color: 'var(--green-ink)', fontSize: 10 }}>
-                                          <CheckCircle style={{ width: 10, height: 10 }} />
-                                          <span style={{ fontWeight: 600 }}>{t('shifts.public.selected')}</span>
-                                        </div>
-                                      )}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
             )}
 
@@ -1226,7 +973,7 @@ export default function PublicShiftPlanPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span>© {new Date().getFullYear()} OpenEOS</span>
           <span style={{ opacity: 0.4 }}>·</span>
-          <a href="/impressum" style={{ color: 'inherit' }}>Impressum</a>
+          <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Impressum</a>
         </div>
       </footer>
     </>
