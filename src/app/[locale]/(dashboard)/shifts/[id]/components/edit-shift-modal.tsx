@@ -27,7 +27,6 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
-  const [requiredWorkers, setRequiredWorkers] = useState(1);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +36,6 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
     setDate(typeof shift.date === 'string' ? shift.date.slice(0, 10) : '');
     setStartTime((shift.startTime || '10:00').slice(0, 5));
     setEndTime((shift.endTime || '14:00').slice(0, 5));
-    setRequiredWorkers(shift.requiredWorkers ?? 1);
     setNotes(shift.notes ?? '');
     setError(null);
   }, [open, shift]);
@@ -50,7 +48,6 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
         date,
         startTime,
         endTime,
-        requiredWorkers,
         notes: notes || undefined,
       }),
     onSuccess: () => {
@@ -62,7 +59,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
 
   if (!open || !shift) return null;
 
-  const canSubmit = date && startTime !== endTime && requiredWorkers >= 1;
+  const canSubmit = date && startTime !== endTime;
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
@@ -103,17 +100,9 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
               </div>
             </div>
 
-            <div className="auth-field">
-              <label className="auth-field__label">Helfer benötigt *</label>
-              <input
-                className="input"
-                type="number"
-                min={1}
-                max={50}
-                value={String(requiredWorkers)}
-                onChange={(e) => setRequiredWorkers(parseInt(e.target.value) || 1)}
-              />
-            </div>
+            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+              Die Anzahl der Helfer wird auf Arbeit-Ebene festgelegt — alle Schichten dieser Arbeit teilen sich diesen Wert.
+            </p>
 
             <div className="auth-field">
               <label className="auth-field__label">Interne Notizen</label>

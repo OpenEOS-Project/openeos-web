@@ -13,7 +13,6 @@ const schema = z.object({
   date: z.string().min(1, 'Datum ist erforderlich'),
   startTime: z.string().min(1, 'Startzeit ist erforderlich'),
   endTime: z.string().min(1, 'Endzeit ist erforderlich'),
-  requiredWorkers: z.number().min(1, 'Mindestens 1 Helfer erforderlich'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -34,7 +33,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
 
   const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { date: '', startTime: '10:00', endTime: '14:00', requiredWorkers: 2 },
+    defaultValues: { date: '', startTime: '10:00', endTime: '14:00' },
   });
 
   // Overnight shifts: when end < start, the shift crosses midnight (e.g. 22:00–01:00).
@@ -55,7 +54,6 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
         date: data.date,
         startTime: data.startTime,
         endTime: data.endTime,
-        requiredWorkers: data.requiredWorkers,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
@@ -131,23 +129,9 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                 />
               </div>
 
-              <Controller
-                name="requiredWorkers"
-                control={control}
-                render={({ field }) => (
-                  <div className="auth-field">
-                    <label className="auth-field__label">{t('shifts.editor.requiredWorkers')} *</label>
-                    <input
-                      className="input"
-                      type="number"
-                      value={String(field.value)}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                      onBlur={field.onBlur}
-                    />
-                    {errors.requiredWorkers && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.requiredWorkers.message}</p>}
-                  </div>
-                )}
-              />
+              <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                Die Anzahl der Helfer wird auf Arbeit-Ebene festgelegt — neue Schichten übernehmen diesen Wert automatisch.
+              </p>
             </div>
           </div>
 

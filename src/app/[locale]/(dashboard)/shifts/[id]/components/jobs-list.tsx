@@ -58,11 +58,6 @@ export function JobsList({ plan }: JobsListProps) {
     setShowAddShiftModal(true);
   };
 
-  const handleOpenWizard = (jobId: string) => {
-    setWizardJobIds([jobId]);
-    setShowWizardModal(true);
-  };
-
   const handleOpenWizardForAll = () => {
     setWizardJobIds(jobs.map((j) => j.id));
     setShowWizardModal(true);
@@ -142,9 +137,6 @@ export function JobsList({ plan }: JobsListProps) {
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setEditingJob(job)}>
                     Bearbeiten
-                  </button>
-                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleOpenWizard(job.id)}>
-                    {t('shifts.wizard.button')}
                   </button>
                   <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleAddShift(job.id)}>
                     {t('shifts.editor.addShift')}

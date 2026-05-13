@@ -22,7 +22,6 @@ interface GeneratedShift {
   date: string;
   startTime: string;
   endTime: string;
-  requiredWorkers: number;
   enabled: boolean;
 }
 
@@ -62,9 +61,10 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   const [perDay, setPerDay] = useState(false);
   const [dayTimes, setDayTimes] = useState<Record<string, { start: string; end: string }>>({});
 
-  // Step 3: Configuration (stored as strings for better UX during editing)
+  // Step 3: Configuration (stored as strings for better UX during editing).
+  // Worker count is intentionally not configured here — it lives on the job
+  // and the backend applies the job's value when shifts are created.
   const [shiftsPerDay, setShiftsPerDay] = useState('3');
-  const [workersPerShift, setWorkersPerShift] = useState('2');
   const [overlapMinutes, setOverlapMinutes] = useState('0');
 
   // Step 4: Generated shifts
@@ -117,7 +117,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
   // Parse configuration values
   const shiftsPerDayNum = parseInt(shiftsPerDay) || 0;
-  const workersPerShiftNum = parseInt(workersPerShift) || 0;
   const overlapMins = parseInt(overlapMinutes) || 0;
 
   // Default-time shift duration used by Step 3's preview text. Overnight-safe.
@@ -162,7 +161,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
           date: dateStr,
           startTime: minutesToTime(shiftStartMins),
           endTime: minutesToTime(shiftEndMins),
-          requiredWorkers: workersPerShiftNum,
           enabled: true,
         });
       }
@@ -177,15 +175,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   const toggleShift = (shiftId: string) => {
     setGeneratedShifts((shifts) =>
       shifts.map((s) => (s.id === shiftId ? { ...s, enabled: !s.enabled } : s))
-    );
-  };
-
-  // Update shift workers
-  const updateShiftWorkers = (shiftId: string, workers: number) => {
-    setGeneratedShifts((shifts) =>
-      shifts.map((s) =>
-        s.id === shiftId ? { ...s, requiredWorkers: Math.max(1, workers) } : s
-      )
     );
   };
 
@@ -226,7 +215,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
         date: s.date,
         startTime: s.startTime,
         endTime: s.endTime,
-        requiredWorkers: s.requiredWorkers,
+        // requiredWorkers intentionally omitted — backend uses job.requiredWorkers.
       }));
 
       // When the wizard runs in plan-wide mode (multiple jobIds), create the
@@ -254,7 +243,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
     setPerDay(false);
     setDayTimes({});
     setShiftsPerDay('3');
-    setWorkersPerShift('2');
     setOverlapMinutes('0');
     setGeneratedShifts([]);
     setError(null);
@@ -292,7 +280,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
         return s !== e;
       })
     : startTime !== endTime;
-  const canProceedStep3 = shiftsPerDayNum >= 1 && workersPerShiftNum >= 1;
+  const canProceedStep3 = shiftsPerDayNum >= 1;
 
   if (!open) return null;
 
@@ -550,17 +538,9 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 </p>
               )}
 
-              <label className="auth-field">
-                <span>{t('shifts.wizard.workersPerShift')}</span>
-                <input
-                  type="number"
-                  className="input"
-                  value={workersPerShift}
-                  onChange={(e) =>
-                    setWorkersPerShift(String(Math.min(50, Math.max(1, parseInt(e.target.value) || 1))))
-                  }
-                />
-              </label>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--ink-faint)' }}>
+                Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen — du legst sie dort fest.
+              </p>
 
               {/* Overlap selection */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -685,29 +665,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                               className="input"
                               style={{ width: 90, padding: '3px 8px', fontSize: 13 }}
                             />
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <button
-                              type="button"
-                              className="btn btn--ghost"
-                              style={{ padding: '2px 8px', minWidth: 'unset', fontSize: 14, fontWeight: 600 }}
-                              onClick={() => updateShiftWorkers(shift.id, shift.requiredWorkers - 1)}
-                              disabled={!shift.enabled}
-                            >
-                              -
-                            </button>
-                            <span style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 600 }}>
-                              {shift.requiredWorkers}
-                            </span>
-                            <button
-                              type="button"
-                              className="btn btn--ghost"
-                              style={{ padding: '2px 8px', minWidth: 'unset', fontSize: 14, fontWeight: 600 }}
-                              onClick={() => updateShiftWorkers(shift.id, shift.requiredWorkers + 1)}
-                              disabled={!shift.enabled}
-                            >
-                              +
-                            </button>
                           </div>
                         </div>
                       ))}
