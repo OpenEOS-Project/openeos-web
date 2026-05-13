@@ -43,10 +43,10 @@ function generateElement(el: TemplateElement, cols: number): string | null {
       return '\n'.repeat((el.lines || 1) - 1);
 
     case 'feed':
-      return `{{FEED:${el.lines || 3}}}`;
+      return `<<FEED:${el.lines || 3}>>`;
 
     case 'cut':
-      return '{{CUT}}';
+      return '<<CUT>>';
 
     case 'field':
       return generateField(el, cols);
@@ -59,13 +59,16 @@ function generateElement(el: TemplateElement, cols: number): string | null {
 function formatText(text: string, el: TemplateElement): string {
   let result = text;
 
-  if (el.bold) result = `{{BOLD}}${result}{{/BOLD}}`;
-  if (el.big) result = `{{BIG}}${result}{{/BIG}}`;
+  // Angle-bracket markup avoids collision with Jinja2's `{{ ... }}` expression
+  // syntax — closing tags `<</BOLD>>` and arg-bearing `<<FEED:3>>` then survive
+  // template rendering on the printer agent.
+  if (el.bold) result = `<<BOLD>>${result}<</BOLD>>`;
+  if (el.big) result = `<<BIG>>${result}<</BIG>>`;
 
   if (el.align === 'center') {
-    result = `{{CENTER}}${result}{{/CENTER}}`;
+    result = `<<CENTER>>${result}<</CENTER>>`;
   } else if (el.align === 'right') {
-    result = `{{RIGHT}}${result}{{/RIGHT}}`;
+    result = `<<RIGHT>>${result}<</RIGHT>>`;
   }
 
   return result;
@@ -161,7 +164,7 @@ function generateField(el: TemplateElement, cols: number): string | null {
     case 'total': {
       const totalContent = generateAmountField(`"${label || 'GESAMT:'}"`, 'total|default(0)|currency', el);
       return el.bold !== false
-        ? `{{BOLD}}${totalContent}{{/BOLD}}`
+        ? `<<BOLD>>${totalContent}<</BOLD>>`
         : totalContent;
     }
 
@@ -187,12 +190,22 @@ function generateField(el: TemplateElement, cols: number): string | null {
     case 'qr_code':
       return wrapCondition(
         'qr_url',
-        '{{CENTER}}{{QRCODE:{{ qr_url }}}}{{/CENTER}}',
+        '<<CENTER>><<QRCODE:{{ qr_url }}>><</CENTER>>',
         el.condition ?? 'qr_url',
       );
 
+    case 'barcode': {
+      // Code128 barcode of the most specific identifier we have, so kitchen
+      // staff can scan it to pull up exactly this order/item. Below the bars
+      // we also print the raw value as a centered text line so it's
+      // human-readable when no scanner is at hand.
+      const value = '{{ order_item_id|default(order_id|default(order_number|default("0000"))) }}';
+      const block = `<<CENTER>><<BARCODE:CODE128:${value}>><</CENTER>>\n<<CENTER>>${value}<</CENTER>>`;
+      return wrapCondition('', block, el.condition);
+    }
+
     case 'priority':
-      return `{% if priority is defined and priority == "high" %}\n{{BOLD}}{{BIG}}!!! EILIG !!!{{/BIG}}{{/BOLD}}\n{% endif %}`;
+      return `{% if priority is defined and priority == "high" %}\n<<BOLD>><<BIG>>!!! EILIG !!!<</BIG>><</BOLD>>\n{% endif %}`;
 
     case 'notes':
       return wrapCondition(
@@ -222,18 +235,23 @@ function generateAmountField(lblJinja: string, valJinja: string, el: TemplateEle
 
 function generateItemsList(el: TemplateElement, cols: number): string {
   const lines: string[] = [];
+  // Force left alignment for items so they're not accidentally inheriting a
+  // CENTER/RIGHT state from a preceding header element.
+  lines.push('<<LEFT>>');
   lines.push('{% for item in items|default([]) %}');
 
+  const wrapEmphasis = (text: string): string => {
+    let result = text;
+    if (el.bold) result = `<<BOLD>>${result}<</BOLD>>`;
+    if (el.big) result = `<<BIG>>${result}<</BIG>>`;
+    return result;
+  };
+
   if (el.showPrice !== false) {
-    lines.push(
-      `{{ "%-3s"|format(item.quantity ~ "x") }} {{ item.name.ljust(cols - 14) }} {{ item.total|currency|rjust(10) }}`,
-    );
+    const row = `{{ "%-3s"|format(item.quantity ~ "x") }} {{ item.name.ljust(cols - 14) }} {{ item.total|currency|rjust(10) }}`;
+    lines.push(wrapEmphasis(row));
   } else {
-    if (el.bold) {
-      lines.push('{{BOLD}}{{ item.quantity }}x {{ item.name }}{{/BOLD}}');
-    } else {
-      lines.push('{{ item.quantity }}x {{ item.name }}');
-    }
+    lines.push(wrapEmphasis('{{ item.quantity }}x {{ item.name }}'));
   }
 
   if (el.showNotes !== false) {

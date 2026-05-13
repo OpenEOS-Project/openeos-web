@@ -66,9 +66,10 @@ export function OrdersList() {
   return (
     <>
       {/* Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
         <select
           className="select"
+          style={{ flex: '1 1 0', minWidth: 0 }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
         >
@@ -82,6 +83,7 @@ export function OrdersList() {
 
         <select
           className="select"
+          style={{ flex: '1 1 0', minWidth: 0 }}
           value={paymentFilter}
           onChange={(e) => setPaymentFilter(e.target.value as OrderPaymentStatus | 'all')}
         >
@@ -95,6 +97,7 @@ export function OrdersList() {
         {events.length > 0 && (
           <select
             className="select"
+            style={{ flex: '1 1 0', minWidth: 0 }}
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
           >
@@ -105,18 +108,32 @@ export function OrdersList() {
           </select>
         )}
 
-        <div style={{ flex: 1 }} />
-
-        <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+        <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', whiteSpace: 'nowrap', flexShrink: 0 }}>
           {t('orders.orderCount', { count: orders.length })}
         </span>
 
         <button
           className="btn btn--ghost"
+          style={{ padding: 8, minWidth: 0, flexShrink: 0 }}
           onClick={() => refetch()}
           disabled={isFetching}
+          aria-label={t('common.refresh')}
+          title={t('common.refresh')}
         >
-          {isFetching ? '...' : t('common.refresh')}
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={isFetching ? { animation: 'spin 0.75s linear infinite' } : undefined}
+          >
+            <path d="M21 12a9 9 0 1 1-3-6.7" />
+            <polyline points="21 4 21 10 15 10" />
+          </svg>
         </button>
       </div>
 

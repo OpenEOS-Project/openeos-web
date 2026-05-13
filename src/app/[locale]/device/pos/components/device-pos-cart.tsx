@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Coins01, CreditCard01 } from '@untitledui/icons';
 import { useCartStore, useCartHydration } from '@/stores/cart-store';
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
@@ -15,7 +16,6 @@ interface PosCartProps {
   organizationId: string;
   tableNumber?: string;
   orderingMode?: 'immediate' | 'tab';
-  onClose?: () => void;
   onOpenTabs?: () => void;
 }
 
@@ -30,7 +30,6 @@ export function PosCart({
   organizationId: _organizationId,
   tableNumber: sessionTableNumber,
   orderingMode = 'immediate',
-  onClose,
   onOpenTabs,
 }: PosCartProps) {
   const t = useTranslations('pos');
@@ -195,7 +194,7 @@ export function PosCart({
               {itemCount} {itemCount === 1 ? 'Artikel' : 'Artikel'}
             </span>
           )}
-          {onOpenTabs && (
+          {onOpenTabs && orderingMode !== 'immediate' && (
             <button
               type="button"
               onClick={onOpenTabs}
@@ -211,28 +210,6 @@ export function PosCart({
               }}
             >
               Tabs
-            </button>
-          )}
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                width: 30,
-                height: 30,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'var(--pos-surface)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-sm)',
-                cursor: 'pointer',
-                color: 'var(--pos-ink-2)',
-                fontSize: 14,
-              }}
-              aria-label="Schließen"
-            >
-              ✕
             </button>
           )}
         </div>
@@ -506,9 +483,14 @@ export function PosCart({
                 cursor: items.length > 0 && !isProcessing ? 'pointer' : 'not-allowed',
                 opacity: items.length > 0 && !isProcessing ? 1 : 0.5,
                 transition: 'opacity .12s',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
               }}
             >
-              💶 {t('cart.payCash')}
+              <Coins01 style={{ width: 18, height: 18, color: 'currentColor', flexShrink: 0 }} />
+              <span>{t('cart.payCash')}</span>
             </button>
             {hasSumupReader && (
               <button
@@ -526,9 +508,14 @@ export function PosCart({
                   cursor: items.length > 0 && !isProcessing ? 'pointer' : 'not-allowed',
                   opacity: items.length > 0 && !isProcessing ? 1 : 0.5,
                   transition: 'opacity .12s',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
                 }}
               >
-                💳 {t('cart.payCard')}
+                <CreditCard01 style={{ width: 18, height: 18, color: 'currentColor', flexShrink: 0 }} />
+                <span>{t('cart.payCard')}</span>
               </button>
             )}
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PosIcon } from '@openeos/pos-icons';
 import { useCartStore } from '@/stores/cart-store';
 import type { Product } from '@/types/product';
 import { ProductOptionsModal } from './product-options-modal';
@@ -90,7 +91,8 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                 e.currentTarget.style.boxShadow = 'var(--pos-sh-1)';
               }}
             >
-              {/* Icon / image area */}
+              {/* Icon / image area — supports pos-icon: URLs, plain image URLs,
+                  and category-icon / emoji fallback. */}
               <div
                 style={{
                   height: 72,
@@ -102,18 +104,22 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                   fontSize: 40,
                   lineHeight: 1,
                   overflow: 'hidden',
+                  color: 'var(--pos-accent-ink)',
                 }}
                 aria-hidden
               >
-                {product.imageUrl ? (
+                {product.imageUrl?.startsWith('pos-icon:') ? (
+                  <PosIcon id={product.imageUrl.slice(9)} size={48} />
+                ) : product.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={product.imageUrl}
                     alt=""
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
+                ) : product.category?.icon?.startsWith('pos-icon:') ? (
+                  <PosIcon id={product.category.icon.slice(9)} size={48} />
                 ) : (
-                  /* Category icon fallback, then generic */
                   product.category?.icon || '🍽️'
                 )}
               </div>

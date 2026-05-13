@@ -30,6 +30,7 @@ export type TemplateFieldType =
   | 'paid_amount'
   | 'change'
   | 'qr_code'
+  | 'barcode'
   | 'priority'
   | 'notes';
 

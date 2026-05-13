@@ -95,6 +95,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
               <th>{t('table.name')}</th>
               <th>{t('table.email')}</th>
               <th>{t('table.role')}</th>
+              <th>{t('table.permissions')}</th>
               <th>{t('table.joinedAt')}</th>
               <th>{t('table.actions')}</th>
             </tr>
@@ -138,36 +139,48 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
                   </td>
                   <td className="mono" style={{ fontSize: 12 }}>{memberUser?.email}</td>
                   <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-                      <span className={`badge ${isAdmin ? 'badge--info' : 'badge--neutral'}`}>
-                        {t(`roles.${member.role}`)}
-                      </span>
-                      {activePermissions.map((key) => (
-                        <span key={key} className="badge badge--neutral" style={{ fontSize: 10 }}>
-                          {t(`permissions.${key}`)}
-                        </span>
-                      ))}
-                    </div>
+                    <span className={`badge ${isAdmin ? 'badge--info' : 'badge--neutral'}`}>
+                      {t(`roles.${member.role}`)}
+                    </span>
+                  </td>
+                  <td>
+                    {isAdmin ? (
+                      <span style={{ fontSize: 12, color: 'var(--mute)' }}>{t('table.allPermissions')}</span>
+                    ) : activePermissions.length === 0 ? (
+                      <span style={{ fontSize: 12, color: 'var(--mute)' }}>—</span>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
+                        {activePermissions.map((key) => (
+                          <span key={key} className="badge badge--neutral" style={{ fontSize: 10 }}>
+                            {t(`permissions.${key}`)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td className="mono" style={{ fontSize: 12 }}>{formatDate(member.createdAt)}</td>
                   <td>
                     {!isCurrentUser && (
-                      <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          style={{ fontSize: 12, padding: '4px 10px' }}
+                          style={{ padding: 6, minWidth: 0 }}
                           onClick={() => onEditPermissionsClick(member)}
+                          aria-label={t('actions.editPermissions')}
+                          title={t('actions.editPermissions')}
                         >
-                          {t('actions.editPermissions')}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
                         </button>
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          style={{ fontSize: 12, padding: '4px 10px', color: 'var(--red, #dc2626)' }}
+                          style={{ padding: 6, minWidth: 0, color: '#dc2626' }}
                           onClick={() => onRemoveClick(member)}
+                          aria-label={t('actions.remove')}
+                          title={t('actions.remove')}
                         >
-                          {t('actions.remove')}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                         </button>
                       </div>
                     )}

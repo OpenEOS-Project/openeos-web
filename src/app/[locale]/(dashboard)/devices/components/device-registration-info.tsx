@@ -32,8 +32,8 @@ export function DeviceRegistrationInfo() {
 
   return (
     <div className="app-card">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           {/* QR Code */}
           <div style={{ flexShrink: 0 }}>
             <div style={{

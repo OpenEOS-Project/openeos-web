@@ -1,6 +1,7 @@
 import { Geist, JetBrains_Mono, Archivo_Black } from 'next/font/google';
 
 import '@/styles/landing.css';
+import '@/styles/shifts-public.css';
 
 const geist = Geist({
   variable: '--f-sans',
@@ -27,7 +28,7 @@ export default function ShiftPublicLayout({
 }) {
   return (
     <div
-      className={`landing ${geist.variable} ${jetbrainsMono.variable} ${archivoBlack.variable}`}
+      className={`landing shifts-public ${geist.variable} ${jetbrainsMono.variable} ${archivoBlack.variable}`}
     >
       {children}
     </div>

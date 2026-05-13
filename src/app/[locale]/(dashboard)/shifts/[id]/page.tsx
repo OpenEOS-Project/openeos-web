@@ -30,6 +30,7 @@ export default function ShiftPlanEditorPage() {
 
   const initialTab = searchParams.get('tab') || 'jobs';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const { data: planData, isLoading } = useQuery({
     queryKey: ['shift-plan', organizationId, planId],
@@ -71,6 +72,8 @@ export default function ShiftPlanEditorPage() {
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
+      setLinkCopied(true);
+      window.setTimeout(() => setLinkCopied(false), 1800);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -107,92 +110,101 @@ export default function ShiftPlanEditorPage() {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: '-16px -24px', minHeight: 'calc(100vh - 4rem)' }}>
-      {/* Header */}
-      <div style={{ padding: '16px 24px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', background: 'var(--paper)' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
-          {/* Left */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
-            <button
-              className="btn btn--ghost"
-              style={{ flexShrink: 0 }}
-              onClick={() => router.push('/shifts')}
-              aria-label="Zurück"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
-            </button>
-            <div style={{
-              width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-              background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-              color: 'var(--green-ink)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
-              </svg>
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', display: 'flex', gap: 8 }}>
-                <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
-                {plan.event && <><span>•</span><span>{plan.event.name}</span></>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Header card */}
+      <div className="app-card">
+        <div className="app-card__body" style={{ paddingBottom: 0 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+              <button
+                className="btn btn--ghost"
+                style={{ flexShrink: 0, padding: '8px 10px' }}
+                onClick={() => router.push('/shifts')}
+                aria-label="Zurück"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+              </button>
+              <div style={{
+                width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                color: 'var(--green-ink)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
+                </svg>
               </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
+                  {plan.event && <><span>•</span><span>{plan.event.name}</span></>}
+                </div>
+              </div>
+              <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
             </div>
-            <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {plan.status === 'draft' && (
+                <button className="btn btn--primary" onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
+                  {publishMutation.isPending ? '...' : t('shifts.editor.publish')}
+                </button>
+              )}
+              {plan.status === 'published' && (
+                <button
+                  className="btn btn--ghost"
+                  onClick={copyPublicLink}
+                  style={{
+                    color: linkCopied ? 'var(--green-ink)' : undefined,
+                    borderColor: linkCopied ? 'var(--green-ink)' : undefined,
+                  }}
+                >
+                  {linkCopied ? '✓ Kopiert!' : t('shifts.copyLink')}
+                </button>
+              )}
+              <button className="btn btn--ghost" onClick={downloadPdf}>
+                {t('shifts.exportPdf')}
+              </button>
+              {plan.status === 'published' && (
+                <button className="btn btn--ghost" onClick={() => closeMutation.mutate()} disabled={closeMutation.isPending}>
+                  {closeMutation.isPending ? '...' : t('shifts.editor.close')}
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Actions */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {plan.status === 'draft' && (
-              <button className="btn btn--primary" onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
-                {publishMutation.isPending ? '...' : t('shifts.editor.publish')}
+          {/* Tab bar inside the same card */}
+          <div style={{ display: 'flex', gap: 0, marginTop: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', marginLeft: -20, marginRight: -20, paddingLeft: 20, paddingRight: 20, overflowX: 'auto' }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '10px 16px',
+                  fontSize: 13,
+                  fontWeight: activeTab === tab.id ? 600 : 500,
+                  color: activeTab === tab.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === tab.id ? '2px solid var(--green-ink)' : '2px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  marginBottom: -1,
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {tab.label}
               </button>
-            )}
-            {plan.status === 'published' && (
-              <button className="btn btn--ghost" onClick={copyPublicLink}>
-                {t('shifts.copyLink')}
-              </button>
-            )}
-            <button className="btn btn--ghost" onClick={downloadPdf}>
-              {t('shifts.exportPdf')}
-            </button>
-            {plan.status === 'published' && (
-              <button className="btn btn--ghost" onClick={() => closeMutation.mutate()} disabled={closeMutation.isPending}>
-                {closeMutation.isPending ? '...' : t('shifts.editor.close')}
-              </button>
-            )}
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', background: 'var(--paper)', padding: '0 24px' }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '10px 16px',
-              fontSize: 13,
-              fontWeight: activeTab === tab.id ? 600 : 500,
-              color: activeTab === tab.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid var(--green-ink)' : '2px solid transparent',
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-              marginBottom: -1,
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
       {/* Tab content */}
-      <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+      <div>
         {activeTab === 'jobs' && <JobsList plan={plan} />}
         {activeTab === 'calendar' && <ShiftCalendar plan={plan} />}
         {activeTab === 'registrations' && <RegistrationsList planId={plan.id} />}

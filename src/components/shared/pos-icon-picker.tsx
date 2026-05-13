@@ -40,7 +40,7 @@ export function PosIconPicker({ isOpen, onClose, onSelect }: PosIconPickerProps)
 
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
+      <ModalOverlay className="z-[200]">
         <Modal className="max-w-lg">
           <Dialog className="w-full">
             <div className="w-full rounded-xl bg-primary shadow-xl">

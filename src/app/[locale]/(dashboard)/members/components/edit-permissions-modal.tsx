@@ -37,6 +37,8 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
   const [error, setError] = useState<string | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState<string | null>(null);
+  const [pinFlash, setPinFlash] = useState<string | null>(null);
+  const [hasPinOverride, setHasPinOverride] = useState<boolean | null>(null);
 
   const updateMember = useUpdateMember(organizationId);
   const setMemberPin = useSetMemberPin(organizationId);
@@ -55,13 +57,17 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
     setError(null);
     setPinInput('');
     setPinError(null);
+    setPinFlash(null);
+    setHasPinOverride(null);
   }, [member]);
+
+  const effectiveHasPin = hasPinOverride ?? member.hasPin ?? false;
 
   const handleSave = async () => {
     setError(null);
     try {
       await updateMember.mutateAsync({
-        userId: member.userId,
+        userId: member.id,
         role: isAdmin ? 'admin' : 'member',
         permissions: isAdmin ? {} : permissions,
       });
@@ -177,8 +183,8 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
             <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t('pin.title')}</p>
             <p style={{ fontSize: 12, color: 'var(--ink-faint)', marginBottom: 12 }}>{t('pin.hint')}</p>
 
-            {member.hasPin ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {effectiveHasPin ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span className="badge badge--success">{t('pin.hasPin')}</span>
                 <button
                   type="button"
@@ -186,8 +192,11 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                   style={{ fontSize: 12, padding: '4px 10px' }}
                   onClick={async () => {
                     setPinError(null);
+                    setPinFlash(null);
                     try {
                       await removeMemberPin.mutateAsync(member.userId);
+                      setHasPinOverride(false);
+                      setPinFlash(t('pin.removed'));
                     } catch (err) {
                       setPinError(err instanceof Error ? err.message : 'Error');
                     }
@@ -196,6 +205,9 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                 >
                   {removeMemberPin.isPending ? '...' : t('pin.remove')}
                 </button>
+                {pinFlash && (
+                  <span style={{ fontSize: 12, color: 'var(--green-ink)' }}>{pinFlash}</span>
+                )}
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -223,9 +235,12 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                       return;
                     }
                     setPinError(null);
+                    setPinFlash(null);
                     try {
                       await setMemberPin.mutateAsync({ userId: member.userId, pin: pinInput });
                       setPinInput('');
+                      setHasPinOverride(true);
+                      setPinFlash(t('pin.set'));
                     } catch (err) {
                       setPinError(err instanceof Error ? err.message : 'Error');
                     }

@@ -220,7 +220,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                   <label className="auth-field">
                     <span>{t('form.productionStation')}</span>
                     <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
-                      <option value="">—</option>
+                      <option value="">{t('form.productionStationNone')}</option>
                       {productionStations?.map((station) => (
                         <option key={station.id} value={station.id}>{station.name}</option>
                       ))}

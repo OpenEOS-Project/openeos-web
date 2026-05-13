@@ -377,12 +377,59 @@ export const organizationsApi = {
   // Broadcasts
   broadcast: (orgId: string, data: { message: string; type?: 'info' | 'warning' | 'success' | 'error'; title?: string; duration?: number }) =>
     apiClient.post(`/organizations/${orgId}/broadcast`, data),
+
+  // Logo
+  uploadLogo: async (orgId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(
+      `${API_URL}/organizations/${orgId}/uploads/image?category=organization`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiClient.getAccessToken()}` },
+        body: formData,
+      },
+    );
+    if (!response.ok) throw new Error('Upload failed');
+    const json = (await response.json()) as ApiResponse<{ url: string; filename: string }>;
+    const updated = await apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${orgId}`,
+      { logoUrl: json.data.url },
+    );
+    return updated;
+  },
+
+  deleteLogo: async (orgId: string, currentLogoUrl: string | null) => {
+    if (currentLogoUrl) {
+      const filename = currentLogoUrl.split('/').pop();
+      if (filename) {
+        try {
+          await fetch(
+            `${API_URL}/organizations/${orgId}/uploads/${encodeURIComponent(filename)}?category=organization`,
+            {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${apiClient.getAccessToken()}` },
+            },
+          );
+        } catch {
+          // Best-effort: even if file deletion fails, clear the URL on the org.
+        }
+      }
+    }
+    return apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${orgId}`,
+      { logoUrl: null },
+    );
+  },
 };
 
 // Events API
 export const eventsApi = {
   list: (organizationId: string) =>
     apiClient.get<ApiResponse<import('@/types/event').Event[]>>(`/organizations/${organizationId}/events`),
+
+  active: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/event').Event | null>>(`/organizations/${organizationId}/events/active`),
 
   get: (organizationId: string, id: string) =>
     apiClient.get<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}`),
@@ -544,11 +591,11 @@ export const userSettingsApi = {
       body: formData,
     });
     if (!response.ok) throw new Error('Upload failed');
-    return response.json() as Promise<ApiResponse<{ avatarUrl: string }>>;
+    return response.json() as Promise<ApiResponse<import('@/types/auth').User>>;
   },
 
   deleteAvatar: () =>
-    apiClient.delete<ApiResponse<void>>('/users/me/avatar'),
+    apiClient.delete<ApiResponse<import('@/types/auth').User>>('/users/me/avatar'),
 
   // Password
   changePassword: (data: import('@/types/settings').ChangePasswordDto) =>
@@ -730,6 +777,30 @@ export const adminApi = {
     apiClient.get<ApiResponse<import('@/types/device').Device[]>>(
       `/admin/devices${params ? `?${new URLSearchParams(params)}` : ''}`
     ),
+
+  // Printers (Admin)
+  listPrinters: (params?: { organizationId?: string }) =>
+    apiClient.get<ApiResponse<import('@/types/printer').AdminPrintersResponse>>(
+      `/admin/printers${params?.organizationId ? `?organizationId=${encodeURIComponent(params.organizationId)}` : ''}`,
+    ),
+
+  assignPrinterDevice: (data: import('@/types/printer').AssignPrinterDeviceData) =>
+    apiClient.post<ApiResponse<import('@/types/printer').Printer>>(
+      '/admin/printers/assign-device',
+      data,
+    ),
+
+  unassignPrinter: (id: string) =>
+    apiClient.delete<ApiResponse<{ success: boolean }>>(`/admin/printers/${id}`),
+
+  testPrintPrinter: (id: string) =>
+    apiClient.post<ApiResponse<{ success: boolean; message: string }>>(`/admin/printers/${id}/test`),
+
+  updatePrinter: (id: string, data: { hasCashDrawer?: boolean }) =>
+    apiClient.patch<ApiResponse<import('@/types/printer').Printer>>(`/admin/printers/${id}`, data),
+
+  deleteDevice: (id: string) =>
+    apiClient.delete<ApiResponse<{ success: boolean }>>(`/admin/devices/${id}`),
 
   // Rental Hardware
   listRentalHardware: (params?: { type?: string; status?: string; page?: number; limit?: number }) =>

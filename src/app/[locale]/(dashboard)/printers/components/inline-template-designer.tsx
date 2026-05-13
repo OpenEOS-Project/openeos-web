@@ -157,6 +157,18 @@ export function InlineTemplateDesigner({
     setDesign((prev) => ({ ...prev, paperWidth: width }));
   }, []);
 
+  const handleResetToDefault = () => {
+    const ok = window.confirm(
+      'Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen?',
+    );
+    if (!ok) return;
+    setDesign((prev) => ({
+      ...prev,
+      elements: getDefaultElements(templateType),
+    }));
+    setSelectedElementId(null);
+  };
+
   const handleSave = async () => {
     setSaveState('saving');
     try {
@@ -223,14 +235,26 @@ export function InlineTemplateDesigner({
             </div>
           </div>
 
-          <button
-            className="btn btn--primary"
-            onClick={handleSave}
-            disabled={saveState === 'saving'}
-            style={{ padding: '6px 14px', fontSize: 13 }}
-          >
-            {saveState === 'saving' ? t('saving') : saveState === 'saved' ? `✓ ${t('saved')}` : t('save')}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              className="btn btn--ghost"
+              type="button"
+              onClick={handleResetToDefault}
+              disabled={saveState === 'saving'}
+              style={{ padding: '6px 12px', fontSize: 13 }}
+              title="Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen"
+            >
+              ↺ Standard wiederherstellen
+            </button>
+            <button
+              className="btn btn--primary"
+              onClick={handleSave}
+              disabled={saveState === 'saving'}
+              style={{ padding: '6px 14px', fontSize: 13 }}
+            >
+              {saveState === 'saving' ? t('saving') : saveState === 'saved' ? `✓ ${t('saved')}` : t('save')}
+            </button>
+          </div>
         </div>
 
         {/* 3-column layout */}

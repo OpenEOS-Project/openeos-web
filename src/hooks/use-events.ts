@@ -11,6 +11,7 @@ export const eventKeys = {
   list: (organizationId: string) => [...eventKeys.lists(), organizationId] as const,
   details: () => [...eventKeys.all, 'detail'] as const,
   detail: (organizationId: string, id: string) => [...eventKeys.details(), organizationId, id] as const,
+  active: (organizationId: string) => [...eventKeys.all, 'active', organizationId] as const,
 };
 
 export function useEvents(organizationId: string) {
@@ -18,6 +19,17 @@ export function useEvents(organizationId: string) {
     queryKey: eventKeys.list(organizationId),
     queryFn: async () => {
       const response = await eventsApi.list(organizationId);
+      return response.data;
+    },
+    enabled: !!organizationId,
+  });
+}
+
+export function useActiveEvent(organizationId: string) {
+  return useQuery({
+    queryKey: eventKeys.active(organizationId),
+    queryFn: async () => {
+      const response = await eventsApi.active(organizationId);
       return response.data;
     },
     enabled: !!organizationId,
@@ -97,6 +109,7 @@ export function useActivateEvent() {
     },
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+      queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });
@@ -112,6 +125,7 @@ export function useDeactivateEvent() {
     },
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+      queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });
@@ -127,6 +141,7 @@ export function useSetTestMode() {
     },
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+      queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });

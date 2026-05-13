@@ -182,24 +182,28 @@ export function SecuritySection() {
             </button>
           )}
         </div>
-        {sessions?.map((session) => (
-          <div key={session.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                <span style={{ fontWeight: 600, fontSize: 14 }}>{session.deviceInfo}</span>
-                {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
+        {sessions?.map((session) => {
+          const deviceLabel = session.deviceInfo || t('sessions.unknownDevice') || 'Unbekanntes Gerät';
+          const metaParts = [session.ipAddress, `${t('sessions.lastActive')}: ${formatDate(session.lastActiveAt)}`].filter((part): part is string => Boolean(part));
+          return (
+            <div key={session.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>{deviceLabel}</span>
+                  {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
+                </div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                  {metaParts.join(' · ')}
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                {session.ipAddress} · {t('sessions.lastActive')}: {formatDate(session.lastActiveAt)}
-              </div>
+              {!session.isCurrent && (
+                <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeSession.mutate(session.id)}>
+                  {t('sessions.revoke')}
+                </button>
+              )}
             </div>
-            {!session.isCurrent && (
-              <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeSession.mutate(session.id)}>
-                {t('sessions.revoke')}
-              </button>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 2FA Setup Modal */}

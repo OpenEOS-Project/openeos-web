@@ -1,22 +1,17 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 import { useDeleteProduct } from '@/hooks/use-products';
-import { useEvents } from '@/hooks/use-events';
+import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Product } from '@/types/product';
-import type { Event } from '@/types/event';
 
 import { ProductFormModal } from './product-form-modal';
 import { ProductsList } from './products-list';
 import { StockAdjustmentModal } from './stock-adjustment-modal';
-
-function getAvailableEvents(events: Event[] | undefined): Event[] {
-  if (!events) return [];
-  return events.filter(e => e.status === 'active' || e.status === 'test');
-}
 
 export function ProductsContainer() {
   const t = useTranslations('products');
@@ -25,21 +20,14 @@ export function ProductsContainer() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [adjustingStockProduct, setAdjustingStockProduct] = useState<Product | null>(null);
-  const [selectedEventId, setSelectedEventId] = useState<string>('');
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
 
-  const { data: events, isLoading: isLoadingEvents } = useEvents(organizationId);
+  const { data: activeEvent, isLoading: isLoadingActive } = useActiveEvent(organizationId);
   const deleteProduct = useDeleteProduct();
 
-  const availableEvents = useMemo(() => getAvailableEvents(events), [events]);
-
-  useEffect(() => {
-    if (availableEvents.length > 0 && !selectedEventId) {
-      setSelectedEventId(availableEvents[0].id);
-    }
-  }, [availableEvents, selectedEventId]);
+  const eventId = activeEvent?.id ?? '';
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
@@ -58,10 +46,10 @@ export function ProductsContainer() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deletingProduct || !selectedEventId) return;
+    if (!deletingProduct || !eventId) return;
 
     try {
-      await deleteProduct.mutateAsync({ eventId: selectedEventId, id: deletingProduct.id });
+      await deleteProduct.mutateAsync({ eventId, id: deletingProduct.id });
       setDeletingProduct(null);
     } catch {
       // Error is handled by the mutation
@@ -89,7 +77,7 @@ export function ProductsContainer() {
     );
   }
 
-  if (isLoadingEvents) {
+  if (isLoadingActive) {
     return (
       <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
         <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
@@ -97,7 +85,7 @@ export function ProductsContainer() {
     );
   }
 
-  if (availableEvents.length === 0) {
+  if (!activeEvent) {
     return (
       <div className="app-card">
         <div className="empty-state">
@@ -111,6 +99,9 @@ export function ProductsContainer() {
           </div>
           <h3 className="empty-state__title">{t('noEvents.title')}</h3>
           <p className="empty-state__sub">{t('noEvents.description')}</p>
+          <Link href="/events" className="btn btn--primary" style={{ marginTop: 12 }}>
+            {t('noEvents.goToEvents')}
+          </Link>
         </div>
       </div>
     );
@@ -118,96 +109,59 @@ export function ProductsContainer() {
 
   return (
     <>
-      {/* Event Selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7 }}>
-          {t('selectEvent')}
-        </label>
-        <select
-          className="select"
-          value={selectedEventId}
-          onChange={(e) => setSelectedEventId(e.target.value)}
-        >
-          {availableEvents.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name} {event.status === 'active' ? '(Aktiv)' : event.status === 'test' ? '(Test)' : ''}
-            </option>
-          ))}
-        </select>
-      </div>
+      <ProductsList
+        eventId={eventId}
+        onCreateClick={handleCreateClick}
+        onEditClick={handleEditClick}
+        onDeleteClick={handleDeleteClick}
+        onAdjustStockClick={handleAdjustStockClick}
+      />
 
-      {!selectedEventId ? (
-        <div className="app-card">
-          <div className="empty-state">
-            <div className="empty-state__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
+      <ProductFormModal
+        isOpen={isCreateModalOpen || !!editingProduct}
+        eventId={eventId}
+        product={editingProduct}
+        onClose={handleModalClose}
+      />
+
+      <StockAdjustmentModal
+        isOpen={!!adjustingStockProduct}
+        eventId={eventId}
+        product={adjustingStockProduct}
+        onClose={() => setAdjustingStockProduct(null)}
+      />
+
+      {deletingProduct && (
+        <div className="modal__overlay" onClick={() => setDeletingProduct(null)}>
+          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <h2>{t('deleteConfirm.title')}</h2>
             </div>
-            <h3 className="empty-state__title">{t('selectEventFirst.title')}</h3>
-            <p className="empty-state__sub">{t('selectEventFirst.description')}</p>
+            <div className="modal__body">
+              <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
+                {t('deleteConfirm.message')}
+              </p>
+            </div>
+            <div className="modal__foot">
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => setDeletingProduct(null)}
+              >
+                {tCommon('cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                style={{ background: 'var(--error, #d24545)' }}
+                onClick={handleDeleteConfirm}
+                disabled={deleteProduct.isPending}
+              >
+                {deleteProduct.isPending ? '...' : t('deleteConfirm.confirm')}
+              </button>
+            </div>
           </div>
         </div>
-      ) : (
-        <>
-          <ProductsList
-            eventId={selectedEventId}
-            onCreateClick={handleCreateClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            onAdjustStockClick={handleAdjustStockClick}
-          />
-
-          <ProductFormModal
-            isOpen={isCreateModalOpen || !!editingProduct}
-            eventId={selectedEventId}
-            product={editingProduct}
-            onClose={handleModalClose}
-          />
-
-          <StockAdjustmentModal
-            isOpen={!!adjustingStockProduct}
-            eventId={selectedEventId}
-            product={adjustingStockProduct}
-            onClose={() => setAdjustingStockProduct(null)}
-          />
-
-          {deletingProduct && (
-            <div className="modal__overlay" onClick={() => setDeletingProduct(null)}>
-              <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
-                <div className="modal__head">
-                  <h2>{t('deleteConfirm.title')}</h2>
-                </div>
-                <div className="modal__body">
-                  <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
-                    {t('deleteConfirm.message')}
-                  </p>
-                </div>
-                <div className="modal__foot">
-                  <button
-                    type="button"
-                    className="btn btn--ghost"
-                    onClick={() => setDeletingProduct(null)}
-                  >
-                    {tCommon('cancel')}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--primary"
-                    style={{ background: 'var(--error, #d24545)' }}
-                    onClick={handleDeleteConfirm}
-                    disabled={deleteProduct.isPending}
-                  >
-                    {deleteProduct.isPending ? '...' : t('deleteConfirm.confirm')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
       )}
     </>
   );

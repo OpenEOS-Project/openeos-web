@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { useCategories } from '@/hooks/use-categories';
+import { useProductionStations } from '@/hooks/use-production-stations';
 import type { Category } from '@/types/category';
 
 interface CategoriesListProps {
@@ -22,6 +23,7 @@ export function CategoriesList({
   const tCommon = useTranslations('common');
 
   const { data: categories, isLoading, error } = useCategories(eventId);
+  const { data: productionStations } = useProductionStations(eventId);
 
   if (isLoading) {
     return (
@@ -105,6 +107,22 @@ export function CategoriesList({
                       {category.parentId && (
                         <div style={{ fontSize: 11, color: 'var(--ink)', opacity: 0.5 }}>Unterkategorie</div>
                       )}
+                      {category.productionStationId && (() => {
+                        const station = productionStations?.find((s) => s.id === category.productionStationId);
+                        if (!station) return null;
+                        return (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            fontSize: 10, fontWeight: 600, lineHeight: 1,
+                            padding: '2px 6px', borderRadius: 4, marginTop: 3,
+                            background: station.color ? `${station.color}20` : 'color-mix(in oklab, var(--ink) 8%, transparent)',
+                            color: station.color || 'var(--ink)',
+                            border: `1px solid ${station.color ? `${station.color}40` : 'color-mix(in oklab, var(--ink) 15%, transparent)'}`,
+                          }}>
+                            {station.name}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 </td>
@@ -121,11 +139,25 @@ export function CategoriesList({
                 <td className="mono text-right">{category.sortOrder}</td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onEditClick(category)}>
-                      {t('actions.edit')}
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ padding: 6, minWidth: 0 }}
+                      onClick={() => onEditClick(category)}
+                      aria-label={t('actions.edit')}
+                      title={t('actions.edit')}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
                     </button>
-                    <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: '#d24545' }} onClick={() => onDeleteClick(category)}>
-                      {t('actions.delete')}
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ padding: 6, minWidth: 0, color: '#dc2626' }}
+                      onClick={() => onDeleteClick(category)}
+                      aria-label={t('actions.delete')}
+                      title={t('actions.delete')}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                     </button>
                   </div>
                 </td>

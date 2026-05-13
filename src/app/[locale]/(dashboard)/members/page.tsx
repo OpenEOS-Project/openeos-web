@@ -17,9 +17,9 @@ export default async function MembersPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div className="app-page-head">
-        <div>
-          <h1 className="section-title">{t('title')}</h1>
-          <p style={{ marginTop: 4, fontSize: 14, color: 'var(--ink-faint)' }}>{t('subtitle')}</p>
+        <div className="app-page-head__copy">
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('subtitle')}</p>
         </div>
       </div>
 

@@ -8,6 +8,8 @@ interface PreviewLine {
   elementId: string;
   isSpecial?: boolean; // For cut, feed etc.
   isQrCode?: boolean;
+  isBarcode?: boolean;
+  barcodeValue?: string;
 }
 
 const SAMPLE_DATA = {
@@ -31,6 +33,7 @@ const SAMPLE_DATA = {
   paid_amount: 25.0,
   change: 4.0,
   qr_url: 'https://example.com/order/42',
+  order_item_id: 'oi-42-bratwurst-2x',
   priority: 'normal',
   notes: null,
 };
@@ -132,6 +135,15 @@ function renderField(el: TemplateElement, cols: number): PreviewLine[] {
     case 'qr_code':
       return [{ text: '', elementId: el.id, isQrCode: true }];
 
+    case 'barcode':
+      return [{
+        text: SAMPLE_DATA.order_item_id,
+        elementId: el.id,
+        isBarcode: true,
+        barcodeValue: SAMPLE_DATA.order_item_id,
+        align: 'center',
+      }];
+
     case 'priority':
       return [{ text: '!!! EILIG !!!', bold: true, big: true, align: 'center', elementId: el.id, isSpecial: true }];
 
@@ -161,9 +173,9 @@ function renderItemsList(el: TemplateElement, cols: number): PreviewLine[] {
       const price = formatCurrency(item.total).padStart(10);
       const nameWidth = cols - 14;
       const name = item.name.length > nameWidth ? item.name.slice(0, nameWidth) : item.name.padEnd(nameWidth);
-      lines.push({ text: `${qty}${name}${price}`, bold: el.bold, elementId: el.id });
+      lines.push({ text: `${qty}${name}${price}`, bold: el.bold, big: el.big, elementId: el.id });
     } else {
-      lines.push({ text: `${item.quantity}x ${item.name}`, bold: el.bold, elementId: el.id });
+      lines.push({ text: `${item.quantity}x ${item.name}`, bold: el.bold, big: el.big, elementId: el.id });
     }
 
     if (el.showNotes !== false && item.notes) {

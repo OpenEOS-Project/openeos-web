@@ -1,10 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, Check } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Dialog, DialogTrigger, Modal, ModalOverlay } from '@/components/ui/modal/modal';
-import { cx } from '@/utils/cx';
 import { useTranslations } from 'next-intl';
 import type { Product, ProductOptionGroup } from '@/types/product';
 
@@ -34,7 +31,6 @@ function buildDefaultSelections(groups: ProductOptionGroup[]): SelectedOption[] 
 
   for (const group of groups) {
     if (group.type === 'ingredients') {
-      // All ingredients start selected
       for (const option of group.options) {
         defaults.push({
           group: group.name,
@@ -80,12 +76,20 @@ export function ProductOptionsModal({
     buildDefaultSelections(groups),
   );
 
-  // Re-initialize defaults when the modal opens with a new product
+  // Bottom-sheet animation + drag state
+  const [isClosing, setIsClosing] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ y: number; t: number; lastY: number; lastT: number } | null>(null);
+
   useEffect(() => {
     if (isOpen) {
       setSelectedOptions(buildDefaultSelections(groups));
+      setIsClosing(false);
+      setDragY(0);
+      setIsDragging(false);
     }
-  }, [isOpen, product.id]);
+  }, [isOpen, product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOptionToggle = (group: ProductOptionGroup, optionName: string, priceModifier: number) => {
     if (group.type === 'ingredients') {
@@ -95,23 +99,12 @@ export function ProductOptionsModal({
         );
 
         if (existing) {
-          if (existing.excluded) {
-            // Re-include: remove excluded flag
-            return prev.map((o) =>
-              o.group === group.name && o.option === optionName
-                ? { ...o, excluded: false }
-                : o,
-            );
-          } else {
-            // Exclude: mark as excluded
-            return prev.map((o) =>
-              o.group === group.name && o.option === optionName
-                ? { ...o, excluded: true }
-                : o,
-            );
-          }
+          return prev.map((o) =>
+            o.group === group.name && o.option === optionName
+              ? { ...o, excluded: !o.excluded }
+              : o,
+          );
         }
-        // Should not happen for ingredients, but handle gracefully
         return [...prev, { group: group.name, option: optionName, priceModifier }];
       });
       return;
@@ -125,15 +118,12 @@ export function ProductOptionsModal({
       );
 
       if (existingIndex >= 0) {
-        // Remove if already selected
         return prev.filter((_, i) => i !== existingIndex);
       }
 
       if (isMultiple) {
-        // Add to existing selections for this group
         return [...prev, { group: group.name, option: optionName, priceModifier }];
       } else {
-        // Replace selection for this group (single select)
         return [
           ...prev.filter((o) => o.group !== group.name),
           { group: group.name, option: optionName, priceModifier },
@@ -152,34 +142,70 @@ export function ProductOptionsModal({
     return opt?.excluded === true;
   };
 
-  // Price calculation: only include non-excluded options with positive priceModifier
   const totalOptionsPrice = selectedOptions
     .filter((o) => !o.excluded && o.priceModifier > 0)
     .reduce((sum, o) => sum + o.priceModifier, 0);
   const totalPrice = Number(product.price) + totalOptionsPrice;
 
-  // Check if all required groups have selections
   const hasRequiredSelections = groups
     .filter((g) => g.required)
     .every((g) => selectedOptions.some((o) => o.group === g.name && !o.excluded));
 
   const handleAdd = () => {
-    // For ingredients groups: only pass excluded items (what was removed)
-    // For other groups: pass selected items as before
     const finalOptions = selectedOptions.filter((o) => {
-      if (o.excluded) return true; // excluded ingredient → keep as "ohne X"
-      // Non-excluded ingredient → skip (don't list what's included)
+      if (o.excluded) return true;
       const group = groups.find((g) => g.name === o.group);
       if (group?.type === 'ingredients') return false;
-      return true; // single/multiple selections → keep
+      return true;
     });
     onAdd(finalOptions);
     setSelectedOptions([]);
   };
 
   const handleClose = () => {
-    setSelectedOptions([]);
-    onClose();
+    setIsClosing((current) => {
+      if (current) return current;
+      window.setTimeout(() => {
+        setSelectedOptions([]);
+        onClose();
+      }, 220);
+      return true;
+    });
+  };
+
+  const handleDragPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const t = performance.now();
+    dragRef.current = { y: e.clientY, t, lastY: e.clientY, lastT: t };
+    setIsDragging(true);
+  };
+
+  const handleDragPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const dy = Math.max(0, e.clientY - dragRef.current.y);
+    setDragY(dy);
+    dragRef.current.lastY = e.clientY;
+    dragRef.current.lastT = performance.now();
+  };
+
+  const handleDragPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const start = dragRef.current;
+    const dy = Math.max(0, start.lastY - start.y);
+    const dt = Math.max(1, start.lastT - start.t);
+    const velocity = dy / dt;
+    dragRef.current = null;
+    setIsDragging(false);
+    if (dy > 120 || velocity > 0.6) {
+      handleClose();
+    } else {
+      setDragY(0);
+    }
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore — capture may have already been released
+    }
   };
 
   const getGroupHint = (type: ProductOptionGroup['type']) => {
@@ -193,160 +219,322 @@ export function ProductOptionsModal({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <ModalOverlay>
-        <Modal className="max-w-md">
-          <Dialog className="w-full">
-            <div className="w-full rounded-xl bg-primary shadow-xl">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-secondary px-6 py-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-primary">{product.name}</h2>
-                  <p className="text-sm text-tertiary">{formatPrice(product.price)}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'transparent' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+    >
+      <div
+        onClick={handleClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(20,18,12,.45)',
+          opacity: isClosing ? 0 : 1,
+          transition: 'opacity .22s ease',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          maxHeight: '85%',
+          background: 'var(--pos-surface)',
+          borderTopLeftRadius: 'var(--pos-r-lg)',
+          borderTopRightRadius: 'var(--pos-r-lg)',
+          boxShadow: 'var(--pos-sh-3)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          transform: isClosing
+            ? 'translateY(100%)'
+            : dragY > 0
+              ? `translateY(${dragY}px)`
+              : undefined,
+          transition: isDragging ? 'none' : 'transform .22s ease',
+          animation: isClosing || dragY > 0 ? undefined : 'pos-slide-up-sheet .22s ease',
+          willChange: 'transform',
+        }}
+      >
+        {/* Drag handle (large hit area for easy grabbing) */}
+        <div
+          onPointerDown={handleDragPointerDown}
+          onPointerMove={handleDragPointerMove}
+          onPointerUp={handleDragPointerUp}
+          onPointerCancel={handleDragPointerUp}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 36,
+            flexShrink: 0,
+            cursor: 'grab',
+            touchAction: 'none',
+          }}
+        >
+          <div style={{ width: 48, height: 5, background: 'var(--pos-line-strong)', borderRadius: 999 }} />
+        </div>
+
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 18px 14px',
+            borderBottom: '1px solid var(--pos-line)',
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h2
+              style={{
+                fontSize: 17,
+                fontWeight: 700,
+                color: 'var(--pos-ink)',
+                letterSpacing: '-0.01em',
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {product.name}
+            </h2>
+            <p
+              className="pos-mono"
+              style={{ fontSize: 13, color: 'var(--pos-ink-3)', marginTop: 2 }}
+            >
+              {formatPrice(product.price)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label={t('productOptions.close')}
+            style={{
+              padding: 8,
+              borderRadius: 'var(--pos-r-sm)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--pos-ink-2)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <X style={{ width: 18, height: 18 }} />
+          </button>
+        </div>
+
+        {/* Options scroll area */}
+        <div
+          className="pos-scroll"
+          style={{ flex: 1, overflowY: 'auto', padding: '14px 18px', minHeight: 0 }}
+        >
+          {groups.map((group) => (
+            <div key={group.name} style={{ marginBottom: 22 }}>
+              <div style={{ marginBottom: 10 }}>
+                <h3
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: 'var(--pos-ink)',
+                    margin: 0,
+                    letterSpacing: '0.01em',
+                  }}
                 >
-                  <X className="size-5" />
-                </button>
+                  {group.name}
+                  {group.required && (
+                    <span style={{ marginLeft: 4, color: 'var(--pos-danger)' }}>*</span>
+                  )}
+                </h3>
+                <p style={{ fontSize: 11, color: 'var(--pos-ink-3)', margin: '2px 0 0' }}>
+                  {getGroupHint(group.type)}
+                </p>
               </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {group.options.map((option) => {
+                  const selected = isOptionSelected(group.name, option.name);
+                  const excluded = isOptionExcluded(group.name, option.name);
 
-              {/* Options */}
-              <div className="max-h-[60vh] overflow-y-auto px-6 py-4">
-                {groups.map((group) => (
-                  <div key={group.name} className="mb-6 last:mb-0">
-                    <div className="mb-3">
-                      <h3 className="text-sm font-medium text-primary">
-                        {group.name}
-                        {group.required && (
-                          <span className="ml-1 text-error-primary">*</span>
-                        )}
-                      </h3>
-                      <p className="text-xs text-tertiary">
-                        {getGroupHint(group.type)}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      {group.options.map((option) => {
-                        const selected = isOptionSelected(group.name, option.name);
-                        const excluded = isOptionExcluded(group.name, option.name);
-
-                        if (group.type === 'ingredients') {
-                          return (
-                            <button
-                              key={option.name}
-                              type="button"
-                              onClick={() =>
-                                handleOptionToggle(group, option.name, option.priceModifier)
-                              }
-                              className={cx(
-                                'flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors',
-                                excluded
-                                  ? 'border-error-secondary bg-error-secondary opacity-60 dark:text-white'
-                                  : 'border-success-secondary bg-success-secondary dark:text-white',
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={cx(
-                                    'flex h-5 w-5 items-center justify-center rounded border-2 transition-colors',
-                                    excluded
-                                      ? 'border-error-solid bg-error-solid'
-                                      : 'border-success-solid bg-success-solid',
-                                  )}
-                                >
-                                  {excluded ? (
-                                    <X className="h-3 w-3 text-white" />
-                                  ) : (
-                                    <Check className="h-3 w-3 text-white" />
-                                  )}
-                                </div>
-                                <span
-                                  className={cx(
-                                    'text-sm font-medium',
-                                    excluded
-                                      ? 'text-tertiary line-through'
-                                      : 'text-primary',
-                                  )}
-                                >
-                                  {option.name}
-                                </span>
-                              </div>
-                              {option.priceModifier > 0 && !excluded && (
-                                <span className="text-sm text-tertiary">
-                                  +{formatPrice(option.priceModifier)}
-                                </span>
-                              )}
-                            </button>
-                          );
+                  if (group.type === 'ingredients') {
+                    const accentColor = excluded ? 'var(--pos-danger)' : 'var(--pos-ok)';
+                    return (
+                      <button
+                        key={option.name}
+                        type="button"
+                        onClick={() =>
+                          handleOptionToggle(group, option.name, option.priceModifier)
                         }
-
-                        return (
-                          <button
-                            key={option.name}
-                            type="button"
-                            onClick={() =>
-                              handleOptionToggle(group, option.name, option.priceModifier)
-                            }
-                            className={cx(
-                              'flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors',
-                              selected
-                                ? 'border-brand-solid bg-brand-secondary'
-                                : 'border-secondary hover:bg-secondary',
-                            )}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '11px 14px',
+                          background: 'var(--pos-surface)',
+                          border: `1px solid ${accentColor}`,
+                          borderRadius: 'var(--pos-r-sm)',
+                          cursor: 'pointer',
+                          width: '100%',
+                          textAlign: 'left',
+                          opacity: excluded ? 0.7 : 1,
+                          transition: 'border-color .12s, opacity .12s',
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: 'var(--pos-r-xs)',
+                              background: accentColor,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
                           >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={cx(
-                                  'flex h-5 w-5 items-center justify-center border-2 transition-colors',
-                                  group.type === 'multiple' ? 'rounded' : 'rounded-full',
-                                  selected
-                                    ? 'border-brand-solid bg-brand-solid'
-                                    : 'border-tertiary',
-                                )}
-                              >
-                                {selected && (
-                                  <Check className="h-3 w-3 text-white" />
-                                )}
-                              </div>
-                              <span className="text-sm font-medium text-primary">
-                                {option.name}
-                              </span>
-                            </div>
-                            {option.priceModifier > 0 && (
-                              <span className="text-sm text-tertiary">
-                                +{formatPrice(option.priceModifier)}
-                              </span>
+                            {excluded ? (
+                              <X style={{ width: 12, height: 12, color: '#fff' }} />
+                            ) : (
+                              <Check style={{ width: 12, height: 12, color: '#fff' }} />
                             )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: excluded ? 'var(--pos-ink-3)' : 'var(--pos-ink)',
+                              textDecoration: excluded ? 'line-through' : 'none',
+                            }}
+                          >
+                            {option.name}
+                          </span>
+                        </span>
+                        {option.priceModifier > 0 && !excluded && (
+                          <span
+                            className="pos-mono"
+                            style={{ fontSize: 13, color: 'var(--pos-ink-3)' }}
+                          >
+                            +{formatPrice(option.priceModifier)}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  }
 
-              {/* Footer */}
-              <div className="flex items-center justify-between border-t border-secondary px-6 py-4">
-                <div>
-                  <p className="text-sm text-tertiary">{t('productOptions.total')}</p>
-                  <p className="text-xl font-bold text-primary">{formatPrice(totalPrice)}</p>
-                </div>
-                <Button
-                  onClick={handleAdd}
-                  isDisabled={!hasRequiredSelections}
-                  size="lg"
-                >
-                  {t('productOptions.add')}
-                </Button>
+                  const isMultiple = group.type === 'multiple';
+                  return (
+                    <button
+                      key={option.name}
+                      type="button"
+                      onClick={() =>
+                        handleOptionToggle(group, option.name, option.priceModifier)
+                      }
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '11px 14px',
+                        background: selected ? 'var(--pos-accent-soft)' : 'var(--pos-surface)',
+                        border: `1px solid ${selected ? 'var(--pos-accent)' : 'var(--pos-line)'}`,
+                        borderRadius: 'var(--pos-r-sm)',
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'left',
+                        transition: 'background .12s, border-color .12s',
+                      }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span
+                          style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: isMultiple ? 'var(--pos-r-xs)' : 999,
+                            border: `2px solid ${selected ? 'var(--pos-accent)' : 'var(--pos-line-strong)'}`,
+                            background: selected ? 'var(--pos-accent)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {selected && (
+                            <Check style={{ width: 12, height: 12, color: 'var(--pos-accent-contrast)' }} />
+                          )}
+                        </span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--pos-ink)' }}>
+                          {option.name}
+                        </span>
+                      </span>
+                      {option.priceModifier > 0 && (
+                        <span
+                          className="pos-mono"
+                          style={{ fontSize: 13, color: 'var(--pos-ink-3)' }}
+                        >
+                          +{formatPrice(option.priceModifier)}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '14px 18px calc(14px + env(safe-area-inset-bottom, 0px))',
+            borderTop: '1px solid var(--pos-line)',
+            background: 'var(--pos-surface)',
+            flexShrink: 0,
+          }}
+        >
+          <div>
+            <p style={{ fontSize: 11, color: 'var(--pos-ink-3)', margin: 0 }}>
+              {t('productOptions.total')}
+            </p>
+            <p
+              className="pos-mono"
+              style={{ fontSize: 20, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}
+            >
+              {formatPrice(totalPrice)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!hasRequiredSelections}
+            style={{
+              padding: '14px 22px',
+              background: hasRequiredSelections ? 'var(--pos-accent)' : 'var(--pos-line)',
+              color: hasRequiredSelections ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
+              border: 'none',
+              borderRadius: 'var(--pos-r-md)',
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: hasRequiredSelections ? 'pointer' : 'not-allowed',
+            }}
+          >
+            {t('productOptions.add')}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

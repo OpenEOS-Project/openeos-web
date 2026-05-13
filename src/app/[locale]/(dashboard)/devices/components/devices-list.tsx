@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +10,6 @@ import { formatDate } from '@/utils/format';
 import { VerifyDeviceDialog } from './verify-device-dialog';
 import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
-import { LinkDeviceModal } from './link-device-modal';
 import type { Device, DeviceStatus, DeviceClass } from '@/types/device';
 
 const statusBadgeClass: Record<DeviceStatus, string> = {
@@ -19,9 +18,8 @@ const statusBadgeClass: Record<DeviceStatus, string> = {
   blocked: 'badge badge--error',
 };
 
-const classLabels: Record<DeviceClass, string> = {
+const classLabels: Partial<Record<DeviceClass, string>> = {
   pos: 'devices.class.pos',
-  display: 'devices.class.display',
   admin: 'devices.class.admin',
   printer_agent: 'devices.class.printer_agent',
 };
@@ -49,8 +47,39 @@ export function DevicesList() {
   const [verifyDevice, setVerifyDevice] = useState<Device | null>(null);
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [showLinkDevice, setShowLinkDevice] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+
+  const closeMenu = () => {
+    setOpenMenuId(null);
+    setMenuPos(null);
+  };
+
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handleClose = () => closeMenu();
+    window.addEventListener('scroll', handleClose, true);
+    window.addEventListener('resize', handleClose);
+    return () => {
+      window.removeEventListener('scroll', handleClose, true);
+      window.removeEventListener('resize', handleClose);
+    };
+  }, [openMenuId]);
+
+  const toggleMenu = (deviceId: string, button: HTMLButtonElement) => {
+    if (openMenuId === deviceId) {
+      closeMenu();
+      return;
+    }
+    const rect = button.getBoundingClientRect();
+    const menuHeight = 220;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUpward = spaceBelow < menuHeight + 16;
+    const top = openUpward ? Math.max(8, rect.top - menuHeight - 4) : rect.bottom + 4;
+    const right = Math.max(8, window.innerWidth - rect.right);
+    setMenuPos({ top, right });
+    setOpenMenuId(deviceId);
+  };
 
   const { data: devicesData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['devices', organizationId],
@@ -66,7 +95,10 @@ export function DevicesList() {
     refetchInterval: 5000,
   });
 
-  const devices = devicesData?.data || [];
+  // Printer-agent devices are managed under "Drucker" and shouldn't clutter
+  // the general device list — but other places (printer ↔ agent binding) still
+  // need to see them, so we filter only here in the dashboard view.
+  const devices = (devicesData?.data || []).filter((d) => d.type !== 'printer_agent');
   const onlineDeviceIds = new Set(onlineIdsData?.data || []);
 
   const blockMutation = useMutation({
@@ -96,9 +128,6 @@ export function DevicesList() {
         </div>
         <h3 className="empty-state__title">{t('devices.noDevices')}</h3>
         <p className="empty-state__sub">{t('devices.noDevicesDescription')}</p>
-        <button className="btn btn--primary" onClick={() => setShowLinkDevice(true)}>
-          {t('devices.linkDevice')}
-        </button>
       </div>
     );
   }
@@ -112,9 +141,6 @@ export function DevicesList() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn--primary" onClick={() => setShowLinkDevice(true)}>
-            {t('devices.linkDevice')}
-          </button>
           <button className="btn btn--ghost" onClick={() => setShowBroadcast(true)}>
             {t('devices.broadcast.title')}
           </button>
@@ -200,7 +226,7 @@ export function DevicesList() {
                   </td>
                   <td>
                     <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                      {device.type ? t(classLabels[device.type]) : '-'}
+                      {classLabels[device.type] ? t(classLabels[device.type] as string) : '-'}
                     </span>
                   </td>
                   <td>
@@ -209,69 +235,15 @@ export function DevicesList() {
                     </span>
                   </td>
                   <td className="text-right">
-                    <div style={{ position: 'relative', display: 'inline-block' }}>
-                      <button
-                        className="btn btn--ghost"
-                        style={{ padding: '4px 10px', fontSize: 13 }}
-                        onClick={() => setOpenMenuId(openMenuId === device.id ? null : device.id)}
-                      >
-                        ···
-                      </button>
-                      {openMenuId === device.id && (
-                        <>
-                          <div
-                            style={{ position: 'fixed', inset: 0, zIndex: 10 }}
-                            onClick={() => setOpenMenuId(null)}
-                          />
-                          <div style={{
-                            position: 'absolute', right: 0, top: '100%', zIndex: 20,
-                            background: 'var(--paper)', border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                            borderRadius: 10, boxShadow: '0 8px 24px color-mix(in oklab, var(--ink) 12%, transparent)',
-                            minWidth: 160, padding: '4px 0',
-                          }}>
-                            <button
-                              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
-                              onClick={() => { setOpenMenuId(null); router.push(`/devices/${device.id}?tab=settings`); }}
-                            >
-                              {t('devices.actions.edit')}
-                            </button>
-                            {device.status === 'pending' && (
-                              <button
-                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
-                                onClick={() => { setOpenMenuId(null); setVerifyDevice(device); }}
-                              >
-                                {t('devices.actions.verify')}
-                              </button>
-                            )}
-                            {device.status === 'verified' && (
-                              <button
-                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
-                                onClick={() => { setOpenMenuId(null); blockMutation.mutate(device.id); }}
-                                disabled={blockMutation.isPending}
-                              >
-                                {t('devices.actions.block')}
-                              </button>
-                            )}
-                            {device.status === 'blocked' && (
-                              <button
-                                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
-                                onClick={() => { setOpenMenuId(null); unblockMutation.mutate(device.id); }}
-                                disabled={unblockMutation.isPending}
-                              >
-                                {t('devices.actions.unblock')}
-                              </button>
-                            )}
-                            <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
-                            <button
-                              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: '#d24545' }}
-                              onClick={() => { setOpenMenuId(null); setDeleteDevice(device); }}
-                            >
-                              {t('devices.actions.delete')}
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                    <button
+                      className="btn btn--ghost"
+                      style={{ padding: '4px 10px', fontSize: 13 }}
+                      onClick={(e) => toggleMenu(device.id, e.currentTarget)}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuId === device.id}
+                    >
+                      ···
+                    </button>
                   </td>
                 </tr>
               );
@@ -279,6 +251,86 @@ export function DevicesList() {
           </tbody>
         </table>
       </div>
+
+      {(() => {
+        if (!openMenuId || !menuPos) return null;
+        const device = devices.find((d) => d.id === openMenuId);
+        if (!device) return null;
+        const itemStyle: React.CSSProperties = {
+          display: 'block',
+          width: '100%',
+          textAlign: 'left',
+          padding: '8px 14px',
+          fontSize: 13,
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'var(--ink)',
+        };
+        return (
+          <>
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: 200 }}
+              onClick={closeMenu}
+            />
+            <div
+              role="menu"
+              style={{
+                position: 'fixed',
+                top: menuPos.top,
+                right: menuPos.right,
+                zIndex: 210,
+                background: 'var(--paper)',
+                border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                borderRadius: 10,
+                boxShadow: '0 8px 24px color-mix(in oklab, var(--ink) 12%, transparent)',
+                minWidth: 180,
+                padding: '4px 0',
+              }}
+            >
+              <button
+                style={itemStyle}
+                onClick={() => { closeMenu(); router.push(`/devices/${device.id}?tab=settings`); }}
+              >
+                {t('devices.actions.edit')}
+              </button>
+              {device.status === 'pending' && (
+                <button
+                  style={itemStyle}
+                  onClick={() => { closeMenu(); setVerifyDevice(device); }}
+                >
+                  {t('devices.actions.verify')}
+                </button>
+              )}
+              {device.status === 'verified' && (
+                <button
+                  style={itemStyle}
+                  onClick={() => { closeMenu(); blockMutation.mutate(device.id); }}
+                  disabled={blockMutation.isPending}
+                >
+                  {t('devices.actions.block')}
+                </button>
+              )}
+              {device.status === 'blocked' && (
+                <button
+                  style={itemStyle}
+                  onClick={() => { closeMenu(); unblockMutation.mutate(device.id); }}
+                  disabled={unblockMutation.isPending}
+                >
+                  {t('devices.actions.unblock')}
+                </button>
+              )}
+              <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
+              <button
+                style={{ ...itemStyle, color: '#d24545' }}
+                onClick={() => { closeMenu(); setDeleteDevice(device); }}
+              >
+                {t('devices.actions.delete')}
+              </button>
+            </div>
+          </>
+        );
+      })()}
 
       {verifyDevice && (
         <VerifyDeviceDialog device={verifyDevice} onClose={() => setVerifyDevice(null)} />
@@ -288,9 +340,6 @@ export function DevicesList() {
       )}
       {showBroadcast && (
         <BroadcastDialog onClose={() => setShowBroadcast(false)} onlineDeviceCount={onlineDeviceIds.size} />
-      )}
-      {showLinkDevice && (
-        <LinkDeviceModal onClose={() => setShowLinkDevice(false)} />
       )}
     </>
   );

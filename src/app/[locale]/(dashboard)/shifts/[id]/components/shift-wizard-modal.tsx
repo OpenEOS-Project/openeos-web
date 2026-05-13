@@ -530,7 +530,7 @@ export function ShiftWizardModal({ open, jobId, plan, onClose }: ShiftWizardModa
                 </span>
               </div>
 
-              <div style={{ maxHeight: 280, overflowY: 'auto', paddingRight: 4, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {Object.entries(shiftsByDate).map(([date, shifts]) => (
                   <div
                     key={date}

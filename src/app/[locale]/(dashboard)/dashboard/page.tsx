@@ -19,13 +19,7 @@ export default async function DashboardPage() {
       {/* Page header */}
       <div className="app-page-head">
         <div className="app-page-head__copy">
-          <p className="eyebrow" style={{ marginBottom: 8 }}>
-            <span>OpenEOS</span>
-            <span>Übersicht</span>
-          </p>
-          <h1 className="app-page-head__title">
-            {t('title')}
-          </h1>
+          <h1 className="app-page-head__title">{t('title')}</h1>
           <p className="app-page-head__sub">{t('subtitle')}</p>
         </div>
       </div>

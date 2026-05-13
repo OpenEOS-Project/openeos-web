@@ -1,23 +1,18 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 import { useDeleteProductionStation } from '@/hooks/use-production-stations';
-import { useEvents } from '@/hooks/use-events';
+import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import type { ProductionStation } from '@/types/production-station';
-import type { Event } from '@/types/event';
 
 import { ProductionStationFormModal } from './production-station-form-modal';
 import { ProductionStationsList } from './production-stations-list';
 import { StationFlowDiagram } from './station-flow-diagram';
 import { StationLivePreview } from './station-live-preview';
-
-function getAvailableEvents(events: Event[] | undefined): Event[] {
-  if (!events) return [];
-  return events.filter(e => e.status === 'active' || e.status === 'test');
-}
 
 export function ProductionStationsContainer() {
   const t = useTranslations('productionStations');
@@ -25,26 +20,19 @@ export function ProductionStationsContainer() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingStation, setEditingStation] = useState<ProductionStation | null>(null);
   const [deletingStation, setDeletingStation] = useState<ProductionStation | null>(null);
-  const [selectedEventId, setSelectedEventId] = useState<string>('');
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
 
-  const { data: events, isLoading: isLoadingEvents } = useEvents(organizationId);
+  const { data: activeEvent, isLoading: isLoadingActive } = useActiveEvent(organizationId);
   const deleteStation = useDeleteProductionStation();
 
-  const availableEvents = useMemo(() => getAvailableEvents(events), [events]);
-
-  useEffect(() => {
-    if (availableEvents.length > 0 && !selectedEventId) {
-      setSelectedEventId(availableEvents[0].id);
-    }
-  }, [availableEvents, selectedEventId]);
+  const eventId = activeEvent?.id ?? '';
 
   const handleDeleteConfirm = async () => {
-    if (!deletingStation || !selectedEventId) return;
+    if (!deletingStation || !eventId) return;
     try {
-      await deleteStation.mutateAsync({ eventId: selectedEventId, id: deletingStation.id });
+      await deleteStation.mutateAsync({ eventId, id: deletingStation.id });
       setDeletingStation(null);
     } catch {
       // Error handled by mutation
@@ -67,7 +55,7 @@ export function ProductionStationsContainer() {
     );
   }
 
-  if (isLoadingEvents) {
+  if (isLoadingActive) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
         <div style={{
@@ -80,7 +68,7 @@ export function ProductionStationsContainer() {
     );
   }
 
-  if (availableEvents.length === 0) {
+  if (!activeEvent) {
     return (
       <div className="app-card">
         <div className="empty-state">
@@ -92,103 +80,76 @@ export function ProductionStationsContainer() {
           </div>
           <h3 className="empty-state__title">{t('empty.title')}</h3>
           <p className="empty-state__sub">{t('empty.description')}</p>
+          <Link href="/events" className="btn btn--primary" style={{ marginTop: 12 }}>
+            {tCommon('toEvents')}
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      {/* Event Selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-        <label style={{ fontSize: 13, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', whiteSpace: 'nowrap' }}>
-          {t('selectEvent')}
-        </label>
-        <select
-          className="select"
-          style={{ maxWidth: 320 }}
-          value={selectedEventId}
-          onChange={(e) => setSelectedEventId(e.target.value)}
-        >
-          {availableEvents.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name}{event.status === 'active' ? ' (Aktiv)' : event.status === 'test' ? ' (Test)' : ''}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <StationFlowDiagram eventId={eventId} />
 
-      {!selectedEventId ? (
-        <div className="app-card">
-          <div className="empty-state">
-            <h3 className="empty-state__title">{t('selectEvent')}</h3>
-            <p className="empty-state__sub">{t('empty.description')}</p>
+      <StationLivePreview eventId={eventId} organizationId={organizationId} />
+
+      <ProductionStationsList
+        eventId={eventId}
+        onCreateClick={() => setIsCreateModalOpen(true)}
+        onEditClick={(station) => setEditingStation(station)}
+        onDeleteClick={(station) => setDeletingStation(station)}
+      />
+
+      <ProductionStationFormModal
+        isOpen={isCreateModalOpen || !!editingStation}
+        eventId={eventId}
+        organizationId={organizationId}
+        station={editingStation}
+        onClose={() => { setIsCreateModalOpen(false); setEditingStation(null); }}
+      />
+
+      {deletingStation && (
+        <div className="modal__overlay" onClick={() => setDeletingStation(null)}>
+          <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal__head">
+              <h2>{t('deleteConfirm.title')}</h2>
+              <button
+                className="modal__close"
+                type="button"
+                onClick={() => setDeletingStation(null)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal__body">
+              <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
+                {t('deleteConfirm.message')}
+              </p>
+            </div>
+            <div className="modal__foot">
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => setDeletingStation(null)}
+              >
+                {tCommon('cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                style={{ background: '#d24545', borderColor: '#d24545' }}
+                onClick={handleDeleteConfirm}
+                disabled={deleteStation.isPending}
+              >
+                {deleteStation.isPending ? '...' : tCommon('delete')}
+              </button>
+            </div>
           </div>
         </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <StationFlowDiagram eventId={selectedEventId} />
-
-          <StationLivePreview eventId={selectedEventId} organizationId={organizationId} />
-
-          <ProductionStationsList
-            eventId={selectedEventId}
-            onCreateClick={() => setIsCreateModalOpen(true)}
-            onEditClick={(station) => setEditingStation(station)}
-            onDeleteClick={(station) => setDeletingStation(station)}
-          />
-
-          <ProductionStationFormModal
-            isOpen={isCreateModalOpen || !!editingStation}
-            eventId={selectedEventId}
-            organizationId={organizationId}
-            station={editingStation}
-            onClose={() => { setIsCreateModalOpen(false); setEditingStation(null); }}
-          />
-
-          {deletingStation && (
-            <div className="modal__overlay" onClick={() => setDeletingStation(null)}>
-              <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
-                <div className="modal__head">
-                  <h2>{t('deleteConfirm.title')}</h2>
-                  <button
-                    className="modal__close"
-                    type="button"
-                    onClick={() => setDeletingStation(null)}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="modal__body">
-                  <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
-                    {t('deleteConfirm.message')}
-                  </p>
-                </div>
-                <div className="modal__foot">
-                  <button
-                    type="button"
-                    className="btn btn--ghost"
-                    onClick={() => setDeletingStation(null)}
-                  >
-                    {tCommon('cancel')}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--primary"
-                    style={{ background: '#d24545', borderColor: '#d24545' }}
-                    onClick={handleDeleteConfirm}
-                    disabled={deleteStation.isPending}
-                  >
-                    {deleteStation.isPending ? '...' : tCommon('delete')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       )}
-    </>
+    </div>
   );
 }

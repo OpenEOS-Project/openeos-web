@@ -36,6 +36,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
 
   // Other
   { type: 'field', field: 'qr_code', labelKey: 'fields.qr_code', icon: 'qr-code', category: 'other' },
+  { type: 'field', field: 'barcode', labelKey: 'fields.barcode', icon: 'barcode', category: 'other' },
 ];
 
 export const PALETTE_CATEGORIES = [

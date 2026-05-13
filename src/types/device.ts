@@ -11,7 +11,9 @@ export type DisplayMode = 'kitchen' | 'delivery' | 'menu' | 'pickup' | 'sales' |
 export type ServiceMode = 'table' | 'counter';
 
 // Printer routing mode
-export type PrinterMode = 'device' | 'category' | 'product';
+// 'fixed' and 'dynamic' are the canonical new values.
+// 'device', 'category', 'product' are legacy values kept for backward compatibility.
+export type PrinterMode = 'fixed' | 'dynamic' | 'device' | 'category' | 'product';
 
 // Device statistics
 export interface DeviceStats {

@@ -4,12 +4,40 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tablet02, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Input } from '@/components/ui/input/input';
-import { Label } from '@/components/ui/input/label';
 import { useDeviceStore } from '@/stores/device-store';
 
 type RegistrationStep = 'form' | 'pending' | 'verified' | 'blocked';
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '11px 13px',
+  background: 'var(--pos-surface)',
+  border: '1px solid var(--pos-line)',
+  borderRadius: 'var(--pos-r-sm)',
+  fontSize: 14,
+  color: 'var(--pos-ink)',
+  fontFamily: 'inherit',
+  outline: 'none',
+  transition: 'border-color .12s, box-shadow .12s',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 600,
+  color: 'var(--pos-ink-2)',
+  marginBottom: 6,
+  letterSpacing: '0.01em',
+};
+
+const cardStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'var(--pos-surface)',
+  border: '1px solid var(--pos-line)',
+  borderRadius: 'var(--pos-r-lg)',
+  boxShadow: 'var(--pos-sh-2)',
+  padding: 28,
+};
 
 export default function DeviceRegisterPage() {
   const t = useTranslations('device');
@@ -30,20 +58,17 @@ export default function DeviceRegisterPage() {
     clearDevice,
   } = useDeviceStore();
 
-  // Pre-fill organization slug from URL parameter
   const orgFromUrl = searchParams.get('org') || '';
   const [name, setName] = useState('');
   const [organizationSlug, setOrganizationSlug] = useState(orgFromUrl);
   const [step, setStep] = useState<RegistrationStep>('form');
 
-  // Determine step based on status
   useEffect(() => {
     if (status === 'verified') {
       setStep('verified');
-      // Redirect to device POS or station display after a short delay
       const timer = setTimeout(() => {
         const { deviceClass, settings } = useDeviceStore.getState();
-        const targetRoute = deviceClass === 'display' && (settings as any)?.displayMode === 'station'
+        const targetRoute = deviceClass === 'display' && (settings as { displayMode?: string })?.displayMode === 'station'
           ? '/device/station'
           : '/device/pos';
         router.push(targetRoute);
@@ -56,15 +81,15 @@ export default function DeviceRegisterPage() {
     }
   }, [status, verificationCode, router]);
 
-  // Start polling when on pending step
   useEffect(() => {
-    if (step === 'pending') {
+    if (step === 'pending' || step === 'blocked') {
       startPolling();
+    } else {
+      stopPolling();
     }
     return () => stopPolling();
   }, [step, startPolling, stopPolling]);
 
-  // Check existing device status on mount
   useEffect(() => {
     if (deviceId && status) {
       checkStatus();
@@ -74,7 +99,6 @@ export default function DeviceRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !organizationSlug.trim()) return;
-
     try {
       await register(name.trim(), organizationSlug.trim());
       setStep('pending');
@@ -90,119 +114,306 @@ export default function DeviceRegisterPage() {
     setOrganizationSlug('');
   };
 
+  const canSubmit = !isLoading && !!name.trim() && !!organizationSlug.trim();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
-      <div className="w-full max-w-md">
-        {/* Logo/Header */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
-            <Tablet02 className="h-8 w-8 text-white" />
+    <div
+      className="pos-root"
+      style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        background: 'var(--pos-bg)',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 440 }}>
+        {/* Header / Brand */}
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 'var(--pos-r-lg)',
+              background: 'var(--pos-accent)',
+              margin: '0 auto 14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 'var(--pos-sh-2)',
+            }}
+          >
+            <Tablet02 style={{ width: 32, height: 32, color: 'var(--pos-accent-contrast)' }} />
           </div>
-          <h1 className="text-2xl font-bold text-primary">{t('register.title')}</h1>
-          <p className="mt-2 text-tertiary">{t('register.subtitle')}</p>
+          <h1
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              color: 'var(--pos-ink)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t('register.title')}
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--pos-ink-3)', margin: '6px 0 0' }}>
+            {t('register.subtitle')}
+          </p>
         </div>
 
         {/* Registration Form */}
         {step === 'form' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="organizationSlug">{t('register.organizationSlug')}</Label>
-                <Input
+          <div style={cardStyle}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label htmlFor="organizationSlug" style={labelStyle}>
+                  {t('register.organizationSlug')}
+                </label>
+                <input
                   id="organizationSlug"
+                  type="text"
                   value={organizationSlug}
-                  onChange={setOrganizationSlug}
+                  onChange={(e) => setOrganizationSlug(e.target.value)}
                   placeholder={t('register.organizationSlugPlaceholder')}
                   autoComplete="off"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--pos-accent)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px color-mix(in oklab, var(--pos-accent) 25%, transparent)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--pos-line)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
-                <p className="text-xs text-tertiary">{t('register.organizationSlugHint')}</p>
+                <p style={{ fontSize: 11, color: 'var(--pos-ink-3)', margin: '6px 0 0' }}>
+                  {t('register.organizationSlugHint')}
+                </p>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="name">{t('register.deviceName')}</Label>
-                <Input
+              <div>
+                <label htmlFor="name" style={labelStyle}>
+                  {t('register.deviceName')}
+                </label>
+                <input
                   id="name"
+                  type="text"
                   value={name}
-                  onChange={setName}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder={t('register.deviceNamePlaceholder')}
                   autoComplete="off"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--pos-accent)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px color-mix(in oklab, var(--pos-accent) 25%, transparent)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--pos-line)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
               </div>
 
               {error && (
-                <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
+                <div
+                  style={{
+                    padding: '11px 14px',
+                    background: 'color-mix(in oklab, var(--pos-danger) 12%, transparent)',
+                    border: '1px solid color-mix(in oklab, var(--pos-danger) 30%, transparent)',
+                    borderRadius: 'var(--pos-r-sm)',
+                    fontSize: 13,
+                    color: 'var(--pos-danger)',
+                  }}
+                >
                   {error}
                 </div>
               )}
 
-              <Button
+              <button
                 type="submit"
-                className="w-full"
-                disabled={isLoading || !name.trim() || !organizationSlug.trim()}
+                disabled={!canSubmit}
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  background: canSubmit ? 'var(--pos-accent)' : 'var(--pos-line)',
+                  color: canSubmit ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: canSubmit ? 'pointer' : 'not-allowed',
+                  marginTop: 4,
+                }}
               >
                 {isLoading ? t('register.registering') : t('register.submit')}
-              </Button>
+              </button>
             </form>
           </div>
         )}
 
         {/* Pending Verification */}
         {step === 'pending' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
-            <div className="mb-6">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-warning-secondary">
-                <Loading02 className="h-6 w-6 text-warning-primary animate-spin" />
-              </div>
-              <h2 className="text-xl font-semibold text-primary">{t('register.pendingTitle')}</h2>
-              <p className="mt-2 text-tertiary">{t('register.pendingDescription')}</p>
+          <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 999,
+                background: 'color-mix(in oklab, var(--pos-warn) 16%, var(--pos-surface))',
+                margin: '0 auto 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Loading02
+                style={{ width: 28, height: 28, color: 'var(--pos-warn)', animation: 'spin 1s linear infinite' }}
+              />
             </div>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+              {t('register.pendingTitle')}
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 18px' }}>
+              {t('register.pendingDescription')}
+            </p>
 
             {organizationName && (
-              <p className="mb-4 text-sm text-secondary">
-                {t('register.organization')}: <strong>{organizationName}</strong>
+              <p style={{ fontSize: 13, color: 'var(--pos-ink-2)', margin: '0 0 16px' }}>
+                {t('register.organization')}:{' '}
+                <strong style={{ color: 'var(--pos-ink)' }}>{organizationName}</strong>
               </p>
             )}
 
-            {/* Verification Code Display */}
-            <div className="mb-6 rounded-xl bg-secondary p-6">
-              <p className="mb-2 text-sm font-medium text-tertiary">{t('register.verificationCode')}</p>
-              <div className="text-5xl font-bold tracking-widest text-brand-primary">
+            <div
+              style={{
+                padding: '20px 16px',
+                background: 'var(--pos-surface-2)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-md)',
+                marginBottom: 18,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'var(--pos-ink-3)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  margin: '0 0 8px',
+                }}
+              >
+                {t('register.verificationCode')}
+              </p>
+              <div
+                className="pos-mono"
+                style={{
+                  fontSize: 44,
+                  fontWeight: 700,
+                  color: 'var(--pos-accent)',
+                  letterSpacing: '0.08em',
+                  lineHeight: 1.1,
+                }}
+              >
                 {verificationCode}
               </div>
             </div>
 
-            <p className="mb-6 text-sm text-tertiary">{t('register.pendingHint')}</p>
+            <p style={{ fontSize: 12, color: 'var(--pos-ink-3)', margin: '0 0 18px' }}>
+              {t('register.pendingHint')}
+            </p>
 
-            <Button color="secondary" onClick={handleReset} className="w-full">
+            <button
+              type="button"
+              onClick={handleReset}
+              style={{
+                width: '100%',
+                padding: '11px',
+                background: 'var(--pos-surface)',
+                color: 'var(--pos-ink)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
               {t('register.cancel')}
-            </Button>
+            </button>
           </div>
         )}
 
         {/* Verified */}
         {step === 'verified' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-              <CheckCircle className="h-6 w-6 text-success-primary" />
+          <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 999,
+                background: 'color-mix(in oklab, var(--pos-ok) 16%, var(--pos-surface))',
+                margin: '0 auto 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CheckCircle style={{ width: 28, height: 28, color: 'var(--pos-ok)' }} />
             </div>
-            <h2 className="text-xl font-semibold text-primary">{t('register.verifiedTitle')}</h2>
-            <p className="mt-2 text-tertiary">{t('register.verifiedDescription')}</p>
-            <p className="mt-4 text-sm text-secondary">{t('register.redirecting')}</p>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+              {t('register.verifiedTitle')}
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 12px' }}>
+              {t('register.verifiedDescription')}
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--pos-ink-2)', margin: 0 }}>
+              {t('register.redirecting')}
+            </p>
           </div>
         )}
 
         {/* Blocked */}
         {step === 'blocked' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
-              <XCircle className="h-6 w-6 text-error-primary" />
+          <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 999,
+                background: 'color-mix(in oklab, var(--pos-danger) 14%, var(--pos-surface))',
+                margin: '0 auto 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <XCircle style={{ width: 28, height: 28, color: 'var(--pos-danger)' }} />
             </div>
-            <h2 className="text-xl font-semibold text-primary">{t('register.blockedTitle')}</h2>
-            <p className="mt-2 text-tertiary">{t('register.blockedDescription')}</p>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+              {t('register.blockedTitle')}
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 18px' }}>
+              {t('register.blockedDescription')}
+            </p>
 
-            <Button color="secondary" onClick={handleReset} className="mt-6 w-full">
+            <button
+              type="button"
+              onClick={handleReset}
+              style={{
+                width: '100%',
+                padding: '11px',
+                background: 'var(--pos-surface)',
+                color: 'var(--pos-ink)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
               {t('register.tryAgain')}
-            </Button>
+            </button>
           </div>
         )}
       </div>

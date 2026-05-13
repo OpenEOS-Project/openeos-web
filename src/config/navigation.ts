@@ -4,6 +4,7 @@ import {
   Calendar,
   ClipboardCheck,
   HardDrive,
+  MarkerPin01,
   Printer,
   Receipt,
   Settings01,
@@ -37,6 +38,11 @@ export const superAdminNavItems: NavItemType[] = [
     icon: HardDrive,
   },
   {
+    label: 'Drucker',
+    href: '/admin/printers',
+    icon: Printer,
+  },
+  {
     label: 'Events & Abrechnung',
     href: '/admin/events',
     icon: Calendar,
@@ -68,15 +74,19 @@ export const dashboardNavItems: NavItemType[] = [
     requiredPermission: 'events',
   },
   {
-    label: 'Produktverwaltung',
+    label: 'Produkte',
     href: '/products',
     icon: ShoppingBag01,
     requiredPermission: 'products',
     items: [
-      { label: 'Produkte', href: '/products' },
       { label: 'Kategorien', href: '/categories' },
-      { label: 'Standorte', href: '/production-stations' },
     ],
+  },
+  {
+    label: 'Standorte',
+    href: '/production-stations',
+    icon: MarkerPin01,
+    requiredPermission: 'products',
   },
   {
     label: 'Geräte',

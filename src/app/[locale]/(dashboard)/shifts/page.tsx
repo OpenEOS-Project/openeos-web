@@ -24,6 +24,7 @@ export default function ShiftsPage() {
   const organizationId = currentOrganization?.organizationId;
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [copiedPlanId, setCopiedPlanId] = useState<string | null>(null);
 
   const { data: plansData, isLoading } = useQuery({
     queryKey: ['shift-plans', organizationId],
@@ -40,7 +41,7 @@ export default function ShiftsPage() {
 
   const plans = plansData?.data || [];
 
-  const copyPublicLink = async (slug: string) => {
+  const copyPublicLink = async (planId: string, slug: string) => {
     const url = `${window.location.origin}/s/${slug}`;
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -55,6 +56,10 @@ export default function ShiftsPage() {
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
+      setCopiedPlanId(planId);
+      window.setTimeout(() => {
+        setCopiedPlanId((current) => (current === planId ? null : current));
+      }, 1800);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -83,17 +88,19 @@ export default function ShiftsPage() {
 
       {plans.length === 0 ? (
         <div className="app-card">
-          <div className="empty-state">
-            <div className="empty-state__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
-              </svg>
+          <div className="app-card__body">
+            <div className="empty-state">
+              <div className="empty-state__icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+              </div>
+              <h3 className="empty-state__title">{t('shifts.noPlans')}</h3>
+              <p className="empty-state__sub">{t('shifts.noPlansDescription')}</p>
+              <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
+                {t('shifts.createFirstPlan')}
+              </button>
             </div>
-            <h3 className="empty-state__title">{t('shifts.noPlans')}</h3>
-            <p className="empty-state__sub">{t('shifts.noPlansDescription')}</p>
-            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
-              {t('shifts.createFirstPlan')}
-            </button>
           </div>
         </div>
       ) : (
@@ -103,68 +110,78 @@ export default function ShiftsPage() {
 
             return (
               <div key={plan.id} className="app-card">
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                      background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                      color: 'var(--green-ink)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
-                      </svg>
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 14 }}>{plan.name}</div>
-                      <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                        {t('shifts.jobs', { count: jobCount })}
+                <div className="app-card__body">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                        background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
+                        color: 'var(--green-ink)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</div>
+                        <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                          {t('shifts.jobs', { count: jobCount })}
+                        </div>
                       </div>
                     </div>
+                    <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
                   </div>
-                  <span className={statusBadge[plan.status]}>{t(`shifts.status.${plan.status}`)}</span>
-                </div>
 
-                {plan.description && (
-                  <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {plan.description}
-                  </p>
-                )}
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 12 }}>
-                  {plan.event && <span>{plan.event.name}</span>}
-                  <span>{t('shifts.createdAt', { date: formatDate(plan.createdAt) })}</span>
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => router.push(`/shifts/${plan.id}`)}>
-                    {t('common.edit')}
-                  </button>
-                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => router.push(`/shifts/${plan.id}?tab=registrations`)}>
-                    {t('shifts.registrations')}
-                  </button>
-                  {plan.status === 'published' && (
-                    <>
-                      <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => copyPublicLink(plan.publicSlug)}>
-                        Link
-                      </button>
-                      <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => window.open(`/s/${plan.publicSlug}`, '_blank')}>
-                        Vorschau
-                      </button>
-                    </>
+                  {plan.description && (
+                    <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {plan.description}
+                    </p>
                   )}
-                  <div style={{ flex: 1 }} />
-                  <button
-                    className="btn btn--ghost"
-                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
-                    onClick={() => {
-                      if (confirm(t('shifts.confirmDelete'))) {
-                        deleteMutation.mutate(plan.id);
-                      }
-                    }}
-                  >
-                    {t('common.delete')}
-                  </button>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 14 }}>
+                    {plan.event && <span>{plan.event.name}</span>}
+                    <span>{t('shifts.createdAt', { date: formatDate(plan.createdAt) })}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+                    <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => router.push(`/shifts/${plan.id}`)}>
+                      {t('common.edit')}
+                    </button>
+                    {plan.status === 'published' && (
+                      <button
+                        className="btn btn--ghost"
+                        style={{
+                          fontSize: 13,
+                          color: copiedPlanId === plan.id ? 'var(--green-ink)' : undefined,
+                          borderColor: copiedPlanId === plan.id ? 'var(--green-ink)' : undefined,
+                        }}
+                        title="Öffentlichen Link kopieren"
+                        onClick={() => copyPublicLink(plan.id, plan.publicSlug)}
+                      >
+                        {copiedPlanId === plan.id ? '✓ Kopiert!' : 'Link kopieren'}
+                      </button>
+                    )}
+                    <div style={{ flex: 1 }} />
+                    <button
+                      className="btn btn--ghost"
+                      style={{ fontSize: 13, padding: '8px 10px', color: 'var(--red, #dc2626)' }}
+                      title={t('common.delete')}
+                      aria-label={t('common.delete')}
+                      onClick={() => {
+                        if (confirm(t('shifts.confirmDelete'))) {
+                          deleteMutation.mutate(plan.id);
+                        }
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6" />
+                        <path d="M10 11v6M14 11v6" />
+                        <path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             );

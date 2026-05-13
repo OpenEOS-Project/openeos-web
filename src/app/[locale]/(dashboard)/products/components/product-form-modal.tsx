@@ -380,12 +380,14 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     <label className="auth-field">
                       <span>{t('form.productionStation')}</span>
                       <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
-                        <option value="">—</option>
+                        <option value="">{t('form.productionStationNone')}</option>
                         {productionStations?.map((station) => (
                           <option key={station.id} value={station.id}>{station.name}</option>
                         ))}
                       </select>
-                      <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>{t('form.productionStationHint')}</span>
+                      <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>
+                        {field.value ? t('form.productionStationOverride') : t('form.productionStationInherit')}
+                      </span>
                     </label>
                   )}
                 />

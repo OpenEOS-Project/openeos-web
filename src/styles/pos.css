@@ -57,6 +57,17 @@
   box-sizing: border-box;
 }
 
+/* Disable browser pull-to-refresh / rubber-band overscroll on the POS surfaces.
+   Without this, dragging downward on a phone triggers the browser refresh gesture
+   instead of letting the cart sheet drag-to-dismiss take over. */
+.pos-root {
+  overscroll-behavior: contain;
+}
+html:has(.pos-root),
+body:has(.pos-root) {
+  overscroll-behavior-y: none;
+}
+
 .pos-root button {
   font-family: inherit;
 }
@@ -71,6 +82,7 @@
 .pos-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--pos-line-strong) transparent;
+  overscroll-behavior: contain;
 }
 .pos-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .pos-scroll::-webkit-scrollbar-thumb {
@@ -90,6 +102,10 @@
   0%   { transform: scale(0.6); opacity: 0; }
   60%  { transform: scale(1.15); }
   100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes pos-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes pos-slide-up {
   from { transform: translateY(12px); opacity: 0; }
@@ -120,18 +136,33 @@
   }
 }
 
+/* Visibility helpers — default state */
+.pos-mobile-only { display: none !important; }
+
 /* Mobile <768px: full-width products, bottom-sheet cart */
 @media (max-width: 767px) {
   .pos-body {
     grid-template-columns: 1fr;
   }
-  /* Hide vertical sidebar and cart column */
+  /* Hide vertical sidebar and cart column.
+     !important is required because PosCategoryRail / PosCart set inline `display`,
+     which has higher specificity than a class-level rule. */
   .pos-body > aside:first-child,
   .pos-cart-col {
-    display: none;
+    display: none !important;
   }
   /* Show horizontal pills */
   .pos-pills-row { display: block; }
+  /* Hide desktop product head, show inline mobile head per design handoff */
+  .pos-product-head { display: none !important; }
+  .pos-mobile-head { display: flex !important; }
+  /* Tighter scroll padding on mobile to match design (12px 14px 14px) */
+  .pos-product-scroll {
+    padding: 12px 14px 14px !important;
+  }
+  /* Mobile-only / mobile-hide visibility helpers for top bar */
+  .pos-mobile-only { display: inline-flex !important; }
+  .pos-mobile-hide { display: none !important; }
   /* Show bottom cart bar */
   .pos-mobile-bar {
     display: flex;
@@ -139,5 +170,40 @@
     border-top: 1px solid var(--pos-line);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     flex-shrink: 0;
+  }
+
+  /* Overflow menu popover */
+  .pos-overflow-menu {
+    position: absolute;
+    top: 56px;
+    right: 8px;
+    background: var(--pos-surface);
+    border: 1px solid var(--pos-line);
+    border-radius: var(--pos-r-md);
+    box-shadow: var(--pos-sh-3);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 200px;
+    z-index: 30;
+  }
+  .pos-overflow-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--pos-r-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--pos-ink);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+  }
+  .pos-overflow-menu button:hover {
+    background: var(--pos-surface-2);
   }
 }

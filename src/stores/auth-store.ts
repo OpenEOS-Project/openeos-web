@@ -40,13 +40,18 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       setOrganizations: (organizations) =>
-        set((state) => ({
-          organizations,
-          // Auto-select first organization if none selected
-          currentOrganization:
-            state.currentOrganization ||
-            (organizations.length > 0 ? organizations[0] : null),
-        })),
+        set((state) => {
+          const currentId = state.currentOrganization?.organizationId;
+          const refreshedCurrent = currentId
+            ? organizations.find((o) => o.organizationId === currentId) ?? null
+            : null;
+          return {
+            organizations,
+            // Always reconcile current to a fresh ref; auto-pick first if stale or none
+            currentOrganization:
+              refreshedCurrent ?? (organizations.length > 0 ? organizations[0] : null),
+          };
+        }),
 
       setCurrentOrganization: (organization) =>
         set({

@@ -10,10 +10,12 @@ export function formatCurrency(amount: number | string, locale = 'de-DE'): strin
 }
 
 /**
- * Format a date string
+ * Format a date string. Returns '—' for null/undefined/invalid input.
  */
-export function formatDate(date: string | Date, locale = 'de-DE'): string {
+export function formatDate(date: string | Date | null | undefined, locale = 'de-DE'): string {
+  if (date === null || date === undefined || date === '') return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -22,10 +24,12 @@ export function formatDate(date: string | Date, locale = 'de-DE'): string {
 }
 
 /**
- * Format a date and time string
+ * Format a date and time string. Returns '—' for null/undefined/invalid input.
  */
-export function formatDateTime(date: string | Date, locale = 'de-DE'): string {
+export function formatDateTime(date: string | Date | null | undefined, locale = 'de-DE'): string {
+  if (date === null || date === undefined || date === '') return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',

@@ -18,7 +18,9 @@
     "confirm": "Bestätigen",
     "yes": "Ja",
     "no": "Nein",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "toEvents": "Zu den Events",
+    "details": "Details"
   },
   "auth": {
     "login": {
@@ -248,7 +250,14 @@
     "printers": "Drucker",
     "reports": "Berichte",
     "settings": "Einstellungen",
-    "pos": "Kasse"
+    "pos": "Kasse",
+    "members": "Mitglieder",
+    "shifts": "Schichtpläne",
+    "users": "Benutzer",
+    "admin": "Admin",
+    "rentalHardware": "Miet-Hardware",
+    "productionStations": "Standorte",
+    "templates": "Vorlagen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -266,6 +275,7 @@
       "avatarDescription": "Laden Sie ein Profilbild hoch",
       "uploadAvatar": "Bild hochladen",
       "removeAvatar": "Bild entfernen",
+      "deleteAvatar": "Bild entfernen",
       "saveChanges": "Änderungen speichern",
       "saving": "Speichern...",
       "saved": "Profil erfolgreich aktualisiert"
@@ -339,7 +349,8 @@
         "revoke": "Abmelden",
         "revokeAll": "Alle anderen Sitzungen beenden",
         "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
-        "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet."
+        "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet.",
+        "unknownDevice": "Unbekanntes Gerät"
       }
     },
     "preferences": {
@@ -550,8 +561,9 @@
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
-      "title": "Keine Veranstaltungen",
-      "description": "Erstellen Sie zuerst eine Veranstaltung, um Kategorien verwalten zu können."
+      "title": "Kein aktives Event",
+      "description": "Aktivieren Sie zuerst ein Event, um Kategorien verwalten zu können.",
+      "goToEvents": "Zu den Events"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
@@ -582,7 +594,8 @@
       "parent": "Übergeordnete Kategorie",
       "parentPlaceholder": "Keine (Hauptkategorie)",
       "isActive": "Aktiv",
-      "productionStation": "Produktionsstandort"
+      "productionStation": "Produktionsstandort",
+      "productionStationNone": "— Keine —"
     },
     "status": {
       "active": "Aktiv",
@@ -612,8 +625,9 @@
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
-      "title": "Keine Veranstaltungen",
-      "description": "Erstellen Sie zuerst eine Veranstaltung, um Produkte verwalten zu können."
+      "title": "Kein aktives Event",
+      "description": "Aktivieren Sie zuerst ein Event, um Produkte verwalten zu können.",
+      "goToEvents": "Zu den Events"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
@@ -667,6 +681,9 @@
       "activeDescription": "Produkt wird in der Produktliste angezeigt",
       "availableDescription": "Produkt kann bestellt werden. Deaktivieren für 'Ausverkauft'",
       "productionStation": "Produktionsstandort",
+      "productionStationNone": "Standard (von Kategorie übernehmen)",
+      "productionStationInherit": "Bei leerer Auswahl wird die Produktionsstation der Kategorie verwendet.",
+      "productionStationOverride": "Übersteuert die Kategorie-Zuweisung.",
       "productionStationHint": "Überschreibt die Kategorie-Einstellung",
       "image": {
         "title": "Produktbild",
@@ -855,6 +872,8 @@
       "name": "Name",
       "email": "E-Mail",
       "role": "Rolle",
+      "permissions": "Berechtigungen",
+      "allPermissions": "Alle Module",
       "joinedAt": "Beigetreten am",
       "actions": "Aktionen"
     },
@@ -1147,7 +1166,7 @@
     "title": "Kasse",
     "noOrganization": "Bitte wählen Sie zuerst eine Organisation aus.",
     "backToDashboard": "Zurück zum Dashboard",
-    "selectEventFirst": "Bitte wählen Sie zuerst eine Veranstaltung aus.",
+    "selectEventFirst": "Bitte zuerst ein Event aktivieren",
     "noActiveEvents": "Keine aktiven Veranstaltungen",
     "selectEvent": "Veranstaltung wählen",
     "loading": "Produkte werden geladen...",
@@ -1270,7 +1289,8 @@
       "multipleHint": "Mehrere auswählbar",
       "ingredientsHint": "Abwählen was nicht gewünscht ist",
       "total": "Gesamt",
-      "add": "Hinzufügen"
+      "add": "Hinzufügen",
+      "close": "Schließen"
     },
     "cashDrawer": {
       "open": "Schublade öffnen",
@@ -1307,6 +1327,10 @@
       "moreItems": "weitere Artikel",
       "table": "Tisch",
       "noTable": "Ohne Tisch"
+    },
+    "noActiveEvent": "Kein aktives Event",
+    "menu": {
+      "more": "Mehr"
     }
   },
   "orders": {
@@ -1331,6 +1355,7 @@
     "paymentStatus": {
       "unpaid": "Unbezahlt",
       "partlyPaid": "Teilweise bezahlt",
+      "partly_paid": "Teilweise bezahlt",
       "paid": "Bezahlt",
       "refunded": "Erstattet"
     },
@@ -1388,7 +1413,7 @@
     "title": "Geräte",
     "description": "Verwalten Sie registrierte Geräte für Ihre Organisation",
     "addDevice": "Gerät hinzufügen",
-    "linkDevice": "Display verknüpfen",
+    "linkDevice": "Gerät verknüpfen",
     "noDevices": "Keine Geräte registriert",
     "noDevicesDescription": "Registrieren Sie Geräte unter /device/register",
     "deviceCount": "{count, plural, =0 {Keine Geräte} =1 {1 Gerät} other {# Geräte}}",
@@ -1794,7 +1819,8 @@
   "printers": {
     "tabs": {
       "printers": "Drucker",
-      "templates": "Vorlagen"
+      "templates": "Vorlagen",
+      "orderFlow": "Bon-Workflows"
     },
     "addPrinter": "Drucker hinzufügen",
     "editPrinter": "Drucker bearbeiten",
@@ -1911,6 +1937,7 @@
         "paid_amount": "Bezahlter Betrag",
         "change": "Rückgeld",
         "qr_code": "QR-Code",
+        "barcode": "Barcode (Auftrags-ID)",
         "priority": "Priorität",
         "notes": "Notizen"
       },

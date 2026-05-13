@@ -1,6 +1,15 @@
 'use client';
 
+import { PosIcon } from '@openeos/pos-icons';
 import type { Category } from '@/types/category';
+
+/** Render a category icon: pos-icon:<id>, plain emoji, or fallback. */
+function CategoryIcon({ icon, size }: { icon: string | null | undefined; size: number }) {
+  if (icon?.startsWith('pos-icon:')) {
+    return <PosIcon id={icon.slice(9)} size={size} />;
+  }
+  return <span style={{ fontSize: size, lineHeight: 1 }}>{icon || '🍽️'}</span>;
+}
 
 interface PosCategoryRailProps {
   categories: Category[];
@@ -34,7 +43,7 @@ export function PosCategoryRail({
           gap: 6,
           overflowX: 'auto',
           overflowY: 'hidden',
-          padding: '10px 14px',
+          padding: '10px 12px',
           WebkitOverflowScrolling: 'touch',
           borderBottom: '1px solid var(--pos-line)',
           background: 'var(--pos-surface)',
@@ -47,12 +56,17 @@ export function PosCategoryRail({
               key={c.id}
               type="button"
               onClick={() => onSelectCategory(c.id)}
+              ref={(el) => {
+                if (el && on) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+              }}
               style={{
                 flex: '0 0 auto',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '8px 13px',
+                padding: '8px 12px',
                 background: on ? 'var(--pos-accent)' : 'var(--pos-surface)',
                 color: on ? 'var(--pos-accent-contrast)' : 'var(--pos-ink)',
                 border: `1px solid ${on ? 'var(--pos-accent)' : 'var(--pos-line)'}`,
@@ -65,7 +79,9 @@ export function PosCategoryRail({
               }}
             >
               {c.icon && (
-                <span style={{ fontSize: 16, lineHeight: 1 }}>{c.icon}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  <CategoryIcon icon={c.icon} size={16} />
+                </span>
               )}
               <span>{c.name}</span>
             </button>
@@ -135,8 +151,8 @@ export function PosCategoryRail({
                 if (!on) (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
               }}
             >
-              <span style={{ fontSize: 20, lineHeight: 1, textAlign: 'center' }}>
-                {c.icon || '🍽️'}
+              <span style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', lineHeight: 1 }}>
+                <CategoryIcon icon={c.icon} size={20} />
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
                 <span>{c.name}</span>

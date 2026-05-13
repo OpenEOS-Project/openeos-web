@@ -284,59 +284,73 @@ export default function PublicShiftPlanPage() {
   // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <div style={{ width: '100%', maxWidth: 520, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {[1, 2, 3].map(i => (
-            <div
-              key={i}
-              className="app-card"
-              style={{ height: i === 1 ? 80 : 140, opacity: 1 - i * 0.2, animation: 'pulse 1.5s ease-in-out infinite' }}
-            />
-          ))}
+      <>
+        <div className="shifts-public__logo-bar">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo_dark.png" alt="OpenEOS" />
         </div>
-      </div>
+        <main className="shifts-public-wrap" style={{ flex: 1, paddingTop: 32, paddingBottom: 80 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="shifts-public__card"
+                style={{ height: i === 1 ? 80 : 140, opacity: 1 - i * 0.2, animation: 'pulse 1.5s ease-in-out infinite' }}
+              />
+            ))}
+          </div>
+        </main>
+      </>
     );
   }
 
   // ── Error / not found ────────────────────────────────────────────────────
   if (isError || !plan) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div className="app-card" style={{ maxWidth: 440, width: '100%', textAlign: 'center' }}>
-          <div className="app-card__body" style={{ padding: '2.5rem 2rem' }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: '50%', margin: '0 auto 1.25rem',
-              background: 'color-mix(in oklab, #d24545 12%, transparent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <AlertCircle style={{ width: 28, height: 28, color: '#d24545' }} />
-            </div>
-            <h2 className="section-title" style={{ fontSize: 'clamp(22px,4vw,30px)', marginBottom: 12 }}>
-              {t('shifts.public.notFound')}
-            </h2>
-            <p style={{ color: 'var(--mute)', fontSize: 15 }}>{t('shifts.public.notFoundDescription')}</p>
-          </div>
+      <>
+        <div className="shifts-public__logo-bar">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo_dark.png" alt="OpenEOS" />
         </div>
-      </div>
+        <main className="shifts-public-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 64, paddingBottom: 64 }}>
+          <div className="shifts-public__card" style={{ maxWidth: 440, width: '100%', textAlign: 'center' }}>
+            <div className="shifts-public__card-body" style={{ padding: '2.5rem 2rem' }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%', margin: '0 auto 1.25rem',
+                background: 'color-mix(in oklab, #d24545 12%, transparent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <AlertCircle style={{ width: 28, height: 28, color: '#d24545' }} />
+              </div>
+              <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', marginBottom: 12 }}>
+                {t('shifts.public.notFound')}
+              </h2>
+              <p style={{ color: 'var(--mute)', fontSize: 15, margin: 0 }}>{t('shifts.public.notFoundDescription')}</p>
+            </div>
+          </div>
+        </main>
+      </>
     );
   }
 
   // ── Success ──────────────────────────────────────────────────────────────
   if (step === 'success') {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <header style={{
-          padding: '1rem 1.25rem',
-          borderBottom: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <Image src="/logo_dark.png" alt="OpenEOS" width={100} height={28} style={{ height: 28, width: 'auto' }} />
+      <>
+        <div className="shifts-public__logo-bar">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo_dark.png" alt="OpenEOS" />
+        </div>
+        <header className="shifts-public__context">
+          <span className="shifts-public__context-label">
+            <b>{plan.organization.name}</b> · Schichtplan
+          </span>
+          <span className="shifts-public__context-meta mono">REGISTRIERT</span>
         </header>
 
-        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' }}>
-          <div className="app-card" style={{ maxWidth: 480, width: '100%' }}>
-            <div className="app-card__body" style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
+        <main className="shifts-public-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 32, paddingBottom: 32 }}>
+          <div className="shifts-public__card" style={{ maxWidth: 520, width: '100%' }}>
+            <div className="shifts-public__card-body" style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
               <div style={{
                 width: 56, height: 56, borderRadius: '50%', margin: '0 auto 1.25rem',
                 background: 'color-mix(in oklab, var(--green-soft) 70%, transparent)',
@@ -344,10 +358,10 @@ export default function PublicShiftPlanPage() {
               }}>
                 <CheckCircle style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
               </div>
-              <h2 className="section-title" style={{ fontSize: 'clamp(22px,4vw,30px)', marginBottom: 10 }}>
+              <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', margin: '0 0 10px' }}>
                 {t('shifts.public.registrationSuccess')}
               </h2>
-              <p style={{ color: 'var(--mute)', fontSize: 15 }}>{t('shifts.public.checkEmail')}</p>
+              <p style={{ color: 'var(--mute)', fontSize: 15, margin: 0 }}>{t('shifts.public.checkEmail')}</p>
 
               {registeredShiftsData.length > 0 && (
                 <div style={{ marginTop: '2rem', textAlign: 'left' }}>
@@ -364,6 +378,7 @@ export default function PublicShiftPlanPage() {
                         style={{
                           border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
                           borderRadius: 'var(--r)', padding: '12px 14px',
+                          background: 'var(--paper)',
                           display: 'flex', alignItems: 'flex-start', gap: 10,
                         }}
                       >
@@ -417,114 +432,85 @@ export default function PublicShiftPlanPage() {
           </div>
         </main>
 
-        <footer style={{
-          padding: '1.25rem', textAlign: 'center',
-          borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-          fontSize: 13, color: 'var(--mute)',
-        }}>
-          © {new Date().getFullYear()} OpenEOS
+        <footer className="shifts-public__footer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
+          <span>© {new Date().getFullYear()} OpenEOS</span>
         </footer>
-      </div>
+      </>
     );
   }
 
   // ── Main page ────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Sticky header */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 20,
-        padding: '0.875rem 1.25rem',
-        background: 'color-mix(in oklab, var(--paper) 94%, transparent)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-        display: 'flex', alignItems: 'center', gap: 12,
-      }}>
-        {plan.organization.logoUrl ? (
-          <Image
-            src={plan.organization.logoUrl}
-            alt={plan.organization.name}
-            width={40}
-            height={40}
-            style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8 }}
-          />
-        ) : (
-          <div style={{
-            width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-            background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Building07 style={{ width: 20, height: 20, color: 'var(--green-ink)' }} />
-          </div>
-        )}
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <p style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {plan.organization.name}
-          </p>
-          {plan.event && (
-            <p style={{ fontSize: 13, color: 'var(--mute)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {plan.event.name}
-            </p>
-          )}
-        </div>
+    <>
+      {/* Logo bar */}
+      <div className="shifts-public__logo-bar">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo_dark.png" alt="OpenEOS" />
+      </div>
+
+      {/* Dark context strip */}
+      <header className="shifts-public__context">
+        <span className="shifts-public__context-label">
+          <b>{plan.organization.name}</b> · Schichtplan
+        </span>
+        <span className="shifts-public__context-meta mono">
+          {plan.event ? formatEventDates(plan.event.startDate, plan.event.endDate).toUpperCase() : 'OFFENE ANMELDUNG'}
+        </span>
       </header>
 
-      <main style={{ flex: 1, maxWidth: 680, margin: '0 auto', width: '100%', padding: '1.5rem 1rem' }}>
+      <main className="shifts-public-wrap" style={{ flex: 1, paddingBottom: step === 'select' ? 96 : 32 }}>
         {step === 'select' && (
           <>
-            {/* Plan info card */}
-            <div className="app-card" style={{ marginBottom: '1.25rem' }}>
-              <div className="app-card__body">
-                <h2 className="app-card__title" style={{ fontSize: 20 }}>{plan.name}</h2>
-
+            {/* Hero */}
+            <section className="shifts-public__hero">
+              <div className="shifts-public__hero-meta">
+                {plan.organization.logoUrl ? (
+                  <Image
+                    src={plan.organization.logoUrl}
+                    alt={plan.organization.name}
+                    width={28}
+                    height={28}
+                    style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }}
+                  />
+                ) : (
+                  <Building07 style={{ width: 18, height: 18, color: 'var(--green-ink)' }} />
+                )}
+                <b>{plan.organization.name}</b>
                 {plan.event && (
-                  <p style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, color: 'var(--green-ink)', margin: '6px 0 0' }}>
-                    <Calendar style={{ width: 14, height: 14 }} />
-                    {formatEventDates(plan.event.startDate, plan.event.endDate)}
-                  </p>
+                  <>
+                    <span style={{ opacity: 0.4 }}>·</span>
+                    <span>{plan.event.name}</span>
+                  </>
                 )}
-
-                {plan.description && (
-                  <p style={{ marginTop: 10, fontSize: 15, color: 'var(--mute)' }}>{plan.description}</p>
-                )}
-
-                <div style={{
-                  marginTop: 14, padding: '10px 14px', borderRadius: 'var(--r)',
-                  background: 'color-mix(in oklab, var(--ink) 5%, transparent)',
-                  fontSize: 14, color: 'var(--mute)',
-                }}>
-                  {plan.settings.allowMultipleShifts
-                    ? plan.settings.maxShiftsPerPerson
-                      ? t('shifts.public.selectMultipleMax', { max: plan.settings.maxShiftsPerPerson })
-                      : t('shifts.public.selectMultiple')
-                    : t('shifts.public.selectOne')}
-                </div>
               </div>
-            </div>
+              <h1>{plan.name}</h1>
+              {plan.description && (
+                <p className="shifts-public__hero-desc">{plan.description}</p>
+              )}
 
-            {/* View mode toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <span style={{ fontSize: 14, color: 'var(--green-ink)', fontWeight: 600 }}>
+              <div className="shifts-public__info">
+                {plan.settings.allowMultipleShifts
+                  ? plan.settings.maxShiftsPerPerson
+                    ? t('shifts.public.selectMultipleMax', { max: plan.settings.maxShiftsPerPerson })
+                    : t('shifts.public.selectMultiple')
+                  : t('shifts.public.selectOne')}
+              </div>
+            </section>
+
+            {/* Toolbar */}
+            <div className="shifts-public__toolbar">
+              <span className="shifts-public__counter">
                 {selectedShifts.size > 0 ? `${selectedShifts.size} ${t('shifts.public.selected')}` : ''}
               </span>
-              <div style={{
-                display: 'inline-flex', gap: 2, padding: 3, borderRadius: 'var(--r)',
-                border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                background: 'var(--paper)',
-              }}>
+              <div className="shifts-public__view-toggle">
                 {(['list', 'calendar'] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setViewMode(mode)}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      padding: '6px 12px', borderRadius: 6, border: 0, cursor: 'pointer',
-                      fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
-                      background: viewMode === mode ? 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))' : 'transparent',
-                      color: viewMode === mode ? 'var(--green-ink)' : 'var(--mute)',
-                      transition: 'background .15s, color .15s',
-                    }}
+                    className={viewMode === mode ? 'is-active' : ''}
                   >
                     {mode === 'list'
                       ? <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>
@@ -537,7 +523,7 @@ export default function PublicShiftPlanPage() {
 
             {/* Calendar view */}
             {viewMode === 'calendar' && (
-              <div className="app-card" style={{ marginBottom: '1.25rem', overflowX: 'auto' }}>
+              <div className="shifts-public__card" style={{ marginBottom: '1.25rem', overflowX: 'auto' }}>
                 <table style={{ width: '100%', minWidth: 600, borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
@@ -664,17 +650,15 @@ export default function PublicShiftPlanPage() {
 
             {/* List view */}
             {viewMode === 'list' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
                 {sortedDates.map((date) => (
-                  <div key={date} className="app-card">
-                    <div className="app-card__head">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Calendar style={{ width: 16, height: 16, color: 'var(--green-ink)' }} />
-                        <h3 className="app-card__title">{formatDate(date)}</h3>
-                      </div>
+                  <div key={date} className="shifts-public__day-card">
+                    <div className="shifts-public__day-head">
+                      <Calendar style={{ width: 16, height: 16, color: 'var(--green-ink)' }} />
+                      <span>{formatDate(date)}</span>
                     </div>
-                    <div className="app-card--flat">
-                      {shiftsByDate[date].map(({ job, shift }, idx) => {
+                    <div>
+                      {shiftsByDate[date].map(({ job, shift }) => {
                         const isSelected = selectedShifts.has(shift.id);
                         const overlappingShift = !isSelected ? getOverlappingShift(shift) : null;
                         const hasOverlap = !!overlappingShift;
@@ -686,27 +670,11 @@ export default function PublicShiftPlanPage() {
                             type="button"
                             disabled={isDisabled}
                             onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
-                            style={{
-                              width: '100%', padding: '14px 20px', textAlign: 'left',
-                              background: isSelected
-                                ? 'color-mix(in oklab, var(--green-soft) 50%, var(--paper))'
-                                : 'transparent',
-                              border: 0, cursor: isDisabled ? 'not-allowed' : 'pointer',
-                              opacity: isDisabled && !isSelected ? 0.6 : 1,
-                              fontFamily: 'inherit',
-                              borderTop: idx > 0 ? '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' : 'none',
-                              transition: 'background .15s',
-                            }}
+                            className={`shifts-public__shift-row${isSelected ? ' is-selected' : ''}`}
                           >
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                               {/* Selection indicator */}
-                              <div style={{
-                                width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 2,
-                                border: `2px solid ${isSelected ? 'var(--green-ink)' : isDisabled ? 'color-mix(in oklab, var(--ink) 20%, transparent)' : 'color-mix(in oklab, var(--ink) 25%, transparent)'}`,
-                                background: isSelected ? 'var(--green-ink)' : 'transparent',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                transition: 'background .15s, border-color .15s',
-                              }}>
+                              <div className="shifts-public__shift-checkbox">
                                 {isSelected && <CheckCircle style={{ width: 12, height: 12, color: 'var(--paper)' }} />}
                               </div>
 
@@ -766,58 +734,46 @@ export default function PublicShiftPlanPage() {
               </div>
             )}
 
-            {/* Spacer for fixed bar */}
-            <div style={{ height: 88 }} />
-
-            {/* Fixed continue bar */}
-            <div style={{
-              position: 'fixed', inset: 'auto 0 0 0', zIndex: 30,
-              padding: '0.875rem 1rem',
-              background: 'color-mix(in oklab, var(--paper) 94%, transparent)',
-              backdropFilter: 'blur(12px)',
-              borderTop: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-            }}>
-              <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <span style={{ fontSize: 14, color: 'var(--mute)' }}>
-                  {selectedShifts.size === 0
-                    ? t('shifts.public.selectShifts')
-                    : `${selectedShifts.size} ${selectedShifts.size === 1 ? 'Schicht' : 'Schichten'} ausgewählt`}
+            {/* Floating continue pill (only when shifts selected) */}
+            {selectedShifts.size > 0 && (
+              <div
+                className="shifts-public__continue-pill"
+                role="region"
+                aria-label={t('shifts.public.continue')}
+              >
+                <span className="shifts-public__continue-pill-count">{selectedShifts.size}</span>
+                <span className="shifts-public__continue-pill-label">
+                  {selectedShifts.size === 1 ? 'Schicht ausgewählt' : 'Schichten ausgewählt'}
                 </span>
                 <button
                   type="button"
-                  className="btn btn--primary"
-                  disabled={selectedShifts.size === 0}
+                  className="shifts-public__continue-pill-action"
                   onClick={() => setStep('form')}
-                  style={{ opacity: selectedShifts.size === 0 ? 0.5 : 1, cursor: selectedShifts.size === 0 ? 'not-allowed' : 'pointer' }}
                 >
                   {t('shifts.public.continue')}
                 </button>
               </div>
-            </div>
+            )}
           </>
         )}
 
         {step === 'form' && (
-          <div style={{ paddingBottom: '2rem' }}>
+          <div style={{ paddingTop: 24, paddingBottom: '2rem' }}>
             {/* Back button */}
             <button
               type="button"
               onClick={() => setStep('select')}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontSize: 14, color: 'var(--green-ink)', background: 'none', border: 0,
-                cursor: 'pointer', padding: '0 0 16px', fontFamily: 'inherit', fontWeight: 600,
-              }}
+              className="shifts-public__back"
             >
               <ArrowLeft style={{ width: 16, height: 16 }} />
               {t('shifts.public.backToSelection')}
             </button>
 
-            <div className="app-card">
-              <div className="app-card__head">
-                <h2 className="app-card__title" style={{ fontSize: 18 }}>{t('shifts.public.yourDetails')}</h2>
+            <div className="shifts-public__card" style={{ marginTop: 12 }}>
+              <div className="shifts-public__card-head">
+                <h2 className="shifts-public__card-title">{t('shifts.public.yourDetails')}</h2>
               </div>
-              <div className="app-card__body">
+              <div className="shifts-public__card-body">
                 {/* Selected shifts summary */}
                 <div style={{
                   padding: '12px 14px', borderRadius: 'var(--r)', marginBottom: '1.25rem',
@@ -948,22 +904,15 @@ export default function PublicShiftPlanPage() {
       </main>
 
       {/* Footer */}
-      <footer style={{
-        padding: '1.25rem 1rem', marginTop: 'auto',
-        borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between',
-        gap: 12, fontSize: 13, color: 'var(--mute)',
-        paddingBottom: step === 'select' ? '6.5rem' : '1.25rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Image src="/logo_dark.png" alt="OpenEOS" width={80} height={22} style={{ height: 22, width: 'auto' }} />
-        </div>
+      <footer className="shifts-public__footer">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span>© {new Date().getFullYear()} OpenEOS</span>
           <span style={{ opacity: 0.4 }}>·</span>
           <a href="/impressum" style={{ color: 'inherit' }}>Impressum</a>
         </div>
       </footer>
-    </div>
+    </>
   );
 }

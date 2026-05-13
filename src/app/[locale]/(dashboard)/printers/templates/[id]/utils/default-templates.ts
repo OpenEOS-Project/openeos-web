@@ -56,17 +56,25 @@ function getReceiptDefault(): TemplateElement[] {
 
 function getKitchenDefault(): TemplateElement[] {
   return [
-    { id: nextId(), type: 'text', content: 'KUECHE', align: 'center', bold: true, big: true },
+    // Großer zentrierter Header
+    { id: nextId(), type: 'text', content: 'K U E C H E', align: 'center', bold: true, big: true },
     { id: nextId(), type: 'separator', char: '=' },
-    { id: nextId(), type: 'field', field: 'daily_number', big: true, label: '#' },
-    { id: nextId(), type: 'field', field: 'table_number', bold: true, label: 'Tisch: ', condition: 'table_number' },
-    { id: nextId(), type: 'field', field: 'customer_name', label: 'Kunde: ', condition: 'customer_name' },
-    { id: nextId(), type: 'field', field: 'priority' },
+    // Bestellnummer prominent
+    { id: nextId(), type: 'field', field: 'daily_number', align: 'center', big: true, bold: true, label: '#' },
+    { id: nextId(), type: 'spacer', lines: 1 },
+    // Tisch + Kunde zentriert + fett — aus 5 Metern lesbar
+    { id: nextId(), type: 'field', field: 'table_number', align: 'center', bold: true, label: 'Tisch ', condition: 'table_number' },
+    { id: nextId(), type: 'field', field: 'customer_name', align: 'center', label: 'Kunde: ', condition: 'customer_name' },
+    { id: nextId(), type: 'field', field: 'priority', align: 'center' },
     { id: nextId(), type: 'separator', char: '-' },
     { id: nextId(), type: 'field', field: 'date_time', label: 'Bestellt: ' },
     { id: nextId(), type: 'separator', char: '=' },
-    { id: nextId(), type: 'field', field: 'items_list', bold: true, showNotes: true, showKitchenNotes: true, showOptions: true, showPrice: false },
+    // Produkte gross + fett, damit sie aus der Ferne lesbar sind
+    { id: nextId(), type: 'field', field: 'items_list', big: true, bold: true, showNotes: true, showKitchenNotes: true, showOptions: true, showPrice: false },
     { id: nextId(), type: 'separator', char: '=' },
+    // Eindeutiger Barcode pro Bon — wird zum Wiederfinden des Auftrags / Produkts gescannt.
+    { id: nextId(), type: 'field', field: 'barcode', align: 'center' },
+    { id: nextId(), type: 'spacer', lines: 1 },
     { id: nextId(), type: 'field', field: 'date_time', align: 'center' },
     { id: nextId(), type: 'feed', lines: 3 },
     { id: nextId(), type: 'cut' },

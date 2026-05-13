@@ -68,7 +68,7 @@ export function UserDetail() {
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <h1 className="section-title">{t('detail.title')}</h1>
+          <h1 className="app-page-head__title">{t('detail.title')}</h1>
         </div>
       </div>
 

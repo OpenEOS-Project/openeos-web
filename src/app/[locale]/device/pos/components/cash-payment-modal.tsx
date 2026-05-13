@@ -1,13 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { NumPad } from './num-pad';
+import { Check, Delete, X } from '@untitledui/icons';
 import { formatCurrency } from '@/utils/format';
-import { cx } from '@/utils/cx';
 
 interface CashPaymentModalProps {
   isOpen: boolean;
@@ -15,6 +11,73 @@ interface CashPaymentModalProps {
   total: number;
   onConfirm: () => void;
   isProcessing?: boolean;
+}
+
+/** POS-styled numpad — uses --pos-* tokens to match the kasse design. */
+function PosNumpad({
+  value,
+  onChange,
+  maxLength = 7,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  maxLength?: number;
+}) {
+  const press = (digit: string) => {
+    if (value.length < maxLength) onChange(value + digit);
+  };
+  const back = () => onChange(value.slice(0, -1));
+  const clear = () => onChange('');
+
+  const keyStyle: React.CSSProperties = {
+    height: 52,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'var(--pos-surface)',
+    border: '1px solid var(--pos-line)',
+    borderRadius: 'var(--pos-r-md)',
+    fontSize: 22,
+    fontWeight: 600,
+    color: 'var(--pos-ink)',
+    cursor: 'pointer',
+    boxShadow: 'var(--pos-sh-1)',
+    transition: 'transform .06s ease, background .12s, border-color .12s',
+  };
+  const auxStyle: React.CSSProperties = {
+    ...keyStyle,
+    background: 'var(--pos-surface-2)',
+    color: 'var(--pos-ink-2)',
+    fontSize: 17,
+    boxShadow: 'none',
+  };
+
+  const renderDigit = (d: string) => (
+    <button
+      key={d}
+      type="button"
+      onClick={() => press(d)}
+      onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(.97)')}
+      onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      style={keyStyle}
+    >
+      {d}
+    </button>
+  );
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+      {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(renderDigit)}
+      <button type="button" onClick={clear} style={auxStyle} aria-label="Löschen">
+        C
+      </button>
+      {renderDigit('0')}
+      <button type="button" onClick={back} style={auxStyle} aria-label="Zurück">
+        <Delete style={{ width: 20, height: 20 }} />
+      </button>
+    </div>
+  );
 }
 
 export function CashPaymentModal({
@@ -25,147 +88,288 @@ export function CashPaymentModal({
   isProcessing = false,
 }: CashPaymentModalProps) {
   const t = useTranslations('pos.cashPayment');
-  const [receivedInput, setReceivedInput] = useState('');
+  const [received, setReceived] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
 
-  // Parse received amount (input is in cents format, e.g., "1000" = 10.00)
+  useEffect(() => {
+    if (isOpen) {
+      setReceived('');
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
   const receivedAmount = useMemo(() => {
-    if (!receivedInput) return 0;
-    return parseInt(receivedInput, 10) / 100;
-  }, [receivedInput]);
+    if (!received) return 0;
+    return parseInt(received, 10) / 100;
+  }, [received]);
 
-  const change = useMemo(() => {
-    return Math.max(0, receivedAmount - total);
-  }, [receivedAmount, total]);
+  const change = Math.max(0, receivedAmount - total);
+  const canConfirm = receivedAmount >= total && !isProcessing;
 
-  const canConfirm = receivedAmount >= total;
-
-  // Quick amount buttons - round up to common values
   const quickAmounts = useMemo(() => {
-    const amounts: number[] = [];
-    const roundedTotal = Math.ceil(total);
-
-    // Add exact amount
-    amounts.push(total);
-
-    // Add rounded amounts
-    if (roundedTotal !== total) {
-      amounts.push(roundedTotal);
+    const out = new Set<number>([total]);
+    const rounded = Math.ceil(total);
+    if (rounded !== total) out.add(rounded);
+    for (const a of [5, 10, 20, 50, 100]) {
+      if (a > total) out.add(a);
+      if (out.size >= 5) break;
     }
-
-    // Add common round amounts above total
-    const commonAmounts = [5, 10, 20, 50, 100];
-    for (const amount of commonAmounts) {
-      if (amount > total && !amounts.includes(amount)) {
-        amounts.push(amount);
-      }
-      if (amounts.length >= 5) break;
-    }
-
-    return amounts.slice(0, 5);
+    return Array.from(out).slice(0, 5);
   }, [total]);
 
-  const handleQuickAmount = (amount: number) => {
-    // Convert to cents string
-    setReceivedInput(Math.round(amount * 100).toString());
-  };
-
-  const handleNumPadChange = (value: string) => {
-    // Limit to reasonable amount (max 99999.99)
-    if (value.length <= 7) {
-      setReceivedInput(value);
-    }
-  };
-
-  const handleConfirm = () => {
-    if (canConfirm) {
-      onConfirm();
-    }
-  };
-
-  // Reset when modal opens
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
+  const handleClose = () => {
+    setIsClosing(true);
+    window.setTimeout(() => {
       onClose();
-      setReceivedInput('');
-    }
+      setIsClosing(false);
+    }, 200);
   };
+
+  if (!isOpen) return null;
 
   return (
-    <DialogModal
-      isOpen={isOpen}
-      onClose={() => handleOpenChange(false)}
-      title={t('title')}
-      size="md"
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cash-payment-title"
+      style={{ position: 'fixed', inset: 0, zIndex: 50 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
     >
-      <div className="p-6 space-y-6">
-        {/* Amount Due */}
-        <div className="rounded-lg bg-secondary p-4 text-center">
-          <p className="text-sm text-tertiary mb-1">{t('amountDue')}</p>
-          <p className="text-3xl font-bold text-primary">{formatCurrency(total)}</p>
-        </div>
+      {/* Dimmed backdrop */}
+      <div
+        onClick={handleClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(20,18,12,.45)',
+          opacity: isClosing ? 0 : 1,
+          transition: 'opacity .2s ease',
+        }}
+      />
 
-        {/* Quick Amount Buttons */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {quickAmounts.map((amount) => (
-            <button
-              key={amount}
-              type="button"
-              onClick={() => handleQuickAmount(amount)}
-              className={cx(
-                'rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
-                receivedAmount === amount
-                  ? 'border-brand-primary bg-brand-secondary text-brand-primary'
-                  : 'border-primary bg-primary text-primary hover:bg-secondary'
-              )}
-            >
-              {formatCurrency(amount)}
-            </button>
-          ))}
-        </div>
-
-        {/* Received Amount Display */}
-        <div className="text-center">
-          <p className="text-sm text-tertiary mb-2">{t('received')}</p>
-          <div className="rounded-lg border border-secondary bg-primary py-3 px-4">
-            <span className="text-3xl font-bold text-primary tabular-nums">
-              {receivedInput ? formatCurrency(receivedAmount) : '—'}
-            </span>
-          </div>
-        </div>
-
-        {/* NumPad */}
-        <NumPad
-          value={receivedInput}
-          onChange={handleNumPadChange}
-          maxLength={7}
-        />
-
-        {/* Change Display */}
-        <div className={cx(
-          'rounded-lg p-4 text-center transition-colors',
-          canConfirm ? 'bg-success-secondary' : 'bg-secondary'
-        )}>
-          <p className={cx('text-sm mb-1', canConfirm ? 'text-tertiary dark:text-white/70' : 'text-tertiary')}>{t('change')}</p>
-          <p className={cx(
-            'text-3xl font-bold',
-            canConfirm ? 'text-success-primary dark:text-white' : 'text-tertiary'
-          )}>
-            {formatCurrency(change)}
-          </p>
-        </div>
-
-        {/* Confirm Button */}
-        <Button
-          onClick={handleConfirm}
-          disabled={!canConfirm || isProcessing}
-          isLoading={isProcessing}
-          className="w-full"
-          size="lg"
-          iconLeading={Check}
+      {/* Bottom-anchored sheet */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          maxHeight: '92%',
+          background: 'var(--pos-surface)',
+          borderTopLeftRadius: 'var(--pos-r-lg)',
+          borderTopRightRadius: 'var(--pos-r-lg)',
+          boxShadow: 'var(--pos-sh-3)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          transform: isClosing ? 'translateY(100%)' : undefined,
+          transition: 'transform .22s ease',
+          animation: isClosing ? undefined : 'pos-slide-up-sheet .22s ease',
+        }}
+      >
+        {/* Drag handle stripe */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 28,
+            flexShrink: 0,
+          }}
         >
-          {t('confirm')}
-        </Button>
+          <div style={{ width: 48, height: 5, background: 'var(--pos-line-strong)', borderRadius: 999 }} />
+        </div>
+
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 18px 12px',
+            borderBottom: '1px solid var(--pos-line)',
+            flexShrink: 0,
+          }}
+        >
+          <div>
+            <h2
+              id="cash-payment-title"
+              style={{
+                margin: 0,
+                fontSize: 17,
+                fontWeight: 700,
+                color: 'var(--pos-ink)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              {t('title')}
+            </h2>
+            <div style={{ fontSize: 12, color: 'var(--pos-ink-3)', marginTop: 2 }}>
+              {t('amountDue')}: <strong style={{ color: 'var(--pos-ink)' }}>{formatCurrency(total)}</strong>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Schließen"
+            style={{
+              width: 36,
+              height: 36,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--pos-ink-3)',
+              borderRadius: 'var(--pos-r-sm)',
+              cursor: 'pointer',
+            }}
+          >
+            <X style={{ width: 22, height: 22 }} />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div
+          className="pos-scroll"
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px 18px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+          }}
+        >
+          {/* Quick amount pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {quickAmounts.map((amount) => {
+              const on = receivedAmount === amount;
+              return (
+                <button
+                  key={amount}
+                  type="button"
+                  onClick={() => setReceived(Math.round(amount * 100).toString())}
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    background: on ? 'var(--pos-accent)' : 'var(--pos-surface-2)',
+                    color: on ? 'var(--pos-accent-contrast)' : 'var(--pos-ink)',
+                    border: `1px solid ${on ? 'var(--pos-accent)' : 'var(--pos-line)'}`,
+                    borderRadius: 999,
+                    cursor: 'pointer',
+                    transition: 'background .12s, color .12s, border-color .12s',
+                  }}
+                >
+                  {formatCurrency(amount)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Received display + change side-by-side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div
+              style={{
+                background: 'var(--pos-surface-2)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-md)',
+                padding: '10px 12px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: 11, color: 'var(--pos-ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {t('received')}
+              </div>
+              <div
+                style={{
+                  marginTop: 2,
+                  fontFamily: 'var(--pos-ff-mono)',
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: 'var(--pos-ink)',
+                  lineHeight: 1.2,
+                }}
+              >
+                {received ? formatCurrency(receivedAmount) : '—'}
+              </div>
+            </div>
+            <div
+              style={{
+                background: canConfirm
+                  ? 'color-mix(in oklab, var(--pos-ok) 14%, var(--pos-surface))'
+                  : 'var(--pos-surface-2)',
+                border: `1px solid ${
+                  canConfirm
+                    ? 'color-mix(in oklab, var(--pos-ok) 35%, var(--pos-line))'
+                    : 'var(--pos-line)'
+                }`,
+                borderRadius: 'var(--pos-r-md)',
+                padding: '10px 12px',
+                textAlign: 'center',
+                transition: 'background .12s, border-color .12s',
+              }}
+            >
+              <div style={{ fontSize: 11, color: 'var(--pos-ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {t('change')}
+              </div>
+              <div
+                style={{
+                  marginTop: 2,
+                  fontFamily: 'var(--pos-ff-mono)',
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: canConfirm ? 'var(--pos-ok)' : 'var(--pos-ink-3)',
+                  lineHeight: 1.2,
+                }}
+              >
+                {formatCurrency(change)}
+              </div>
+            </div>
+          </div>
+
+          {/* Numpad */}
+          <PosNumpad value={received} onChange={setReceived} maxLength={7} />
+        </div>
+
+        {/* Sticky confirm footer */}
+        <div
+          style={{
+            padding: '10px 18px 18px',
+            borderTop: '1px solid var(--pos-line)',
+            background: 'var(--pos-surface)',
+            flexShrink: 0,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => canConfirm && onConfirm()}
+            disabled={!canConfirm}
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              fontSize: 15,
+              fontWeight: 700,
+              background: canConfirm ? 'var(--pos-accent)' : 'var(--pos-line)',
+              color: canConfirm ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
+              border: 'none',
+              borderRadius: 'var(--pos-r-md)',
+              cursor: canConfirm ? 'pointer' : 'not-allowed',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'background .12s, color .12s',
+            }}
+          >
+            {!isProcessing && <Check style={{ width: 20, height: 20 }} />}
+            {isProcessing ? '…' : t('confirm')}
+          </button>
+        </div>
       </div>
-    </DialogModal>
+    </div>
   );
 }

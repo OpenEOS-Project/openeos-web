@@ -4,16 +4,22 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
+  Calendar,
+  Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   LogOut01,
   Mail01,
-  Settings01,
+  Plus,
 } from '@untitledui/icons';
+
+import { CreateOrgModal } from './create-org-modal';
 
 import { Link } from '@/i18n/routing';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
 import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/hooks/use-members';
+import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import type { NavItemType } from '@/components/app-navigation/config';
@@ -26,7 +32,7 @@ const roleLabels: Record<string, string> = {
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const t = useTranslations('sidebar');
+  useTranslations('sidebar');
   const {
     user,
     organizations,
@@ -38,16 +44,32 @@ export function AppSidebar() {
   } = useAuthStore();
   const { isCollapsed, isMobileOpen, toggleCollapsed, setMobileOpen } = useSidebarStore();
 
+  const orgIdForEvent = currentOrganization?.organizationId ?? '';
+  const { data: activeEvent } = useActiveEvent(orgIdForEvent);
+
   const { data: pendingInvitations = [], refetch: refetchInvitations } = useMyInvitations();
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
 
-  // Close mobile sidebar on route change
+  const [orgMenuOpen, setOrgMenuOpen] = React.useState(false);
+  const [createOrgOpen, setCreateOrgOpen] = React.useState(false);
+  const orgWrapRef = React.useRef<HTMLDivElement | null>(null);
+
   React.useEffect(() => {
     setMobileOpen(false);
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Strip locale prefix for active link matching
+  React.useEffect(() => {
+    if (!orgMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (orgWrapRef.current && !orgWrapRef.current.contains(e.target as Node)) {
+        setOrgMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [orgMenuOpen]);
+
   const activeUrl = pathname.replace(/^\/(de|en)/, '');
 
   const isSuperAdmin = user?.isSuperAdmin ?? false;
@@ -88,7 +110,11 @@ export function AppSidebar() {
     }
   };
 
-  const initials = user?.firstName?.[0]?.toUpperCase() ?? '?';
+  void handleAcceptInvitation;
+  void handleDeclineInvitation;
+
+  const orgs = organizations.filter((o) => o?.organization);
+  const hasMultiple = orgs.length > 1;
   const orgInitial = currentOrganization?.organization?.name?.[0]?.toUpperCase() ?? 'O';
 
   const sidebarClasses = cx(
@@ -100,9 +126,7 @@ export function AppSidebar() {
   if (isLoading) {
     return (
       <>
-        {/* Mobile backdrop placeholder */}
         <div className="app-sidebar" style={{ opacity: 0, pointerEvents: 'none' }} />
-        {/* Desktop sidebar skeleton */}
         <aside className={sidebarClasses}>
           <div className="app-sidebar__logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -130,7 +154,6 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Mobile backdrop */}
       {isMobileOpen && (
         <div
           className="app-sidebar-backdrop"
@@ -146,19 +169,141 @@ export function AppSidebar() {
           <img src="/logo_dark.png" alt="OpenEOS" />
         </div>
 
-        {/* Org info */}
-        {!isCollapsed && currentOrganization?.organization && (
-          <div className="app-sidebar__org">
-            <div className="app-sidebar__org-avatar">{orgInitial}</div>
-            <div style={{ minWidth: 0 }}>
-              <div className="app-sidebar__org-name">
-                {currentOrganization.organization.name}
+        {/* Org block + selector */}
+        {!isCollapsed && (
+          <div
+            className="app-sidebar__org-wrap"
+            ref={orgWrapRef}
+            data-open={orgMenuOpen ? 'true' : 'false'}
+          >
+            <button
+              type="button"
+              className="app-sidebar__org app-sidebar__org--clickable"
+              onClick={() => setOrgMenuOpen((v) => !v)}
+              aria-expanded={orgMenuOpen}
+            >
+              <div className="app-sidebar__org-avatar">
+                {orgs.length > 0 ? orgInitial : isSuperAdmin ? 'SA' : '?'}
               </div>
-              {currentRole && (
-                <div className="app-sidebar__org-role">{roleLabels[currentRole] ?? currentRole}</div>
-              )}
-            </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div className="app-sidebar__org-name">
+                  {orgs.length > 0
+                    ? (currentOrganization?.organization?.name ?? '— Organisation wählen —')
+                    : isSuperAdmin
+                      ? 'Super-Admin'
+                      : 'Keine Organisation'}
+                </div>
+                <div className="app-sidebar__org-role">
+                  {orgs.length > 0
+                    ? (currentRole ? (roleLabels[currentRole] ?? currentRole) : '')
+                    : isSuperAdmin
+                      ? 'Plattform-Verwaltung'
+                      : 'Tippe zum Erstellen'}
+                </div>
+              </div>
+              <ChevronDown className="app-sidebar__org-chev" />
+            </button>
+
+            {orgMenuOpen && (
+              <div className="app-sidebar__org-menu" role="menu">
+                {orgs.map((o) => {
+                  const initial = o.organization?.name?.[0]?.toUpperCase() ?? 'O';
+                  const isCurrent =
+                    o.organizationId === currentOrganization?.organizationId;
+                  return (
+                    <button
+                      key={o.organizationId}
+                      type="button"
+                      role="menuitem"
+                      className={cx(
+                        'app-sidebar__org-menu-item',
+                        isCurrent && 'app-sidebar__org-menu-item--active',
+                      )}
+                      onClick={() => {
+                        setCurrentOrganization(o);
+                        setOrgMenuOpen(false);
+                      }}
+                    >
+                      <div className="app-sidebar__org-menu-avatar">{initial}</div>
+                      <span
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {o.organization?.name ?? '—'}
+                      </span>
+                      {isCurrent && <Check className="app-sidebar__org-menu-check" />}
+                    </button>
+                  );
+                })}
+                {orgs.length > 0 && (
+                  <div
+                    style={{
+                      height: 1,
+                      background: 'color-mix(in oklab, var(--ink) 8%, transparent)',
+                      margin: '4px 6px',
+                    }}
+                  />
+                )}
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="app-sidebar__org-menu-item"
+                  onClick={() => {
+                    setOrgMenuOpen(false);
+                    setCreateOrgOpen(true);
+                  }}
+                  style={{ color: 'var(--green-ink)', fontWeight: 600 }}
+                >
+                  <div
+                    className="app-sidebar__org-menu-avatar"
+                    style={{
+                      background: 'transparent',
+                      color: 'var(--green-ink)',
+                      border: '1px dashed color-mix(in oklab, var(--green-ink) 50%, transparent)',
+                    }}
+                  >
+                    <Plus style={{ width: 14, height: 14 }} />
+                  </div>
+                  <span style={{ flex: 1 }}>Neue Organisation</span>
+                </button>
+              </div>
+            )}
           </div>
+        )}
+
+        <CreateOrgModal open={createOrgOpen} onClose={() => setCreateOrgOpen(false)} />
+
+        {/* Active event indicator */}
+        {!isCollapsed && orgIdForEvent && (
+          <Link
+            href={'/events' as never}
+            className="app-sidebar__active-event"
+            data-status={activeEvent?.status ?? 'none'}
+          >
+            <Calendar className="app-sidebar__active-event-icon" />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="app-sidebar__active-event-label">
+                {activeEvent ? activeEvent.name : 'Kein aktives Event'}
+              </div>
+              <div className="app-sidebar__active-event-status">
+                {activeEvent?.status === 'active'
+                  ? 'Aktiv'
+                  : activeEvent?.status === 'test'
+                    ? 'Test-Modus'
+                    : 'Tippe zum Aktivieren'}
+              </div>
+            </div>
+            {activeEvent?.status === 'test' && (
+              <span className="app-sidebar__active-event-pill app-sidebar__active-event-pill--test">
+                TEST
+              </span>
+            )}
+          </Link>
         )}
 
         {/* Pending invitations indicator */}
@@ -185,17 +330,22 @@ export function AppSidebar() {
         {/* Navigation */}
         <nav className="app-sidebar__nav">
           {navItems.map((item) => {
-            const isActive = item.href ? activeUrl === item.href || activeUrl.startsWith(item.href + '/') : false;
+            if (!item.href) return null;
             const Icon = item.icon;
+            const subItems = item.items ?? [];
+            const isExactActive = activeUrl === item.href;
+            const isActiveBranch =
+              isExactActive ||
+              activeUrl.startsWith(item.href + '/') ||
+              subItems.some((sub) => activeUrl === sub.href || activeUrl.startsWith(sub.href + '/'));
 
-            if (item.href) {
-              return (
+            return (
+              <div key={item.href} className="app-sidebar__group">
                 <Link
-                  key={item.href}
-                  href={item.href as any}
+                  href={item.href as never}
                   className={cx(
                     'app-sidebar__item',
-                    isActive && 'app-sidebar__item--active'
+                    isActiveBranch && 'app-sidebar__item--active',
                   )}
                 >
                   {Icon && <Icon className="" />}
@@ -204,14 +354,32 @@ export function AppSidebar() {
                     <span className="app-sidebar__item-badge">{item.badge}</span>
                   )}
                 </Link>
-              );
-            }
-
-            return null;
+                {!isCollapsed && subItems.length > 0 && isActiveBranch && (
+                  <div className="app-sidebar__subnav">
+                    {subItems.map((sub) => {
+                      const isSubActive =
+                        activeUrl === sub.href || activeUrl.startsWith(sub.href + '/');
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href as never}
+                          className={cx(
+                            'app-sidebar__subitem',
+                            isSubActive && 'app-sidebar__subitem--active',
+                          )}
+                        >
+                          <span className="app-sidebar__subitem-label">{sub.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
           })}
         </nav>
 
-        {/* Footer items + collapse toggle + user block */}
+        {/* Footer items */}
         <div className="app-sidebar__footer">
           {filteredFooterItems.map((item) => {
             const isActive = item.href ? activeUrl === item.href : false;
@@ -222,10 +390,10 @@ export function AppSidebar() {
             return (
               <Link
                 key={item.href}
-                href={item.href as any}
+                href={item.href as never}
                 className={cx(
                   'app-sidebar__item',
-                  isActive && 'app-sidebar__item--active'
+                  isActive && 'app-sidebar__item--active',
                 )}
               >
                 {Icon && <Icon className="" />}
@@ -234,7 +402,6 @@ export function AppSidebar() {
             );
           })}
 
-          {/* Logout item */}
           <button
             onClick={logout}
             className="app-sidebar__item"
@@ -244,7 +411,6 @@ export function AppSidebar() {
             <span className="app-sidebar__item-label">Abmelden</span>
           </button>
 
-          {/* Collapse toggle — desktop only */}
           <button
             onClick={toggleCollapsed}
             className="app-sidebar__collapse-btn"
@@ -261,7 +427,6 @@ export function AppSidebar() {
         </div>
       </aside>
 
-      {/* Desktop collapse button: shown via CSS (hidden on mobile) */}
       <style>{`
         @media (min-width: 961px) {
           #sidebar-collapse-btn { display: flex !important; }

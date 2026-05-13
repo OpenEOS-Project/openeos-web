@@ -5,9 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, sumupApi } from '@/lib/api-client';
-import { useEvents } from '@/hooks/use-events';
-import { useProductionStations } from '@/hooks/use-production-stations';
-import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
+import type { Device, DeviceClass, ServiceMode } from '@/types/device';
 
 interface DeviceSettingsProps {
   device: Device;
@@ -48,33 +46,17 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
 
   const [name, setName] = useState(device.name);
   const [type, setType] = useState<DeviceClass>(device.type);
-  const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'kitchen');
   const [serviceMode, setServiceMode] = useState<ServiceMode>(device.settings?.serviceMode || 'table');
   const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
   const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
-  const [stationId, setStationId] = useState((device.settings?.stationId as string) || '');
-  const [stationEventId, setStationEventId] = useState('');
 
   useEffect(() => {
     setName(device.name);
     setType(device.type);
-    setDisplayMode(device.settings?.displayMode || 'kitchen');
     setServiceMode(device.settings?.serviceMode || 'table');
     setRequirePin(device.settings?.requirePin ?? false);
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
-    setStationId((device.settings?.stationId as string) || '');
   }, [device]);
-
-  const { data: events } = useEvents(organizationId);
-  const availableEvents = (events || []).filter((e) => e.status === 'active' || e.status === 'test');
-
-  useEffect(() => {
-    if (displayMode === 'station' && availableEvents.length > 0 && !stationEventId) {
-      setStationEventId(availableEvents[0].id);
-    }
-  }, [displayMode, availableEvents, stationEventId]);
-
-  const { data: productionStations } = useProductionStations(displayMode === 'station' ? stationEventId : '');
 
   const readersQuery = useQuery({
     queryKey: ['sumup-readers', organizationId],
@@ -92,12 +74,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
         type,
         settings: {
           ...device.settings,
-          displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
           serviceMode: type === 'pos' ? serviceMode : device.settings?.serviceMode,
           printerMode: device.settings?.printerMode,
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
           sumupReaderId: type === 'pos' ? (sumupReaderId || undefined) : device.settings?.sumupReaderId,
-          stationId: type === 'display' && displayMode === 'station' ? (stationId || undefined) : undefined,
         },
       }),
     onSuccess: () => {
@@ -106,8 +86,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     },
   });
 
-  const typeOptions: DeviceClass[] = ['pos', 'display', 'admin'];
-  const displayModeOptions: DisplayMode[] = ['kitchen', 'delivery', 'menu', 'pickup', 'sales', 'customer', 'station'];
+  const typeOptions: DeviceClass[] = ['pos', 'admin'];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -132,43 +111,6 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
               ))}
             </select>
           </FormRow>
-
-          {type === 'display' && (
-            <FormRow label={t('devices.displayMode.label')}>
-              <select className="select" value={displayMode} onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}>
-                {displayModeOptions.map((opt) => (
-                  <option key={opt} value={opt}>{t(`devices.displayMode.${opt}`)}</option>
-                ))}
-              </select>
-            </FormRow>
-          )}
-
-          {type === 'display' && displayMode === 'station' && (
-            <>
-              <FormRow label={t('devices.detail.settings.station.event')}>
-                <select
-                  className="select"
-                  value={stationEventId}
-                  onChange={(e) => { setStationEventId(e.target.value); setStationId(''); }}
-                >
-                  {availableEvents.map((event) => (
-                    <option key={event.id} value={event.id}>{event.name}</option>
-                  ))}
-                </select>
-              </FormRow>
-
-              {stationEventId && (
-                <FormRow label={t('devices.detail.settings.station.station')}>
-                  <select className="select" value={stationId} onChange={(e) => setStationId(e.target.value)}>
-                    <option value="">{t('devices.detail.settings.station.none')}</option>
-                    {(productionStations || []).map((station) => (
-                      <option key={station.id} value={station.id}>{station.name}</option>
-                    ))}
-                  </select>
-                </FormRow>
-              )}
-            </>
-          )}
 
           {type === 'pos' && sumupConfigured && (
             <FormRow label={t('devices.edit.sumupReader')}>

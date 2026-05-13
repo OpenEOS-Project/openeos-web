@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { PrintersList } from './printers-list';
 import { TemplatesTab } from './templates-tab';
+import { OrderFlowTab } from './order-flow-tab';
 
 export function PrintersContainer() {
   const t = useTranslations('printers');
@@ -12,6 +13,7 @@ export function PrintersContainer() {
   const tabs = [
     { id: 'printers', label: t('tabs.printers') },
     { id: 'templates', label: t('tabs.templates') },
+    { id: 'orderFlow', label: t('tabs.orderFlow') },
   ];
 
   return (
@@ -45,6 +47,7 @@ export function PrintersContainer() {
 
       {activeTab === 'printers' && <PrintersList />}
       {activeTab === 'templates' && <TemplatesTab />}
+      {activeTab === 'orderFlow' && <OrderFlowTab />}
     </div>
   );
 }

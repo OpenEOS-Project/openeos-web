@@ -48,3 +48,6 @@ Thumbs.db
 /blob-report/
 /playwright/.cache/
 !vendor/pos-icons/dist
+
+# oh-my-claudecode local state
+.omc/

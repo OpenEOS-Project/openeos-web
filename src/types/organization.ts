@@ -51,6 +51,9 @@ export interface OrganizationSettings {
       enabled: boolean;
       printerId: string | null;
       templateId: string | null;
+      /** per_order = full order on one ticket (default), per_item = one ticket per
+       *  OrderItem (incl. barcode), per_station = one ticket per production station. */
+      mode?: 'per_order' | 'per_item' | 'per_station';
     };
     orderTicketPrinting?: {
       enabled: boolean;
@@ -99,6 +102,7 @@ export interface CreateOrganizationData {
 
 export interface UpdateOrganizationData {
   name?: string;
+  logoUrl?: string | null;
   settings?: Partial<OrganizationSettings>;
   billingEmail?: string;
   billingAddress?: BillingAddress;

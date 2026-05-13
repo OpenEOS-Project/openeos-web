@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
-import { Button } from '@/components/ui/buttons/button';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 
@@ -17,7 +15,6 @@ interface SumUpCheckoutModalProps {
   onSuccess: () => void;
 }
 
-// Known SumUp error types that have i18n translations
 const KNOWN_ERRORS = [
   'READER_BUSY',
   'READER_OFFLINE',
@@ -33,10 +30,8 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const cancelledRef = useRef(false);
 
-  /** Map API error to user-friendly message */
   const getErrorMessage = (err: unknown): string => {
     const message = err instanceof Error ? err.message : '';
-    // Check if the error message matches a known SumUp error type
     const errorType = KNOWN_ERRORS.find((type) => message.includes(type));
     if (errorType) {
       return t(`errors.${errorType}`);
@@ -55,18 +50,14 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     try {
       await deviceApi.terminateCheckout();
     } catch {
-      // Ignore termination errors — reader may not have an active checkout
+      // Ignore — reader may not have an active checkout
     }
   };
 
-  // Start checkout when modal opens
   useEffect(() => {
     if (!isOpen) {
-      // Cleanup on close — always attempt to terminate reader
       stopPolling();
-      if (cancelledRef.current) {
-        // Already terminated via handleCancel
-      } else {
+      if (!cancelledRef.current) {
         terminateReader();
       }
       cancelledRef.current = false;
@@ -84,7 +75,6 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
       try {
         await deviceApi.initiateCheckout(amount);
         if (cancelledRef.current) {
-          // Cancel happened while initiateCheckout was in-flight — terminate now
           await terminateReader();
           return;
         }
@@ -102,7 +92,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     return () => {
       stopPolling();
     };
-  }, [isOpen, amount]);
+  }, [isOpen, amount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startPolling = () => {
     stopPolling();
@@ -115,11 +105,10 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
 
       try {
         const response = await deviceApi.getCheckoutStatus();
-        const data = (response as any).data;
+        const data = (response as { data?: { checkout?: { status?: string } } }).data;
 
         if (!data || cancelledRef.current) return;
 
-        // Checkout status (if present in response)
         const checkoutStatus = data.checkout?.status;
 
         if (checkoutStatus === 'SUCCESSFUL' || checkoutStatus === 'successful') {
@@ -137,7 +126,6 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
           stopPolling();
           setState('cancelled');
         }
-        // Otherwise keep polling (WAITING_FOR_CARD, WAITING_FOR_PIN, etc.)
       } catch {
         // Ignore polling errors, keep trying
       }
@@ -168,93 +156,234 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     cancelledRef.current = true;
     stopPolling();
     setState('cancelled');
-
-    // Always call terminate — the SumUp API ignores it if no checkout is active
     await terminateReader();
-
     setTimeout(() => {
       onClose();
     }, 500);
   };
 
-  const getIcon = () => {
-    switch (state) {
-      case 'success':
-        return <CheckCircle className="h-12 w-12 text-success-primary" />;
-      case 'failed':
-      case 'cancelled':
-        return <XCircle className="h-12 w-12 text-error-primary" />;
-      default:
-        return <CreditCard01 className="h-12 w-12 text-brand-primary" />;
-    }
-  };
+  const isLocked = state === 'waiting' || state === 'initiating';
 
-  const getMessage = () => {
-    switch (state) {
-      case 'initiating':
-        return t('processing');
-      case 'waiting':
-        return t('waiting');
-      case 'success':
-        return t('success');
-      case 'failed':
-        return error || t('failed');
-      case 'cancelled':
-        return t('cancelled');
-    }
-  };
+  if (!isOpen) return null;
+
+  const iconColor =
+    state === 'success' ? 'var(--pos-ok)' :
+    state === 'failed' || state === 'cancelled' ? 'var(--pos-danger)' :
+    'var(--pos-accent)';
+
+  const iconBg =
+    state === 'success' ? 'color-mix(in oklab, var(--pos-ok) 14%, var(--pos-surface))' :
+    state === 'failed' || state === 'cancelled' ? 'color-mix(in oklab, var(--pos-danger) 14%, var(--pos-surface))' :
+    'var(--pos-accent-soft)';
+
+  const Icon =
+    state === 'success' ? CheckCircle :
+    state === 'failed' || state === 'cancelled' ? XCircle :
+    CreditCard01;
+
+  const message =
+    state === 'initiating' ? t('processing') :
+    state === 'waiting' ? t('waiting') :
+    state === 'success' ? t('success') :
+    state === 'failed' ? (error || t('failed')) :
+    t('cancelled');
 
   return (
-    <DialogModal
-      isOpen={isOpen}
-      onClose={state === 'waiting' || state === 'initiating' ? () => {} : onClose}
-      title={t('title')}
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isLocked) onClose();
+      }}
     >
-      <div className="px-6 py-8">
-        <div className="flex flex-col items-center text-center space-y-6">
-          {/* Icon */}
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-            {getIcon()}
+      <div
+        onClick={isLocked ? undefined : onClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(20,18,12,.55)',
+          animation: 'pos-fade-in .18s ease',
+        }}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: 420,
+          background: 'var(--pos-surface)',
+          borderRadius: 'var(--pos-r-lg)',
+          boxShadow: 'var(--pos-sh-3)',
+          overflow: 'hidden',
+          animation: 'pos-pop .22s ease',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--pos-line)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: 'var(--pos-ink)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t('title')}
+          </h2>
+        </div>
+
+        {/* Body */}
+        <div
+          style={{
+            padding: '32px 24px 28px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 20,
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 999,
+              background: iconBg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background .15s',
+            }}
+          >
+            <Icon style={{ width: 38, height: 38, color: iconColor }} />
           </div>
 
-          {/* Amount */}
-          <p className="text-3xl font-bold text-primary">
+          <p
+            className="pos-mono"
+            style={{
+              fontSize: 32,
+              fontWeight: 700,
+              color: 'var(--pos-ink)',
+              margin: 0,
+              letterSpacing: '-0.02em',
+            }}
+          >
             {formatCurrency(amount)}
           </p>
 
-          {/* Status Message */}
-          <div className="space-y-2">
-            <p className="text-lg text-primary">{getMessage()}</p>
-            {(state === 'initiating' || state === 'waiting') && (
-              <Loading02 className="mx-auto h-6 w-6 animate-spin text-tertiary" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <p style={{ fontSize: 15, color: 'var(--pos-ink)', margin: 0, fontWeight: 500 }}>
+              {message}
+            </p>
+            {isLocked && (
+              <Loading02
+                style={{
+                  width: 22,
+                  height: 22,
+                  color: 'var(--pos-ink-3)',
+                  animation: 'spin 1s linear infinite',
+                }}
+              />
             )}
           </div>
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex justify-center gap-3 border-t border-secondary px-6 py-4">
-        {(state === 'initiating' || state === 'waiting') && (
-          <Button color="secondary" onClick={handleCancel}>
-            {t('cancel')}
-          </Button>
-        )}
-        {state === 'failed' && (
-          <>
-            <Button color="secondary" onClick={onClose}>
+        {/* Footer */}
+        <div
+          style={{
+            padding: '14px 20px',
+            borderTop: '1px solid var(--pos-line)',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 8,
+            background: 'var(--pos-surface-2)',
+          }}
+        >
+          {isLocked && (
+            <button
+              type="button"
+              onClick={handleCancel}
+              style={{
+                padding: '10px 18px',
+                background: 'var(--pos-surface)',
+                color: 'var(--pos-ink)',
+                border: '1px solid var(--pos-line-strong)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
               {t('cancel')}
-            </Button>
-            <Button onClick={handleRetry}>
-              {t('retry')}
-            </Button>
-          </>
-        )}
-        {state === 'cancelled' && (
-          <Button onClick={onClose}>
-            {t('cancel')}
-          </Button>
-        )}
+            </button>
+          )}
+          {state === 'failed' && (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '10px 18px',
+                  background: 'var(--pos-surface)',
+                  color: 'var(--pos-ink)',
+                  border: '1px solid var(--pos-line-strong)',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleRetry}
+                style={{
+                  padding: '10px 18px',
+                  background: 'var(--pos-accent)',
+                  color: 'var(--pos-accent-contrast)',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                {t('retry')}
+              </button>
+            </>
+          )}
+          {state === 'cancelled' && (
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '10px 18px',
+                background: 'var(--pos-accent)',
+                color: 'var(--pos-accent-contrast)',
+                border: 'none',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {t('cancel')}
+            </button>
+          )}
+        </div>
       </div>
-    </DialogModal>
+    </div>
   );
 }

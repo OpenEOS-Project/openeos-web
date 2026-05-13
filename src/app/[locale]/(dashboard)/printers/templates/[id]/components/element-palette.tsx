@@ -26,6 +26,7 @@ import {
   BankNote01,
   CoinsStacked01,
   QrCode02,
+  BarChart05,
 } from '@untitledui/icons';
 import { cx } from '@/utils/cx';
 import { PALETTE_ITEMS, PALETTE_CATEGORIES } from '../utils/palette-items';
@@ -55,6 +56,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   'bank-note': BankNote01,
   'coins': CoinsStacked01,
   'qr-code': QrCode02,
+  'barcode': BarChart05,
 };
 
 function DraggablePaletteItem({ item, label }: { item: PaletteItem; label: string }) {

@@ -340,7 +340,7 @@ export function OrganizationSumupSection() {
       {showPairDialog && (
         <div className="modal__backdrop" onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}>
           <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
-            <div className="modal__header">
+            <div className="modal__head">
               <div>
                 <h2 className="modal__title">{t('readers.pairReader')}</h2>
                 <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{t('readers.pairDescription')}</p>
@@ -381,7 +381,7 @@ export function OrganizationSumupSection() {
                 )}
               </div>
 
-              <div className="modal__footer">
+              <div className="modal__foot">
                 <button
                   type="button"
                   className="btn btn--ghost"
@@ -411,7 +411,7 @@ export function OrganizationSumupSection() {
       {renamingReader && (
         <div className="modal__backdrop" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
           <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="modal__header">
+            <div className="modal__head">
               <h2 className="modal__title">{t('readers.rename')}</h2>
               <button className="modal__close" type="button" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
@@ -432,7 +432,7 @@ export function OrganizationSumupSection() {
                 </div>
               </div>
 
-              <div className="modal__footer">
+              <div className="modal__foot">
                 <button
                   type="button"
                   className="btn btn--ghost"
