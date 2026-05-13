@@ -6,8 +6,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
-import type { ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
+import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
 import { SendMessageModal } from './send-message-modal';
+import { ManualAddRegistrationModal } from './manual-add-registration-modal';
+import { EditRegistrationModal } from './edit-registration-modal';
 
 const formatTime = (time: string): string => {
   const parts = time.split(':');
@@ -23,16 +25,19 @@ const statusBadge: Record<ShiftRegistrationStatus, string> = {
 };
 
 interface RegistrationsListProps {
-  planId: string;
+  plan: ShiftPlan;
 }
 
-export function RegistrationsList({ planId }: RegistrationsListProps) {
+export function RegistrationsList({ plan }: RegistrationsListProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
+  const planId = plan.id;
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [manualAddOpen, setManualAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<ShiftRegistration | null>(null);
 
   const { data: registrationsData, isLoading } = useQuery({
@@ -88,22 +93,33 @@ export function RegistrationsList({ planId }: RegistrationsListProps) {
 
   if (groups.length === 0) {
     return (
-      <div className="empty-state">
-        <div className="empty-state__icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-          </svg>
+      <>
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('shifts.registration.noRegistrations')}</h3>
+          <p className="empty-state__sub">{t('shifts.registration.noRegistrationsDescription')}</p>
+          <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setManualAddOpen(true)}>
+            Helfer manuell eintragen
+          </button>
         </div>
-        <h3 className="empty-state__title">{t('shifts.registration.noRegistrations')}</h3>
-        <p className="empty-state__sub">{t('shifts.registration.noRegistrationsDescription')}</p>
-      </div>
+        <ManualAddRegistrationModal open={manualAddOpen} plan={plan} onClose={() => setManualAddOpen(false)} />
+      </>
     );
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 14, fontWeight: 600 }}>
-        {t('shifts.registration.title')} ({registrations.length})
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>
+          {t('shifts.registration.title')} ({registrations.length})
+        </span>
+        <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setManualAddOpen(true)}>
+          Helfer manuell eintragen
+        </button>
       </div>
 
       {groups.map((group) => {
@@ -188,6 +204,13 @@ export function RegistrationsList({ planId }: RegistrationsListProps) {
               <button
                 className="btn btn--ghost"
                 style={{ fontSize: 12 }}
+                onClick={() => { setSelectedRegistration(firstReg); setEditOpen(true); }}
+              >
+                Bearbeiten
+              </button>
+              <button
+                className="btn btn--ghost"
+                style={{ fontSize: 12 }}
                 onClick={() => { setSelectedRegistration(firstReg); setMessageModalOpen(true); }}
               >
                 {t('shifts.registration.sendMessage')}
@@ -214,6 +237,17 @@ export function RegistrationsList({ planId }: RegistrationsListProps) {
         open={messageModalOpen}
         registration={selectedRegistration}
         onClose={() => { setMessageModalOpen(false); setSelectedRegistration(null); }}
+      />
+      <ManualAddRegistrationModal
+        open={manualAddOpen}
+        plan={plan}
+        onClose={() => setManualAddOpen(false)}
+      />
+      <EditRegistrationModal
+        open={editOpen}
+        plan={plan}
+        registration={selectedRegistration}
+        onClose={() => { setEditOpen(false); setSelectedRegistration(null); }}
       />
     </div>
   );

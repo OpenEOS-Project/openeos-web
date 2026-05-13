@@ -1326,6 +1326,43 @@ export const shiftsApi = {
     apiClient.delete<void>(
       `/organizations/${organizationId}/shift-plans/registrations/${registrationId}`
     ),
+
+  // Admin-side registration management — manual add + edit/move with notification
+  adminCreateRegistration: (
+    organizationId: string,
+    shiftId: string,
+    data: {
+      name: string;
+      email: string;
+      phone?: string;
+      notes?: string;
+      adminNotes?: string;
+      notify?: boolean;
+    }
+  ) =>
+    apiClient.post<ApiResponse<import('@/types/shift').ShiftRegistration>>(
+      `/organizations/${organizationId}/shift-plans/shifts/${shiftId}/registrations`,
+      data
+    ),
+
+  adminUpdateRegistration: (
+    organizationId: string,
+    registrationId: string,
+    data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      notes?: string;
+      adminNotes?: string;
+      shiftId?: string;
+      notifyMessage?: string;
+      notify?: boolean;
+    }
+  ) =>
+    apiClient.patch<ApiResponse<import('@/types/shift').ShiftRegistration>>(
+      `/organizations/${organizationId}/shift-plans/registrations/${registrationId}`,
+      data
+    ),
 };
 
 // Shifts Public API (no auth)

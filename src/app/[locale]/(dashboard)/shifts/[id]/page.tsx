@@ -207,7 +207,7 @@ export default function ShiftPlanEditorPage() {
       <div>
         {activeTab === 'jobs' && <JobsList plan={plan} />}
         {activeTab === 'calendar' && <ShiftCalendar plan={plan} />}
-        {activeTab === 'registrations' && <RegistrationsList planId={plan.id} />}
+        {activeTab === 'registrations' && <RegistrationsList plan={plan} />}
         {activeTab === 'settings' && <PlanSettings plan={plan} />}
       </div>
     </div>
