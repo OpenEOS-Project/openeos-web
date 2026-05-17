@@ -1376,15 +1376,19 @@ export const shiftsApi = {
       data
     ),
 
-  /** Send the helper a token-based accept/decline email for a proposed shift
-   *  move. The registration stays on its current shift until the helper acts. */
-  proposeShiftMove: (
+  /** Send the helper a token-based accept/decline email for a multi-op
+   *  proposal (any mix of add+remove against their current group). The
+   *  helper's shifts stay unchanged until they accept. */
+  proposeRegistrationChanges: (
     organizationId: string,
-    registrationId: string,
-    data: { shiftId: string; message?: string }
+    registrationGroupId: string,
+    data: {
+      ops: Array<{ type: 'add'; shiftId: string } | { type: 'remove'; registrationId: string }>;
+      message?: string;
+    }
   ) =>
-    apiClient.post<ApiResponse<import('@/types/shift').ShiftRegistration>>(
-      `/organizations/${organizationId}/shift-plans/registrations/${registrationId}/propose-move`,
+    apiClient.post<ApiResponse<{ id: string; token: string; status: string }>>(
+      `/organizations/${organizationId}/shift-plans/registration-groups/${registrationGroupId}/propose`,
       data
     ),
 };

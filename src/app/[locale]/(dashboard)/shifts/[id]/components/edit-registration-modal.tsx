@@ -53,6 +53,8 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
   const [removedRegIds, setRemovedRegIds] = useState<Set<string>>(new Set());
   const [addedShiftIds, setAddedShiftIds] = useState<Set<string>>(new Set());
   const [showPicker, setShowPicker] = useState(false);
+  // Optional note the admin can send along with the proposal email.
+  const [proposalMessage, setProposalMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const groupRegs = useMemo(() => {
@@ -121,8 +123,11 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
     setRemovedRegIds(new Set());
     setAddedShiftIds(new Set());
     setShowPicker(false);
+    setProposalMessage('');
     setError(null);
   }, [open, registration]);
+
+  const hasShiftChanges = removedRegIds.size > 0 || addedShiftIds.size > 0;
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -178,6 +183,43 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       onClose();
     },
     onError: (err: Error) => setError(err.message || 'Speichern fehlgeschlagen'),
+  });
+
+  /** Same modal, but instead of applying the staged shift changes we package
+   *  them into a proposal that the helper accepts or declines via email.
+   *  Contact-detail edits still apply directly — those don't need approval. */
+  const proposeMutation = useMutation({
+    mutationFn: async () => {
+      if (!registration) return;
+
+      // 1. Patch contact details on every surviving row (silent).
+      for (const reg of groupRegs) {
+        await shiftsApi.adminUpdateRegistration(organizationId!, reg.id, {
+          name,
+          email,
+          phone: phone || undefined,
+          notes: notes || undefined,
+          adminNotes: adminNotes || undefined,
+        });
+      }
+
+      // 2. Build the ops list from the staged changes.
+      const ops: Array<{ type: 'add'; shiftId: string } | { type: 'remove'; registrationId: string }> = [];
+      for (const regId of removedRegIds) ops.push({ type: 'remove', registrationId: regId });
+      for (const shiftId of addedShiftIds) ops.push({ type: 'add', shiftId });
+
+      await shiftsApi.proposeRegistrationChanges(
+        organizationId!,
+        registration.registrationGroupId,
+        { ops, message: proposalMessage || undefined },
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, plan.id] });
+      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
+      onClose();
+    },
+    onError: (err: Error) => setError(err.message || 'Vorschlag konnte nicht gesendet werden'),
   });
 
   if (!open || !registration) return null;
@@ -318,6 +360,22 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                 {showPicker ? '× Picker schließen' : '+ Schicht hinzufügen'}
               </button>
 
+              {hasShiftChanges && (
+                <div className="auth-field" style={{ marginTop: 4 }}>
+                  <label className="auth-field__label">Optionale Notiz für den Helfer (nur beim Vorschlag)</label>
+                  <textarea
+                    className="textarea"
+                    rows={2}
+                    placeholder="z.B. Wir bräuchten dich an einer anderen Stelle — passt das so?"
+                    value={proposalMessage}
+                    onChange={(e) => setProposalMessage(e.target.value)}
+                  />
+                  <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
+                    Beim „Vorschlag senden" bekommt der Helfer eine Mail mit „Annehmen"/„Ablehnen"-Buttons. „Direkt speichern" wendet alles sofort an, ohne zu fragen.
+                  </p>
+                </div>
+              )}
+
               {showPicker && (
                 <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
                   {pickerGroups.length === 0 ? (
@@ -378,14 +436,27 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
 
         <div className="modal__foot">
           <button type="button" className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={!canSubmit || mutation.isPending}
-            onClick={() => { setError(null); mutation.mutate(); }}
-          >
-            {mutation.isPending ? '...' : 'Speichern'}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {hasShiftChanges && (
+              <button
+                type="button"
+                className="btn btn--ghost"
+                disabled={!canSubmit || proposeMutation.isPending || mutation.isPending}
+                onClick={() => { setError(null); proposeMutation.mutate(); }}
+                title="Helfer bekommt eine E-Mail mit Annehmen / Ablehnen — Änderung erst nach Bestätigung"
+              >
+                {proposeMutation.isPending ? '...' : 'Vorschlag senden'}
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn--primary"
+              disabled={!canSubmit || mutation.isPending || proposeMutation.isPending}
+              onClick={() => { setError(null); mutation.mutate(); }}
+            >
+              {mutation.isPending ? '...' : hasShiftChanges ? 'Direkt speichern' : 'Speichern'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
