@@ -12,6 +12,19 @@ import { AddShiftModal } from './add-shift-modal';
 import { ShiftWizardModal } from './shift-wizard-modal';
 import { EditJobModal } from './edit-job-modal';
 import { EditShiftModal } from './edit-shift-modal';
+import { Edit01, Plus, Trash01, CalendarPlus01, Stars01 } from '@untitledui/icons';
+
+/** Icon-only square button with a title tooltip — keeps button rows compact
+ *  on phones where the previous text labels overflowed off-screen. */
+const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSProperties => ({
+  padding: 6,
+  width: 32,
+  height: 32,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: variant === 'danger' ? 'var(--red, #dc2626)' : 'inherit',
+});
 
 const formatTime = (time: string): string => {
   const parts = time.split(':');
@@ -88,22 +101,29 @@ export function JobsList({ plan }: JobsListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
           {t('shifts.editor.addJob').replace('hinzufügen', '').replace('Add ', '')} ({jobs.length})
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 6 }}>
           <button
             className="btn btn--ghost"
-            style={{ fontSize: 13 }}
+            style={iconBtnStyle('ghost')}
             onClick={handleOpenWizardForAll}
             disabled={jobs.length === 0}
-            title="Generiere die gleichen Schichten für alle Arbeiten — pro Arbeit kann danach überschrieben werden"
+            title="Schicht-Generator für alle Arbeiten"
+            aria-label="Schicht-Generator für alle Arbeiten"
           >
-            Schichten für alle Arbeiten
+            <Stars01 style={{ width: 18, height: 18 }} />
           </button>
-          <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowAddJobModal(true)}>
-            {t('shifts.editor.addJob')}
+          <button
+            className="btn btn--primary"
+            style={iconBtnStyle('ghost')}
+            onClick={() => setShowAddJobModal(true)}
+            title={t('shifts.editor.addJob')}
+            aria-label={t('shifts.editor.addJob')}
+          >
+            <Plus style={{ width: 18, height: 18 }} />
           </button>
         </div>
       </div>
@@ -117,6 +137,7 @@ export function JobsList({ plan }: JobsListProps) {
               <div
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  flexWrap: 'wrap', gap: 10,
                   padding: '12px 16px',
                   borderLeft: `4px solid ${job.color || '#6b7280'}`,
                   borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
@@ -134,21 +155,35 @@ export function JobsList({ plan }: JobsListProps) {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setEditingJob(job)}>
-                    Bearbeiten
-                  </button>
-                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => handleAddShift(job.id)}>
-                    {t('shifts.editor.addShift')}
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    className="btn btn--ghost"
+                    style={iconBtnStyle()}
+                    onClick={() => setEditingJob(job)}
+                    title="Arbeit bearbeiten"
+                    aria-label="Arbeit bearbeiten"
+                  >
+                    <Edit01 style={{ width: 16, height: 16 }} />
                   </button>
                   <button
                     className="btn btn--ghost"
-                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                    style={iconBtnStyle()}
+                    onClick={() => handleAddShift(job.id)}
+                    title={t('shifts.editor.addShift')}
+                    aria-label={t('shifts.editor.addShift')}
+                  >
+                    <CalendarPlus01 style={{ width: 16, height: 16 }} />
+                  </button>
+                  <button
+                    className="btn btn--ghost"
+                    style={iconBtnStyle('danger')}
                     onClick={() => {
                       if (confirm(t('shifts.confirmDelete'))) deleteJobMutation.mutate(job.id);
                     }}
+                    title={t('common.delete')}
+                    aria-label={t('common.delete')}
                   >
-                    {t('common.delete')}
+                    <Trash01 style={{ width: 16, height: 16 }} />
                   </button>
                 </div>
               </div>
@@ -174,33 +209,38 @@ export function JobsList({ plan }: JobsListProps) {
                           key={shift.id}
                           style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            flexWrap: 'wrap', gap: 8,
                             padding: '10px 16px',
                             borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)',
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                             <span style={{ fontSize: 13, fontWeight: 600 }}>{formatDate(shift.date)}</span>
                             <span className="mono" style={{ fontSize: 12 }}>
                               {formatTime(shift.startTime)} – {formatTime(shift.endTime)}
                             </span>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <span style={{ fontSize: 13, color: isFull ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 45%, transparent)', fontWeight: isFull ? 600 : 400 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13, color: isFull ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 45%, transparent)', fontWeight: isFull ? 600 : 400, whiteSpace: 'nowrap' }}>
                               {confirmedCount} / {shift.requiredWorkers}
                             </span>
                             <button
                               className="btn btn--ghost"
-                              style={{ fontSize: 12 }}
+                              style={iconBtnStyle()}
                               onClick={() => setEditingShift(shift)}
+                              title="Schicht bearbeiten"
+                              aria-label="Schicht bearbeiten"
                             >
-                              Bearbeiten
+                              <Edit01 style={{ width: 16, height: 16 }} />
                             </button>
                             <button
                               className="btn btn--ghost"
-                              style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                              style={iconBtnStyle('danger')}
                               onClick={() => deleteShiftMutation.mutate(shift.id)}
+                              title={t('common.delete')}
+                              aria-label={t('common.delete')}
                             >
-                              {t('common.delete')}
+                              <Trash01 style={{ width: 16, height: 16 }} />
                             </button>
                           </div>
                         </div>

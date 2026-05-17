@@ -11,6 +11,20 @@ import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
 import { ShiftCalendar } from './components/shift-calendar';
+import { Send01, Link01, Download01, Lock01, CheckCircle } from '@untitledui/icons';
+
+/** Square 36×36 icon-button — keeps the plan-header row compact on phones. */
+const iconBtnStyle = (variant: 'ghost' | 'primary' = 'ghost'): React.CSSProperties => ({
+  padding: 6,
+  width: 36,
+  height: 36,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  ...(variant === 'primary'
+    ? { background: 'var(--green-ink)', color: 'var(--paper)' }
+    : {}),
+});
 
 const statusBadge: Record<ShiftPlanStatus, string> = {
   draft: 'badge badge--neutral',
@@ -146,30 +160,55 @@ export default function ShiftPlanEditorPage() {
               <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {plan.status === 'draft' && (
-                <button className="btn btn--primary" onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
-                  {publishMutation.isPending ? '...' : t('shifts.editor.publish')}
+                <button
+                  className="btn btn--primary"
+                  style={iconBtnStyle('primary')}
+                  onClick={() => publishMutation.mutate()}
+                  disabled={publishMutation.isPending}
+                  title={t('shifts.editor.publish')}
+                  aria-label={t('shifts.editor.publish')}
+                >
+                  <Send01 style={{ width: 18, height: 18 }} />
                 </button>
               )}
               {plan.status === 'published' && (
                 <button
                   className="btn btn--ghost"
-                  onClick={copyPublicLink}
                   style={{
+                    ...iconBtnStyle(),
                     color: linkCopied ? 'var(--green-ink)' : undefined,
                     borderColor: linkCopied ? 'var(--green-ink)' : undefined,
                   }}
+                  onClick={copyPublicLink}
+                  title={linkCopied ? 'Link kopiert' : t('shifts.copyLink')}
+                  aria-label={t('shifts.copyLink')}
                 >
-                  {linkCopied ? '✓ Kopiert!' : t('shifts.copyLink')}
+                  {linkCopied
+                    ? <CheckCircle style={{ width: 18, height: 18 }} />
+                    : <Link01 style={{ width: 18, height: 18 }} />}
                 </button>
               )}
-              <button className="btn btn--ghost" onClick={downloadPdf}>
-                {t('shifts.exportPdf')}
+              <button
+                className="btn btn--ghost"
+                style={iconBtnStyle()}
+                onClick={downloadPdf}
+                title={t('shifts.exportPdf')}
+                aria-label={t('shifts.exportPdf')}
+              >
+                <Download01 style={{ width: 18, height: 18 }} />
               </button>
               {plan.status === 'published' && (
-                <button className="btn btn--ghost" onClick={() => closeMutation.mutate()} disabled={closeMutation.isPending}>
-                  {closeMutation.isPending ? '...' : t('shifts.editor.close')}
+                <button
+                  className="btn btn--ghost"
+                  style={iconBtnStyle()}
+                  onClick={() => closeMutation.mutate()}
+                  disabled={closeMutation.isPending}
+                  title={t('shifts.editor.close')}
+                  aria-label={t('shifts.editor.close')}
+                >
+                  <Lock01 style={{ width: 18, height: 18 }} />
                 </button>
               )}
             </div>

@@ -10,6 +10,17 @@ import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/ty
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
+import { Edit01, Trash01, UserPlus01, Mail01 } from '@untitledui/icons';
+
+const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSProperties => ({
+  padding: 6,
+  width: 32,
+  height: 32,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: variant === 'danger' ? 'var(--red, #dc2626)' : 'inherit',
+});
 
 const formatTime = (time: string): string => {
   const parts = time.split(':');
@@ -102,8 +113,13 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
           </div>
           <h3 className="empty-state__title">{t('shifts.registration.noRegistrations')}</h3>
           <p className="empty-state__sub">{t('shifts.registration.noRegistrationsDescription')}</p>
-          <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setManualAddOpen(true)}>
-            Helfer manuell eintragen
+          <button
+            className="btn btn--primary"
+            style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            onClick={() => setManualAddOpen(true)}
+          >
+            <UserPlus01 style={{ width: 16, height: 16 }} />
+            <span>Helfer manuell eintragen</span>
           </button>
         </div>
         <ManualAddRegistrationModal open={manualAddOpen} plan={plan} onClose={() => setManualAddOpen(false)} />
@@ -113,12 +129,18 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
           {t('shifts.registration.title')} ({registrations.length})
         </span>
-        <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setManualAddOpen(true)}>
-          Helfer manuell eintragen
+        <button
+          className="btn btn--primary"
+          style={iconBtnStyle()}
+          onClick={() => setManualAddOpen(true)}
+          title="Helfer manuell eintragen"
+          aria-label="Helfer manuell eintragen"
+        >
+          <UserPlus01 style={{ width: 18, height: 18 }} />
         </button>
       </div>
 
@@ -203,27 +225,33 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
               )}
               <button
                 className="btn btn--ghost"
-                style={{ fontSize: 12 }}
+                style={iconBtnStyle()}
                 onClick={() => { setSelectedRegistration(firstReg); setEditOpen(true); }}
+                title="Anmeldung bearbeiten"
+                aria-label="Anmeldung bearbeiten"
               >
-                Bearbeiten
+                <Edit01 style={{ width: 16, height: 16 }} />
               </button>
               <button
                 className="btn btn--ghost"
-                style={{ fontSize: 12 }}
+                style={iconBtnStyle()}
                 onClick={() => { setSelectedRegistration(firstReg); setMessageModalOpen(true); }}
+                title={t('shifts.registration.sendMessage')}
+                aria-label={t('shifts.registration.sendMessage')}
               >
-                {t('shifts.registration.sendMessage')}
+                <Mail01 style={{ width: 16, height: 16 }} />
               </button>
               <div style={{ flex: 1 }} />
               <button
                 className="btn btn--ghost"
-                style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                style={iconBtnStyle('danger')}
                 onClick={() => {
                   if (confirm(t('shifts.registration.confirmDelete'))) deleteMutation.mutate(firstReg.id);
                 }}
+                title={t('common.delete')}
+                aria-label={t('common.delete')}
               >
-                {t('common.delete')}
+                <Trash01 style={{ width: 16, height: 16 }} />
               </button>
               <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
                 {formatDate(firstReg.createdAt)}
