@@ -641,7 +641,7 @@ export default function PublicShiftPlanPage() {
                                     {job.name}
                                   </span>
                                 </div>
-                                {shift.notes && (
+                                {job.description && (
                                   <div
                                     style={{
                                       fontSize: 11, lineHeight: 1.3,
@@ -649,7 +649,7 @@ export default function PublicShiftPlanPage() {
                                       whiteSpace: 'pre-wrap', width: '100%',
                                     }}
                                   >
-                                    {shift.notes}
+                                    {job.description}
                                   </div>
                                 )}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
@@ -723,7 +723,7 @@ export default function PublicShiftPlanPage() {
                                   <div style={{ minWidth: 0 }}>
                                     <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)', margin: 0 }}>{job.name}</p>
                                     {job.description && (
-                                      <p style={{ fontSize: 13, color: 'var(--mute)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      <p style={{ fontSize: 13, color: 'var(--mute)', margin: '2px 0 0', whiteSpace: 'pre-wrap' }}>
                                         {job.description}
                                       </p>
                                     )}
@@ -747,12 +747,6 @@ export default function PublicShiftPlanPage() {
                                     {shift.confirmedCount}/{shift.requiredWorkers}
                                   </span>
                                 </div>
-
-                                {shift.notes && (
-                                  <p style={{ marginTop: 6, fontSize: 12, color: 'var(--ink)', whiteSpace: 'pre-wrap' }}>
-                                    {shift.notes}
-                                  </p>
-                                )}
 
                                 {hasOverlap && overlappingShift && (
                                   <p style={{ marginTop: 6, fontSize: 12, color: '#8a5e10' }}>
