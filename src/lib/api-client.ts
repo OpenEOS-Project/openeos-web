@@ -1343,6 +1343,13 @@ export const shiftsApi = {
       `/organizations/${organizationId}/shift-plans/registrations/${registrationId}`
     ),
 
+  /** Skip the email round-trip and mark a pending_email registration as
+   *  verified — useful when the helper signed up but didn't click the link. */
+  markRegistrationVerified: (organizationId: string, registrationId: string) =>
+    apiClient.post<ApiResponse<import('@/types/shift').ShiftRegistration>>(
+      `/organizations/${organizationId}/shift-plans/registrations/${registrationId}/mark-verified`
+    ),
+
   // Admin-side registration management — manual add + edit/move with notification
   adminCreateRegistration: (
     organizationId: string,

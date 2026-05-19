@@ -10,7 +10,7 @@ import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/ty
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
-import { Edit01, Trash01, UserPlus01, Mail01 } from '@untitledui/icons';
+import { Edit01, Trash01, UserPlus01, Mail01, CheckCircle } from '@untitledui/icons';
 
 const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSProperties => ({
   padding: 6,
@@ -75,6 +75,15 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
   const deleteMutation = useMutation({
     mutationFn: (registrationId: string) => shiftsApi.deleteRegistration(organizationId!, registrationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
+      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+    },
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: (registrationId: string) =>
+      shiftsApi.markRegistrationVerified(organizationId!, registrationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
@@ -257,6 +266,18 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     {t('shifts.registration.reject')}
                   </button>
                 </>
+              )}
+              {firstReg.status === 'pending_email' && (
+                <button
+                  className="btn btn--ghost"
+                  style={{ ...iconBtnStyle(), color: 'var(--green-ink)' }}
+                  onClick={() => verifyMutation.mutate(firstReg.id)}
+                  disabled={verifyMutation.isPending}
+                  title="Als verifiziert markieren (E-Mail-Bestätigung überspringen)"
+                  aria-label="Als verifiziert markieren"
+                >
+                  <CheckCircle style={{ width: 16, height: 16 }} />
+                </button>
               )}
               <button
                 className="btn btn--ghost"
