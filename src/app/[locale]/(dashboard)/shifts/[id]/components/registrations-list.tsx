@@ -83,15 +83,29 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
   const registrations = registrationsData?.data || [];
 
-  const groupedRegistrations = registrations.reduce((acc, reg) => {
-    if (!acc[reg.registrationGroupId]) acc[reg.registrationGroupId] = [];
-    acc[reg.registrationGroupId].push(reg);
+  // Group helpers by their email (case-insensitive) so a person who signed
+  // up multiple times shows up as ONE card with all their shifts merged,
+  // not scattered across several entries.
+  const helperGroups = registrations.reduce((acc, reg) => {
+    const key = reg.email.trim().toLowerCase();
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(reg);
     return acc;
   }, {} as Record<string, ShiftRegistration[]>);
 
-  const groups = Object.values(groupedRegistrations).sort((a, b) =>
-    new Date(b[0].createdAt).getTime() - new Date(a[0].createdAt).getTime()
-  );
+  const groups = Object.values(helperGroups)
+    .map((rows) =>
+      rows.slice().sort((a, b) => {
+        // Inside a helper-card, sort shifts chronologically by shift date+time.
+        const ad = (a.shift?.date || '').localeCompare(b.shift?.date || '');
+        if (ad !== 0) return ad;
+        return (a.shift?.startTime || '').localeCompare(b.shift?.startTime || '');
+      }),
+    )
+    .sort((a, b) => {
+      // Sort cards by helper name so the list is stable and easy to scan.
+      return (a[0].name || '').localeCompare(b[0].name || '');
+    });
 
   if (isLoading) {
     return (
@@ -149,7 +163,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
         const badgeCls = statusBadge[firstReg.status] ?? 'badge badge--neutral';
 
         return (
-          <div key={firstReg.registrationGroupId} className="app-card">
+          <div key={firstReg.email.trim().toLowerCase()} className="app-card">
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{
@@ -175,24 +189,45 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Schichten:</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {group.map((reg) => (
-                  <div
-                    key={reg.id}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
-                      padding: '6px 10px', borderRadius: 6,
-                      background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
-                    }}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: reg.shift?.job?.color || '#6b7280', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600 }}>{reg.shift?.job?.name}</span>
-                    <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>–</span>
-                    <span>{formatDate(reg.shift?.date || '')}</span>
-                    {reg.shift?.startTime && reg.shift?.endTime && (
-                      <span className="mono">{formatTime(reg.shift.startTime)} – {formatTime(reg.shift.endTime)}</span>
-                    )}
-                  </div>
-                ))}
+                {group.map((reg) => {
+                  // Exact wall-clock time when this shift was added to the
+                  // helper's signup — surfaced so the admin can tell apart
+                  // older signups from new auto-confirmations.
+                  const registeredAt = reg.createdAt ? new Date(reg.createdAt) : null;
+                  const registeredAtLabel = registeredAt
+                    ? registeredAt.toLocaleString('de-DE', {
+                        day: '2-digit', month: '2-digit', year: '2-digit',
+                        hour: '2-digit', minute: '2-digit',
+                      })
+                    : null;
+                  return (
+                    <div
+                      key={reg.id}
+                      style={{
+                        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12,
+                        padding: '6px 10px', borderRadius: 6,
+                        background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
+                      }}
+                    >
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: reg.shift?.job?.color || '#6b7280', flexShrink: 0 }} />
+                      <span style={{ fontWeight: 600 }}>{reg.shift?.job?.name}</span>
+                      <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>–</span>
+                      <span>{formatDate(reg.shift?.date || '')}</span>
+                      {reg.shift?.startTime && reg.shift?.endTime && (
+                        <span className="mono">{formatTime(reg.shift.startTime)} – {formatTime(reg.shift.endTime)}</span>
+                      )}
+                      <span style={{ flex: 1 }} />
+                      {registeredAtLabel && (
+                        <span
+                          style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}
+                          title={`Eingetragen am ${registeredAtLabel}`}
+                        >
+                          eingetragen {registeredAtLabel}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

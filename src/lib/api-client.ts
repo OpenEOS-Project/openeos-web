@@ -1244,6 +1244,22 @@ export const shiftsApi = {
   exportPdfUrl: (organizationId: string, planId: string) =>
     `${API_URL}/organizations/${organizationId}/shift-plans/${planId}/export/pdf`,
 
+  /** Fetches the rendered PDF with the user's JWT attached and resolves to
+   *  a Blob ready for object-URL download. A plain window.open of the URL
+   *  is anonymous and would 401. */
+  exportPdf: async (organizationId: string, planId: string): Promise<Blob> => {
+    const url = `${API_URL}/organizations/${organizationId}/shift-plans/${planId}/export/pdf`;
+    const token = apiClient.getAccessToken();
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      throw new Error(`PDF-Export fehlgeschlagen (${res.status})`);
+    }
+    return res.blob();
+  },
+
   // Jobs
   listJobs: (organizationId: string, planId: string) =>
     apiClient.get<ApiResponse<import('@/types/shift').ShiftJob[]>>(

@@ -93,10 +93,22 @@ export default function ShiftPlanEditorPage() {
     }
   };
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
     if (!plan || !organizationId) return;
-    const url = shiftsApi.exportPdfUrl(organizationId, planId);
-    window.open(url, '_blank');
+    try {
+      const blob = await shiftsApi.exportPdf(organizationId, planId);
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = `${plan.publicSlug || 'schichtplan'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // Hand the browser a moment to start the download before revoking.
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+    } catch (err) {
+      alert((err as Error).message || 'PDF-Export fehlgeschlagen');
+    }
   };
 
   if (isLoading) {
