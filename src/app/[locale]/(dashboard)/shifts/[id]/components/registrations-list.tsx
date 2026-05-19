@@ -60,37 +60,41 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
     enabled: !!organizationId && !!planId,
   });
 
+  // Each helper card may span multiple `registrationGroupId`s (a person
+  // submitted the public form twice). The mutations below accept an array
+  // of registration ids (one representative per group) and loop, so the
+  // action is applied to ALL of the helper's submissions rather than just
+  // the one referenced by the card's first reg.
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
+    queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+  };
   const approveMutation = useMutation({
-    mutationFn: (registrationId: string) => shiftsApi.approveRegistration(organizationId!, registrationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
-      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+    mutationFn: async (registrationIds: string[]) => {
+      for (const id of registrationIds) await shiftsApi.approveRegistration(organizationId!, id);
     },
+    onSuccess: invalidate,
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (registrationId: string) => shiftsApi.rejectRegistration(organizationId!, registrationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
-      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+    mutationFn: async (registrationIds: string[]) => {
+      for (const id of registrationIds) await shiftsApi.rejectRegistration(organizationId!, id);
     },
+    onSuccess: invalidate,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (registrationId: string) => shiftsApi.deleteRegistration(organizationId!, registrationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
-      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+    mutationFn: async (registrationIds: string[]) => {
+      for (const id of registrationIds) await shiftsApi.deleteRegistration(organizationId!, id);
     },
+    onSuccess: invalidate,
   });
 
   const verifyMutation = useMutation({
-    mutationFn: (registrationId: string) =>
-      shiftsApi.markRegistrationVerified(organizationId!, registrationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shift-registrations', organizationId, planId] });
-      queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
+    mutationFn: async (registrationIds: string[]) => {
+      for (const id of registrationIds) await shiftsApi.markRegistrationVerified(organizationId!, id);
     },
+    onSuccess: invalidate,
   });
 
   const registrations = registrationsData?.data || [];
@@ -172,7 +176,31 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
       {groups.map((group) => {
         const firstReg = group[0];
-        const badgeCls = statusBadge[firstReg.status] ?? 'badge badge--neutral';
+        // Take ONE representative reg per unique group so the action
+        // mutations operate against every submission of the helper.
+        const groupReps = Array.from(
+          new Map(group.map((r) => [r.registrationGroupId, r])).values(),
+        );
+        const groupRepIds = groupReps.map((r) => r.id);
+        // Status counts across all of the helper's rows so the badge and
+        // the action buttons reflect the union of states, not just the
+        // first row's.
+        const statusCounts = group.reduce(
+          (acc, r) => { acc[r.status] = (acc[r.status] ?? 0) + 1; return acc; },
+          {} as Record<ShiftRegistrationStatus, number>,
+        );
+        const total = group.length;
+        const confirmed = statusCounts.confirmed ?? 0;
+        const hasPendingEmail = (statusCounts.pending_email ?? 0) > 0;
+        const hasPendingApproval = (statusCounts.pending_approval ?? 0) > 0;
+        const allConfirmed = confirmed === total;
+        const summaryBadge = allConfirmed
+          ? { cls: 'badge badge--success', label: 'Alle bestätigt' }
+          : hasPendingEmail
+          ? { cls: 'badge badge--neutral', label: `${confirmed}/${total} bestätigt · E-Mail offen` }
+          : hasPendingApproval
+          ? { cls: 'badge badge--warning', label: `${confirmed}/${total} bestätigt · Approval offen` }
+          : { cls: 'badge badge--neutral', label: `${confirmed}/${total} bestätigt` };
 
         return (
           <div key={firstReg.email.trim().toLowerCase()} className="app-card">
@@ -194,7 +222,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                   )}
                 </div>
               </div>
-              <span className={badgeCls}>{t(`shifts.registration.status.${firstReg.status}`)}</span>
+              <span className={summaryBadge.cls}>{summaryBadge.label}</span>
             </div>
 
             {/* Shifts */}
@@ -250,38 +278,55 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             )}
 
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-              {firstReg.status === 'pending_approval' && (
-                <>
-                  <button
-                    className="btn btn--primary"
-                    style={{ fontSize: 12 }}
-                    onClick={() => approveMutation.mutate(firstReg.id)}
-                    disabled={approveMutation.isPending}
-                  >
-                    {t('shifts.registration.approve')}
-                  </button>
+              {hasPendingApproval && (() => {
+                // One rep per group that has at least one pending_approval row.
+                const pendingReps = Array.from(
+                  new Map(
+                    group.filter((r) => r.status === 'pending_approval')
+                      .map((r) => [r.registrationGroupId, r]),
+                  ).values(),
+                ).map((r) => r.id);
+                return (
+                  <>
+                    <button
+                      className="btn btn--primary"
+                      style={{ fontSize: 12 }}
+                      onClick={() => approveMutation.mutate(pendingReps)}
+                      disabled={approveMutation.isPending}
+                    >
+                      {t('shifts.registration.approve')}
+                    </button>
+                    <button
+                      className="btn btn--ghost"
+                      style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                      onClick={() => rejectMutation.mutate(pendingReps)}
+                      disabled={rejectMutation.isPending}
+                    >
+                      {t('shifts.registration.reject')}
+                    </button>
+                  </>
+                );
+              })()}
+              {hasPendingEmail && (() => {
+                const verifyReps = Array.from(
+                  new Map(
+                    group.filter((r) => r.status === 'pending_email')
+                      .map((r) => [r.registrationGroupId, r]),
+                  ).values(),
+                ).map((r) => r.id);
+                return (
                   <button
                     className="btn btn--ghost"
-                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
-                    onClick={() => rejectMutation.mutate(firstReg.id)}
-                    disabled={rejectMutation.isPending}
+                    style={{ ...iconBtnStyle(), color: 'var(--green-ink)' }}
+                    onClick={() => verifyMutation.mutate(verifyReps)}
+                    disabled={verifyMutation.isPending}
+                    title="Als verifiziert markieren (E-Mail-Bestätigung überspringen) — wirkt auf alle ausstehenden Schichten"
+                    aria-label="Als verifiziert markieren"
                   >
-                    {t('shifts.registration.reject')}
+                    <CheckCircle style={{ width: 16, height: 16 }} />
                   </button>
-                </>
-              )}
-              {firstReg.status === 'pending_email' && (
-                <button
-                  className="btn btn--ghost"
-                  style={{ ...iconBtnStyle(), color: 'var(--green-ink)' }}
-                  onClick={() => verifyMutation.mutate(firstReg.id)}
-                  disabled={verifyMutation.isPending}
-                  title="Als verifiziert markieren (E-Mail-Bestätigung überspringen)"
-                  aria-label="Als verifiziert markieren"
-                >
-                  <CheckCircle style={{ width: 16, height: 16 }} />
-                </button>
-              )}
+                );
+              })()}
               <button
                 className="btn btn--ghost"
                 style={iconBtnStyle()}
@@ -305,7 +350,13 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 className="btn btn--ghost"
                 style={iconBtnStyle('danger')}
                 onClick={() => {
-                  if (confirm(t('shifts.registration.confirmDelete'))) deleteMutation.mutate(firstReg.id);
+                  if (
+                    confirm(
+                      groupReps.length > 1
+                        ? `${total} Schichten von ${firstReg.name} aus ${groupReps.length} Anmeldungen löschen?`
+                        : t('shifts.registration.confirmDelete'),
+                    )
+                  ) deleteMutation.mutate(groupRepIds);
                 }}
                 title={t('common.delete')}
                 aria-label={t('common.delete')}

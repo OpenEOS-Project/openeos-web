@@ -181,7 +181,7 @@ export function EventsList({
                       <a
                         className="btn btn--ghost"
                         style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
-                        href={`${process.env.NEXT_PUBLIC_SHOP_URL || 'http://localhost:3004'}/${event.id}`}
+                        href={`${process.env.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de'}/${event.id}`}
                         target="_blank"
                         rel="noreferrer noopener"
                         aria-label="Shop öffnen"

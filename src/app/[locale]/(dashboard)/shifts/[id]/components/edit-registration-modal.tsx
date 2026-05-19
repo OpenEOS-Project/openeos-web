@@ -59,8 +59,13 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
 
   const groupRegs = useMemo(() => {
     if (!registration) return [] as ShiftRegistration[];
+    // Helpers are grouped on the list page by email (a person may have
+    // submitted the public form multiple times = multiple registrationGroupIds),
+    // so the edit modal also operates on the union: every registration with
+    // the same email is considered the same helper's row.
+    const key = registration.email.trim().toLowerCase();
     return allRegistrations
-      .filter((r) => r.registrationGroupId === registration.registrationGroupId)
+      .filter((r) => r.email.trim().toLowerCase() === key)
       .sort((a, b) => {
         const aDate = (a.shift?.date || '').localeCompare(b.shift?.date || '');
         if (aDate !== 0) return aDate;
