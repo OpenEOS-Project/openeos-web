@@ -33,6 +33,7 @@ interface ShiftData {
   confirmedCount: number;
   availableSpots: number;
   isFull: boolean;
+  notes?: string | null;
 }
 
 interface JobData {
@@ -640,6 +641,17 @@ export default function PublicShiftPlanPage() {
                                     {job.name}
                                   </span>
                                 </div>
+                                {shift.notes && (
+                                  <div
+                                    style={{
+                                      fontSize: 11, lineHeight: 1.3,
+                                      color: 'color-mix(in oklab, var(--ink) 70%, transparent)',
+                                      whiteSpace: 'pre-wrap', width: '100%',
+                                    }}
+                                  >
+                                    {shift.notes}
+                                  </div>
+                                )}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                   {isSelected ? (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
@@ -735,6 +747,12 @@ export default function PublicShiftPlanPage() {
                                     {shift.confirmedCount}/{shift.requiredWorkers}
                                   </span>
                                 </div>
+
+                                {shift.notes && (
+                                  <p style={{ marginTop: 6, fontSize: 12, color: 'var(--ink)', whiteSpace: 'pre-wrap' }}>
+                                    {shift.notes}
+                                  </p>
+                                )}
 
                                 {hasOverlap && overlappingShift && (
                                   <p style={{ marginTop: 6, fontSize: 12, color: '#8a5e10' }}>
