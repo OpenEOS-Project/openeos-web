@@ -19,7 +19,10 @@ const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSPropertie
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: variant === 'danger' ? 'var(--red, #dc2626)' : 'inherit',
+  // Skip the color for 'ghost' so .btn--primary's color: var(--paper) wins
+  // when this helper is combined with that class — otherwise the icon ends
+  // up dark-on-dark on the primary buttons.
+  ...(variant === 'danger' ? { color: 'var(--red, #dc2626)' } : {}),
 });
 
 const formatTime = (time: string): string => {

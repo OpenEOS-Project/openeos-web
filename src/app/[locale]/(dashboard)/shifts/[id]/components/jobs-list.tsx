@@ -15,7 +15,12 @@ import { EditShiftModal } from './edit-shift-modal';
 import { Edit01, Plus, Trash01, CalendarPlus01, Stars01 } from '@untitledui/icons';
 
 /** Icon-only square button with a title tooltip — keeps button rows compact
- *  on phones where the previous text labels overflowed off-screen. */
+ *  on phones where the previous text labels overflowed off-screen.
+ *
+ *  Don't set a `color` for the 'ghost' variant: doing so would override the
+ *  `.btn--primary` class's `color: var(--paper)` rule when the helper is
+ *  combined with `btn btn--primary` and leave a dark-on-dark icon. The
+ *  'danger' variant DOES set color because there's no .btn--danger class. */
 const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSProperties => ({
   padding: 6,
   width: 32,
@@ -23,7 +28,7 @@ const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSPropertie
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: variant === 'danger' ? 'var(--red, #dc2626)' : 'inherit',
+  ...(variant === 'danger' ? { color: 'var(--red, #dc2626)' } : {}),
 });
 
 const formatTime = (time: string): string => {
