@@ -10,7 +10,21 @@ import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/ty
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
-import { Edit01, Trash01, UserPlus01, Mail01, CheckCircle } from '@untitledui/icons';
+import { Edit01, Trash01, UserPlus01, Mail01, CheckCircle, AlertCircle, Clock } from '@untitledui/icons';
+
+/** Convert a (date YYYY-MM-DD, HH:mm start, HH:mm end) to absolute minutes
+ *  since epoch — overnight shifts push their end into the next day so the
+ *  interval is monotonic and `min(end1,end2) > max(start1,start2)` is a
+ *  correct overlap test even when one shift wraps midnight. */
+function shiftBoundsInMinutes(date: string, startTime: string, endTime: string): [number, number] {
+  const day = Math.floor(new Date(date).getTime() / 86_400_000);
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let startMins = sh * 60 + sm;
+  let endMins = eh * 60 + em;
+  if (endMins <= startMins) endMins += 1440;
+  return [day * 1440 + startMins, day * 1440 + endMins];
+}
 
 const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSProperties => ({
   padding: 6,
@@ -94,6 +108,14 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
     mutationFn: async (registrationIds: string[]) => {
       for (const id of registrationIds) await shiftsApi.markRegistrationVerified(organizationId!, id);
     },
+    onSuccess: invalidate,
+  });
+
+  /** Remove a single shift row from the helper's signup, leaving the rest
+   *  of their shifts intact (vs. deleteMutation which is group-wide). */
+  const removeShiftMutation = useMutation({
+    mutationFn: (registrationId: string) =>
+      shiftsApi.removeSingleRegistration(organizationId!, registrationId),
     onSuccess: invalidate,
   });
 
@@ -229,45 +251,115 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Schichten:</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {group.map((reg) => {
-                  // Exact wall-clock time when this shift was added to the
-                  // helper's signup — surfaced so the admin can tell apart
-                  // older signups from new auto-confirmations.
-                  const registeredAt = reg.createdAt ? new Date(reg.createdAt) : null;
-                  const registeredAtLabel = registeredAt
-                    ? registeredAt.toLocaleString('de-DE', {
-                        day: '2-digit', month: '2-digit', year: '2-digit',
-                        hour: '2-digit', minute: '2-digit',
-                      })
-                    : null;
-                  return (
-                    <div
-                      key={reg.id}
-                      style={{
-                        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12,
-                        padding: '6px 10px', borderRadius: 6,
-                        background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
-                      }}
-                    >
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: reg.shift?.job?.color || '#6b7280', flexShrink: 0 }} />
-                      <span style={{ fontWeight: 600 }}>{reg.shift?.job?.name}</span>
-                      <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>–</span>
-                      <span>{formatDate(reg.shift?.date || '')}</span>
-                      {reg.shift?.startTime && reg.shift?.endTime && (
-                        <span className="mono">{formatTime(reg.shift.startTime)} – {formatTime(reg.shift.endTime)}</span>
-                      )}
-                      <span style={{ flex: 1 }} />
-                      {registeredAtLabel && (
-                        <span
-                          style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}
-                          title={`Eingetragen am ${registeredAtLabel}`}
-                        >
-                          eingetragen {registeredAtLabel}
+                {(() => {
+                  // Detect overlapping rows within this helper's signups so
+                  // the admin can spot double-bookings (typical when someone
+                  // submitted the form twice or picked the wrong slot).
+                  const overlapIds = new Set<string>();
+                  for (let i = 0; i < group.length; i++) {
+                    const a = group[i];
+                    if (!a.shift) continue;
+                    const aDate = (typeof a.shift.date === 'string' ? a.shift.date : '').slice(0, 10);
+                    if (!aDate) continue;
+                    const aBounds = shiftBoundsInMinutes(aDate, a.shift.startTime, a.shift.endTime);
+                    for (let j = i + 1; j < group.length; j++) {
+                      const b = group[j];
+                      if (!b.shift) continue;
+                      const bDate = (typeof b.shift.date === 'string' ? b.shift.date : '').slice(0, 10);
+                      if (!bDate) continue;
+                      const bBounds = shiftBoundsInMinutes(bDate, b.shift.startTime, b.shift.endTime);
+                      if (Math.min(aBounds[1], bBounds[1]) > Math.max(aBounds[0], bBounds[0])) {
+                        overlapIds.add(a.id);
+                        overlapIds.add(b.id);
+                      }
+                    }
+                  }
+                  return group.map((reg) => {
+                    const registeredAt = reg.createdAt ? new Date(reg.createdAt) : null;
+                    const registeredAtLabel = registeredAt
+                      ? registeredAt.toLocaleString('de-DE', {
+                          day: '2-digit', month: '2-digit', year: '2-digit',
+                          hour: '2-digit', minute: '2-digit',
+                        })
+                      : null;
+                    const overlaps = overlapIds.has(reg.id);
+                    const statusBadgeStyle =
+                      reg.status === 'confirmed'
+                        ? { bg: 'color-mix(in oklab, #10b981 18%, transparent)', fg: '#065f46', label: 'bestätigt' }
+                        : reg.status === 'pending_email'
+                        ? { bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#92400e', label: 'E-Mail offen' }
+                        : reg.status === 'pending_approval'
+                        ? { bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#92400e', label: 'Approval offen' }
+                        : reg.status === 'rejected'
+                        ? { bg: 'color-mix(in oklab, #dc2626 18%, transparent)', fg: '#991b1b', label: 'abgelehnt' }
+                        : { bg: 'color-mix(in oklab, var(--ink) 12%, transparent)', fg: 'color-mix(in oklab, var(--ink) 70%, transparent)', label: reg.status };
+
+                    return (
+                      <div
+                        key={reg.id}
+                        style={{
+                          display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12,
+                          padding: '6px 10px', borderRadius: 6,
+                          background: overlaps
+                            ? 'color-mix(in oklab, #f59e0b 8%, transparent)'
+                            : 'color-mix(in oklab, var(--ink) 4%, transparent)',
+                          border: overlaps
+                            ? '1px solid color-mix(in oklab, #f59e0b 35%, transparent)'
+                            : '1px solid transparent',
+                        }}
+                      >
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: reg.shift?.job?.color || '#6b7280', flexShrink: 0 }} />
+                        <span style={{ fontWeight: 600 }}>{reg.shift?.job?.name}</span>
+                        <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>–</span>
+                        <span>{formatDate(reg.shift?.date || '')}</span>
+                        {reg.shift?.startTime && reg.shift?.endTime && (
+                          <span className="mono">{formatTime(reg.shift.startTime)} – {formatTime(reg.shift.endTime)}</span>
+                        )}
+                        <span style={{
+                          fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                          background: statusBadgeStyle.bg, color: statusBadgeStyle.fg,
+                          textTransform: 'uppercase', letterSpacing: '.03em',
+                        }}>
+                          {statusBadgeStyle.label}
                         </span>
-                      )}
-                    </div>
-                  );
-                })}
+                        {overlaps && (
+                          <span
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: '#92400e', fontWeight: 600 }}
+                            title="Diese Schicht überschneidet sich zeitlich mit einer anderen Schicht des Helfers"
+                          >
+                            <AlertCircle style={{ width: 12, height: 12 }} />
+                            Überschneidung
+                          </span>
+                        )}
+                        <span style={{ flex: 1 }} />
+                        {registeredAtLabel && (
+                          <span
+                            style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}
+                            title={`Eingetragen am ${registeredAtLabel}`}
+                          >
+                            <Clock style={{ width: 10, height: 10, display: 'inline', verticalAlign: '-1px', marginRight: 2 }} />
+                            {registeredAtLabel}
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ padding: 2, width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--red, #dc2626)' }}
+                          onClick={() => {
+                            if (confirm(`Schicht "${reg.shift?.job?.name}" am ${formatDate(reg.shift?.date || '')} entfernen?`)) {
+                              removeShiftMutation.mutate(reg.id);
+                            }
+                          }}
+                          title="Diese Schicht entfernen"
+                          aria-label="Diese Schicht entfernen"
+                          disabled={removeShiftMutation.isPending}
+                        >
+                          <Trash01 style={{ width: 12, height: 12 }} />
+                        </button>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
