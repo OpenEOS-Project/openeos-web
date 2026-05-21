@@ -12,10 +12,15 @@ import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
 import { Edit01, Trash01, UserPlus01, Mail01, CheckCircle, AlertCircle, Clock } from '@untitledui/icons';
 
+/** Handover overlap tolerance in minutes — has to match the value in
+ *  /s/[slug]/page.tsx so the admin and the public-side see overlaps
+ *  consistently. A pair of shifts only counts as overlapping when the
+ *  intersection lasts longer than this. */
+const HANDOVER_TOLERANCE_MINUTES = 45;
+
 /** Convert a (date YYYY-MM-DD, HH:mm start, HH:mm end) to absolute minutes
  *  since epoch — overnight shifts push their end into the next day so the
- *  interval is monotonic and `min(end1,end2) > max(start1,start2)` is a
- *  correct overlap test even when one shift wraps midnight. */
+ *  interval is monotonic. */
 function shiftBoundsInMinutes(date: string, startTime: string, endTime: string): [number, number] {
   const day = Math.floor(new Date(date).getTime() / 86_400_000);
   const [sh, sm] = startTime.split(':').map(Number);
@@ -268,7 +273,9 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                       const bDate = (typeof b.shift.date === 'string' ? b.shift.date : '').slice(0, 10);
                       if (!bDate) continue;
                       const bBounds = shiftBoundsInMinutes(bDate, b.shift.startTime, b.shift.endTime);
-                      if (Math.min(aBounds[1], bBounds[1]) > Math.max(aBounds[0], bBounds[0])) {
+                      const overlapMinutes =
+                        Math.min(aBounds[1], bBounds[1]) - Math.max(aBounds[0], bBounds[0]);
+                      if (overlapMinutes > HANDOVER_TOLERANCE_MINUTES) {
                         overlapIds.add(a.id);
                         overlapIds.add(b.id);
                       }

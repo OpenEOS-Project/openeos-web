@@ -12,6 +12,11 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
 const formatTime = (t: string) => t.slice(0, 5);
 
+/** Same tolerance as the public signup page — a shift pair has to overlap
+ *  by MORE than the handover window for us to flag it. Keeps short
+ *  end-of-shift / start-of-shift overlaps from being scary. */
+const HANDOVER_TOLERANCE_MINUTES = 45;
+
 /** Convert (date, start, end) → absolute minutes-since-epoch, overnight-safe. */
 function bounds(date: string, start: string, end: string): [number, number] {
   const day = Math.floor(new Date(date).getTime() / 86_400_000);
@@ -80,7 +85,8 @@ export default function HelperManagePage() {
         const bDate = (b.date || '').slice(0, 10);
         if (!bDate) continue;
         const bBounds = bounds(bDate, b.startTime, b.endTime);
-        if (Math.min(aBounds[1], bBounds[1]) > Math.max(aBounds[0], bBounds[0])) {
+        const overlapMinutes = Math.min(aBounds[1], bBounds[1]) - Math.max(aBounds[0], bBounds[0]);
+        if (overlapMinutes > HANDOVER_TOLERANCE_MINUTES) {
           out.add(a.id); out.add(b.id);
         }
       }
