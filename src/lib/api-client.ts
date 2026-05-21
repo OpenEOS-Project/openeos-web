@@ -1480,6 +1480,66 @@ export const shiftsPublicApi = {
       message: string;
       planSlug: string | null;
     }>>(`/public/shifts/proposal/${token}`, { action }, { skipAuth: true }),
+
+  /** Request a magic link to manage the helper's own shifts. Returns 200
+   *  regardless of whether the email matches — anti-enumeration. */
+  requestHelperMagicLink: (slug: string, email: string) =>
+    apiClient.post<ApiResponse<{ success: boolean; message: string }>>(
+      `/public/shifts/${slug}/request-magic-link`,
+      { email },
+      { skipAuth: true },
+    ),
+
+  openHelperManage: (token: string) =>
+    apiClient.get<ApiResponse<{
+      helper: { name: string; email: string; phone: string | null };
+      plan: {
+        id: string;
+        name: string;
+        description: string | null;
+        organization: { name: string; logoUrl: string | null };
+        jobs: Array<{
+          id: string;
+          name: string;
+          description: string | null;
+          color: string | null;
+          shifts: Array<{
+            id: string;
+            date: string;
+            startTime: string;
+            endTime: string;
+            requiredWorkers: number;
+            confirmedCount: number;
+            availableSpots: number;
+            isFull: boolean;
+            notes: string | null;
+          }>;
+        }>;
+      };
+      registrations: Array<{
+        id: string;
+        shiftId: string;
+        status: string;
+        jobName: string;
+        jobColor: string | null;
+        date: string;
+        startTime: string;
+        endTime: string;
+      }>;
+    }>>(`/public/shifts/manage/${token}`, { skipAuth: true }),
+
+  addShiftViaMagicLink: (token: string, shiftId: string) =>
+    apiClient.post<ApiResponse<{ id: string; shiftId: string }>>(
+      `/public/shifts/manage/${token}/shift`,
+      { shiftId },
+      { skipAuth: true },
+    ),
+
+  removeShiftViaMagicLink: (token: string, registrationId: string) =>
+    apiClient.delete<ApiResponse<{ success: boolean }>>(
+      `/public/shifts/manage/${token}/shift/${registrationId}`,
+      { skipAuth: true },
+    ),
 };
 
 // SumUp API

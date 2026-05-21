@@ -940,7 +940,14 @@ export default function PublicShiftPlanPage() {
       <footer className="shifts-public__footer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <a
+            href={`/s/${slug}/manage`}
+            style={{ color: 'var(--green-ink)', fontWeight: 600 }}
+          >
+            Meine Schichten verwalten
+          </a>
+          <span style={{ opacity: 0.4 }}>·</span>
           <span>© {new Date().getFullYear()} OpenEOS</span>
           <span style={{ opacity: 0.4 }}>·</span>
           <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Impressum</a>
