@@ -72,6 +72,11 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
   const [manualAddOpen, setManualAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<ShiftRegistration | null>(null);
+  // Helper-level filter applied to the merged-by-email cards: 'all' shows
+  // everyone, otherwise we only render helpers whose rows include at least
+  // one shift in the matching state.
+  type Filter = 'all' | 'unconfirmed' | 'pending_email' | 'pending_approval' | 'confirmed';
+  const [filter, setFilter] = useState<Filter>('all');
 
   const { data: registrationsData, isLoading } = useQuery({
     queryKey: ['shift-registrations', organizationId, planId],
@@ -136,7 +141,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
     return acc;
   }, {} as Record<string, ShiftRegistration[]>);
 
-  const groups = Object.values(helperGroups)
+  const allGroups = Object.values(helperGroups)
     .map((rows) =>
       rows.slice().sort((a, b) => {
         // Inside a helper-card, sort shifts chronologically by shift date+time.
@@ -150,6 +155,30 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
       return (a[0].name || '').localeCompare(b[0].name || '');
     });
 
+  // Status-filter applied at the helper-card level: a card matches a filter
+  // when AT LEAST ONE of its shifts is in the matching state. The 'unconfirmed'
+  // bucket combines pending_email + pending_approval — what an admin usually
+  // wants when checking 'who still needs my attention'.
+  const groups = filter === 'all'
+    ? allGroups
+    : allGroups.filter((rows) =>
+        rows.some((r) =>
+          filter === 'unconfirmed'
+            ? r.status !== 'confirmed' && r.status !== 'rejected' && r.status !== 'cancelled'
+            : r.status === filter,
+        ),
+      );
+
+  // Pre-compute counts for the filter pills so admins see how many helpers
+  // would land in each bucket without clicking.
+  const filterCounts: Record<Filter, number> = {
+    all: allGroups.length,
+    unconfirmed: allGroups.filter((rs) => rs.some((r) => r.status !== 'confirmed' && r.status !== 'rejected' && r.status !== 'cancelled')).length,
+    pending_email: allGroups.filter((rs) => rs.some((r) => r.status === 'pending_email')).length,
+    pending_approval: allGroups.filter((rs) => rs.some((r) => r.status === 'pending_approval')).length,
+    confirmed: allGroups.filter((rs) => rs.every((r) => r.status === 'confirmed')).length,
+  };
+
   if (isLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
@@ -159,7 +188,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
     );
   }
 
-  if (groups.length === 0) {
+  if (allGroups.length === 0) {
     return (
       <>
         <div className="empty-state">
@@ -186,10 +215,43 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
-          {t('shifts.registration.title')} ({registrations.length})
+          {t('shifts.registration.title')} ({groups.length}/{allGroups.length})
         </span>
+        {(() => {
+          const pills: Array<{ key: Filter; label: string }> = [
+            { key: 'all', label: 'Alle' },
+            { key: 'unconfirmed', label: 'Nicht bestätigt' },
+            { key: 'pending_email', label: 'E-Mail offen' },
+            { key: 'pending_approval', label: 'Approval offen' },
+            { key: 'confirmed', label: 'Bestätigt' },
+          ];
+          return (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {pills.map((p) => {
+                const active = filter === p.key;
+                const count = filterCounts[p.key];
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setFilter(p.key)}
+                    style={{
+                      padding: '4px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                      border: `1px solid ${active ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 14%, transparent)'}`,
+                      background: active ? 'color-mix(in oklab, var(--green-soft) 50%, var(--paper))' : 'transparent',
+                      color: active ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 70%, transparent)',
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    {p.label} <span style={{ opacity: 0.7 }}>({count})</span>
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
         <button
           className="btn btn--primary"
           style={iconBtnStyle()}
@@ -201,6 +263,16 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
         </button>
       </div>
 
+      {groups.length === 0 && (
+        <div style={{
+          padding: '24px 16px', borderRadius: 8,
+          background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
+          color: 'color-mix(in oklab, var(--ink) 55%, transparent)',
+          fontSize: 13, textAlign: 'center',
+        }}>
+          Keine Anmeldungen im aktuellen Filter — wähle einen anderen Filter oder „Alle".
+        </div>
+      )}
       {groups.map((group) => {
         const firstReg = group[0];
         // Take ONE representative reg per unique group so the action

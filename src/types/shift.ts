@@ -6,6 +6,10 @@ export interface ShiftPlanSettings {
   allowMultipleShifts: boolean;
   reminderDaysBefore: number;
   maxShiftsPerPerson?: number;
+  /** Periodic reminder mails to helpers whose status is pending_email. */
+  verificationReminderEnabled?: boolean;
+  verificationReminderIntervalHours?: number;
+  verificationReminderMaxCount?: number;
 }
 
 export interface ShiftPlan {
@@ -80,6 +84,9 @@ export interface CreateShiftPlanDto {
   allowMultipleShifts?: boolean;
   reminderDaysBefore?: number;
   maxShiftsPerPerson?: number;
+  verificationReminderEnabled?: boolean;
+  verificationReminderIntervalHours?: number;
+  verificationReminderMaxCount?: number;
 }
 
 export interface CreateShiftJobDto {

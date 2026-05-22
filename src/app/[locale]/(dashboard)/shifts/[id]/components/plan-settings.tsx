@@ -20,6 +20,9 @@ interface FormData {
   allowMultipleShifts: boolean;
   reminderDaysBefore: number;
   maxShiftsPerPerson: number;
+  verificationReminderEnabled: boolean;
+  verificationReminderIntervalHours: number;
+  verificationReminderMaxCount: number;
 }
 
 interface ToggleRowProps {
@@ -111,6 +114,9 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
       allowMultipleShifts: plan.settings.allowMultipleShifts,
       reminderDaysBefore: plan.settings.reminderDaysBefore,
       maxShiftsPerPerson: plan.settings.maxShiftsPerPerson || 0,
+      verificationReminderEnabled: plan.settings.verificationReminderEnabled ?? true,
+      verificationReminderIntervalHours: plan.settings.verificationReminderIntervalHours ?? 24,
+      verificationReminderMaxCount: plan.settings.verificationReminderMaxCount ?? 5,
     },
   });
 
@@ -123,6 +129,9 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
         allowMultipleShifts: data.allowMultipleShifts,
         reminderDaysBefore: data.reminderDaysBefore,
         maxShiftsPerPerson: data.maxShiftsPerPerson || undefined,
+        verificationReminderEnabled: data.verificationReminderEnabled,
+        verificationReminderIntervalHours: data.verificationReminderIntervalHours,
+        verificationReminderMaxCount: data.verificationReminderMaxCount,
       }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
@@ -278,7 +287,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           name="reminderDaysBefore"
           control={control}
           render={({ field }) => (
-            <div>
+            <div style={{ paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
               <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{t('shifts.settings.reminderDays')}</div>
               <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>{t('shifts.settings.reminderDaysDescription')}</div>
               <input
@@ -287,6 +296,57 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
                 style={{ width: 120 }}
                 value={String(field.value)}
                 onChange={(e) => field.onChange(Math.min(30, Math.max(0, parseInt(e.target.value) || 0)))}
+                onBlur={field.onBlur}
+              />
+            </div>
+          )}
+        />
+
+        <Controller
+          name="verificationReminderEnabled"
+          control={control}
+          render={({ field }) => (
+            <ToggleRow
+              title="Verifizierungs-Erinnerungen"
+              description="Schickt Helfern, die ihre E-Mail noch nicht bestätigt haben, regelmäßig eine Erinnerung."
+              checked={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+
+        <Controller
+          name="verificationReminderIntervalHours"
+          control={control}
+          render={({ field }) => (
+            <div style={{ paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Intervall (Stunden)</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>Wie viele Stunden zwischen zwei Erinnerungen. Default 24.</div>
+              <input
+                className="input"
+                type="number"
+                style={{ width: 120 }}
+                value={String(field.value)}
+                onChange={(e) => field.onChange(Math.min(168, Math.max(1, parseInt(e.target.value) || 24)))}
+                onBlur={field.onBlur}
+              />
+            </div>
+          )}
+        />
+
+        <Controller
+          name="verificationReminderMaxCount"
+          control={control}
+          render={({ field }) => (
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Maximale Anzahl Erinnerungen</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>Nach dieser Anzahl an Erinnerungen wird nicht weiter nachgehakt. Default 5.</div>
+              <input
+                className="input"
+                type="number"
+                style={{ width: 120 }}
+                value={String(field.value)}
+                onChange={(e) => field.onChange(Math.min(20, Math.max(0, parseInt(e.target.value) || 0)))}
                 onBlur={field.onBlur}
               />
             </div>
@@ -327,6 +387,9 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
                   allowMultipleShifts: plan.settings.allowMultipleShifts,
                   reminderDaysBefore: plan.settings.reminderDaysBefore,
                   maxShiftsPerPerson: plan.settings.maxShiftsPerPerson || 0,
+                  verificationReminderEnabled: plan.settings.verificationReminderEnabled ?? true,
+                  verificationReminderIntervalHours: plan.settings.verificationReminderIntervalHours ?? 24,
+                  verificationReminderMaxCount: plan.settings.verificationReminderMaxCount ?? 5,
                 })
               }
             >
