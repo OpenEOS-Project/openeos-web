@@ -39,6 +39,9 @@ export interface OrderItem {
   notes: string | null;
   kitchenNotes: string | null;
   paidQuantity: number;
+  pfandTypeId: string | null;
+  depositAmount: number;
+  isRefill: boolean;
   preparedAt: string | null;
   readyAt: string | null;
   deliveredAt: string | null;
@@ -70,6 +73,7 @@ export interface Order {
   tipAmount: number;
   discountAmount: number;
   discountReason: string | null;
+  pfandTotal: number;
   notes: string | null;
   priority: OrderPriority;
   estimatedReadyAt: string | null;
@@ -92,6 +96,7 @@ export interface CreateOrderItemData {
   notes?: string;
   kitchenNotes?: string;
   selectedOptions?: SelectedOption[];
+  isRefill?: boolean;
 }
 
 export interface CreateOrderData {
@@ -104,6 +109,8 @@ export interface CreateOrderData {
   source?: OrderSource;
   fulfillmentType?: OrderFulfillmentType;
   items?: CreateOrderItemData[];
+  discountAmount?: number;
+  discountReason?: string;
 }
 
 export interface UpdateOrderData {

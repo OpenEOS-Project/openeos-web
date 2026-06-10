@@ -40,11 +40,13 @@ export interface Product {
   options: ProductOptions;
   printSettings: ProductPrintSettings | null;
   productionStationId: string | null;
+  pfandTypeId: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
   category?: Category;
+  pfandType?: import('./pfand').PfandType | null;
 }
 
 export interface CreateProductData {
@@ -61,6 +63,7 @@ export interface CreateProductData {
   options?: ProductOptions;
   printSettings?: ProductPrintSettings;
   productionStationId?: string | null;
+  pfandTypeId?: string | null;
   sortOrder?: number;
 }
 
@@ -78,6 +81,7 @@ export interface UpdateProductData {
   options?: ProductOptions;
   printSettings?: ProductPrintSettings | null;
   productionStationId?: string | null;
+  pfandTypeId?: string | null;
   sortOrder?: number;
 }
 

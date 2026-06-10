@@ -423,6 +423,60 @@ export const organizationsApi = {
   },
 };
 
+// Discount Vouchers API (Rabatt-Bons)
+export const discountVouchersApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/discount-voucher').DiscountVoucher[]>>(
+      `/organizations/${organizationId}/discount-vouchers`,
+    ),
+
+  create: (organizationId: string, data: import('@/types/discount-voucher').CreateDiscountVoucherData) =>
+    apiClient.post<ApiResponse<import('@/types/discount-voucher').DiscountVoucher>>(
+      `/organizations/${organizationId}/discount-vouchers`,
+      data,
+    ),
+
+  update: (
+    organizationId: string,
+    voucherId: string,
+    data: import('@/types/discount-voucher').UpdateDiscountVoucherData,
+  ) =>
+    apiClient.patch<ApiResponse<import('@/types/discount-voucher').DiscountVoucher>>(
+      `/organizations/${organizationId}/discount-vouchers/${voucherId}`,
+      data,
+    ),
+
+  delete: (organizationId: string, voucherId: string) =>
+    apiClient.delete(`/organizations/${organizationId}/discount-vouchers/${voucherId}`),
+};
+
+// Pfand Types API (deposits)
+export const pfandTypesApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/pfand').PfandType[]>>(
+      `/organizations/${organizationId}/pfand-types`,
+    ),
+
+  create: (organizationId: string, data: import('@/types/pfand').CreatePfandTypeData) =>
+    apiClient.post<ApiResponse<import('@/types/pfand').PfandType>>(
+      `/organizations/${organizationId}/pfand-types`,
+      data,
+    ),
+
+  update: (
+    organizationId: string,
+    pfandTypeId: string,
+    data: import('@/types/pfand').UpdatePfandTypeData,
+  ) =>
+    apiClient.patch<ApiResponse<import('@/types/pfand').PfandType>>(
+      `/organizations/${organizationId}/pfand-types/${pfandTypeId}`,
+      data,
+    ),
+
+  delete: (organizationId: string, pfandTypeId: string) =>
+    apiClient.delete(`/organizations/${organizationId}/pfand-types/${pfandTypeId}`),
+};
+
 // Events API
 export const eventsApi = {
   list: (organizationId: string) =>
@@ -1082,6 +1136,31 @@ export const deviceApi = {
   getProducts: (eventId: string) =>
     apiClient.get<ApiResponse<import('@/types/product').Product[]>>(
       `/device-api/events/${eventId}/products`,
+      { useDeviceAuth: true }
+    ),
+
+  // Get active discount vouchers (Rabatt-Bons)
+  getDiscountVouchers: () =>
+    apiClient.get<ApiResponse<import('@/types/discount-voucher').DiscountVoucher[]>>(
+      '/device-api/discount-vouchers',
+      { useDeviceAuth: true }
+    ),
+
+  // Get active deposit (Pfand) types
+  getPfandTypes: () =>
+    apiClient.get<ApiResponse<import('@/types/pfand').PfandType[]>>(
+      '/device-api/pfand-types',
+      { useDeviceAuth: true }
+    ),
+
+  // Record a deposit payout (Pfand-Rückgabe)
+  createPfandReturn: (data: {
+    eventId?: string;
+    lines: import('@/types/pfand').CreatePfandReturnLine[];
+  }) =>
+    apiClient.post<ApiResponse<import('@/types/pfand').PfandReturn>>(
+      '/device-api/pfand-returns',
+      data,
       { useDeviceAuth: true }
     ),
 

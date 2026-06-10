@@ -1,0 +1,152 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
+import { useDiscountVouchers } from '@/hooks/use-discount-vouchers';
+import type { DiscountVoucher } from '@/types/discount-voucher';
+
+interface DiscountsListProps {
+  organizationId: string;
+  onCreateClick: () => void;
+  onEditClick: (voucher: DiscountVoucher) => void;
+  onDeleteClick: (voucher: DiscountVoucher) => void;
+}
+
+export function DiscountsList({
+  organizationId,
+  onCreateClick,
+  onEditClick,
+  onDeleteClick,
+}: DiscountsListProps) {
+  const t = useTranslations('discounts');
+  const tCommon = useTranslations('common');
+
+  const { data: vouchers, isLoading, error } = useDiscountVouchers(organizationId);
+
+  if (isLoading) {
+    return (
+      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
+        <div style={{ color: '#d24545' }}>{tCommon('error')}</div>
+        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
+          {tCommon('retry')}
+        </button>
+      </div>
+    );
+  }
+
+  if (!vouchers || vouchers.length === 0) {
+    return (
+      <div className="app-card">
+        <div className="empty-state">
+          <div className="empty-state__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+              <line x1="7" y1="7" x2="7.01" y2="7" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">{t('empty.title')}</h3>
+          <p className="empty-state__sub">{t('empty.description')}</p>
+          <button className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const formatAmount = (voucher: DiscountVoucher) => {
+    if (voucher.type === 'manual') {
+      return <span style={{ opacity: 0.6 }}>{t('table.manualAmount')}</span>;
+    }
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
+      Number(voucher.amount ?? 0),
+    );
+  };
+
+  return (
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">{t('title')}</h2>
+          <p className="app-card__sub">{t('subtitle')}</p>
+        </div>
+        <button className="btn btn--primary" onClick={onCreateClick}>
+          {t('create')}
+        </button>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t('table.name')}</th>
+              <th>{t('table.type')}</th>
+              <th className="text-right">{t('table.amount')}</th>
+              <th>{t('table.status')}</th>
+              <th style={{ width: 120 }}>{t('table.actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vouchers.map((voucher) => (
+              <tr key={voucher.id}>
+                <td>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{voucher.name}</div>
+                  {voucher.description && (
+                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>
+                      {voucher.description}
+                    </div>
+                  )}
+                </td>
+                <td>
+                  <span style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
+                    {t(`types.${voucher.type}`)}
+                  </span>
+                </td>
+                <td className="mono text-right">{formatAmount(voucher)}</td>
+                <td>
+                  {voucher.isActive ? (
+                    <span className="badge badge--success">{t('status.active')}</span>
+                  ) : (
+                    <span className="badge badge--neutral">{t('status.inactive')}</span>
+                  )}
+                </td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ padding: 6, minWidth: 0 }}
+                      onClick={() => onEditClick(voucher)}
+                      aria-label={t('actions.edit')}
+                      title={t('actions.edit')}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ padding: 6, minWidth: 0, color: '#dc2626' }}
+                      onClick={() => onDeleteClick(voucher)}
+                      aria-label={t('actions.delete')}
+                      title={t('actions.delete')}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

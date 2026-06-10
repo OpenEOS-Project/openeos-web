@@ -8,8 +8,10 @@ import {
   Printer,
   Receipt,
   Settings01,
+  Coins01,
   ShoppingBag01,
   Tablet02,
+  Tag01,
   Users01,
 } from '@untitledui/icons';
 
@@ -87,6 +89,18 @@ export const dashboardNavItems: NavItemType[] = [
     href: '/production-stations',
     icon: MarkerPin01,
     requiredPermission: 'products',
+  },
+  {
+    label: 'Rabatt-Bons',
+    href: '/discounts',
+    icon: Tag01,
+    requiredPermission: 'discounts',
+  },
+  {
+    label: 'Pfand',
+    href: '/pfand',
+    icon: Coins01,
+    requiredPermission: 'pfand',
   },
   {
     label: 'Geräte',

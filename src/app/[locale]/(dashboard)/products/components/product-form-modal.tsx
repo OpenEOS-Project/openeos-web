@@ -11,6 +11,7 @@ import { PosIconPicker } from '@/components/shared/pos-icon-picker';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
 import { useProductionStations } from '@/hooks/use-production-stations';
+import { usePfandTypes } from '@/hooks/use-pfand-types';
 import { uploadsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Category } from '@/types/category';
@@ -30,6 +31,7 @@ const productSchema = z.object({
   stockUnit: z.string().optional(),
   sortOrder: z.coerce.number().min(0).optional(),
   productionStationId: z.string().optional(),
+  pfandTypeId: z.string().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -52,6 +54,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const updateProduct = useUpdateProduct();
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
+  const { data: pfandTypes } = usePfandTypes(organizationId || undefined);
 
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroup[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -81,6 +84,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       stockUnit: 'Stück',
       sortOrder: 0,
       productionStationId: '',
+      pfandTypeId: '',
     },
   });
 
@@ -102,6 +106,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         stockUnit: product.stockUnit || 'Stück',
         sortOrder: product.sortOrder,
         productionStationId: product.productionStationId || '',
+        pfandTypeId: product.pfandTypeId || '',
       });
       setOptionGroups(product.options?.groups || []);
       setImageUrl(product.imageUrl ?? null);
@@ -118,6 +123,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         stockUnit: 'Stück',
         sortOrder: 0,
         productionStationId: '',
+        pfandTypeId: '',
       });
       setOptionGroups([]);
       setImageUrl(null);
@@ -207,6 +213,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         sortOrder: data.sortOrder,
         options: { groups: cleanedGroups },
         productionStationId: data.productionStationId || null,
+        pfandTypeId: data.pfandTypeId || null,
       };
 
       if (isEditing && product) {
@@ -388,6 +395,27 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>
                         {field.value ? t('form.productionStationOverride') : t('form.productionStationInherit')}
                       </span>
+                    </label>
+                  )}
+                />
+              )}
+
+              {/* Pfand (deposit) type */}
+              {(pfandTypes?.length ?? 0) > 0 && (
+                <Controller
+                  name="pfandTypeId"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.pfandType')}</span>
+                      <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
+                        <option value="">{t('form.pfandTypeNone')}</option>
+                        {pfandTypes?.map((pt) => (
+                          <option key={pt.id} value={pt.id}>
+                            {pt.name} (+{new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(pt.amount))})
+                          </option>
+                        ))}
+                      </select>
                     </label>
                   )}
                 />

@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Coins01, CreditCard01 } from '@untitledui/icons';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Coins01, CreditCard01, Tag01, X } from '@untitledui/icons';
 import { useCartStore, useCartHydration } from '@/stores/cart-store';
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
+import { DiscountVoucherModal } from './discount-voucher-modal';
+import { PfandReturnModal } from './pfand-return-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import type { PaymentMethod } from '@/types/payment';
 
@@ -43,6 +45,14 @@ export function PosCart({
     removeItem,
     clearCart,
     getTotal,
+    appliedVouchers,
+    applyVoucher,
+    removeVoucher,
+    getDiscount,
+    getNetTotal,
+    setItemRefill,
+    getPfandTotal,
+    getPayableTotal,
   } = useCartStore();
 
   const tableNumber = sessionTableNumber || cartTableNumber;
@@ -50,11 +60,42 @@ export function PosCart({
   const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
   const [showCashModal, setShowCashModal] = useState(false);
   const [showSumupModal, setShowSumupModal] = useState(false);
+  const [showVoucherModal, setShowVoucherModal] = useState(false);
+  const [showPfandReturnModal, setShowPfandReturnModal] = useState(false);
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
   const fulfillmentType = settings?.serviceMode === 'table' ? 'table_service' : 'counter_pickup';
 
+  const { data: discountVouchers = [] } = useQuery({
+    queryKey: ['device-discount-vouchers'],
+    queryFn: async () => (await deviceApi.getDiscountVouchers()).data,
+  });
+
+  const { data: pfandTypes = [] } = useQuery({
+    queryKey: ['device-pfand-types'],
+    queryFn: async () => (await deviceApi.getPfandTypes()).data,
+  });
+
+  const { data: deviceOrg } = useQuery({
+    queryKey: ['device-organization'],
+    queryFn: async () => (await deviceApi.getOrganization()).data,
+  });
+
+  // Whether deposits apply for this device's fulfillment type (org policy).
+  // Defaults: no Pfand for table service, Pfand for counter/takeaway.
+  const pfandPolicy = deviceOrg?.settings?.pfand;
+  const chargePfand =
+    fulfillmentType === 'table_service'
+      ? pfandPolicy?.tableService ?? false
+      : pfandPolicy?.counterPickup ?? true;
+
   const total = getTotal();
+  const discount = getDiscount();
+  const netTotal = getNetTotal();
+  // Suppress deposits entirely when the fulfillment type is exempt (e.g. table service).
+  const pfandTotal = chargePfand ? getPfandTotal() : 0;
+  const payableTotal = chargePfand ? getPayableTotal() : netTotal;
+  const discountReason = appliedVouchers.map((v) => v.name).join(', ');
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   const buildOrderItems = () =>
@@ -64,6 +105,7 @@ export function PosCart({
       ...(item.notes ? { notes: item.notes } : {}),
       ...(item.kitchenNotes ? { kitchenNotes: item.kitchenNotes } : {}),
       ...(item.selectedOptions.length > 0 ? { selectedOptions: item.selectedOptions } : {}),
+      ...(item.isRefill ? { isRefill: true } : {}),
     }));
 
   const createOrderWithPayment = useMutation({
@@ -75,11 +117,12 @@ export function PosCart({
         source: 'pos',
         fulfillmentType,
         items: buildOrderItems(),
+        ...(discount > 0 ? { discountAmount: discount, discountReason } : {}),
       });
       const order = orderResponse.data;
       await deviceApi.createPayment({
         orderId: order.id,
-        amount: total,
+        amount: payableTotal,
         paymentMethod,
       });
       return order;
@@ -102,6 +145,7 @@ export function PosCart({
         source: 'pos',
         fulfillmentType,
         items: buildOrderItems(),
+        ...(discount > 0 ? { discountAmount: discount, discountReason } : {}),
       });
       return orderResponse.data;
     },
@@ -179,6 +223,24 @@ export function PosCart({
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {pfandTypes.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowPfandReturnModal(true)}
+              style={{
+                padding: '6px 10px',
+                background: 'var(--pos-surface)',
+                border: '1px solid var(--pos-line)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'var(--pos-ink-2)',
+                cursor: 'pointer',
+              }}
+            >
+              ↩ {t('pfand.returnButton')}
+            </button>
+          )}
           {itemCount > 0 && (
             <span
               className="pos-mono"
@@ -342,6 +404,31 @@ export function PosCart({
                     „{item.notes}"
                   </div>
                 )}
+                {chargePfand && item.pfandType && (
+                  <div style={{ marginLeft: 29, marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {!item.isRefill && (
+                      <span style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>
+                        {item.pfandType.name} +{formatPrice(item.pfandType.amount)}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setItemRefill(item.id, !item.isRefill)}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: 999,
+                        cursor: 'pointer',
+                        border: `1px solid ${item.isRefill ? 'var(--pos-accent)' : 'var(--pos-line-strong)'}`,
+                        background: item.isRefill ? 'var(--pos-accent-soft)' : 'transparent',
+                        color: item.isRefill ? 'var(--pos-accent-ink)' : 'var(--pos-ink-3)',
+                      }}
+                    >
+                      {item.isRefill ? `✓ ${t('pfand.refill')}` : t('pfand.refill')}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Right: qty controls + price */}
@@ -439,6 +526,102 @@ export function PosCart({
           <span className="pos-mono">{formatPrice(total)}</span>
         </div>
 
+        {/* Discount / voucher section */}
+        {items.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {appliedVouchers.map((v) => (
+              <div
+                key={v.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: 12,
+                  color: 'var(--pos-accent-ink)',
+                  gap: 8,
+                }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                  <Tag01 style={{ width: 13, height: 13, flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeVoucher(v.id)}
+                    aria-label={t('discount.remove')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--pos-ink-3)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <X style={{ width: 13, height: 13 }} />
+                  </button>
+                </span>
+                <span className="pos-mono">−{formatPrice(v.amount)}</span>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setShowVoucherModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                padding: '7px 10px',
+                background: 'var(--pos-surface-2)',
+                border: '1px dashed var(--pos-line-strong)',
+                borderRadius: 'var(--pos-r-sm)',
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'var(--pos-ink-2)',
+                cursor: 'pointer',
+              }}
+            >
+              <Tag01 style={{ width: 14, height: 14 }} />
+              {t('discount.addVoucher')}
+            </button>
+          </div>
+        )}
+
+        {discount > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--pos-accent-ink)',
+            }}
+          >
+            <span>{t('discount.label')}</span>
+            <span className="pos-mono">−{formatPrice(discount)}</span>
+          </div>
+        )}
+
+        {/* Pfand (deposit) row */}
+        {pfandTotal > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--pos-ink-2)',
+            }}
+          >
+            <span>{t('pfand.label')}</span>
+            <span className="pos-mono">+{formatPrice(pfandTotal)}</span>
+          </div>
+        )}
+
         {/* Total row */}
         <div
           style={{
@@ -454,7 +637,7 @@ export function PosCart({
             className="pos-mono"
             style={{ fontSize: 26, fontWeight: 700, color: 'var(--pos-ink)', letterSpacing: '-0.02em' }}
           >
-            {formatCurrency(total)}
+            {formatCurrency(payableTotal)}
           </span>
         </div>
 
@@ -567,18 +750,31 @@ export function PosCart({
       <CashPaymentModal
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
-        total={total}
+        total={payableTotal}
         onConfirm={() => handleCheckout('cash')}
         isProcessing={isProcessing}
       />
       <SumUpCheckoutModal
         isOpen={showSumupModal}
         onClose={() => setShowSumupModal(false)}
-        amount={total}
+        amount={payableTotal}
         onSuccess={() => {
           setShowSumupModal(false);
           handleCheckout('sumup_terminal' as PaymentMethod);
         }}
+      />
+      <DiscountVoucherModal
+        isOpen={showVoucherModal}
+        onClose={() => setShowVoucherModal(false)}
+        vouchers={discountVouchers}
+        appliedIds={appliedVouchers.map((v) => v.id)}
+        onApply={applyVoucher}
+      />
+      <PfandReturnModal
+        isOpen={showPfandReturnModal}
+        onClose={() => setShowPfandReturnModal(false)}
+        pfandTypes={pfandTypes}
+        eventId={eventId || undefined}
       />
     </div>
   );

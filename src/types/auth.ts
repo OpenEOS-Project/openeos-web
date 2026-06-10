@@ -9,6 +9,8 @@ export interface OrganizationPermissions {
   devices?: boolean;
   members?: boolean;
   shiftPlans?: boolean;
+  discounts?: boolean;
+  pfand?: boolean;
 }
 
 export interface UserOrganization {

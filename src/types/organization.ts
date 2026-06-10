@@ -29,6 +29,10 @@ export interface OrganizationSettings {
     soundEnabled: boolean;
     orderingMode: 'immediate' | 'tab';
   };
+  pfand?: {
+    tableService?: boolean;
+    counterPickup?: boolean;
+  };
   onlineOrdering?: {
     enabled: boolean;
     requirePayment: boolean;

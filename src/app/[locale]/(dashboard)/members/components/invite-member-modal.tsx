@@ -20,6 +20,8 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'devices',
   'members',
   'shiftPlans',
+  'discounts',
+  'pfand',
 ];
 
 const inviteSchema = z.object({
@@ -39,6 +41,8 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     devices: false,
     members: false,
     shiftPlans: false,
+    discounts: false,
+    pfand: false,
   });
 
   const createInvitation = useCreateInvitation(organizationId);
@@ -69,7 +73,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   const handleClose = () => {
     reset();
     setIsAdmin(false);
-    setPermissions({ products: false, events: false, devices: false, members: false, shiftPlans: false });
+    setPermissions({ products: false, events: false, devices: false, members: false, shiftPlans: false, discounts: false, pfand: false });
     setError(null);
     onClose();
   };

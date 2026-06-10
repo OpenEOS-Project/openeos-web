@@ -14,7 +14,7 @@ interface CashPaymentModalProps {
 }
 
 /** POS-styled numpad — uses --pos-* tokens to match the kasse design. */
-function PosNumpad({
+export function PosNumpad({
   value,
   onChange,
   maxLength = 7,

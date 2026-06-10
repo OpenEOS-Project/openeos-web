@@ -6,6 +6,12 @@ import { persist } from 'zustand/middleware';
 import type { Product } from '@/types/product';
 import type { SelectedOption } from '@/types/order';
 
+export interface CartItemPfandType {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface CartItem {
   id: string; // Unique cart item ID
   product: Product;
@@ -14,6 +20,14 @@ export interface CartItem {
   kitchenNotes: string;
   selectedOptions: SelectedOption[];
   unitPrice: number; // Base price + options price
+  pfandType: CartItemPfandType | null; // Deposit snapshot from the product
+  isRefill: boolean; // "Nachfüllen": skip deposit for this line
+}
+
+export interface AppliedVoucher {
+  id: string; // DiscountVoucher id
+  name: string;
+  amount: number; // Resolved discount in EUR (fixed value, or amount entered for manual vouchers)
 }
 
 interface CartState {
@@ -22,19 +36,28 @@ interface CartState {
   tableNumber: string;
   customerName: string;
   notes: string;
+  appliedVouchers: AppliedVoucher[];
 }
 
 interface CartActions {
   addItem: (product: Product, quantity?: number, selectedOptions?: SelectedOption[]) => void;
   updateItemQuantity: (cartItemId: string, quantity: number) => void;
   updateItemNotes: (cartItemId: string, notes: string, kitchenNotes?: string) => void;
+  setItemRefill: (cartItemId: string, isRefill: boolean) => void;
   removeItem: (cartItemId: string) => void;
   clearCart: () => void;
   setEventId: (eventId: string | null) => void;
   setTableNumber: (tableNumber: string) => void;
   setCustomerName: (customerName: string) => void;
   setNotes: (notes: string) => void;
+  applyVoucher: (voucher: AppliedVoucher) => void;
+  removeVoucher: (voucherId: string) => void;
+  clearVouchers: () => void;
   getTotal: () => number;
+  getDiscount: () => number;
+  getNetTotal: () => number;
+  getPfandTotal: () => number;
+  getPayableTotal: () => number;
   getItemCount: () => number;
 }
 
@@ -56,6 +79,7 @@ export const useCartStore = create<CartState & CartActions>()(
       tableNumber: '',
       customerName: '',
       notes: '',
+      appliedVouchers: [],
 
       // Actions
       addItem: (product, quantity = 1, selectedOptions = []) => {
@@ -78,7 +102,14 @@ export const useCartStore = create<CartState & CartActions>()(
             ),
           });
         } else {
-          // Add new item
+          // Add new item — snapshot the product's deposit type (if any)
+          const pfandType: CartItemPfandType | null = product.pfandType
+            ? {
+                id: product.pfandType.id,
+                name: product.pfandType.name,
+                amount: Number(product.pfandType.amount),
+              }
+            : null;
           const newItem: CartItem = {
             id: generateCartItemId(),
             product,
@@ -87,9 +118,19 @@ export const useCartStore = create<CartState & CartActions>()(
             kitchenNotes: '',
             selectedOptions,
             unitPrice: calculateUnitPrice(product, selectedOptions),
+            pfandType,
+            isRefill: false,
           };
           set({ items: [...state.items, newItem] });
         }
+      },
+
+      setItemRefill: (cartItemId, isRefill) => {
+        set({
+          items: get().items.map((item) =>
+            item.id === cartItemId ? { ...item, isRefill } : item
+          ),
+        });
       },
 
       updateItemQuantity: (cartItemId, quantity) => {
@@ -124,6 +165,7 @@ export const useCartStore = create<CartState & CartActions>()(
           tableNumber: '',
           customerName: '',
           notes: '',
+          appliedVouchers: [],
         });
       },
 
@@ -131,7 +173,7 @@ export const useCartStore = create<CartState & CartActions>()(
         // Clear cart when event changes
         const currentEventId = get().eventId;
         if (currentEventId !== eventId) {
-          set({ eventId, items: [] });
+          set({ eventId, items: [], appliedVouchers: [] });
         } else {
           set({ eventId });
         }
@@ -141,11 +183,66 @@ export const useCartStore = create<CartState & CartActions>()(
       setCustomerName: (customerName) => set({ customerName }),
       setNotes: (notes) => set({ notes }),
 
+      applyVoucher: (voucher) => {
+        const existing = get().appliedVouchers;
+        // Avoid applying the same voucher twice.
+        if (existing.some((v) => v.id === voucher.id)) return;
+        set({ appliedVouchers: [...existing, voucher] });
+      },
+
+      removeVoucher: (voucherId) => {
+        set({ appliedVouchers: get().appliedVouchers.filter((v) => v.id !== voucherId) });
+      },
+
+      clearVouchers: () => set({ appliedVouchers: [] }),
+
       getTotal: () => {
         return get().items.reduce(
           (sum, item) => sum + item.unitPrice * item.quantity,
           0
         );
+      },
+
+      getDiscount: () => {
+        const total = get().items.reduce(
+          (sum, item) => sum + item.unitPrice * item.quantity,
+          0
+        );
+        const requested = get().appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
+        // Cap the discount at the cart total — the difference is never paid out.
+        return Math.min(requested, total);
+      },
+
+      getNetTotal: () => {
+        const total = get().items.reduce(
+          (sum, item) => sum + item.unitPrice * item.quantity,
+          0
+        );
+        const requested = get().appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
+        return Math.max(total - requested, 0);
+      },
+
+      getPfandTotal: () => {
+        return get().items.reduce(
+          (sum, item) =>
+            sum + (item.isRefill || !item.pfandType ? 0 : item.pfandType.amount * item.quantity),
+          0
+        );
+      },
+
+      getPayableTotal: () => {
+        const total = get().items.reduce(
+          (sum, item) => sum + item.unitPrice * item.quantity,
+          0
+        );
+        const requested = get().appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
+        const pfand = get().items.reduce(
+          (sum, item) =>
+            sum + (item.isRefill || !item.pfandType ? 0 : item.pfandType.amount * item.quantity),
+          0
+        );
+        // Products minus discount (floored at 0), plus deposits on top.
+        return Math.max(total - requested, 0) + pfand;
       },
 
       getItemCount: () => {
@@ -160,6 +257,7 @@ export const useCartStore = create<CartState & CartActions>()(
         tableNumber: state.tableNumber,
         customerName: state.customerName,
         notes: state.notes,
+        appliedVouchers: state.appliedVouchers,
       }),
     }
   )

@@ -860,6 +860,8 @@
       "productionStationInherit": "When empty, the production station of the category is used.",
       "productionStationOverride": "Overrides the category assignment.",
       "productionStationHint": "Overrides the category setting",
+      "pfandType": "Deposit type",
+      "pfandTypeNone": "— No deposit —",
       "image": {
         "title": "Product image",
         "upload": "Upload image",
@@ -1035,6 +1037,101 @@
       "declineFailed": "Failed to decline the invitation."
     }
   },
+  "discounts": {
+    "title": "Discount Vouchers",
+    "subtitle": "Configure discount vouchers that can be selected at the register",
+    "create": "Create voucher",
+    "edit": "Edit voucher",
+    "empty": {
+      "title": "No discount vouchers",
+      "description": "Create discount vouchers that can be redeemed at the register."
+    },
+    "types": {
+      "fixed": "Fixed amount",
+      "manual": "Amount on redemption"
+    },
+    "table": {
+      "name": "Name",
+      "type": "Type",
+      "amount": "Amount",
+      "manualAmount": "On redemption",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Artist voucher €3",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description",
+      "type": "Type",
+      "typeFixedHint": "Fixed discount amount deducted at the register.",
+      "typeManualHint": "The amount is entered when redeemed at the register.",
+      "amount": "Amount (€)",
+      "isActive": "Active",
+      "isActiveHint": "Only active vouchers can be selected at the register."
+    },
+    "deleteConfirm": {
+      "title": "Delete discount voucher",
+      "message": "Do you really want to delete the discount voucher \"{name}\"?",
+      "confirm": "Delete"
+    }
+  },
+  "pfand": {
+    "title": "Deposit (Pfand)",
+    "subtitle": "Configure deposit types (e.g. cup, bottle) that can be assigned to products",
+    "create": "Create deposit type",
+    "edit": "Edit deposit type",
+    "empty": {
+      "title": "No deposit types",
+      "description": "Create deposit types you can assign to drinks."
+    },
+    "table": {
+      "name": "Name",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Cup",
+      "amount": "Deposit amount (€)",
+      "isActive": "Active",
+      "isActiveHint": "Only active deposit types can be used at the register."
+    },
+    "deleteConfirm": {
+      "title": "Delete deposit type",
+      "message": "Do you really want to delete the deposit type \"{name}\"?",
+      "confirm": "Delete"
+    },
+    "settings": {
+      "title": "When is a deposit charged?",
+      "description": "Choose for which sales type a deposit (Pfand) is charged.",
+      "tableService": {
+        "label": "Deposit for table service",
+        "description": "Guests served at a table pay a deposit."
+      },
+      "counterPickup": {
+        "label": "Deposit for counter / takeaway",
+        "description": "A deposit is charged for counter sales and takeaway."
+      }
+    }
+  },
   "members": {
     "title": "Members",
     "subtitle": "Manage your organization's members",
@@ -1063,6 +1160,8 @@
       "devices": "Devices",
       "members": "Members",
       "shiftPlans": "Shift Plans",
+      "discounts": "Discount Vouchers",
+      "pfand": "Deposit (Pfand)",
       "adminHint": "Administrators automatically have access to all modules."
     },
     "form": {
@@ -1252,6 +1351,25 @@
       "selectRequiredOptions": "Please select all required options",
       "customNote": "Note",
       "customNotePlaceholder": "e.g. no onions, extra spicy..."
+    },
+    "discount": {
+      "title": "Select discount voucher",
+      "label": "Discount",
+      "addVoucher": "Add discount voucher",
+      "remove": "Remove",
+      "apply": "Apply",
+      "enterAmount": "Enter the voucher amount",
+      "manualBadge": "Enter amount",
+      "empty": "No discount vouchers configured."
+    },
+    "pfand": {
+      "label": "Deposit",
+      "refill": "Refill",
+      "returnButton": "Deposit return",
+      "returnTitle": "Deposit return",
+      "payout": "Payout",
+      "payoutButton": "Pay out",
+      "empty": "No deposit types configured."
     },
     "cashPayment": {
       "title": "Cash Payment",

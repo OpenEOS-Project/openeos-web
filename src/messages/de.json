@@ -685,6 +685,8 @@
       "productionStationInherit": "Bei leerer Auswahl wird die Produktionsstation der Kategorie verwendet.",
       "productionStationOverride": "Übersteuert die Kategorie-Zuweisung.",
       "productionStationHint": "Überschreibt die Kategorie-Einstellung",
+      "pfandType": "Pfand-Typ",
+      "pfandTypeNone": "— Kein Pfand —",
       "image": {
         "title": "Produktbild",
         "upload": "Bild hochladen",
@@ -860,6 +862,101 @@
       "declineFailed": "Einladung konnte nicht abgelehnt werden."
     }
   },
+  "discounts": {
+    "title": "Rabatt-Bons",
+    "subtitle": "Konfigurieren Sie Rabatt-Bons, die an der Kasse ausgewählt werden können",
+    "create": "Rabatt-Bon erstellen",
+    "edit": "Rabatt-Bon bearbeiten",
+    "empty": {
+      "title": "Keine Rabatt-Bons",
+      "description": "Erstellen Sie Rabatt-Bons, die an der Kasse eingelöst werden können."
+    },
+    "types": {
+      "fixed": "Fester Betrag",
+      "manual": "Betrag bei Einlösung"
+    },
+    "table": {
+      "name": "Name",
+      "type": "Art",
+      "amount": "Betrag",
+      "manualAmount": "Bei Einlösung",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z. B. Künstler-Bon 3 €",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Optionale Beschreibung",
+      "type": "Art",
+      "typeFixedHint": "Fester Rabattbetrag, der an der Kasse abgezogen wird.",
+      "typeManualHint": "Der Betrag wird beim Einlösen an der Kasse eingegeben.",
+      "amount": "Betrag (€)",
+      "isActive": "Aktiv",
+      "isActiveHint": "Nur aktive Bons sind an der Kasse auswählbar."
+    },
+    "deleteConfirm": {
+      "title": "Rabatt-Bon löschen",
+      "message": "Möchten Sie den Rabatt-Bon \"{name}\" wirklich löschen?",
+      "confirm": "Löschen"
+    }
+  },
+  "pfand": {
+    "title": "Pfand",
+    "subtitle": "Konfigurieren Sie Pfand-Typen (z. B. Becher, Flasche), die Produkten zugewiesen werden",
+    "create": "Pfand-Typ erstellen",
+    "edit": "Pfand-Typ bearbeiten",
+    "empty": {
+      "title": "Keine Pfand-Typen",
+      "description": "Legen Sie Pfand-Typen an, die Sie Getränken zuweisen können."
+    },
+    "table": {
+      "name": "Name",
+      "amount": "Betrag",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z. B. Becher",
+      "amount": "Pfandbetrag (€)",
+      "isActive": "Aktiv",
+      "isActiveHint": "Nur aktive Pfand-Typen sind an der Kasse nutzbar."
+    },
+    "deleteConfirm": {
+      "title": "Pfand-Typ löschen",
+      "message": "Möchten Sie den Pfand-Typ \"{name}\" wirklich löschen?",
+      "confirm": "Löschen"
+    },
+    "settings": {
+      "title": "Wann wird Pfand berechnet?",
+      "description": "Legen Sie fest, für welche Verkaufsart Pfand erhoben wird.",
+      "tableService": {
+        "label": "Pfand bei Tischbedienung",
+        "description": "Gäste, die am Tisch bedient werden, zahlen Pfand."
+      },
+      "counterPickup": {
+        "label": "Pfand bei Theke / Abholung",
+        "description": "Bei Verkauf an der Theke bzw. zum Mitnehmen wird Pfand erhoben."
+      }
+    }
+  },
   "members": {
     "title": "Mitglieder",
     "subtitle": "Verwalten Sie die Mitglieder Ihrer Organisation",
@@ -888,6 +985,8 @@
       "devices": "Geräte",
       "members": "Mitglieder",
       "shiftPlans": "Schichtpläne",
+      "discounts": "Rabatt-Bons",
+      "pfand": "Pfand",
       "adminHint": "Administratoren haben automatisch Zugriff auf alle Module."
     },
     "form": {
@@ -1252,6 +1351,25 @@
       "selectRequiredOptions": "Bitte wählen Sie alle Pflichtoptionen aus",
       "customNote": "Bemerkung",
       "customNotePlaceholder": "z.B. ohne Zwiebeln, extra scharf..."
+    },
+    "discount": {
+      "title": "Rabatt-Bon wählen",
+      "label": "Rabatt",
+      "addVoucher": "Rabatt-Bon hinzufügen",
+      "remove": "Entfernen",
+      "apply": "Übernehmen",
+      "enterAmount": "Betrag des Bons eingeben",
+      "manualBadge": "Betrag eingeben",
+      "empty": "Keine Rabatt-Bons konfiguriert."
+    },
+    "pfand": {
+      "label": "Pfand",
+      "refill": "Nachfüllen",
+      "returnButton": "Pfand-Rückgabe",
+      "returnTitle": "Pfand-Rückgabe",
+      "payout": "Auszahlung",
+      "payoutButton": "Auszahlen",
+      "empty": "Keine Pfand-Typen konfiguriert."
     },
     "cashPayment": {
       "title": "Barzahlung",
