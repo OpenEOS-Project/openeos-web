@@ -818,12 +818,7 @@
       "title": "Standort löschen?",
       "message": "Produkte und Kategorien verlieren ihre Standort-Zuweisung."
     },
-    "selectEvent": "Event auswählen",
-    "flowDiagram": {
-      "title": "Ablauf",
-      "order": "Bestellung",
-      "ready": "Bereit zur Abholung"
-    }
+    "selectEvent": "Event auswählen"
   },
   "users": {
     "title": "Benutzer",

@@ -993,12 +993,7 @@
       "title": "Delete Station?",
       "message": "Products and categories will lose their station assignment."
     },
-    "selectEvent": "Select Event",
-    "flowDiagram": {
-      "title": "Workflow",
-      "order": "Order",
-      "ready": "Ready for Pickup"
-    }
+    "selectEvent": "Select Event"
   },
   "users": {
     "title": "Users",
