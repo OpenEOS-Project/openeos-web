@@ -1284,7 +1284,15 @@
       "placeOrder": "Bestellen",
       "openTabs": "Offene Rechnungen",
       "clear": "Warenkorb leeren",
-      "orderCreated": "Bestellung #{number} erstellt"
+      "orderCreated": "Bestellung #{number} erstellt",
+      "tableLabel": "Tisch {number}",
+      "newOrder": "Neue Bestellung",
+      "itemCount": "{count, plural, one {# Artikel} other {# Artikel}}",
+      "tabs": "Tabs",
+      "emptyTitle": "Noch nichts bestellt.",
+      "emptyHint": "Artikel antippen zum Hinzufügen.",
+      "without": "ohne {option}",
+      "subtotal": "Zwischensumme"
     },
     "tableNumber": {
       "title": "Tischnummer eingeben",
@@ -1369,7 +1377,9 @@
       "returnTitle": "Pfand-Rückgabe",
       "payout": "Auszahlung",
       "payoutButton": "Auszahlen",
-      "empty": "Keine Pfand-Typen konfiguriert."
+      "empty": "Keine Pfand-Typen konfiguriert.",
+      "decrease": "Menge verringern",
+      "increase": "Menge erhöhen"
     },
     "cashPayment": {
       "title": "Barzahlung",

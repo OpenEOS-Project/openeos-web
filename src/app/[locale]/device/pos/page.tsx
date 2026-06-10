@@ -9,6 +9,7 @@ import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceSocket, type BroadcastMessage } from '@/hooks/use-device-socket';
 import { useCustomerDisplayBroadcast } from '@/hooks/use-customer-display-broadcast';
+import { resolveChargePfand } from '@/utils/pfand';
 import { deviceApi } from '@/lib/api-client';
 import { PosProductGrid } from './components/pos-product-grid';
 import { PosCart } from './components/device-pos-cart';
@@ -334,13 +335,9 @@ export default function DevicePosPage() {
 
   const orderingMode = orgData?.data?.settings?.pos?.orderingMode || 'immediate';
 
-  // Mirror the live cart to paired customer displays. Pfand policy must match
-  // the checkout logic in PosCart (org policy by fulfillment type).
-  const pfandPolicy = orgData?.data?.settings?.pfand;
-  const chargePfand =
-    serviceMode === 'table'
-      ? pfandPolicy?.tableService ?? false
-      : pfandPolicy?.counterPickup ?? true;
+  // Mirror the live cart to paired customer displays. Shared helper keeps the
+  // Pfand policy in sync with the checkout logic in PosCart.
+  const chargePfand = resolveChargePfand(orgData?.data?.settings?.pfand, serviceMode);
   useCustomerDisplayBroadcast(socket, isSocketConnected, chargePfand);
 
   const { data: eventsData } = useQuery({

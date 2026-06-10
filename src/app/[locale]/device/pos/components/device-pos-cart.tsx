@@ -9,6 +9,7 @@ import { notifyCustomerDisplayOrderCompleted } from '@/hooks/use-customer-displa
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
+import { resolveChargePfand } from '@/utils/pfand';
 import { CashPaymentModal } from './cash-payment-modal';
 import { DiscountVoucherModal } from './discount-voucher-modal';
 import { PfandReturnModal } from './pfand-return-modal';
@@ -83,12 +84,7 @@ export function PosCart({
   });
 
   // Whether deposits apply for this device's fulfillment type (org policy).
-  // Defaults: no Pfand for table service, Pfand for counter/takeaway.
-  const pfandPolicy = deviceOrg?.settings?.pfand;
-  const chargePfand =
-    fulfillmentType === 'table_service'
-      ? pfandPolicy?.tableService ?? false
-      : pfandPolicy?.counterPickup ?? true;
+  const chargePfand = resolveChargePfand(deviceOrg?.settings?.pfand, settings?.serviceMode);
 
   const total = getTotal();
   const discount = getDiscount();
@@ -217,7 +213,7 @@ export function PosCart({
               fontWeight: 600,
             }}
           >
-            {tableNumber ? `Tisch ${tableNumber}` : 'Neue Bestellung'}
+            {tableNumber ? t('cart.tableLabel', { number: tableNumber }) : t('cart.newOrder')}
           </span>
           <span
             style={{ fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)', lineHeight: 1.2 }}
@@ -256,7 +252,7 @@ export function PosCart({
                 fontWeight: 600,
               }}
             >
-              {itemCount} {itemCount === 1 ? 'Artikel' : 'Artikel'}
+              {t('cart.itemCount', { count: itemCount })}
             </span>
           )}
           {onOpenTabs && orderingMode !== 'immediate' && (
@@ -274,7 +270,7 @@ export function PosCart({
                 cursor: 'pointer',
               }}
             >
-              Tabs
+              {t('cart.tabs')}
             </button>
           )}
         </div>
@@ -338,7 +334,7 @@ export function PosCart({
               padding: 20,
             }}
           >
-            Noch nichts bestellt.<br />Artikel antippen zum Hinzufügen.
+            {t('cart.emptyTitle')}<br />{t('cart.emptyHint')}
           </div>
         ) : (
           items.map((item) => (
@@ -390,7 +386,7 @@ export function PosCart({
                     }}
                   >
                     {item.selectedOptions
-                      .map((o) => (o.excluded ? `ohne ${o.option}` : o.option))
+                      .map((o) => (o.excluded ? t('cart.without', { option: o.option }) : o.option))
                       .join(' · ')}
                   </div>
                 )}
@@ -525,7 +521,7 @@ export function PosCart({
             color: 'var(--pos-ink-2)',
           }}
         >
-          <span>Zwischensumme</span>
+          <span>{t('cart.subtotal')}</span>
           <span className="pos-mono">{formatPrice(total)}</span>
         </div>
 

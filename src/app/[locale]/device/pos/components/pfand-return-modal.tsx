@@ -23,6 +23,7 @@ export function PfandReturnModal({
   onSubmitted,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
+  const tCommon = useTranslations('common');
   const [isClosing, setIsClosing] = useState(false);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,7 +145,7 @@ export function PfandReturnModal({
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Schließen"
+            aria-label={tCommon('close')}
             style={{
               width: 36,
               height: 36,
@@ -195,13 +196,13 @@ export function PfandReturnModal({
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <button type="button" style={counterBtn} onClick={() => setQty(pt.id, qty - 1)} aria-label="−">
+                    <button type="button" style={counterBtn} onClick={() => setQty(pt.id, qty - 1)} aria-label={t('decrease')}>
                       <Minus style={{ width: 16, height: 16 }} />
                     </button>
                     <span className="pos-mono" style={{ minWidth: 28, textAlign: 'center', fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)' }}>
                       {qty}
                     </span>
-                    <button type="button" style={counterBtn} onClick={() => setQty(pt.id, qty + 1)} aria-label="+">
+                    <button type="button" style={counterBtn} onClick={() => setQty(pt.id, qty + 1)} aria-label={t('increase')}>
                       <Plus style={{ width: 16, height: 16 }} />
                     </button>
                   </div>

@@ -1284,7 +1284,15 @@
       "placeOrder": "Place Order",
       "openTabs": "Open Tabs",
       "clear": "Clear cart",
-      "orderCreated": "Order #{number} created"
+      "orderCreated": "Order #{number} created",
+      "tableLabel": "Table {number}",
+      "newOrder": "New Order",
+      "itemCount": "{count, plural, one {# item} other {# items}}",
+      "tabs": "Tabs",
+      "emptyTitle": "Nothing ordered yet.",
+      "emptyHint": "Tap an item to add it.",
+      "without": "without {option}",
+      "subtotal": "Subtotal"
     },
     "tableNumber": {
       "title": "Enter Table Number",
@@ -1369,7 +1377,9 @@
       "returnTitle": "Deposit return",
       "payout": "Payout",
       "payoutButton": "Pay out",
-      "empty": "No deposit types configured."
+      "empty": "No deposit types configured.",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
     },
     "cashPayment": {
       "title": "Cash Payment",
