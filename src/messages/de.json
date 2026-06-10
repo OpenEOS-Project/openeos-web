@@ -773,15 +773,6 @@
       "title": "Ablauf",
       "order": "Bestellung",
       "ready": "Bereit zur Abholung"
-    },
-    "live": {
-      "title": "Live-Ansicht",
-      "noOrders": "Keine offenen Bestellungen",
-      "table": "Tisch",
-      "orders": "Bestellungen",
-      "openFullView": "Vollansicht",
-      "ready": "Fertig",
-      "moreOrders": "und {count} weitere"
     }
   },
   "users": {

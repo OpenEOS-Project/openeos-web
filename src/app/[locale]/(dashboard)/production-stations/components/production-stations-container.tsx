@@ -12,7 +12,6 @@ import type { ProductionStation } from '@/types/production-station';
 import { ProductionStationFormModal } from './production-station-form-modal';
 import { ProductionStationsList } from './production-stations-list';
 import { StationFlowDiagram } from './station-flow-diagram';
-import { StationLivePreview } from './station-live-preview';
 
 export function ProductionStationsContainer() {
   const t = useTranslations('productionStations');
@@ -91,8 +90,6 @@ export function ProductionStationsContainer() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <StationFlowDiagram eventId={eventId} />
-
-      <StationLivePreview eventId={eventId} organizationId={organizationId} />
 
       <ProductionStationsList
         eventId={eventId}

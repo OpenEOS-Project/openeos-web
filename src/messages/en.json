@@ -948,15 +948,6 @@
       "title": "Workflow",
       "order": "Order",
       "ready": "Ready for Pickup"
-    },
-    "live": {
-      "title": "Live View",
-      "noOrders": "No open orders",
-      "table": "Table",
-      "orders": "Orders",
-      "openFullView": "Full view",
-      "ready": "Ready",
-      "moreOrders": "and {count} more"
     }
   },
   "users": {

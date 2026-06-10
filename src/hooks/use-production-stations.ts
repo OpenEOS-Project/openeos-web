@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { productionStationsApi, ordersApi } from '@/lib/api-client';
+import { productionStationsApi } from '@/lib/api-client';
 import type {
   CreateProductionStationData,
   UpdateProductionStationData,
@@ -96,38 +96,3 @@ export function useDeleteProductionStation() {
   });
 }
 
-export function useProductionStationsLive(eventId: string) {
-  return useQuery({
-    queryKey: [...productionStationKeys.list(eventId), 'live'],
-    queryFn: async () => {
-      const response = await productionStationsApi.getLive(eventId);
-      return response.data;
-    },
-    enabled: !!eventId,
-    refetchInterval: 10000,
-  });
-}
-
-export function useMarkStationItemReady(eventId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      organizationId,
-      orderId,
-      itemId,
-    }: {
-      organizationId: string;
-      orderId: string;
-      itemId: string;
-    }) => {
-      const response = await ordersApi.markItemReady(organizationId, orderId, itemId);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...productionStationKeys.list(eventId), 'live'],
-      });
-    },
-  });
-}

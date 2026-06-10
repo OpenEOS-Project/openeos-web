@@ -601,31 +601,6 @@ export const productionStationsApi = {
 
   delete: (eventId: string, id: string) =>
     apiClient.delete(`/events/${eventId}/production-stations/${id}`),
-
-  getLive: (eventId: string) =>
-    apiClient.get<ApiResponse<Array<{
-      id: string;
-      name: string;
-      color: string | null;
-      orders: Array<{
-        order: {
-          id: string;
-          orderNumber: string;
-          dailyNumber: number;
-          tableNumber: string | null;
-          customerName: string | null;
-          priority: string;
-          createdAt: string;
-        };
-        items: Array<{
-          id: string;
-          productName: string;
-          quantity: number;
-          status: string;
-          createdAt: string;
-        }>;
-      }>;
-    }>>>(`/events/${eventId}/production-stations/live`),
 };
 
 // User Settings API
