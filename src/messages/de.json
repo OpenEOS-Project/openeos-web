@@ -804,15 +804,12 @@
       "noHandoff": "Keine (letzte Station)",
       "printer": "Drucker",
       "noPrinter": "Kein Drucker",
-      "displayDevice": "Display-Gerät",
-      "noDisplayDevice": "Kein Display",
       "active": "Aktiv"
     },
     "table": {
       "name": "Name",
       "handoffStation": "Folge-Station",
       "printer": "Drucker",
-      "displayDevice": "Display",
       "categories": "Kategorien",
       "status": "Status",
       "actions": "Aktionen"

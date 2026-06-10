@@ -8,8 +8,6 @@ import { z } from 'zod';
 
 import { useProductionStations, useCreateProductionStation, useUpdateProductionStation } from '@/hooks/use-production-stations';
 import { usePrinters } from '@/hooks/use-printers';
-import { devicesApi } from '@/lib/api-client';
-import { useQuery } from '@tanstack/react-query';
 import type { ProductionStation } from '@/types/production-station';
 
 const productionStationSchema = z.object({
@@ -18,7 +16,6 @@ const productionStationSchema = z.object({
   color: z.string().optional(),
   handoffStationId: z.string().optional(),
   printerId: z.string().optional(),
-  displayDeviceId: z.string().optional(),
   isActive: z.boolean(),
 });
 
@@ -57,12 +54,6 @@ export function ProductionStationFormModal({
   const createStation = useCreateProductionStation();
   const updateStation = useUpdateProductionStation();
   const { data: printers } = usePrinters(organizationId);
-  const { data: devices } = useQuery({
-    queryKey: ['devices', organizationId],
-    queryFn: () => devicesApi.list(organizationId),
-    enabled: !!organizationId,
-    select: (res) => res.data?.filter((d) => d.type === 'display') || [],
-  });
 
   const {
     control,
@@ -73,7 +64,7 @@ export function ProductionStationFormModal({
     resolver: zodResolver(productionStationSchema),
     defaultValues: {
       name: '', description: '', color: '', handoffStationId: '',
-      printerId: '', displayDeviceId: '', isActive: true,
+      printerId: '', isActive: true,
     },
   });
 
@@ -85,11 +76,10 @@ export function ProductionStationFormModal({
         color: station.color || '',
         handoffStationId: station.handoffStationId || '',
         printerId: station.printerId || '',
-        displayDeviceId: station.displayDeviceId || '',
         isActive: station.isActive,
       });
     } else {
-      reset({ name: '', description: '', color: '', handoffStationId: '', printerId: '', displayDeviceId: '', isActive: true });
+      reset({ name: '', description: '', color: '', handoffStationId: '', printerId: '', isActive: true });
     }
   }, [station, reset]);
 
@@ -104,7 +94,6 @@ export function ProductionStationFormModal({
             color: data.color || undefined,
             handoffStationId: data.handoffStationId || null,
             printerId: data.printerId || null,
-            displayDeviceId: data.displayDeviceId || null,
             isActive: data.isActive,
           },
         });
@@ -116,7 +105,6 @@ export function ProductionStationFormModal({
             color: data.color || undefined,
             handoffStationId: data.handoffStationId || null,
             printerId: data.printerId || null,
-            displayDeviceId: data.displayDeviceId || null,
             isActive: data.isActive,
           },
         });
@@ -222,21 +210,6 @@ export function ProductionStationFormModal({
                       <option value="">{t('form.noPrinter')}</option>
                       {printers?.map((p) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
-                  </FormRow>
-                )}
-              />
-
-              <Controller
-                name="displayDeviceId"
-                control={control}
-                render={({ field }) => (
-                  <FormRow label={t('form.displayDevice')}>
-                    <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
-                      <option value="">{t('form.noDisplayDevice')}</option>
-                      {devices?.map((d) => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
                       ))}
                     </select>
                   </FormRow>

@@ -979,15 +979,12 @@
       "noHandoff": "None (final station)",
       "printer": "Printer",
       "noPrinter": "No printer",
-      "displayDevice": "Display Device",
-      "noDisplayDevice": "No display",
       "active": "Active"
     },
     "table": {
       "name": "Name",
       "handoffStation": "Handoff Station",
       "printer": "Printer",
-      "displayDevice": "Display",
       "categories": "Categories",
       "status": "Status",
       "actions": "Actions"

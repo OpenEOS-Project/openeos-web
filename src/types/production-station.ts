@@ -1,5 +1,4 @@
 import type { Printer } from './printer';
-import type { Device } from './device';
 
 export interface ProductionStation {
   id: string;
@@ -13,8 +12,6 @@ export interface ProductionStation {
   handoffStation?: ProductionStation | null;
   printerId: string | null;
   printer?: Printer | null;
-  displayDeviceId: string | null;
-  displayDevice?: Device | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,7 +24,6 @@ export interface CreateProductionStationData {
   isActive?: boolean;
   handoffStationId?: string | null;
   printerId?: string | null;
-  displayDeviceId?: string | null;
 }
 
 export interface UpdateProductionStationData {
@@ -38,5 +34,4 @@ export interface UpdateProductionStationData {
   isActive?: boolean;
   handoffStationId?: string | null;
   printerId?: string | null;
-  displayDeviceId?: string | null;
 }

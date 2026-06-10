@@ -91,7 +91,6 @@ export function ProductionStationsList({
               <th>{t('table.name')}</th>
               <th>{t('table.handoffStation')}</th>
               <th>{t('table.printer')}</th>
-              <th>{t('table.displayDevice')}</th>
               <th>{t('table.status')}</th>
               <th className="text-right">{t('table.actions')}</th>
             </tr>
@@ -123,11 +122,6 @@ export function ProductionStationsList({
                 <td>
                   <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
                     {station.printer?.name || '-'}
-                  </span>
-                </td>
-                <td>
-                  <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                    {station.displayDevice?.name || '-'}
                   </span>
                 </td>
                 <td>
