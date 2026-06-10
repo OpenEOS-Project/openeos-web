@@ -11,6 +11,8 @@ export interface OrganizationPermissions {
   shiftPlans?: boolean;
   discounts?: boolean;
   pfand?: boolean;
+  reports?: boolean;
+  inventory?: boolean;
 }
 
 export interface UserOrganization {

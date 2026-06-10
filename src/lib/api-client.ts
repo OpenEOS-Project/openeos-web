@@ -1659,3 +1659,110 @@ export const setupApi = {
       { skipAuth: true }
     ),
 };
+
+// Build a query string from optional params, skipping undefined/empty values.
+function reportQuery(params?: object): string {
+  if (!params) return '';
+  const entries = Object.entries(params as Record<string, string | number | undefined>).filter(
+    ([, v]) => v !== undefined && v !== null && v !== ''
+  );
+  if (entries.length === 0) return '';
+  return `?${new URLSearchParams(entries.map(([k, v]) => [k, String(v)]))}`;
+}
+
+// Reports API (Auswertung)
+export const reportsApi = {
+  getSales: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').SalesReport>>(
+      `/organizations/${organizationId}/reports/sales${reportQuery(params)}`
+    ),
+
+  getProducts: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').ProductReport[]>>(
+      `/organizations/${organizationId}/reports/products${reportQuery(params)}`
+    ),
+
+  getPayments: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').PaymentReport[]>>(
+      `/organizations/${organizationId}/reports/payments${reportQuery(params)}`
+    ),
+
+  getHourly: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').HourlyReport[]>>(
+      `/organizations/${organizationId}/reports/hourly${reportQuery(params)}`
+    ),
+
+  getInventory: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').InventoryLevel[]>>(
+      `/organizations/${organizationId}/reports/inventory${reportQuery(params)}`
+    ),
+
+  getStockMovements: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').StockMovementReport[]>>(
+      `/organizations/${organizationId}/reports/stock-movements${reportQuery(params)}`
+    ),
+};
+
+// Inventory API (Inventur)
+export const inventoryApi = {
+  listCounts: (eventId: string, params?: import('@/types/inventory').QueryInventoryCountsParams) =>
+    apiClient.get<ApiResponse<import('@/types/inventory').InventoryCount[]>>(
+      `/events/${eventId}/inventory/counts${reportQuery(params)}`
+    ),
+
+  getCount: (eventId: string, countId: string) =>
+    apiClient.get<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts/${countId}`
+    ),
+
+  createCount: (eventId: string, data: import('@/types/inventory').CreateInventoryCountData) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts`,
+      data
+    ),
+
+  updateCount: (eventId: string, countId: string, data: import('@/types/inventory').UpdateInventoryCountData) =>
+    apiClient.patch<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts/${countId}`,
+      data
+    ),
+
+  deleteCount: (eventId: string, countId: string) =>
+    apiClient.delete(`/events/${eventId}/inventory/counts/${countId}`),
+
+  startCount: (eventId: string, countId: string) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts/${countId}/start`,
+      {}
+    ),
+
+  completeCount: (eventId: string, countId: string) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts/${countId}/complete`,
+      {}
+    ),
+
+  cancelCount: (eventId: string, countId: string) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCount>>(
+      `/events/${eventId}/inventory/counts/${countId}/cancel`,
+      {}
+    ),
+
+  addItem: (eventId: string, countId: string, productId: string) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCountItem>>(
+      `/events/${eventId}/inventory/counts/${countId}/items`,
+      { productId }
+    ),
+
+  bulkAddItems: (eventId: string, countId: string, data: import('@/types/inventory').BulkAddInventoryItemsData) =>
+    apiClient.post<ApiResponse<import('@/types/inventory').InventoryCountItem[]>>(
+      `/events/${eventId}/inventory/counts/${countId}/items/bulk-add`,
+      data
+    ),
+
+  updateItem: (eventId: string, countId: string, itemId: string, data: import('@/types/inventory').UpdateInventoryItemData) =>
+    apiClient.patch<ApiResponse<import('@/types/inventory').InventoryCountItem>>(
+      `/events/${eventId}/inventory/counts/${countId}/items/${itemId}`,
+      data
+    ),
+};

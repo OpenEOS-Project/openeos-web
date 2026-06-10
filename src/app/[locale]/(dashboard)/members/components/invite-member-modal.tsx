@@ -22,6 +22,8 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'shiftPlans',
   'discounts',
   'pfand',
+  'reports',
+  'inventory',
 ];
 
 const inviteSchema = z.object({

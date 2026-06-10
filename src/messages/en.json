@@ -237,6 +237,59 @@
         "RETURN_RENTAL": "Rental returned",
         "unknown": "Unknown action"
       }
+    },
+    "customize": {
+      "button": "Customize",
+      "title": "Customize Dashboard",
+      "description": "Choose which widgets to display on your dashboard and set their order.",
+      "enabled": "Active",
+      "disabled": "Inactive",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "widgets": {
+      "empty": "No data available",
+      "ordersToday": {
+        "label": "Orders today"
+      },
+      "revenueToday": {
+        "label": "Revenue today"
+      },
+      "activeEvents": {
+        "label": "Active events"
+      },
+      "activeUsers": {
+        "label": "Active users"
+      },
+      "topProducts": {
+        "label": "Top products today",
+        "subtitle": "The 5 highest-revenue products for today",
+        "product": "Product",
+        "category": "Category",
+        "qty": "Qty",
+        "revenue": "Revenue"
+      },
+      "hourlyRevenue": {
+        "label": "Revenue by hour",
+        "subtitle": "Hourly revenue breakdown for today",
+        "revenueLabel": "Revenue"
+      },
+      "paymentMethods": {
+        "label": "Payment methods",
+        "subtitle": "Payment method breakdown for today"
+      },
+      "lowStock": {
+        "label": "Low stock",
+        "subtitle": "Products with the lowest current stock levels",
+        "product": "Product",
+        "stock": "Stock",
+        "status": "Status",
+        "low": "Low",
+        "ok": "OK"
+      }
     }
   },
   "navigation": {
@@ -1153,7 +1206,9 @@
       "shiftPlans": "Shift Plans",
       "discounts": "Discount Vouchers",
       "pfand": "Deposit (Pfand)",
-      "adminHint": "Administrators automatically have access to all modules."
+      "adminHint": "Administrators automatically have access to all modules.",
+      "reports": "Reports",
+      "inventory": "Inventory"
     },
     "form": {
       "email": "Email Address",
@@ -2125,6 +2180,165 @@
         "showPrice": "Show prices",
         "field": "Data field"
       }
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Revenue, orders and product analytics at a glance",
+    "loading": "Loading…",
+    "noOrg": {
+      "title": "No organisation selected",
+      "description": "Please select an organisation first."
+    },
+    "export": {
+      "csv": "Export CSV"
+    },
+    "filter": {
+      "event": "Event",
+      "allEvents": "All events",
+      "active": "Active",
+      "timeRange": "Time range",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "all": "All time",
+      "from": "From",
+      "to": "To"
+    },
+    "kpi": {
+      "revenue": "Total revenue",
+      "revenueSub": "Paid orders",
+      "orders": "Orders",
+      "itemsSold": "{count} items sold",
+      "avgOrder": "Avg. order value",
+      "avgOrderSub": "Per paid order",
+      "pfand": "Deposit (balance)",
+      "pfandDetail": "Collected {collected} · Returned {returned}"
+    },
+    "products": {
+      "title": "Top products",
+      "subtitle": "Sorted by revenue",
+      "empty": "No product data available",
+      "columns": {
+        "product": "Product",
+        "category": "Category",
+        "quantity": "Qty",
+        "revenue": "Revenue",
+        "avgPrice": "Avg. price"
+      }
+    },
+    "payments": {
+      "title": "Payment methods",
+      "subtitle": "Breakdown by payment method",
+      "empty": "No payment data available",
+      "columns": {
+        "method": "Method",
+        "count": "Count",
+        "total": "Total",
+        "percentage": "Share"
+      }
+    },
+    "hourly": {
+      "title": "Hourly breakdown",
+      "subtitle": "Revenue per hour (0–23)",
+      "tooltipRevenue": "Revenue",
+      "tooltipOrders": "Orders",
+      "columns": {
+        "hour": "Hour",
+        "orders": "Orders",
+        "revenue": "Revenue"
+      }
+    }
+  },
+  "inventory": {
+    "title": "Stocktaking",
+    "subtitle": "Stock recording and inventory control for your event",
+    "create": "New Stocktake",
+    "createAndStart": "Create & Start",
+    "creating": "Creating…",
+    "createError": "Failed to create inventory count. Please try again.",
+    "noOrg": {
+      "title": "No organisation selected",
+      "description": "Please select an organisation first."
+    },
+    "noEvent": {
+      "title": "No active event",
+      "description": "Please activate an event first to run a stocktake."
+    },
+    "empty": {
+      "title": "No stocktakes yet",
+      "description": "Create your first stocktake to record current stock levels.",
+      "noItems": "No items in this stocktake."
+    },
+    "status": {
+      "draft": "Draft",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "list": {
+      "title": "Stocktakes",
+      "subtitle": "All stocktakes for the current event"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "createdAt": "Created",
+      "itemCount": "Items",
+      "completedBy": "Completed by",
+      "product": "Product",
+      "expected": "Expected",
+      "counted": "Counted",
+      "difference": "Difference",
+      "notes": "Notes",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. End of day 01/01/2026",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional notes for this stocktake",
+      "bulkAddHint": "{count} products with inventory tracking will be added automatically."
+    },
+    "progress": {
+      "of": "of",
+      "counted": "counted"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "cancelConfirm": "Cancel stocktake",
+      "complete": "Complete",
+      "completeConfirm": "Complete now"
+    },
+    "cancelConfirm": {
+      "title": "Cancel stocktake?",
+      "message": "The stocktake will be cancelled and all counted values discarded. This action cannot be undone."
+    },
+    "completeConfirm": {
+      "title": "Complete stocktake?",
+      "counted": "Counted",
+      "withDiff": "With difference",
+      "uncountedWarning": "{count} items have not been counted yet.",
+      "diffList": "Items with differences",
+      "message": "After completing, stock levels will be adjusted automatically. This action cannot be undone."
+    },
+    "deleteConfirm": {
+      "message": "Really delete this stocktake? The draft will be permanently removed."
+    },
+    "completed": {
+      "completedAt": "Completed at",
+      "totalItems": "Total items",
+      "countedItems": "Counted",
+      "itemsWithDiff": "With difference",
+      "totalDiff": "Total difference",
+      "listTitle": "Reorder list",
+      "listSubtitle": "Sorted by counted quantity (ascending)",
+      "exportCsv": "Export reorder list (CSV)"
+    },
+    "csv": {
+      "product": "Product",
+      "counted": "Counted",
+      "difference": "Difference",
+      "notes": "Notes"
     }
   }
 }

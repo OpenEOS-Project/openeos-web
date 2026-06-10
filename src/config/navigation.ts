@@ -4,7 +4,9 @@ import {
   Calendar,
   ClipboardCheck,
   HardDrive,
+  LineChartUp01,
   MarkerPin01,
+  PackageSearch,
   Printer,
   Receipt,
   Settings01,
@@ -64,6 +66,12 @@ export const dashboardNavItems: NavItemType[] = [
     icon: Receipt,
   },
   {
+    label: 'Auswertung',
+    href: '/reports',
+    icon: LineChartUp01,
+    requiredPermission: 'reports',
+  },
+  {
     label: 'Mitglieder',
     href: '/members',
     icon: Users01,
@@ -89,6 +97,12 @@ export const dashboardNavItems: NavItemType[] = [
     href: '/production-stations',
     icon: MarkerPin01,
     requiredPermission: 'products',
+  },
+  {
+    label: 'Inventur',
+    href: '/inventory',
+    icon: PackageSearch,
+    requiredPermission: 'inventory',
   },
   {
     label: 'Rabatt-Bons',

@@ -7,10 +7,16 @@ export interface NotificationPreferences {
   push: boolean;
 }
 
+export interface DashboardPreferences {
+  /** Ordered list of enabled dashboard widget ids */
+  widgets: string[];
+}
+
 export interface UserPreferences {
   theme: ThemePreference;
   locale: LocalePreference;
   notifications: NotificationPreferences;
+  dashboard?: DashboardPreferences;
 }
 
 // 2FA Types
@@ -98,6 +104,7 @@ export interface UpdatePreferencesDto {
   theme?: ThemePreference;
   locale?: LocalePreference;
   notifications?: Partial<NotificationPreferences>;
+  dashboard?: DashboardPreferences;
 }
 
 export interface VerifyTotpSetupDto {

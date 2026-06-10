@@ -237,6 +237,59 @@
         "RETURN_RENTAL": "Miet-Rückgabe",
         "unknown": "Unbekannte Aktion"
       }
+    },
+    "customize": {
+      "button": "Anpassen",
+      "title": "Dashboard anpassen",
+      "description": "Wählen Sie die Widgets aus, die auf Ihrem Dashboard angezeigt werden sollen, und legen Sie deren Reihenfolge fest.",
+      "enabled": "Aktiv",
+      "disabled": "Inaktiv",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "close": "Schließen"
+    },
+    "widgets": {
+      "empty": "Keine Daten verfügbar",
+      "ordersToday": {
+        "label": "Bestellungen heute"
+      },
+      "revenueToday": {
+        "label": "Umsatz heute"
+      },
+      "activeEvents": {
+        "label": "Aktive Events"
+      },
+      "activeUsers": {
+        "label": "Aktive Benutzer"
+      },
+      "topProducts": {
+        "label": "Top-Produkte heute",
+        "subtitle": "Die 5 umsatzstärksten Produkte des heutigen Tages",
+        "product": "Produkt",
+        "category": "Kategorie",
+        "qty": "Menge",
+        "revenue": "Umsatz"
+      },
+      "hourlyRevenue": {
+        "label": "Umsatz nach Stunde",
+        "subtitle": "Stündliche Umsatzverteilung für heute",
+        "revenueLabel": "Umsatz"
+      },
+      "paymentMethods": {
+        "label": "Zahlungsmethoden",
+        "subtitle": "Verteilung der Zahlungsarten für heute"
+      },
+      "lowStock": {
+        "label": "Niedriger Lagerbestand",
+        "subtitle": "Produkte mit dem geringsten Lagerbestand",
+        "product": "Produkt",
+        "stock": "Bestand",
+        "status": "Status",
+        "low": "Niedrig",
+        "ok": "OK"
+      }
     }
   },
   "navigation": {
@@ -978,7 +1031,9 @@
       "shiftPlans": "Schichtpläne",
       "discounts": "Rabatt-Bons",
       "pfand": "Pfand",
-      "adminHint": "Administratoren haben automatisch Zugriff auf alle Module."
+      "adminHint": "Administratoren haben automatisch Zugriff auf alle Module.",
+      "reports": "Auswertung",
+      "inventory": "Inventur"
     },
     "form": {
       "email": "E-Mail-Adresse",
@@ -2125,6 +2180,165 @@
         "showPrice": "Preise anzeigen",
         "field": "Datenfeld"
       }
+    }
+  },
+  "reports": {
+    "title": "Auswertung",
+    "subtitle": "Umsatz, Bestellungen und Produktanalysen im Überblick",
+    "loading": "Wird geladen…",
+    "noOrg": {
+      "title": "Keine Organisation ausgewählt",
+      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+    },
+    "export": {
+      "csv": "CSV exportieren"
+    },
+    "filter": {
+      "event": "Veranstaltung",
+      "allEvents": "Alle Veranstaltungen",
+      "active": "Aktiv",
+      "timeRange": "Zeitraum",
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "all": "Gesamt",
+      "from": "Von",
+      "to": "Bis"
+    },
+    "kpi": {
+      "revenue": "Gesamtumsatz",
+      "revenueSub": "Bezahlte Bestellungen",
+      "orders": "Bestellungen",
+      "itemsSold": "{count} Artikel verkauft",
+      "avgOrder": "Ø-Bestellwert",
+      "avgOrderSub": "Pro bezahlter Bestellung",
+      "pfand": "Pfand (Saldo)",
+      "pfandDetail": "Kassiert {collected} · Ausgezahlt {returned}"
+    },
+    "products": {
+      "title": "Top-Produkte",
+      "subtitle": "Sortiert nach Umsatz",
+      "empty": "Keine Produktdaten vorhanden",
+      "columns": {
+        "product": "Produkt",
+        "category": "Kategorie",
+        "quantity": "Menge",
+        "revenue": "Umsatz",
+        "avgPrice": "Ø-Preis"
+      }
+    },
+    "payments": {
+      "title": "Zahlarten",
+      "subtitle": "Aufschlüsselung nach Zahlungsmethode",
+      "empty": "Keine Zahlungsdaten vorhanden",
+      "columns": {
+        "method": "Zahlart",
+        "count": "Anzahl",
+        "total": "Gesamt",
+        "percentage": "Anteil"
+      }
+    },
+    "hourly": {
+      "title": "Stundenverlauf",
+      "subtitle": "Umsatz pro Stunde (0–23 Uhr)",
+      "tooltipRevenue": "Umsatz",
+      "tooltipOrders": "Bestellungen",
+      "columns": {
+        "hour": "Stunde",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz"
+      }
+    }
+  },
+  "inventory": {
+    "title": "Inventur",
+    "subtitle": "Bestandserfassung und Lagerkontrolle für Ihre Veranstaltung",
+    "create": "Neue Inventur",
+    "createAndStart": "Erstellen & Starten",
+    "creating": "Wird erstellt…",
+    "createError": "Fehler beim Erstellen der Inventur. Bitte erneut versuchen.",
+    "noOrg": {
+      "title": "Keine Organisation ausgewählt",
+      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+    },
+    "noEvent": {
+      "title": "Keine aktive Veranstaltung",
+      "description": "Bitte aktivieren Sie zuerst eine Veranstaltung, um eine Inventur durchzuführen."
+    },
+    "empty": {
+      "title": "Keine Inventuren vorhanden",
+      "description": "Erstellen Sie Ihre erste Inventur, um den Bestand zu erfassen.",
+      "noItems": "Keine Artikel in dieser Inventur."
+    },
+    "status": {
+      "draft": "Entwurf",
+      "in_progress": "In Bearbeitung",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgebrochen"
+    },
+    "list": {
+      "title": "Inventuren",
+      "subtitle": "Alle Inventuren der aktuellen Veranstaltung"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "createdAt": "Erstellt am",
+      "itemCount": "Artikel",
+      "completedBy": "Abgeschlossen von",
+      "product": "Produkt",
+      "expected": "Erwartet",
+      "counted": "Gezählt",
+      "difference": "Differenz",
+      "notes": "Notiz",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z. B. Tagesabschluss 01.01.2026",
+      "notes": "Notizen",
+      "notesPlaceholder": "Optionale Anmerkungen zur Inventur",
+      "bulkAddHint": "{count} Produkte mit Bestandsverfolgung werden automatisch hinzugefügt."
+    },
+    "progress": {
+      "of": "von",
+      "counted": "gezählt"
+    },
+    "actions": {
+      "cancel": "Abbrechen",
+      "cancelConfirm": "Inventur abbrechen",
+      "complete": "Abschließen",
+      "completeConfirm": "Jetzt abschließen"
+    },
+    "cancelConfirm": {
+      "title": "Inventur abbrechen?",
+      "message": "Die Inventur wird abgebrochen und alle gezählten Werte werden verworfen. Dieser Vorgang kann nicht rückgängig gemacht werden."
+    },
+    "completeConfirm": {
+      "title": "Inventur abschließen?",
+      "counted": "Gezählt",
+      "withDiff": "Mit Differenz",
+      "uncountedWarning": "{count} Artikel wurden noch nicht gezählt.",
+      "diffList": "Artikel mit Differenz",
+      "message": "Nach dem Abschließen werden die Lagerbestände automatisch angepasst. Dieser Vorgang kann nicht rückgängig gemacht werden."
+    },
+    "deleteConfirm": {
+      "message": "Diese Inventur wirklich löschen? Der Entwurf wird dauerhaft entfernt."
+    },
+    "completed": {
+      "completedAt": "Abgeschlossen am",
+      "totalItems": "Gesamt Artikel",
+      "countedItems": "Gezählt",
+      "itemsWithDiff": "Mit Differenz",
+      "totalDiff": "Gesamtdifferenz",
+      "listTitle": "Nachkaufliste",
+      "listSubtitle": "Sortiert nach gezählter Menge (aufsteigend)",
+      "exportCsv": "Nachkaufliste exportieren (CSV)"
+    },
+    "csv": {
+      "product": "Produkt",
+      "counted": "Gezählt",
+      "difference": "Differenz",
+      "notes": "Notiz"
     }
   }
 }
