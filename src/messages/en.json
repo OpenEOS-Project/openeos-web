@@ -1525,6 +1525,25 @@
       "blockedTitle": "Device Blocked",
       "blockedDescription": "This device has been blocked. Contact an administrator.",
       "tryAgain": "Try Again"
+    },
+    "customer": {
+      "title": "Customer Display",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "noPos": "No POS assigned",
+      "noPosHint": "Assign a POS device to this display in the dashboard under \"Devices\".",
+      "welcome": "Welcome!",
+      "welcomeSubtitle": "We look forward to your order",
+      "yourOrder": "Your Order",
+      "refill": "Refill",
+      "pfand": "Deposit",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "thankYou": "Thank you!",
+      "paidTotal": "{total} paid",
+      "orderPlaced": "Your order has been placed",
+      "orderNumber": "Order number"
     }
   },
   "devices": {
@@ -1692,6 +1711,16 @@
           "event": "Event",
           "station": "Production Station",
           "none": "No station selected"
+        },
+        "display": {
+          "title": "Display Settings",
+          "description": "Configure what this display shows.",
+          "mode": "Display mode",
+          "modeCustomer": "Customer display (live cart of a POS)",
+          "modeStation": "Station display (production station)",
+          "posDevice": "POS device",
+          "posDeviceNone": "No POS selected",
+          "posDeviceHint": "The display mirrors the selected POS device's cart in real time."
         }
       },
       "printer": {

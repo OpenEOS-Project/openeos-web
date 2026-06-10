@@ -8,6 +8,7 @@ import { Clock, Coins01, LogOut01, Power01 } from '@untitledui/icons';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceSocket, type BroadcastMessage } from '@/hooks/use-device-socket';
+import { useCustomerDisplayBroadcast } from '@/hooks/use-customer-display-broadcast';
 import { deviceApi } from '@/lib/api-client';
 import { PosProductGrid } from './components/pos-product-grid';
 import { PosCart } from './components/device-pos-cart';
@@ -297,7 +298,10 @@ export default function DevicePosPage() {
     handleDeviceStatusChanged,
   ]);
 
-  useDeviceSocket({ onBroadcast: handleBroadcast, on: socketEvents });
+  const { socket, isConnected: isSocketConnected } = useDeviceSocket({
+    onBroadcast: handleBroadcast,
+    on: socketEvents,
+  });
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -329,6 +333,15 @@ export default function DevicePosPage() {
   });
 
   const orderingMode = orgData?.data?.settings?.pos?.orderingMode || 'immediate';
+
+  // Mirror the live cart to paired customer displays. Pfand policy must match
+  // the checkout logic in PosCart (org policy by fulfillment type).
+  const pfandPolicy = orgData?.data?.settings?.pfand;
+  const chargePfand =
+    serviceMode === 'table'
+      ? pfandPolicy?.tableService ?? false
+      : pfandPolicy?.counterPickup ?? true;
+  useCustomerDisplayBroadcast(socket, isSocketConnected, chargePfand);
 
   const { data: eventsData } = useQuery({
     queryKey: ['device-events'],

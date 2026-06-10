@@ -1525,6 +1525,25 @@
       "blockedTitle": "Gerät gesperrt",
       "blockedDescription": "Dieses Gerät wurde gesperrt. Kontaktieren Sie einen Administrator.",
       "tryAgain": "Erneut versuchen"
+    },
+    "customer": {
+      "title": "Kundendisplay",
+      "connected": "Verbunden",
+      "disconnected": "Getrennt",
+      "noPos": "Keine Kasse zugewiesen",
+      "noPosHint": "Weisen Sie diesem Display im Dashboard unter „Geräte\" eine Kasse zu.",
+      "welcome": "Willkommen!",
+      "welcomeSubtitle": "Wir freuen uns auf Ihre Bestellung",
+      "yourOrder": "Ihre Bestellung",
+      "refill": "Nachfüllung",
+      "pfand": "Pfand",
+      "subtotal": "Zwischensumme",
+      "discount": "Rabatt",
+      "total": "Gesamt",
+      "thankYou": "Vielen Dank!",
+      "paidTotal": "{total} bezahlt",
+      "orderPlaced": "Ihre Bestellung wurde aufgenommen",
+      "orderNumber": "Bestellnummer"
     }
   },
   "devices": {
@@ -1692,6 +1711,16 @@
           "event": "Event",
           "station": "Produktionsstandort",
           "none": "Kein Standort ausgewählt"
+        },
+        "display": {
+          "title": "Display-Einstellungen",
+          "description": "Legen Sie fest, was dieses Display anzeigt.",
+          "mode": "Anzeigemodus",
+          "modeCustomer": "Kundendisplay (Live-Warenkorb einer Kasse)",
+          "modeStation": "Stationsanzeige (Produktionsstandort)",
+          "posDevice": "Kasse",
+          "posDeviceNone": "Keine Kasse ausgewählt",
+          "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an."
         }
       },
       "printer": {

@@ -42,6 +42,7 @@ export interface Device {
   settings?: {
     sumupReaderId?: string;
     displayMode?: DisplayMode;
+    posDeviceId?: string;
     serviceMode?: ServiceMode;
     printerMode?: PrinterMode;
     requirePin?: boolean;

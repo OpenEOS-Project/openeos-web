@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Coins01, CreditCard01, Tag01, X } from '@untitledui/icons';
 import { useCartStore, useCartHydration } from '@/stores/cart-store';
+import { notifyCustomerDisplayOrderCompleted } from '@/hooks/use-customer-display-broadcast';
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
@@ -131,6 +132,7 @@ export function PosCart({
       queryClient.invalidateQueries({ queryKey: ['device-orders'] });
       queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
       setLastOrderNumber(order.orderNumber || order.dailyNumber?.toString());
+      notifyCustomerDisplayOrderCompleted('paid', order.orderNumber || order.dailyNumber?.toString() || null);
       clearCart();
       setTimeout(() => setLastOrderNumber(null), 5000);
     },
@@ -153,6 +155,7 @@ export function PosCart({
       queryClient.invalidateQueries({ queryKey: ['device-orders'] });
       queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
       setLastOrderNumber(order.orderNumber || order.dailyNumber?.toString());
+      notifyCustomerDisplayOrderCompleted('tab', order.orderNumber || order.dailyNumber?.toString() || null);
       clearCart();
       setTimeout(() => setLastOrderNumber(null), 5000);
     },

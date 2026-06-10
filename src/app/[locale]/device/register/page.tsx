@@ -68,9 +68,14 @@ export default function DeviceRegisterPage() {
       setStep('verified');
       const timer = setTimeout(() => {
         const { deviceClass, settings } = useDeviceStore.getState();
-        const targetRoute = deviceClass === 'display' && (settings as { displayMode?: string })?.displayMode === 'station'
-          ? '/device/station'
-          : '/device/pos';
+        const displayMode = (settings as { displayMode?: string })?.displayMode;
+        // Displays default to the customer-facing screen unless explicitly a station display
+        const targetRoute =
+          deviceClass === 'display'
+            ? displayMode === 'station'
+              ? '/device/station'
+              : '/device/customer'
+            : '/device/pos';
         router.push(targetRoute);
       }, 2000);
       return () => clearTimeout(timer);

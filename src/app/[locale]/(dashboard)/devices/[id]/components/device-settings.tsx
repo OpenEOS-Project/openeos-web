@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, sumupApi } from '@/lib/api-client';
-import type { Device, DeviceClass, ServiceMode } from '@/types/device';
+import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
 
 interface DeviceSettingsProps {
   device: Device;
@@ -49,6 +49,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [serviceMode, setServiceMode] = useState<ServiceMode>(device.settings?.serviceMode || 'table');
   const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
   const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'customer');
+  const [posDeviceId, setPosDeviceId] = useState(device.settings?.posDeviceId || '');
 
   useEffect(() => {
     setName(device.name);
@@ -56,6 +58,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     setServiceMode(device.settings?.serviceMode || 'table');
     setRequirePin(device.settings?.requirePin ?? false);
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
+    setDisplayMode(device.settings?.displayMode || 'customer');
+    setPosDeviceId(device.settings?.posDeviceId || '');
   }, [device]);
 
   const readersQuery = useQuery({
@@ -66,6 +70,19 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     },
     enabled: !!organizationId && type === 'pos' && sumupConfigured,
   });
+
+  const posDevicesQuery = useQuery({
+    queryKey: ['devices', organizationId],
+    queryFn: async () => {
+      const response = await devicesApi.list(organizationId);
+      return response.data || [];
+    },
+    enabled: !!organizationId && type === 'display' && displayMode === 'customer',
+  });
+
+  const posDevices = (posDevicesQuery.data || []).filter(
+    (d) => d.type === 'pos' && d.status === 'verified' && d.id !== device.id,
+  );
 
   const updateMutation = useMutation({
     mutationFn: () =>
@@ -78,6 +95,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           printerMode: device.settings?.printerMode,
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
           sumupReaderId: type === 'pos' ? (sumupReaderId || undefined) : device.settings?.sumupReaderId,
+          displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
+          posDeviceId:
+            type === 'display' && displayMode === 'customer'
+              ? (posDeviceId || undefined)
+              : device.settings?.posDeviceId,
         },
       }),
     onSuccess: () => {
@@ -86,7 +108,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     },
   });
 
-  const typeOptions: DeviceClass[] = ['pos', 'admin'];
+  const typeOptions: DeviceClass[] = ['pos', 'display', 'admin'];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -130,6 +152,47 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           )}
         </div>
       </SectionCard>
+
+      {type === 'display' && (
+        <SectionCard
+          title={t('devices.detail.settings.display.title')}
+          description={t('devices.detail.settings.display.description')}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <FormRow label={t('devices.detail.settings.display.mode')}>
+              <select
+                className="select"
+                value={displayMode}
+                onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}
+              >
+                <option value="customer">{t('devices.detail.settings.display.modeCustomer')}</option>
+                <option value="station">{t('devices.detail.settings.display.modeStation')}</option>
+              </select>
+            </FormRow>
+
+            {displayMode === 'customer' && (
+              <FormRow label={t('devices.detail.settings.display.posDevice')}>
+                <select
+                  className="select"
+                  value={posDeviceId}
+                  onChange={(e) => setPosDeviceId(e.target.value)}
+                >
+                  <option value="">{t('devices.detail.settings.display.posDeviceNone')}</option>
+                  {posDevices.map((pos) => (
+                    <option key={pos.id} value={pos.id}>{pos.name}</option>
+                  ))}
+                </select>
+              </FormRow>
+            )}
+
+            {displayMode === 'customer' && (
+              <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                {t('devices.detail.settings.display.posDeviceHint')}
+              </p>
+            )}
+          </div>
+        </SectionCard>
+      )}
 
       {type === 'pos' && (
         <SectionCard
