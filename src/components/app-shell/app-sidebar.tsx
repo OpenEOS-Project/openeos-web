@@ -24,6 +24,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import type { NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
+import { APP_VERSION } from '@/lib/version';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrator',
@@ -424,6 +425,20 @@ export function AppSidebar() {
               <ChevronLeft style={{ width: 16, height: 16 }} />
             )}
           </button>
+
+          {!isCollapsed && (
+            <p
+              style={{
+                margin: 0,
+                padding: '6px 0 2px',
+                textAlign: 'center',
+                fontSize: 11,
+                color: 'color-mix(in oklab, var(--ink) 40%, transparent)',
+              }}
+            >
+              v{APP_VERSION}
+            </p>
+          )}
         </div>
       </aside>
 
