@@ -84,7 +84,10 @@ export function PosCart({
   });
 
   // Whether deposits apply for this device's fulfillment type (org policy).
-  const chargePfand = resolveChargePfand(deviceOrg?.settings?.pfand, settings?.serviceMode);
+  const chargePfand = resolveChargePfand(
+    deviceOrg?.settings?.pfand,
+    settings?.serviceMode as string | undefined,
+  );
 
   const total = getTotal();
   const discount = getDiscount();

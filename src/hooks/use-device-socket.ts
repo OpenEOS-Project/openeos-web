@@ -26,11 +26,20 @@ export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
   const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { deviceToken, organizationId, status } = useDeviceStore();
-  const onRef = useRef(options.on);
-  onRef.current = options.on;
+  // All callbacks go through a ref so they stay current without forcing
+  // reconnects when the caller passes fresh object/function identities.
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   const connect = useCallback(() => {
     if (!deviceToken || status !== 'verified') return;
+
+    // Never stack sockets: tear down a previous connection first.
+    if (socketRef.current) {
+      socketRef.current.removeAllListeners();
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
 
     // Get base URL without /api suffix for WebSocket connection
     let wsUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -53,16 +62,16 @@ export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
 
     socketRef.current.on('connect', () => {
       setIsConnected(true);
-      options.onConnect?.();
+      optionsRef.current.onConnect?.();
     });
 
     socketRef.current.on('disconnect', () => {
       setIsConnected(false);
-      options.onDisconnect?.();
+      optionsRef.current.onDisconnect?.();
     });
 
     socketRef.current.on('broadcastMessage', (message: BroadcastMessage) => {
-      options.onBroadcast?.(message);
+      optionsRef.current.onBroadcast?.(message);
     });
 
     socketRef.current.on('connected', (data: { deviceId?: string }) => {
@@ -78,17 +87,18 @@ export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
     });
 
     // Register custom event listeners via ref wrapper so handlers stay current
-    if (onRef.current) {
-      for (const eventName of Object.keys(onRef.current)) {
+    if (optionsRef.current.on) {
+      for (const eventName of Object.keys(optionsRef.current.on)) {
         socketRef.current.on(eventName, (data: unknown) => {
-          onRef.current?.[eventName]?.(data);
+          optionsRef.current.on?.[eventName]?.(data);
         });
       }
     }
-  }, [deviceToken, status, options]);
+  }, [deviceToken, status]);
 
   const disconnect = useCallback(() => {
     if (socketRef.current) {
+      socketRef.current.removeAllListeners();
       socketRef.current.disconnect();
       socketRef.current = null;
       setIsConnected(false);

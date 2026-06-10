@@ -132,6 +132,16 @@ export function useCustomerDisplayBroadcast(
     // Initial snapshot on connect / config change
     emitCartThrottled();
 
+    // A display (re)subscribed — push the current cart immediately so it
+    // doesn't stay blank until the next cart mutation.
+    const handleSnapshotRequest = () => {
+      if (timer) clearTimeout(timer);
+      const snapshot = buildSnapshot(chargePfand);
+      lastSnapshotRef.current = snapshot;
+      emit(snapshot);
+    };
+    socket.on('cartSnapshotRequested', handleSnapshotRequest);
+
     const unsubCart = useCartStore.subscribe(() => emitCartThrottled());
 
     const unsubCompleted = useOrderCompletedSignal.subscribe((state, prev) => {
@@ -151,6 +161,7 @@ export function useCustomerDisplayBroadcast(
 
     return () => {
       if (timer) clearTimeout(timer);
+      socket.off('cartSnapshotRequested', handleSnapshotRequest);
       unsubCart();
       unsubCompleted();
     };

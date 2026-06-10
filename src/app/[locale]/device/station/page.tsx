@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useMemo, useRef, useState } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -10,35 +10,6 @@ import { CheckCircle as CheckCircleIcon } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
 import { StationHeader } from './components/station-header';
 import { StationOrderCard } from './components/station-order-card';
-
-function useAlertSound() {
-  const audioRef = useRef<AudioContext | null>(null);
-
-  const play = useCallback(() => {
-    try {
-      if (!audioRef.current) {
-        audioRef.current = new AudioContext();
-      }
-      const ctx = audioRef.current;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      // Two-tone alert: beep-beep
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.3);
-    } catch {
-      // Audio not available (e.g., no user interaction yet)
-    }
-  }, []);
-
-  return play;
-}
 
 interface StationOrderItem {
   id: string;
@@ -116,41 +87,13 @@ export default function DeviceStationPage() {
     },
   });
 
-  // Sound alert for new orders
-  const playAlert = useAlertSound();
-  const [newOrderIds, setNewOrderIds] = useState<Set<string>>(new Set());
-
-  // WebSocket handlers
+  // Station realtime was removed — data arrives via the 30s poll; refetch
+  // immediately whenever the socket (re)connects so the view is fresh.
   const handleStationEvent = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['station-items'] });
   }, [queryClient]);
 
-  const handleNewOrder = useCallback((data: any) => {
-    queryClient.invalidateQueries({ queryKey: ['station-items'] });
-    playAlert();
-    // Track new order for highlight animation
-    if (data?.order?.id) {
-      setNewOrderIds((prev) => new Set(prev).add(data.order.id));
-      setTimeout(() => {
-        setNewOrderIds((prev) => {
-          const next = new Set(prev);
-          next.delete(data.order.id);
-          return next;
-        });
-      }, 3000);
-    }
-  }, [queryClient, playAlert]);
-
-  const socketEvents = useMemo(() => ({
-    stationNewOrder: handleNewOrder,
-    stationItemStatus: handleStationEvent,
-    stationOrderCancelled: handleStationEvent,
-  }), [handleNewOrder, handleStationEvent]);
-
-  const { isConnected } = useDeviceSocket({
-    on: socketEvents,
-    onConnect: handleStationEvent,
-  });
+  const { isConnected } = useDeviceSocket({ onConnect: handleStationEvent });
 
   // Loading
   if (!hasHydrated) {
@@ -243,7 +186,7 @@ export default function DeviceStationPage() {
                         items={orderData.items}
                         onItemReady={(itemId) => markReady.mutate(itemId)}
                         isMarkingReady={markReady.isPending}
-                        isNew={newOrderIds.has(orderData.order.id)}
+                        isNew={false}
                         variant="service"
                       />
                     ))}
@@ -274,7 +217,7 @@ export default function DeviceStationPage() {
                         items={orderData.items}
                         onItemReady={(itemId) => markReady.mutate(itemId)}
                         isMarkingReady={markReady.isPending}
-                        isNew={newOrderIds.has(orderData.order.id)}
+                        isNew={false}
                         variant="pickup"
                       />
                     ))}

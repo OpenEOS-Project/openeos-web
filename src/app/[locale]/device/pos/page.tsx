@@ -299,8 +299,19 @@ export default function DevicePosPage() {
     handleDeviceStatusChanged,
   ]);
 
+  // Events emitted while the socket was down are lost — refetch everything
+  // relevant on every (re)connect so menu, orders and settings are fresh.
+  const handleSocketConnect = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['device-products'] });
+    queryClient.invalidateQueries({ queryKey: ['device-categories'] });
+    queryClient.invalidateQueries({ queryKey: ['device-orders'] });
+    queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+    refreshDeviceStatus();
+  }, [queryClient, refreshDeviceStatus]);
+
   const { socket, isConnected: isSocketConnected } = useDeviceSocket({
     onBroadcast: handleBroadcast,
+    onConnect: handleSocketConnect,
     on: socketEvents,
   });
 
