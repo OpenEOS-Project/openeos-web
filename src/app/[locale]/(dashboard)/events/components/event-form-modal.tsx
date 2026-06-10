@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
+import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Event } from '@/types';
 import type { ShopOpeningHours, ShopWeekday } from '@/types/event';
@@ -227,7 +228,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               name="shopEnabled"
               control={control}
               render={({ field: { value, onChange } }) => {
-                const shopUrl = (process.env.NEXT_PUBLIC_SHOP_URL || 'http://localhost:3004') + (event ? `/${event.id}` : '');
+                const shopUrl = event ? shopUrlForEvent(event.id) : SHOP_URL;
                 return (
                   <div
                     style={{

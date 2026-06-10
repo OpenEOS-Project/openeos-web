@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { useEvents } from '@/hooks/use-events';
+import { shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Event, EventStatus } from '@/types';
 
@@ -181,7 +182,7 @@ export function EventsList({
                       <a
                         className="btn btn--ghost"
                         style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
-                        href={`${process.env.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de'}/${event.id}`}
+                        href={shopUrlForEvent(event.id)}
                         target="_blank"
                         rel="noreferrer noopener"
                         aria-label="Shop öffnen"
