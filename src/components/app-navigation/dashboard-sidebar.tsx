@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badges/badges';
 import { Button } from '@/components/ui/buttons/button';
 import { Dropdown } from '@/components/ui/dropdown/dropdown';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
+import { APP_VERSION } from '@/lib/version';
 import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
@@ -300,6 +301,10 @@ export function DashboardSidebar() {
             <ChevronLeft className="size-4" />
           )}
         </button>
+
+        {!isCollapsed && (
+          <p className="px-2 text-center text-xs text-fg-quaternary">v{APP_VERSION}</p>
+        )}
       </div>
     </>
   );
