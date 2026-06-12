@@ -55,8 +55,13 @@ export function SendMessageModal({ open, registration, onClose }: SendMessageMod
               )}
               {registration && (
                 <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                  Nachricht an: <strong>{registration.name}</strong> ({registration.email})
+                  Nachricht an: <strong>{registration.name}</strong> ({registration.email || 'ohne E-Mail'})
                 </p>
+              )}
+              {registration && !registration.email && (
+                <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #d97706 12%, transparent)', color: '#b45309', fontSize: 13 }}>
+                  Dieser Helfer hat keine E-Mail-Adresse — eine Nachricht kann nicht zugestellt werden.
+                </div>
               )}
               <div className="auth-field">
                 <textarea
@@ -72,7 +77,7 @@ export function SendMessageModal({ open, registration, onClose }: SendMessageMod
 
           <div className="modal__foot">
             <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
-            <button type="submit" className="btn btn--primary" disabled={!message.trim() || sendMutation.isPending}>
+            <button type="submit" className="btn btn--primary" disabled={!message.trim() || sendMutation.isPending || !registration?.email}>
               {sendMutation.isPending ? '...' : t('shifts.registration.sendMessage')}
             </button>
           </div>

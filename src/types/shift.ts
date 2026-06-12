@@ -63,7 +63,7 @@ export interface ShiftRegistration {
   shiftId: string;
   registrationGroupId: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   notes: string | null;
   status: ShiftRegistrationStatus;

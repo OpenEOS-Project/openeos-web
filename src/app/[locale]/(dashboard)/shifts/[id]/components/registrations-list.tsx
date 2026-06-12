@@ -131,11 +131,16 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
   const registrations = registrationsData?.data || [];
 
-  // Group helpers by their email (case-insensitive) so a person who signed
-  // up multiple times shows up as ONE card with all their shifts merged,
-  // not scattered across several entries.
+  // Group helpers by email AND name (case-insensitive) so a person who
+  // signed up multiple times shows up as ONE card with all their shifts
+  // merged. Email alone is not enough: families/groups often share one
+  // address, so the name is part of the key — and helpers added manually
+  // without an email group by their name.
+  const helperKey = (reg: ShiftRegistration) =>
+    `${(reg.email || '').trim().toLowerCase()}|${(reg.name || '').trim().toLowerCase()}`;
+
   const helperGroups = registrations.reduce((acc, reg) => {
-    const key = reg.email.trim().toLowerCase();
+    const key = helperKey(reg);
     if (!acc[key]) acc[key] = [];
     acc[key].push(reg);
     return acc;
@@ -302,7 +307,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
           : { cls: 'badge badge--neutral', label: `${confirmed}/${total} bestätigt` };
 
         return (
-          <div key={firstReg.email.trim().toLowerCase()} className="app-card">
+          <div key={helperKey(firstReg)} className="app-card">
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{
@@ -315,7 +320,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{firstReg.name}</div>
-                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.email}</div>
+                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.email || '— ohne E-Mail —'}</div>
                   {firstReg.phone && (
                     <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.phone}</div>
                   )}

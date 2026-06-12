@@ -103,13 +103,14 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
       for (const shiftId of selectedShiftIds) {
         const res = await shiftsApi.adminCreateRegistration(organizationId!, shiftId, {
           name,
-          email,
+          email: email.trim() || undefined,
           phone: phone || undefined,
           notes: notes || undefined,
           adminNotes: adminNotes || undefined,
           // Only the FIRST registration may trigger a notification email so
-          // the helper gets one summary, not N copies.
-          notify: first ? notify : false,
+          // the helper gets one summary, not N copies — and only when the
+          // helper actually has an email address.
+          notify: first && !!email.trim() ? notify : false,
           registrationGroupId: sharedGroupId,
         });
         if (first) sharedGroupId = res.data.registrationGroupId;
@@ -127,7 +128,12 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
   const handleClose = () => onClose();
   if (!open) return null;
 
-  const canSubmit = selectedShiftIds.size > 0 && name.trim().length >= 2 && /\S+@\S+\.\S+/.test(email);
+  // Email is optional for manually added helpers — but when one is given it
+  // has to look like an email.
+  const canSubmit =
+    selectedShiftIds.size > 0 &&
+    name.trim().length >= 2 &&
+    (!email.trim() || /\S+@\S+\.\S+/.test(email));
 
   return (
     <div className="modal__backdrop" onClick={handleClose}>
@@ -151,8 +157,13 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Max Mustermann" />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">E-Mail *</label>
+                <label className="auth-field__label">E-Mail (optional)</label>
                 <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="max@example.com" />
+                {!email.trim() && (
+                  <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>
+                    Ohne E-Mail erhält der Helfer keine Benachrichtigungen oder Erinnerungen.
+                  </p>
+                )}
               </div>
             </div>
 

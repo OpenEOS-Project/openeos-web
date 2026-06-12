@@ -59,13 +59,16 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
 
   const groupRegs = useMemo(() => {
     if (!registration) return [] as ShiftRegistration[];
-    // Helpers are grouped on the list page by email (a person may have
-    // submitted the public form multiple times = multiple registrationGroupIds),
-    // so the edit modal also operates on the union: every registration with
-    // the same email is considered the same helper's row.
-    const key = registration.email.trim().toLowerCase();
+    // Helpers are grouped on the list page by email AND name (a person may
+    // have submitted the public form multiple times = multiple
+    // registrationGroupIds, while families often share one address), so the
+    // edit modal operates on the same union: every registration with the
+    // same email+name is considered the same helper's row.
+    const helperKey = (r: ShiftRegistration) =>
+      `${(r.email || '').trim().toLowerCase()}|${(r.name || '').trim().toLowerCase()}`;
+    const key = helperKey(registration);
     return allRegistrations
-      .filter((r) => r.email.trim().toLowerCase() === key)
+      .filter((r) => helperKey(r) === key)
       .sort((a, b) => {
         const aDate = (a.shift?.date || '').localeCompare(b.shift?.date || '');
         if (aDate !== 0) return aDate;
@@ -121,7 +124,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
   useEffect(() => {
     if (!open || !registration) return;
     setName(registration.name);
-    setEmail(registration.email);
+    setEmail(registration.email || '');
     setPhone(registration.phone ?? '');
     setNotes(registration.notes ?? '');
     setAdminNotes(registration.adminNotes ?? '');
@@ -144,7 +147,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       if (survivor) {
         await shiftsApi.adminUpdateRegistration(organizationId!, survivor.id, {
           name,
-          email,
+          email: email.trim() || null,
           phone: phone || undefined,
           notes: notes || undefined,
           adminNotes: adminNotes || undefined,
@@ -158,7 +161,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
         if (removedRegIds.has(reg.id)) continue;
         await shiftsApi.adminUpdateRegistration(organizationId!, reg.id, {
           name,
-          email,
+          email: email.trim() || null,
           phone: phone || undefined,
           notes: notes || undefined,
           adminNotes: adminNotes || undefined,
@@ -174,7 +177,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       for (const shiftId of addedShiftIds) {
         await shiftsApi.adminCreateRegistration(organizationId!, shiftId, {
           name,
-          email,
+          email: email.trim() || undefined,
           phone: phone || undefined,
           notes: notes || undefined,
           adminNotes: adminNotes || undefined,
@@ -201,7 +204,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       for (const reg of groupRegs) {
         await shiftsApi.adminUpdateRegistration(organizationId!, reg.id, {
           name,
-          email,
+          email: email.trim() || null,
           phone: phone || undefined,
           notes: notes || undefined,
           adminNotes: adminNotes || undefined,
@@ -229,7 +232,11 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
 
   if (!open || !registration) return null;
 
-  const canSubmit = name.trim().length >= 2 && /\S+@\S+\.\S+/.test(email);
+  // Email is optional (manually added helpers may not have one) — but when
+  // given it must be valid. Change proposals NEED an email, the helper has
+  // to accept them via mail.
+  const canSubmit = name.trim().length >= 2 && (!email.trim() || /\S+@\S+\.\S+/.test(email));
+  const canPropose = canSubmit && !!email.trim();
   const addedShiftCards = allShifts.filter((s) => addedShiftIds.has(s.shiftId));
 
   return (
@@ -446,9 +453,11 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
               <button
                 type="button"
                 className="btn btn--ghost"
-                disabled={!canSubmit || proposeMutation.isPending || mutation.isPending}
+                disabled={!canPropose || proposeMutation.isPending || mutation.isPending}
                 onClick={() => { setError(null); proposeMutation.mutate(); }}
-                title="Helfer bekommt eine E-Mail mit Annehmen / Ablehnen — Änderung erst nach Bestätigung"
+                title={!email.trim()
+                  ? 'Vorschläge benötigen eine E-Mail-Adresse des Helfers'
+                  : 'Helfer bekommt eine E-Mail mit Annehmen / Ablehnen — Änderung erst nach Bestätigung'}
               >
                 {proposeMutation.isPending ? '...' : 'Vorschlag senden'}
               </button>

@@ -1410,7 +1410,8 @@ export const shiftsApi = {
     shiftId: string,
     data: {
       name: string;
-      email: string;
+      /** Optional — manually added helpers may have no email address. */
+      email?: string;
       phone?: string;
       notes?: string;
       adminNotes?: string;
@@ -1439,7 +1440,8 @@ export const shiftsApi = {
     registrationId: string,
     data: {
       name?: string;
-      email?: string;
+      /** null clears the address (helper without email). */
+      email?: string | null;
       phone?: string;
       notes?: string;
       adminNotes?: string;
