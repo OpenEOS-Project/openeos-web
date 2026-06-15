@@ -30,12 +30,13 @@ export function AppShell({ children }: AppShellProps) {
         <main className="app-content">{children}</main>
       </div>
 
-      {/* Responsive: override margin-left on mobile */}
+      {/* Responsive: override margin-left on mobile. No padding-top — the
+          topbar is sticky and in flow, so any extra top padding just leaves
+          an empty gap above it. */}
       <style>{`
         @media (max-width: 960px) {
           .landing .app-shell__main {
             margin-left: 0 !important;
-            padding-top: 56px;
           }
         }
       `}</style>

@@ -561,10 +561,16 @@ export const uploadsApi = {
 
 // Products API (now under events)
 export const productsApi = {
-  list: (eventId: string, params?: { categoryId?: string; isActive?: boolean }) =>
-    apiClient.get<ApiResponse<import('@/types/product').Product[]>>(
-      `/events/${eventId}/products${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
-    ),
+  list: (eventId: string, params?: { categoryId?: string; isActive?: boolean }) => {
+    // Management list shows ALL products — request a high page size so the
+    // default pagination (20) doesn't silently hide products.
+    const query = new URLSearchParams({ limit: '500' });
+    if (params?.categoryId) query.set('categoryId', params.categoryId);
+    if (params?.isActive !== undefined) query.set('isActive', String(params.isActive));
+    return apiClient.get<ApiResponse<import('@/types/product').Product[]>>(
+      `/events/${eventId}/products?${query.toString()}`
+    );
+  },
 
   get: (eventId: string, id: string) =>
     apiClient.get<ApiResponse<import('@/types/product').Product>>(`/events/${eventId}/products/${id}`),
