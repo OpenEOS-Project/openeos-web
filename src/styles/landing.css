@@ -2997,12 +2997,11 @@ body:has(.landing) {
 }
 
 @media (max-width: 960px) {
-  .landing .app-mobile-header {
-    display: flex;
-  }
-
+  /* No separate .app-mobile-header is rendered — the sticky .app-topbar
+     carries the hamburger and IS the mobile header, so it must stick at the
+     very top. Reserving 56px here left an empty band above it when scrolled. */
   .landing .app-topbar {
-    top: 56px;
+    top: 0;
   }
 
   .landing .app-content {
