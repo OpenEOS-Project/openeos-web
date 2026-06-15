@@ -8,7 +8,6 @@ FROM base AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
-COPY vendor/ ./vendor/
 RUN pnpm install --frozen-lockfile
 
 # Builder stage
