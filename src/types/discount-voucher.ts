@@ -9,6 +9,8 @@ export interface DiscountVoucher {
   /** Discount amount in EUR. Set for `fixed` vouchers, null for `manual` ones. */
   amount: number | null;
   isActive: boolean;
+  /** Whether the voucher may be applied more than once to the same order. */
+  allowMultiplePerOrder: boolean;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -20,6 +22,7 @@ export interface CreateDiscountVoucherData {
   type: DiscountVoucherType;
   amount?: number;
   isActive?: boolean;
+  allowMultiplePerOrder?: boolean;
   sortOrder?: number;
 }
 
@@ -29,5 +32,6 @@ export interface UpdateDiscountVoucherData {
   type?: DiscountVoucherType;
   amount?: number;
   isActive?: boolean;
+  allowMultiplePerOrder?: boolean;
   sortOrder?: number;
 }

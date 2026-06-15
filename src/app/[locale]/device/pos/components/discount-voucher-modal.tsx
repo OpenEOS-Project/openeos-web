@@ -13,7 +13,7 @@ interface DiscountVoucherModalProps {
   onClose: () => void;
   vouchers: DiscountVoucher[];
   appliedIds: string[];
-  onApply: (voucher: AppliedVoucher) => void;
+  onApply: (voucher: Omit<AppliedVoucher, 'uid'>) => void;
 }
 
 export function DiscountVoucherModal({
@@ -51,19 +51,30 @@ export function DiscountVoucherModal({
   };
 
   const handleSelect = (voucher: DiscountVoucher) => {
-    if (appliedIds.includes(voucher.id)) return;
+    // Multi-use vouchers stay selectable even when already applied.
+    if (appliedIds.includes(voucher.id) && !voucher.allowMultiplePerOrder) return;
     if (voucher.type === 'manual') {
       setManualVoucher(voucher);
       setManualValue('');
       return;
     }
-    onApply({ id: voucher.id, name: voucher.name, amount: Number(voucher.amount ?? 0) });
+    onApply({
+      id: voucher.id,
+      name: voucher.name,
+      amount: Number(voucher.amount ?? 0),
+      allowMultiple: voucher.allowMultiplePerOrder,
+    });
     handleClose();
   };
 
   const handleManualConfirm = () => {
     if (!manualVoucher || manualAmount <= 0) return;
-    onApply({ id: manualVoucher.id, name: manualVoucher.name, amount: manualAmount });
+    onApply({
+      id: manualVoucher.id,
+      name: manualVoucher.name,
+      amount: manualAmount,
+      allowMultiple: manualVoucher.allowMultiplePerOrder,
+    });
     handleClose();
   };
 
@@ -179,7 +190,8 @@ export function DiscountVoucherModal({
             </div>
           ) : (
             vouchers.map((voucher) => {
-              const applied = appliedIds.includes(voucher.id);
+              // Multi-use vouchers never appear "used up".
+              const applied = appliedIds.includes(voucher.id) && !voucher.allowMultiplePerOrder;
               return (
                 <button
                   key={voucher.id}

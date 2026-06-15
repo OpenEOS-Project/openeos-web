@@ -19,6 +19,7 @@ const voucherSchema = z
     type: z.enum(['fixed', 'manual']),
     amount: z.coerce.number().min(0).optional(),
     isActive: z.boolean(),
+    allowMultiplePerOrder: z.boolean(),
     sortOrder: z.coerce.number().min(0).optional(),
   })
   .refine((data) => data.type !== 'fixed' || (data.amount !== undefined && data.amount > 0), {
@@ -57,6 +58,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
       type: 'fixed',
       amount: 0,
       isActive: true,
+      allowMultiplePerOrder: false,
       sortOrder: 0,
     },
   });
@@ -71,10 +73,11 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
         type: voucher.type,
         amount: Number(voucher.amount ?? 0),
         isActive: voucher.isActive,
+        allowMultiplePerOrder: voucher.allowMultiplePerOrder,
         sortOrder: voucher.sortOrder,
       });
     } else {
-      reset({ name: '', description: '', type: 'fixed', amount: 0, isActive: true, sortOrder: 0 });
+      reset({ name: '', description: '', type: 'fixed', amount: 0, isActive: true, allowMultiplePerOrder: false, sortOrder: 0 });
     }
   }, [voucher, reset]);
 
@@ -85,6 +88,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
       type: data.type,
       amount: data.type === 'fixed' ? data.amount : undefined,
       isActive: data.isActive,
+      allowMultiplePerOrder: data.allowMultiplePerOrder,
       sortOrder: data.sortOrder,
     };
 
@@ -201,6 +205,22 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
                       <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.isActiveHint')}</div>
+                    </div>
+                    <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
+                      <span style={toggleKnob(field.value)} />
+                    </button>
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="allowMultiplePerOrder"
+                control={control}
+                render={({ field }) => (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.allowMultiple')}</div>
+                      <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.allowMultipleHint')}</div>
                     </div>
                     <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
                       <span style={toggleKnob(field.value)} />

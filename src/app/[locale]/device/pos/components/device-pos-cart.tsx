@@ -533,7 +533,7 @@ export function PosCart({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {appliedVouchers.map((v) => (
               <div
-                key={v.id}
+                key={v.uid}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -548,7 +548,7 @@ export function PosCart({
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
                   <button
                     type="button"
-                    onClick={() => removeVoucher(v.id)}
+                    onClick={() => removeVoucher(v.uid)}
                     aria-label={t('discount.remove')}
                     style={{
                       display: 'inline-flex',

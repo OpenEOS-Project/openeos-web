@@ -985,7 +985,9 @@
       "typeManualHint": "Der Betrag wird beim Einlösen an der Kasse eingegeben.",
       "amount": "Betrag (€)",
       "isActive": "Aktiv",
-      "isActiveHint": "Nur aktive Bons sind an der Kasse auswählbar."
+      "isActiveHint": "Nur aktive Bons sind an der Kasse auswählbar.",
+      "allowMultiple": "Mehrfach pro Bestellung",
+      "allowMultipleHint": "Erlaubt, denselben Bon mehrmals auf eine Bestellung anzuwenden."
     },
     "deleteConfirm": {
       "title": "Rabatt-Bon löschen",

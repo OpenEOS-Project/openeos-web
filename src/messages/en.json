@@ -1160,7 +1160,9 @@
       "typeManualHint": "The amount is entered when redeemed at the register.",
       "amount": "Amount (€)",
       "isActive": "Active",
-      "isActiveHint": "Only active vouchers can be selected at the register."
+      "isActiveHint": "Only active vouchers can be selected at the register.",
+      "allowMultiple": "Multiple per order",
+      "allowMultipleHint": "Allows applying the same voucher more than once to one order."
     },
     "deleteConfirm": {
       "title": "Delete discount voucher",

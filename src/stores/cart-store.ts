@@ -25,9 +25,11 @@ export interface CartItem {
 }
 
 export interface AppliedVoucher {
+  uid: string; // Unique per application instance (a voucher may be applied multiple times)
   id: string; // DiscountVoucher id
   name: string;
   amount: number; // Resolved discount in EUR (fixed value, or amount entered for manual vouchers)
+  allowMultiple?: boolean; // Whether this voucher may be applied more than once per order
 }
 
 interface CartState {
@@ -50,8 +52,8 @@ interface CartActions {
   setTableNumber: (tableNumber: string) => void;
   setCustomerName: (customerName: string) => void;
   setNotes: (notes: string) => void;
-  applyVoucher: (voucher: AppliedVoucher) => void;
-  removeVoucher: (voucherId: string) => void;
+  applyVoucher: (voucher: Omit<AppliedVoucher, 'uid'>) => void;
+  removeVoucher: (voucherUid: string) => void;
   clearVouchers: () => void;
   getTotal: () => number;
   getDiscount: () => number;
@@ -185,13 +187,15 @@ export const useCartStore = create<CartState & CartActions>()(
 
       applyVoucher: (voucher) => {
         const existing = get().appliedVouchers;
-        // Avoid applying the same voucher twice.
-        if (existing.some((v) => v.id === voucher.id)) return;
-        set({ appliedVouchers: [...existing, voucher] });
+        // Single-use vouchers may only be applied once; multi-use ones can
+        // stack as separate instances (each with its own uid).
+        if (!voucher.allowMultiple && existing.some((v) => v.id === voucher.id)) return;
+        const uid = `voucher-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        set({ appliedVouchers: [...existing, { ...voucher, uid }] });
       },
 
-      removeVoucher: (voucherId) => {
-        set({ appliedVouchers: get().appliedVouchers.filter((v) => v.id !== voucherId) });
+      removeVoucher: (voucherUid) => {
+        set({ appliedVouchers: get().appliedVouchers.filter((v) => v.uid !== voucherUid) });
       },
 
       clearVouchers: () => set({ appliedVouchers: [] }),
