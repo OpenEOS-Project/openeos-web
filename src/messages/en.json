@@ -957,6 +957,54 @@
       "updated": "Product updated successfully",
       "deleted": "Product deleted successfully",
       "stockAdjusted": "Stock adjusted successfully"
+    },
+    "import": {
+      "trigger": "Import",
+      "title": "Import products",
+      "csvLabel": "CSV file or text",
+      "chooseFile": "Choose file",
+      "downloadTemplate": "Download template",
+      "pastePlaceholder": "Paste CSV here or choose a file …",
+      "modeLabel": "Duplicate handling",
+      "mode": {
+        "skip": "Skip",
+        "update": "Update",
+        "create": "Always create new"
+      },
+      "columnHint": {
+        "title": "Column reference",
+        "body": "category, name, description, price, pfand, icon – Required: category, name, price. ingredients: separated by | (e.g. Lettuce | Tomato). choices: group with options (e.g. Sauce: Ketchup | Mayonnaise). extras: add-on with surcharge (e.g. Extra Cheese +0.50)."
+      },
+      "fatalError": "Fatal error:",
+      "summary": {
+        "create": "create",
+        "update": "update",
+        "skip": "skip",
+        "error": "errors"
+      },
+      "newCategories": "Will be created: Categories",
+      "newPfandTypes": "Will be created: Deposit types",
+      "table": {
+        "line": "Line",
+        "name": "Name",
+        "category": "Category",
+        "price": "Price",
+        "pfand": "Deposit",
+        "icon": "Icon",
+        "action": "Action"
+      },
+      "action": {
+        "create": "Create",
+        "update": "Update",
+        "skip": "Skip",
+        "error": "Error"
+      },
+      "previewButton": "Preview",
+      "importButton": "Run import",
+      "success": {
+        "title": "Import successful",
+        "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
+      }
     }
   },
   "productionStations": {

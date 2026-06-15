@@ -782,6 +782,54 @@
       "updated": "Produkt erfolgreich aktualisiert",
       "deleted": "Produkt erfolgreich gelöscht",
       "stockAdjusted": "Bestand erfolgreich angepasst"
+    },
+    "import": {
+      "trigger": "Importieren",
+      "title": "Produkte importieren",
+      "csvLabel": "CSV-Datei oder Text",
+      "chooseFile": "Datei auswählen",
+      "downloadTemplate": "Vorlage herunterladen",
+      "pastePlaceholder": "CSV hier einfügen oder Datei auswählen …",
+      "modeLabel": "Duplikat-Behandlung",
+      "mode": {
+        "skip": "Überspringen",
+        "update": "Aktualisieren",
+        "create": "Immer neu anlegen"
+      },
+      "columnHint": {
+        "title": "Spalten-Erklärung",
+        "body": "category, name, description, price, pfand, icon – Pflichtfelder: category, name, price. ingredients: Zutaten mit | getrennt (z.B. Salat | Tomate). choices: Gruppe mit Optionen (z.B. Sauce: Ketchup | Mayonnaise). extras: Zusatz mit Aufpreis (z.B. Extra Käse +0.50)."
+      },
+      "fatalError": "Kritischer Fehler:",
+      "summary": {
+        "create": "anlegen",
+        "update": "aktualisieren",
+        "skip": "überspringen",
+        "error": "Fehler"
+      },
+      "newCategories": "Wird neu angelegt: Kategorien",
+      "newPfandTypes": "Wird neu angelegt: Pfand-Typen",
+      "table": {
+        "line": "Zeile",
+        "name": "Name",
+        "category": "Kategorie",
+        "price": "Preis",
+        "pfand": "Pfand",
+        "icon": "Icon",
+        "action": "Aktion"
+      },
+      "action": {
+        "create": "Anlegen",
+        "update": "Aktualisieren",
+        "skip": "Überspringen",
+        "error": "Fehler"
+      },
+      "previewButton": "Vorschau",
+      "importButton": "Import durchführen",
+      "success": {
+        "title": "Import erfolgreich",
+        "message": "{create} angelegt, {update} aktualisiert, {skip} übersprungen, {error} Fehler"
+      }
     }
   },
   "productionStations": {

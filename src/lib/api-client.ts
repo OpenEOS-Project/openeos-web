@@ -583,6 +583,9 @@ export const productsApi = {
 
   reorder: (eventId: string, items: { id: string; sortOrder: number }[]) =>
     apiClient.post(`/events/${eventId}/products/reorder`, { items }),
+
+  import: (eventId: string, data: { csv: string; mode: 'skip' | 'update' | 'create'; dryRun: boolean }) =>
+    apiClient.post<ApiResponse<import('@/types/product').ProductImportResult>>(`/events/${eventId}/products/import`, data),
 };
 
 // Production Stations API (under events)

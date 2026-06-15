@@ -89,3 +89,30 @@ export interface AdjustStockData {
   quantity: number;
   reason?: string;
 }
+
+export interface ProductImportRow {
+  line: number;
+  name: string;
+  category: string;
+  price: number;
+  pfand: number | null;
+  icon: string | null;
+  action: 'create' | 'update' | 'skip' | 'error';
+  message?: string;
+}
+
+export interface ProductImportSummary {
+  create: number;
+  update: number;
+  skip: number;
+  error: number;
+}
+
+export interface ProductImportResult {
+  committed: boolean;
+  summary: ProductImportSummary;
+  rows: ProductImportRow[];
+  newCategories: string[];
+  newPfandTypes: Array<{ name: string; amount: number }>;
+  fatalError: string | null;
+}

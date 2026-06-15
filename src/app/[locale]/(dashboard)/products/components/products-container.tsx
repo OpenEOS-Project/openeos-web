@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { Product } from '@/types/product';
 
 import { ProductFormModal } from './product-form-modal';
+import { ProductImportModal } from './product-import-modal';
 import { ProductsList } from './products-list';
 import { StockAdjustmentModal } from './stock-adjustment-modal';
 
@@ -17,6 +18,7 @@ export function ProductsContainer() {
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [adjustingStockProduct, setAdjustingStockProduct] = useState<Product | null>(null);
@@ -112,9 +114,16 @@ export function ProductsContainer() {
       <ProductsList
         eventId={eventId}
         onCreateClick={handleCreateClick}
+        onImportClick={() => setIsImportModalOpen(true)}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
         onAdjustStockClick={handleAdjustStockClick}
+      />
+
+      <ProductImportModal
+        isOpen={isImportModalOpen}
+        eventId={eventId}
+        onClose={() => setIsImportModalOpen(false)}
       />
 
       <ProductFormModal

@@ -9,6 +9,7 @@ import type { Product } from '@/types/product';
 interface ProductsListProps {
   eventId: string;
   onCreateClick: () => void;
+  onImportClick: () => void;
   onEditClick: (product: Product) => void;
   onDeleteClick: (product: Product) => void;
   onAdjustStockClick: (product: Product) => void;
@@ -17,6 +18,7 @@ interface ProductsListProps {
 export function ProductsList({
   eventId,
   onCreateClick,
+  onImportClick,
   onEditClick,
   onDeleteClick,
   onAdjustStockClick,
@@ -85,9 +87,14 @@ export function ProductsList({
           <h2 className="app-card__title">{t('title')}</h2>
           <p className="app-card__sub">{t('subtitle')}</p>
         </div>
-        <button className="btn btn--primary" onClick={onCreateClick}>
-          {t('create')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--ghost" onClick={onImportClick}>
+            {t('import.trigger')}
+          </button>
+          <button className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
