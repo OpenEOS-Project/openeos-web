@@ -21,8 +21,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.70.0(react@19.2.3))
       '@openeos/pos-icons':
-        specifier: 0.3.0
-        version: 0.3.0(react@19.2.3)
+        specifier: 0.4.0
+        version: 0.4.0(react@19.2.3)
       '@react-stately/utils':
         specifier: ^3.11.0
         version: 3.11.0(react@19.2.3)
@@ -579,8 +579,8 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@openeos/pos-icons@0.3.0':
-    resolution: {integrity: sha512-QayUxmvXcGaAw23bocGEBuviGMPIpWYBmxUcqW/etunRI/pK0JDHrMObYcKZO7DYoPLeNe5zB3PuuuAf9+dlFg==}
+  '@openeos/pos-icons@0.4.0':
+    resolution: {integrity: sha512-aLCjqJYVXnq0QgNKQUWI5dNobWNNKPCGlx8WXvVhrhlC2e6mLiFo0KObneMKC5rMN3YH5VUhNpfKg2o62X1FQg==}
     peerDependencies:
       react: '>=18'
 
@@ -4692,7 +4692,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@openeos/pos-icons@0.3.0(react@19.2.3)':
+  '@openeos/pos-icons@0.4.0(react@19.2.3)':
     dependencies:
       react: 19.2.3
 
