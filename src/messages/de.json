@@ -1578,16 +1578,44 @@
     "filters": {
       "allStatuses": "Alle Status",
       "allPayments": "Alle Zahlungen",
+      "allChannels": "Alle Kanäle",
       "allEvents": "Alle Events"
     },
     "columns": {
       "orderNumber": "Bestellung",
       "table": "Tisch",
+      "channel": "Kanal",
       "items": "Artikel",
       "status": "Status",
       "payment": "Zahlung",
       "total": "Gesamt",
       "createdAt": "Erstellt"
+    },
+    "tableLabel": "Tisch {table}",
+    "channel": {
+      "service": "Bedienung",
+      "counter": "Bon-Kasse",
+      "online": "Online",
+      "qr": "QR-Bestellung"
+    },
+    "summary": {
+      "orders": "Bestellungen",
+      "revenue": "Umsatz",
+      "average": "Ø Bon",
+      "pfand": "Pfand"
+    },
+    "detail": {
+      "title": "Bestellung #{number}",
+      "createdAt": "Erstellt",
+      "createdBy": "Erstellt von",
+      "phone": "Telefon",
+      "notes": "Notiz",
+      "refill": "Nachfüllen (ohne Pfand)",
+      "subtotal": "Zwischensumme",
+      "discount": "Rabatt",
+      "pfand": "Pfand",
+      "tip": "Trinkgeld",
+      "total": "Gesamt"
     }
   },
   "device": {

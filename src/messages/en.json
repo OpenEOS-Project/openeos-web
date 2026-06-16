@@ -1578,16 +1578,44 @@
     "filters": {
       "allStatuses": "All statuses",
       "allPayments": "All payments",
+      "allChannels": "All channels",
       "allEvents": "All events"
     },
     "columns": {
       "orderNumber": "Order",
       "table": "Table",
+      "channel": "Channel",
       "items": "Items",
       "status": "Status",
       "payment": "Payment",
       "total": "Total",
       "createdAt": "Created"
+    },
+    "tableLabel": "Table {table}",
+    "channel": {
+      "service": "Table service",
+      "counter": "Counter",
+      "online": "Online",
+      "qr": "QR order"
+    },
+    "summary": {
+      "orders": "Orders",
+      "revenue": "Revenue",
+      "average": "Avg. order",
+      "pfand": "Deposit"
+    },
+    "detail": {
+      "title": "Order #{number}",
+      "createdAt": "Created",
+      "createdBy": "Created by",
+      "phone": "Phone",
+      "notes": "Note",
+      "refill": "Refill (no deposit)",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "pfand": "Deposit",
+      "tip": "Tip",
+      "total": "Total"
     }
   },
   "device": {

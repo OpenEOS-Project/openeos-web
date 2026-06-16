@@ -87,6 +87,19 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+  /** Member who rang up the order (POS/manual). Only the display fields are returned. */
+  createdByUser?: { id: string; firstName: string; lastName: string } | null;
+  /** Device/terminal that created the order. */
+  createdByDevice?: { id: string; name: string } | null;
+}
+
+export type OrderChannel = 'service' | 'counter' | 'online' | 'qr';
+
+/** Derive a human-facing ordering channel from an order's source + fulfillment. */
+export function getOrderChannel(order: Pick<Order, 'source' | 'fulfillmentType'>): OrderChannel {
+  if (order.source === 'online') return 'online';
+  if (order.source === 'qr_order') return 'qr';
+  return order.fulfillmentType === 'table_service' ? 'service' : 'counter';
 }
 
 // DTOs for creating/updating orders
@@ -146,6 +159,7 @@ export interface QueryOrdersParams {
   status?: OrderStatus;
   paymentStatus?: OrderPaymentStatus;
   source?: OrderSource;
+  fulfillmentType?: OrderFulfillmentType;
   tableNumber?: string;
   search?: string;
   dateFrom?: string;

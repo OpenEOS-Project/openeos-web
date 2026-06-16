@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
-import { formatDate, formatCurrency } from '@/utils/format';
-import type { Order, OrderStatus, OrderPaymentStatus } from '@/types/order';
+import { formatDateTime, formatCurrency } from '@/utils/format';
+import {
+  getOrderChannel,
+  type Order,
+  type OrderChannel,
+  type OrderStatus,
+  type OrderPaymentStatus,
+} from '@/types/order';
+import { OrderDetailModal } from './order-detail-modal';
 
 const statusBadge: Record<OrderStatus, string> = {
   open: 'badge badge--neutral',
@@ -23,6 +30,21 @@ const paymentBadge: Record<OrderPaymentStatus, string> = {
   refunded: 'badge badge--neutral',
 };
 
+const channelBadge: Record<OrderChannel, string> = {
+  service: 'badge badge--info',
+  counter: 'badge badge--neutral',
+  online: 'badge badge--success',
+  qr: 'badge badge--warning',
+};
+
+// Maps the combined channel filter to the API's source/fulfillmentType params.
+const channelQuery: Record<OrderChannel, Record<string, string>> = {
+  service: { source: 'pos', fulfillmentType: 'table_service' },
+  counter: { source: 'pos', fulfillmentType: 'counter_pickup' },
+  online: { source: 'online' },
+  qr: { source: 'qr_order' },
+};
+
 export function OrdersList() {
   const t = useTranslations();
   const { currentOrganization } = useAuthStore();
@@ -30,7 +52,9 @@ export function OrdersList() {
 
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [paymentFilter, setPaymentFilter] = useState<OrderPaymentStatus | 'all'>('all');
+  const [channelFilter, setChannelFilter] = useState<OrderChannel | 'all'>('all');
   const [eventFilter, setEventFilter] = useState<string>('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const { data: eventsData } = useQuery({
     queryKey: ['events', organizationId],
@@ -44,15 +68,37 @@ export function OrdersList() {
   if (statusFilter !== 'all') queryParams.status = statusFilter;
   if (paymentFilter !== 'all') queryParams.paymentStatus = paymentFilter;
   if (eventFilter !== 'all') queryParams.eventId = eventFilter;
+  if (channelFilter !== 'all') Object.assign(queryParams, channelQuery[channelFilter]);
 
   const { data: ordersData, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['orders', organizationId, statusFilter, paymentFilter, eventFilter],
-    queryFn: () => ordersApi.list(organizationId!, queryParams as any),
+    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter],
+    queryFn: () => ordersApi.list(organizationId!, queryParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
   });
 
   const orders = ordersData?.data || [];
+
+  // Summary across the loaded orders (excludes cancelled from money totals).
+  const summary = useMemo(() => {
+    const counted = orders.filter((o) => o.status !== 'cancelled');
+    const revenue = counted.reduce((sum, o) => sum + Number(o.total), 0);
+    const pfand = counted.reduce((sum, o) => sum + Number(o.pfandTotal || 0), 0);
+    return {
+      count: orders.length,
+      revenue,
+      pfand,
+      average: counted.length > 0 ? revenue / counted.length : 0,
+    };
+  }, [orders]);
+
+  const creatorLabel = (order: Order): string | null => {
+    if (order.createdByUser) {
+      return `${order.createdByUser.firstName} ${order.createdByUser.lastName}`.trim();
+    }
+    if (order.createdByDevice?.name) return order.createdByDevice.name;
+    return null;
+  };
 
   if (isLoading) {
     return (
@@ -65,11 +111,27 @@ export function OrdersList() {
 
   return (
     <>
+      {/* Summary tiles */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: 12,
+          padding: '16px 20px',
+          borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+        }}
+      >
+        <SummaryTile label={t('orders.summary.orders')} value={String(summary.count)} />
+        <SummaryTile label={t('orders.summary.revenue')} value={formatCurrency(summary.revenue)} accent />
+        <SummaryTile label={t('orders.summary.average')} value={formatCurrency(summary.average)} />
+        <SummaryTile label={t('orders.summary.pfand')} value={formatCurrency(summary.pfand)} />
+      </div>
+
       {/* Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
         <select
           className="select"
-          style={{ flex: '1 1 0', minWidth: 0 }}
+          style={{ flex: '1 1 140px', minWidth: 0 }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
         >
@@ -83,7 +145,7 @@ export function OrdersList() {
 
         <select
           className="select"
-          style={{ flex: '1 1 0', minWidth: 0 }}
+          style={{ flex: '1 1 140px', minWidth: 0 }}
           value={paymentFilter}
           onChange={(e) => setPaymentFilter(e.target.value as OrderPaymentStatus | 'all')}
         >
@@ -94,10 +156,23 @@ export function OrdersList() {
           <option value="refunded">{t('orders.paymentStatus.refunded')}</option>
         </select>
 
+        <select
+          className="select"
+          style={{ flex: '1 1 140px', minWidth: 0 }}
+          value={channelFilter}
+          onChange={(e) => setChannelFilter(e.target.value as OrderChannel | 'all')}
+        >
+          <option value="all">{t('orders.filters.allChannels')}</option>
+          <option value="service">{t('orders.channel.service')}</option>
+          <option value="counter">{t('orders.channel.counter')}</option>
+          <option value="online">{t('orders.channel.online')}</option>
+          <option value="qr">{t('orders.channel.qr')}</option>
+        </select>
+
         {events.length > 0 && (
           <select
             className="select"
-            style={{ flex: '1 1 0', minWidth: 0 }}
+            style={{ flex: '1 1 140px', minWidth: 0 }}
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
           >
@@ -153,7 +228,7 @@ export function OrdersList() {
             <thead>
               <tr>
                 <th>{t('orders.columns.orderNumber')}</th>
-                <th>{t('orders.columns.table')}</th>
+                <th>{t('orders.columns.channel')}</th>
                 <th>{t('orders.columns.items')}</th>
                 <th>{t('orders.columns.status')}</th>
                 <th>{t('orders.columns.payment')}</th>
@@ -165,9 +240,15 @@ export function OrdersList() {
               {orders.map((order: Order) => {
                 const statusCls = statusBadge[order.status] ?? 'badge badge--neutral';
                 const paymentCls = paymentBadge[order.paymentStatus] ?? 'badge badge--neutral';
+                const channel = getOrderChannel(order);
+                const creator = creatorLabel(order);
 
                 return (
-                  <tr key={order.id}>
+                  <tr
+                    key={order.id}
+                    onClick={() => setSelectedOrder(order)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div
@@ -189,12 +270,23 @@ export function OrdersList() {
                           #{order.dailyNumber}
                         </div>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>#{order.dailyNumber}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>
+                            {order.tableNumber
+                              ? t('orders.tableLabel', { table: order.tableNumber })
+                              : order.customerName || `#${order.dailyNumber}`}
+                          </div>
                           <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', fontFamily: 'var(--f-mono)' }}>{order.orderNumber}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="mono">{order.tableNumber || '-'}</td>
+                    <td>
+                      <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
+                      {creator && (
+                        <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', marginTop: 4 }}>
+                          {creator}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       {order.items && order.items.length > 0 ? (
                         <div>
@@ -227,7 +319,7 @@ export function OrdersList() {
                         </div>
                       )}
                     </td>
-                    <td className="mono">{formatDate(order.createdAt)}</td>
+                    <td className="mono">{formatDateTime(order.createdAt)}</td>
                   </tr>
                 );
               })}
@@ -235,6 +327,39 @@ export function OrdersList() {
           </table>
         </div>
       )}
+
+      <OrderDetailModal
+        order={selectedOrder}
+        creatorLabel={selectedOrder ? creatorLabel(selectedOrder) : null}
+        onClose={() => setSelectedOrder(null)}
+      />
     </>
+  );
+}
+
+function SummaryTile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div
+      style={{
+        padding: '12px 14px',
+        borderRadius: 12,
+        background: accent
+          ? 'color-mix(in oklab, var(--green-soft) 50%, var(--paper))'
+          : 'color-mix(in oklab, var(--ink) 3%, var(--paper))',
+        border: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)',
+      }}
+    >
+      <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 4 }}>{label}</div>
+      <div
+        style={{
+          fontSize: 20,
+          fontWeight: 700,
+          fontFamily: 'var(--f-mono)',
+          color: accent ? 'var(--green-ink)' : 'var(--ink)',
+        }}
+      >
+        {value}
+      </div>
+    </div>
   );
 }
