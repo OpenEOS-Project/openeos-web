@@ -30,7 +30,6 @@ const channelBadge: Record<OrderChannel, string> = {
   service: 'badge badge--info',
   counter: 'badge badge--neutral',
   online: 'badge badge--success',
-  qr: 'badge badge--warning',
 };
 
 interface OrderDetailModalProps {

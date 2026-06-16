@@ -1595,8 +1595,7 @@
     "channel": {
       "service": "Table service",
       "counter": "Counter",
-      "online": "Online",
-      "qr": "QR order"
+      "online": "Online"
     },
     "summary": {
       "orders": "Orders",

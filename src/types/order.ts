@@ -93,12 +93,12 @@ export interface Order {
   createdByDevice?: { id: string; name: string } | null;
 }
 
-export type OrderChannel = 'service' | 'counter' | 'online' | 'qr';
+export type OrderChannel = 'service' | 'counter' | 'online';
 
 /** Derive a human-facing ordering channel from an order's source + fulfillment. */
 export function getOrderChannel(order: Pick<Order, 'source' | 'fulfillmentType'>): OrderChannel {
-  if (order.source === 'online') return 'online';
-  if (order.source === 'qr_order') return 'qr';
+  // Shop checkout and the QR self-order flow both count as "online".
+  if (order.source === 'online' || order.source === 'qr_order') return 'online';
   return order.fulfillmentType === 'table_service' ? 'service' : 'counter';
 }
 

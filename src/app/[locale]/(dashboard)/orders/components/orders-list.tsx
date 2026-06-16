@@ -34,7 +34,6 @@ const channelBadge: Record<OrderChannel, string> = {
   service: 'badge badge--info',
   counter: 'badge badge--neutral',
   online: 'badge badge--success',
-  qr: 'badge badge--warning',
 };
 
 // Maps the combined channel filter to the API's source/fulfillmentType params.
@@ -42,7 +41,6 @@ const channelQuery: Record<OrderChannel, Record<string, string>> = {
   service: { source: 'pos', fulfillmentType: 'table_service' },
   counter: { source: 'pos', fulfillmentType: 'counter_pickup' },
   online: { source: 'online' },
-  qr: { source: 'qr_order' },
 };
 
 export function OrdersList() {
@@ -166,7 +164,6 @@ export function OrdersList() {
           <option value="service">{t('orders.channel.service')}</option>
           <option value="counter">{t('orders.channel.counter')}</option>
           <option value="online">{t('orders.channel.online')}</option>
-          <option value="qr">{t('orders.channel.qr')}</option>
         </select>
 
         {events.length > 0 && (

@@ -1595,8 +1595,7 @@
     "channel": {
       "service": "Bedienung",
       "counter": "Bon-Kasse",
-      "online": "Online",
-      "qr": "QR-Bestellung"
+      "online": "Online"
     },
     "summary": {
       "orders": "Bestellungen",
