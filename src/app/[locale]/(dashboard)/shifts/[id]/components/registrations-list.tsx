@@ -69,6 +69,8 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
   const planId = plan.id;
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
+  // null = broadcast to all helpers; otherwise the single helper to message.
+  const [messageHelper, setMessageHelper] = useState<{ name: string; email: string | null } | null>(null);
   const [manualAddOpen, setManualAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<ShiftRegistration | null>(null);
@@ -130,6 +132,16 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
   });
 
   const registrations = registrationsData?.data || [];
+
+  // Distinct helper emails (lowercased) — drives the recipient count for the
+  // "send to all" broadcast.
+  const allHelperEmails = Array.from(
+    new Set(
+      registrations
+        .map((r) => (r.email || '').trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  );
 
   // Group helpers by email AND name (case-insensitive) so a person who
   // signed up multiple times shows up as ONE card with all their shifts
@@ -257,15 +269,27 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             </div>
           );
         })()}
-        <button
-          className="btn btn--primary"
-          style={iconBtnStyle()}
-          onClick={() => setManualAddOpen(true)}
-          title="Helfer manuell eintragen"
-          aria-label="Helfer manuell eintragen"
-        >
-          <UserPlus01 style={{ width: 18, height: 18 }} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            className="btn btn--ghost"
+            style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            onClick={() => { setMessageHelper(null); setMessageModalOpen(true); }}
+            disabled={allHelperEmails.length === 0}
+            title="E-Mail an alle Helfer senden"
+          >
+            <Mail01 style={{ width: 16, height: 16 }} />
+            <span>An alle senden</span>
+          </button>
+          <button
+            className="btn btn--primary"
+            style={iconBtnStyle()}
+            onClick={() => setManualAddOpen(true)}
+            title="Helfer manuell eintragen"
+            aria-label="Helfer manuell eintragen"
+          >
+            <UserPlus01 style={{ width: 18, height: 18 }} />
+          </button>
+        </div>
       </div>
 
       {groups.length === 0 && (
@@ -515,7 +539,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
               <button
                 className="btn btn--ghost"
                 style={iconBtnStyle()}
-                onClick={() => { setSelectedRegistration(firstReg); setMessageModalOpen(true); }}
+                onClick={() => { setMessageHelper({ name: firstReg.name, email: firstReg.email }); setMessageModalOpen(true); }}
                 title={t('shifts.registration.sendMessage')}
                 aria-label={t('shifts.registration.sendMessage')}
               >
@@ -549,8 +573,10 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
       <SendMessageModal
         open={messageModalOpen}
-        registration={selectedRegistration}
-        onClose={() => { setMessageModalOpen(false); setSelectedRegistration(null); }}
+        plan={plan}
+        helper={messageHelper}
+        allHelperEmails={allHelperEmails}
+        onClose={() => { setMessageModalOpen(false); setMessageHelper(null); }}
       />
       <ManualAddRegistrationModal
         open={manualAddOpen}

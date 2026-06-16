@@ -1401,6 +1401,18 @@ export const shiftsApi = {
       { message }
     ),
 
+  /** Send a templated email to all helpers in a plan (or a subset by email).
+   *  Supports {{name}}, {{plan}} and {{schichten}}/{{shifts}} placeholders. */
+  broadcastMessage: (
+    organizationId: string,
+    planId: string,
+    body: { message: string; subject?: string; recipientEmails?: string[] },
+  ) =>
+    apiClient.post<ApiResponse<{ sent: number; recipients: number }>>(
+      `/organizations/${organizationId}/shift-plans/${planId}/broadcast`,
+      body
+    ),
+
   deleteRegistration: (organizationId: string, registrationId: string) =>
     apiClient.delete<void>(
       `/organizations/${organizationId}/shift-plans/registrations/${registrationId}`
