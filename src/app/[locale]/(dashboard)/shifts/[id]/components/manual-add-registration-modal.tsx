@@ -38,6 +38,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
   const organizationId = currentOrganization?.organizationId;
 
   const [selectedShiftIds, setSelectedShiftIds] = useState<Set<string>>(new Set());
+  const [shiftQuery, setShiftQuery] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -82,11 +83,30 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
     return Array.from(map.entries()).map(([date, shifts]) => ({ date, shifts }));
   }, [allShifts]);
 
+  // Free-text filter over job name, date and time so the (potentially long)
+  // shift list stays manageable. Date groups with no match are dropped.
+  const filteredGroups = useMemo(() => {
+    const q = shiftQuery.trim().toLowerCase();
+    if (!q) return pickerGroups;
+    return pickerGroups
+      .map(({ date, shifts }) => ({
+        date,
+        shifts: shifts.filter(
+          (s) =>
+            s.jobName.toLowerCase().includes(q) ||
+            formatDate(s.date).toLowerCase().includes(q) ||
+            `${formatTime(s.startTime)}–${formatTime(s.endTime)}`.includes(q),
+        ),
+      }))
+      .filter((g) => g.shifts.length > 0);
+  }, [pickerGroups, shiftQuery]);
+
   const selectedShiftCards = allShifts.filter((s) => selectedShiftIds.has(s.shiftId));
 
   useEffect(() => {
     if (!open) return;
     setSelectedShiftIds(new Set());
+    setShiftQuery('');
     setName(''); setEmail(''); setPhone(''); setNotes(''); setAdminNotes('');
     setNotify(false); setError(null);
   }, [open]);
@@ -221,18 +241,27 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                 </div>
               )}
 
-              <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 280, overflowY: 'auto' }}>
-                {pickerGroups.length === 0 ? (
+              <input
+                className="input"
+                type="search"
+                placeholder="Schicht suchen (Arbeit, Datum, Uhrzeit)…"
+                value={shiftQuery}
+                onChange={(e) => setShiftQuery(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+
+              <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
+                {filteredGroups.length === 0 ? (
                   <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                    Keine Schichten im Plan.
+                    {shiftQuery.trim() ? 'Keine Schicht gefunden.' : 'Keine Schichten im Plan.'}
                   </div>
                 ) : (
-                  pickerGroups.map(({ date, shifts }) => (
+                  filteredGroups.map(({ date, shifts }) => (
                     <div key={date} style={{ marginBottom: 8 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', textTransform: 'uppercase', letterSpacing: '.04em', padding: '4px 6px' }}>
                         {formatDate(date)}
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 6 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {shifts.map((s) => {
                           const isSelected = selectedShiftIds.has(s.shiftId);
                           return (
@@ -246,6 +275,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                                 return next;
                               })}
                               style={{
+                                display: 'flex', alignItems: 'center', gap: 10, width: '100%',
                                 textAlign: 'left', padding: '8px 10px', borderRadius: 6,
                                 border: `1.5px solid ${isSelected ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 10%, transparent)'}`,
                                 background: isSelected
@@ -254,20 +284,17 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                                   ? 'color-mix(in oklab, var(--ink) 6%, transparent)'
                                   : 'var(--paper)',
                                 cursor: 'pointer',
-                                opacity: !isSelected && s.isFull ? 0.7 : 1,
                                 fontFamily: 'inherit',
                               }}
                             >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
-                                <span style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.jobName}</span>
-                              </div>
-                              <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)' }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
+                              <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.jobName}</span>
+                              <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)', flexShrink: 0 }}>
                                 {formatTime(s.startTime)}–{formatTime(s.endTime)}
-                              </div>
-                              <div style={{ fontSize: 10, marginTop: 2, color: isSelected ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                {isSelected ? '✓ ausgewählt' : s.isFull ? `Voll (${s.confirmedCount}/${s.requiredWorkers})` : `${s.confirmedCount}/${s.requiredWorkers} belegt`}
-                              </div>
+                              </span>
+                              <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: isSelected ? 'var(--green-ink)' : s.isFull ? '#b45309' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                                {isSelected ? '✓ gewählt' : s.isFull ? `voll ${s.confirmedCount}/${s.requiredWorkers}` : `${s.confirmedCount}/${s.requiredWorkers}`}
+                              </span>
                             </button>
                           );
                         })}

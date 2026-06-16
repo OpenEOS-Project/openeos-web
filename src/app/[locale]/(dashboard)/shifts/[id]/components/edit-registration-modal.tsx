@@ -53,6 +53,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
   const [removedRegIds, setRemovedRegIds] = useState<Set<string>>(new Set());
   const [addedShiftIds, setAddedShiftIds] = useState<Set<string>>(new Set());
   const [showPicker, setShowPicker] = useState(false);
+  const [shiftQuery, setShiftQuery] = useState('');
   // Optional note the admin can send along with the proposal email.
   const [proposalMessage, setProposalMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +112,24 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
     return Array.from(map.entries()).map(([date, shifts]) => ({ date, shifts }));
   }, [allShifts]);
 
+  // Free-text filter over job name, date and time so the (potentially long)
+  // shift list stays manageable. Date groups with no match are dropped.
+  const filteredGroups = useMemo(() => {
+    const q = shiftQuery.trim().toLowerCase();
+    if (!q) return pickerGroups;
+    return pickerGroups
+      .map(({ date, shifts }) => ({
+        date,
+        shifts: shifts.filter(
+          (s) =>
+            s.jobName.toLowerCase().includes(q) ||
+            formatDate(s.date).toLowerCase().includes(q) ||
+            `${formatTime(s.startTime)}–${formatTime(s.endTime)}`.includes(q),
+        ),
+      }))
+      .filter((g) => g.shifts.length > 0);
+  }, [pickerGroups, shiftQuery]);
+
   // Shift IDs the helper currently has assigned (post-staged-changes).
   const activeShiftIds = useMemo(() => {
     const ids = new Set<string>();
@@ -131,6 +150,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
     setRemovedRegIds(new Set());
     setAddedShiftIds(new Set());
     setShowPicker(false);
+    setShiftQuery('');
     setProposalMessage('');
     setError(null);
   }, [open, registration]);
@@ -389,57 +409,72 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
               )}
 
               {showPicker && (
-                <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
-                  {pickerGroups.length === 0 ? (
-                    <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                      Keine Schichten im Plan.
-                    </div>
-                  ) : (
-                    pickerGroups.map(({ date, shifts }) => (
-                      <div key={date} style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', textTransform: 'uppercase', letterSpacing: '.04em', padding: '4px 6px' }}>
-                          {formatDate(date)}
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 6 }}>
-                          {shifts.map((s) => {
-                            const alreadyHas = activeShiftIds.has(s.shiftId);
-                            const disabled = alreadyHas || s.isFull;
-                            return (
-                              <button
-                                key={s.shiftId}
-                                type="button"
-                                disabled={disabled}
-                                onClick={() => setAddedShiftIds((set) => { const next = new Set(set); next.add(s.shiftId); return next; })}
-                                style={{
-                                  textAlign: 'left', padding: '8px 10px', borderRadius: 6,
-                                  border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                                  background: alreadyHas
-                                    ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))'
-                                    : s.isFull
-                                    ? 'color-mix(in oklab, var(--ink) 6%, transparent)'
-                                    : 'var(--paper)',
-                                  cursor: disabled ? 'not-allowed' : 'pointer',
-                                  opacity: disabled ? 0.6 : 1,
-                                  fontFamily: 'inherit',
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
-                                  <span style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.jobName}</span>
-                                </div>
-                                <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)' }}>
-                                  {formatTime(s.startTime)}–{formatTime(s.endTime)}
-                                </div>
-                                <div style={{ fontSize: 10, marginTop: 2, color: alreadyHas ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                  {alreadyHas ? '✓ Bereits eingetragen' : s.isFull ? 'Voll' : `${s.confirmedCount}/${s.requiredWorkers} belegt`}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <input
+                    className="input"
+                    type="search"
+                    placeholder="Schicht suchen (Arbeit, Datum, Uhrzeit)…"
+                    value={shiftQuery}
+                    onChange={(e) => setShiftQuery(e.target.value)}
+                    style={{ fontSize: 13 }}
+                  />
+                  <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
+                    {filteredGroups.length === 0 ? (
+                      <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                        {shiftQuery.trim() ? 'Keine Schicht gefunden.' : 'Keine Schichten im Plan.'}
                       </div>
-                    ))
-                  )}
+                    ) : (
+                      filteredGroups.map(({ date, shifts }) => (
+                        <div key={date} style={{ marginBottom: 8 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', textTransform: 'uppercase', letterSpacing: '.04em', padding: '4px 6px' }}>
+                            {formatDate(date)}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {shifts.map((s) => {
+                              const alreadyHas = activeShiftIds.has(s.shiftId);
+                              // Full shifts stay selectable so admins can overbook
+                              // (e.g. add a stand-in); only block re-adding a shift
+                              // the helper already has.
+                              const disabled = alreadyHas;
+                              return (
+                                <button
+                                  key={s.shiftId}
+                                  type="button"
+                                  disabled={disabled}
+                                  onClick={() => setAddedShiftIds((set) => { const next = new Set(set); next.add(s.shiftId); return next; })}
+                                  style={{
+                                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                                    textAlign: 'left', padding: '8px 10px', borderRadius: 6,
+                                    border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                                    background: alreadyHas
+                                      ? 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))'
+                                      : s.isFull
+                                      ? 'color-mix(in oklab, var(--ink) 6%, transparent)'
+                                      : 'var(--paper)',
+                                    cursor: disabled ? 'not-allowed' : 'pointer',
+                                    opacity: disabled ? 0.6 : 1,
+                                    fontFamily: 'inherit',
+                                  }}
+                                >
+                                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.jobColor || '#6b7280', flexShrink: 0 }} />
+                                  <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.jobName}</span>
+                                  <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)', flexShrink: 0 }}>
+                                    {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                                  </span>
+                                  <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: alreadyHas ? 'var(--green-ink)' : s.isFull ? '#b45309' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                                    {alreadyHas ? '✓ dabei' : s.isFull ? `voll ${s.confirmedCount}/${s.requiredWorkers}` : `${s.confirmedCount}/${s.requiredWorkers}`}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: 0 }}>
+                    Volle Schichten lassen sich trotzdem hinzufügen (z.B. Springer eintragen).
+                  </p>
                 </div>
               )}
             </div>
