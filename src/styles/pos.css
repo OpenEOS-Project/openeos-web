@@ -119,6 +119,23 @@ body:has(.pos-root) {
   to { transform: rotate(360deg); }
 }
 
+/* Bottom-sheet modals (slide up from the bottom edge).
+   Full-width on phones; centered and width-capped on tablets/desktops so they
+   don't stretch across a large screen. Only adds margin + max-width — the
+   modals keep their own inline position/transform/animation. */
+.pos-sheet {
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .pos-sheet {
+    max-width: 560px;
+    border-bottom-left-radius: var(--pos-r-lg);
+    border-bottom-right-radius: var(--pos-r-lg);
+    bottom: 24px !important;
+  }
+}
+
 /* ── Responsive layout helpers ───────────────────────────────────────────── */
 
 /* Desktop ≥1024px: sidebar | products | cart */

@@ -1467,7 +1467,13 @@
       "payoutButton": "Auszahlen",
       "empty": "Keine Pfand-Typen konfiguriert.",
       "decrease": "Menge verringern",
-      "increase": "Menge erhöhen"
+      "increase": "Menge erhöhen",
+      "returnedLabel": "Pfand-Rückgabe (verrechnet)",
+      "tokensOut": "Pfandmarken ausgeben",
+      "tokensIn": "Pfandmarken zurücknehmen",
+      "returnSum": "Rückgabe gesamt",
+      "offsetButton": "Verrechnen",
+      "offsetHint": "„Verrechnen\" zieht den Betrag von der Rechnung ab. „Auszahlen\" gibt Bargeld zurück."
     },
     "cashPayment": {
       "title": "Barzahlung",

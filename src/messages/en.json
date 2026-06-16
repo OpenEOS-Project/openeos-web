@@ -1467,7 +1467,13 @@
       "payoutButton": "Pay out",
       "empty": "No deposit types configured.",
       "decrease": "Decrease quantity",
-      "increase": "Increase quantity"
+      "increase": "Increase quantity",
+      "returnedLabel": "Deposit return (offset)",
+      "tokensOut": "Tokens to hand out",
+      "tokensIn": "Tokens to take back",
+      "returnSum": "Return total",
+      "offsetButton": "Offset",
+      "offsetHint": "\"Offset\" deducts the amount from the bill. \"Pay out\" returns cash."
     },
     "cashPayment": {
       "title": "Cash Payment",

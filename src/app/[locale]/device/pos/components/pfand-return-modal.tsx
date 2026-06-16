@@ -6,6 +6,7 @@ import { Check, Minus, Plus, X } from '@untitledui/icons';
 import { formatCurrency } from '@/utils/format';
 import { deviceApi } from '@/lib/api-client';
 import type { PfandType } from '@/types/pfand';
+import type { CartPfandReturnLine } from '@/stores/cart-store';
 
 interface PfandReturnModalProps {
   isOpen: boolean;
@@ -13,6 +14,13 @@ interface PfandReturnModalProps {
   pfandTypes: PfandType[];
   eventId?: string;
   onSubmitted?: (totalAmount: number) => void;
+  /** When true, an active sale exists, so the return can be offset against the
+   *  bill ("Verrechnen") instead of paid out in cash. */
+  allowOffset?: boolean;
+  /** Pre-fill the counters from an already-staged offset. */
+  initialCounts?: Record<string, number>;
+  /** Called when the user offsets the return against the current sale. */
+  onOffset?: (lines: CartPfandReturnLine[]) => void;
 }
 
 export function PfandReturnModal({
@@ -21,6 +29,9 @@ export function PfandReturnModal({
   pfandTypes,
   eventId,
   onSubmitted,
+  allowOffset = false,
+  initialCounts,
+  onOffset,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
   const tCommon = useTranslations('common');
@@ -31,10 +42,10 @@ export function PfandReturnModal({
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
-      setCounts({});
+      setCounts(initialCounts ?? {});
       setIsSubmitting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialCounts]);
 
   const setQty = (id: string, qty: number) => {
     setCounts((prev) => ({ ...prev, [id]: Math.max(0, qty) }));
@@ -67,6 +78,19 @@ export function PfandReturnModal({
       console.error('Pfand return failed:', error);
       setIsSubmitting(false);
     }
+  };
+
+  // Offset the counted return against the current sale instead of paying cash.
+  const handleOffset = () => {
+    const lines: CartPfandReturnLine[] = pfandTypes
+      .filter((pt) => (counts[pt.id] || 0) > 0)
+      .map((pt) => ({
+        pfandTypeId: pt.id,
+        name: pt.name,
+        unitAmount: Number(pt.amount),
+        quantity: counts[pt.id],
+      }));
+    onOffset?.(lines);
   };
 
   if (!isOpen) return null;
@@ -105,6 +129,7 @@ export function PfandReturnModal({
       />
 
       <div
+        className="pos-sheet"
         style={{
           position: 'absolute',
           left: 0,
@@ -212,37 +237,79 @@ export function PfandReturnModal({
           )}
         </div>
 
-        {/* Payout footer */}
+        {/* Footer */}
         <div style={{ padding: '12px 18px 18px', borderTop: '1px solid var(--pos-line)', background: 'var(--pos-surface)', flexShrink: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('payout')}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('returnSum')}</span>
             <span className="pos-mono" style={{ fontSize: 24, fontWeight: 700, color: 'var(--pos-ink)' }}>
               {formatCurrency(total)}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={handlePayout}
-            disabled={total <= 0 || isSubmitting}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              fontSize: 15,
-              fontWeight: 700,
-              background: total > 0 ? 'var(--pos-accent)' : 'var(--pos-line)',
-              color: total > 0 ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
-              border: 'none',
-              borderRadius: 'var(--pos-r-md)',
-              cursor: total > 0 && !isSubmitting ? 'pointer' : 'not-allowed',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-            }}
-          >
-            <Check style={{ width: 20, height: 20 }} />
-            {isSubmitting ? '…' : t('payoutButton')}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {allowOffset && (
+              <button
+                type="button"
+                onClick={handleOffset}
+                disabled={total <= 0}
+                style={{
+                  flex: 1,
+                  padding: '14px 12px',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  background: total > 0 ? 'var(--pos-accent)' : 'var(--pos-line)',
+                  color: total > 0 ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-md)',
+                  cursor: total > 0 ? 'pointer' : 'not-allowed',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                <Check style={{ width: 20, height: 20 }} />
+                {t('offsetButton')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handlePayout}
+              disabled={total <= 0 || isSubmitting}
+              style={{
+                flex: 1,
+                padding: '14px 12px',
+                fontSize: 15,
+                fontWeight: 700,
+                background: allowOffset
+                  ? 'transparent'
+                  : total > 0
+                  ? 'var(--pos-accent)'
+                  : 'var(--pos-line)',
+                color: allowOffset
+                  ? total > 0
+                    ? 'var(--pos-ink)'
+                    : 'var(--pos-ink-3)'
+                  : total > 0
+                  ? 'var(--pos-accent-contrast)'
+                  : 'var(--pos-ink-3)',
+                border: allowOffset ? '1px solid var(--pos-line-strong)' : 'none',
+                borderRadius: 'var(--pos-r-md)',
+                cursor: total > 0 && !isSubmitting ? 'pointer' : 'not-allowed',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              {!allowOffset && <Check style={{ width: 20, height: 20 }} />}
+              {isSubmitting ? '…' : t('payoutButton')}
+            </button>
+          </div>
+          {allowOffset && (
+            <p style={{ margin: '8px 2px 0', fontSize: 11, color: 'var(--pos-ink-3)', textAlign: 'center' }}>
+              {t('offsetHint')}
+            </p>
+          )}
         </div>
       </div>
     </div>

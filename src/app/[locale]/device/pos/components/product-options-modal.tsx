@@ -239,6 +239,7 @@ export function ProductOptionsModal({
         }}
       />
       <div
+        className="pos-sheet"
         style={{
           position: 'absolute',
           left: 0,

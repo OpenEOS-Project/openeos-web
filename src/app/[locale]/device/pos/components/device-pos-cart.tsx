@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Coins01, CreditCard01, Tag01, X } from '@untitledui/icons';
@@ -30,6 +30,23 @@ function formatPrice(price: number): string {
   }).format(price);
 }
 
+const miniStepBtn = (disabled: boolean): CSSProperties => ({
+  width: 22,
+  height: 22,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: '1px solid var(--pos-line-strong)',
+  borderRadius: 'var(--pos-r-sm)',
+  background: 'var(--pos-surface-2)',
+  color: 'var(--pos-ink-2)',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  opacity: disabled ? 0.4 : 1,
+  fontSize: 15,
+  lineHeight: 1,
+  padding: 0,
+});
+
 export function PosCart({
   organizationId: _organizationId,
   tableNumber: sessionTableNumber,
@@ -52,9 +69,15 @@ export function PosCart({
     removeVoucher,
     getDiscount,
     getNetTotal,
-    setItemRefill,
+    setItemRefillCount,
     getPfandTotal,
     getPayableTotal,
+    getPfandOffset,
+    getNewPfandUnits,
+    getNetPfandUnits,
+    getReturnedPfandUnits,
+    pfandReturns,
+    setPfandReturns,
   } = useCartStore();
 
   const tableNumber = sessionTableNumber || cartTableNumber;
@@ -93,20 +116,44 @@ export function PosCart({
   const discount = getDiscount();
   const netTotal = getNetTotal();
   // Suppress deposits entirely when the fulfillment type is exempt (e.g. table service).
-  const pfandTotal = chargePfand ? getPfandTotal() : 0;
+  const pfandTotal = chargePfand ? getPfandTotal() : 0; // gross deposit on new units
   const payableTotal = chargePfand ? getPayableTotal() : netTotal;
+  // Deposit value actually offset by returned tokens ("verrechnet"), and the
+  // net number of Pfand tokens to hand the guest at the end.
+  const creditedPfand = chargePfand ? getPfandOffset().convertedSum : 0;
+  const newPfandUnits = chargePfand ? getNewPfandUnits() : 0;
+  const returnedPfandUnits = chargePfand ? getReturnedPfandUnits() : 0;
+  const netPfandUnits = chargePfand ? getNetPfandUnits() : 0;
   const discountReason = appliedVouchers.map((v) => v.name).join(', ');
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
-  const buildOrderItems = () =>
-    items.map((item) => ({
-      productId: item.product.id,
-      quantity: item.quantity,
-      ...(item.notes ? { notes: item.notes } : {}),
-      ...(item.kitchenNotes ? { kitchenNotes: item.kitchenNotes } : {}),
-      ...(item.selectedOptions.length > 0 ? { selectedOptions: item.selectedOptions } : {}),
-      ...(item.isRefill ? { isRefill: true } : {}),
-    }));
+  const buildOrderItems = () => {
+    // Units offset by returned deposit are billed as refills (no new deposit),
+    // identical to the manual "Nachfüllen" units. A line with a mix of deposit
+    // and refill units is split into two order items so the backend charges
+    // deposit on exactly the non-refill units.
+    const offsetByItem = chargePfand ? getPfandOffset().byItem : {};
+    return items.flatMap((item) => {
+      const base = {
+        productId: item.product.id,
+        ...(item.notes ? { notes: item.notes } : {}),
+        ...(item.kitchenNotes ? { kitchenNotes: item.kitchenNotes } : {}),
+        ...(item.selectedOptions.length > 0 ? { selectedOptions: item.selectedOptions } : {}),
+      };
+      if (!chargePfand || !item.pfandType) {
+        return [{ ...base, quantity: item.quantity }];
+      }
+      const refillUnits = Math.min(
+        item.refillCount + (offsetByItem[item.id] || 0),
+        item.quantity,
+      );
+      const depositUnits = item.quantity - refillUnits;
+      const lines: Array<typeof base & { quantity: number; isRefill?: boolean }> = [];
+      if (depositUnits > 0) lines.push({ ...base, quantity: depositUnits });
+      if (refillUnits > 0) lines.push({ ...base, quantity: refillUnits, isRefill: true });
+      return lines;
+    });
+  };
 
   const createOrderWithPayment = useMutation({
     mutationFn: async (paymentMethod: PaymentMethod) => {
@@ -407,28 +454,42 @@ export function PosCart({
                   </div>
                 )}
                 {chargePfand && item.pfandType && (
-                  <div style={{ marginLeft: 29, marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {!item.isRefill && (
-                      <span style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>
-                        {item.pfandType.name} +{formatPrice(item.pfandType.amount)}
+                  <div style={{ marginLeft: 29, marginTop: 4, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>{item.pfandType.name}</span>
+                    {/* Per-unit "Nachfüllen": how many of this line's units reuse a
+                        container the guest brought (no new deposit). */}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>{t('pfand.refill')}:</span>
+                      <button
+                        type="button"
+                        onClick={() => setItemRefillCount(item.id, item.refillCount - 1)}
+                        disabled={item.refillCount <= 0}
+                        style={miniStepBtn(item.refillCount <= 0)}
+                        aria-label={t('pfand.decrease')}
+                      >
+                        −
+                      </button>
+                      <span
+                        className="pos-mono"
+                        style={{ minWidth: 32, textAlign: 'center', fontSize: 12, fontWeight: 700, color: item.refillCount > 0 ? 'var(--pos-accent-ink)' : 'var(--pos-ink-3)' }}
+                      >
+                        {item.refillCount}/{item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setItemRefillCount(item.id, item.refillCount + 1)}
+                        disabled={item.refillCount >= item.quantity}
+                        style={miniStepBtn(item.refillCount >= item.quantity)}
+                        aria-label={t('pfand.increase')}
+                      >
+                        +
+                      </button>
+                    </span>
+                    {item.quantity - item.refillCount > 0 && (
+                      <span className="pos-mono" style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--pos-ink-3)' }}>
+                        +{formatPrice(item.pfandType.amount * (item.quantity - item.refillCount))}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => setItemRefill(item.id, !item.isRefill)}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        padding: '2px 8px',
-                        borderRadius: 999,
-                        cursor: 'pointer',
-                        border: `1px solid ${item.isRefill ? 'var(--pos-accent)' : 'var(--pos-line-strong)'}`,
-                        background: item.isRefill ? 'var(--pos-accent-soft)' : 'transparent',
-                        color: item.isRefill ? 'var(--pos-accent-ink)' : 'var(--pos-ink-3)',
-                      }}
-                    >
-                      {item.isRefill ? `✓ ${t('pfand.refill')}` : t('pfand.refill')}
-                    </button>
                   </div>
                 )}
               </div>
@@ -624,6 +685,22 @@ export function PosCart({
           </div>
         )}
 
+        {/* Pfand offset against returned tokens ("verrechnet") */}
+        {creditedPfand > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--pos-accent-ink)',
+            }}
+          >
+            <span>{t('pfand.returnedLabel')}</span>
+            <span className="pos-mono">−{formatPrice(creditedPfand)}</span>
+          </div>
+        )}
+
         {/* Total row */}
         <div
           style={{
@@ -642,6 +719,30 @@ export function PosCart({
             {formatCurrency(payableTotal)}
           </span>
         </div>
+
+        {/* Net Pfand tokens to hand out at the end (new − refill − returned) */}
+        {chargePfand && (newPfandUnits > 0 || returnedPfandUnits > 0) && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              padding: '8px 12px',
+              borderRadius: 'var(--pos-r-sm)',
+              background: 'var(--pos-accent-soft)',
+              color: 'var(--pos-accent-ink)',
+              fontSize: 13,
+              fontWeight: 700,
+            }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Coins01 style={{ width: 16, height: 16 }} />
+              {netPfandUnits >= 0 ? t('pfand.tokensOut') : t('pfand.tokensIn')}
+            </span>
+            <span className="pos-mono" style={{ fontSize: 16 }}>{Math.abs(netPfandUnits)}</span>
+          </div>
+        )}
 
         {/* Action buttons */}
         {orderingMode === 'immediate' ? (
@@ -777,6 +878,9 @@ export function PosCart({
         onClose={() => setShowPfandReturnModal(false)}
         pfandTypes={pfandTypes}
         eventId={eventId || undefined}
+        allowOffset={items.length > 0}
+        initialCounts={Object.fromEntries(pfandReturns.map((l) => [l.pfandTypeId, l.quantity]))}
+        onOffset={(lines) => { setPfandReturns(lines); setShowPfandReturnModal(false); }}
       />
     </div>
   );

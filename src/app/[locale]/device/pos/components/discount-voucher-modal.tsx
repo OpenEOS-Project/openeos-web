@@ -101,6 +101,7 @@ export function DiscountVoucherModal({
       />
 
       <div
+        className="pos-sheet"
         style={{
           position: 'absolute',
           left: 0,

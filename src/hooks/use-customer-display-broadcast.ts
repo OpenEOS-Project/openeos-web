@@ -71,13 +71,16 @@ function buildSnapshot(chargePfand: boolean): CustomerCartPayload {
       opt.excluded ? `ohne ${opt.option}` : opt.option,
     ),
     pfandAmount:
-      chargePfand && !item.isRefill && item.pfandType ? item.pfandType.amount : 0,
-    isRefill: item.isRefill,
+      chargePfand && item.pfandType && item.quantity - item.refillCount > 0
+        ? item.pfandType.amount
+        : 0,
+    isRefill: item.refillCount >= item.quantity,
   }));
 
   const subtotal = state.getTotal();
   const discount = state.getDiscount();
-  const pfand = chargePfand ? state.getPfandTotal() : 0;
+  // Net deposit after offsetting any returned ("verrechnet") deposit.
+  const pfand = chargePfand ? state.getNetPfandTotal() : 0;
   const payable = chargePfand ? state.getPayableTotal() : state.getNetTotal();
 
   return {

@@ -151,6 +151,7 @@ export function CashPaymentModal({
 
       {/* Bottom-anchored sheet */}
       <div
+        className="pos-sheet"
         style={{
           position: 'absolute',
           left: 0,

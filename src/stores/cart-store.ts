@@ -21,7 +21,19 @@ export interface CartItem {
   selectedOptions: SelectedOption[];
   unitPrice: number; // Base price + options price
   pfandType: CartItemPfandType | null; // Deposit snapshot from the product
-  isRefill: boolean; // "Nachfüllen": skip deposit for this line
+  // "Nachfüllen": how many of this line's units are refills (guest brought their
+  // own container) and therefore carry NO deposit. 0 = all units get a deposit,
+  // quantity = whole line is a refill. Always clamped to 0..quantity.
+  refillCount: number;
+}
+
+/** A deposit return that is being offset ("verrechnet") against the current
+ *  sale instead of paid out in cash. Snapshotted from a PfandType. */
+export interface CartPfandReturnLine {
+  pfandTypeId: string;
+  name: string;
+  unitAmount: number;
+  quantity: number;
 }
 
 export interface AppliedVoucher {
@@ -39,13 +51,16 @@ interface CartState {
   customerName: string;
   notes: string;
   appliedVouchers: AppliedVoucher[];
+  // Deposit returns offset against this sale (entered via the Pfand-Rückgabe
+  // modal → "Verrechnen"). Reduce the net deposit charged + the token count.
+  pfandReturns: CartPfandReturnLine[];
 }
 
 interface CartActions {
   addItem: (product: Product, quantity?: number, selectedOptions?: SelectedOption[]) => void;
   updateItemQuantity: (cartItemId: string, quantity: number) => void;
   updateItemNotes: (cartItemId: string, notes: string, kitchenNotes?: string) => void;
-  setItemRefill: (cartItemId: string, isRefill: boolean) => void;
+  setItemRefillCount: (cartItemId: string, refillCount: number) => void;
   removeItem: (cartItemId: string) => void;
   clearCart: () => void;
   setEventId: (eventId: string | null) => void;
@@ -55,10 +70,26 @@ interface CartActions {
   applyVoucher: (voucher: Omit<AppliedVoucher, 'uid'>) => void;
   removeVoucher: (voucherUid: string) => void;
   clearVouchers: () => void;
+  setPfandReturns: (lines: CartPfandReturnLine[]) => void;
+  clearPfandReturns: () => void;
   getTotal: () => number;
   getDiscount: () => number;
   getNetTotal: () => number;
+  /** Gross deposit on new (non-refill) units in the cart, before offsetting. */
   getPfandTotal: () => number;
+  /** Count of new deposit tokens before offsetting (Σ quantity − refillCount). */
+  getNewPfandUnits: () => number;
+  /** Deposit value being offset against this sale (Σ verrechnete Rückgabe). */
+  getReturnedPfandTotal: () => number;
+  /** Count of returned tokens being offset. */
+  getReturnedPfandUnits: () => number;
+  /** Which new deposit units get offset by returns, per cart item, + the
+   *  value credited. Replayed at checkout so payable == backend order total. */
+  getPfandOffset: () => { convertedSum: number; byItem: Record<string, number> };
+  /** Net deposit charged = max(gross − offset, 0). */
+  getNetPfandTotal: () => number;
+  /** Net tokens to hand out = new − returned (negative ⇒ take tokens back). */
+  getNetPfandUnits: () => number;
   getPayableTotal: () => number;
   getItemCount: () => number;
 }
@@ -82,6 +113,7 @@ export const useCartStore = create<CartState & CartActions>()(
       customerName: '',
       notes: '',
       appliedVouchers: [],
+      pfandReturns: [],
 
       // Actions
       addItem: (product, quantity = 1, selectedOptions = []) => {
@@ -121,16 +153,18 @@ export const useCartStore = create<CartState & CartActions>()(
             selectedOptions,
             unitPrice: calculateUnitPrice(product, selectedOptions),
             pfandType,
-            isRefill: false,
+            refillCount: 0,
           };
           set({ items: [...state.items, newItem] });
         }
       },
 
-      setItemRefill: (cartItemId, isRefill) => {
+      setItemRefillCount: (cartItemId, refillCount) => {
         set({
           items: get().items.map((item) =>
-            item.id === cartItemId ? { ...item, isRefill } : item
+            item.id === cartItemId
+              ? { ...item, refillCount: Math.max(0, Math.min(refillCount, item.quantity)) }
+              : item
           ),
         });
       },
@@ -142,7 +176,9 @@ export const useCartStore = create<CartState & CartActions>()(
         }
         set({
           items: get().items.map((item) =>
-            item.id === cartItemId ? { ...item, quantity } : item
+            item.id === cartItemId
+              ? { ...item, quantity, refillCount: Math.min(item.refillCount, quantity) }
+              : item
           ),
         });
       },
@@ -168,6 +204,7 @@ export const useCartStore = create<CartState & CartActions>()(
           customerName: '',
           notes: '',
           appliedVouchers: [],
+          pfandReturns: [],
         });
       },
 
@@ -175,7 +212,7 @@ export const useCartStore = create<CartState & CartActions>()(
         // Clear cart when event changes
         const currentEventId = get().eventId;
         if (currentEventId !== eventId) {
-          set({ eventId, items: [], appliedVouchers: [] });
+          set({ eventId, items: [], appliedVouchers: [], pfandReturns: [] });
         } else {
           set({ eventId });
         }
@@ -199,6 +236,11 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       clearVouchers: () => set({ appliedVouchers: [] }),
+
+      setPfandReturns: (lines) =>
+        set({ pfandReturns: lines.filter((l) => l.quantity > 0) }),
+
+      clearPfandReturns: () => set({ pfandReturns: [] }),
 
       getTotal: () => {
         return get().items.reduce(
@@ -227,11 +269,61 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       getPfandTotal: () => {
-        return get().items.reduce(
-          (sum, item) =>
-            sum + (item.isRefill || !item.pfandType ? 0 : item.pfandType.amount * item.quantity),
-          0
-        );
+        // Deposit on new units only — refilled units (guest's own container)
+        // carry no deposit. depositUnits = quantity − refillCount.
+        return get().items.reduce((sum, item) => {
+          if (!item.pfandType) return sum;
+          const depositUnits = Math.max(item.quantity - item.refillCount, 0);
+          return sum + item.pfandType.amount * depositUnits;
+        }, 0);
+      },
+
+      getNewPfandUnits: () => {
+        return get().items.reduce((sum, item) => {
+          if (!item.pfandType) return sum;
+          return sum + Math.max(item.quantity - item.refillCount, 0);
+        }, 0);
+      },
+
+      getReturnedPfandTotal: () => {
+        return get().pfandReturns.reduce((sum, l) => sum + l.unitAmount * l.quantity, 0);
+      },
+
+      getReturnedPfandUnits: () => {
+        return get().pfandReturns.reduce((sum, l) => sum + l.quantity, 0);
+      },
+
+          // Offset returned deposit against the cart's NEW deposit units by
+      // converting whole units to "refills". Returns the value actually
+      // credited (convertedSum) and which units per cart item were converted —
+      // the SAME conversion is replayed at checkout so the displayed payable
+      // and the backend order total always match to the cent.
+      getPfandOffset: () => {
+        const target = get().getReturnedPfandTotal();
+        const byItem: Record<string, number> = {};
+        let remaining = target;
+        let convertedSum = 0;
+        if (remaining <= 0) return { convertedSum, byItem };
+        for (const item of get().items) {
+          if (!item.pfandType) continue;
+          const amount = item.pfandType.amount;
+          let units = Math.max(item.quantity - item.refillCount, 0);
+          while (units > 0 && remaining >= amount - 1e-9) {
+            remaining -= amount;
+            convertedSum += amount;
+            byItem[item.id] = (byItem[item.id] || 0) + 1;
+            units--;
+          }
+        }
+        return { convertedSum, byItem };
+      },
+
+      getNetPfandTotal: () => {
+        return Math.max(get().getPfandTotal() - get().getPfandOffset().convertedSum, 0);
+      },
+
+      getNetPfandUnits: () => {
+        return get().getNewPfandUnits() - get().getReturnedPfandUnits();
       },
 
       getPayableTotal: () => {
@@ -240,13 +332,9 @@ export const useCartStore = create<CartState & CartActions>()(
           0
         );
         const requested = get().appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
-        const pfand = get().items.reduce(
-          (sum, item) =>
-            sum + (item.isRefill || !item.pfandType ? 0 : item.pfandType.amount * item.quantity),
-          0
-        );
-        // Products minus discount (floored at 0), plus deposits on top.
-        return Math.max(total - requested, 0) + pfand;
+        // Products minus discount (floored at 0), plus the NET deposit after
+        // offsetting any returned deposit ("verrechnet") against new deposits.
+        return Math.max(total - requested, 0) + get().getNetPfandTotal();
       },
 
       getItemCount: () => {
@@ -255,6 +343,23 @@ export const useCartStore = create<CartState & CartActions>()(
     }),
     {
       name: 'openeos-cart',
+      version: 1,
+      // v0 carts had a boolean `isRefill` per item and no `pfandReturns`.
+      // Map the boolean onto the new per-unit `refillCount` (true ⇒ whole line).
+      migrate: (persisted: unknown, version: number) => {
+        const state = (persisted ?? {}) as Record<string, unknown>;
+        if (version < 1) {
+          const items = (state.items as Array<Record<string, unknown>>) ?? [];
+          state.items = items.map((item) => ({
+            ...item,
+            refillCount:
+              (item.refillCount as number | undefined) ??
+              (item.isRefill ? (item.quantity as number) : 0),
+          }));
+          state.pfandReturns = (state.pfandReturns as unknown[]) ?? [];
+        }
+        return state as unknown as CartState;
+      },
       partialize: (state) => ({
         items: state.items,
         eventId: state.eventId,
@@ -262,6 +367,7 @@ export const useCartStore = create<CartState & CartActions>()(
         customerName: state.customerName,
         notes: state.notes,
         appliedVouchers: state.appliedVouchers,
+        pfandReturns: state.pfandReturns,
       }),
     }
   )
