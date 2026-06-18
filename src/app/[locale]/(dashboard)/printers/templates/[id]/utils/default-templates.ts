@@ -56,8 +56,9 @@ function getReceiptDefault(): TemplateElement[] {
 
 function getKitchenDefault(): TemplateElement[] {
   return [
-    // Großer zentrierter Header
-    { id: nextId(), type: 'text', content: 'K U E C H E', align: 'center', bold: true, big: true },
+    // Großer zentrierter Header — zeigt den Produktionsstandort (Standort),
+    // Fallback "KÜCHE" wenn kein Standort zugewiesen.
+    { id: nextId(), type: 'field', field: 'production_station', align: 'center', bold: true, big: true },
     { id: nextId(), type: 'separator', char: '=' },
     // Bestellnummer prominent
     { id: nextId(), type: 'field', field: 'daily_number', align: 'center', big: true, bold: true, label: '#' },

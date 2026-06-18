@@ -92,9 +92,10 @@ function SortableCanvasElement({
         )}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
       >
-        {/* Drag handle + remove button */}
+        {/* Drag handle + remove button — handle stays visible so it's always
+            grabbable; emphasises on hover/selection. */}
         <div className={cx(
-          'absolute -left-5 top-0 flex flex-col items-center gap-0.5 opacity-0 transition-opacity',
+          'absolute -left-5 top-0 flex flex-col items-center gap-0.5 opacity-40 transition-opacity',
           'group-hover:opacity-100',
           isSelected && 'opacity-100',
         )}>

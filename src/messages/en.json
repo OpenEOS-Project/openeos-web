@@ -2206,6 +2206,7 @@
         "daily_number": "Daily Number",
         "table_number": "Table Number",
         "customer_name": "Customer Name",
+        "production_station": "Production station",
         "date_time": "Date/Time",
         "items_list": "Items List",
         "subtotal": "Subtotal",

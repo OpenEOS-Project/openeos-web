@@ -2206,6 +2206,7 @@
         "daily_number": "Tagesnummer",
         "table_number": "Tischnummer",
         "customer_name": "Kundenname",
+        "production_station": "Produktionsstandort",
         "date_time": "Datum/Uhrzeit",
         "items_list": "Positionsliste",
         "subtotal": "Zwischensumme",

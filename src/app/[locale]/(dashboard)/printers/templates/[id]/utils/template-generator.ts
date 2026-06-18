@@ -137,6 +137,12 @@ function generateField(el: TemplateElement, cols: number): string | null {
         el.condition ?? 'customer_name',
       );
 
+    case 'production_station':
+      // Kitchen banner: the production station (Standort) this ticket belongs
+      // to, falling back to the generic "KÜCHE" headline when an item has no
+      // station assigned. The backend sends `station_name` per ticket.
+      return formatText('{{ station_name|default("KUECHE")|upper }}', el);
+
     case 'date_time':
       return formatText(`${label || 'Datum: '}{{ created_at|strftime("%d.%m.%Y %H:%M") }}`, el);
 

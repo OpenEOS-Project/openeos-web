@@ -32,7 +32,8 @@ export type TemplateFieldType =
   | 'qr_code'
   | 'barcode'
   | 'priority'
-  | 'notes';
+  | 'notes'
+  | 'production_station';
 
 export type TextAlign = 'left' | 'center' | 'right' | 'justify';
 

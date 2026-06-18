@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
-  pointerWithin,
+  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -48,6 +48,7 @@ function createElementFromPalette(item: PaletteItem): TemplateElement {
       case 'organization_address': base.align = 'center'; break;
       case 'organization_phone': base.align = 'center'; base.label = 'Tel: '; base.condition = 'organization.phone'; break;
       case 'event_name': base.align = 'center'; base.condition = 'event_name'; break;
+      case 'production_station': base.align = 'center'; base.bold = true; base.big = true; break;
       case 'table_number': base.label = 'Tisch: '; base.condition = 'table_number'; break;
       case 'customer_name': base.label = 'Kunde: '; base.condition = 'customer_name'; break;
       case 'order_number': base.label = '#'; base.bold = true; break;
@@ -198,7 +199,7 @@ export function InlineTemplateDesigner({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={pointerWithin}
+      collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >

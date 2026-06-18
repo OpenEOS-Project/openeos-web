@@ -108,6 +108,9 @@ function renderField(el: TemplateElement, cols: number): PreviewLine[] {
     case 'customer_name':
       return [{ text: `${label || 'Kunde: '}${SAMPLE_DATA.customer_name}`, bold: el.bold, align: el.align as PreviewLine['align'], elementId: el.id }];
 
+    case 'production_station':
+      return [{ text: 'GETRÄNKE', bold: el.bold, big: el.big, align: el.align as PreviewLine['align'], elementId: el.id }];
+
     case 'date_time':
       return [{ text: `${label || 'Datum: '}${SAMPLE_DATA.created_at}`, align: el.align as PreviewLine['align'], elementId: el.id }];
 

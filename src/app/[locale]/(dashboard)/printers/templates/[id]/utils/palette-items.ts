@@ -19,6 +19,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
   { type: 'field', field: 'daily_number', labelKey: 'fields.daily_number', icon: 'hash', category: 'order' },
   { type: 'field', field: 'table_number', labelKey: 'fields.table_number', icon: 'layout-grid', category: 'order' },
   { type: 'field', field: 'customer_name', labelKey: 'fields.customer_name', icon: 'user', category: 'order' },
+  { type: 'field', field: 'production_station', labelKey: 'fields.production_station', icon: 'marker-pin', category: 'order' },
   { type: 'field', field: 'date_time', labelKey: 'fields.date_time', icon: 'clock', category: 'order' },
   { type: 'field', field: 'priority', labelKey: 'fields.priority', icon: 'alert-triangle', category: 'order' },
   { type: 'field', field: 'notes', labelKey: 'fields.notes', icon: 'file-text', category: 'order' },
