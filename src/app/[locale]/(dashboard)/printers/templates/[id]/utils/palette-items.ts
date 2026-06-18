@@ -30,6 +30,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
   // Payment fields
   { type: 'field', field: 'subtotal', labelKey: 'fields.subtotal', icon: 'calculator', category: 'payment' },
   { type: 'field', field: 'tax', labelKey: 'fields.tax', icon: 'receipt', category: 'payment' },
+  { type: 'field', field: 'pfand', labelKey: 'fields.pfand', icon: 'coins', category: 'payment' },
   { type: 'field', field: 'total', labelKey: 'fields.total', icon: 'currency-euro', category: 'payment' },
   { type: 'field', field: 'payment_method', labelKey: 'fields.payment_method', icon: 'credit-card', category: 'payment' },
   { type: 'field', field: 'paid_amount', labelKey: 'fields.paid_amount', icon: 'bank-note', category: 'payment' },

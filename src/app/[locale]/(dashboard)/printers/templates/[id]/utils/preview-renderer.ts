@@ -123,6 +123,9 @@ function renderField(el: TemplateElement, cols: number): PreviewLine[] {
     case 'tax':
       return [renderAmountLine(label || `MwSt ${SAMPLE_DATA.tax_rate}%:`, SAMPLE_DATA.tax_amount, el, cols)];
 
+    case 'pfand':
+      return [renderAmountLine(label || 'Pfand:', 4.0, el, cols)];
+
     case 'total':
       return [{ ...renderAmountLine(label || 'GESAMT:', SAMPLE_DATA.total, el, cols), bold: el.bold !== false }];
 

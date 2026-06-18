@@ -2211,6 +2211,7 @@
         "items_list": "Positionsliste",
         "subtotal": "Zwischensumme",
         "tax": "Mehrwertsteuer",
+        "pfand": "Pfand",
         "total": "Gesamtbetrag",
         "payment_method": "Zahlungsart",
         "paid_amount": "Bezahlter Betrag",

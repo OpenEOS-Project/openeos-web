@@ -2211,6 +2211,7 @@
         "items_list": "Items List",
         "subtotal": "Subtotal",
         "tax": "Tax",
+        "pfand": "Deposit",
         "total": "Total",
         "payment_method": "Payment Method",
         "paid_amount": "Paid Amount",

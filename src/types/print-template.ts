@@ -25,6 +25,7 @@ export type TemplateFieldType =
   | 'items_list'
   | 'subtotal'
   | 'tax'
+  | 'pfand'
   | 'total'
   | 'payment_method'
   | 'paid_amount'

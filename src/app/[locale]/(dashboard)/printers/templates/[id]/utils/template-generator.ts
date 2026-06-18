@@ -167,6 +167,15 @@ function generateField(el: TemplateElement, cols: number): string | null {
       );
     }
 
+    case 'pfand':
+      // Deposit line. Only rendered when there is a deposit (pfand_total > 0);
+      // this is the difference between subtotal and total.
+      return wrapCondition(
+        'pfand_total',
+        generateAmountField(`"${label || 'Pfand:'}"`, 'pfand_total|currency', el),
+        el.condition ?? 'pfand_total',
+      );
+
     case 'total': {
       const totalContent = generateAmountField(`"${label || 'GESAMT:'}"`, 'total|default(0)|currency', el);
       return el.bold !== false

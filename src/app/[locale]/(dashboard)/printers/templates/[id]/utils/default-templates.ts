@@ -41,6 +41,7 @@ function getReceiptDefault(): TemplateElement[] {
     { id: nextId(), type: 'separator', char: '=' },
     { id: nextId(), type: 'field', field: 'subtotal', condition: 'subtotal' },
     { id: nextId(), type: 'field', field: 'tax', condition: 'tax_amount' },
+    { id: nextId(), type: 'field', field: 'pfand', condition: 'pfand_total' },
     { id: nextId(), type: 'field', field: 'total', bold: true },
     { id: nextId(), type: 'separator', char: '-' },
     { id: nextId(), type: 'field', field: 'payment_method', condition: 'payment_method' },
