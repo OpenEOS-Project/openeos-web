@@ -91,7 +91,7 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
 
           {/* Items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {order.items.map((item) => (
+            {(order.items ?? []).map((item) => (
               <ItemRow key={item.id} item={item} refillLabel={t('orders.detail.refill')} />
             ))}
           </div>
