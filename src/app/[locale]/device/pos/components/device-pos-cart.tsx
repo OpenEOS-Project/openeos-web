@@ -167,11 +167,15 @@ export function PosCart({
         ...(discount > 0 ? { discountAmount: discount, discountReason } : {}),
       });
       const order = orderResponse.data;
-      await deviceApi.createPayment({
-        orderId: order.id,
-        amount: payableTotal,
-        paymentMethod,
-      });
+      // A fully-discounted cart (payable total 0) has nothing to pay — skip the
+      // payment call (the API rejects amount 0 and marks a 0-total order paid).
+      if (payableTotal > 0) {
+        await deviceApi.createPayment({
+          orderId: order.id,
+          amount: payableTotal,
+          paymentMethod,
+        });
+      }
       return order;
     },
     onSuccess: (order) => {
@@ -756,7 +760,9 @@ export function PosCart({
           >
             <button
               type="button"
-              onClick={() => setShowCashModal(true)}
+              onClick={() =>
+                payableTotal > 0 ? setShowCashModal(true) : handleCheckout('cash')
+              }
               disabled={items.length === 0 || isProcessing}
               style={{
                 padding: '13px 10px',
@@ -781,7 +787,9 @@ export function PosCart({
             {hasSumupReader && (
               <button
                 type="button"
-                onClick={() => setShowSumupModal(true)}
+                onClick={() =>
+                  payableTotal > 0 ? setShowSumupModal(true) : handleCheckout('cash')
+                }
                 disabled={items.length === 0 || isProcessing}
                 style={{
                   padding: '13px 10px',
