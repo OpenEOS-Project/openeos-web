@@ -1493,6 +1493,8 @@
       "cancel": "Cancel",
       "tipLabel": "Tip",
       "tipNone": "None",
+      "tipRoundUp": "Round up ({total})",
+      "tipCustom": "Custom amount",
       "tipIncluded": "incl. {tip} tip",
       "payTotal": "Pay {total}",
       "noReader": "No card reader configured. Please link a reader in device settings.",

@@ -1493,6 +1493,8 @@
       "cancel": "Abbrechen",
       "tipLabel": "Trinkgeld",
       "tipNone": "Kein",
+      "tipRoundUp": "Aufrunden ({total})",
+      "tipCustom": "Eigener Betrag",
       "tipIncluded": "inkl. {tip} Trinkgeld",
       "payTotal": "{total} bezahlen",
       "noReader": "Kein Kartenleser konfiguriert. Bitte in den Geräteeinstellungen einen Leser verknüpfen.",

@@ -32,6 +32,8 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   const [error, setError] = useState<string | null>(null);
   // Vom Kassierer gewähltes Trinkgeld; wird vor dem Checkout bestätigt.
   const [tip, setTip] = useState(0);
+  // Rohtext des Freifelds (erlaubt Komma/Punkt während der Eingabe).
+  const [customInput, setCustomInput] = useState('');
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const cancelledRef = useRef(false);
   // client_transaction_id of the active reader checkout — used to poll the
@@ -74,6 +76,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
       cancelledRef.current = false;
       setState('tip');
       setTip(0);
+      setCustomInput('');
       setError(null);
       return;
     }
@@ -83,6 +86,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     cancelledRef.current = false;
     setState('tip');
     setTip(0);
+    setCustomInput('');
     setError(null);
 
     return () => {
@@ -169,6 +173,13 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   };
 
   const isLocked = state === 'waiting' || state === 'initiating';
+
+  // Trinkgeld, das den Gesamtbetrag auf den nächsten vollen Euro aufrundet.
+  // Bereits glatte Beträge ergeben 0 (Button wird dann ausgeblendet).
+  const roundUpTip = Math.max(
+    0,
+    Math.round((Math.ceil(amount - 0.0001) - amount) * 100) / 100,
+  );
 
   if (!isOpen) return null;
 
@@ -295,12 +306,15 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
               </p>
               <div style={{ display: 'flex', gap: 8, width: '100%' }}>
                 {TIP_PRESETS.map((preset) => {
-                  const selected = tip === preset;
+                  const selected = customInput === '' && tip === preset;
                   return (
                     <button
                       key={preset}
                       type="button"
-                      onClick={() => setTip(preset)}
+                      onClick={() => {
+                        setCustomInput('');
+                        setTip(preset);
+                      }}
                       style={{
                         flex: 1,
                         padding: '12px 4px',
@@ -317,6 +331,67 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
                     </button>
                   );
                 })}
+              </div>
+              <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                {roundUpTip > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomInput('');
+                      setTip(roundUpTip);
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '12px 4px',
+                      background:
+                        customInput === '' && tip === roundUpTip
+                          ? 'var(--pos-accent)'
+                          : 'var(--pos-surface-2)',
+                      color:
+                        customInput === '' && tip === roundUpTip
+                          ? 'var(--pos-accent-contrast)'
+                          : 'var(--pos-ink)',
+                      border: `1px solid ${
+                        customInput === '' && tip === roundUpTip
+                          ? 'var(--pos-accent)'
+                          : 'var(--pos-line-strong)'
+                      }`,
+                      borderRadius: 'var(--pos-r-sm)',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t('tipRoundUp', { total: formatCurrency(amount + roundUpTip) })}
+                  </button>
+                )}
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={customInput}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    setCustomInput(raw);
+                    const parsed = parseFloat(raw.replace(',', '.'));
+                    setTip(Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) / 100 : 0);
+                  }}
+                  placeholder={t('tipCustom')}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: '12px',
+                    background: 'var(--pos-surface-2)',
+                    color: 'var(--pos-ink)',
+                    border: `1px solid ${
+                      customInput !== '' && tip > 0 ? 'var(--pos-accent)' : 'var(--pos-line-strong)'
+                    }`,
+                    borderRadius: 'var(--pos-r-sm)',
+                    fontSize: 15,
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    outline: 'none',
+                  }}
+                />
               </div>
             </div>
           ) : (
