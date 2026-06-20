@@ -54,6 +54,10 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   letter-spacing: -0.005em;
+  /* Stop iOS Safari from auto-inflating font sizes ("text boosting"), which
+     made the POS look extremely zoomed and unreadable on iPhone. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Upgrade the palette to oklch on browsers that support it (Chrome/Edge 111+).
