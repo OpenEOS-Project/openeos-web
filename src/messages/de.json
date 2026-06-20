@@ -1491,6 +1491,10 @@
       "cancelled": "Zahlung abgebrochen",
       "retry": "Erneut versuchen",
       "cancel": "Abbrechen",
+      "tipLabel": "Trinkgeld",
+      "tipNone": "Kein",
+      "tipIncluded": "inkl. {tip} Trinkgeld",
+      "payTotal": "{total} bezahlen",
       "noReader": "Kein Kartenleser konfiguriert. Bitte in den Geräteeinstellungen einen Leser verknüpfen.",
       "errors": {
         "READER_BUSY": "Der Kartenleser ist noch beschäftigt. Bitte warten Sie einen Moment.",

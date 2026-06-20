@@ -6,14 +6,17 @@ import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 
-type CheckoutState = 'initiating' | 'waiting' | 'success' | 'failed' | 'cancelled';
+type CheckoutState = 'tip' | 'initiating' | 'waiting' | 'success' | 'failed' | 'cancelled';
 
 interface SumUpCheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   amount: number;
-  onSuccess: () => void;
+  onSuccess: (tip: number) => void;
 }
+
+// Trinkgeld-Vorschläge (in EUR) für die Kartenzahlung.
+const TIP_PRESETS = [0, 0.5, 1, 2] as const;
 
 const KNOWN_ERRORS = [
   'READER_BUSY',
@@ -25,13 +28,18 @@ const KNOWN_ERRORS = [
 
 export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUpCheckoutModalProps) {
   const t = useTranslations('pos.sumupCheckout');
-  const [state, setState] = useState<CheckoutState>('initiating');
+  const [state, setState] = useState<CheckoutState>('tip');
   const [error, setError] = useState<string | null>(null);
+  // Vom Kassierer gewähltes Trinkgeld; wird vor dem Checkout bestätigt.
+  const [tip, setTip] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const cancelledRef = useRef(false);
   // client_transaction_id of the active reader checkout — used to poll the
   // transaction result (the reader status alone never reports success).
   const txnIdRef = useRef<string | null>(null);
+  // Bestätigtes Trinkgeld zum Zeitpunkt des Checkout-Starts — wird an
+  // onSuccess zurückgegeben, damit Order + Zahlung den Betrag erfassen.
+  const tipRef = useRef(0);
 
   const getErrorMessage = (err: unknown): string => {
     const message = err instanceof Error ? err.message : '';
@@ -64,41 +72,48 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
         terminateReader();
       }
       cancelledRef.current = false;
-      setState('initiating');
+      setState('tip');
+      setTip(0);
       setError(null);
       return;
     }
 
+    // Beim Öffnen wird die Zahlung NICHT sofort gestartet — zuerst wählt der
+    // Kassierer das Trinkgeld, danach wird der Checkout über confirmTip() initiiert.
     cancelledRef.current = false;
-
-    const startCheckout = async () => {
-      setState('initiating');
-      setError(null);
-
-      try {
-        const initResp = await deviceApi.initiateCheckout(amount);
-        txnIdRef.current =
-          (initResp as { data?: { data?: { client_transaction_id?: string } } })
-            ?.data?.data?.client_transaction_id ?? null;
-        if (cancelledRef.current) {
-          await terminateReader();
-          return;
-        }
-        setState('waiting');
-        startPolling();
-      } catch (err) {
-        if (cancelledRef.current) return;
-        setState('failed');
-        setError(getErrorMessage(err));
-      }
-    };
-
-    startCheckout();
+    setState('tip');
+    setTip(0);
+    setError(null);
 
     return () => {
       stopPolling();
     };
-  }, [isOpen, amount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Startet den Reader-Checkout über den Gesamtbetrag (Warenkorb + Trinkgeld).
+  const startCheckout = async (tipValue: number) => {
+    cancelledRef.current = false;
+    tipRef.current = tipValue;
+    setState('initiating');
+    setError(null);
+
+    try {
+      const initResp = await deviceApi.initiateCheckout(amount + tipValue);
+      txnIdRef.current =
+        (initResp as { data?: { data?: { client_transaction_id?: string } } })
+          ?.data?.data?.client_transaction_id ?? null;
+      if (cancelledRef.current) {
+        await terminateReader();
+        return;
+      }
+      setState('waiting');
+      startPolling();
+    } catch (err) {
+      if (cancelledRef.current) return;
+      setState('failed');
+      setError(getErrorMessage(err));
+    }
+  };
 
   const startPolling = () => {
     stopPolling();
@@ -121,7 +136,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
           stopPolling();
           setState('success');
           setTimeout(() => {
-            onSuccess();
+            onSuccess(tipRef.current);
             onClose();
           }, 1500);
         } else if (checkoutStatus === 'FAILED' || checkoutStatus === 'failed') {
@@ -138,24 +153,9 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     }, 2000);
   };
 
-  const handleRetry = async () => {
-    cancelledRef.current = false;
-    setState('initiating');
-    setError(null);
-
-    try {
-      await deviceApi.initiateCheckout(amount);
-      if (cancelledRef.current) {
-        await terminateReader();
-        return;
-      }
-      setState('waiting');
-      startPolling();
-    } catch (err) {
-      if (cancelledRef.current) return;
-      setState('failed');
-      setError(getErrorMessage(err));
-    }
+  const handleRetry = () => {
+    // Erneut mit dem bereits bestätigten Trinkgeld starten.
+    startCheckout(tipRef.current);
   };
 
   const handleCancel = async () => {
@@ -285,24 +285,62 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
               letterSpacing: '-0.02em',
             }}
           >
-            {formatCurrency(amount)}
+            {formatCurrency(amount + tip)}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <p style={{ fontSize: 15, color: 'var(--pos-ink)', margin: 0, fontWeight: 500 }}>
-              {message}
-            </p>
-            {isLocked && (
-              <Loading02
-                style={{
-                  width: 22,
-                  height: 22,
-                  color: 'var(--pos-ink-3)',
-                  animation: 'spin 1s linear infinite',
-                }}
-              />
-            )}
-          </div>
+          {state === 'tip' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: '100%' }}>
+              <p style={{ fontSize: 14, color: 'var(--pos-ink-3)', margin: 0, fontWeight: 600 }}>
+                {t('tipLabel')}
+              </p>
+              <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                {TIP_PRESETS.map((preset) => {
+                  const selected = tip === preset;
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setTip(preset)}
+                      style={{
+                        flex: 1,
+                        padding: '12px 4px',
+                        background: selected ? 'var(--pos-accent)' : 'var(--pos-surface-2)',
+                        color: selected ? 'var(--pos-accent-contrast)' : 'var(--pos-ink)',
+                        border: `1px solid ${selected ? 'var(--pos-accent)' : 'var(--pos-line-strong)'}`,
+                        borderRadius: 'var(--pos-r-sm)',
+                        fontSize: 15,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {preset === 0 ? t('tipNone') : `+${formatCurrency(preset)}`}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <p style={{ fontSize: 15, color: 'var(--pos-ink)', margin: 0, fontWeight: 500 }}>
+                {message}
+              </p>
+              {tip > 0 && (
+                <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: 0 }}>
+                  {t('tipIncluded', { tip: formatCurrency(tip) })}
+                </p>
+              )}
+              {isLocked && (
+                <Loading02
+                  style={{
+                    width: 22,
+                    height: 22,
+                    color: 'var(--pos-ink-3)',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -316,6 +354,43 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
             background: 'var(--pos-surface-2)',
           }}
         >
+          {state === 'tip' && (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '12px 18px',
+                  background: 'var(--pos-surface)',
+                  color: 'var(--pos-ink)',
+                  border: '1px solid var(--pos-line-strong)',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={() => startCheckout(tip)}
+                style={{
+                  flex: 1,
+                  padding: '12px 18px',
+                  background: 'var(--pos-accent)',
+                  color: 'var(--pos-accent-contrast)',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-sm)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                {t('payTotal', { total: formatCurrency(amount + tip) })}
+              </button>
+            </>
+          )}
           {isLocked && (
             <button
               type="button"

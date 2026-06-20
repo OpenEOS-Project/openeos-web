@@ -1491,6 +1491,10 @@
       "cancelled": "Payment cancelled",
       "retry": "Try again",
       "cancel": "Cancel",
+      "tipLabel": "Tip",
+      "tipNone": "None",
+      "tipIncluded": "incl. {tip} tip",
+      "payTotal": "Pay {total}",
       "noReader": "No card reader configured. Please link a reader in device settings.",
       "errors": {
         "READER_BUSY": "The card reader is still busy. Please wait a moment.",

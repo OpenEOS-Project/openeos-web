@@ -156,7 +156,7 @@ export function PosCart({
   };
 
   const createOrderWithPayment = useMutation({
-    mutationFn: async (paymentMethod: PaymentMethod) => {
+    mutationFn: async ({ paymentMethod, tip = 0 }: { paymentMethod: PaymentMethod; tip?: number }) => {
       if (!eventId) throw new Error('No event selected');
       const orderResponse = await deviceApi.createOrder({
         eventId,
@@ -165,14 +165,16 @@ export function PosCart({
         fulfillmentType,
         items: buildOrderItems(),
         ...(discount > 0 ? { discountAmount: discount, discountReason } : {}),
+        ...(tip > 0 ? { tipAmount: tip } : {}),
       });
       const order = orderResponse.data;
       // A fully-discounted cart (payable total 0) has nothing to pay — skip the
       // payment call (the API rejects amount 0 and marks a 0-total order paid).
-      if (payableTotal > 0) {
+      // Card tips raise the charged amount above the cart's payable total.
+      if (payableTotal + tip > 0) {
         await deviceApi.createPayment({
           orderId: order.id,
-          amount: payableTotal,
+          amount: payableTotal + tip,
           paymentMethod,
         });
       }
@@ -211,11 +213,11 @@ export function PosCart({
     },
   });
 
-  const handleCheckout = async (paymentMethod: PaymentMethod) => {
+  const handleCheckout = async (paymentMethod: PaymentMethod, tip = 0) => {
     if (items.length === 0) return;
     setIsProcessing(true);
     try {
-      await createOrderWithPayment.mutateAsync(paymentMethod);
+      await createOrderWithPayment.mutateAsync({ paymentMethod, tip });
       setShowCashModal(false);
     } catch (error) {
       console.error('Order failed:', error);
@@ -869,9 +871,9 @@ export function PosCart({
         isOpen={showSumupModal}
         onClose={() => setShowSumupModal(false)}
         amount={payableTotal}
-        onSuccess={() => {
+        onSuccess={(tip) => {
           setShowSumupModal(false);
-          handleCheckout('sumup_terminal' as PaymentMethod);
+          handleCheckout('sumup_terminal' as PaymentMethod, tip);
         }}
       />
       <DiscountVoucherModal
