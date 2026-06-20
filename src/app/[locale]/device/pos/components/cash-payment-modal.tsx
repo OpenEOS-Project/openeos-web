@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Delete, X } from '@untitledui/icons';
 import { formatCurrency } from '@/utils/format';
+import { deviceApi } from '@/lib/api-client';
 
 interface CashPaymentModalProps {
   isOpen: boolean;
@@ -95,6 +96,10 @@ export function CashPaymentModal({
     if (isOpen) {
       setReceived('');
       setIsClosing(false);
+      // Pop the cash drawer as soon as the cashier starts the cash payment,
+      // so they can make change while entering the amount — not only after the
+      // payment is confirmed. Fire-and-forget; ignore "no drawer configured".
+      deviceApi.openCashDrawer().catch(() => {});
     }
   }, [isOpen]);
 
