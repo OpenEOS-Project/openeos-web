@@ -1192,9 +1192,9 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
-  getCheckoutStatus: () =>
+  getCheckoutStatus: (clientTransactionId?: string) =>
     apiClient.get<ApiResponse<unknown>>(
-      '/device-api/sumup/status',
+      `/device-api/sumup/status${clientTransactionId ? `?clientTransactionId=${encodeURIComponent(clientTransactionId)}` : ''}`,
       { useDeviceAuth: true }
     ),
 

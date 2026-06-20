@@ -29,6 +29,9 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const cancelledRef = useRef(false);
+  // client_transaction_id of the active reader checkout — used to poll the
+  // transaction result (the reader status alone never reports success).
+  const txnIdRef = useRef<string | null>(null);
 
   const getErrorMessage = (err: unknown): string => {
     const message = err instanceof Error ? err.message : '';
@@ -73,7 +76,10 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
       setError(null);
 
       try {
-        await deviceApi.initiateCheckout(amount);
+        const initResp = await deviceApi.initiateCheckout(amount);
+        txnIdRef.current =
+          (initResp as { data?: { data?: { client_transaction_id?: string } } })
+            ?.data?.data?.client_transaction_id ?? null;
         if (cancelledRef.current) {
           await terminateReader();
           return;
@@ -104,7 +110,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
       }
 
       try {
-        const response = await deviceApi.getCheckoutStatus();
+        const response = await deviceApi.getCheckoutStatus(txnIdRef.current ?? undefined);
         const data = (response as { data?: { checkout?: { status?: string } } }).data;
 
         if (!data || cancelledRef.current) return;
