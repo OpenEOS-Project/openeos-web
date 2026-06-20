@@ -185,7 +185,7 @@ export default function DeviceRegisterPage() {
                   style={inputStyle}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = 'var(--pos-accent)';
-                    e.currentTarget.style.boxShadow = '0 0 0 2px color-mix(in oklab, var(--pos-accent) 25%, transparent)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 90, 57, 0.25)';
                   }}
                   onBlur={(e) => {
                     e.currentTarget.style.borderColor = 'var(--pos-line)';
@@ -211,7 +211,7 @@ export default function DeviceRegisterPage() {
                   style={inputStyle}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = 'var(--pos-accent)';
-                    e.currentTarget.style.boxShadow = '0 0 0 2px color-mix(in oklab, var(--pos-accent) 25%, transparent)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 90, 57, 0.25)';
                   }}
                   onBlur={(e) => {
                     e.currentTarget.style.borderColor = 'var(--pos-line)';
@@ -224,8 +224,8 @@ export default function DeviceRegisterPage() {
                 <div
                   style={{
                     padding: '11px 14px',
-                    background: 'color-mix(in oklab, var(--pos-danger) 12%, transparent)',
-                    border: '1px solid color-mix(in oklab, var(--pos-danger) 30%, transparent)',
+                    background: 'rgba(189, 65, 63, 0.12)',
+                    border: '1px solid rgba(189, 65, 63, 0.30)',
                     borderRadius: 'var(--pos-r-sm)',
                     fontSize: 13,
                     color: 'var(--pos-danger)',
@@ -265,7 +265,7 @@ export default function DeviceRegisterPage() {
                 width: 56,
                 height: 56,
                 borderRadius: 999,
-                background: 'color-mix(in oklab, var(--pos-warn) 16%, var(--pos-surface))',
+                background: '#f9eee0',
                 margin: '0 auto 16px',
                 display: 'flex',
                 alignItems: 'center',
@@ -357,7 +357,7 @@ export default function DeviceRegisterPage() {
                 width: 56,
                 height: 56,
                 borderRadius: 999,
-                background: 'color-mix(in oklab, var(--pos-ok) 16%, var(--pos-surface))',
+                background: '#e2efe4',
                 margin: '0 auto 16px',
                 display: 'flex',
                 alignItems: 'center',
@@ -386,7 +386,7 @@ export default function DeviceRegisterPage() {
                 width: 56,
                 height: 56,
                 borderRadius: 999,
-                background: 'color-mix(in oklab, var(--pos-danger) 14%, var(--pos-surface))',
+                background: '#f9e5e3',
                 margin: '0 auto 16px',
                 display: 'flex',
                 alignItems: 'center',

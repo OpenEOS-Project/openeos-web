@@ -172,8 +172,8 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     'var(--pos-accent)';
 
   const iconBg =
-    state === 'success' ? 'color-mix(in oklab, var(--pos-ok) 14%, var(--pos-surface))' :
-    state === 'failed' || state === 'cancelled' ? 'color-mix(in oklab, var(--pos-danger) 14%, var(--pos-surface))' :
+    state === 'success' ? 'var(--pos-accent-soft)' :
+    state === 'failed' || state === 'cancelled' ? 'rgba(189, 65, 63, 0.12)' :
     'var(--pos-accent-soft)';
 
   const Icon =

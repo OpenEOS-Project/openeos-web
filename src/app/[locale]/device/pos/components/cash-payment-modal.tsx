@@ -301,12 +301,10 @@ export function CashPaymentModal({
             <div
               style={{
                 background: canConfirm
-                  ? 'color-mix(in oklab, var(--pos-ok) 14%, var(--pos-surface))'
+                  ? 'var(--pos-accent-soft)'
                   : 'var(--pos-surface-2)',
                 border: `1px solid ${
-                  canConfirm
-                    ? 'color-mix(in oklab, var(--pos-ok) 35%, var(--pos-line))'
-                    : 'var(--pos-line)'
+                  canConfirm ? 'var(--pos-ok)' : 'var(--pos-line)'
                 }`,
                 borderRadius: 'var(--pos-r-md)',
                 padding: '10px 12px',
