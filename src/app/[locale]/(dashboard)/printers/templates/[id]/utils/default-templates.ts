@@ -64,6 +64,9 @@ function getKitchenDefault(): TemplateElement[] {
     // Bestellnummer prominent
     { id: nextId(), type: 'field', field: 'daily_number', align: 'center', big: true, bold: true, label: '#' },
     { id: nextId(), type: 'spacer', lines: 1 },
+    // Wohin geht die Bestellung: ONLINE (Abholung/Tisch), Bedienung oder Theke.
+    { id: nextId(), type: 'field', field: 'order_channel', align: 'center', bold: true, big: true },
+    { id: nextId(), type: 'spacer', lines: 1 },
     // Tisch + Kunde zentriert + fett — aus 5 Metern lesbar
     { id: nextId(), type: 'field', field: 'table_number', align: 'center', bold: true, label: 'Tisch ', condition: 'table_number' },
     { id: nextId(), type: 'field', field: 'customer_name', align: 'center', label: 'Kunde: ', condition: 'customer_name' },

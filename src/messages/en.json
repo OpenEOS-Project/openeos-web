@@ -2207,6 +2207,7 @@
         "table_number": "Table Number",
         "customer_name": "Customer Name",
         "production_station": "Production station",
+        "order_channel": "Order channel/destination",
         "date_time": "Date/Time",
         "items_list": "Items List",
         "subtotal": "Subtotal",

@@ -34,7 +34,8 @@ export type TemplateFieldType =
   | 'barcode'
   | 'priority'
   | 'notes'
-  | 'production_station';
+  | 'production_station'
+  | 'order_channel';
 
 export type TextAlign = 'left' | 'center' | 'right' | 'justify';
 

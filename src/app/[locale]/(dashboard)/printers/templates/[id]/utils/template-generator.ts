@@ -143,6 +143,19 @@ function generateField(el: TemplateElement, cols: number): string | null {
       // station assigned. The backend sends `station_name` per ticket.
       return formatText('{{ station_name|default("KUECHE")|upper }}', el);
 
+    case 'order_channel':
+      // Where this order goes: ONLINE (Abholung / an den Tisch), BEDIENUNG
+      // (table service) or THEKE/SB (counter). Derived from source +
+      // fulfillment_type, so an online order is clearly marked on the ticket.
+      return formatText(
+        '{% if (source|default("pos")) in ["online", "qr_order"] %}ONLINE - ' +
+          '{% if (fulfillment_type|default("counter_pickup")) == "table_service" and table_number %}' +
+          'TISCH {{ table_number }}{% else %}ABHOLUNG{% endif %}' +
+          '{% elif (fulfillment_type|default("counter_pickup")) == "table_service" %}BEDIENUNG' +
+          '{% else %}THEKE / SB{% endif %}',
+        el,
+      );
+
     case 'date_time':
       return formatText(`${label || 'Datum: '}{{ created_at|strftime("%d.%m.%Y %H:%M") }}`, el);
 

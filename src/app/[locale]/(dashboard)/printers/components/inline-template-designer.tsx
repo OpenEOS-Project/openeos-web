@@ -49,6 +49,7 @@ function createElementFromPalette(item: PaletteItem): TemplateElement {
       case 'organization_phone': base.align = 'center'; base.label = 'Tel: '; base.condition = 'organization.phone'; break;
       case 'event_name': base.align = 'center'; base.condition = 'event_name'; break;
       case 'production_station': base.align = 'center'; base.bold = true; base.big = true; break;
+      case 'order_channel': base.align = 'center'; base.bold = true; base.big = true; break;
       case 'table_number': base.label = 'Tisch: '; base.condition = 'table_number'; break;
       case 'customer_name': base.label = 'Kunde: '; base.condition = 'customer_name'; break;
       case 'order_number': base.label = '#'; base.bold = true; break;

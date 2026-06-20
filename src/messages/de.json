@@ -2207,6 +2207,7 @@
         "table_number": "Tischnummer",
         "customer_name": "Kundenname",
         "production_station": "Produktionsstandort",
+        "order_channel": "Bestellkanal/Ziel",
         "date_time": "Datum/Uhrzeit",
         "items_list": "Positionsliste",
         "subtotal": "Zwischensumme",
