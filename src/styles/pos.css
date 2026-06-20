@@ -5,45 +5,31 @@
    ========================================================== */
 
 .pos-root {
-  /* Each token declares a sRGB hex fallback first, then the oklch value, so
-     browsers without oklch support (Chrome/Edge < 111) keep the hex instead of
-     collapsing the value to transparent (which left POS modals see-through). */
+  /* sRGB hex by default so every browser renders solid colours. Modern
+     browsers upgrade these to oklch in the @supports block after this rule.
+     (A custom property keeps the LAST declaration even if its value is invalid,
+     so an inline oklch fallback does NOT work — it must be gated by @supports.) */
 
   /* Accent — deep green (matches landing brand) */
   --pos-accent:          #225a39;
-  --pos-accent:          oklch(0.42 0.08 155);
   --pos-accent-contrast: #f6f9f7;
-  --pos-accent-contrast: oklch(0.98 0.005 155);
   --pos-accent-soft:     #dff0e4;
-  --pos-accent-soft:     oklch(0.94 0.025 155);
   --pos-accent-ink:      #153c25;
-  --pos-accent-ink:      oklch(0.32 0.06 155);
 
   /* Neutrals — warm paper */
   --pos-bg:          #fbfaf7;
-  --pos-bg:          oklch(0.985 0.004 85);
   --pos-surface:     #ffffff;
-  --pos-surface:     oklch(1 0 0);
   --pos-surface-2:   #f8f7f3;
-  --pos-surface-2:   oklch(0.975 0.005 85);
   --pos-line:        #e0deda;
-  --pos-line:        oklch(0.9 0.006 85);
   --pos-line-strong: #c6c4be;
-  --pos-line-strong: oklch(0.82 0.008 85);
   --pos-ink:         #1d1a15;
-  --pos-ink:         oklch(0.22 0.01 80);
   --pos-ink-2:       #504d47;
-  --pos-ink-2:       oklch(0.42 0.01 80);
   --pos-ink-3:       #898681;
-  --pos-ink-3:       oklch(0.62 0.008 80);
 
   /* Semantic */
   --pos-danger: #bd413f;
-  --pos-danger: oklch(0.55 0.16 25);
   --pos-warn:   #d79628;
-  --pos-warn:   oklch(0.72 0.14 75);
   --pos-ok:     #429c5a;
-  --pos-ok:     oklch(0.62 0.13 150);
 
   /* Radii */
   --pos-r-xs: 6px;
@@ -68,6 +54,30 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   letter-spacing: -0.005em;
+}
+
+/* Upgrade the palette to oklch on browsers that support it (Chrome/Edge 111+).
+   Older browsers skip this block and keep the hex values defined above. */
+@supports (color: oklch(0 0 0)) {
+  .pos-root {
+    --pos-accent:          oklch(0.42 0.08 155);
+    --pos-accent-contrast: oklch(0.98 0.005 155);
+    --pos-accent-soft:     oklch(0.94 0.025 155);
+    --pos-accent-ink:      oklch(0.32 0.06 155);
+
+    --pos-bg:          oklch(0.985 0.004 85);
+    --pos-surface:     oklch(1 0 0);
+    --pos-surface-2:   oklch(0.975 0.005 85);
+    --pos-line:        oklch(0.9 0.006 85);
+    --pos-line-strong: oklch(0.82 0.008 85);
+    --pos-ink:         oklch(0.22 0.01 80);
+    --pos-ink-2:       oklch(0.42 0.01 80);
+    --pos-ink-3:       oklch(0.62 0.008 80);
+
+    --pos-danger: oklch(0.55 0.16 25);
+    --pos-warn:   oklch(0.72 0.14 75);
+    --pos-ok:     oklch(0.62 0.13 150);
+  }
 }
 
 .pos-root *,
