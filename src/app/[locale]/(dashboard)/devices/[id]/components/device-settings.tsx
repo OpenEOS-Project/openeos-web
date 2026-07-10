@@ -73,7 +73,9 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   });
 
   const posDevicesQuery = useQuery({
-    queryKey: ['devices', organizationId],
+    // Own sub-key: ['devices', orgId] is already used by the devices list with the
+    // RAW response shape — sharing it would poison this query's cache with a non-array.
+    queryKey: ['devices', organizationId, 'pos-select'],
     queryFn: async () => {
       const response = await devicesApi.list(organizationId);
       return response.data || [];
