@@ -235,15 +235,26 @@ export function DevicesList() {
                     </span>
                   </td>
                   <td className="text-right">
-                    <button
-                      className="btn btn--ghost"
-                      style={{ padding: '4px 10px', fontSize: 13 }}
-                      onClick={(e) => toggleMenu(device.id, e.currentTarget)}
-                      aria-haspopup="menu"
-                      aria-expanded={openMenuId === device.id}
-                    >
-                      ···
-                    </button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      {device.status === 'pending' && (
+                        <button
+                          className="btn btn--primary"
+                          style={{ padding: '4px 12px', fontSize: 13 }}
+                          onClick={() => setVerifyDevice(device)}
+                        >
+                          {t('devices.actions.verify')}
+                        </button>
+                      )}
+                      <button
+                        className="btn btn--ghost"
+                        style={{ padding: '4px 10px', fontSize: 13 }}
+                        onClick={(e) => toggleMenu(device.id, e.currentTarget)}
+                        aria-haspopup="menu"
+                        aria-expanded={openMenuId === device.id}
+                      >
+                        ···
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
