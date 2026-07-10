@@ -98,7 +98,7 @@ jobs:
           port: ${{ steps.ssh-port.outputs.port }}
           script: |
             set -e
-            cd ${{ vars.DEPLOY_PATH }}
+            cd ${{ vars.DEPLOY_PATH || format('/srv/docker/{0}', github.event.repository.name) }}
             docker compose pull ${{ vars.DEPLOY_SERVICE }}
             docker compose up -d ${{ vars.DEPLOY_SERVICE }}
             docker image prune -f
