@@ -28,7 +28,6 @@ const eventSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().optional(),
   startDate: z.string().optional(),
-  endDate: z.string().optional(),
   shopEnabled: z.boolean().optional(),
   shopServiceFee: z.string().optional(),
 });
@@ -66,7 +65,6 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
       name: '',
       description: '',
       startDate: '',
-      endDate: '',
       shopEnabled: false,
       shopServiceFee: '',
     },
@@ -79,7 +77,6 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         name: event.name,
         description: event.description || '',
         startDate: event.startDate ? event.startDate.split('T')[0] : '',
-        endDate: event.endDate ? event.endDate.split('T')[0] : '',
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
       });
@@ -89,7 +86,6 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         name: '',
         description: '',
         startDate: '',
-        endDate: '',
         shopEnabled: false,
         shopServiceFee: '',
       });
@@ -114,8 +110,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
+            // Veranstaltungen sind eintägig — Ende immer gleich Start
             startDate: data.startDate || undefined,
-            endDate: data.endDate || undefined,
+            endDate: data.startDate || undefined,
             settings: {
               ...event.settings,
               shop: shopSettings,
@@ -128,8 +125,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
+            // Veranstaltungen sind eintägig — Ende immer gleich Start
             startDate: data.startDate || undefined,
-            endDate: data.endDate || undefined,
+            endDate: data.startDate || undefined,
             settings: data.shopEnabled
               ? { shop: shopSettings }
               : undefined,
@@ -197,29 +195,16 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               )}
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <Controller
-                name="startDate"
-                control={control}
-                render={({ field }) => (
-                  <label className="auth-field">
-                    <span>{t('form.startDate')}</span>
-                    <input type="date" {...field} />
-                  </label>
-                )}
-              />
-
-              <Controller
-                name="endDate"
-                control={control}
-                render={({ field }) => (
-                  <label className="auth-field">
-                    <span>{t('form.endDate')}</span>
-                    <input type="date" {...field} />
-                  </label>
-                )}
-              />
-            </div>
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.date')}</span>
+                  <input type="date" {...field} />
+                </label>
+              )}
+            />
 
             <Controller
               name="shopEnabled"

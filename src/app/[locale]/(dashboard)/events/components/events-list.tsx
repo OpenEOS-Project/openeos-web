@@ -92,7 +92,8 @@ export function EventsList({
   const formatDateTime = (startDate?: string | null, endDate?: string | null) => {
     if (!startDate) return '-';
     const start = formatDate(startDate);
-    if (!endDate) return start;
+    // Eintägige Veranstaltungen: nur ein Datum anzeigen (Altbestand kann mehrtägig sein)
+    if (!endDate || formatDate(endDate) === start) return start;
     return `${start} – ${formatDate(endDate)}`;
   };
 

@@ -127,7 +127,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     requiredPermission: 'shiftPlans',
   },
   {
-    label: 'Events',
+    label: 'Veranstaltungen',
     href: '/events',
     icon: Calendar,
     requiredPermission: 'events',

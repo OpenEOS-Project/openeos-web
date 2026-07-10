@@ -596,6 +596,7 @@
       "location": "Ort",
       "locationPlaceholder": "Veranstaltungsort",
       "startDate": "Startdatum",
+      "date": "Datum",
       "endDate": "Enddatum"
     },
     "status": {

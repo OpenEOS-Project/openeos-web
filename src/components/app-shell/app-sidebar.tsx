@@ -301,7 +301,7 @@ export function AppSidebar() {
             <Calendar className="app-sidebar__active-event-icon" />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="app-sidebar__active-event-label">
-                {activeEvent ? activeEvent.name : 'Kein aktives Event'}
+                {activeEvent ? activeEvent.name : 'Keine aktive Veranstaltung'}
               </div>
               <div className="app-sidebar__active-event-status">
                 {activeEvent?.status === 'active'

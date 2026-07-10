@@ -771,6 +771,7 @@
       "location": "Location",
       "locationPlaceholder": "Event location",
       "startDate": "Start date",
+      "date": "Date",
       "endDate": "End date"
     },
     "status": {
