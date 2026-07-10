@@ -19,27 +19,31 @@ interface SettingsTab {
   children: React.ReactNode;
 }
 
-const tabBarStyle = {
-  display: 'flex',
-  gap: 0,
-  borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-  marginBottom: 20,
-  overflowX: 'auto' as const,
-};
-
-const tabBtnStyle = (active: boolean): React.CSSProperties => ({
-  padding: '8px 14px',
-  fontSize: 13,
-  fontWeight: active ? 600 : 500,
-  color: active ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
-  background: 'none',
-  border: 'none',
-  borderBottom: active ? '2px solid var(--green-ink)' : '2px solid transparent',
-  cursor: 'pointer',
-  whiteSpace: 'nowrap' as const,
-  marginBottom: -1,
-  transition: 'all 0.15s',
-});
+function TabBar({
+  tabs,
+  activeId,
+  onSelect,
+}: {
+  tabs: { id: string; label: string }[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="tab-bar" role="tablist">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          role="tab"
+          aria-selected={activeId === tab.id}
+          className={`tab-bar__tab${activeId === tab.id ? ' tab-bar__tab--active' : ''}`}
+          onClick={() => onSelect(tab.id)}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function SettingsContainer() {
   const t = useTranslations('settings');
@@ -68,35 +72,22 @@ export function SettingsContainer() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {/* Main tabs: Personal / Organization */}
       {!isSuperAdmin && (
-        <div style={tabBarStyle}>
-          {(['personal', 'organization'] as const).map((tab) => (
-            <button
-              key={tab}
-              style={tabBtnStyle(activeMain === tab)}
-              onClick={() => setActiveMain(tab)}
-            >
-              {tab === 'personal' ? t('tabs.personal') : t('tabs.organization')}
-            </button>
-          ))}
-        </div>
+        <TabBar
+          tabs={[
+            { id: 'personal', label: t('tabs.personal') },
+            { id: 'organization', label: t('tabs.organization') },
+          ]}
+          activeId={activeMain}
+          onSelect={(id) => setActiveMain(id as 'personal' | 'organization')}
+        />
       )}
 
       {/* Personal settings */}
       {(activeMain === 'personal' || isSuperAdmin) && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Personal sub-tabs */}
-          <div style={tabBarStyle}>
-            {personalTabs.map((tab) => (
-              <button
-                key={tab.id}
-                style={tabBtnStyle(activePersonal === tab.id)}
-                onClick={() => setActivePersonal(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          {personalTabs.find((t) => t.id === activePersonal)?.children}
+          <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={setActivePersonal} />
+          {personalTabs.find((tab) => tab.id === activePersonal)?.children}
         </div>
       )}
 
@@ -105,23 +96,13 @@ export function SettingsContainer() {
         <>
           {currentOrganization ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              <div style={tabBarStyle}>
-                {organizationTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    style={tabBtnStyle(activeOrg === tab.id)}
-                    onClick={() => setActiveOrg(tab.id)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-              {organizationTabs.find((t) => t.id === activeOrg)?.children}
+              <TabBar tabs={organizationTabs} activeId={activeOrg} onSelect={setActiveOrg} />
+              {organizationTabs.find((tab) => tab.id === activeOrg)?.children}
             </div>
           ) : (
             <div className="app-card" style={{ textAlign: 'center', padding: 24 }}>
               <p style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontSize: 14 }}>
-                Bitte wählen Sie zuerst eine Organisation aus.
+                {t('noOrganization')}
               </p>
             </div>
           )}

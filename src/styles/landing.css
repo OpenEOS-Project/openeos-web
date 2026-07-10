@@ -3303,3 +3303,30 @@ body:has(.landing) {
 }
 .landing .toast--success .toast__dot { background: var(--green); }
 .landing .toast--error .toast__dot { background: var(--danger); }
+
+/* Tab bar (settings and other sub-navigation) */
+.landing .tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.landing .tab-bar__tab {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+}
+.landing .tab-bar__tab--active {
+  font-weight: 600;
+  color: var(--green-ink);
+  border-bottom-color: var(--green-ink);
+}
