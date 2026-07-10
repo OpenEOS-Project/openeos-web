@@ -54,6 +54,7 @@ export interface AdminEventListItem {
   invoicedAt: string | null;
   invoicedBy: string | null;
   invoiceNote: string | null;
+  billingStatus?: 'none' | 'pending' | 'paid' | 'invoice' | 'waived';
 }
 
 export interface AdminEventOrderSummary {
@@ -65,6 +66,17 @@ export interface AdminEventOrderSummary {
 
 export interface AdminEventDetail extends AdminEventListItem {
   orders: AdminEventOrderSummary[];
+}
+
+export interface AdminNotifyOnSettings {
+  userRegistered: boolean;
+  organizationCreated: boolean;
+  eventOrdered: boolean;
+}
+
+export interface AdminNotificationSettings {
+  email: string | null;
+  notifyOn: AdminNotifyOnSettings;
 }
 
 export interface AdminAuditLog {

@@ -95,6 +95,10 @@ export interface Organization {
   discountType: DiscountType | null;
   discountValidUntil: string | null;
   discountNote: string | null;
+  /** Kauf auf Rechnung (Phase 1): wie Events dieser Organisation abgerechnet werden. */
+  billingMode?: 'prepaid' | 'invoice';
+  /** Individueller Preis pro Veranstaltung; leer/null = Standardpreis. */
+  eventPriceOverride?: number | null;
   createdAt: string;
   updatedAt: string;
 }

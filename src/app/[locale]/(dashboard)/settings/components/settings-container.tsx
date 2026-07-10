@@ -11,6 +11,7 @@ import { OrganizationContactSection } from './organization-contact-section';
 import { OrganizationBillingSection } from './organization-billing-section';
 import { OrganizationPosSection } from './organization-pos-section';
 import { OrganizationSumupSection } from './organization-sumup-section';
+import { PlatformNotificationsSection } from './platform-notifications-section';
 import { useAuthStore } from '@/stores/auth-store';
 
 interface SettingsTab {
@@ -49,7 +50,7 @@ export function SettingsContainer() {
   const t = useTranslations('settings');
   const { currentOrganization, user } = useAuthStore();
   const isSuperAdmin = user?.isSuperAdmin ?? false;
-  const [activeMain, setActiveMain] = useState<'personal' | 'organization'>('personal');
+  const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>('personal');
   const [activePersonal, setActivePersonal] = useState('profile');
   const [activeOrg, setActiveOrg] = useState('org-general');
 
@@ -70,20 +71,25 @@ export function SettingsContainer() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {/* Main tabs: Personal / Organization */}
-      {!isSuperAdmin && (
-        <TabBar
-          tabs={[
-            { id: 'personal', label: t('tabs.personal') },
-            { id: 'organization', label: t('tabs.organization') },
-          ]}
-          activeId={activeMain}
-          onSelect={(id) => setActiveMain(id as 'personal' | 'organization')}
-        />
-      )}
+      {/* Main tabs: Personal / Organization (or Personal / Platform for super-admins) */}
+      <TabBar
+        tabs={
+          isSuperAdmin
+            ? [
+                { id: 'personal', label: t('tabs.personal') },
+                { id: 'platform', label: t('tabs.platform') },
+              ]
+            : [
+                { id: 'personal', label: t('tabs.personal') },
+                { id: 'organization', label: t('tabs.organization') },
+              ]
+        }
+        activeId={activeMain}
+        onSelect={(id) => setActiveMain(id as 'personal' | 'organization' | 'platform')}
+      />
 
       {/* Personal settings */}
-      {(activeMain === 'personal' || isSuperAdmin) && (
+      {activeMain === 'personal' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Personal sub-tabs */}
           <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={setActivePersonal} />
@@ -108,6 +114,9 @@ export function SettingsContainer() {
           )}
         </>
       )}
+
+      {/* Platform settings (super-admin only) */}
+      {activeMain === 'platform' && isSuperAdmin && <PlatformNotificationsSection />}
     </div>
   );
 }

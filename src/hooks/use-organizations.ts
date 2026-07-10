@@ -124,3 +124,20 @@ export function useAdminOrganizations(params?: { search?: string; page?: number;
     },
   });
 }
+
+/** Updates an organization via the super-admin endpoint — required for admin-only fields
+ *  (billingMode, eventPriceOverride) the member-facing organizationsApi.update() doesn't expose. */
+export function useAdminUpdateOrganization() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Organization> }) => {
+      const response = await adminApi.updateOrganization(id, data);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: adminOrganizationKeys.lists() });
+      queryClient.setQueryData(organizationKeys.detail(data.id), data);
+    },
+  });
+}

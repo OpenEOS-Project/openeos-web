@@ -8,19 +8,26 @@ import {
   useDeactivateEvent,
   useSetTestMode,
   useDeleteEvent,
+  useEventBillingLookup,
 } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
+import { toast } from '@/components/shared/toast';
 import type { Event } from '@/types';
+import type { EventBilling } from '@/types/billing';
 
+import { EventCheckoutDialog } from './event-checkout-dialog';
 import { EventFormModal } from './event-form-modal';
 import { EventsList } from './events-list';
 
 export function EventsContainer() {
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
+  const tErrors = useTranslations('errors');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
+  const [checkout, setCheckout] = useState<{ event: Event; billing: EventBilling } | null>(null);
+  const [checkingEventId, setCheckingEventId] = useState<string | null>(null);
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -29,6 +36,7 @@ export function EventsContainer() {
   const activateEvent = useActivateEvent();
   const deactivateEvent = useDeactivateEvent();
   const setTestMode = useSetTestMode();
+  const billingLookup = useEventBillingLookup();
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
@@ -44,10 +52,18 @@ export function EventsContainer() {
 
   const handleActivateClick = async (event: Event) => {
     if (!organizationId) return;
+    setCheckingEventId(event.id);
     try {
-      await activateEvent.mutateAsync({ organizationId, id: event.id });
+      const billing = await billingLookup.mutateAsync({ organizationId, id: event.id });
+      if (billing.billingStatus === 'paid' || billing.billingStatus === 'invoice' || billing.billingStatus === 'waived') {
+        await activateEvent.mutateAsync({ organizationId, id: event.id });
+      } else {
+        setCheckout({ event, billing });
+      }
     } catch {
-      // Error handled by mutation
+      toast.error(tErrors('generic'));
+    } finally {
+      setCheckingEventId(null);
     }
   };
 
@@ -94,12 +110,20 @@ export function EventsContainer() {
         onActivateClick={handleActivateClick}
         onDeactivateClick={handleDeactivateClick}
         onSetTestModeClick={handleSetTestModeClick}
+        activatingEventId={checkingEventId}
       />
 
       <EventFormModal
         isOpen={isCreateModalOpen || !!editingEvent}
         event={editingEvent}
         onClose={handleModalClose}
+      />
+
+      <EventCheckoutDialog
+        event={checkout?.event ?? null}
+        billing={checkout?.billing ?? null}
+        organizationId={organizationId}
+        onClose={() => setCheckout(null)}
       />
 
       {deletingEvent && (

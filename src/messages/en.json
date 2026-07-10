@@ -334,7 +334,8 @@
     "title": "Settings",
     "tabs": {
       "personal": "Personal",
-      "organization": "Organization"
+      "organization": "Organization",
+      "platform": "Platform"
     },
     "profile": {
       "title": "Profile",
@@ -564,7 +565,24 @@
     },
     "noOrganization": "Please select an organization first.",
     "saving": "Saving...",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "platform": {
+      "title": "Notifications",
+      "description": "Configure which email address platform notifications are sent to.",
+      "email": "Notification email",
+      "emailPlaceholder": "admin@openeos.de",
+      "emailDescription": "Leave empty to fall back to the server configuration.",
+      "notifyOn": {
+        "userRegistered": "New registration",
+        "userRegisteredDescription": "Notify when a new user registers",
+        "organizationCreated": "New organization",
+        "organizationCreatedDescription": "Notify when a new organization is created",
+        "eventOrdered": "Event ordered (on invoice)",
+        "eventOrderedDescription": "Notify when an event is ordered on invoice"
+      },
+      "saved": "Settings saved",
+      "saveFailed": "Failed to save settings"
+    }
   },
   "billing": {
     "title": "Billing",
@@ -798,6 +816,27 @@
       "deleted": "Event deleted successfully",
       "activated": "Event activated",
       "deactivated": "Event deactivated"
+    },
+    "checkout": {
+      "title": "Activate event",
+      "success": "Event activated",
+      "discount": "incl. {percent}% discount",
+      "noVat": "No VAT is charged pursuant to § 19 UStG (German small business regulation).",
+      "invoiceNotice": "You will receive an invoice by email.",
+      "prepaidNotice": "Online payment is coming soon — please contact us.",
+      "companySearchHint": "Registered associations (e.V.) are usually not listed in the commercial register — please enter the details manually in that case.",
+      "submit": "Order with obligation to pay",
+      "errors": {
+        "notPaid": "The event could not be activated because payment is still pending."
+      },
+      "form": {
+        "name": "Name/Company",
+        "email": "Billing email",
+        "street": "Street",
+        "zip": "ZIP code",
+        "city": "City",
+        "confirm": "I confirm that the name and billing address are correct and complete."
+      }
     }
   },
   "categories": {
@@ -1337,7 +1376,14 @@
       "slugPlaceholder": "organization-slug",
       "currency": "Currency",
       "timezone": "Timezone",
-      "locale": "Language"
+      "locale": "Language",
+      "billingMode": "Billing mode",
+      "billingModeOptions": {
+        "prepaid": "Prepaid",
+        "invoice": "Invoice"
+      },
+      "eventPriceOverride": "Price per event",
+      "eventPriceOverrideHint": "Leave empty for default price"
     },
     "actions": {
       "edit": "Edit",

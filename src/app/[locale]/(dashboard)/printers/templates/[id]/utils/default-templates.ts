@@ -26,6 +26,7 @@ export function getDefaultElements(type: PrintTemplateType): TemplateElement[] {
 
 function getReceiptDefault(): TemplateElement[] {
   return [
+    { id: nextId(), type: 'text', content: '*** TESTMODUS ***', align: 'center', bold: true, big: true, condition: 'is_test' },
     { id: nextId(), type: 'field', field: 'organization_name', align: 'center', bold: true, big: true },
     { id: nextId(), type: 'field', field: 'organization_address', align: 'center', condition: 'organization.address' },
     { id: nextId(), type: 'field', field: 'organization_phone', align: 'center', label: 'Tel: ', condition: 'organization.phone' },
@@ -57,6 +58,7 @@ function getReceiptDefault(): TemplateElement[] {
 
 function getKitchenDefault(): TemplateElement[] {
   return [
+    { id: nextId(), type: 'text', content: '*** TESTMODUS ***', align: 'center', bold: true, big: true, condition: 'is_test' },
     // Großer zentrierter Header — zeigt den Produktionsstandort (Standort),
     // Fallback "KÜCHE" wenn kein Standort zugewiesen.
     { id: nextId(), type: 'field', field: 'production_station', align: 'center', bold: true, big: true },
@@ -88,6 +90,7 @@ function getKitchenDefault(): TemplateElement[] {
 
 function getOrderDefault(): TemplateElement[] {
   return [
+    { id: nextId(), type: 'text', content: '*** TESTMODUS ***', align: 'center', bold: true, big: true, condition: 'is_test' },
     { id: nextId(), type: 'text', content: 'BESTELLUNG', align: 'center', bold: true, big: true },
     { id: nextId(), type: 'separator', char: '=' },
     { id: nextId(), type: 'field', field: 'daily_number', align: 'center', big: true, label: '#' },

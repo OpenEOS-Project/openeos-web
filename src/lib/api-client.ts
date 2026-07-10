@@ -512,6 +512,18 @@ export const eventsApi = {
   setTestMode: (organizationId: string, id: string) =>
     apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/test`),
 
+  // Billing (Kauf auf Rechnung)
+  billing: (organizationId: string, id: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').EventBilling>>(
+      `/organizations/${organizationId}/events/${id}/billing`
+    ),
+
+  orderInvoice: (organizationId: string, id: string, data: import('@/types/billing').OrderInvoiceData) =>
+    apiClient.post<ApiResponse<import('@/types/event').Event>>(
+      `/organizations/${organizationId}/events/${id}/order-invoice`,
+      data
+    ),
+
   copyProductsFrom: (
     organizationId: string,
     targetEventId: string,
@@ -521,6 +533,14 @@ export const eventsApi = {
     apiClient.post<ApiResponse<{ categoriesCopied: number; productsCopied: number }>>(
       `/organizations/${organizationId}/events/${targetEventId}/copy-from/${sourceEventId}`,
       options || {}
+    ),
+};
+
+// Billing API (company lookup for "Kauf auf Rechnung")
+export const billingApi = {
+  companySearch: (organizationId: string, q: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').CompanySearchResponse>>(
+      `/organizations/${organizationId}/billing/company-search?q=${encodeURIComponent(q)}`
     ),
 };
 
@@ -911,6 +931,16 @@ export const adminApi = {
 
   unmarkEventInvoiced: (id: string) =>
     apiClient.delete<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/invoice`),
+
+  waiveEvent: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
+
+  // Platform Notification Settings
+  getNotificationSettings: () =>
+    apiClient.get<ApiResponse<import('@/types/admin').AdminNotificationSettings>>('/admin/settings/notifications'),
+
+  updateNotificationSettings: (data: Partial<import('@/types/admin').AdminNotificationSettings>) =>
+    apiClient.patch<ApiResponse<import('@/types/admin').AdminNotificationSettings>>('/admin/settings/notifications', data),
 };
 
 // Devices API

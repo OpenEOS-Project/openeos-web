@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { useCreateOrganization, useUpdateOrganization } from '@/hooks/use-organizations';
+import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-organizations';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types';
 
@@ -17,6 +17,8 @@ const organizationSchema = z.object({
     timezone: z.string(),
     locale: z.string(),
   }),
+  billingMode: z.enum(['prepaid', 'invoice']),
+  eventPriceOverride: z.string().optional(),
 });
 
 type OrganizationFormData = z.infer<typeof organizationSchema>;
@@ -33,7 +35,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const isEditing = !!organization;
 
   const createOrganization = useCreateOrganization();
-  const updateOrganization = useUpdateOrganization();
+  const updateOrganization = useAdminUpdateOrganization();
 
   const {
     register,
@@ -45,6 +47,8 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     defaultValues: {
       name: '',
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
+      billingMode: 'invoice',
+      eventPriceOverride: '',
     },
   });
 
@@ -57,11 +61,16 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
           timezone: organization.settings?.timezone || 'Europe/Berlin',
           locale: organization.settings?.locale || 'de-DE',
         },
+        billingMode: organization.billingMode ?? 'invoice',
+        eventPriceOverride:
+          typeof organization.eventPriceOverride === 'number' ? String(organization.eventPriceOverride) : '',
       });
     } else {
       reset({
         name: '',
         settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
+        billingMode: 'invoice',
+        eventPriceOverride: '',
       });
     }
   }, [organization, reset]);
@@ -69,7 +78,18 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const onSubmit = async (data: OrganizationFormData) => {
     try {
       if (isEditing && organization) {
-        await updateOrganization.mutateAsync({ id: organization.id, data: { name: data.name, settings: data.settings } });
+        const parsedPrice = parseFloat(String(data.eventPriceOverride ?? '').replace(',', '.'));
+        const eventPriceOverride =
+          data.eventPriceOverride && Number.isFinite(parsedPrice) ? Math.round(parsedPrice * 100) / 100 : null;
+        await updateOrganization.mutateAsync({
+          id: organization.id,
+          data: {
+            name: data.name,
+            settings: data.settings,
+            billingMode: data.billingMode,
+            eventPriceOverride,
+          },
+        });
       } else {
         await createOrganization.mutateAsync({ name: data.name, settings: data.settings });
       }
@@ -142,6 +162,31 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                 {...register('settings.timezone')}
               />
             </label>
+
+            {isEditing && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, paddingTop: 6, borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
+                <label className="auth-field">
+                  <span>{t('form.billingMode')}</span>
+                  <select className="select" {...register('billingMode')}>
+                    <option value="prepaid">{t('form.billingModeOptions.prepaid')}</option>
+                    <option value="invoice">{t('form.billingModeOptions.invoice')}</option>
+                  </select>
+                </label>
+
+                <label className="auth-field">
+                  <span>{t('form.eventPriceOverride')}</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    inputMode="decimal"
+                    className="input"
+                    placeholder={t('form.eventPriceOverrideHint')}
+                    {...register('eventPriceOverride')}
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
           <div className="modal__foot">

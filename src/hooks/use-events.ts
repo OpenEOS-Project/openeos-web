@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { eventsApi } from '@/lib/api-client';
 import type { CreateEventData, Event, UpdateEventData } from '@/types/event';
+import type { OrderInvoiceData } from '@/types/billing';
 
 export const eventKeys = {
   all: ['events'] as const,
@@ -142,6 +143,40 @@ export function useSetTestMode() {
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
+      queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
+    },
+  });
+}
+
+/** On-demand lookup of an event's billing status/price — call before deciding whether
+ *  activation needs the checkout dialog (billingStatus 'none'/'pending') or can proceed directly. */
+export function useEventBillingLookup() {
+  return useMutation({
+    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
+      const response = await eventsApi.billing(organizationId, id);
+      return response.data;
+    },
+  });
+}
+
+export function useOrderInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      organizationId,
+      id,
+      data,
+    }: {
+      organizationId: string;
+      id: string;
+      data: OrderInvoiceData;
+    }) => {
+      const response = await eventsApi.orderInvoice(organizationId, id, data);
+      return response.data;
+    },
+    onSuccess: (data, { organizationId }) => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });

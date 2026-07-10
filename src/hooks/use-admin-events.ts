@@ -56,3 +56,14 @@ export function useUnmarkEventInvoiced() {
     },
   });
 }
+
+export function useWaiveEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.waiveEvent(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+    },
+  });
+}

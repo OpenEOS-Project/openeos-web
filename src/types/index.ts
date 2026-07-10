@@ -3,6 +3,7 @@ export * from './api';
 export * from './organization';
 export * from './auth';
 export * from './event';
+export * from './billing';
 export * from './category';
 export * from './product';
 export * from './admin';

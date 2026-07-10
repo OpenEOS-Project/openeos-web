@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced } from '@/hooks/use-admin-events';
+import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced, useWaiveEvent } from '@/hooks/use-admin-events';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { AdminEventListItem } from '@/types/admin';
@@ -26,6 +26,22 @@ const statusLabel: Record<string, string> = {
   active: 'Aktiv',
   inactive: 'Inaktiv',
   test: 'Test',
+};
+
+const billingStatusBadge: Record<string, string> = {
+  none: 'badge badge--neutral',
+  pending: 'badge badge--warning',
+  paid: 'badge badge--success',
+  invoice: 'badge badge--info',
+  waived: 'badge badge--neutral',
+};
+
+const billingStatusLabel: Record<string, string> = {
+  none: 'Nicht bestellt',
+  pending: 'Ausstehend',
+  paid: 'Bezahlt',
+  invoice: 'Auf Rechnung',
+  waived: 'Erlassen',
 };
 
 interface MarkInvoicedModalProps {
@@ -140,6 +156,49 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
   );
 }
 
+interface WaiveModalProps {
+  event: AdminEventListItem;
+  onClose: () => void;
+}
+
+function WaiveEventModal({ event, onClose }: WaiveModalProps) {
+  const t = useTranslations();
+  const waiveEvent = useWaiveEvent();
+
+  function handleConfirm() {
+    waiveEvent.mutate(event.id, { onSuccess: onClose });
+  }
+
+  return (
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">Abrechnung erlassen</div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
+
+        <div className="modal__body">
+          <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
+            Das Event kann danach ohne Bezahlung oder Rechnung aktiviert werden.
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
+        </div>
+
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
+          <button
+            className="btn btn--primary"
+            onClick={handleConfirm}
+            disabled={waiveEvent.isPending}
+          >
+            {waiveEvent.isPending ? t('common.saving') : 'Erlassen'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AdminEventsContainer() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -150,6 +209,7 @@ export function AdminEventsContainer() {
 
   const [markEvent, setMarkEvent] = useState<AdminEventListItem | null>(null);
   const [unmarkEvent, setUnmarkEvent] = useState<AdminEventListItem | null>(null);
+  const [waiveEvent, setWaiveEventTarget] = useState<AdminEventListItem | null>(null);
 
   const invoicedParam =
     invoicedFilter === 'yes' ? true : invoicedFilter === 'no' ? false : undefined;
@@ -241,6 +301,7 @@ export function AdminEventsContainer() {
                   <th>Status</th>
                   <th className="text-right">Bestellungen</th>
                   <th className="text-right">Umsatz</th>
+                  <th>Bezahlung</th>
                   <th>Abgerechnet</th>
                   <th className="text-right">Aktionen</th>
                 </tr>
@@ -262,6 +323,11 @@ export function AdminEventsContainer() {
                     <td className="mono text-right">{event.orderCount}</td>
                     <td className="mono text-right" style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</td>
                     <td>
+                      <span className={billingStatusBadge[event.billingStatus ?? 'none'] ?? 'badge badge--neutral'}>
+                        {billingStatusLabel[event.billingStatus ?? 'none'] ?? event.billingStatus}
+                      </span>
+                    </td>
+                    <td>
                       {event.invoicedAt ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <span className="badge badge--success">{formatDate(event.invoicedAt)}</span>
@@ -276,15 +342,22 @@ export function AdminEventsContainer() {
                       )}
                     </td>
                     <td className="text-right">
-                      {event.invoicedAt ? (
-                        <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
-                          Zurücksetzen
-                        </button>
-                      ) : (
-                        <button className="btn btn--primary" style={{ fontSize: 12 }} onClick={() => setMarkEvent(event)}>
-                          Abrechnen
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        {event.invoicedAt ? (
+                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
+                            Zurücksetzen
+                          </button>
+                        ) : (
+                          <button className="btn btn--primary" style={{ fontSize: 12 }} onClick={() => setMarkEvent(event)}>
+                            Abrechnen
+                          </button>
+                        )}
+                        {(event.billingStatus === 'none' || event.billingStatus === 'pending' || !event.billingStatus) && (
+                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setWaiveEventTarget(event)}>
+                            Erlassen
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -328,6 +401,9 @@ export function AdminEventsContainer() {
       )}
       {unmarkEvent && (
         <UnmarkInvoicedModal event={unmarkEvent} onClose={() => setUnmarkEvent(null)} />
+      )}
+      {waiveEvent && (
+        <WaiveEventModal event={waiveEvent} onClose={() => setWaiveEventTarget(null)} />
       )}
     </>
   );

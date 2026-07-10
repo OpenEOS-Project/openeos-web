@@ -15,6 +15,8 @@ interface EventsListProps {
   onActivateClick: (event: Event) => void;
   onDeactivateClick: (event: Event) => void;
   onSetTestModeClick: (event: Event) => void;
+  /** Event currently being checked/activated — shows a busy state on its activate button. */
+  activatingEventId?: string | null;
 }
 
 const statusBadge: Record<EventStatus, string> = {
@@ -30,6 +32,7 @@ export function EventsList({
   onActivateClick,
   onDeactivateClick,
   onSetTestModeClick,
+  activatingEventId,
 }: EventsListProps) {
   const t = useTranslations('events');
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
@@ -183,8 +186,9 @@ export function EventsList({
                       <button
                         type="button"
                         className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
+                        style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)', opacity: activatingEventId === event.id ? 0.5 : 1 }}
                         onClick={() => onActivateClick(event)}
+                        disabled={activatingEventId === event.id}
                         aria-label={t('actions.activate')}
                         title={t('actions.activate')}
                       >
