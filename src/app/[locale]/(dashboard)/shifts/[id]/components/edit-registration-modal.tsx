@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftPlan, ShiftRegistration } from '@/types/shift';
 
 const formatTime = (t: string) => t.slice(0, 5);
@@ -266,15 +267,13 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       <div className="modal__box" style={{ maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">Anmeldung bearbeiten</div>
-          <button className="modal__close" onClick={onClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
+              <div role="alert" style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             {/* Helper details */}
@@ -496,7 +495,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                   ? 'Vorschläge benötigen eine E-Mail-Adresse des Helfers'
                   : 'Helfer bekommt eine E-Mail mit Annehmen / Ablehnen — Änderung erst nach Bestätigung'}
               >
-                {proposeMutation.isPending ? '...' : 'Vorschlag senden'}
+                {proposeMutation.isPending ? t('common.saving') : 'Vorschlag senden'}
               </button>
             )}
             <button
@@ -505,7 +504,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
               disabled={!canSubmit || mutation.isPending || proposeMutation.isPending}
               onClick={() => { setError(null); mutation.mutate(); }}
             >
-              {mutation.isPending ? '...' : hasShiftChanges ? 'Direkt speichern' : 'Speichern'}
+              {mutation.isPending ? t('common.saving') : hasShiftChanges ? 'Direkt speichern' : 'Speichern'}
             </button>
           </div>
         </div>

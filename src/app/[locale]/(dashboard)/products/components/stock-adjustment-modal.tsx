@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useUpdateProductStock } from '@/hooks/use-products';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Product } from '@/types/product';
 
 interface StockAdjustmentModalProps {
@@ -62,14 +63,10 @@ export function StockAdjustmentModal({
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{t('stock.title')}</h2>
-          <button type="button" className="modal__close" onClick={handleClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

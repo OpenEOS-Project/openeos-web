@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { usePfandTypes } from '@/hooks/use-pfand-types';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { PfandType } from '@/types/pfand';
 
 interface PfandListProps {
@@ -14,46 +15,34 @@ interface PfandListProps {
 
 export function PfandList({ organizationId, onCreateClick, onEditClick, onDeleteClick }: PfandListProps) {
   const t = useTranslations('pfand');
-  const tCommon = useTranslations('common');
 
   const { data: types, isLoading, error } = usePfandTypes(organizationId);
 
   if (isLoading) {
-    return (
-      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error) {
-    return (
-      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
-        <div style={{ color: 'var(--danger)' }}>{tCommon('error')}</div>
-        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError />;
   }
 
   if (!types || types.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v10M9.5 9.5h3.5a1.5 1.5 0 0 1 0 3H10a1.5 1.5 0 0 0 0 3h3.5" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v10M9.5 9.5h3.5a1.5 1.5 0 0 1 0 3H10a1.5 1.5 0 0 0 0 3h3.5" />
+          </svg>
+        }
+        action={
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
 
 export function OrganizationPosSection() {
   const t = useTranslations('settings.organizationPos');
@@ -156,24 +157,12 @@ export function OrganizationPosSection() {
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`options.${key}`)}</div>
                 <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`options.${key}Description`)}</div>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={isChecked}
+              <ToggleSwitch
+                checked={isChecked}
+                onChange={(value) => handleToggleChange(key, value)}
                 disabled={updateSettings.isPending}
-                onClick={() => handleToggleChange(key, !isChecked)}
-                style={{
-                  width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
-                  background: isChecked ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
-                  position: 'relative', transition: 'background 0.2s',
-                }}
-              >
-                <span style={{
-                  position: 'absolute', top: 3, left: isChecked ? 21 : 3,
-                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
-                  transition: 'left 0.2s',
-                }} />
-              </button>
+                aria-label={t(`options.${key}`)}
+              />
             </div>
           );
         })}

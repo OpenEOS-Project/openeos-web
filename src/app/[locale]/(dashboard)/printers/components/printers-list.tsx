@@ -3,25 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/auth-store';
 import { usePrinters, useTestPrint } from '@/hooks/use-printers';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 
 const typeBadgeClass: Record<string, string> = {
   receipt: 'badge badge--info',
   kitchen: 'badge badge--warning',
   label: 'badge badge--neutral',
 };
-
-function Spinner() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-      <div style={{
-        width: 28, height: 28, borderRadius: '50%',
-        border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
-        animation: 'spin 0.75s linear infinite',
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-}
 
 export function PrintersList() {
   const t = useTranslations('printers');
@@ -31,25 +19,21 @@ export function PrintersList() {
   const { data: printers, isLoading } = usePrinters(organizationId);
   const testPrintMutation = useTestPrint(organizationId);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListLoading />;
 
   if (!printers || printers.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M6 9V2h12v7" />
-              <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
-              <rect x="6" y="14" width="12" height="8" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('noPrinters')}</h3>
-          <p className="empty-state__sub">
-            Die Drucker werden vom Plattform-Administrator hinzugefügt und deiner Organisation zugewiesen.
-          </p>
-        </div>
-      </div>
+      <ListEmpty
+        title={t('noPrinters')}
+        description="Die Drucker werden vom Plattform-Administrator hinzugefügt und deiner Organisation zugewiesen."
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M6 9V2h12v7" />
+            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+        }
+      />
     );
   }
 

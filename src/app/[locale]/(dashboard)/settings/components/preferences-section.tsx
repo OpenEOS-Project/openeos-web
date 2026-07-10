@@ -4,6 +4,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useRouter, usePathname } from 'next/navigation';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { ListLoading } from '@/components/shared/list-states';
 
 export function PreferencesSection() {
   const t = useTranslations('settings.preferences');
@@ -43,12 +45,7 @@ export function PreferencesSection() {
   };
 
   if (isLoading) {
-    return (
-      <div className="app-card" style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
-        <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   return (
@@ -137,23 +134,11 @@ export function PreferencesSection() {
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`notifications.${type}`)}</div>
                 <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`notifications.${type}Description`)}</div>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={isChecked}
-                onClick={() => handleNotificationChange(type, !isChecked)}
-                style={{
-                  width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
-                  background: isChecked ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
-                  position: 'relative', transition: 'background 0.2s',
-                }}
-              >
-                <span style={{
-                  position: 'absolute', top: 3, left: isChecked ? 21 : 3,
-                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
-                  transition: 'left 0.2s',
-                }} />
-              </button>
+              <ToggleSwitch
+                checked={isChecked}
+                onChange={(value) => handleNotificationChange(type, value)}
+                aria-label={t(`notifications.${type}`)}
+              />
             </div>
           );
         })}

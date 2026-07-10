@@ -5,25 +5,13 @@ import { useTranslations } from 'next-intl';
 
 import { useProductionStations } from '@/hooks/use-production-stations';
 import type { ProductionStation } from '@/types/production-station';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 
 interface ProductionStationsListProps {
   eventId: string;
   onCreateClick: () => void;
   onEditClick: (station: ProductionStation) => void;
   onDeleteClick: (station: ProductionStation) => void;
-}
-
-function Spinner() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-      <div style={{
-        width: 28, height: 28, borderRadius: '50%',
-        border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
-        animation: 'spin 0.75s linear infinite',
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
 }
 
 export function ProductionStationsList({
@@ -38,35 +26,28 @@ export function ProductionStationsList({
 
   const { data: stations, isLoading, error } = useProductionStations(eventId);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListLoading />;
 
   if (error) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <p style={{ color: 'var(--danger)', fontSize: 14 }}>{tCommon('error')}</p>
-        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError message={tCommon('error')} onRetry={() => window.location.reload()} />;
   }
 
   if (!stations || stations.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+          </svg>
+        }
+        action={
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

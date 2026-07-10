@@ -3218,3 +3218,88 @@ body:has(.landing) {
     flex-shrink: 0;
   }
 }
+
+/* ============================= SHARED UI PRIMITIVES =============================
+   Used by src/components/shared/* — prefer these over per-component inline styles. */
+
+@keyframes landing-spin { to { transform: rotate(360deg); } }
+
+.landing .spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--green-ink);
+  border-top-color: transparent;
+  animation: landing-spin 0.75s linear infinite;
+}
+
+/* Toggle switch (shared/toggle-switch.tsx) */
+.landing .toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: color-mix(in oklab, var(--ink) 20%, transparent);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.landing .toggle[aria-checked='true'] { background: var(--green-ink); }
+.landing .toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+.landing .toggle__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--paper);
+  transition: left 0.2s;
+  display: block;
+}
+.landing .toggle[aria-checked='true'] .toggle__knob { left: 22px; }
+
+/* Modal width variants (default .modal__panel is 520px) */
+.landing .modal__panel--sm { max-width: 440px; }
+.landing .modal__panel--md { max-width: 560px; }
+.landing .modal__panel--lg { max-width: 680px; }
+.landing .modal__panel--xl { max-width: 760px; }
+
+/* Toasts (shared/toast.tsx) */
+.landing .toast-viewport {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.landing .toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 12px 16px;
+  border-radius: var(--r);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  animation: landing-fadeUp 0.2s ease;
+  cursor: pointer;
+}
+.landing .toast__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.landing .toast--success .toast__dot { background: var(--green); }
+.landing .toast--error .toast__dot { background: var(--danger); }

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/auth-store';
 import { useEvents, useActiveEvent } from '@/hooks/use-events';
 import { useSalesReport, useProductsReport, usePaymentsReport, useHourlyReport } from '@/hooks/use-reports';
+import { ListEmpty } from '@/components/shared/list-states';
 
 import { ReportsFilterBar, type ReportsFilter, type TimeRange } from './reports-filter-bar';
 import { ReportsKpiCards } from './reports-kpi-cards';
@@ -56,17 +57,15 @@ export function ReportsContainer() {
 
   if (!organizationId) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('noOrg.title')}</h3>
-          <p className="empty-state__sub">{t('noOrg.description')}</p>
-        </div>
-      </div>
+      <ListEmpty
+        title={t('noOrg.title')}
+        description={t('noOrg.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+          </svg>
+        }
+      />
     );
   }
 

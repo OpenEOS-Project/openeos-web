@@ -291,7 +291,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
         if (e.target === e.currentTarget) handleClose();
       }}
     >
-      <div className="modal__panel" style={{ maxWidth: 560, width: '100%' }}>
+      <div className="modal__panel modal__panel--md">
         {/* Header */}
         <div className="modal__head">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -366,6 +366,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
           )}
           {error && (
             <div
+              role="alert"
               style={{
                 marginBottom: 16,
                 borderRadius: 8,
@@ -727,7 +728,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 disabled={enabledShiftsCount === 0 || createMutation.isPending}
               >
                 {createMutation.isPending
-                  ? '...'
+                  ? t('common.saving')
                   : applyToAll
                   ? `${enabledShiftsCount * jobIds.length} Schichten für ${jobIds.length} Arbeiten anlegen`
                   : t('shifts.wizard.createShifts', { count: enabledShiftsCount })}

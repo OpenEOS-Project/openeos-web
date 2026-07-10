@@ -8,6 +8,8 @@ import { z } from 'zod';
 
 import { ProductImage } from '@/components/shared/product-image';
 import { PosIconPicker } from '@/components/shared/pos-icon-picker';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
 import { useProductionStations } from '@/hooks/use-production-stations';
@@ -234,18 +236,6 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     onClose();
   };
 
-  const toggleStyle = (active: boolean): React.CSSProperties => ({
-    width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-    background: active ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, transparent)',
-    position: 'relative', transition: 'background 0.2s', flexShrink: 0,
-  });
-
-  const toggleKnob = (active: boolean): React.CSSProperties => ({
-    position: 'absolute', top: 2, left: active ? 22 : 2,
-    width: 20, height: 20, borderRadius: 10, background: 'var(--paper)',
-    transition: 'left 0.2s', display: 'block',
-  });
-
   const inputRow: React.CSSProperties = {
     width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
     border: '1px solid color-mix(in oklab, var(--ink) 14%, transparent)',
@@ -257,18 +247,14 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   return (
     <>
       <div className="modal__overlay" onClick={handleClose}>
-        <div className="modal__panel" style={{ maxWidth: 680 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__panel modal__panel--lg" onClick={(e) => e.stopPropagation()}>
           <div className="modal__head">
             <h2>{isEditing ? t('edit') : t('create')}</h2>
-            <button type="button" className="modal__close" onClick={handleClose}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
+            <DialogCloseButton onClick={handleClose} />
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
               {/* Image */}
               <div>
@@ -309,7 +295,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     <label className="auth-field">
                       <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                       <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                      {errors.name && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
+                      {errors.name && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
                     </label>
                   )}
                 />
@@ -346,7 +332,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         </button>
                       </div>
                       {errors.categoryId && (
-                        <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.categoryId.message}</div>
+                        <div role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.categoryId.message}</div>
                       )}
                     </div>
                   )}
@@ -373,7 +359,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   <label className="auth-field">
                     <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                     <input type="number" step="0.01" placeholder={t('form.pricePlaceholder')} value={String(field.value)} onChange={field.onChange} onBlur={field.onBlur} />
-                    {errors.price && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
+                    {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
                   </label>
                 )}
               />
@@ -526,9 +512,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
                         <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.activeDescription')}</div>
                       </div>
-                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
-                        <span style={toggleKnob(field.value)} />
-                      </button>
+                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
                     </div>
                   )}
                 />
@@ -542,9 +526,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isAvailable')}</div>
                         <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.availableDescription')}</div>
                       </div>
-                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
-                        <span style={toggleKnob(field.value)} />
-                      </button>
+                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
                     </div>
                   )}
                 />
@@ -558,9 +540,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.trackInventory')}</div>
                         <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.trackInventoryDescription')}</div>
                       </div>
-                      <button type="button" role="switch" aria-checked={field.value} onClick={() => field.onChange(!field.value)} style={toggleStyle(field.value)}>
-                        <span style={toggleKnob(field.value)} />
-                      </button>
+                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
                     </div>
                   )}
                 />
@@ -599,7 +579,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                 {tCommon('cancel')}
               </button>
               <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-                {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+                {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
               </button>
             </div>
           </form>

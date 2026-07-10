@@ -1,6 +1,7 @@
 'use client';
 
 import { useSidebarStore } from '@/stores/sidebar-store';
+import { ToastViewport } from '@/components/shared/toast';
 import { AppSidebar } from './app-sidebar';
 import { AppTopbar } from './app-topbar';
 
@@ -29,6 +30,8 @@ export function AppShell({ children }: AppShellProps) {
         {!isFullscreen && <AppTopbar />}
         <main className="app-content">{children}</main>
       </div>
+
+      <ToastViewport />
 
       {/* Responsive: override margin-left on mobile. No padding-top — the
           topbar is sticky and in flow, so any extra top padding just leaves

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { useInventoryCounts, useDeleteInventoryCount } from '@/hooks/use-inventory';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { InventoryCount, InventoryCountStatus } from '@/types/inventory';
 
 interface InventoryListProps {
@@ -59,42 +60,31 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
   };
 
   if (isLoading) {
-    return (
-      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error) {
-    return (
-      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
-        <div style={{ color: 'var(--danger)' }}>{tCommon('error')}</div>
-        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError />;
   }
 
   if (!counts || counts.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
-              <rect x="9" y="3" width="6" height="4" rx="1" />
-              <path d="M9 12h6M9 16h4" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+            <rect x="9" y="3" width="6" height="4" rx="1" />
+            <path d="M9 12h6M9 16h4" />
+          </svg>
+        }
+        action={
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

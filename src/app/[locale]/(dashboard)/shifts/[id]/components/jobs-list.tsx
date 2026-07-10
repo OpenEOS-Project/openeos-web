@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
+import { ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftJob, Shift } from '@/types/shift';
 import { AddJobModal } from './add-job-modal';
 import { AddShiftModal } from './add-shift-modal';
@@ -87,18 +88,20 @@ export function JobsList({ plan }: JobsListProps) {
   if (jobs.length === 0) {
     return (
       <>
-        <div className="empty-state">
-          <div className="empty-state__icon">
+        <ListEmpty
+          title={t('shifts.editor.noJobs')}
+          description={t('shifts.editor.noJobsDescription')}
+          icon={
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
             </svg>
-          </div>
-          <h3 className="empty-state__title">{t('shifts.editor.noJobs')}</h3>
-          <p className="empty-state__sub">{t('shifts.editor.noJobsDescription')}</p>
-          <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowAddJobModal(true)}>
-            {t('shifts.editor.addJob')}
-          </button>
-        </div>
+          }
+          action={
+            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowAddJobModal(true)}>
+              {t('shifts.editor.addJob')}
+            </button>
+          }
+        />
         <AddJobModal open={showAddJobModal} planId={plan.id} onClose={() => setShowAddJobModal(false)} />
       </>
     );

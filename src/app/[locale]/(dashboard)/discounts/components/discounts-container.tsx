@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { useDeleteDiscountVoucher } from '@/hooks/use-discount-vouchers';
 import { useAuthStore } from '@/stores/auth-store';
+import { ListEmpty } from '@/components/shared/list-states';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 
 import { DiscountFormModal } from './discount-form-modal';
@@ -39,12 +40,10 @@ export function DiscountsContainer() {
 
   if (!organizationId) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
-          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
-        </div>
-      </div>
+      <ListEmpty
+        title="Keine Organisation ausgewählt"
+        description="Bitte wählen Sie zuerst eine Organisation aus."
+      />
     );
   }
 
@@ -66,7 +65,7 @@ export function DiscountsContainer() {
 
       {deletingVoucher && (
         <div className="modal__overlay" onClick={() => setDeletingVoucher(null)}>
-          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('deleteConfirm.title')}</h2>
             </div>
@@ -86,7 +85,7 @@ export function DiscountsContainer() {
                 onClick={handleDeleteConfirm}
                 disabled={deleteVoucher.isPending}
               >
-                {deleteVoucher.isPending ? '...' : t('deleteConfirm.confirm')}
+                {deleteVoucher.isPending ? tCommon('saving') : t('deleteConfirm.confirm')}
               </button>
             </div>
           </div>

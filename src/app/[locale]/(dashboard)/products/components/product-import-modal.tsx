@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { productsApi } from '@/lib/api-client';
 import { productKeys } from '@/hooks/use-products';
 import { categoryKeys } from '@/hooks/use-categories';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { formatCurrency } from '@/utils/format';
 import type { ProductImportResult, ProductImportRow } from '@/types/product';
 
@@ -157,14 +158,10 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 760 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--xl" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{t('title')}</h2>
-          <button type="button" className="modal__close" onClick={handleClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <div className="modal__body" style={{ maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -264,7 +261,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
 
               {/* Fatal error */}
               {previewResult?.fatalError && (
-                <div style={{ background: 'color-mix(in oklab, var(--danger) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--danger) 30%, transparent)', borderRadius: 8, padding: '10px 14px', color: 'var(--danger)', fontSize: 13 }}>
+                <div role="alert" style={{ background: 'color-mix(in oklab, var(--danger) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--danger) 30%, transparent)', borderRadius: 8, padding: '10px 14px', color: 'var(--danger)', fontSize: 13 }}>
                   <strong>{t('fatalError')}</strong> {previewResult.fatalError}
                 </div>
               )}

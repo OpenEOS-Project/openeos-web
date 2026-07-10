@@ -12,6 +12,7 @@ import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings'
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
 import { CustomizeModal } from './customize-modal';
 import { SuperAdminDashboard } from './super-admin-dashboard';
+import { ListEmpty } from '@/components/shared/list-states';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
@@ -115,17 +116,15 @@ export function DashboardContainer() {
 
   if (!organizationId) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
-          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
-        </div>
-      </div>
+      <ListEmpty
+        title="Keine Organisation ausgewählt"
+        description="Bitte wählen Sie zuerst eine Organisation aus."
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+          </svg>
+        }
+      />
     );
   }
 

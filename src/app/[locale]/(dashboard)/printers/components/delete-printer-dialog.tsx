@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { printersApi } from '@/lib/api-client';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Printer } from '@/types/printer';
 
 interface DeletePrinterDialogProps {
@@ -31,11 +32,7 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
       <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{t('deletePrinter')}</h2>
-          <button className="modal__close" type="button" onClick={onClose} aria-label={tCommon('close')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
@@ -61,7 +58,7 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
             onClick={() => deleteMutation.mutate()}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? '...' : tCommon('delete')}
+            {deleteMutation.isPending ? tCommon('deleting') : tCommon('delete')}
           </button>
         </div>
       </div>

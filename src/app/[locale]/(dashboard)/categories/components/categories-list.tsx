@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 
 import { useCategories } from '@/hooks/use-categories';
 import { useProductionStations } from '@/hooks/use-production-stations';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { Category } from '@/types/category';
 
 interface CategoriesListProps {
@@ -20,47 +21,35 @@ export function CategoriesList({
   onDeleteClick,
 }: CategoriesListProps) {
   const t = useTranslations('categories');
-  const tCommon = useTranslations('common');
 
   const { data: categories, isLoading, error } = useCategories(eventId);
   const { data: productionStations } = useProductionStations(eventId);
 
   if (isLoading) {
-    return (
-      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error) {
-    return (
-      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
-        <div style={{ color: 'var(--danger)' }}>{tCommon('error')}</div>
-        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError />;
   }
 
   if (!categories || categories.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-              <line x1="7" y1="7" x2="7.01" y2="7" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+            <line x1="7" y1="7" x2="7.01" y2="7" />
+          </svg>
+        }
+        action={
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

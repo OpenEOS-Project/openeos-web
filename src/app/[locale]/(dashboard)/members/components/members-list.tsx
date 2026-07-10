@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 
 import { useMembers } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 
 interface MembersListProps {
@@ -23,45 +24,33 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
 
 export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEditPermissionsClick }: MembersListProps) {
   const t = useTranslations('members');
-  const tCommon = useTranslations('common');
   const { user } = useAuthStore();
   const { data: members, isLoading, error } = useMembers(organizationId);
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--ink-faint)' }}>{tCommon('loading')}</span>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--red, var(--danger))' }}>{tCommon('error')}</span>
-        <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError />;
   }
 
   if (!members || members.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+          </svg>
+        }
+        action={
           <button type="button" className="btn btn--primary" onClick={onInviteClick}>
             {t('invite')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

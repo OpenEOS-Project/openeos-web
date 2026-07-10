@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api-client';
 import { useCreateRentalHardware, useUpdateRentalHardware } from '@/hooks/use-rentals';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { RentalHardware, CreateRentalHardwareData, UpdateRentalHardwareData } from '@/types/rental';
 import type { Device } from '@/types/device';
 
@@ -99,14 +100,10 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 600 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">{isEdit ? t('edit') : t('add')}</div>
-          <button className="modal__close" onClick={onClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
@@ -226,7 +223,7 @@ export function HardwareFormModal({ hardware, onClose }: HardwareFormModalProps)
         <div className="modal__foot">
           <button className="btn btn--ghost" onClick={onClose}>{tCommon('cancel')}</button>
           <button className="btn btn--primary" onClick={handleSubmit} disabled={!isValid || isPending}>
-            {isPending ? '...' : tCommon('save')}
+            {isPending ? tCommon('saving') : tCommon('save')}
           </button>
         </div>
       </div>

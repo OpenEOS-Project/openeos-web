@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '@/stores/auth-store';
 import { useRequestEmailChange, useChangePassword } from '@/hooks/use-user-settings';
+import { toast } from '@/components/shared/toast';
 
 const emailChangeSchema = z.object({
   newEmail: z.string().email('Ungültige E-Mail-Adresse'),
@@ -28,8 +28,6 @@ type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>;
 export function AccountSection() {
   const t = useTranslations('settings.account');
   const { user } = useAuthStore();
-  const [emailSuccess, setEmailSuccess] = useState(false);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   const requestEmailChange = useRequestEmailChange();
   const changePassword = useChangePassword();
@@ -38,19 +36,17 @@ export function AccountSection() {
   const passwordForm = useForm<PasswordChangeFormData>({ resolver: zodResolver(passwordChangeSchema) });
 
   const onEmailSubmit = async (data: EmailChangeFormData) => {
-    setEmailSuccess(false);
     try {
       await requestEmailChange.mutateAsync(data);
-      setEmailSuccess(true);
+      toast.success(t('emailChangeRequested'));
       emailForm.reset();
     } catch { /* handled */ }
   };
 
   const onPasswordSubmit = async (data: PasswordChangeFormData) => {
-    setPasswordSuccess(false);
     try {
       await changePassword.mutateAsync({ currentPassword: data.currentPassword, newPassword: data.newPassword });
-      setPasswordSuccess(true);
+      toast.success(t('passwordChanged'));
       passwordForm.reset();
     } catch { /* handled */ }
   };
@@ -67,12 +63,6 @@ export function AccountSection() {
         </div>
 
         <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {emailSuccess && (
-            <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #22c55e 12%, transparent)', color: '#15803d', fontSize: 13 }}>
-              {t('emailChangeRequested')}
-            </div>
-          )}
-
           <div className="auth-field">
             <label className="auth-field__label" htmlFor="newEmail">{t('newEmail')}</label>
             <input id="newEmail" type="email" className="input" {...emailForm.register('newEmail')} />
@@ -105,12 +95,6 @@ export function AccountSection() {
         </div>
 
         <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {passwordSuccess && (
-            <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #22c55e 12%, transparent)', color: '#15803d', fontSize: 13 }}>
-              {t('passwordChanged')}
-            </div>
-          )}
-
           <div className="auth-field">
             <label className="auth-field__label" htmlFor="currentPassword">{t('currentPassword')}</label>
             <input id="currentPassword" type="password" className="input" {...passwordForm.register('currentPassword')} />

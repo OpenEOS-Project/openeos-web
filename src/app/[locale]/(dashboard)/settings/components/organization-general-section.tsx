@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
+import { toast } from '@/components/shared/toast';
 
 const orgGeneralSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),
@@ -19,11 +20,11 @@ type OrgGeneralFormData = z.infer<typeof orgGeneralSchema>;
 
 export function OrganizationGeneralSection() {
   const t = useTranslations('settings.organizationGeneral');
+  const tCommon = useTranslations('common');
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [logoError, setLogoError] = useState<string | null>(null);
 
   const updateOrg = useMutation({
     mutationFn: async (data: Partial<OrgGeneralFormData>) => {
@@ -64,7 +65,6 @@ export function OrganizationGeneralSection() {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file || !currentOrganization) return;
-    setLogoError(null);
     setIsUploading(true);
     try {
       const response = await organizationsApi.uploadLogo(currentOrganization.organizationId, file);
@@ -73,7 +73,7 @@ export function OrganizationGeneralSection() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Upload fehlgeschlagen';
-      setLogoError(message);
+      toast.error(message);
     } finally {
       setIsUploading(false);
     }
@@ -81,7 +81,6 @@ export function OrganizationGeneralSection() {
 
   const handleLogoDelete = async () => {
     if (!currentOrganization?.organization) return;
-    setLogoError(null);
     setIsUploading(true);
     try {
       await organizationsApi.deleteLogo(
@@ -92,7 +91,7 @@ export function OrganizationGeneralSection() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Logo konnte nicht entfernt werden';
-      setLogoError(message);
+      toast.error(message);
     } finally {
       setIsUploading(false);
     }
@@ -144,7 +143,7 @@ export function OrganizationGeneralSection() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
                 >
-                  {isUploading ? '...' : logoUrl ? 'Logo ersetzen' : t('uploadLogo')}
+                  {isUploading ? tCommon('saving') : logoUrl ? 'Logo ersetzen' : t('uploadLogo')}
                 </button>
                 {logoUrl && (
                   <button
@@ -158,9 +157,6 @@ export function OrganizationGeneralSection() {
                   </button>
                 )}
               </div>
-              {logoError && (
-                <p style={{ fontSize: 12, color: 'var(--danger)', margin: '4px 0 0' }}>{logoError}</p>
-              )}
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleLogoChange} style={{ display: 'none' }} />
             </div>
           </div>

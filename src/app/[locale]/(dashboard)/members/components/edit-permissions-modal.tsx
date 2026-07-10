@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useUpdateMember, useSetMemberPin, useRemoveMemberPin } from '@/hooks/use-members';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 
 interface EditPermissionsModalProps {
@@ -98,7 +100,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
 
   return (
     <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
-      <div className="modal__panel" style={{ maxWidth: 480 }}>
+      <div className="modal__panel modal__panel--sm">
         <div className="modal__head">
           <div>
             <h2 className="modal__title">{t('permissions.title')}</h2>
@@ -106,14 +108,12 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
               {member.user?.firstName} {member.user?.lastName}
             </p>
           </div>
-          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {error && (
-            <div style={{
+            <div role="alert" style={{
               borderRadius: 8,
               background: 'color-mix(in oklab, var(--red, var(--danger)) 10%, var(--paper))',
               padding: '10px 14px',
@@ -127,35 +127,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
 
           {/* Admin toggle */}
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-            <div
-              role="switch"
-              aria-checked={isAdmin}
-              tabIndex={0}
-              onClick={() => setIsAdmin((v) => !v)}
-              onKeyDown={(e) => e.key === ' ' && setIsAdmin((v) => !v)}
-              style={{
-                width: 40,
-                height: 22,
-                borderRadius: 11,
-                background: isAdmin ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, var(--paper))',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'background 0.15s',
-                flexShrink: 0,
-              }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: 3,
-                left: isAdmin ? 21 : 3,
-                width: 16,
-                height: 16,
-                borderRadius: '50%',
-                background: '#fff',
-                transition: 'left 0.15s',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-              }} />
-            </div>
+            <ToggleSwitch checked={isAdmin} onChange={setIsAdmin} aria-label={t('form.isAdmin')} />
             <div>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{t('form.isAdmin')}</div>
               <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>{t('form.isAdminHint')}</div>
@@ -211,7 +183,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                   }}
                   disabled={removeMemberPin.isPending}
                 >
-                  {removeMemberPin.isPending ? '...' : t('pin.remove')}
+                  {removeMemberPin.isPending ? tCommon('saving') : t('pin.remove')}
                 </button>
                 {pinFlash && (
                   <span style={{ fontSize: 12, color: 'var(--green-ink)' }}>{pinFlash}</span>
@@ -255,13 +227,13 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                   }}
                   disabled={setMemberPin.isPending || !pinInput}
                 >
-                  {setMemberPin.isPending ? '...' : t('pin.set')}
+                  {setMemberPin.isPending ? tCommon('saving') : t('pin.set')}
                 </button>
               </div>
             )}
 
             {pinError && (
-              <p style={{ marginTop: 6, fontSize: 12, color: 'var(--red, var(--danger))' }}>{pinError}</p>
+              <p role="alert" style={{ marginTop: 6, fontSize: 12, color: 'var(--red, var(--danger))' }}>{pinError}</p>
             )}
           </div>
         </div>
@@ -276,7 +248,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
             onClick={handleSave}
             disabled={updateMember.isPending}
           >
-            {updateMember.isPending ? '...' : tCommon('save')}
+            {updateMember.isPending ? tCommon('saving') : tCommon('save')}
           </button>
         </div>
       </div>

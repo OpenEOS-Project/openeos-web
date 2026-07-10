@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { adminApi } from '@/lib/api-client';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { toast } from '@/components/shared/toast';
 import type {
   AdminAssignedPrinter,
   AdminUnassignedPrinterDevice,
@@ -35,7 +37,6 @@ function isRecentlySeen(value: string | null | undefined): boolean {
 export function AdminPrintersContainer() {
   const queryClient = useQueryClient();
   const [assignTarget, setAssignTarget] = useState<AdminUnassignedPrinterDevice | null>(null);
-  const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const printersQuery = useQuery({
     queryKey: ['admin', 'printers'],
@@ -60,30 +61,30 @@ export function AdminPrintersContainer() {
     onSuccess: (response) => {
       const result = response.data;
       if (result.success) {
-        setActionMessage({ type: 'success', text: result.message ?? 'Test-Druck wurde an den Drucker gesendet.' });
+        toast.success(result.message ?? 'Test-Druck wurde an den Drucker gesendet.');
       } else {
-        setActionMessage({ type: 'error', text: result.message ?? 'Test-Druck nicht möglich.' });
+        toast.error(result.message ?? 'Test-Druck nicht möglich.');
       }
     },
-    onError: (err: Error) => setActionMessage({ type: 'error', text: `Test-Druck fehlgeschlagen: ${err.message}` }),
+    onError: (err: Error) => toast.error(`Test-Druck fehlgeschlagen: ${err.message}`),
   });
 
   const unassignMutation = useMutation({
     mutationFn: (printerId: string) => adminApi.unassignPrinter(printerId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
-      setActionMessage({ type: 'success', text: 'Zuordnung wurde aufgehoben.' });
+      toast.success('Zuordnung wurde aufgehoben.');
     },
-    onError: (err: Error) => setActionMessage({ type: 'error', text: `Zuordnung aufheben fehlgeschlagen: ${err.message}` }),
+    onError: (err: Error) => toast.error(`Zuordnung aufheben fehlgeschlagen: ${err.message}`),
   });
 
   const deleteDeviceMutation = useMutation({
     mutationFn: (deviceId: string) => adminApi.deleteDevice(deviceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
-      setActionMessage({ type: 'success', text: 'Gerät wurde gelöscht.' });
+      toast.success('Gerät wurde gelöscht.');
     },
-    onError: (err: Error) => setActionMessage({ type: 'error', text: `Löschen fehlgeschlagen: ${err.message}` }),
+    onError: (err: Error) => toast.error(`Löschen fehlgeschlagen: ${err.message}`),
   });
 
   const assigned = printersQuery.data?.assigned ?? [];
@@ -91,23 +92,6 @@ export function AdminPrintersContainer() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {actionMessage && (
-        <div
-          style={{
-            padding: '10px 14px',
-            borderRadius: 8,
-            background:
-              actionMessage.type === 'success'
-                ? 'color-mix(in oklab, var(--green-ink) 8%, transparent)'
-                : 'color-mix(in oklab, var(--danger) 8%, transparent)',
-            color: actionMessage.type === 'success' ? 'var(--green-ink)' : 'var(--danger)',
-            fontSize: 13,
-          }}
-        >
-          {actionMessage.text}
-        </div>
-      )}
-
       {/* Unassigned printer-agent devices */}
       <section className="app-card">
         <div className="app-card__head">
@@ -247,9 +231,9 @@ export function AdminPrintersContainer() {
           onAssigned={() => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
             setAssignTarget(null);
-            setActionMessage({ type: 'success', text: 'Drucker wurde der Organisation zugewiesen.' });
+            toast.success('Drucker wurde der Organisation zugewiesen.');
           }}
-          onError={(msg) => setActionMessage({ type: 'error', text: msg })}
+          onError={(msg) => toast.error(msg)}
         />
       )}
     </div>
@@ -369,14 +353,10 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">Drucker zuordnen</div>
-          <button type="button" className="modal__close" onClick={onClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -422,7 +402,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
                 ))}
               </select>
               {orgsError && (
-                <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
+                <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
                   {orgsError}
                 </span>
               )}
@@ -438,7 +418,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
               {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={submitting || !organizationId}>
-              {submitting ? '...' : 'Zuordnen'}
+              {submitting ? t('common.saving') : 'Zuordnen'}
             </button>
           </div>
         </form>

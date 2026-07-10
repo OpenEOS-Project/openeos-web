@@ -5,6 +5,8 @@
     "retry": "Try again",
     "cancel": "Cancel",
     "save": "Save",
+    "saving": "Saving…",
+    "deleting": "Deleting…",
     "saveFailed": "Saving failed",
     "delete": "Delete",
     "edit": "Edit",

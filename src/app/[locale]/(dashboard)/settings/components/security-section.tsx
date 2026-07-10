@@ -16,6 +16,7 @@ import {
   useRevokeAllOtherSessions,
 } from '@/hooks/use-user-settings';
 import type { TotpSetupResult } from '@/types/settings';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
 type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'recovery-codes';
 
@@ -209,12 +210,10 @@ export function SecuritySection() {
       {/* 2FA Setup Modal */}
       {showSetupModal && (
         <div className="modal__backdrop" onClick={handleCloseSetupModal}>
-          <div className="modal__box" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <div className="modal__title">{t('twoFactor.enable')}</div>
-              <button className="modal__close" onClick={handleCloseSetupModal} aria-label="Schließen">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-              </button>
+              <DialogCloseButton onClick={handleCloseSetupModal} />
             </div>
             <div className="modal__body">
               {setupStep === 'select' && (
@@ -302,12 +301,10 @@ export function SecuritySection() {
       {/* Disable 2FA Modal */}
       {showDisableModal && (
         <div className="modal__backdrop" onClick={() => setShowDisableModal(false)}>
-          <div className="modal__box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <div className="modal__title">{t('twoFactor.disableConfirm')}</div>
-              <button className="modal__close" onClick={() => setShowDisableModal(false)} aria-label="Schließen">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-              </button>
+              <DialogCloseButton onClick={() => setShowDisableModal(false)} />
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', display: 'flex', gap: 10 }}>

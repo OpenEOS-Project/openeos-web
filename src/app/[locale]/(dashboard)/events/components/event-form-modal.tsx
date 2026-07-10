@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Event } from '@/types';
 import type { ShopOpeningHours, ShopWeekday } from '@/types/event';
 import { ApiException } from '@/types/api';
@@ -155,14 +156,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{isEditing ? t('actions.edit') : t('create')}</h2>
-          <button type="button" className="modal__close" onClick={handleClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -387,7 +384,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             />
 
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, var(--paper))', color: 'var(--danger)', fontSize: 13 }}>
+              <div role="alert" style={{ padding: '10px 14px', borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, var(--paper))', color: 'var(--danger)', fontSize: 13 }}>
                 {error}
               </div>
             )}
@@ -398,7 +395,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               {tCommon('cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+              {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
             </button>
           </div>
         </form>

@@ -9,6 +9,7 @@ import {
   useStartInventoryCount,
 } from '@/hooks/use-inventory';
 import { useProducts } from '@/hooks/use-products';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { InventoryCount } from '@/types/inventory';
 
 interface CreateInventoryModalProps {
@@ -89,14 +90,10 @@ export function CreateInventoryModal({
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{t('create')}</h2>
-          <button type="button" className="modal__close" onClick={handleClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -127,7 +124,7 @@ export function CreateInventoryModal({
             </label>
 
             {error && (
-              <div style={{ fontSize: 13, color: 'var(--danger)', padding: '8px 12px', background: 'color-mix(in oklab, var(--danger) 10%, transparent)', borderRadius: 8 }}>
+              <div role="alert" style={{ fontSize: 13, color: 'var(--danger)', padding: '8px 12px', background: 'color-mix(in oklab, var(--danger) 10%, transparent)', borderRadius: 8 }}>
                 {error}
               </div>
             )}

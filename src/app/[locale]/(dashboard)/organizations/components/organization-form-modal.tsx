@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useCreateOrganization, useUpdateOrganization } from '@/hooks/use-organizations';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types';
 
 const organizationSchema = z.object({
@@ -87,14 +88,12 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
 
   return (
     <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
-      <div className="modal__panel" style={{ maxWidth: 520 }}>
+      <div className="modal__panel modal__panel--md">
         <div className="modal__head">
           <h2 className="modal__title">
             {isEditing ? t('actions.edit') : t('create')}
           </h2>
-          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -150,7 +149,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
               {tCommon('cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-              {isSubmitting ? '...' : (isEditing ? tCommon('save') : tCommon('create'))}
+              {isSubmitting ? tCommon('saving') : (isEditing ? tCommon('save') : tCommon('create'))}
             </button>
           </div>
         </form>

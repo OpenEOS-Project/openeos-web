@@ -7,6 +7,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
 import { usePrintTemplates } from '@/hooks/use-print-templates';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { toast } from '@/components/shared/toast';
 import type { OrganizationSettings } from '@/types/organization';
 
 // ---------------------------------------------------------------------------
@@ -14,12 +16,6 @@ import type { OrganizationSettings } from '@/types/organization';
 // ---------------------------------------------------------------------------
 type KitchenTicketMode = 'per_order' | 'per_item' | 'per_station';
 type ReceiptTrigger = 'payment_received' | 'order_completed' | 'manual';
-
-interface SavedFeedback {
-  kitchen: number | null;
-  order: number | null;
-  receipt: number | null;
-}
 
 // ---------------------------------------------------------------------------
 // Small helpers
@@ -40,39 +36,6 @@ function WarningBanner({ text }: { text: string }) {
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      style={{
-        position: 'relative',
-        width: 40,
-        height: 22,
-        borderRadius: 11,
-        border: 'none',
-        cursor: 'pointer',
-        background: checked ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, transparent)',
-        transition: 'background 0.15s',
-        flexShrink: 0,
-      }}
-    >
-      <span style={{
-        position: 'absolute',
-        top: 3,
-        left: checked ? 21 : 3,
-        width: 16,
-        height: 16,
-        borderRadius: '50%',
-        background: 'white',
-        transition: 'left 0.15s',
-      }} />
-    </button>
-  );
-}
-
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -84,15 +47,10 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-function SaveStatus({
-  isPending, savedAt, error,
-}: { isPending: boolean; savedAt: number | null; error: Error | null }) {
-  const t = useTranslations();
+function SaveStatus({ isPending }: { isPending: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginTop: 8 }}>
       {isPending && <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>Speichert…</span>}
-      {!isPending && savedAt && <span style={{ color: 'var(--green-ink)' }}>✓ Gespeichert</span>}
-      {!isPending && error && <span style={{ color: 'var(--danger)' }}>{t('common.saveFailed')}</span>}
     </div>
   );
 }
@@ -101,6 +59,7 @@ function SaveStatus({
 // Main component
 // ---------------------------------------------------------------------------
 export function OrderFlowTab() {
+  const t = useTranslations();
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const orgId = currentOrganization?.organizationId ?? '';
 
@@ -128,9 +87,6 @@ export function OrderFlowTab() {
   const [receiptPrinterId, setReceiptPrinterId] = useState(receipt.printerId ?? '');
   const [receiptTemplateId, setReceiptTemplateId] = useState(receipt.templateId ?? '');
 
-  // Per-card saved feedback
-  const [savedAt, setSavedAt] = useState<SavedFeedback>({ kitchen: null, order: null, receipt: null });
-
   // Shared data: printers + templates
   const { data: printersList } = usePrinters(orgId);
   const { data: templatesList } = usePrintTemplates(orgId);
@@ -138,9 +94,9 @@ export function OrderFlowTab() {
   const printers = printersList ?? [];
   const templates = templatesList ?? [];
 
-  const kitchenTemplates = templates.filter((t) => t.type === 'kitchen_ticket');
-  const orderTemplates = templates.filter((t) => t.type === 'order_ticket');
-  const receiptTemplates = templates.filter((t) => t.type === 'receipt');
+  const kitchenTemplates = templates.filter((tmpl) => tmpl.type === 'kitchen_ticket');
+  const orderTemplates = templates.filter((tmpl) => tmpl.type === 'order_ticket');
+  const receiptTemplates = templates.filter((tmpl) => tmpl.type === 'receipt');
 
   // Helper to build merged settings payload
   function buildPayload(patch: NonNullable<OrganizationSettings['orderFlow']>) {
@@ -152,11 +108,6 @@ export function OrderFlowTab() {
         ...patch,
       },
     } as OrganizationSettings;
-  }
-
-  function markSaved(card: keyof SavedFeedback) {
-    setSavedAt((prev) => ({ ...prev, [card]: Date.now() }));
-    window.setTimeout(() => setSavedAt((prev) => ({ ...prev, [card]: null })), 1800);
   }
 
   const kitchenMutation = useMutation({
@@ -175,7 +126,10 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      markSaved('kitchen');
+      toast.success('Gespeichert');
+    },
+    onError: () => {
+      toast.error(t('common.saveFailed'));
     },
   });
 
@@ -194,7 +148,10 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      markSaved('order');
+      toast.success('Gespeichert');
+    },
+    onError: () => {
+      toast.error(t('common.saveFailed'));
     },
   });
 
@@ -214,7 +171,10 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      markSaved('receipt');
+      toast.success('Gespeichert');
+    },
+    onError: () => {
+      toast.error(t('common.saveFailed'));
     },
   });
 
@@ -230,7 +190,7 @@ export function OrderFlowTab() {
             <h2 className="app-card__title">Küchenbon</h2>
             <p className="app-card__sub">Bons, die bei neuen Bestellungen in der Küche gedruckt werden.</p>
           </div>
-          <Toggle checked={kitchenEnabled} onChange={setKitchenEnabled} />
+          <ToggleSwitch checked={kitchenEnabled} onChange={setKitchenEnabled} aria-label="Küchenbon" />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!kitchenEnabled && (
@@ -283,11 +243,7 @@ export function OrderFlowTab() {
           </FieldRow>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
-            <SaveStatus
-              isPending={kitchenMutation.isPending}
-              savedAt={savedAt.kitchen}
-              error={kitchenMutation.error}
-            />
+            <SaveStatus isPending={kitchenMutation.isPending} />
             <button
               className="btn btn--primary"
               onClick={() => kitchenMutation.mutate()}
@@ -308,7 +264,7 @@ export function OrderFlowTab() {
             <h2 className="app-card__title">Bestellbon</h2>
             <p className="app-card__sub">Bon für den Ausgabebereich oder zur Bestellbestätigung.</p>
           </div>
-          <Toggle checked={orderEnabled} onChange={setOrderEnabled} />
+          <ToggleSwitch checked={orderEnabled} onChange={setOrderEnabled} aria-label="Bestellbon" />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!orderEnabled && (
@@ -344,11 +300,7 @@ export function OrderFlowTab() {
           </FieldRow>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
-            <SaveStatus
-              isPending={orderMutation.isPending}
-              savedAt={savedAt.order}
-              error={orderMutation.error}
-            />
+            <SaveStatus isPending={orderMutation.isPending} />
             <button
               className="btn btn--primary"
               onClick={() => orderMutation.mutate()}
@@ -369,7 +321,7 @@ export function OrderFlowTab() {
             <h2 className="app-card__title">Kassenbon</h2>
             <p className="app-card__sub">Bon, der nach einer Zahlung oder einem Bestellungsabschluss gedruckt wird.</p>
           </div>
-          <Toggle checked={receiptEnabled} onChange={setReceiptEnabled} />
+          <ToggleSwitch checked={receiptEnabled} onChange={setReceiptEnabled} aria-label="Kassenbon" />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!receiptEnabled && (
@@ -419,11 +371,7 @@ export function OrderFlowTab() {
           </FieldRow>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
-            <SaveStatus
-              isPending={receiptMutation.isPending}
-              savedAt={savedAt.receipt}
-              error={receiptMutation.error}
-            />
+            <SaveStatus isPending={receiptMutation.isPending} />
             <button
               className="btn btn--primary"
               onClick={() => receiptMutation.mutate()}

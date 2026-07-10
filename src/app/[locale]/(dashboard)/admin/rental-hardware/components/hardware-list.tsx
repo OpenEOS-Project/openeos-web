@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRentalHardware, useDeleteRentalHardware } from '@/hooks/use-rentals';
 import { HardwareFormModal } from './hardware-form-modal';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { RentalHardware, RentalHardwareStatus } from '@/types/rental';
 
 const statusBadge: Record<RentalHardwareStatus, string> = {
@@ -29,31 +31,26 @@ export function HardwareList() {
   const deleteMutation = useDeleteRentalHardware();
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (!hardware || hardware.length === 0) {
     return (
       <>
-        <div className="app-card">
-          <div className="empty-state">
-            <div className="empty-state__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
-              </svg>
-            </div>
-            <h3 className="empty-state__title">{t('title')}</h3>
-            <p className="empty-state__sub">{t('description')}</p>
+        <ListEmpty
+          title={t('title')}
+          description={t('description')}
+          icon={
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
+            </svg>
+          }
+          action={
             <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
               {t('add')}
             </button>
-          </div>
-        </div>
+          }
+        />
         {showCreateModal && <HardwareFormModal onClose={() => setShowCreateModal(false)} />}
       </>
     );
@@ -128,14 +125,10 @@ export function HardwareList() {
 
       {deleteHardware && (
         <div className="modal__backdrop" onClick={() => setDeleteHardware(null)}>
-          <div className="modal__box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <div className="modal__title">{t('delete')}</div>
-              <button className="modal__close" onClick={() => setDeleteHardware(null)} aria-label="Schließen">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
+              <DialogCloseButton onClick={() => setDeleteHardware(null)} />
             </div>
             <div className="modal__body">
               <div style={{ textAlign: 'center', padding: '12px 0', background: 'color-mix(in oklab, var(--ink) 4%, transparent)', borderRadius: 8 }}>
@@ -153,7 +146,7 @@ export function HardwareList() {
                 }}
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? '...' : tCommon('delete')}
+                {deleteMutation.isPending ? tCommon('saving') : tCommon('delete')}
               </button>
             </div>
           </div>

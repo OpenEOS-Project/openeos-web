@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
 const schema = z.object({
   date: z.string().min(1, 'Datum ist erforderlich'),
@@ -70,19 +71,17 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
 
   return (
     <div className="modal__backdrop" onClick={handleClose}>
-      <div className="modal__box" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">{t('shifts.editor.addShift')}</div>
-          <button className="modal__close" onClick={handleClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="modal__body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {error && (
-                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
+                <div role="alert" style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
               )}
 
               <Controller
@@ -138,7 +137,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
           <div className="modal__foot">
             <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
             <button type="submit" className="btn btn--primary" disabled={createMutation.isPending}>
-              {createMutation.isPending ? '...' : t('shifts.editor.addShift')}
+              {createMutation.isPending ? t('common.saving') : t('shifts.editor.addShift')}
             </button>
           </div>
         </form>

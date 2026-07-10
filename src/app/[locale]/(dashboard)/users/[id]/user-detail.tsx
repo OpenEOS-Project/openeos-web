@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { useAdminUser, useUnlockUser } from '@/hooks/use-admin';
+import { ListLoading } from '@/components/shared/list-states';
 
 const ROLE_BADGE: Record<string, string> = {
   admin: 'badge--info',
@@ -31,11 +32,7 @@ export function UserDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--ink-faint)' }}>{tCommon('loading')}</span>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error || !user) {
@@ -127,7 +124,7 @@ export function UserDetail() {
                 onClick={() => unlockUser.mutateAsync(user.id)}
                 disabled={unlockUser.isPending}
               >
-                {unlockUser.isPending ? '...' : t('actions.unlock')}
+                {unlockUser.isPending ? tCommon('saving') : t('actions.unlock')}
               </button>
             )}
           </div>

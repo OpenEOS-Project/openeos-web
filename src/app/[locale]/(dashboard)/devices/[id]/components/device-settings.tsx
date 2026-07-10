@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, sumupApi } from '@/lib/api-client';
+import { toast } from '@/components/shared/toast';
 import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
 
 interface DeviceSettingsProps {
@@ -105,6 +106,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['device', organizationId, device.id] });
       queryClient.invalidateQueries({ queryKey: ['devices', organizationId] });
+      toast.success(t('devices.detail.saved'));
+    },
+    onError: () => {
+      toast.error(t('devices.detail.saveFailed'));
     },
   });
 
@@ -252,18 +257,12 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       )}
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
-        {updateMutation.isSuccess && (
-          <span style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('devices.detail.saved')}</span>
-        )}
-        {updateMutation.isError && (
-          <span style={{ fontSize: 13, color: 'var(--danger)' }}>{t('devices.detail.saveFailed')}</span>
-        )}
         <button
           className="btn btn--primary"
           onClick={() => updateMutation.mutate()}
           disabled={updateMutation.isPending}
         >
-          {updateMutation.isPending ? '...' : t('common.save')}
+          {updateMutation.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>
     </div>

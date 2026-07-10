@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { devicesApi, printersApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
+import { toast } from '@/components/shared/toast';
 import type { Device, PrinterMode } from '@/types/device';
 
 interface DevicePrinterConfigProps {
@@ -60,9 +61,6 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
   );
   const [cashDrawerPrinterId, setCashDrawerPrinterId] = useState((device.settings?.cashDrawerPrinterId as string) || '');
 
-  // test-print feedback state
-  const [testFeedback, setTestFeedback] = useState<'success' | 'error' | null>(null);
-
   useEffect(() => {
     setDefaultPrinterId((device.settings?.defaultPrinterId as string) || '');
     setPrinterMode(normalizePrinterMode(device.settings?.printerMode));
@@ -84,18 +82,20 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['device', organizationId, device.id] });
+      toast.success(t('devices.detail.saved'));
+    },
+    onError: () => {
+      toast.error(t('devices.detail.saveFailed'));
     },
   });
 
   const testPrintMutation = useMutation({
     mutationFn: () => printersApi.testPrint(organizationId, defaultPrinterId),
     onSuccess: () => {
-      setTestFeedback('success');
-      window.setTimeout(() => setTestFeedback(null), 2500);
+      toast.success('Testdruck wurde gesendet');
     },
     onError: () => {
-      setTestFeedback('error');
-      window.setTimeout(() => setTestFeedback(null), 2500);
+      toast.error('Fehler beim Senden');
     },
   });
 
@@ -130,12 +130,6 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
             >
               {testPrintMutation.isPending ? '...' : 'Testdruck'}
             </button>
-            {testFeedback === 'success' && (
-              <span style={{ fontSize: 12, color: 'var(--green-ink)' }}>✓ Testdruck wurde gesendet</span>
-            )}
-            {testFeedback === 'error' && (
-              <span style={{ fontSize: 12, color: 'var(--danger)' }}>✗ Fehler beim Senden</span>
-            )}
           </div>
         </div>
       </SectionCard>
@@ -211,18 +205,12 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
       </SectionCard>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
-        {updateMutation.isSuccess && (
-          <span style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('devices.detail.saved')}</span>
-        )}
-        {updateMutation.isError && (
-          <span style={{ fontSize: 13, color: 'var(--danger)' }}>{t('devices.detail.saveFailed')}</span>
-        )}
         <button
           className="btn btn--primary"
           onClick={() => updateMutation.mutate()}
           disabled={updateMutation.isPending}
         >
-          {updateMutation.isPending ? '...' : t('common.save')}
+          {updateMutation.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>
     </div>

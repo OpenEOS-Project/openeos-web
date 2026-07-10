@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import type { ShiftPlan } from '@/types/shift';
 
 interface PlanSettingsProps {
@@ -50,23 +51,7 @@ function ToggleRow({ title, description, checked, onChange, isLast }: ToggleRowP
         <div style={{ fontWeight: 600, fontSize: 14 }}>{title}</div>
         <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{description}</div>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        style={{
-          width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', flexShrink: 0,
-          background: checked ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 18%, transparent)',
-          position: 'relative', transition: 'background 0.2s',
-        }}
-      >
-        <span style={{
-          position: 'absolute', top: 3, left: checked ? 21 : 3,
-          width: 16, height: 16, borderRadius: '50%', background: '#fff',
-          transition: 'left 0.2s',
-        }} />
-      </button>
+      <ToggleSwitch checked={checked} onChange={onChange} aria-label={title} />
     </div>
   );
 }
@@ -396,7 +381,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
               Verwerfen
             </button>
             <button type="submit" className="btn btn--primary" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? '...' : t('common.save')}
+              {updateMutation.isPending ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </div>
@@ -425,7 +410,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
               }
             }}
           >
-            {deleteMutation.isPending ? '...' : 'Plan löschen'}
+            {deleteMutation.isPending ? t('common.deleting') : 'Plan löschen'}
           </button>
         </div>
       </SectionCard>

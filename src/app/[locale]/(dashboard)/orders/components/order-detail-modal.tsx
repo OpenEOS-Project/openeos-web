@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { formatCurrency, formatDateTime } from '@/utils/format';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import {
   getOrderChannel,
   type Order,
@@ -50,7 +51,7 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div>
             <h2 style={{ margin: 0 }}>{t('orders.detail.title', { number: order.dailyNumber })}</h2>
@@ -58,11 +59,7 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
               {order.orderNumber}
             </div>
           </div>
-          <button type="button" className="modal__close" onClick={onClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

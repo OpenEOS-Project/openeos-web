@@ -6,6 +6,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi, sumupApi } from '@/lib/api-client';
 import type { SumUpReader } from '@/types/sumup';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { toast } from '@/components/shared/toast';
 
 export function OrganizationSumupSection() {
   const t = useTranslations('settings.organizationSumup');
@@ -22,8 +24,6 @@ export function OrganizationSumupSection() {
   const [merchantCode, setMerchantCode] = useState(sumupSettings?.merchantCode || '');
   const [affiliateKey, setAffiliateKey] = useState(sumupSettings?.affiliateKey || '');
   const [appId, setAppId] = useState(sumupSettings?.appId || '');
-  const [credentialsError, setCredentialsError] = useState<string | null>(null);
-  const [credentialsSuccess, setCredentialsSuccess] = useState(false);
 
   // Pair reader dialog
   const [showPairDialog, setShowPairDialog] = useState(false);
@@ -65,14 +65,12 @@ export function OrganizationSumupSection() {
       setMerchantCode(data.settings?.sumup?.merchantCode || '');
       setAffiliateKey(data.settings?.sumup?.affiliateKey || '');
       setAppId(data.settings?.sumup?.appId || '');
-      setCredentialsError(null);
-      setCredentialsSuccess(true);
-      setTimeout(() => setCredentialsSuccess(false), 3000);
+      toast.success(t('credentials.success'));
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['sumup-readers', organizationId] });
     },
     onError: () => {
-      setCredentialsError(t('credentials.saveFailed'));
+      toast.error(t('credentials.saveFailed'));
     },
   });
 
@@ -83,13 +81,10 @@ export function OrganizationSumupSection() {
       return sumupApi.testConnection(organizationId);
     },
     onSuccess: () => {
-      setCredentialsError(null);
-      setCredentialsSuccess(true);
-      setTimeout(() => setCredentialsSuccess(false), 3000);
+      toast.success(t('credentials.success'));
     },
     onError: () => {
-      setCredentialsError(t('credentials.testFailed'));
-      setCredentialsSuccess(false);
+      toast.error(t('credentials.testFailed'));
     },
   });
 
@@ -214,20 +209,6 @@ export function OrganizationSumupSection() {
             </div>
           </div>
 
-          {credentialsError && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-              {credentialsError}
-            </div>
-          )}
-
-          {credentialsSuccess && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--green-ink)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              {t('credentials.success')}
-            </div>
-          )}
-
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
@@ -339,15 +320,13 @@ export function OrganizationSumupSection() {
       {/* Pair Reader Dialog */}
       {showPairDialog && (
         <div className="modal__backdrop" onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}>
-          <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+          <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <div>
                 <h2 className="modal__title">{t('readers.pairReader')}</h2>
                 <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{t('readers.pairDescription')}</p>
               </div>
-              <button className="modal__close" type="button" onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
+              <DialogCloseButton onClick={() => { setShowPairDialog(false); setPairingCode(''); setPairReaderName(''); }} />
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); pairReaderMutation.mutate(); }}>
@@ -375,7 +354,7 @@ export function OrganizationSumupSection() {
                 </div>
 
                 {pairReaderMutation.isError && (
-                  <div style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
+                  <div role="alert" style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
                     {t('readers.pairFailed')}
                   </div>
                 )}
@@ -410,12 +389,10 @@ export function OrganizationSumupSection() {
       {/* Rename Reader Dialog */}
       {renamingReader && (
         <div className="modal__backdrop" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
-          <div className="modal__box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+          <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2 className="modal__title">{t('readers.rename')}</h2>
-              <button className="modal__close" type="button" onClick={() => { setRenamingReader(null); setNewReaderName(''); }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
+              <DialogCloseButton onClick={() => { setRenamingReader(null); setNewReaderName(''); }} />
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); renameReaderMutation.mutate(); }}>

@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
+import { toast } from '@/components/shared/toast';
 
 type KitchenTicketMode = 'per_order' | 'per_item' | 'per_station';
 
@@ -38,7 +39,6 @@ export function KitchenTicketModePanel() {
     (currentOrganization?.organization?.settings?.orderFlow?.kitchenTicketPrinting?.mode as KitchenTicketMode) ||
     'per_order';
   const [mode, setMode] = useState<KitchenTicketMode>(initialMode);
-  const [savedAt, setSavedAt] = useState<number | null>(null);
 
   const saveMode = useMutation({
     mutationFn: async (next: KitchenTicketMode) => {
@@ -66,8 +66,10 @@ export function KitchenTicketModePanel() {
       if (currentOrganization) {
         setCurrentOrganization({ ...currentOrganization, organization: org });
       }
-      setSavedAt(Date.now());
-      window.setTimeout(() => setSavedAt(null), 1800);
+      toast.success('Gespeichert');
+    },
+    onError: () => {
+      toast.error(t('common.saveFailed'));
     },
   });
 
@@ -129,8 +131,6 @@ export function KitchenTicketModePanel() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
           {saveMode.isPending && <span>Speichert…</span>}
-          {savedAt && <span style={{ color: 'var(--green-ink)' }}>✓ Gespeichert</span>}
-          {saveMode.error && <span style={{ color: 'var(--danger)' }}>{t('common.saveFailed')}</span>}
         </div>
       </div>
     </section>

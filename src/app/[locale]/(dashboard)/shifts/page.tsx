@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
 import { CreateShiftPlanModal } from './components/create-shift-plan-modal';
 
@@ -66,12 +67,7 @@ export default function ShiftsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   return (
@@ -87,22 +83,20 @@ export default function ShiftsPage() {
       </div>
 
       {plans.length === 0 ? (
-        <div className="app-card">
-          <div className="app-card__body">
-            <div className="empty-state">
-              <div className="empty-state__icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
-                </svg>
-              </div>
-              <h3 className="empty-state__title">{t('shifts.noPlans')}</h3>
-              <p className="empty-state__sub">{t('shifts.noPlansDescription')}</p>
-              <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
-                {t('shifts.createFirstPlan')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ListEmpty
+          title={t('shifts.noPlans')}
+          description={t('shifts.noPlansDescription')}
+          icon={
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+          }
+          action={
+            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
+              {t('shifts.createFirstPlan')}
+            </button>
+          }
+        />
       ) : (
         <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
           {plans.map((plan: ShiftPlan) => {

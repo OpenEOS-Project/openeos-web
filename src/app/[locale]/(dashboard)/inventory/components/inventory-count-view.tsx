@@ -9,6 +9,7 @@ import {
   useCancelInventoryCount,
   useCompleteInventoryCount,
 } from '@/hooks/use-inventory';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { InventoryCount, InventoryCountItem } from '@/types/inventory';
 
 import { InventoryCompletedView } from './inventory-completed-view';
@@ -337,14 +338,10 @@ export function InventoryCountView({
       {/* Cancel confirm modal */}
       {showCancelConfirm && (
         <div className="modal__overlay" onClick={() => setShowCancelConfirm(false)}>
-          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('cancelConfirm.title')}</h2>
-              <button type="button" className="modal__close" onClick={() => setShowCancelConfirm(false)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
+              <DialogCloseButton onClick={() => setShowCancelConfirm(false)} />
             </div>
             <div className="modal__body">
               <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7, margin: 0 }}>
@@ -372,14 +369,10 @@ export function InventoryCountView({
       {/* Complete confirm modal */}
       {showCompleteConfirm && (
         <div className="modal__overlay" onClick={() => setShowCompleteConfirm(false)}>
-          <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('completeConfirm.title')}</h2>
-              <button type="button" className="modal__close" onClick={() => setShowCompleteConfirm(false)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
+              <DialogCloseButton onClick={() => setShowCompleteConfirm(false)} />
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', gap: 24 }}>

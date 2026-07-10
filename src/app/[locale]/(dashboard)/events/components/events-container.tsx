@@ -104,7 +104,7 @@ export function EventsContainer() {
 
       {deletingEvent && (
         <div className="modal__overlay" onClick={() => setDeletingEvent(null)}>
-          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('deleteConfirm.title')}</h2>
             </div>
@@ -128,7 +128,7 @@ export function EventsContainer() {
                 onClick={handleDeleteConfirm}
                 disabled={deleteEvent.isPending}
               >
-                {deleteEvent.isPending ? '...' : t('deleteConfirm.confirm')}
+                {deleteEvent.isPending ? tCommon('saving') : t('deleteConfirm.confirm')}
               </button>
             </div>
           </div>

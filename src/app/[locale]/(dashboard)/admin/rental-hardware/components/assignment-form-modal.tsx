@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api-client';
 import { useRentalHardware, useCreateRentalAssignment } from '@/hooks/use-rentals';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { CreateRentalAssignmentData } from '@/types/rental';
 
 interface AssignmentFormModalProps {
@@ -62,14 +63,10 @@ export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">{t('add')}</div>
-          <button className="modal__close" onClick={onClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
@@ -130,7 +127,7 @@ export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
         <div className="modal__foot">
           <button className="btn btn--ghost" onClick={onClose}>{tCommon('cancel')}</button>
           <button className="btn btn--primary" onClick={handleSubmit} disabled={!isValid || createMutation.isPending}>
-            {createMutation.isPending ? '...' : tCommon('create')}
+            {createMutation.isPending ? tCommon('saving') : tCommon('create')}
           </button>
         </div>
       </div>

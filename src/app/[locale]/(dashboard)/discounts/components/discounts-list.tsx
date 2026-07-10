@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { useDiscountVouchers } from '@/hooks/use-discount-vouchers';
+import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 
 interface DiscountsListProps {
@@ -19,46 +20,34 @@ export function DiscountsList({
   onDeleteClick,
 }: DiscountsListProps) {
   const t = useTranslations('discounts');
-  const tCommon = useTranslations('common');
 
   const { data: vouchers, isLoading, error } = useDiscountVouchers(organizationId);
 
   if (isLoading) {
-    return (
-      <div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{tCommon('loading')}</div>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (error) {
-    return (
-      <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
-        <div style={{ color: 'var(--danger)' }}>{tCommon('error')}</div>
-        <button className="btn btn--ghost" onClick={() => window.location.reload()}>
-          {tCommon('retry')}
-        </button>
-      </div>
-    );
+    return <ListError />;
   }
 
   if (!vouchers || vouchers.length === 0) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-              <line x1="7" y1="7" x2="7.01" y2="7" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('empty.title')}</h3>
-          <p className="empty-state__sub">{t('empty.description')}</p>
+      <ListEmpty
+        title={t('empty.title')}
+        description={t('empty.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+            <line x1="7" y1="7" x2="7.01" y2="7" />
+          </svg>
+        }
+        action={
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

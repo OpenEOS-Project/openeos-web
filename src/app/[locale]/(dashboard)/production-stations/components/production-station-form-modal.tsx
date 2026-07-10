@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { useProductionStations, useCreateProductionStation, useUpdateProductionStation } from '@/hooks/use-production-stations';
 import { usePrinters } from '@/hooks/use-printers';
 import type { ProductionStation } from '@/types/production-station';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
 const productionStationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -123,14 +124,10 @@ export function ProductionStationFormModal({
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{isEditing ? t('edit') : t('create')}</h2>
-          <button className="modal__close" type="button" onClick={handleClose} aria-label={tCommon('close')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -244,7 +241,7 @@ export function ProductionStationFormModal({
               {tCommon('cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+              {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
             </button>
           </div>
         </form>

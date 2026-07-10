@@ -8,6 +8,7 @@ import {
   useReturnRental,
 } from '@/hooks/use-rentals';
 import { AssignmentFormModal } from './assignment-form-modal';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { RentalAssignmentStatus } from '@/types/rental';
 
 const statusBadge: Record<RentalAssignmentStatus, string> = {
@@ -39,31 +40,26 @@ export function AssignmentsList() {
   const returnMutation = useReturnRental();
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (!assignments || assignments.length === 0) {
     return (
       <>
-        <div className="app-card">
-          <div className="empty-state">
-            <div className="empty-state__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h3 className="empty-state__title">{t('title')}</h3>
-            <p className="empty-state__sub">{t('noAssignments')}</p>
+        <ListEmpty
+          title={t('title')}
+          description={t('noAssignments')}
+          icon={
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          }
+          action={
             <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
               {t('add')}
             </button>
-          </div>
-        </div>
+          }
+        />
         {showCreateModal && <AssignmentFormModal onClose={() => setShowCreateModal(false)} />}
       </>
     );

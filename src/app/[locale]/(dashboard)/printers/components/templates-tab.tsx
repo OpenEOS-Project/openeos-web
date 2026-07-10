@@ -6,25 +6,13 @@ import { useAuthStore } from '@/stores/auth-store';
 import { usePrintTemplates } from '@/hooks/use-print-templates';
 import type { PrintTemplate, PrintTemplateType } from '@/types/print-template';
 import { InlineTemplateDesigner } from './inline-template-designer';
+import { ListLoading } from '@/components/shared/list-states';
 
 const TEMPLATE_TYPES: { id: PrintTemplateType; defaultName: string }[] = [
   { id: 'receipt', defaultName: 'Kassenbon' },
   { id: 'kitchen_ticket', defaultName: 'Küchenbon' },
   { id: 'order_ticket', defaultName: 'Bestellbon' },
 ];
-
-function Spinner() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-      <div style={{
-        width: 28, height: 28, borderRadius: '50%',
-        border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
-        animation: 'spin 0.75s linear infinite',
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-}
 
 export function TemplatesTab() {
   const t = useTranslations('printTemplates');
@@ -44,7 +32,7 @@ export function TemplatesTab() {
     return map;
   }, [templates]);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListLoading />;
 
   return (
     <div>

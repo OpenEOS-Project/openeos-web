@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks/use-user-settings';
 import { resolveUploadUrl } from '@/utils/upload-url';
+import { toast } from '@/components/shared/toast';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'Vorname ist erforderlich'),
@@ -18,10 +19,10 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 export function ProfileSection() {
   const t = useTranslations('settings.profile');
+  const tCommon = useTranslations('common');
   const { user, setUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
@@ -43,25 +44,23 @@ export function ProfileSection() {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-    setAvatarError(null);
     setIsUploading(true);
     try {
       const result = await uploadAvatar.mutateAsync(file);
       if (user) setUser({ ...user, avatarUrl: result.avatarUrl });
     } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : 'Upload fehlgeschlagen');
+      toast.error(err instanceof Error ? err.message : 'Upload fehlgeschlagen');
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleDeleteAvatar = async () => {
-    setAvatarError(null);
     try {
       await deleteAvatar.mutateAsync();
       if (user) setUser({ ...user, avatarUrl: null });
     } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : 'Bild konnte nicht entfernt werden');
+      toast.error(err instanceof Error ? err.message : 'Bild konnte nicht entfernt werden');
     }
   };
 
@@ -108,7 +107,7 @@ export function ProfileSection() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
                 >
-                  {isUploading ? '...' : user?.avatarUrl ? 'Bild ersetzen' : t('uploadAvatar')}
+                  {isUploading ? tCommon('saving') : user?.avatarUrl ? 'Bild ersetzen' : t('uploadAvatar')}
                 </button>
                 {user?.avatarUrl && (
                   <button
@@ -122,9 +121,6 @@ export function ProfileSection() {
                   </button>
                 )}
               </div>
-              {avatarError && (
-                <p style={{ fontSize: 12, color: 'var(--danger)', margin: '4px 0 0' }}>{avatarError}</p>
-              )}
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleFileChange} style={{ display: 'none' }} />
             </div>
           </div>

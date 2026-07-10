@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { devicesApi } from '@/lib/api-client';
 import { useCreatePrinter, useUpdatePrinter } from '@/hooks/use-printers';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Printer, CreatePrinterData, UpdatePrinterData } from '@/types/printer';
 import type { Device } from '@/types/device';
 
@@ -74,14 +75,10 @@ export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFo
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{isEdit ? t('editPrinter') : t('addPrinter')}</h2>
-          <button className="modal__close" type="button" onClick={onClose} aria-label={tCommon('close')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
@@ -175,7 +172,7 @@ export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFo
             onClick={handleSubmit}
             disabled={!isValid || isPending}
           >
-            {isPending ? '...' : tCommon('save')}
+            {isPending ? tCommon('saving') : tCommon('save')}
           </button>
         </div>
       </div>

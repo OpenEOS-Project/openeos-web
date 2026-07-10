@@ -8,6 +8,8 @@ import { z } from 'zod';
 
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
 import { useProductionStations } from '@/hooks/use-production-stations';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 
 const categorySchema = z.object({
@@ -133,14 +135,10 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2>{isEditing ? t('edit') : t('create')}</h2>
-          <button type="button" className="modal__close" onClick={handleClose}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -153,7 +151,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
-                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
+                    <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
                   )}
                 </label>
               )}
@@ -245,23 +243,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                       {isActiveValue ? t('status.active') : t('status.inactive')}
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={field.value}
-                    onClick={() => field.onChange(!field.value)}
-                    style={{
-                      width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-                      background: field.value ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 20%, transparent)',
-                      position: 'relative', transition: 'background 0.2s',
-                    }}
-                  >
-                    <span style={{
-                      position: 'absolute', top: 2, left: field.value ? 22 : 2,
-                      width: 20, height: 20, borderRadius: 10, background: 'var(--paper)',
-                      transition: 'left 0.2s', display: 'block',
-                    }} />
-                  </button>
+                  <ToggleSwitch checked={field.value} onChange={field.onChange} />
                 </div>
               )}
             />
@@ -272,7 +254,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
               {tCommon('cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-              {isSubmitting ? '...' : isEditing ? tCommon('save') : tCommon('create')}
+              {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
             </button>
           </div>
         </form>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 
 import { CategoryFormModal } from './category-form-modal';
@@ -63,7 +64,7 @@ export function CategoriesManagementModal({
   return (
     <>
       <div className="modal__overlay" onClick={onClose}>
-        <div className="modal__panel" style={{ maxWidth: 640 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal__panel modal__panel--lg" onClick={(e) => e.stopPropagation()}>
           <div className="modal__head">
             <div>
               <h2>{t('title')}</h2>
@@ -73,11 +74,7 @@ export function CategoriesManagementModal({
               <button type="button" className="btn btn--primary" style={{ fontSize: 13 }} onClick={handleCreateClick}>
                 + {t('create')}
               </button>
-              <button type="button" className="modal__close" onClick={onClose}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
+              <DialogCloseButton onClick={onClose} />
             </div>
           </div>
 
@@ -165,7 +162,7 @@ export function CategoriesManagementModal({
 
       {deletingCategory && (
         <div className="modal__overlay" style={{ zIndex: 60 }} onClick={() => setDeletingCategory(null)}>
-          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('deleteConfirm.title')}</h2>
             </div>
@@ -185,7 +182,7 @@ export function CategoriesManagementModal({
                 onClick={handleDeleteConfirm}
                 disabled={deleteCategory.isPending}
               >
-                {deleteCategory.isPending ? '...' : tCommon('delete')}
+                {deleteCategory.isPending ? tCommon('deleting') : tCommon('delete')}
               </button>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
+import { ListLoading } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
 import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
@@ -112,12 +113,7 @@ export default function ShiftPlanEditorPage() {
   };
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (!plan) {

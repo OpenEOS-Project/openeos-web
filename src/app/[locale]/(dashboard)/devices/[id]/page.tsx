@@ -7,6 +7,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Device, DeviceClass, DeviceStatus } from '@/types/device';
 import { DeviceOverview } from './components/device-overview';
 import { DeviceSettings } from './components/device-settings';
@@ -223,15 +224,7 @@ export default function DeviceDetailPage() {
           <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('devices.deleteDialog.title')}</h2>
-              <button
-                className="modal__close"
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
+              <DialogCloseButton onClick={() => setShowDeleteConfirm(false)} />
             </div>
             <div className="modal__body">
               <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 16 }}>
@@ -259,7 +252,7 @@ export default function DeviceDetailPage() {
                 onClick={() => deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? '...' : t('common.delete')}
+                {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
               </button>
             </div>
           </div>

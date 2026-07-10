@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 
 import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMember, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types/organization';
 import type { OrganizationRole, UserOrganization } from '@/types/auth';
 
@@ -112,14 +113,12 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
 
   return (
     <div className="modal__overlay" style={{ display: 'flex' }} onClick={(e) => e.target === e.currentTarget && handleClose()}>
-      <div className="modal__panel" style={{ maxWidth: 640 }}>
+      <div className="modal__panel modal__panel--lg">
         <div className="modal__head">
           <h2 className="modal__title">
             {t('title')} &ndash; {organization?.name}
           </h2>
-          <button type="button" className="btn btn--ghost" style={{ padding: '6px 8px', minWidth: 0 }} onClick={handleClose} aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <div className="modal__body" style={{ maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -155,7 +154,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button type="submit" className="btn btn--primary" style={{ fontSize: 13 }} disabled={createInvitation.isPending}>
-                    {createInvitation.isPending ? '...' : t('invite')}
+                    {createInvitation.isPending ? tCommon('saving') : t('invite')}
                   </button>
                   <button type="button" className="btn btn--ghost" style={{ fontSize: 13 }} onClick={() => setShowInviteForm(false)}>
                     {tCommon('cancel')}
@@ -315,7 +314,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                                 onClick={() => handleRoleChange(member)}
                                 disabled={updateMember.isPending}
                               >
-                                {updateMember.isPending ? '...' : tCommon('save')}
+                                {updateMember.isPending ? tCommon('saving') : tCommon('save')}
                               </button>
                               <button
                                 type="button"

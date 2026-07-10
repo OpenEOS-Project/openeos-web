@@ -64,7 +64,7 @@ export function OrganizationsContainer() {
       {/* Delete confirmation modal */}
       {deletingOrganization && (
         <div className="modal__overlay" style={{ display: 'flex' }}>
-          <div className="modal__panel" style={{ maxWidth: 440 }}>
+          <div className="modal__panel modal__panel--sm">
             <div className="modal__head">
               <h3 className="modal__title">{t('deleteConfirm.title')}</h3>
             </div>
@@ -86,7 +86,7 @@ export function OrganizationsContainer() {
                 onClick={handleDeleteConfirm}
                 disabled={deleteOrganization.isPending}
               >
-                {deleteOrganization.isPending ? '...' : t('deleteConfirm.confirm')}
+                {deleteOrganization.isPending ? tCommon('saving') : t('deleteConfirm.confirm')}
               </button>
             </div>
           </div>

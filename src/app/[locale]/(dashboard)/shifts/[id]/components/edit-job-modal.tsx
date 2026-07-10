@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftJob } from '@/types/shift';
 
 interface Props {
@@ -57,18 +58,16 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">Arbeit bearbeiten</div>
-          <button className="modal__close" onClick={onClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
+              <div role="alert" style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             <div className="auth-field">
@@ -106,7 +105,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
             disabled={!canSubmit || mutation.isPending}
             onClick={() => { setError(null); mutation.mutate(); }}
           >
-            {mutation.isPending ? '...' : 'Speichern'}
+            {mutation.isPending ? t('common.saving') : 'Speichern'}
           </button>
         </div>
       </div>

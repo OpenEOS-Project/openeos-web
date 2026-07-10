@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
@@ -197,34 +198,31 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
   };
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (allGroups.length === 0) {
     return (
       <>
-        <div className="empty-state">
-          <div className="empty-state__icon">
+        <ListEmpty
+          title={t('shifts.registration.noRegistrations')}
+          description={t('shifts.registration.noRegistrationsDescription')}
+          icon={
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
             </svg>
-          </div>
-          <h3 className="empty-state__title">{t('shifts.registration.noRegistrations')}</h3>
-          <p className="empty-state__sub">{t('shifts.registration.noRegistrationsDescription')}</p>
-          <button
-            className="btn btn--primary"
-            style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-            onClick={() => setManualAddOpen(true)}
-          >
-            <UserPlus01 style={{ width: 16, height: 16 }} />
-            <span>Helfer manuell eintragen</span>
-          </button>
-        </div>
+          }
+          action={
+            <button
+              className="btn btn--primary"
+              style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              onClick={() => setManualAddOpen(true)}
+            >
+              <UserPlus01 style={{ width: 16, height: 16 }} />
+              <span>Helfer manuell eintragen</span>
+            </button>
+          }
+        />
         <ManualAddRegistrationModal open={manualAddOpen} plan={plan} onClose={() => setManualAddOpen(false)} />
       </>
     );

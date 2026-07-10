@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { useDeletePfandType } from '@/hooks/use-pfand-types';
 import { useAuthStore } from '@/stores/auth-store';
+import { ListEmpty } from '@/components/shared/list-states';
 import type { PfandType } from '@/types/pfand';
 
 import { PfandFormModal } from './pfand-form-modal';
@@ -40,12 +41,10 @@ export function PfandContainer() {
 
   if (!organizationId) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <h3 className="empty-state__title">Keine Organisation ausgewählt</h3>
-          <p className="empty-state__sub">Bitte wählen Sie zuerst eine Organisation aus.</p>
-        </div>
-      </div>
+      <ListEmpty
+        title="Keine Organisation ausgewählt"
+        description="Bitte wählen Sie zuerst eine Organisation aus."
+      />
     );
   }
 
@@ -70,7 +69,7 @@ export function PfandContainer() {
 
       {deletingType && (
         <div className="modal__overlay" onClick={() => setDeletingType(null)}>
-          <div className="modal__panel" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal__head">
               <h2>{t('deleteConfirm.title')}</h2>
             </div>
@@ -90,7 +89,7 @@ export function PfandContainer() {
                 onClick={handleDeleteConfirm}
                 disabled={deleteType.isPending}
               >
-                {deleteType.isPending ? '...' : t('deleteConfirm.confirm')}
+                {deleteType.isPending ? tCommon('saving') : t('deleteConfirm.confirm')}
               </button>
             </div>
           </div>

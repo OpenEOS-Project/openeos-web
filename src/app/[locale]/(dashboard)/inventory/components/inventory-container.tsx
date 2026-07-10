@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
+import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { InventoryCount } from '@/types/inventory';
 
 import { InventoryList } from './inventory-list';
@@ -28,50 +29,39 @@ export function InventoryContainer() {
 
   if (!organizationId) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('noOrg.title')}</h3>
-          <p className="empty-state__sub">{t('noOrg.description')}</p>
-        </div>
-      </div>
+      <ListEmpty
+        title={t('noOrg.title')}
+        description={t('noOrg.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+          </svg>
+        }
+      />
     );
   }
 
   if (isLoadingActive) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-        <div style={{
-          width: 28, height: 28, borderRadius: '50%',
-          border: '2px solid var(--green-ink)', borderTopColor: 'transparent',
-          animation: 'spin 0.75s linear infinite',
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
+    return <ListLoading />;
   }
 
   if (!activeEvent) {
     return (
-      <div className="app-card">
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <path d="M16 2v4M8 2v4M3 10h18" />
-            </svg>
-          </div>
-          <h3 className="empty-state__title">{t('noEvent.title')}</h3>
-          <p className="empty-state__sub">{t('noEvent.description')}</p>
+      <ListEmpty
+        title={t('noEvent.title')}
+        description={t('noEvent.description')}
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+        }
+        action={
           <Link href="/events" className="btn btn--primary" style={{ marginTop: 12 }}>
             {tCommon('toEvents')}
           </Link>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

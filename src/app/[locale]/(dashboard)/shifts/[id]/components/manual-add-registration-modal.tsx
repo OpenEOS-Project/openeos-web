@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftPlan } from '@/types/shift';
 
 const formatTime = (t: string) => t.slice(0, 5);
@@ -159,18 +160,16 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
 
   return (
     <div className="modal__backdrop" onClick={handleClose}>
-      <div className="modal__box" style={{ maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--lg" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">Helfer manuell eintragen</div>
-          <button className="modal__close" onClick={handleClose} aria-label="Schließen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-          </button>
+          <DialogCloseButton onClick={handleClose} />
         </div>
 
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
+              <div role="alert" style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -326,7 +325,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
             onClick={() => { setError(null); mutation.mutate(); }}
           >
             {mutation.isPending
-              ? '...'
+              ? t('common.saving')
               : selectedShiftIds.size > 1
               ? `${selectedShiftIds.size} Schichten eintragen`
               : 'Eintragen'}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { WIDGET_REGISTRY } from './widgets/index';
 import type { WidgetDefinition } from './widgets/widget-registry';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
 interface CustomizeModalProps {
   enabledIds: string[];
@@ -15,6 +16,7 @@ interface CustomizeModalProps {
 
 export function CustomizeModal({ enabledIds, availableWidgets, onSave, onClose, isSaving }: CustomizeModalProps) {
   const t = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
 
   // Local state: ordered list of enabled widget ids (only from availableWidgets)
   const [ordered, setOrdered] = useState<string[]>(() => {
@@ -62,14 +64,10 @@ export function CustomizeModal({ enabledIds, availableWidgets, onSave, onClose, 
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__box" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">{t('customize.title')}</div>
-          <button className="modal__close" onClick={onClose} aria-label={t('customize.close')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
@@ -183,7 +181,7 @@ export function CustomizeModal({ enabledIds, availableWidgets, onSave, onClose, 
             onClick={() => onSave(ordered)}
             disabled={isSaving}
           >
-            {isSaving ? '...' : t('customize.save')}
+            {isSaving ? tCommon('saving') : t('customize.save')}
           </button>
         </div>
       </div>
