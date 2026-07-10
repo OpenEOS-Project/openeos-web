@@ -757,6 +757,18 @@
           "totalAmount": "Total Amount"
         }
       }
+    },
+    "support": {
+      "title": "Support",
+      "subtitle": "Support chats across all organizations.",
+      "threadListEmpty": "No support requests",
+      "unreadBadge": "{count} unread",
+      "priorityBadge": "🚀 Priority",
+      "noThreadSelected": "Select an organization to open the chat.",
+      "input": {
+        "placeholder": "Write a reply…",
+        "send": "Send"
+      }
     }
   },
   "theme": {
@@ -1276,6 +1288,21 @@
       }
     }
   },
+  "support": {
+    "title": "Support",
+    "subtitle": "Chat directly with our support team.",
+    "priorityBadge": "🚀 Priority support",
+    "priorityHint": "Your requests are handled with priority.",
+    "standardHint": "We usually reply within 1–2 business days.",
+    "empty": {
+      "title": "How can we help?",
+      "description": "Just write us a message."
+    },
+    "input": {
+      "placeholder": "Write a message…",
+      "send": "Send"
+    }
+  },
   "members": {
     "title": "Members",
     "subtitle": "Manage your organization's members",
@@ -1383,7 +1410,9 @@
         "invoice": "Invoice"
       },
       "eventPriceOverride": "Price per event",
-      "eventPriceOverrideHint": "Leave empty for default price"
+      "eventPriceOverrideHint": "Leave empty for default price",
+      "prioritySupport": "Priority support",
+      "prioritySupportHint": "Prioritize this organization's requests in the support chat."
     },
     "actions": {
       "edit": "Edit",

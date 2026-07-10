@@ -3340,3 +3340,140 @@ body:has(.landing) {
   color: var(--green-ink);
   border-bottom-color: var(--green-ink);
 }
+
+/* ============================= SUPPORT CHAT ============================= */
+.landing .chat-card {
+  display: flex;
+  flex-direction: column;
+  height: min(640px, 65vh);
+  padding: 0;
+}
+
+.landing .chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.landing .chat-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.landing .chat-msg--out { align-self: flex-end; align-items: flex-end; }
+.landing .chat-msg--in { align-self: flex-start; align-items: flex-start; }
+
+.landing .chat-bubble {
+  padding: 10px 14px;
+  border-radius: var(--r);
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.landing .chat-msg--out .chat-bubble {
+  background: var(--green-soft);
+  color: var(--green-ink);
+  border-bottom-right-radius: 4px;
+}
+
+.landing .chat-msg--in .chat-bubble {
+  background: color-mix(in oklab, var(--ink) 6%, var(--paper));
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+}
+
+.landing .chat-meta {
+  font-size: 11px;
+  color: var(--mute);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.landing .chat-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
+.landing .chat-textarea {
+  flex: 1;
+  resize: none;
+  max-height: 76px;
+  line-height: 1.4;
+}
+
+/* ============================= ADMIN SUPPORT INBOX ============================= */
+.landing .support-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .landing .support-layout { grid-template-columns: 1fr; }
+}
+
+.landing .support-threads {
+  height: min(640px, 65vh);
+  overflow-y: auto;
+  padding: 0;
+}
+
+.landing .support-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid color-mix(in oklab, var(--ink) 7%, transparent);
+  background: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.landing .support-thread:hover { background: color-mix(in oklab, var(--ink) 4%, transparent); }
+
+.landing .support-thread--active {
+  background: color-mix(in oklab, var(--green-soft) 40%, var(--paper));
+}
+
+.landing .support-thread__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.landing .support-thread__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.landing .support-thread__preview {
+  font-size: 12px;
+  color: var(--mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.landing .support-thread__meta {
+  font-size: 11px;
+  color: var(--mute);
+  flex-shrink: 0;
+}

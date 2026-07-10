@@ -6,6 +6,7 @@ import {
   HardDrive,
   LineChartUp01,
   MarkerPin01,
+  MessageChatCircle,
   PackageSearch,
   Printer,
   Receipt,
@@ -50,6 +51,11 @@ export const superAdminNavItems: NavItemType[] = [
     label: 'Events & Abrechnung',
     href: '/admin/events',
     icon: Calendar,
+  },
+  {
+    label: 'Support',
+    href: '/admin/support',
+    icon: MessageChatCircle,
   },
 ];
 
@@ -141,6 +147,11 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
 ];
 
 export const dashboardFooterItems: NavItemType[] = [
+  {
+    label: 'Support',
+    href: '/support',
+    icon: MessageChatCircle,
+  },
   {
     label: 'Einstellungen',
     href: '/settings',

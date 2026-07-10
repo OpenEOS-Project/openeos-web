@@ -2,12 +2,13 @@
 
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-organizations';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import type { Organization } from '@/types';
 
 const organizationSchema = z.object({
@@ -19,6 +20,7 @@ const organizationSchema = z.object({
   }),
   billingMode: z.enum(['prepaid', 'invoice']),
   eventPriceOverride: z.string().optional(),
+  prioritySupport: z.boolean(),
 });
 
 type OrganizationFormData = z.infer<typeof organizationSchema>;
@@ -41,6 +43,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
@@ -49,6 +52,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
       billingMode: 'invoice',
       eventPriceOverride: '',
+      prioritySupport: false,
     },
   });
 
@@ -64,6 +68,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         billingMode: organization.billingMode ?? 'invoice',
         eventPriceOverride:
           typeof organization.eventPriceOverride === 'number' ? String(organization.eventPriceOverride) : '',
+        prioritySupport: organization.prioritySupport ?? false,
       });
     } else {
       reset({
@@ -71,6 +76,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
         billingMode: 'invoice',
         eventPriceOverride: '',
+        prioritySupport: false,
       });
     }
   }, [organization, reset]);
@@ -88,6 +94,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
             settings: data.settings,
             billingMode: data.billingMode,
             eventPriceOverride,
+            prioritySupport: data.prioritySupport,
           },
         });
       } else {
@@ -185,6 +192,30 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                     {...register('eventPriceOverride')}
                   />
                 </label>
+
+                <div
+                  style={{
+                    gridColumn: '1 / -1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+                    borderRadius: 10,
+                    padding: 12,
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.prioritySupport')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.prioritySupportHint')}</div>
+                  </div>
+                  <Controller
+                    name="prioritySupport"
+                    control={control}
+                    render={({ field }) => (
+                      <ToggleSwitch checked={field.value} onChange={field.onChange} aria-label={t('form.prioritySupport')} />
+                    )}
+                  />
+                </div>
               </div>
             )}
           </div>

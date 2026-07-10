@@ -1101,6 +1101,21 @@
       }
     }
   },
+  "support": {
+    "title": "Support",
+    "subtitle": "Chatten Sie direkt mit unserem Support-Team.",
+    "priorityBadge": "🚀 Priority-Support",
+    "priorityHint": "Ihre Anfragen werden bevorzugt behandelt.",
+    "standardHint": "Antwort in der Regel innerhalb von 1–2 Werktagen.",
+    "empty": {
+      "title": "Wie können wir helfen?",
+      "description": "Schreiben Sie uns einfach."
+    },
+    "input": {
+      "placeholder": "Nachricht schreiben…",
+      "send": "Senden"
+    }
+  },
   "members": {
     "title": "Mitglieder",
     "subtitle": "Verwalten Sie die Mitglieder Ihrer Organisation",
@@ -1208,7 +1223,9 @@
         "invoice": "Rechnung"
       },
       "eventPriceOverride": "Preis pro Veranstaltung",
-      "eventPriceOverrideHint": "Leer = Standardpreis"
+      "eventPriceOverrideHint": "Leer = Standardpreis",
+      "prioritySupport": "Priority-Support",
+      "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln."
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -1411,6 +1428,18 @@
           "totalDays": "Gesamttage",
           "totalAmount": "Gesamtbetrag"
         }
+      }
+    },
+    "support": {
+      "title": "Support",
+      "subtitle": "Support-Chats aller Organisationen.",
+      "threadListEmpty": "Keine Support-Anfragen",
+      "unreadBadge": "{count} ungelesen",
+      "priorityBadge": "🚀 Priority",
+      "noThreadSelected": "Wählen Sie eine Organisation aus, um den Chat zu öffnen.",
+      "input": {
+        "placeholder": "Antwort schreiben…",
+        "send": "Senden"
       }
     }
   },

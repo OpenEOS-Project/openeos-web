@@ -99,6 +99,8 @@ export interface Organization {
   billingMode?: 'prepaid' | 'invoice';
   /** Individueller Preis pro Veranstaltung; leer/null = Standardpreis. */
   eventPriceOverride?: number | null;
+  /** Bevorzugte Bearbeitung im Support-Chat (Super-Admin-Flag). */
+  prioritySupport?: boolean;
   createdAt: string;
   updatedAt: string;
 }

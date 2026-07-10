@@ -56,3 +56,16 @@ export function formatTime(date: string | Date, locale = 'de-DE'): string {
 export function formatNumber(num: number, locale = 'de-DE'): string {
   return new Intl.NumberFormat(locale).format(num);
 }
+
+/**
+ * Compact timestamp for chat-style messages: "dd.MM. HH:mm" (no year).
+ */
+export function formatChatTimestamp(date: string | Date): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '—';
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}.${mm}. ${hh}:${min}`;
+}

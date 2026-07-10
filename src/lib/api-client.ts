@@ -429,6 +429,15 @@ export const organizationsApi = {
   },
 };
 
+// Support Chat API (organization member view)
+export const supportApi = {
+  get: (orgId: string) =>
+    apiClient.get<ApiResponse<import('@/types/support').OrganizationSupportThread>>(`/organizations/${orgId}/support`),
+
+  sendMessage: (orgId: string, body: string) =>
+    apiClient.post<ApiResponse<import('@/types/support').SupportMessage>>(`/organizations/${orgId}/support/messages`, { body }),
+};
+
 // Discount Vouchers API (Rabatt-Bons)
 export const discountVouchersApi = {
   list: (organizationId: string) =>
@@ -934,6 +943,16 @@ export const adminApi = {
 
   waiveEvent: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
+
+  // Support Chat (Super-Admin inbox)
+  getSupportThreads: () =>
+    apiClient.get<ApiResponse<import('@/types/support').AdminSupportThread[]>>('/admin/support/threads'),
+
+  getSupportMessages: (orgId: string) =>
+    apiClient.get<ApiResponse<import('@/types/support').SupportMessage[]>>(`/admin/support/${orgId}/messages`),
+
+  sendSupportMessage: (orgId: string, body: string) =>
+    apiClient.post<ApiResponse<import('@/types/support').SupportMessage>>(`/admin/support/${orgId}/messages`, { body }),
 
   // Platform Notification Settings
   getNotificationSettings: () =>
