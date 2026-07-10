@@ -20,6 +20,8 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const {
     setUser,
@@ -41,10 +43,21 @@ export function LoginForm() {
     }
   }, [isAuthLoading, isAuthenticated, router, redirectUrl]);
 
+  async function handleResend() {
+    setResendStatus('sending');
+    try {
+      await authApi.resendVerification(email);
+    } finally {
+      setResendStatus('sent');
+    }
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setEmailNotVerified(false);
+    setResendStatus('idle');
 
     try {
       const response = await authApi.login({ email, password });
@@ -72,6 +85,10 @@ export function LoginForm() {
           case 'ACCOUNT_LOCKED':
             setError(t('errors.accountLocked'));
             break;
+          case 'EMAIL_NOT_VERIFIED':
+            setError(t('errors.emailNotVerified'));
+            setEmailNotVerified(true);
+            break;
           default:
             setError(err.message);
         }
@@ -95,6 +112,22 @@ export function LoginForm() {
       <p className="auth-form__sub">{t('subtitle')}</p>
 
       {error && <div className="auth-form__error">{error}</div>}
+      {emailNotVerified && (
+        <div className="auth-form__resend">
+          {resendStatus === 'sent' ? (
+            <span className="auth-hint">{t('resendVerificationSent')}</span>
+          ) : (
+            <button
+              type="button"
+              className="auth-form__forgot auth-form__link-btn"
+              onClick={handleResend}
+              disabled={resendStatus === 'sending'}
+            >
+              {resendStatus === 'sending' ? '…' : t('resendVerification')}
+            </button>
+          )}
+        </div>
+      )}
 
       <form className="auth-form__body" onSubmit={onSubmit} noValidate>
         <label className="auth-field">

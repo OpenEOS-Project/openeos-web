@@ -67,6 +67,13 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+// Registration no longer logs the user in — the account must verify its email first.
+export interface RegisterResponse {
+  user: User;
+  requiresEmailVerification: boolean;
+  message: string;
+}
+
 export interface TwoFactorRequiredResponse {
   twoFactorRequired: true;
   twoFactorMethod: 'totp' | 'email';

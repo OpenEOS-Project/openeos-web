@@ -6,8 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, CheckCircle } from '@untitledui/icons';
 
 import { Link } from '@/i18n/routing';
-import { apiClient, authApi } from '@/lib/api-client';
-import { useAuthStore } from '@/stores/auth-store';
+import { authApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
 
 type StepKey = 'account' | 'personal' | 'organization' | 'confirm';
@@ -52,8 +51,8 @@ export function RegisterWizard() {
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
-  const { setUser, setOrganizations } = useAuthStore();
   const redirectUrl = searchParams.get('redirect');
 
   const step = stepOrder[stepIdx];
@@ -108,16 +107,13 @@ export function RegisterWizard() {
     setSubmitError(null);
 
     try {
-      const response = await authApi.register({
+      await authApi.register({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         password: data.password,
         organizationName: data.organizationName || undefined,
       });
-      apiClient.setAccessToken(response.data.accessToken);
-      setUser(response.data.user);
-      setOrganizations(response.data.user.userOrganizations || []);
       setDone(true);
     } catch (err) {
       if (err instanceof ApiException) {
@@ -137,6 +133,15 @@ export function RegisterWizard() {
     }
   }
 
+  async function handleResend() {
+    setResendStatus('sending');
+    try {
+      await authApi.resendVerification(data.email);
+    } finally {
+      setResendStatus('sent');
+    }
+  }
+
   const progress = useMemo(
     () =>
       stepOrder.map((k, i) => ({
@@ -148,7 +153,9 @@ export function RegisterWizard() {
   );
 
   if (done) {
-    const target = redirectUrl ? decodeURIComponent(redirectUrl) : '/dashboard';
+    const loginParams = new URLSearchParams({ email: data.email });
+    if (redirectUrl) loginParams.set('redirect', redirectUrl);
+
     return (
       <div className="wizard wizard--success">
         <span className="wizard__success-icon">
@@ -158,10 +165,24 @@ export function RegisterWizard() {
         <p className="wizard__copy">
           {t('successCopy', { email: data.email })}
         </p>
-        <a href={target} className="btn btn--primary btn--lg">
+
+        {resendStatus === 'sent' ? (
+          <p className="auth-hint">{t('resendSent')}</p>
+        ) : (
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={handleResend}
+            disabled={resendStatus === 'sending'}
+          >
+            <span>{resendStatus === 'sending' ? '…' : t('resendCta')}</span>
+          </button>
+        )}
+
+        <Link href={`/login?${loginParams.toString()}`} className="btn btn--primary btn--lg">
           <span>{t('successCta')}</span>
           <ArrowRight />
-        </a>
+        </Link>
       </div>
     );
   }

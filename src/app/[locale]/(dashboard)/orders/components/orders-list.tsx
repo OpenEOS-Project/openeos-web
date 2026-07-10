@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
@@ -43,6 +43,8 @@ const channelQuery: Record<OrderChannel, Record<string, string>> = {
   online: { source: 'online' },
 };
 
+const PAGE_LIMIT = 50;
+
 export function OrdersList() {
   const t = useTranslations();
   const { currentOrganization } = useAuthStore();
@@ -52,7 +54,14 @@ export function OrdersList() {
   const [paymentFilter, setPaymentFilter] = useState<OrderPaymentStatus | 'all'>('all');
   const [channelFilter, setChannelFilter] = useState<OrderChannel | 'all'>('all');
   const [eventFilter, setEventFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Every filter change invalidates the current page — always jump back to page 1.
+  const updateFilter = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value);
+    setPage(1);
+  };
 
   const { data: eventsData } = useQuery({
     queryKey: ['events', organizationId],
@@ -62,33 +71,69 @@ export function OrdersList() {
 
   const events = eventsData?.data || [];
 
-  const queryParams: Record<string, string> = { limit: '100', includeItems: 'true' };
-  if (statusFilter !== 'all') queryParams.status = statusFilter;
-  if (paymentFilter !== 'all') queryParams.paymentStatus = paymentFilter;
-  if (eventFilter !== 'all') queryParams.eventId = eventFilter;
-  if (channelFilter !== 'all') Object.assign(queryParams, channelQuery[channelFilter]);
+  const filterParams: Record<string, string> = {};
+  if (statusFilter !== 'all') filterParams.status = statusFilter;
+  if (paymentFilter !== 'all') filterParams.paymentStatus = paymentFilter;
+  if (eventFilter !== 'all') filterParams.eventId = eventFilter;
+  if (channelFilter !== 'all') Object.assign(filterParams, channelQuery[channelFilter]);
 
-  const { data: ordersData, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter],
-    queryFn: () => ordersApi.list(organizationId!, queryParams as never),
+  const listParams: Record<string, string> = {
+    ...filterParams,
+    page: String(page),
+    limit: String(PAGE_LIMIT),
+    includeItems: 'true',
+  };
+
+  const {
+    data: ordersData,
+    isLoading: isLoadingOrders,
+    isFetching: isFetchingOrders,
+    refetch: refetchOrders,
+  } = useQuery({
+    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, page],
+    queryFn: () => ordersApi.list(organizationId!, listParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
   });
 
   const orders = ordersData?.data || [];
+  const meta = ordersData?.meta;
 
-  // Summary across the loaded orders (excludes cancelled from money totals).
-  const summary = useMemo(() => {
-    const counted = orders.filter((o) => o.status !== 'cancelled');
-    const revenue = counted.reduce((sum, o) => sum + Number(o.total), 0);
-    const pfand = counted.reduce((sum, o) => sum + Number(o.pfandTotal || 0), 0);
-    return {
-      count: orders.length,
-      revenue,
-      pfand,
-      average: counted.length > 0 ? revenue / counted.length : 0,
-    };
-  }, [orders]);
+  // Aggregates over ALL orders matching the filters (not just the current page).
+  const {
+    data: statsData,
+    isLoading: isLoadingStats,
+    isFetching: isFetchingStats,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ['orders-stats', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter],
+    queryFn: () => ordersApi.stats(organizationId!, filterParams as never),
+    enabled: !!organizationId,
+    refetchInterval: 10000,
+  });
+
+  const stats = statsData?.data;
+  const summary = {
+    count: stats?.count ?? 0,
+    revenue: stats?.revenue ?? 0,
+    pfand: stats?.pfand ?? 0,
+    average: stats?.avgReceipt ?? 0,
+  };
+
+  const isLoading = isLoadingOrders || isLoadingStats;
+  const isFetching = isFetchingOrders || isFetchingStats;
+  const refetch = () => {
+    refetchOrders();
+    refetchStats();
+  };
+
+  // If a refetch shrinks the result set (e.g. a filter narrows it), clamp back
+  // onto the last valid page instead of showing an empty page forever.
+  useEffect(() => {
+    if (meta && meta.totalPages >= 1 && page > meta.totalPages) {
+      setPage(meta.totalPages);
+    }
+  }, [meta, page]);
 
   const creatorLabel = (order: Order): string | null => {
     if (order.createdByUser) {
@@ -131,7 +176,7 @@ export function OrdersList() {
           className="select"
           style={{ flex: '1 1 140px', minWidth: 0 }}
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
+          onChange={(e) => updateFilter(setStatusFilter)(e.target.value as OrderStatus | 'all')}
         >
           <option value="all">{t('orders.filters.allStatuses')}</option>
           <option value="open">{t('orders.status.open')}</option>
@@ -145,7 +190,7 @@ export function OrdersList() {
           className="select"
           style={{ flex: '1 1 140px', minWidth: 0 }}
           value={paymentFilter}
-          onChange={(e) => setPaymentFilter(e.target.value as OrderPaymentStatus | 'all')}
+          onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as OrderPaymentStatus | 'all')}
         >
           <option value="all">{t('orders.filters.allPayments')}</option>
           <option value="unpaid">{t('orders.paymentStatus.unpaid')}</option>
@@ -158,7 +203,7 @@ export function OrdersList() {
           className="select"
           style={{ flex: '1 1 140px', minWidth: 0 }}
           value={channelFilter}
-          onChange={(e) => setChannelFilter(e.target.value as OrderChannel | 'all')}
+          onChange={(e) => updateFilter(setChannelFilter)(e.target.value as OrderChannel | 'all')}
         >
           <option value="all">{t('orders.filters.allChannels')}</option>
           <option value="service">{t('orders.channel.service')}</option>
@@ -171,7 +216,7 @@ export function OrdersList() {
             className="select"
             style={{ flex: '1 1 140px', minWidth: 0 }}
             value={eventFilter}
-            onChange={(e) => setEventFilter(e.target.value)}
+            onChange={(e) => updateFilter(setEventFilter)(e.target.value)}
           >
             <option value="all">{t('orders.filters.allEvents')}</option>
             {events.map((event) => (
@@ -181,7 +226,7 @@ export function OrdersList() {
         )}
 
         <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          {t('orders.orderCount', { count: orders.length })}
+          {t('orders.orderCount', { count: summary.count })}
         </span>
 
         <button
@@ -322,6 +367,35 @@ export function OrdersList() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {meta && orders.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, padding: '12px 20px' }}>
+          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+            {t('orders.orderCount', { count: meta.total })}
+          </span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              className="btn btn--ghost"
+              style={{ fontSize: 13 }}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={!meta.hasPrev}
+            >
+              {t('orders.pagination.prev')}
+            </button>
+            <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', padding: '0 8px' }}>
+              {t('orders.pagination.pageOf', { page: meta.page, totalPages: meta.totalPages })}
+            </span>
+            <button
+              className="btn btn--ghost"
+              style={{ fontSize: 13 }}
+              onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+              disabled={!meta.hasNext}
+            >
+              {t('orders.pagination.next')}
+            </button>
+          </div>
         </div>
       )}
 

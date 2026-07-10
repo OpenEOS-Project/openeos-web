@@ -164,6 +164,18 @@ export interface QueryOrdersParams {
   search?: string;
   dateFrom?: string;
   dateTo?: string;
+  includeItems?: boolean;
   page?: number;
   limit?: number;
+}
+
+/** Filter params accepted by GET /organizations/:id/orders/stats (same filters, no paging). */
+export type QueryOrderStatsParams = Omit<QueryOrdersParams, 'page' | 'limit' | 'includeItems'>;
+
+/** Aggregates over ALL orders matching the filters (not just the current page). */
+export interface OrderStats {
+  count: number;
+  revenue: number;
+  avgReceipt: number;
+  pfand: number;
 }

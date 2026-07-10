@@ -292,7 +292,7 @@ export const authApi = {
     }),
 
   register: (data: import('@/types/auth').RegisterData) =>
-    apiClient.post<ApiResponse<import('@/types/auth').AuthResponse>>('/auth/register', data, {
+    apiClient.post<ApiResponse<import('@/types/auth').RegisterResponse>>('/auth/register', data, {
       skipAuth: true,
     }),
 
@@ -325,6 +325,12 @@ export const authApi = {
 
   resetPassword: (token: string, password: string) =>
     apiClient.post('/auth/reset-password', { token, password }, { skipAuth: true }),
+
+  verifyEmail: (token: string) =>
+    apiClient.post('/auth/verify-email', { token }, { skipAuth: true }),
+
+  resendVerification: (email: string) =>
+    apiClient.post('/auth/resend-verification', { email }, { skipAuth: true }),
 };
 
 // Organizations API
@@ -706,8 +712,13 @@ export const twoFactorApi = {
 // Orders API
 export const ordersApi = {
   list: (organizationId: string, params?: import('@/types/order').QueryOrdersParams) =>
-    apiClient.get<ApiResponse<import('@/types/order').Order[]>>(
+    apiClient.get<ApiResponse<import('@/types/order').Order[]> & { meta: import('@/types/api').PaginationMeta }>(
       `/organizations/${organizationId}/orders${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
+    ),
+
+  stats: (organizationId: string, params?: import('@/types/order').QueryOrderStatsParams) =>
+    apiClient.get<ApiResponse<import('@/types/order').OrderStats>>(
+      `/organizations/${organizationId}/orders/stats${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
     ),
 
   get: (organizationId: string, orderId: string) =>

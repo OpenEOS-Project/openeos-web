@@ -39,6 +39,8 @@
       "noAccount": "Noch kein Konto?",
       "register": "Jetzt registrieren",
       "deviceMode": "Als Gerät verwenden (Kassen-Terminal)",
+      "resendVerification": "E-Mail erneut senden",
+      "resendVerificationSent": "Bestätigungs-E-Mail wurde erneut gesendet.",
       "highlights": {
         "head": "Admin-Interface",
         "mobile": "Mobile Kasse",
@@ -55,7 +57,8 @@
         "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
         "emailRequired": "E-Mail ist erforderlich",
         "passwordRequired": "Passwort ist erforderlich",
-        "invalidEmail": "Ungültige E-Mail-Adresse"
+        "invalidEmail": "Ungültige E-Mail-Adresse",
+        "emailNotVerified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse."
       }
     },
     "register": {
@@ -75,7 +78,7 @@
       "next": "Weiter",
       "successTitle": "Fast geschafft!",
       "successCopy": "Wir haben dir eine Bestätigung an {email} gesendet. Klicke den Link darin, um dein Konto zu aktivieren.",
-      "successCta": "Zum Dashboard",
+      "successCta": "Zur Anmeldung",
       "steps": {
         "account": {
           "label": "Konto",
@@ -121,7 +124,9 @@
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "emailTaken": "Diese E-Mail wird bereits verwendet",
         "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
-      }
+      },
+      "resendCta": "Bestätigungs-E-Mail erneut senden",
+      "resendSent": "E-Mail wurde erneut gesendet."
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
@@ -148,6 +153,16 @@
       "invalidTokenTitle": "Link ungültig",
       "invalidTokenMessage": "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
       "requestNewLink": "Neuen Link anfordern",
+      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "verifyEmail": {
+      "loading": "Wir bestätigen Ihre E-Mail-Adresse …",
+      "successTitle": "E-Mail bestätigt",
+      "successMessage": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Sie können sich jetzt anmelden.",
+      "backToLogin": "Zur Anmeldung",
+      "errorTitle": "Bestätigung fehlgeschlagen",
+      "errorHint": "Der Link ist ungültig oder abgelaufen. Sie können sich über die Anmeldeseite einen neuen Bestätigungslink senden lassen.",
+      "missingToken": "Es wurde kein Bestätigungs-Token gefunden. Bitte verwenden Sie den Link aus Ihrer E-Mail.",
       "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
     },
     "logout": "Abmelden"
@@ -1630,6 +1645,11 @@
       "pfand": "Pfand",
       "tip": "Trinkgeld",
       "total": "Gesamt"
+    },
+    "pagination": {
+      "prev": "Zurück",
+      "next": "Weiter",
+      "pageOf": "Seite {page} von {totalPages}"
     }
   },
   "device": {

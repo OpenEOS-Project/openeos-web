@@ -39,6 +39,8 @@
       "noAccount": "No account yet?",
       "register": "Create one",
       "deviceMode": "Use as device (POS terminal)",
+      "resendVerification": "Resend email",
+      "resendVerificationSent": "Confirmation email has been resent.",
       "highlights": {
         "head": "Admin interface",
         "mobile": "Mobile POS",
@@ -55,7 +57,8 @@
         "accountLocked": "Your account has been locked. Please try again later.",
         "emailRequired": "Email is required",
         "passwordRequired": "Password is required",
-        "invalidEmail": "Invalid email address"
+        "invalidEmail": "Invalid email address",
+        "emailNotVerified": "Please verify your email address first."
       }
     },
     "register": {
@@ -75,7 +78,7 @@
       "next": "Next",
       "successTitle": "Almost there!",
       "successCopy": "We've sent a confirmation to {email}. Click the link to activate your account.",
-      "successCta": "Go to dashboard",
+      "successCta": "Go to login",
       "steps": {
         "account": {
           "label": "Account",
@@ -121,7 +124,9 @@
         "passwordTooShort": "Password must be at least 8 characters",
         "emailTaken": "This email is already in use",
         "generic": "Something went wrong. Please try again."
-      }
+      },
+      "resendCta": "Resend confirmation email",
+      "resendSent": "Email has been resent."
     },
     "forgotPassword": {
       "title": "Forgot password",
@@ -148,6 +153,16 @@
       "invalidTokenTitle": "Invalid link",
       "invalidTokenMessage": "This link is invalid or has expired. Please request a new link.",
       "requestNewLink": "Request new link",
+      "error": "An error occurred. Please try again."
+    },
+    "verifyEmail": {
+      "loading": "We're verifying your email address …",
+      "successTitle": "Email verified",
+      "successMessage": "Your email address has been successfully verified. You can now sign in.",
+      "backToLogin": "Go to login",
+      "errorTitle": "Verification failed",
+      "errorHint": "This link is invalid or has expired. You can request a new verification link from the login page.",
+      "missingToken": "No verification token was found. Please use the link from your email.",
       "error": "An error occurred. Please try again."
     },
     "logout": "Sign out"
@@ -1630,6 +1645,11 @@
       "pfand": "Deposit",
       "tip": "Tip",
       "total": "Total"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
     }
   },
   "device": {
