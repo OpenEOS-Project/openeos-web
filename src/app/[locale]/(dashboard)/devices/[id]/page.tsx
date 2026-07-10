@@ -171,7 +171,7 @@ export default function DeviceDetailPage() {
           )}
           <button
             className="btn btn--ghost"
-            style={{ color: '#d24545' }}
+            style={{ color: 'var(--danger)' }}
             onClick={() => setShowDeleteConfirm(true)}
           >
             {t('devices.actions.delete')}
@@ -255,7 +255,7 @@ export default function DeviceDetailPage() {
               <button
                 type="button"
                 className="btn btn--primary"
-                style={{ background: '#d24545', borderColor: '#d24545' }}
+                style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
                 onClick={() => deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
               >

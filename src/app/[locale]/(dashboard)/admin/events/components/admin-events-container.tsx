@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced } from '@/hooks/use-admin-events';
 import type { AdminEventListItem } from '@/types/admin';
 
@@ -31,6 +32,7 @@ interface MarkInvoicedModalProps {
 }
 
 function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
+  const t = useTranslations();
   const [note, setNote] = useState('');
   const markInvoiced = useMarkEventInvoiced();
 
@@ -82,7 +84,7 @@ function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
         </div>
 
         <div className="modal__foot">
-          <button className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
           <button
             className="btn btn--primary"
             onClick={handleSubmit}
@@ -102,6 +104,7 @@ interface UnmarkModalProps {
 }
 
 function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
+  const t = useTranslations();
   const unmarkInvoiced = useUnmarkEventInvoiced();
 
   function handleConfirm() {
@@ -128,10 +131,10 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
         </div>
 
         <div className="modal__foot">
-          <button className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
           <button
             className="btn btn--primary"
-            style={{ background: 'var(--red, #dc2626)' }}
+            style={{ background: 'var(--red, var(--danger))' }}
             onClick={handleConfirm}
             disabled={unmarkInvoiced.isPending}
           >

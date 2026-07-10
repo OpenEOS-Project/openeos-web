@@ -165,7 +165,7 @@ export default function ShiftsPage() {
                     <div style={{ flex: 1 }} />
                     <button
                       className="btn btn--ghost"
-                      style={{ fontSize: 13, padding: '8px 10px', color: 'var(--red, #dc2626)' }}
+                      style={{ fontSize: 13, padding: '8px 10px', color: 'var(--red, var(--danger))' }}
                       title={t('common.delete')}
                       aria-label={t('common.delete')}
                       onClick={() => {

@@ -371,9 +371,9 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 borderRadius: 8,
                 padding: '10px 14px',
                 fontSize: 13,
-                background: 'color-mix(in oklab, var(--red, #dc2626) 10%, transparent)',
-                color: 'var(--red, #dc2626)',
-                border: '1px solid color-mix(in oklab, var(--red, #dc2626) 20%, transparent)',
+                background: 'color-mix(in oklab, var(--red, var(--danger)) 10%, transparent)',
+                color: 'var(--red, var(--danger))',
+                border: '1px solid color-mix(in oklab, var(--red, var(--danger)) 20%, transparent)',
               }}
             >
               {error}

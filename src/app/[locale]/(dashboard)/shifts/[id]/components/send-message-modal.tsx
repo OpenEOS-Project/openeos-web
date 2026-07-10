@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
@@ -31,6 +32,7 @@ const DEFAULT_TEMPLATE =
   'Bitte sei pünktlich da. Vielen Dank für deine Hilfe!';
 
 export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onClose }: SendMessageModalProps) {
+  const t = useTranslations();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
@@ -109,7 +111,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             {result ? (
@@ -188,7 +190,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
 
         <div className="modal__foot">
           <button type="button" className="btn btn--ghost" onClick={handleClose}>
-            {result ? 'Schließen' : 'Abbrechen'}
+            {result ? t('common.close') : t('common.cancel')}
           </button>
           {!result && (
             <button

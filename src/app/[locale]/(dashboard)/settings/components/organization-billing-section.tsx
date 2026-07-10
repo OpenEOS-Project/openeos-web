@@ -58,7 +58,7 @@ export function OrganizationBillingSection() {
         <div className="auth-field">
           <label className="auth-field__label" htmlFor="billingEmail">{t('billingEmail')}</label>
           <input id="billingEmail" type="email" className={`input${errors.billingEmail ? ' input--error' : ''}`} placeholder="rechnung@example.com" {...register('billingEmail')} />
-          {errors.billingEmail && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.billingEmail.message}</p>}
+          {errors.billingEmail && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.billingEmail.message}</p>}
         </div>
 
         <div className="auth-field">

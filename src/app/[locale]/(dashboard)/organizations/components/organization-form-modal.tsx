@@ -108,7 +108,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                 {...register('name')}
               />
               {errors.name && (
-                <span style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}>{errors.name.message}</span>
+                <span style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}>{errors.name.message}</span>
               )}
             </label>
 

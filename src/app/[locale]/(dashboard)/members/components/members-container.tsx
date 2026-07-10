@@ -113,7 +113,7 @@ export function MembersContainer() {
               <button
                 type="button"
                 className="btn"
-                style={{ background: 'var(--red, #dc2626)', color: '#fff' }}
+                style={{ background: 'var(--red, var(--danger))', color: '#fff' }}
                 onClick={handleRemoveConfirm}
                 disabled={removeMember.isPending}
               >

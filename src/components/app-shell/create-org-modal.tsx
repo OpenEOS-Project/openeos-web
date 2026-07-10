@@ -280,12 +280,12 @@ export function CreateOrgModal({ open, onClose }: Props) {
             {error && (
               <div
                 style={{
-                  background: 'color-mix(in oklab, #d24545 14%, var(--paper))',
+                  background: 'color-mix(in oklab, var(--danger) 14%, var(--paper))',
                   color: '#8a1f1f',
                   padding: '10px 12px',
                   borderRadius: 'var(--r)',
                   fontSize: 13,
-                  border: '1px solid color-mix(in oklab, #d24545 25%, transparent)',
+                  border: '1px solid color-mix(in oklab, var(--danger) 25%, transparent)',
                 }}
               >
                 {error}

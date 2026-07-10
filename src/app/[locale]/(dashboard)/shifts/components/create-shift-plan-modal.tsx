@@ -172,7 +172,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
           <div className="modal__body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {error && (
-                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>
                   {error}
                 </div>
               )}
@@ -211,7 +211,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                           event.status === 'active'
                             ? { label: 'Aktiv', bg: 'color-mix(in oklab, var(--green-ink) 18%, transparent)', fg: 'var(--green-ink)' }
                             : event.status === 'test'
-                            ? { label: 'Test', bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#b45309' }
+                            ? { label: 'Test', bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: '#b45309' }
                             : { label: 'Inaktiv', bg: 'color-mix(in oklab, var(--ink) 8%, transparent)', fg: 'color-mix(in oklab, var(--ink) 50%, transparent)' };
                         return (
                           <label
@@ -268,7 +268,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                           autoFocus
                         />
                         {errors.name && (
-                          <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.name.message}</p>
+                          <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</p>
                         )}
                       </div>
                     )}

@@ -23,7 +23,7 @@ interface InventoryCountViewProps {
 function DiffCell({ expected, counted }: { expected: number; counted: number | null }) {
   if (counted === null) return <span style={{ opacity: 0.4 }}>–</span>;
   const diff = counted - expected;
-  const color = diff < 0 ? '#dc2626' : diff > 0 ? '#16a34a' : 'var(--ink)';
+  const color = diff < 0 ? 'var(--danger)' : diff > 0 ? '#16a34a' : 'var(--ink)';
   return (
     <span style={{ color, fontWeight: diff !== 0 ? 600 : 400 }}>
       {diff > 0 ? `+${diff}` : diff}
@@ -265,7 +265,7 @@ export function InventoryCountView({
                 <button
                   type="button"
                   className="btn btn--ghost"
-                  style={{ color: '#dc2626' }}
+                  style={{ color: 'var(--danger)' }}
                   onClick={() => setShowCancelConfirm(true)}
                 >
                   {t('actions.cancel')}
@@ -358,7 +358,7 @@ export function InventoryCountView({
               <button
                 type="button"
                 className="btn btn--primary"
-                style={{ background: '#d24545', borderColor: '#d24545' }}
+                style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
                 onClick={handleCancel}
                 disabled={isActing}
               >
@@ -394,7 +394,7 @@ export function InventoryCountView({
               </div>
 
               {uncountedItems.length > 0 && (
-                <div style={{ padding: '10px 12px', background: 'color-mix(in oklab, #f59e0b 12%, transparent)', borderRadius: 8, fontSize: 12 }}>
+                <div style={{ padding: '10px 12px', background: 'color-mix(in oklab, var(--warn) 12%, transparent)', borderRadius: 8, fontSize: 12 }}>
                   <div style={{ fontWeight: 600, marginBottom: 4 }}>
                     {t('completeConfirm.uncountedWarning', { count: uncountedItems.length })}
                   </div>
@@ -423,7 +423,7 @@ export function InventoryCountView({
                             <td style={{ padding: '4px 8px' }}>{item.product?.name ?? item.productId}</td>
                             <td style={{ padding: '4px 8px', textAlign: 'right' }}>{item.expectedQuantity}</td>
                             <td style={{ padding: '4px 8px', textAlign: 'right' }}>{item.countedQuantity}</td>
-                            <td style={{ padding: '4px 8px', textAlign: 'right', color: diff < 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
+                            <td style={{ padding: '4px 8px', textAlign: 'right', color: diff < 0 ? 'var(--danger)' : '#16a34a', fontWeight: 600 }}>
                               {diff > 0 ? `+${diff}` : diff}
                             </td>
                           </tr>

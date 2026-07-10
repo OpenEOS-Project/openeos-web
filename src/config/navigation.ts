@@ -17,7 +17,7 @@ import {
   Users01,
 } from '@untitledui/icons';
 
-import type { NavItemType } from '@/components/app-navigation/config';
+import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 
 // Super-Admin navigation items (can see everything across all organizations)
 export const superAdminNavItems: NavItemType[] = [
@@ -53,8 +53,9 @@ export const superAdminNavItems: NavItemType[] = [
   },
 ];
 
-// Organization admin/member navigation items
-export const dashboardNavItems: NavItemType[] = [
+// Organization admin/member navigation items, grouped by domain:
+// laufender Betrieb → Sortiment → Hardware/Standorte → Organisation & Auswertung
+export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     label: 'Dashboard',
     href: '/dashboard',
@@ -65,24 +66,7 @@ export const dashboardNavItems: NavItemType[] = [
     href: '/orders',
     icon: Receipt,
   },
-  {
-    label: 'Auswertung',
-    href: '/reports',
-    icon: LineChartUp01,
-    requiredPermission: 'reports',
-  },
-  {
-    label: 'Mitglieder',
-    href: '/members',
-    icon: Users01,
-    requiredPermission: 'members',
-  },
-  {
-    label: 'Events',
-    href: '/events',
-    icon: Calendar,
-    requiredPermission: 'events',
-  },
+  { divider: true },
   {
     label: 'Produkte',
     href: '/products',
@@ -91,12 +75,6 @@ export const dashboardNavItems: NavItemType[] = [
     items: [
       { label: 'Kategorien', href: '/categories' },
     ],
-  },
-  {
-    label: 'Standorte',
-    href: '/production-stations',
-    icon: MarkerPin01,
-    requiredPermission: 'products',
   },
   {
     label: 'Inventur',
@@ -116,6 +94,7 @@ export const dashboardNavItems: NavItemType[] = [
     icon: Coins01,
     requiredPermission: 'pfand',
   },
+  { divider: true },
   {
     label: 'Geräte',
     href: '/devices',
@@ -129,10 +108,35 @@ export const dashboardNavItems: NavItemType[] = [
     requiredPermission: 'devices',
   },
   {
+    label: 'Standorte',
+    href: '/production-stations',
+    icon: MarkerPin01,
+    requiredPermission: 'products',
+  },
+  { divider: true },
+  {
+    label: 'Mitglieder',
+    href: '/members',
+    icon: Users01,
+    requiredPermission: 'members',
+  },
+  {
     label: 'Schichtpläne',
     href: '/shifts',
     icon: ClipboardCheck,
     requiredPermission: 'shiftPlans',
+  },
+  {
+    label: 'Events',
+    href: '/events',
+    icon: Calendar,
+    requiredPermission: 'events',
+  },
+  {
+    label: 'Auswertung',
+    href: '/reports',
+    icon: LineChartUp01,
+    requiredPermission: 'reports',
   },
 ];
 

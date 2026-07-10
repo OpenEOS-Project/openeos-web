@@ -114,7 +114,7 @@ export function ProfileSection() {
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                    style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}
                     onClick={handleDeleteAvatar}
                     disabled={deleteAvatar.isPending}
                   >
@@ -123,7 +123,7 @@ export function ProfileSection() {
                 )}
               </div>
               {avatarError && (
-                <p style={{ fontSize: 12, color: '#dc2626', margin: '4px 0 0' }}>{avatarError}</p>
+                <p style={{ fontSize: 12, color: 'var(--danger)', margin: '4px 0 0' }}>{avatarError}</p>
               )}
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleFileChange} style={{ display: 'none' }} />
             </div>
@@ -134,12 +134,12 @@ export function ProfileSection() {
             <div className="auth-field">
               <label className="auth-field__label" htmlFor="firstName">{t('firstName')}</label>
               <input id="firstName" className="input" {...register('firstName')} />
-              {errors.firstName && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.firstName.message}</p>}
+              {errors.firstName && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.firstName.message}</p>}
             </div>
             <div className="auth-field">
               <label className="auth-field__label" htmlFor="lastName">{t('lastName')}</label>
               <input id="lastName" className="input" {...register('lastName')} />
-              {errors.lastName && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.lastName.message}</p>}
+              {errors.lastName && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.lastName.message}</p>}
             </div>
           </div>
 

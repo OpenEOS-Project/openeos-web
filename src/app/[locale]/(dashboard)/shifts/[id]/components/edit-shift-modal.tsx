@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
@@ -20,6 +21,7 @@ const timeToMinutes = (time: string): number => {
 
 /** Edit a single shift: date, start/end time (overnight allowed), required workers. */
 export function EditShiftModal({ open, shift, planId, onClose }: Props) {
+  const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -54,7 +56,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Speichern fehlgeschlagen'),
+    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
   });
 
   if (!open || !shift) return null;
@@ -74,7 +76,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             <div className="auth-field">
@@ -83,7 +85,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
             </div>
 
             {isOvernight && (
-              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>🌙</span>
                 <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
               </div>
@@ -112,7 +114,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
         </div>
 
         <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
           <button
             type="button"
             className="btn btn--primary"

@@ -322,7 +322,7 @@ export function DevicesList() {
               )}
               <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
               <button
-                style={{ ...itemStyle, color: '#d24545' }}
+                style={{ ...itemStyle, color: 'var(--danger)' }}
                 onClick={() => { closeMenu(); setDeleteDevice(device); }}
               >
                 {t('devices.actions.delete')}

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
-import type { Device } from '@/types/device';
+import type { Device, DeviceClass } from '@/types/device';
 
 interface VerifyDeviceDialogProps {
   device: Device;
@@ -20,10 +20,13 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
   const organizationId = currentOrganization?.organizationId;
 
   const [code, setCode] = useState('');
+  const [type, setType] = useState<DeviceClass>(
+    device.type === 'display' || device.type === 'admin' ? device.type : 'pos',
+  );
   const [error, setError] = useState<string | null>(null);
 
   const verifyMutation = useMutation({
-    mutationFn: () => devicesApi.verify(organizationId!, device.id, { code }),
+    mutationFn: () => devicesApi.verify(organizationId!, device.id, { code, type }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices', organizationId] });
       onClose();
@@ -66,6 +69,23 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
             </div>
 
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
+              {t('verifyDialog.type')}
+            </label>
+            <select
+              className="select"
+              value={type}
+              onChange={(e) => setType(e.target.value as DeviceClass)}
+              style={{ marginBottom: 16 }}
+            >
+              {(['pos', 'display', 'admin'] as DeviceClass[]).map((opt) => (
+                <option key={opt} value={opt}>{t(`class.${opt}`)}</option>
+              ))}
+            </select>
+            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: '-8px 0 16px' }}>
+              {t('verifyDialog.typeHint')}
+            </p>
+
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
               {t('verifyDialog.code')}
             </label>
             <input
@@ -79,7 +99,7 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
             />
 
             {error && (
-              <p style={{ color: '#d24545', fontSize: 13, marginTop: 8, margin: 0 }}>{error}</p>
+              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, margin: 0 }}>{error}</p>
             )}
           </div>
 

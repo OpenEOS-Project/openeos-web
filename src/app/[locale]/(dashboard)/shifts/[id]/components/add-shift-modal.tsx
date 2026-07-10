@@ -82,7 +82,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
           <div className="modal__body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {error && (
-                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
               )}
 
               <Controller
@@ -92,13 +92,13 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                   <div className="auth-field">
                     <label className="auth-field__label">{t('shifts.editor.shiftDate')} *</label>
                     <input className="input" type="date" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                    {errors.date && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.date.message}</p>}
+                    {errors.date && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.date.message}</p>}
                   </div>
                 )}
               />
 
               {isOvernight && (
-                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>🌙</span>
                   <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
                 </div>
@@ -112,7 +112,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                     <div className="auth-field">
                       <label className="auth-field__label">{t('shifts.editor.shiftStartTime')} *</label>
                       <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                      {errors.startTime && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.startTime.message}</p>}
+                      {errors.startTime && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.startTime.message}</p>}
                     </div>
                   )}
                 />
@@ -123,7 +123,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                     <div className="auth-field">
                       <label className="auth-field__label">{t('shifts.editor.shiftEndTime')} *</label>
                       <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                      {errors.endTime && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.endTime.message}</p>}
+                      {errors.endTime && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.endTime.message}</p>}
                     </div>
                   )}
                 />

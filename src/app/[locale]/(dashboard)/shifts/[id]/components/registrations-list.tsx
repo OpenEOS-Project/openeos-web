@@ -41,7 +41,7 @@ const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSPropertie
   // Skip the color for 'ghost' so .btn--primary's color: var(--paper) wins
   // when this helper is combined with that class — otherwise the icon ends
   // up dark-on-dark on the primary buttons.
-  ...(variant === 'danger' ? { color: 'var(--red, #dc2626)' } : {}),
+  ...(variant === 'danger' ? { color: 'var(--red, var(--danger))' } : {}),
 });
 
 const formatTime = (time: string): string => {
@@ -395,11 +395,11 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                       reg.status === 'confirmed'
                         ? { bg: 'color-mix(in oklab, #10b981 18%, transparent)', fg: '#065f46', label: 'bestätigt' }
                         : reg.status === 'pending_email'
-                        ? { bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#92400e', label: 'E-Mail offen' }
+                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'E-Mail offen' }
                         : reg.status === 'pending_approval'
-                        ? { bg: 'color-mix(in oklab, #f59e0b 18%, transparent)', fg: '#92400e', label: 'Approval offen' }
+                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'Approval offen' }
                         : reg.status === 'rejected'
-                        ? { bg: 'color-mix(in oklab, #dc2626 18%, transparent)', fg: '#991b1b', label: 'abgelehnt' }
+                        ? { bg: 'color-mix(in oklab, var(--danger) 18%, transparent)', fg: '#991b1b', label: 'abgelehnt' }
                         : { bg: 'color-mix(in oklab, var(--ink) 12%, transparent)', fg: 'color-mix(in oklab, var(--ink) 70%, transparent)', label: reg.status };
 
                     return (
@@ -409,10 +409,10 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                           display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12,
                           padding: '6px 10px', borderRadius: 6,
                           background: overlaps
-                            ? 'color-mix(in oklab, #f59e0b 8%, transparent)'
+                            ? 'color-mix(in oklab, var(--warn) 8%, transparent)'
                             : 'color-mix(in oklab, var(--ink) 4%, transparent)',
                           border: overlaps
-                            ? '1px solid color-mix(in oklab, #f59e0b 35%, transparent)'
+                            ? '1px solid color-mix(in oklab, var(--warn) 35%, transparent)'
                             : '1px solid transparent',
                         }}
                       >
@@ -432,7 +432,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                         </span>
                         {overlaps && (
                           <span
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: '#92400e', fontWeight: 600 }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warn-ink)', fontWeight: 600 }}
                             title="Diese Schicht überschneidet sich zeitlich mit einer anderen Schicht des Helfers"
                           >
                             <AlertCircle style={{ width: 12, height: 12 }} />
@@ -452,7 +452,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          style={{ padding: 2, width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--red, #dc2626)' }}
+                          style={{ padding: 2, width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--red, var(--danger))' }}
                           onClick={() => {
                             if (confirm(`Schicht "${reg.shift?.job?.name}" am ${formatDate(reg.shift?.date || '')} entfernen?`)) {
                               removeShiftMutation.mutate(reg.id);
@@ -498,7 +498,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     </button>
                     <button
                       className="btn btn--ghost"
-                      style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                      style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}
                       onClick={() => rejectMutation.mutate(pendingReps)}
                       disabled={rejectMutation.isPending}
                     >

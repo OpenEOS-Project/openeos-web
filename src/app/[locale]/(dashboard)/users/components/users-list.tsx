@@ -25,7 +25,7 @@ export function UsersList() {
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <span style={{ fontSize: 14, color: 'var(--red, var(--danger))' }}>{tCommon('error')}</span>
         <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
         </button>

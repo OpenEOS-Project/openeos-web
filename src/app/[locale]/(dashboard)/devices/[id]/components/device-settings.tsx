@@ -256,7 +256,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           <span style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('devices.detail.saved')}</span>
         )}
         {updateMutation.isError && (
-          <span style={{ fontSize: 13, color: '#d24545' }}>{t('devices.detail.saveFailed')}</span>
+          <span style={{ fontSize: 13, color: 'var(--danger)' }}>{t('devices.detail.saveFailed')}</span>
         )}
         <button
           className="btn btn--primary"

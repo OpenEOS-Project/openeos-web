@@ -22,7 +22,7 @@ import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/h
 import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
-import type { NavItemType } from '@/components/app-navigation/config';
+import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
 import { APP_VERSION } from '@/lib/version';
 
@@ -77,14 +77,26 @@ export function AppSidebar() {
   const currentRole = currentOrganization?.role;
   const currentPermissions = currentOrganization?.permissions;
 
-  const canSeeNavItem = (item: NavItemType): boolean => {
+  const canSeeNavItem = (item: NavItemType | NavItemDividerType): boolean => {
     if (item.adminOnly) return currentRole === 'admin';
     if (!item.requiredPermission) return true;
     if (currentRole === 'admin') return true;
     return !!currentPermissions?.[item.requiredPermission];
   };
 
-  const navItems = isSuperAdmin ? superAdminNavItems : dashboardNavItems.filter(canSeeNavItem);
+  // Drop dividers that end up leading, trailing, or back-to-back after permission filtering
+  const stripOrphanedDividers = (items: (NavItemType | NavItemDividerType)[]) =>
+    items.filter((item, index, arr) => {
+      if (!item.divider) return true;
+      const hasItemBefore = arr.slice(0, index).some((prev) => !prev.divider);
+      const hasItemAfter = arr.slice(index + 1).some((next) => !next.divider);
+      const nextIsDivider = !!arr[index + 1]?.divider;
+      return hasItemBefore && hasItemAfter && !nextIsDivider;
+    });
+
+  const navItems = isSuperAdmin
+    ? superAdminNavItems
+    : stripOrphanedDividers(dashboardNavItems.filter(canSeeNavItem));
   const filteredFooterItems = isSuperAdmin
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
@@ -330,7 +342,21 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="app-sidebar__nav">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
+            if (item.divider) {
+              return (
+                <div
+                  key={`divider-${index}`}
+                  aria-hidden="true"
+                  style={{
+                    height: 1,
+                    background: 'color-mix(in oklab, var(--ink) 8%, transparent)',
+                    margin: '6px 10px',
+                    flexShrink: 0,
+                  }}
+                />
+              );
+            }
             if (!item.href) return null;
             const Icon = item.icon;
             const subItems = item.items ?? [];

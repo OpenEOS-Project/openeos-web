@@ -5,6 +5,7 @@
     "retry": "Try again",
     "cancel": "Cancel",
     "save": "Save",
+    "saveFailed": "Saving failed",
     "delete": "Delete",
     "edit": "Edit",
     "create": "Create",
@@ -1728,6 +1729,8 @@
     "verifyDialog": {
       "title": "Approve Device",
       "description": "Enter the 6-digit code displayed on the device.",
+      "type": "Device type",
+      "typeHint": "Saved directly on approval – POS devices start in table-service mode and can be changed later in the device settings.",
       "code": "Verification Code",
       "codePlaceholder": "000000",
       "submit": "Approve Device",

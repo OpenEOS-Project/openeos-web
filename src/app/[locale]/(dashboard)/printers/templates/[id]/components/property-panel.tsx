@@ -221,7 +221,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
           <button
             type="button"
             className="btn btn--ghost"
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#d24545' }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--danger)' }}
             onClick={() => onRemove(element.id)}
           >
             <Trash01 className="h-4 w-4" />

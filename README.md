@@ -11,6 +11,17 @@ Admin-Dashboard und Kassen-UI für OpenEOS.
 - Bestellübersicht
 - Statistiken & Berichte
 
+## Admin-Dashboard & Geräte-UI
+
+Diese App bedient zwei Zielgruppen aus einer Codebasis:
+
+- Das **Admin-Dashboard** (`/[locale]/(dashboard)/...`) für Organisationsverwaltung, Produkte, Events, Geräte, Drucker usw.
+- Die **Geräte-UIs**, die auf den registrierten Geräten selbst laufen:
+  - `/device/pos` – die mobile Kassen-Oberfläche (POS)
+  - `/device/customer` – das Kundendisplay, das live den Warenkorb einer verknüpften Kasse spiegelt
+  - `/device/station` – das Standort-Display für Küche, Bar oder Ausgabe
+  - `/device/register` – die Registrierungsseite, über die ein neues Gerät per QR-Code/Link an eine Organisation gekoppelt wird
+
 ## Tech Stack
 
 - **Framework:** Next.js 15 (App Router, Turbopack)

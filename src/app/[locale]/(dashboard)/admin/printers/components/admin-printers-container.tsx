@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { adminApi } from '@/lib/api-client';
@@ -98,8 +99,8 @@ export function AdminPrintersContainer() {
             background:
               actionMessage.type === 'success'
                 ? 'color-mix(in oklab, var(--green-ink) 8%, transparent)'
-                : 'color-mix(in oklab, #dc2626 8%, transparent)',
-            color: actionMessage.type === 'success' ? 'var(--green-ink)' : '#dc2626',
+                : 'color-mix(in oklab, var(--danger) 8%, transparent)',
+            color: actionMessage.type === 'success' ? 'var(--green-ink)' : 'var(--danger)',
             fontSize: 13,
           }}
         >
@@ -168,7 +169,7 @@ export function AdminPrintersContainer() {
                           </button>
                           <button
                             className="btn btn--ghost"
-                            style={{ fontSize: 13, color: '#dc2626' }}
+                            style={{ fontSize: 13, color: 'var(--danger)' }}
                             disabled={deleteDeviceMutation.isPending}
                             onClick={() => {
                               if (confirm(`Gerät „${d.suggestedName || d.name}" endgültig löschen?`)) {
@@ -305,7 +306,7 @@ function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProp
           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={onTestPrint} disabled={isBusy}>
             Test-Druck
           </button>
-          <button className="btn btn--ghost" style={{ fontSize: 12, color: '#dc2626' }} onClick={onUnassign} disabled={isBusy}>
+          <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--danger)' }} onClick={onUnassign} disabled={isBusy}>
             Zuordnung aufheben
           </button>
         </div>
@@ -325,6 +326,7 @@ interface AssignDeviceModalProps {
 }
 
 function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onClose, onAssigned, onError }: AssignDeviceModalProps) {
+  const t = useTranslations();
   const prev = device.previousConfig ?? null;
   const [organizationId, setOrganizationId] = useState('');
   const [hasCashDrawer, setHasCashDrawer] = useState(prev?.hasCashDrawer ?? false);
@@ -420,7 +422,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
                 ))}
               </select>
               {orgsError && (
-                <span style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>
+                <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
                   {orgsError}
                 </span>
               )}
@@ -433,7 +435,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
           </div>
           <div className="modal__foot">
             <button type="button" className="btn btn--ghost" onClick={onClose} disabled={submitting}>
-              Abbrechen
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={submitting || !organizationId}>
               {submitting ? '...' : 'Zuordnen'}

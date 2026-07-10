@@ -138,7 +138,7 @@ export function CategoriesManagementModal({
                       <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => handleEditClick(category)}>
                         {tCommon('edit') ?? 'Edit'}
                       </button>
-                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: '#d24545' }} onClick={() => handleDeleteClick(category)}>
+                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: 'var(--danger)' }} onClick={() => handleDeleteClick(category)}>
                         {tCommon('delete')}
                       </button>
                     </div>
@@ -181,7 +181,7 @@ export function CategoriesManagementModal({
               <button
                 type="button"
                 className="btn btn--primary"
-                style={{ background: '#d24545' }}
+                style={{ background: 'var(--danger)' }}
                 onClick={handleDeleteConfirm}
                 disabled={deleteCategory.isPending}
               >

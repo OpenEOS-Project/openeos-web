@@ -43,7 +43,7 @@ export function ProductionStationsList({
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <p style={{ color: '#d24545', fontSize: 14 }}>{tCommon('error')}</p>
+        <p style={{ color: 'var(--danger)', fontSize: 14 }}>{tCommon('error')}</p>
         <button className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
         </button>
@@ -155,7 +155,7 @@ export function ProductionStationsList({
                           </button>
                           <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
                           <button
-                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: '#d24545' }}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)' }}
                             onClick={() => { setOpenMenuId(null); onDeleteClick(station); }}
                           >
                             {tCommon('delete')}

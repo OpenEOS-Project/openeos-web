@@ -62,7 +62,7 @@ export function DashboardContainer() {
     return [...DEFAULT_WIDGET_IDS];
   }, [preferences]);
 
-  // Permission check: mirrors canSeeNavItem logic from dashboard-sidebar
+  // Permission check: mirrors canSeeNavItem logic from app-sidebar
   function canSeeWidget(requiredPermission?: 'reports'): boolean {
     if (!requiredPermission) return true;
     if (role === 'admin') return true;

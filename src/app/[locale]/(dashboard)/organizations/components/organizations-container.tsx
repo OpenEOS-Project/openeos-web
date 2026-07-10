@@ -82,7 +82,7 @@ export function OrganizationsContainer() {
               <button
                 type="button"
                 className="btn"
-                style={{ background: 'var(--red, #dc2626)', color: '#fff' }}
+                style={{ background: 'var(--red, var(--danger))', color: '#fff' }}
                 onClick={handleDeleteConfirm}
                 disabled={deleteOrganization.isPending}
               >

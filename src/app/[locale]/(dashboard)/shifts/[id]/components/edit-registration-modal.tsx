@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
@@ -35,6 +36,7 @@ interface ShiftCard {
 }
 
 export function EditRegistrationModal({ open, plan, registration, allRegistrations, onClose }: Props) {
+  const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -210,7 +212,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Speichern fehlgeschlagen'),
+    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
   });
 
   /** Same modal, but instead of applying the staged shift changes we package
@@ -272,7 +274,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             {/* Helper details */}
@@ -321,8 +323,8 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                       style={{
                         display: 'flex', alignItems: 'center', gap: 10,
                         padding: '8px 12px', borderRadius: 8,
-                        border: `1px solid ${isRemoved ? 'color-mix(in oklab, #dc2626 30%, transparent)' : 'color-mix(in oklab, var(--ink) 10%, transparent)'}`,
-                        background: isRemoved ? 'color-mix(in oklab, #dc2626 6%, transparent)' : 'var(--paper)',
+                        border: `1px solid ${isRemoved ? 'color-mix(in oklab, var(--danger) 30%, transparent)' : 'color-mix(in oklab, var(--ink) 10%, transparent)'}`,
+                        background: isRemoved ? 'color-mix(in oklab, var(--danger) 6%, transparent)' : 'var(--paper)',
                         opacity: isRemoved ? 0.6 : 1,
                       }}
                     >
@@ -482,7 +484,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
         </div>
 
         <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
           <div style={{ display: 'flex', gap: 8 }}>
             {hasShiftChanges && (
               <button

@@ -111,6 +111,7 @@ export interface DeviceRegistrationResponse {
 
 export interface VerifyDeviceData {
   code: string;
+  type?: DeviceClass;
 }
 
 export interface UpdateDeviceClassData {

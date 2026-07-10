@@ -60,7 +60,7 @@ export function LowStockWidget({ organizationId }: Props) {
                     style={{
                       textAlign: 'right',
                       fontWeight: 700,
-                      color: row.lowStock ? 'var(--red-ink, #dc2626)' : undefined,
+                      color: row.lowStock ? 'var(--red-ink, var(--danger))' : undefined,
                     }}
                   >
                     {row.currentStock}

@@ -196,8 +196,8 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                           alignItems: 'center',
                           gap: 10,
                           borderRadius: 8,
-                          border: '1px dashed color-mix(in oklab, var(--amber, #f59e0b) 50%, transparent)',
-                          background: 'color-mix(in oklab, var(--amber, #f59e0b) 6%, var(--paper))',
+                          border: '1px dashed color-mix(in oklab, var(--amber, var(--warn)) 50%, transparent)',
+                          background: 'color-mix(in oklab, var(--amber, var(--warn)) 6%, var(--paper))',
                           padding: '10px 12px',
                         }}
                       >
@@ -205,13 +205,13 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                           width: 28,
                           height: 28,
                           borderRadius: '50%',
-                          background: 'color-mix(in oklab, var(--amber, #f59e0b) 20%, var(--paper))',
+                          background: 'color-mix(in oklab, var(--amber, var(--warn)) 20%, var(--paper))',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
                         }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber, #f59e0b)" strokeWidth="2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber, var(--warn))" strokeWidth="2">
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
                           </svg>
                         </div>
@@ -346,7 +346,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                                 <button
                                   type="button"
                                   className="btn btn--ghost"
-                                  style={{ fontSize: 12, padding: '3px 8px', color: 'var(--red, #dc2626)' }}
+                                  style={{ fontSize: 12, padding: '3px 8px', color: 'var(--red, var(--danger))' }}
                                   onClick={() => handleRemove(member)}
                                 >
                                   {t('actions.remove')}

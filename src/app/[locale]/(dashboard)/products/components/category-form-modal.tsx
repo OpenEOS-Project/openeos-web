@@ -160,10 +160,10 @@ export function CategoryFormModal({
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
-                    <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>
+                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
                   )}
                 </label>
               )}

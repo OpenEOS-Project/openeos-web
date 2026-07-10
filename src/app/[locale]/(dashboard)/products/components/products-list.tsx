@@ -39,7 +39,7 @@ export function ProductsList({
   if (error) {
     return (
       <div className="app-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px' }}>
-        <div style={{ color: '#d24545' }}>{tCommon('error')}</div>
+        <div style={{ color: 'var(--danger)' }}>{tCommon('error')}</div>
         <button className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
         </button>
@@ -165,7 +165,7 @@ export function ProductsList({
                     <button
                       type="button"
                       className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0, color: '#dc2626' }}
+                      style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
                       onClick={() => onDeleteClick(product)}
                       aria-label={t('actions.delete')}
                       title={t('actions.delete')}

@@ -87,7 +87,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
           <div className="modal__body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {error && (
-                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+                <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
               )}
 
               <Controller
@@ -107,7 +107,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                     <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
                       Pro Zeile eine Arbeit — alle werden gleichzeitig angelegt.
                     </p>
-                    {errors.names && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.names.message}</p>}
+                    {errors.names && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.names.message}</p>}
                   </div>
                 )}
               />

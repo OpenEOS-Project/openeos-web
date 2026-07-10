@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
@@ -33,6 +34,7 @@ interface ShiftCard {
  *  registrationGroupId so the helper shows up as a single entry with several
  *  shifts. */
 export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
+  const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -142,7 +144,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Speichern fehlgeschlagen'),
+    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
   });
 
   const handleClose = () => onClose();
@@ -168,7 +170,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -316,7 +318,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
         </div>
 
         <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={handleClose}>Abbrechen</button>
+          <button type="button" className="btn btn--ghost" onClick={handleClose}>{t('common.cancel')}</button>
           <button
             type="button"
             className="btn btn--primary"

@@ -150,7 +150,7 @@ export function OrganizationGeneralSection() {
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                    style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}
                     onClick={handleLogoDelete}
                     disabled={isUploading}
                   >
@@ -159,7 +159,7 @@ export function OrganizationGeneralSection() {
                 )}
               </div>
               {logoError && (
-                <p style={{ fontSize: 12, color: '#dc2626', margin: '4px 0 0' }}>{logoError}</p>
+                <p style={{ fontSize: 12, color: 'var(--danger)', margin: '4px 0 0' }}>{logoError}</p>
               )}
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleLogoChange} style={{ display: 'none' }} />
             </div>
@@ -168,7 +168,7 @@ export function OrganizationGeneralSection() {
           <div className="auth-field">
             <label className="auth-field__label" htmlFor="org-name">{t('name')}</label>
             <input id="org-name" className="input" {...register('name')} />
-            {errors.name && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.name.message}</p>}
+            {errors.name && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</p>}
           </div>
 
           <div className="auth-field">

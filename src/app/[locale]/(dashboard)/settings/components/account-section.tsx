@@ -77,7 +77,7 @@ export function AccountSection() {
             <label className="auth-field__label" htmlFor="newEmail">{t('newEmail')}</label>
             <input id="newEmail" type="email" className="input" {...emailForm.register('newEmail')} />
             {emailForm.formState.errors.newEmail && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{emailForm.formState.errors.newEmail.message}</p>
+              <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{emailForm.formState.errors.newEmail.message}</p>
             )}
           </div>
 
@@ -85,7 +85,7 @@ export function AccountSection() {
             <label className="auth-field__label" htmlFor="emailPassword">{t('currentPassword')}</label>
             <input id="emailPassword" type="password" className="input" {...emailForm.register('password')} />
             {emailForm.formState.errors.password && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{emailForm.formState.errors.password.message}</p>
+              <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{emailForm.formState.errors.password.message}</p>
             )}
           </div>
 
@@ -115,7 +115,7 @@ export function AccountSection() {
             <label className="auth-field__label" htmlFor="currentPassword">{t('currentPassword')}</label>
             <input id="currentPassword" type="password" className="input" {...passwordForm.register('currentPassword')} />
             {passwordForm.formState.errors.currentPassword && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{passwordForm.formState.errors.currentPassword.message}</p>
+              <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{passwordForm.formState.errors.currentPassword.message}</p>
             )}
           </div>
 
@@ -123,7 +123,7 @@ export function AccountSection() {
             <label className="auth-field__label" htmlFor="newPassword">{t('newPassword')}</label>
             <input id="newPassword" type="password" className="input" {...passwordForm.register('newPassword')} />
             {passwordForm.formState.errors.newPassword && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{passwordForm.formState.errors.newPassword.message}</p>
+              <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{passwordForm.formState.errors.newPassword.message}</p>
             )}
           </div>
 
@@ -131,7 +131,7 @@ export function AccountSection() {
             <label className="auth-field__label" htmlFor="confirmPassword">{t('confirmPassword')}</label>
             <input id="confirmPassword" type="password" className="input" {...passwordForm.register('confirmPassword')} />
             {passwordForm.formState.errors.confirmPassword && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{passwordForm.formState.errors.confirmPassword.message}</p>
+              <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{passwordForm.formState.errors.confirmPassword.message}</p>
             )}
           </div>
 

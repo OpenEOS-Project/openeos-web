@@ -28,7 +28,7 @@ const iconBtnStyle = (variant: 'ghost' | 'danger' = 'ghost'): React.CSSPropertie
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  ...(variant === 'danger' ? { color: 'var(--red, #dc2626)' } : {}),
+  ...(variant === 'danger' ? { color: 'var(--red, var(--danger))' } : {}),
 });
 
 const formatTime = (time: string): string => {

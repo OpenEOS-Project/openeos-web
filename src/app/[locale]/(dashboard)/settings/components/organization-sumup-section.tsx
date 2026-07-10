@@ -215,7 +215,7 @@ export function OrganizationSumupSection() {
           </div>
 
           {credentialsError && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 10%, transparent)', padding: '10px 12px', fontSize: 13, color: '#dc2626' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
               {credentialsError}
             </div>
@@ -313,7 +313,7 @@ export function OrganizationSumupSection() {
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          style={{ padding: '4px 8px', color: '#dc2626' }}
+                          style={{ padding: '4px 8px', color: 'var(--danger)' }}
                           onClick={() => deleteReaderMutation.mutate(reader.id)}
                           disabled={deleteReaderMutation.isPending}
                         >
@@ -375,7 +375,7 @@ export function OrganizationSumupSection() {
                 </div>
 
                 {pairReaderMutation.isError && (
-                  <div style={{ borderRadius: 8, background: 'color-mix(in oklab, #dc2626 10%, transparent)', padding: '10px 12px', fontSize: 13, color: '#dc2626' }}>
+                  <div style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
                     {t('readers.pairFailed')}
                   </div>
                 )}

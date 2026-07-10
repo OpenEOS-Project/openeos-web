@@ -5,6 +5,7 @@
     "retry": "Erneut versuchen",
     "cancel": "Abbrechen",
     "save": "Speichern",
+    "saveFailed": "Speichern fehlgeschlagen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
     "create": "Erstellen",
@@ -1728,6 +1729,8 @@
     "verifyDialog": {
       "title": "Gerät freigeben",
       "description": "Geben Sie den 6-stelligen Code ein, der auf dem Gerät angezeigt wird.",
+      "type": "Gerätetyp",
+      "typeHint": "Wird direkt bei der Freigabe gespeichert – Kassen starten im Modus „Bedienung“ und können später in den Geräte-Einstellungen angepasst werden.",
       "code": "Verifizierungscode",
       "codePlaceholder": "000000",
       "submit": "Gerät freigeben",

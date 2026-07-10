@@ -125,7 +125,7 @@ export function StockAdjustmentModal({
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginBottom: 4 }}>{t('stock.afterSubtract')}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--f-mono)', color: newStockAfterSubtract < 0 ? '#d24545' : '#c07a00' }}>
+                <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--f-mono)', color: newStockAfterSubtract < 0 ? 'var(--danger)' : '#c07a00' }}>
                   {newStockAfterSubtract} {product.stockUnit}
                 </div>
               </div>
@@ -141,7 +141,7 @@ export function StockAdjustmentModal({
             <button
               type="button"
               className="btn btn--ghost"
-              style={{ color: '#d24545' }}
+              style={{ color: 'var(--danger)' }}
               onClick={() => handleAdjust('subtract')}
               disabled={updateStock.isPending || adjustmentNum <= 0 || newStockAfterSubtract < 0}
             >

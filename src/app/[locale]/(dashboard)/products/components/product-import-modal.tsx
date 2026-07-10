@@ -43,7 +43,7 @@ function actionBadgeStyle(action: ProductImportRow['action']): React.CSSProperti
     case 'skip':
       return { ...base, background: 'color-mix(in oklab, var(--ink) 10%, transparent)', color: 'var(--ink)', opacity: 0.7 };
     case 'error':
-      return { ...base, background: 'color-mix(in oklab, #d24545 15%, transparent)', color: '#d24545' };
+      return { ...base, background: 'color-mix(in oklab, var(--danger) 15%, transparent)', color: 'var(--danger)' };
   }
 }
 
@@ -264,7 +264,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
 
               {/* Fatal error */}
               {previewResult?.fatalError && (
-                <div style={{ background: 'color-mix(in oklab, #d24545 12%, transparent)', border: '1px solid color-mix(in oklab, #d24545 30%, transparent)', borderRadius: 8, padding: '10px 14px', color: '#d24545', fontSize: 13 }}>
+                <div style={{ background: 'color-mix(in oklab, var(--danger) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--danger) 30%, transparent)', borderRadius: 8, padding: '10px 14px', color: 'var(--danger)', fontSize: 13 }}>
                   <strong>{t('fatalError')}</strong> {previewResult.fatalError}
                 </div>
               )}
@@ -284,7 +284,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                       {previewResult.summary.skip} {t('summary.skip')}
                     </span>
                     {previewResult.summary.error > 0 && (
-                      <span style={chipStyle('#d24545')}>
+                      <span style={chipStyle('var(--danger)')}>
                         {previewResult.summary.error} {t('summary.error')}
                       </span>
                     )}
@@ -296,7 +296,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newCategories')}</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {previewResult.newCategories.map((cat) => (
-                          <span key={cat} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, #f59e0b 15%, transparent)', color: '#b45309' }}>
+                          <span key={cat} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: '#b45309' }}>
                             {cat}
                           </span>
                         ))}
@@ -310,7 +310,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newPfandTypes')}</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {previewResult.newPfandTypes.map((pt) => (
-                          <span key={pt.name} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, #f59e0b 15%, transparent)', color: '#b45309' }}>
+                          <span key={pt.name} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: '#b45309' }}>
                             {pt.name} ({formatCurrency(pt.amount)})
                           </span>
                         ))}
@@ -338,7 +338,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                             key={i}
                             style={{
                               borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-                              background: row.action === 'error' ? 'color-mix(in oklab, #d24545 5%, transparent)' : undefined,
+                              background: row.action === 'error' ? 'color-mix(in oklab, var(--danger) 5%, transparent)' : undefined,
                             }}
                           >
                             <td style={{ padding: '5px 10px', color: 'var(--ink)', opacity: 0.5 }}>{row.line}</td>
@@ -353,7 +353,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <span style={actionBadgeStyle(row.action)}>{t(`action.${row.action}`)}</span>
                                 {row.message && (
-                                  <span style={{ fontSize: 11, color: '#d24545' }}>{row.message}</span>
+                                  <span style={{ fontSize: 11, color: 'var(--danger)' }}>{row.message}</span>
                                 )}
                               </div>
                             </td>

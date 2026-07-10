@@ -162,7 +162,7 @@ export function ProductsContainer() {
               <button
                 type="button"
                 className="btn btn--primary"
-                style={{ background: 'var(--error, #d24545)' }}
+                style={{ background: 'var(--error, var(--danger))' }}
                 onClick={handleDeleteConfirm}
                 disabled={deleteProduct.isPending}
               >

@@ -41,7 +41,7 @@ export function UserDetail() {
   if (error || !user) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <span style={{ fontSize: 14, color: 'var(--red, var(--danger))' }}>{tCommon('error')}</span>
         <button type="button" className="btn btn--ghost" onClick={() => router.push('/users')}>
           {t('detail.back')}
         </button>
@@ -220,18 +220,18 @@ export function UserDetail() {
 
       {/* Locked Account Card */}
       {isLocked && (
-        <div className="app-card" style={{ borderColor: 'color-mix(in oklab, var(--red, #dc2626) 40%, transparent)' }}>
+        <div className="app-card" style={{ borderColor: 'color-mix(in oklab, var(--red, var(--danger)) 40%, transparent)' }}>
           <div style={{
             padding: '12px 20px',
-            borderBottom: '1px solid color-mix(in oklab, var(--red, #dc2626) 20%, transparent)',
+            borderBottom: '1px solid color-mix(in oklab, var(--red, var(--danger)) 20%, transparent)',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red, #dc2626)" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red, var(--danger))" strokeWidth="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--red, #dc2626)', margin: 0 }}>{t('detail.accountLocked')}</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--red, var(--danger))', margin: 0 }}>{t('detail.accountLocked')}</h3>
           </div>
           <div style={{ padding: '12px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--ink-faint)', marginBottom: 4 }}>

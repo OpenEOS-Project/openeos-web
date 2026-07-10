@@ -107,9 +107,9 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                  {errors.name && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>}
+                  {errors.name && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
                 </label>
               )}
             />
@@ -119,9 +119,9 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.amount')} <span style={{ color: '#d24545' }}>*</span></span>
+                  <span>{t('form.amount')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="number" step="0.01" min="0" placeholder="2.00" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
-                  {errors.amount && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.amount.message}</span>}
+                  {errors.amount && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.amount.message}</span>}
                 </label>
               )}
             />

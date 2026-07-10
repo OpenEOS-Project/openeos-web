@@ -101,11 +101,11 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
             {error && (
               <div style={{
                 borderRadius: 8,
-                background: 'color-mix(in oklab, var(--red, #dc2626) 10%, var(--paper))',
+                background: 'color-mix(in oklab, var(--red, var(--danger)) 10%, var(--paper))',
                 padding: '10px 14px',
                 fontSize: 13,
-                color: 'var(--red, #dc2626)',
-                border: '1px solid color-mix(in oklab, var(--red, #dc2626) 25%, transparent)',
+                color: 'var(--red, var(--danger))',
+                border: '1px solid color-mix(in oklab, var(--red, var(--danger)) 25%, transparent)',
               }}>
                 {error}
               </div>

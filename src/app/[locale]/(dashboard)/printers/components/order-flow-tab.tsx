@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
@@ -26,8 +27,8 @@ interface SavedFeedback {
 function WarningBanner({ text }: { text: string }) {
   return (
     <div style={{
-      background: 'color-mix(in oklab, #f59e0b 12%, transparent)',
-      border: '1px solid color-mix(in oklab, #f59e0b 35%, transparent)',
+      background: 'color-mix(in oklab, var(--warn) 12%, transparent)',
+      border: '1px solid color-mix(in oklab, var(--warn) 35%, transparent)',
       borderRadius: 8,
       padding: '8px 12px',
       fontSize: 12,
@@ -86,11 +87,12 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 function SaveStatus({
   isPending, savedAt, error,
 }: { isPending: boolean; savedAt: number | null; error: Error | null }) {
+  const t = useTranslations();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginTop: 8 }}>
       {isPending && <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>Speichert…</span>}
       {!isPending && savedAt && <span style={{ color: 'var(--green-ink)' }}>✓ Gespeichert</span>}
-      {!isPending && error && <span style={{ color: '#dc2626' }}>Speichern fehlgeschlagen</span>}
+      {!isPending && error && <span style={{ color: 'var(--danger)' }}>{t('common.saveFailed')}</span>}
     </div>
   );
 }

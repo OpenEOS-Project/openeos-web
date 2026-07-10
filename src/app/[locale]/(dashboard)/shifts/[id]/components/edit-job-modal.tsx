@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
@@ -18,6 +19,7 @@ interface Props {
  *  rewrite existing shifts — those keep their per-shift values; only newly
  *  created shifts pick up the new default. */
 export function EditJobModal({ open, job, planId, onClose }: Props) {
+  const t = useTranslations();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -46,7 +48,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Speichern fehlgeschlagen'),
+    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
   });
 
   if (!open || !job) return null;
@@ -66,7 +68,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
         <div className="modal__body">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {error && (
-              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>{error}</div>
+              <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
             <div className="auth-field">
@@ -97,7 +99,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
         </div>
 
         <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>Abbrechen</button>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
           <button
             type="button"
             className="btn btn--primary"

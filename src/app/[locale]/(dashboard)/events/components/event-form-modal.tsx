@@ -171,15 +171,15 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               name="name"
               control={control}
               render={({ field }) => (
-                <label className="auth-field" style={errors.name ? { '--field-border': '#d24545' } as React.CSSProperties : {}}>
-                  <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                <label className="auth-field" style={errors.name ? { '--field-border': 'var(--danger)' } as React.CSSProperties : {}}>
+                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input
                     type="text"
                     placeholder={t('form.namePlaceholder')}
                     {...field}
                   />
                   {errors.name && (
-                    <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>
+                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
                   )}
                 </label>
               )}
@@ -387,7 +387,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             />
 
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, background: 'color-mix(in oklab, #d24545 10%, var(--paper))', color: '#d24545', fontSize: 13 }}>
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, var(--paper))', color: 'var(--danger)', fontSize: 13 }}>
                 {error}
               </div>
             )}

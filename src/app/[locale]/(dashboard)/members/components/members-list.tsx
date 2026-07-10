@@ -38,7 +38,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--red, #dc2626)' }}>{tCommon('error')}</span>
+        <span style={{ fontSize: 14, color: 'var(--red, var(--danger))' }}>{tCommon('error')}</span>
         <button type="button" className="btn btn--ghost" onClick={() => window.location.reload()}>
           {tCommon('retry')}
         </button>
@@ -175,7 +175,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
                         <button
                           type="button"
                           className="btn btn--ghost"
-                          style={{ padding: 6, minWidth: 0, color: '#dc2626' }}
+                          style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
                           onClick={() => onRemoveClick(member)}
                           aria-label={t('actions.remove')}
                           title={t('actions.remove')}

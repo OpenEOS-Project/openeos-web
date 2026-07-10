@@ -134,7 +134,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
               <span style={{ fontSize: 12, color: 'var(--green-ink)' }}>✓ Testdruck wurde gesendet</span>
             )}
             {testFeedback === 'error' && (
-              <span style={{ fontSize: 12, color: '#dc2626' }}>✗ Fehler beim Senden</span>
+              <span style={{ fontSize: 12, color: 'var(--danger)' }}>✗ Fehler beim Senden</span>
             )}
           </div>
         </div>
@@ -215,7 +215,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
           <span style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('devices.detail.saved')}</span>
         )}
         {updateMutation.isError && (
-          <span style={{ fontSize: 13, color: '#d24545' }}>{t('devices.detail.saveFailed')}</span>
+          <span style={{ fontSize: 13, color: 'var(--danger)' }}>{t('devices.detail.saveFailed')}</span>
         )}
         <button
           className="btn btn--primary"

@@ -118,14 +118,14 @@ export function SecuritySection() {
                 </div>
               </div>
             </div>
-            <button className="btn btn--ghost" style={{ color: 'var(--red, #dc2626)', fontSize: 13 }} onClick={() => setShowDisableModal(true)}>
+            <button className="btn btn--ghost" style={{ color: 'var(--red, var(--danger))', fontSize: 13 }} onClick={() => setShowDisableModal(true)}>
               {t('twoFactor.disable')}
             </button>
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, #f59e0b 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, var(--warn) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </div>
               <div>
@@ -156,7 +156,7 @@ export function SecuritySection() {
                     {t('trustedDevices.lastUsed')}: {formatDate(device.lastUsedAt)}
                   </div>
                 </div>
-                <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--red, #dc2626)' }} onClick={() => removeTrustedDevice.mutate(device.id)}>
+                <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--red, var(--danger))' }} onClick={() => removeTrustedDevice.mutate(device.id)}>
                   {t('sessions.revoke')}
                 </button>
               </div>
@@ -310,9 +310,9 @@ export function SecuritySection() {
               </button>
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, #f59e0b 12%, transparent)', display: 'flex', gap: 10 }}>
+              <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', display: 'flex', gap: 10 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-                <p style={{ fontSize: 13, color: '#92400e' }}>{t('twoFactor.disableConfirmDescription')}</p>
+                <p style={{ fontSize: 13, color: 'var(--warn-ink)' }}>{t('twoFactor.disableConfirmDescription')}</p>
               </div>
               <div className="auth-field">
                 <label className="auth-field__label">{t('twoFactor.enterPassword')}</label>
@@ -321,7 +321,7 @@ export function SecuritySection() {
             </div>
             <div className="modal__foot">
               <button className="btn btn--ghost" onClick={() => setShowDisableModal(false)}>{t('twoFactor.back')}</button>
-              <button className="btn btn--primary" style={{ background: 'var(--red, #dc2626)' }} onClick={handleDisable2FA} disabled={!disablePassword || disable2FA.isPending}>
+              <button className="btn btn--primary" style={{ background: 'var(--red, var(--danger))' }} onClick={handleDisable2FA} disabled={!disablePassword || disable2FA.isPending}>
                 {disable2FA.isPending ? t('twoFactor.disabling') : t('twoFactor.disable')}
               </button>
             </div>

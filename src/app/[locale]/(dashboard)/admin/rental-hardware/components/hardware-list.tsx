@@ -109,7 +109,7 @@ export function HardwareList() {
                       </button>
                       <button
                         className="btn btn--ghost"
-                        style={{ fontSize: 12, color: 'var(--red, #dc2626)' }}
+                        style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}
                         onClick={() => setDeleteHardware(hw)}
                       >
                         {t('delete')}
@@ -147,7 +147,7 @@ export function HardwareList() {
               <button className="btn btn--ghost" onClick={() => setDeleteHardware(null)}>{tCommon('cancel')}</button>
               <button
                 className="btn btn--primary"
-                style={{ background: 'var(--red, #dc2626)' }}
+                style={{ background: 'var(--red, var(--danger))' }}
                 onClick={() => {
                   deleteMutation.mutate(deleteHardware.id, { onSuccess: () => setDeleteHardware(null) });
                 }}

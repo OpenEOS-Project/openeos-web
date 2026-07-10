@@ -63,11 +63,11 @@ export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogP
 
             {onlineDeviceCount === 0 && (
               <div style={{
-                background: 'color-mix(in oklab, #f59e0b 10%, transparent)',
-                border: '1px solid color-mix(in oklab, #f59e0b 25%, transparent)',
+                background: 'color-mix(in oklab, var(--warn) 10%, transparent)',
+                border: '1px solid color-mix(in oklab, var(--warn) 25%, transparent)',
                 borderRadius: 8, padding: '10px 14px', marginBottom: 16,
               }}>
-                <p style={{ fontSize: 13, color: '#92400e', margin: 0 }}>{t('noDevicesOnline')}</p>
+                <p style={{ fontSize: 13, color: 'var(--warn-ink)', margin: 0 }}>{t('noDevicesOnline')}</p>
               </div>
             )}
 

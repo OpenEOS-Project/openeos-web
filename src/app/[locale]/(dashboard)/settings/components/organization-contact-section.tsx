@@ -94,7 +94,7 @@ export function OrganizationContactSection() {
         <div className="auth-field">
           <label className="auth-field__label" htmlFor="website">{t('website')}</label>
           <input id="website" type="url" className={`input${errors.website ? ' input--error' : ''}`} placeholder="https://example.com" {...register('website')} />
-          {errors.website && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.website.message}</p>}
+          {errors.website && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.website.message}</p>}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>

@@ -20,6 +20,12 @@
   --mute: #6b7068;
   --mute-2: #a8ad9f;
 
+  /* status colors — use these instead of hardcoded hex in components */
+  --danger: #d24545;
+  --danger-soft: rgba(210, 69, 69, 0.12);
+  --warn: #f59e0b;
+  --warn-ink: #92400e;
+
   --r-sm: 6px;
   --r: 10px;
   --r-lg: 18px;
@@ -1206,12 +1212,12 @@
   gap: 8px;
 }
 .landing .auth-form__error {
-  background: color-mix(in oklab, #d24545 14%, var(--paper));
+  background: color-mix(in oklab, var(--danger) 14%, var(--paper));
   color: #8a1f1f;
   padding: 12px 14px;
   border-radius: var(--r);
   font-size: 14px;
-  border: 1px solid color-mix(in oklab, #d24545 25%, transparent);
+  border: 1px solid color-mix(in oklab, var(--danger) 25%, transparent);
   margin-bottom: 12px;
 }
 .landing .auth-form__device {
@@ -1460,9 +1466,9 @@ body:has(.landing) {
   border-color: var(--green-ink);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 22%, transparent);
 }
-.landing .auth-field--error input { border-color: #d24545; }
+.landing .auth-field--error input { border-color: var(--danger); }
 .landing .auth-field--error input:focus {
-  box-shadow: 0 0 0 3px color-mix(in oklab, #d24545 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 18%, transparent);
 }
 .landing .auth-error {
   font-size: 12px;
@@ -2740,7 +2746,7 @@ body:has(.landing) {
 }
 
 .landing .badge--error {
-  background: color-mix(in oklab, #d24545 12%, transparent);
+  background: color-mix(in oklab, var(--danger) 12%, transparent);
   color: #8a1f1f;
 }
 

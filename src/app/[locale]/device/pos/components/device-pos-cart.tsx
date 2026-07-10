@@ -89,7 +89,9 @@ export function PosCart({
   const [showPfandReturnModal, setShowPfandReturnModal] = useState(false);
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
-  const fulfillmentType = settings?.serviceMode === 'table' ? 'table_service' : 'counter_pickup';
+  // Unset serviceMode means table service — same default as the POS page and the API
+  const serviceMode = (settings?.serviceMode as string) || 'table';
+  const fulfillmentType = serviceMode === 'table' ? 'table_service' : 'counter_pickup';
 
   const { data: discountVouchers = [] } = useQuery({
     queryKey: ['device-discount-vouchers'],
@@ -109,7 +111,7 @@ export function PosCart({
   // Whether deposits apply for this device's fulfillment type (org policy).
   const chargePfand = resolveChargePfand(
     deviceOrg?.settings?.pfand,
-    settings?.serviceMode as string | undefined,
+    serviceMode,
   );
 
   const total = getTotal();

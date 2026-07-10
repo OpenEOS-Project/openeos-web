@@ -80,9 +80,9 @@ interface SectionCardProps {
 
 function SectionCard({ title, subtitle, danger, children }: SectionCardProps) {
   return (
-    <div className="app-card" style={danger ? { borderColor: 'color-mix(in oklab, #dc2626 30%, transparent)' } : undefined}>
+    <div className="app-card" style={danger ? { borderColor: 'color-mix(in oklab, var(--danger) 30%, transparent)' } : undefined}>
       <div className="app-card__head" style={{ display: 'block' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: danger ? '#dc2626' : 'var(--ink)' }}>{title}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: danger ? 'var(--danger)' : 'var(--ink)' }}>{title}</div>
         {subtitle && (
           <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{subtitle}</div>
         )}
@@ -417,7 +417,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           <button
             type="button"
             className="btn btn--ghost"
-            style={{ color: '#dc2626', borderColor: 'color-mix(in oklab, #dc2626 40%, transparent)' }}
+            style={{ color: 'var(--danger)', borderColor: 'color-mix(in oklab, var(--danger) 40%, transparent)' }}
             disabled={deleteMutation.isPending}
             onClick={() => {
               if (confirm(t('shifts.confirmDelete'))) {

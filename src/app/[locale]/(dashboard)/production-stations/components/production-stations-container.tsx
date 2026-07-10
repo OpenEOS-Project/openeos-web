@@ -134,7 +134,7 @@ export function ProductionStationsContainer() {
               <button
                 type="button"
                 className="btn btn--primary"
-                style={{ background: '#d24545', borderColor: '#d24545' }}
+                style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
                 onClick={handleDeleteConfirm}
                 disabled={deleteStation.isPending}
               >

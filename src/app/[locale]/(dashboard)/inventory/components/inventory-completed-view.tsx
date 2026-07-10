@@ -124,7 +124,7 @@ export function InventoryCompletedView({
         </div>
         <div className="app-card" style={{ padding: '16px 20px' }}>
           <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>{t('completed.itemsWithDiff')}</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#dc2626' }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--danger)' }}>
             {items.filter((i) => i.countedQuantity !== null && i.countedQuantity !== i.expectedQuantity).length}
           </div>
         </div>
@@ -171,7 +171,7 @@ export function InventoryCompletedView({
                     item.countedQuantity !== null
                       ? item.countedQuantity - item.expectedQuantity
                       : null;
-                  const diffColor = diff === null ? undefined : diff < 0 ? '#dc2626' : diff > 0 ? '#16a34a' : undefined;
+                  const diffColor = diff === null ? undefined : diff < 0 ? 'var(--danger)' : diff > 0 ? '#16a34a' : undefined;
 
                   return (
                     <tr key={item.id}>

@@ -292,7 +292,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       {t('form.image.chooseIcon')}
                     </button>
                     {imageUrl && (
-                      <button type="button" className="btn btn--ghost" style={{ fontSize: 12, color: '#d24545' }} onClick={() => setImageUrl(null)}>
+                      <button type="button" className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--danger)' }} onClick={() => setImageUrl(null)}>
                         {t('form.image.remove')}
                       </button>
                     )}
@@ -307,9 +307,9 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   control={control}
                   render={({ field }) => (
                     <label className="auth-field">
-                      <span>{t('form.name')} <span style={{ color: '#d24545' }}>*</span></span>
+                      <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                       <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                      {errors.name && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.name.message}</span>}
+                      {errors.name && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
                     </label>
                   )}
                 />
@@ -320,7 +320,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   render={({ field }) => (
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 6 }}>
-                        {t('form.category')} <span style={{ color: '#d24545' }}>*</span>
+                        {t('form.category')} <span style={{ color: 'var(--danger)' }}>*</span>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <select
@@ -346,7 +346,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         </button>
                       </div>
                       {errors.categoryId && (
-                        <div style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.categoryId.message}</div>
+                        <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.categoryId.message}</div>
                       )}
                     </div>
                   )}
@@ -371,9 +371,9 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                 control={control}
                 render={({ field }) => (
                   <label className="auth-field">
-                    <span>{t('form.price')} <span style={{ color: '#d24545' }}>*</span></span>
+                    <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                     <input type="number" step="0.01" placeholder={t('form.pricePlaceholder')} value={String(field.value)} onChange={field.onChange} onBlur={field.onBlur} />
-                    {errors.price && <span style={{ fontSize: 12, color: '#d24545', marginTop: 4 }}>{errors.price.message}</span>}
+                    {errors.price && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
                   </label>
                 )}
               />
@@ -457,7 +457,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         />
                         {t('form.required')}
                       </label>
-                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: '#d24545', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)}>
+                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: 'var(--danger)', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)}>
                         ✕
                       </button>
                     </div>

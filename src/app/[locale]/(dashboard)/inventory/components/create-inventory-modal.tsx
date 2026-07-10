@@ -103,7 +103,7 @@ export function CreateInventoryModal({
           <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <label className="auth-field">
               <span>
-                {t('form.name')} <span style={{ color: '#d24545' }}>*</span>
+                {t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span>
               </span>
               <input
                 type="text"
@@ -127,7 +127,7 @@ export function CreateInventoryModal({
             </label>
 
             {error && (
-              <div style={{ fontSize: 13, color: '#d24545', padding: '8px 12px', background: 'color-mix(in oklab, #d24545 10%, transparent)', borderRadius: 8 }}>
+              <div style={{ fontSize: 13, color: 'var(--danger)', padding: '8px 12px', background: 'color-mix(in oklab, var(--danger) 10%, transparent)', borderRadius: 8 }}>
                 {error}
               </div>
             )}

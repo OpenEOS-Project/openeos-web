@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/stores/auth-store';
@@ -30,6 +31,7 @@ const OPTIONS: { value: KitchenTicketMode; title: string; description: string }[
 ];
 
 export function KitchenTicketModePanel() {
+  const t = useTranslations();
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const orgId = currentOrganization?.organizationId;
   const initialMode: KitchenTicketMode =
@@ -128,7 +130,7 @@ export function KitchenTicketModePanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
           {saveMode.isPending && <span>Speichert…</span>}
           {savedAt && <span style={{ color: 'var(--green-ink)' }}>✓ Gespeichert</span>}
-          {saveMode.error && <span style={{ color: '#dc2626' }}>Speichern fehlgeschlagen</span>}
+          {saveMode.error && <span style={{ color: 'var(--danger)' }}>{t('common.saveFailed')}</span>}
         </div>
       </div>
     </section>
