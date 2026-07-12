@@ -48,6 +48,16 @@ export function ReportsKpiCards({ data, isLoading }: ReportsKpiCardsProps) {
               })}
         </div>
       </div>
+
+      <div className="stat-card">
+        <div className="stat-card__label">{t('kpi.cancellationRate')}</div>
+        <div className="stat-card__value">
+          {isLoading || data?.cancellationRate === undefined ? '—' : `${data.cancellationRate.toFixed(1)}%`}
+        </div>
+        <div className="stat-card__sub">
+          {isLoading || !data ? '—' : t('kpi.cancellationRateSub', { count: data.cancelledOrders })}
+        </div>
+      </div>
     </div>
   );
 }

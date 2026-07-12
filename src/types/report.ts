@@ -15,6 +15,8 @@ export interface SalesReport {
   pfandCollected: number;
   pfandReturned: number;
   pfandBalance: number;
+  cancelledOrders: number;
+  cancellationRate: number;
 }
 
 export interface ProductReport {
@@ -53,4 +55,25 @@ export interface InventoryLevel {
   productName: string;
   currentStock: number;
   lowStock: boolean;
+}
+
+export interface ChannelReport {
+  channel: string;
+  orders: number;
+  revenue: number;
+  avgReceipt: number;
+}
+
+export interface CategoryReport {
+  categoryId: string;
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+
+export interface DeviceReport {
+  deviceId: string;
+  name: string;
+  orders: number;
+  revenue: number;
 }

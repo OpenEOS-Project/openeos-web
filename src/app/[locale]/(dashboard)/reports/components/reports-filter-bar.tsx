@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 
 import type { Event } from '@/types/event';
@@ -18,9 +19,10 @@ interface ReportsFilterBarProps {
   events: Event[];
   eventsLoading: boolean;
   onChange: (filter: ReportsFilter) => void;
+  actions?: ReactNode;
 }
 
-export function ReportsFilterBar({ filter, events, eventsLoading, onChange }: ReportsFilterBarProps) {
+export function ReportsFilterBar({ filter, events, eventsLoading, onChange, actions }: ReportsFilterBarProps) {
   const t = useTranslations('reports');
 
   const setTimeRange = (range: TimeRange) => {
@@ -146,6 +148,8 @@ export function ReportsFilterBar({ filter, events, eventsLoading, onChange }: Re
             onChange={(e) => handleDateChange('endDate', e.target.value)}
           />
         </div>
+
+        {actions ? <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'flex-end' }}>{actions}</div> : null}
       </div>
     </div>
   );

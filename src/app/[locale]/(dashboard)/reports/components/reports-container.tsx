@@ -5,7 +5,15 @@ import { useTranslations } from 'next-intl';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { useEvents, useActiveEvent } from '@/hooks/use-events';
-import { useSalesReport, useProductsReport, usePaymentsReport, useHourlyReport } from '@/hooks/use-reports';
+import {
+  useSalesReport,
+  useProductsReport,
+  usePaymentsReport,
+  useHourlyReport,
+  useChannelsReport,
+  useCategoriesReport,
+  useDevicesReport,
+} from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
 
 import { ReportsFilterBar, type ReportsFilter, type TimeRange } from './reports-filter-bar';
@@ -13,6 +21,10 @@ import { ReportsKpiCards } from './reports-kpi-cards';
 import { ReportsProductsTable } from './reports-products-table';
 import { ReportsPaymentsTable } from './reports-payments-table';
 import { ReportsHourlyChart } from './reports-hourly-chart';
+import { ReportsChannelsTable } from './reports-channels-table';
+import { ReportsCategoriesTable } from './reports-categories-table';
+import { ReportsDevicesTable } from './reports-devices-table';
+import { PdfExportButton } from './pdf-export-button';
 
 function getTodayRange(): { startDate: string; endDate: string } {
   const today = new Date().toISOString().split('T')[0];
@@ -54,6 +66,11 @@ export function ReportsContainer() {
   const productsReport = useProductsReport(organizationId, reportQuery);
   const paymentsReport = usePaymentsReport(organizationId, reportQuery);
   const hourlyReport = useHourlyReport(organizationId, reportQuery);
+  const channelsReport = useChannelsReport(organizationId, reportQuery);
+  const categoriesReport = useCategoriesReport(organizationId, reportQuery);
+  const devicesReport = useDevicesReport(organizationId, reportQuery);
+
+  const selectedEventName = events.find((e) => e.id === filter.eventId)?.name;
 
   if (!organizationId) {
     return (
@@ -76,6 +93,20 @@ export function ReportsContainer() {
         events={events}
         eventsLoading={eventsLoading}
         onChange={setFilter}
+        actions={
+          <PdfExportButton
+            organizationName={currentOrganization?.organization?.name}
+            eventName={selectedEventName}
+            filter={filter}
+            sales={salesReport.data}
+            products={productsReport.data}
+            payments={paymentsReport.data}
+            hourly={hourlyReport.data}
+            channels={channelsReport.data}
+            categories={categoriesReport.data}
+            devices={devicesReport.data}
+          />
+        }
       />
 
       <ReportsKpiCards data={salesReport.data} isLoading={salesReport.isLoading} />
@@ -83,6 +114,12 @@ export function ReportsContainer() {
       <ReportsProductsTable data={productsReport.data} isLoading={productsReport.isLoading} />
 
       <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
+
+      <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} />
+
+      <ReportsCategoriesTable data={categoriesReport.data} isLoading={categoriesReport.isLoading} />
+
+      <ReportsDevicesTable data={devicesReport.data} isLoading={devicesReport.isLoading} />
 
       <ReportsHourlyChart data={hourlyReport.data} isLoading={hourlyReport.isLoading} />
     </div>

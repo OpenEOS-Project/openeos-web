@@ -2382,7 +2382,9 @@
       "description": "Bitte wählen Sie zuerst eine Organisation aus."
     },
     "export": {
-      "csv": "CSV exportieren"
+      "csv": "CSV exportieren",
+      "pdf": "PDF-Export",
+      "pdfPending": "Wird erstellt…"
     },
     "filter": {
       "event": "Veranstaltung",
@@ -2403,7 +2405,9 @@
       "avgOrder": "Ø-Bestellwert",
       "avgOrderSub": "Pro bezahlter Bestellung",
       "pfand": "Pfand (Saldo)",
-      "pfandDetail": "Kassiert {collected} · Ausgezahlt {returned}"
+      "pfandDetail": "Kassiert {collected} · Ausgezahlt {returned}",
+      "cancellationRate": "Storno-Quote",
+      "cancellationRateSub": "{count} stornierte Bestellungen"
     },
     "products": {
       "title": "Top-Produkte",
@@ -2426,6 +2430,37 @@
         "count": "Anzahl",
         "total": "Gesamt",
         "percentage": "Anteil"
+      }
+    },
+    "channels": {
+      "title": "Umsatz nach Kanal",
+      "subtitle": "Aufschlüsselung nach Bestellkanal",
+      "empty": "Keine Kanaldaten vorhanden",
+      "columns": {
+        "channel": "Kanal",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "avgReceipt": "Ø Bon"
+      }
+    },
+    "categories": {
+      "title": "Top-Kategorien",
+      "subtitle": "Sortiert nach Umsatz",
+      "empty": "Keine Kategoriedaten vorhanden",
+      "columns": {
+        "category": "Kategorie",
+        "quantity": "Menge",
+        "revenue": "Umsatz"
+      }
+    },
+    "devices": {
+      "title": "Umsatz je Kasse",
+      "subtitle": "Aufschlüsselung nach Gerät",
+      "empty": "Keine Gerätedaten vorhanden",
+      "columns": {
+        "device": "Gerät",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz"
       }
     },
     "hourly": {

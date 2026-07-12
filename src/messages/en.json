@@ -2382,7 +2382,9 @@
       "description": "Please select an organisation first."
     },
     "export": {
-      "csv": "Export CSV"
+      "csv": "Export CSV",
+      "pdf": "Export PDF",
+      "pdfPending": "Generating…"
     },
     "filter": {
       "event": "Event",
@@ -2403,7 +2405,9 @@
       "avgOrder": "Avg. order value",
       "avgOrderSub": "Per paid order",
       "pfand": "Deposit (balance)",
-      "pfandDetail": "Collected {collected} · Returned {returned}"
+      "pfandDetail": "Collected {collected} · Returned {returned}",
+      "cancellationRate": "Cancellation rate",
+      "cancellationRateSub": "{count} cancelled orders"
     },
     "products": {
       "title": "Top products",
@@ -2426,6 +2430,37 @@
         "count": "Count",
         "total": "Total",
         "percentage": "Share"
+      }
+    },
+    "channels": {
+      "title": "Revenue by channel",
+      "subtitle": "Breakdown by order channel",
+      "empty": "No channel data available",
+      "columns": {
+        "channel": "Channel",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "avgReceipt": "Avg. receipt"
+      }
+    },
+    "categories": {
+      "title": "Top categories",
+      "subtitle": "Sorted by revenue",
+      "empty": "No category data available",
+      "columns": {
+        "category": "Category",
+        "quantity": "Qty",
+        "revenue": "Revenue"
+      }
+    },
+    "devices": {
+      "title": "Revenue by device",
+      "subtitle": "Breakdown by device",
+      "empty": "No device data available",
+      "columns": {
+        "device": "Device",
+        "orders": "Orders",
+        "revenue": "Revenue"
       }
     },
     "hourly": {

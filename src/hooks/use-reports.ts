@@ -13,7 +13,16 @@ export const reportKeys = {
 
 function useReport<T>(
   organizationId: string,
-  kind: 'sales' | 'products' | 'payments' | 'hourly' | 'inventory' | 'stock-movements',
+  kind:
+    | 'sales'
+    | 'products'
+    | 'payments'
+    | 'hourly'
+    | 'channels'
+    | 'categories'
+    | 'devices'
+    | 'inventory'
+    | 'stock-movements',
   fetcher: () => Promise<{ data: T }>,
   params?: ReportQuery,
   enabled = true,
@@ -39,6 +48,24 @@ export function usePaymentsReport(organizationId: string, params?: ReportQuery, 
 
 export function useHourlyReport(organizationId: string, params?: ReportQuery, enabled = true) {
   return useReport(organizationId, 'hourly', () => reportsApi.getHourly(organizationId, params), params, enabled);
+}
+
+export function useChannelsReport(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(organizationId, 'channels', () => reportsApi.getChannels(organizationId, params), params, enabled);
+}
+
+export function useCategoriesReport(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(
+    organizationId,
+    'categories',
+    () => reportsApi.getCategories(organizationId, params),
+    params,
+    enabled,
+  );
+}
+
+export function useDevicesReport(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(organizationId, 'devices', () => reportsApi.getDevices(organizationId, params), params, enabled);
 }
 
 export function useInventoryReport(organizationId: string, params?: ReportQuery, enabled = true) {

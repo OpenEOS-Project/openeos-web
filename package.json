@@ -32,6 +32,8 @@
     "@xyflow/react": "^12.10.0",
     "clsx": "^2.1.1",
     "input-otp": "^1.4.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "motion": "^12.23.26",
     "next": "^15.3.2",
     "next-intl": "^4.1.0",

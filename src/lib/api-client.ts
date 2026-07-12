@@ -1775,6 +1775,21 @@ export const reportsApi = {
       `/organizations/${organizationId}/reports/hourly${reportQuery(params)}`
     ),
 
+  getChannels: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').ChannelReport[]>>(
+      `/organizations/${organizationId}/reports/channels${reportQuery(params)}`
+    ),
+
+  getCategories: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').CategoryReport[]>>(
+      `/organizations/${organizationId}/reports/categories${reportQuery(params)}`
+    ),
+
+  getDevices: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').DeviceReport[]>>(
+      `/organizations/${organizationId}/reports/devices${reportQuery(params)}`
+    ),
+
   getInventory: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
     apiClient.get<ApiResponse<import('@/types/report').InventoryLevel[]>>(
       `/organizations/${organizationId}/reports/inventory${reportQuery(params)}`
