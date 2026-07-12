@@ -76,12 +76,16 @@ export function RegisterWizard() {
       else if (!isEmail(data.email)) next.email = tErr('emailInvalid');
       if (!data.password) next.password = tErr('required');
       else if (data.password.length < 8) next.password = tErr('passwordShort');
+      else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password))
+        next.password = tErr('passwordWeak');
       if (!data.passwordConfirm) next.passwordConfirm = tErr('required');
       else if (data.password !== data.passwordConfirm)
         next.passwordConfirm = tErr('passwordMismatch');
     } else if (current === 'personal') {
       if (!data.firstName) next.firstName = tErr('required');
+      else if (data.firstName.trim().length < 2) next.firstName = tErr('nameShort');
       if (!data.lastName) next.lastName = tErr('required');
+      else if (data.lastName.trim().length < 2) next.lastName = tErr('nameShort');
     } else if (current === 'organization') {
       // organization name optional
     } else if (current === 'confirm') {
@@ -123,7 +127,13 @@ export function RegisterWizard() {
             setSubmitError(tErr('emailTaken'));
             break;
           default:
-            setSubmitError(err.message);
+            // Validation errors carry the concrete reasons in details, the
+            // top-level message is only a generic "Validierung fehlgeschlagen"
+            setSubmitError(
+              err.details?.length
+                ? err.details.map((d) => d.message).join(' · ')
+                : err.message,
+            );
         }
       } else {
         setSubmitError(tErr('generic'));

@@ -117,8 +117,10 @@
       },
       "errors": {
         "required": "Required",
+        "nameShort": "At least 2 characters",
         "emailInvalid": "Invalid email address",
         "passwordShort": "At least 8 characters",
+        "passwordWeak": "Must contain an uppercase letter, a lowercase letter and a number",
         "passwordMismatch": "Passwords don't match",
         "termsRequired": "Please accept the terms",
         "passwordTooShort": "Password must be at least 8 characters",
