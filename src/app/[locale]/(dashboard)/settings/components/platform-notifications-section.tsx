@@ -12,9 +12,10 @@ const DEFAULT_NOTIFY_ON: AdminNotifyOnSettings = {
   userRegistered: true,
   organizationCreated: true,
   eventOrdered: true,
+  supportMessage: true,
 };
 
-const NOTIFY_ON_KEYS: (keyof AdminNotifyOnSettings)[] = ['userRegistered', 'organizationCreated', 'eventOrdered'];
+const NOTIFY_ON_KEYS: (keyof AdminNotifyOnSettings)[] = ['userRegistered', 'organizationCreated', 'eventOrdered', 'supportMessage'];
 
 export function PlatformNotificationsSection() {
   const t = useTranslations('settings.platform');

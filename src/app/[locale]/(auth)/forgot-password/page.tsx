@@ -45,74 +45,64 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-primary px-4">
-        <div className="w-full max-w-md">
-          <div className="rounded-xl border border-secondary bg-primary p-8 shadow-lg">
-            <div className="mb-6 flex justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-                <Mail01 className="h-6 w-6 text-success-primary" />
-              </div>
-            </div>
-
-            <h1 className="mb-2 text-center text-2xl font-semibold text-primary">
-              {t('successTitle')}
-            </h1>
-            <p className="mb-6 text-center text-sm text-tertiary">
-              {t('successMessage')}
-            </p>
-
-            <Link href="/login">
-              <Button className="w-full" color="secondary" iconLeading={ArrowLeft}>
-                {t('backToLogin')}
-              </Button>
-            </Link>
+      <>
+        <div className="mb-6 flex justify-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
+            <Mail01 className="h-6 w-6 text-success-primary" />
           </div>
         </div>
-      </div>
+
+        <h1 className="mb-2 text-center text-2xl font-semibold text-primary">
+          {t('successTitle')}
+        </h1>
+        <p className="mb-6 text-center text-sm text-tertiary">{t('successMessage')}</p>
+
+        <Link href="/login">
+          <Button className="w-full" color="secondary" iconLeading={ArrowLeft}>
+            {t('backToLogin')}
+          </Button>
+        </Link>
+      </>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-primary px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-xl border border-secondary bg-primary p-8 shadow-lg">
-          <div className="mb-6">
-            <h1 className="mb-2 text-2xl font-semibold text-primary">{t('title')}</h1>
-            <p className="text-sm text-tertiary">{t('subtitle')}</p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormInput
-              label={t('email')}
-              type="email"
-              placeholder="name@example.com"
-              isInvalid={!!errors.email}
-              hint={errors.email?.message}
-              {...register('email')}
-            />
-
-            {error && (
-              <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
-                {error}
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" isLoading={isSubmitting}>
-              {t('submit')}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 text-sm text-tertiary hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t('backToLogin')}
-            </Link>
-          </div>
-        </div>
+    <>
+      <div className="mb-6">
+        <h1 className="mb-2 text-2xl font-semibold text-primary">{t('title')}</h1>
+        <p className="text-sm text-tertiary">{t('subtitle')}</p>
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <FormInput
+          label={t('email')}
+          type="email"
+          placeholder="name@example.com"
+          isInvalid={!!errors.email}
+          hint={errors.email?.message}
+          {...register('email')}
+        />
+
+        {error && (
+          <div className="rounded-lg bg-error-secondary p-3 text-sm text-error-primary">
+            {error}
+          </div>
+        )}
+
+        <Button type="submit" className="w-full" isLoading={isSubmitting}>
+          {t('submit')}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 text-sm text-tertiary hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t('backToLogin')}
+        </Link>
+      </div>
+    </>
   );
 }

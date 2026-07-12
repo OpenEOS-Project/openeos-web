@@ -580,7 +580,9 @@
         "organizationCreated": "New organization",
         "organizationCreatedDescription": "Notify when a new organization is created",
         "eventOrdered": "Event ordered (on invoice)",
-        "eventOrderedDescription": "Notify when an event is ordered on invoice"
+        "eventOrderedDescription": "Notify when an event is ordered on invoice",
+        "supportMessage": "Support request",
+        "supportMessageDescription": "Email when a new support request arrives (once per unread conversation)."
       },
       "saved": "Settings saved",
       "saveFailed": "Failed to save settings"

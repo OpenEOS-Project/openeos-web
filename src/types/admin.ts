@@ -72,6 +72,7 @@ export interface AdminNotifyOnSettings {
   userRegistered: boolean;
   organizationCreated: boolean;
   eventOrdered: boolean;
+  supportMessage: boolean;
 }
 
 export interface AdminNotificationSettings {

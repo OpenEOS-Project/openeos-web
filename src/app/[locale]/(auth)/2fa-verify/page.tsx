@@ -169,152 +169,148 @@ export default function TwoFactorVerifyPage() {
 
   if (!twoFactorToken) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-6 text-center">
-          <ShieldTick className="mx-auto h-12 w-12 text-tertiary" />
-          <div>
-            <h1 className="text-display-sm font-semibold text-primary">Ungültige Sitzung</h1>
-            <p className="mt-2 text-tertiary">
-              Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an.
-            </p>
-          </div>
-          <Link href="/login">
-            <Button className="w-full">Zur Anmeldung</Button>
-          </Link>
+      <div className="space-y-6 text-center">
+        <ShieldTick className="mx-auto h-12 w-12 text-tertiary" />
+        <div>
+          <h1 className="text-display-sm font-semibold text-primary">Ungültige Sitzung</h1>
+          <p className="mt-2 text-tertiary">
+            Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an.
+          </p>
         </div>
+        <Link href="/login">
+          <Button className="w-full">Zur Anmeldung</Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary_alt">
-            {method === 'email' ? (
-              <Mail01 className="h-7 w-7 text-brand-primary" />
-            ) : (
-              <Phone01 className="h-7 w-7 text-brand-primary" />
-            )}
-          </div>
-          <h1 className="mt-6 text-display-sm font-semibold text-primary">
-            Zwei-Faktor-Authentifizierung
-          </h1>
-          <p className="mt-2 text-tertiary">
-            {isRecoveryMode
-              ? 'Geben Sie einen Ihrer Wiederherstellungscodes ein'
-              : method === 'email'
-              ? 'Wir haben Ihnen einen Verifizierungscode per E-Mail gesendet'
-              : 'Geben Sie den Code aus Ihrer Authenticator-App ein'}
-          </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary_alt">
+          {method === 'email' ? (
+            <Mail01 className="h-7 w-7 text-brand-primary" />
+          ) : (
+            <Phone01 className="h-7 w-7 text-brand-primary" />
+          )}
         </div>
+        <h1 className="mt-6 text-display-sm font-semibold text-primary">
+          Zwei-Faktor-Authentifizierung
+        </h1>
+        <p className="mt-2 text-tertiary">
+          {isRecoveryMode
+            ? 'Geben Sie einen Ihrer Wiederherstellungscodes ein'
+            : method === 'email'
+            ? 'Wir haben Ihnen einen Verifizierungscode per E-Mail gesendet'
+            : 'Geben Sie den Code aus Ihrer Authenticator-App ein'}
+        </p>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {error && (
-            <div className="rounded-lg bg-error-secondary p-4 text-sm text-error-primary">
-              {error}
-            </div>
-          )}
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <div className="rounded-lg bg-error-secondary p-4 text-sm text-error-primary">
+            {error}
+          </div>
+        )}
 
-          <InputGroup>
-            <Label htmlFor="code">
-              {isRecoveryMode ? 'Wiederherstellungscode' : 'Verifizierungscode'}
-            </Label>
-            <Controller
-              name="code"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="code"
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={isRecoveryMode ? 'XXXX-XXXX' : '000000'}
-                  maxLength={isRecoveryMode ? 9 : 6}
-                  inputClassName="text-center text-2xl tracking-[0.5em] font-mono"
-                  autoComplete="one-time-code"
-                  autoFocus
-                  isInvalid={!!errors.code}
-                />
-              )}
-            />
-            {errors.code && (
-              <p className="text-sm text-error-primary">{errors.code.message}</p>
+        <InputGroup>
+          <Label htmlFor="code">
+            {isRecoveryMode ? 'Wiederherstellungscode' : 'Verifizierungscode'}
+          </Label>
+          <Controller
+            name="code"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="code"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder={isRecoveryMode ? 'XXXX-XXXX' : '000000'}
+                maxLength={isRecoveryMode ? 9 : 6}
+                inputClassName="text-center text-2xl tracking-[0.5em] font-mono"
+                autoComplete="one-time-code"
+                autoFocus
+                isInvalid={!!errors.code}
+              />
             )}
-          </InputGroup>
-
-          {!isRecoveryMode && (
-            <Controller
-              name="trustDevice"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  id="trustDevice"
-                  isSelected={field.value}
-                  onChange={field.onChange}
-                  label="Diesem Gerät für 30 Tage vertrauen"
-                />
-              )}
-            />
+          />
+          {errors.code && (
+            <p className="text-sm text-error-primary">{errors.code.message}</p>
           )}
+        </InputGroup>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading || codeValue.length < 6}
-          >
-            {isLoading ? (
-              <>
-                <RefreshCw01 className="mr-2 h-4 w-4 animate-spin" />
-                Verifizieren...
-              </>
-            ) : (
-              'Verifizieren'
+        {!isRecoveryMode && (
+          <Controller
+            name="trustDevice"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                id="trustDevice"
+                isSelected={field.value}
+                onChange={field.onChange}
+                label="Diesem Gerät für 30 Tage vertrauen"
+              />
             )}
-          </Button>
+          />
+        )}
 
-          {/* Resend Code (Email only) */}
-          {method === 'email' && !isRecoveryMode && (
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={resendCooldown > 0}
-                className="text-sm text-brand-primary hover:text-brand-primary_hover disabled:text-tertiary disabled:cursor-not-allowed"
-              >
-                {resendCooldown > 0
-                  ? `Code erneut senden (${resendCooldown}s)`
-                  : 'Code erneut senden'}
-              </button>
-            </div>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading || codeValue.length < 6}
+        >
+          {isLoading ? (
+            <>
+              <RefreshCw01 className="mr-2 h-4 w-4 animate-spin" />
+              Verifizieren...
+            </>
+          ) : (
+            'Verifizieren'
           )}
+        </Button>
 
-          {/* Recovery Code Toggle */}
+        {/* Resend Code (Email only) */}
+        {method === 'email' && !isRecoveryMode && (
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsRecoveryMode(!isRecoveryMode)}
-              className="text-sm text-tertiary hover:text-secondary"
+              onClick={handleResendCode}
+              disabled={resendCooldown > 0}
+              className="text-sm text-brand-primary hover:text-brand-primary_hover disabled:text-tertiary disabled:cursor-not-allowed"
             >
-              {isRecoveryMode
-                ? 'Mit Verifizierungscode anmelden'
-                : 'Wiederherstellungscode verwenden'}
+              {resendCooldown > 0
+                ? `Code erneut senden (${resendCooldown}s)`
+                : 'Code erneut senden'}
             </button>
           </div>
-        </form>
+        )}
 
-        {/* Back to Login */}
+        {/* Recovery Code Toggle */}
         <div className="text-center">
-          <Link
-            href="/login"
-            className="inline-flex items-center text-sm text-tertiary hover:text-secondary"
+          <button
+            type="button"
+            onClick={() => setIsRecoveryMode(!isRecoveryMode)}
+            className="text-sm text-tertiary hover:text-secondary"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Zurück zur Anmeldung
-          </Link>
+            {isRecoveryMode
+              ? 'Mit Verifizierungscode anmelden'
+              : 'Wiederherstellungscode verwenden'}
+          </button>
         </div>
+      </form>
+
+      {/* Back to Login */}
+      <div className="text-center">
+        <Link
+          href="/login"
+          className="inline-flex items-center text-sm text-tertiary hover:text-secondary"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Zurück zur Anmeldung
+        </Link>
       </div>
     </div>
   );

@@ -46,65 +46,51 @@ export default function VerifyEmailPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-primary px-4">
-        <div className="w-full max-w-md">
-          <div className="rounded-xl border border-secondary bg-primary p-8 text-center shadow-lg">
-            <RefreshCw01 className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
-            <p className="text-sm text-tertiary">{t('loading')}</p>
-          </div>
-        </div>
+      <div className="text-center">
+        <RefreshCw01 className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
+        <p className="text-sm text-tertiary">{t('loading')}</p>
       </div>
     );
   }
 
   if (status === 'success') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-primary px-4">
-        <div className="w-full max-w-md">
-          <div className="rounded-xl border border-secondary bg-primary p-8 shadow-lg">
-            <div className="mb-6 flex justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-                <CheckCircle className="h-6 w-6 text-success-primary" />
-              </div>
-            </div>
-
-            <h1 className="mb-2 text-center text-2xl font-semibold text-primary">
-              {t('successTitle')}
-            </h1>
-            <p className="mb-6 text-center text-sm text-tertiary">{t('successMessage')}</p>
-
-            <Link href="/login">
-              <Button className="w-full">{t('backToLogin')}</Button>
-            </Link>
+      <>
+        <div className="mb-6 flex justify-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
+            <CheckCircle className="h-6 w-6 text-success-primary" />
           </div>
         </div>
-      </div>
+
+        <h1 className="mb-2 text-center text-2xl font-semibold text-primary">
+          {t('successTitle')}
+        </h1>
+        <p className="mb-6 text-center text-sm text-tertiary">{t('successMessage')}</p>
+
+        <Link href="/login">
+          <Button className="w-full">{t('backToLogin')}</Button>
+        </Link>
+      </>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-primary px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-xl border border-secondary bg-primary p-8 shadow-lg">
-          <div className="mb-6 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
-              <X className="h-6 w-6 text-error-primary" />
-            </div>
-          </div>
-
-          <h1 className="mb-2 text-center text-2xl font-semibold text-primary">
-            {t('errorTitle')}
-          </h1>
-          <p className="mb-2 text-center text-sm text-tertiary">{error}</p>
-          <p className="mb-6 text-center text-sm text-tertiary">{t('errorHint')}</p>
-
-          <Link href="/login">
-            <Button className="w-full" color="secondary">
-              {t('backToLogin')}
-            </Button>
-          </Link>
+    <>
+      <div className="mb-6 flex justify-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
+          <X className="h-6 w-6 text-error-primary" />
         </div>
       </div>
-    </div>
+
+      <h1 className="mb-2 text-center text-2xl font-semibold text-primary">{t('errorTitle')}</h1>
+      <p className="mb-2 text-center text-sm text-tertiary">{error}</p>
+      <p className="mb-6 text-center text-sm text-tertiary">{t('errorHint')}</p>
+
+      <Link href="/login">
+        <Button className="w-full" color="secondary">
+          {t('backToLogin')}
+        </Button>
+      </Link>
+    </>
   );
 }

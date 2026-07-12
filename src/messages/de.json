@@ -580,7 +580,9 @@
         "organizationCreated": "Neue Organisation",
         "organizationCreatedDescription": "Benachrichtigung, wenn eine neue Organisation angelegt wird",
         "eventOrdered": "Veranstaltung bestellt (auf Rechnung)",
-        "eventOrderedDescription": "Benachrichtigung, wenn eine Veranstaltung auf Rechnung bestellt wird"
+        "eventOrderedDescription": "Benachrichtigung, wenn eine Veranstaltung auf Rechnung bestellt wird",
+        "supportMessage": "Support-Anfrage",
+        "supportMessageDescription": "E-Mail, wenn eine neue Support-Anfrage eingeht (einmal pro ungelesenem Gesprächsverlauf)."
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"

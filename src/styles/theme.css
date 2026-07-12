@@ -121,17 +121,18 @@
     --color-alpha-white: rgb(255 255 255);
     --color-alpha-black: rgb(0 0 0);
 
-    --color-brand-50: rgb(249 245 255);
-    --color-brand-100: rgb(244 235 255);
-    --color-brand-200: rgb(233 215 254);
-    --color-brand-300: rgb(214 187 251);
-    --color-brand-400: rgb(182 146 246);
-    --color-brand-500: rgb(158 119 237);
-    --color-brand-600: rgb(127 86 217);
-    --color-brand-700: rgb(105 65 198);
-    --color-brand-800: rgb(83 56 158);
-    --color-brand-900: rgb(66 48 125);
-    --color-brand-950: rgb(44 28 95);
+    /* OpenEOS-Grün (OKLCH Hue 145) — abgestimmt auf --green/--green-ink in landing.css */
+    --color-brand-50: rgb(233 251 233);
+    --color-brand-100: rgb(211 247 211);
+    --color-brand-200: rgb(182 235 182);
+    --color-brand-300: rgb(143 222 146);
+    --color-brand-400: rgb(97 212 106);
+    --color-brand-500: rgb(70 178 80);
+    --color-brand-600: rgb(51 144 60);
+    --color-brand-700: rgb(32 112 41);
+    --color-brand-800: rgb(36 84 39);
+    --color-brand-900: rgb(22 64 25);
+    --color-brand-950: rgb(14 43 16);
 
     /* LIGHT MODE VARIABLES */
 
