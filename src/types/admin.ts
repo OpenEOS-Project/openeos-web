@@ -73,6 +73,7 @@ export interface AdminNotifyOnSettings {
   organizationCreated: boolean;
   eventOrdered: boolean;
   supportMessage: boolean;
+  contactRequest: boolean;
 }
 
 export interface AdminNotificationSettings {

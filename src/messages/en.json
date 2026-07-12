@@ -582,7 +582,9 @@
         "eventOrdered": "Event ordered (on invoice)",
         "eventOrderedDescription": "Notify when an event is ordered on invoice",
         "supportMessage": "Support request",
-        "supportMessageDescription": "Email when a new support request arrives (once per unread conversation)."
+        "supportMessageDescription": "Email when a new support request arrives (once per unread conversation).",
+        "contactRequest": "Website inquiries",
+        "contactRequestDescription": "Email for demo and contact requests from the website (unauthenticated visitors)."
       },
       "saved": "Settings saved",
       "saveFailed": "Failed to save settings"

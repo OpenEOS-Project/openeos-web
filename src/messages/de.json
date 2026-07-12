@@ -582,7 +582,9 @@
         "eventOrdered": "Veranstaltung bestellt (auf Rechnung)",
         "eventOrderedDescription": "Benachrichtigung, wenn eine Veranstaltung auf Rechnung bestellt wird",
         "supportMessage": "Support-Anfrage",
-        "supportMessageDescription": "E-Mail, wenn eine neue Support-Anfrage eingeht (einmal pro ungelesenem Gesprächsverlauf)."
+        "supportMessageDescription": "E-Mail, wenn eine neue Support-Anfrage eingeht (einmal pro ungelesenem Gesprächsverlauf).",
+        "contactRequest": "Website-Anfragen",
+        "contactRequestDescription": "E-Mail bei Demo- und Kontaktanfragen über die Website (nicht authentifizierte Besucher)."
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
