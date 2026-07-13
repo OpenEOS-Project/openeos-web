@@ -2411,7 +2411,7 @@
     },
     "products": {
       "title": "Top products",
-      "subtitle": "Sorted by revenue",
+      "subtitle": "Sorted by quantity",
       "empty": "No product data available",
       "columns": {
         "product": "Product",

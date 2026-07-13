@@ -2411,7 +2411,7 @@
     },
     "products": {
       "title": "Top-Produkte",
-      "subtitle": "Sortiert nach Umsatz",
+      "subtitle": "Sortiert nach Menge",
       "empty": "Keine Produktdaten vorhanden",
       "columns": {
         "product": "Produkt",
