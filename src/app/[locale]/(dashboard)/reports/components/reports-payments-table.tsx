@@ -14,6 +14,11 @@ interface ReportsPaymentsTableProps {
 const METHOD_LABELS: Record<string, string> = {
   cash: 'Bar',
   card: 'Karte',
+  sumup_terminal: 'SumUp-Terminal',
+  sumup_online: 'SumUp Online',
+  paypal: 'PayPal',
+  google_pay: 'Google Pay',
+  apple_pay: 'Apple Pay',
   voucher: 'Gutschein',
   online: 'Online',
   free: 'Kostenlos',

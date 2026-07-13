@@ -36,6 +36,8 @@ export interface PaymentReport {
 }
 
 export interface HourlyReport {
+  /** Lokales Datum (YYYY-MM-DD); mehrtägige Veranstaltungen liefern mehrere Tage */
+  date: string;
   hour: number;
   orders: number;
   revenue: number;

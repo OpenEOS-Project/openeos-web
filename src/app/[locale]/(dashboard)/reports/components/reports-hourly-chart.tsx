@@ -57,30 +57,79 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
+function formatDayLabel(date: string): string {
+  // date = 'YYYY-MM-DD' (bereits lokale Zeit vom Server) — ohne TZ-Verschiebung parsen
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return date;
+  return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
 export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps) {
   const t = useTranslations('reports');
 
-  // Fill all 24 hours, merging with real data
-  const chartData = useMemo(() => {
-    const map = new Map<number, HourlyReport>();
-    if (data) {
-      for (const entry of data) {
-        map.set(entry.hour, entry);
-      }
+  // Nach Tag gruppieren; je Tag alle 24 Stunden auffüllen. Bei mehrtägigen
+  // Veranstaltungen entsteht so ein eigenes Diagramm pro Tag.
+  const days = useMemo(() => {
+    const byDate = new Map<string, Map<number, HourlyReport>>();
+    for (const entry of data ?? []) {
+      const date = entry.date ?? '';
+      if (!byDate.has(date)) byDate.set(date, new Map());
+      byDate.get(date)!.set(entry.hour, entry);
     }
-    return Array.from({ length: 24 }, (_, h) => map.get(h) ?? { hour: h, orders: 0, revenue: 0 });
+    return Array.from(byDate.keys())
+      .sort()
+      .map((date) => ({
+        date,
+        rows: Array.from({ length: 24 }, (_, h) =>
+          byDate.get(date)!.get(h) ?? { date, hour: h, orders: 0, revenue: 0 },
+        ),
+      }));
   }, [data]);
+
+  const isMultiDay = days.length > 1;
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [
+      t('hourly.columns.date'),
       t('hourly.columns.hour'),
       t('hourly.columns.orders'),
       t('hourly.columns.revenue'),
     ];
-    const rows = chartData.map((r) => [`${r.hour}:00`, r.orders, r.revenue]);
+    const rows = days.flatMap((day) =>
+      day.rows.map((r) => [day.date, `${r.hour}:00`, r.orders, r.revenue]),
+    );
     downloadCsv('stundenverlauf.csv', headers, rows);
   };
+
+  const renderChart = (rows: HourlyReport[]) => (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={rows} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" vertical={false} />
+        <XAxis
+          dataKey="hour"
+          tickFormatter={(h: number) => `${h}`}
+          tick={{ fontSize: 11, fill: 'var(--ink)', opacity: 0.5 }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis
+          tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v))}
+          tick={{ fontSize: 11, fill: 'var(--ink)', opacity: 0.5 }}
+          axisLine={false}
+          tickLine={false}
+          width={48}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+        <Bar dataKey="revenue" fill="#12B76A" radius={[3, 3, 0, 0]} maxBarSize={32} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
 
   return (
     <div className="app-card app-card--flat">
@@ -104,35 +153,20 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
           <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
         </div>
+      ) : days.length === 0 ? (
+        <div style={{ padding: '8px 20px 20px' }}>{renderChart([])}</div>
       ) : (
-        <div style={{ padding: '8px 20px 20px' }}>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="rgba(0,0,0,0.06)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="hour"
-                tickFormatter={(h: number) => `${h}`}
-                tick={{ fontSize: 11, fill: 'var(--ink)', opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tickFormatter={(v: number) =>
-                  v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v)
-                }
-                tick={{ fontSize: 11, fill: 'var(--ink)', opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-                width={48}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-              <Bar dataKey="revenue" fill="#12B76A" radius={[3, 3, 0, 0]} maxBarSize={32} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div style={{ padding: '8px 20px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {days.map((day) => (
+            <div key={day.date}>
+              {isMultiDay && (
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 4 }}>
+                  {formatDayLabel(day.date)}
+                </div>
+              )}
+              {renderChart(day.rows)}
+            </div>
+          ))}
         </div>
       )}
     </div>

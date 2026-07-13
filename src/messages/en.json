@@ -2469,6 +2469,7 @@
       "tooltipRevenue": "Revenue",
       "tooltipOrders": "Orders",
       "columns": {
+        "date": "Date",
         "hour": "Hour",
         "orders": "Orders",
         "revenue": "Revenue"

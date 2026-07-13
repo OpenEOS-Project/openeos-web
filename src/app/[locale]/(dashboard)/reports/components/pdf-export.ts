@@ -46,6 +46,11 @@ const CHANNEL_LABELS: Record<string, string> = {
 const METHOD_LABELS: Record<string, string> = {
   cash: 'Bar',
   card: 'Karte',
+  sumup_terminal: 'SumUp-Terminal',
+  sumup_online: 'SumUp Online',
+  paypal: 'PayPal',
+  google_pay: 'Google Pay',
+  apple_pay: 'Apple Pay',
   voucher: 'Gutschein',
   online: 'Online',
   free: 'Kostenlos',
@@ -215,30 +220,24 @@ function drawKpiBoxes(doc: jsPDF, cursorY: number, sales: SalesReport | undefine
   return cursorY + boxHeight + 10;
 }
 
-function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): number {
-  cursorY = ensureSpace(doc, cursorY, 58);
+function formatPdfDayLabel(date: string): string {
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return date;
+  return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(20, 20, 20);
-  doc.text('Stunden-Umsatz', MARGIN, cursorY);
-  cursorY += 6;
-
+// Zeichnet ein 24h-Balkendiagramm für genau einen Tag ab cursorY.
+function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[]): number {
   const chartHeight = 40;
   const chartTop = cursorY;
   const chartBottom = chartTop + chartHeight;
 
-  const hasData = hourly.length > 0 && hourly.some((h) => h.revenue > 0);
-
-  if (!hasData) {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Keine Umsatzdaten für den gewählten Zeitraum', MARGIN, chartTop + chartHeight / 2);
-    return chartBottom + 10;
-  }
-
-  const hours = Array.from({ length: 24 }, (_, h) => hourly.find((r) => r.hour === h) ?? { hour: h, orders: 0, revenue: 0 });
+  const hours = Array.from({ length: 24 }, (_, h) => rows.find((r) => r.hour === h) ?? { date: '', hour: h, orders: 0, revenue: 0 });
   const maxRevenue = Math.max(...hours.map((h) => h.revenue), 1);
   const barGap = 0.6;
   const barWidth = CONTENT_WIDTH / 24 - barGap;
@@ -251,9 +250,8 @@ function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): n
     const barHeight = (h.revenue / maxRevenue) * (chartHeight - 4);
     if (barHeight <= 0) return;
     const x = MARGIN + i * (barWidth + barGap);
-    const y = chartBottom - barHeight;
     doc.setFillColor(...GREEN_BAR);
-    doc.rect(x, y, barWidth, barHeight, 'F');
+    doc.rect(x, chartBottom - barHeight, barWidth, barHeight, 'F');
   });
 
   doc.setFont('helvetica', 'normal');
@@ -265,6 +263,50 @@ function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): n
   }
 
   return chartBottom + 10;
+}
+
+function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): number {
+  cursorY = ensureSpace(doc, cursorY, 58);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(20, 20, 20);
+  doc.text('Stunden-Umsatz', MARGIN, cursorY);
+  cursorY += 6;
+
+  const hasData = hourly.length > 0 && hourly.some((h) => h.revenue > 0);
+  if (!hasData) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Keine Umsatzdaten für den gewählten Zeitraum', MARGIN, cursorY + 20);
+    return cursorY + 50;
+  }
+
+  // Nach Tag gruppieren — mehrtägige Veranstaltungen bekommen ein Diagramm je Tag.
+  const byDate = new Map<string, HourlyReport[]>();
+  for (const r of hourly) {
+    const date = r.date ?? '';
+    if (!byDate.has(date)) byDate.set(date, []);
+    byDate.get(date)!.push(r);
+  }
+  const dates = Array.from(byDate.keys()).sort();
+  const isMultiDay = dates.length > 1;
+
+  for (const date of dates) {
+    // Tageskopf + Diagramm nicht über den Seitenumbruch reißen
+    cursorY = ensureSpace(doc, cursorY, isMultiDay ? 56 : 50);
+    if (isMultiDay) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(90, 90, 90);
+      doc.text(formatPdfDayLabel(date), MARGIN, cursorY);
+      cursorY += 5;
+    }
+    cursorY = drawSingleDayChart(doc, cursorY, byDate.get(date)!);
+  }
+
+  return cursorY;
 }
 
 function addTableSection(

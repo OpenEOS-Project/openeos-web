@@ -2469,6 +2469,7 @@
       "tooltipRevenue": "Umsatz",
       "tooltipOrders": "Bestellungen",
       "columns": {
+        "date": "Datum",
         "hour": "Stunde",
         "orders": "Bestellungen",
         "revenue": "Umsatz"
