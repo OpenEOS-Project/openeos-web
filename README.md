@@ -111,6 +111,24 @@ docker compose up -d --build
 Das Image wird mit Traefik-Labels für automatisches SSL konfiguriert.
 Erwartet ein externes Docker-Netzwerk `frontend`.
 
+### Airgapped / Self-Hosted Deployment
+
+For a closed network (no Traefik, no ACME, no public DNS) use `docker-compose.airgap.yml` instead:
+
+```bash
+# 1. On a machine with internet access
+docker pull ghcr.io/openeos-project/openeos-web:latest
+docker save -o openeos-web.tar ghcr.io/openeos-project/openeos-web:latest
+
+# 2. Copy the tar to the offline host, then load it
+docker load -i openeos-web.tar
+
+# 3. Point NEXT_PUBLIC_API_URL at your airgapped api host and start
+NEXT_PUBLIC_API_URL=http://<api-host>:3000 docker compose -f docker-compose.airgap.yml up -d
+```
+
+Even though `NEXT_PUBLIC_*` values are normally inlined into the client bundle at Next.js build time, the published image bakes sentinel tokens instead of a real domain. `docker-entrypoint.sh` rewrites those tokens to the runtime env values above on every container start, so the same pulled image works against whatever domain/IP your api is reachable at — no rebuild needed. This also means the classic `docker-compose.prod.yml` still works unmodified: the entrypoint's own fallback matches the previous hardcoded `https://api.openeos.de` default when the env var isn't set.
+
 ## GitHub Actions / CI/CD
 
 Der Workflow `.github/workflows/docker-build.yml` baut automatisch Docker Images und pusht sie zu GitHub Container Registry (GHCR).
