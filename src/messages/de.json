@@ -893,7 +893,8 @@
       "success": {
         "title": "Import erfolgreich",
         "message": "{create} angelegt, {update} aktualisiert, {skip} übersprungen, {error} Fehler"
-      }
+      },
+      "networkError": "Import fehlgeschlagen — der Server war nicht erreichbar. Bitte erneut versuchen."
     }
   },
   "productionStations": {

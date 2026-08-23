@@ -8,6 +8,7 @@ import { productsApi } from '@/lib/api-client';
 import { productKeys } from '@/hooks/use-products';
 import { categoryKeys } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { toast } from '@/components/shared/toast';
 import { formatCurrency } from '@/utils/format';
 import type { ProductImportResult, ProductImportRow } from '@/types/product';
 
@@ -84,7 +85,11 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
       const res = await productsApi.import(eventId, { csv: csvText, mode, dryRun: true });
       setPreviewResult(res.data);
     } catch {
-      // API errors surface via fatalError in normal response; network errors silently ignored
+      // Non-network API errors surface via fatalError in the normal
+      // response — this catch is specifically the network-failed case,
+      // which used to fail with zero feedback (button just stopped
+      // spinning, nothing else happened).
+      toast.error(t('networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +105,10 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     } catch {
-      // Ignore
+      // A user could previously believe the import succeeded when a network
+      // error meant it never reached the server at all — no summary, no
+      // error, the button just stopped loading.
+      toast.error(t('networkError'));
     } finally {
       setIsLoading(false);
     }
