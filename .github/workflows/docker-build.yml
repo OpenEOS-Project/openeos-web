@@ -99,6 +99,39 @@ jobs:
           script: |
             set -e
             cd ${{ vars.DEPLOY_PATH || format('/srv/docker/{0}', github.event.repository.name) }}
-            docker compose pull ${{ vars.DEPLOY_SERVICE }}
-            docker compose up -d ${{ vars.DEPLOY_SERVICE }}
-            docker image prune -f
+            SERVICE="${{ vars.DEPLOY_SERVICE }}"
+
+            # Remember the image currently running so a failed health check
+            # below can roll back to it instead of leaving a broken deploy live.
+            PREVIOUS_IMAGE=$(docker compose ps -q "$SERVICE" | xargs -r docker inspect --format='{{.Image}}' 2>/dev/null || true)
+
+            docker compose pull "$SERVICE"
+            docker compose up -d "$SERVICE"
+
+            # Probe the container directly on its internal port rather than
+            # through Traefik/DNS/TLS: this needs to catch "the new image
+            # itself is broken", not unrelated proxy/certificate issues.
+            CONTAINER_ID=$(docker compose ps -q "$SERVICE")
+            HEALTHY=false
+            for i in $(seq 1 10); do
+              sleep 3
+              if docker exec "$CONTAINER_ID" wget -q -O /dev/null http://localhost:3000/; then
+                HEALTHY=true
+                break
+              fi
+            done
+
+            if [ "$HEALTHY" = "true" ]; then
+              echo "Deploy healthy."
+              docker image prune -f
+            else
+              echo "New deployment failed health check after 30s." >&2
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                echo "Rolling back to previous image $PREVIOUS_IMAGE" >&2
+                docker tag "$PREVIOUS_IMAGE" "$(docker compose config --images "$SERVICE")"
+                docker compose up -d "$SERVICE"
+              else
+                echo "No previous image recorded (first deploy?) — cannot roll back automatically." >&2
+              fi
+              exit 1
+            fi
