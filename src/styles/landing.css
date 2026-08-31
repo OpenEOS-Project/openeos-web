@@ -3613,3 +3613,17 @@ body:has(.landing) {
   border-color: var(--oe-line);
 }
 .landing .modal__foot { background: var(--paper-2); }
+
+/* ---------- Modal-Überschriften ----------
+   27 Modals setzen ein blankes <h2> in den Kopf, 8 weitere die Klasse
+   .modal__title. Beide sollen gleich aussehen, deshalb greift die Regel
+   auch ohne Klasse — sonst haengt das Aussehen davon ab, welches der
+   beiden Muster jemand zufaellig kopiert hat. */
+.landing .modal__head h2,
+.landing .modal__head h3 {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+}

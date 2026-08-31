@@ -159,8 +159,12 @@ export default function ShiftPlanEditorPage() {
                 </svg>
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</div>
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {/* Echte Ueberschrift statt <div>: diese Seite trug als
+                    einzige keinen <h1>. Kopf und Tableiste teilen sich hier
+                    bewusst eine Karte, deshalb bleibt die Groesse kompakt —
+                    ein voller app-page-head wuerde die Leiste sprengen. */}
+                <h1 className="app-page-head__title" style={{ fontSize: 17, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</h1>
+                <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
                   {plan.event && <><span>•</span><span>{plan.event.name}</span></>}
                 </div>
