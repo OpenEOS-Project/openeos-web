@@ -2,7 +2,11 @@ import { ApiException, type ApiError, type ApiResponse } from '@/types/api';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const API_URL = `${API_BASE}/api`;
-const TOKEN_STORAGE_KEY = 'openeos-access-token';
+// Device token stays in localStorage: it identifies a paired, already-trusted
+// physical device (kiosk/POS terminal), not a user session, mirroring how
+// the printer-agent and TV apps hold their own device tokens on disk. The
+// user access token used to live here too but is no longer persisted at
+// all — see setAccessToken() below.
 const DEVICE_TOKEN_STORAGE_KEY = 'openeos-device-token';
 
 interface RequestOptions extends RequestInit {
@@ -29,10 +33,6 @@ class ApiClient {
     this.initialized = true;
 
     try {
-      const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-      if (storedToken) {
-        this.accessToken = storedToken;
-      }
       const storedDeviceToken = localStorage.getItem(DEVICE_TOKEN_STORAGE_KEY);
       if (storedDeviceToken) {
         this.deviceToken = storedDeviceToken;
@@ -40,23 +40,21 @@ class ApiClient {
     } catch {
       // localStorage not available
     }
+    // No localStorage read for the access token: it's kept in memory only
+    // (see setAccessToken()) and reset on every full page load/reload. That's
+    // fine — the API now also accepts the httpOnly `accessToken` cookie set
+    // by the backend, so authenticated requests still succeed via
+    // credentials: 'include' even before this.accessToken is repopulated,
+    // and the 401 -> refreshAccessToken() retry path below repopulates it.
   }
 
+  // Kept in memory only, never written to localStorage: an httpOnly cookie
+  // (set by the backend on login/refresh) is the source of truth for
+  // authenticating requests, so nothing readable by an injected script needs
+  // to hold the token. This is only a fast path to avoid depending on the
+  // browser having sent the cookie yet.
   setAccessToken(token: string | null) {
     this.accessToken = token;
-
-    // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        if (token) {
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
-        } else {
-          localStorage.removeItem(TOKEN_STORAGE_KEY);
-        }
-      } catch {
-        // localStorage not available
-      }
-    }
   }
 
   getAccessToken() {
@@ -69,15 +67,6 @@ class ApiClient {
 
   clearAccessToken() {
     this.accessToken = null;
-
-    // Remove from localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-      } catch {
-        // localStorage not available
-      }
-    }
   }
 
   // Device token methods
