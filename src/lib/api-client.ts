@@ -294,6 +294,18 @@ export const authApi = {
 
   me: () => apiClient.get<ApiResponse<{ user: import('@/types/auth').User }>>('/auth/me'),
 
+  /**
+   * Wie `me()`, aber ohne die automatische 401-Behandlung: Das Cookie wird
+   * dank `credentials: 'include'` trotzdem mitgeschickt, ein fehlgeschlagener
+   * Aufruf wirft aber nur, statt hart auf /login umzuleiten. Für den
+   * Sitzungs-Wiederaufbau beim Seitenstart — dort wäre der Redirect eine
+   * Endlosschleife, weil die Login-Seite selbst wieder prüfen würde.
+   */
+  meSilent: () =>
+    apiClient.get<ApiResponse<{ user: import('@/types/auth').User }>>('/auth/me', {
+      skipAuth: true,
+    }),
+
   myInvitations: () =>
     apiClient.get<ApiResponse<import('@/types/auth').PendingInvitation[]>>('/auth/me/invitations'),
 
