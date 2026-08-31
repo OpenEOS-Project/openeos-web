@@ -23,7 +23,43 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.16.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # `pnpm lint` isn't gated here: there is no ESLint config committed to
+      # this repo at all (`next lint` drops into an interactive "how would
+      # you like to configure ESLint?" prompt, which just hangs/fails in
+      # CI) — this needs an actual ESLint setup first, not just a workflow
+      # step. `next build` below still runs its own internal typecheck as
+      # part of the Docker build; this job exists to catch the same failure
+      # in ~30s instead of several minutes into that build.
+      #
+      # `pnpm test:e2e` (Playwright) isn't gated here either — it needs a
+      # running app + backend, which this workflow doesn't stand up.
+
   build:
+    needs: typecheck
     runs-on: ubuntu-latest
     permissions:
       contents: read
