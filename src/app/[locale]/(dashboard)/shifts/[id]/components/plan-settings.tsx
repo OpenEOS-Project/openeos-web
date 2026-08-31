@@ -259,6 +259,8 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
               <input
                 className="input"
                 type="number"
+                min="0"
+                step="1"
                 style={{ width: 120 }}
                 value={String(field.value)}
                 onChange={(e) => field.onChange(Math.max(0, parseInt(e.target.value) || 0))}
@@ -310,6 +312,9 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
               <input
                 className="input"
                 type="number"
+                min="1"
+                max="168"
+                step="1"
                 style={{ width: 120 }}
                 value={String(field.value)}
                 onChange={(e) => field.onChange(Math.min(168, Math.max(1, parseInt(e.target.value) || 24)))}

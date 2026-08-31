@@ -186,7 +186,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                 render={({ field }) => (
                   <label className="auth-field">
                     <span>{t('table.sortOrder')}</span>
-                    <input type="number" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                    <input type="number" min="0" step="1" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
                   </label>
                 )}
               />

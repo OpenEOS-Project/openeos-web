@@ -3627,3 +3627,35 @@ body:has(.landing) {
   color: var(--ink);
   margin: 0;
 }
+
+/* ---------- Auswahlfelder erkennbar machen ----------
+   .select setzt appearance:none, ersetzte den Pfeil aber durch nichts —
+   Auswahlfelder waren dadurch nicht von Textfeldern zu unterscheiden.
+   Genau das laesst Nutzer in ein Feld tippen, das gar keine Eingabe
+   erwartet.
+
+   Der Winkel entsteht aus zwei diagonalen Verlaeufen statt aus einem
+   SVG: background-image kennt kein currentColor, ein eingebettetes SVG
+   haette also eine feste Farbe und wuerde im Dark-Mode verschwinden.
+   Verlaeufe duerfen var() lesen. */
+.landing .select,
+.landing .auth-field select {
+  appearance: none;
+  padding-right: 32px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--mute) 50%),
+    linear-gradient(135deg, var(--mute) 50%, transparent 50%);
+  background-size: 6px 6px, 6px 6px;
+  background-position:
+    right 16px center,
+    right 11px center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+/* Beim Aufklappen dreht der Winkel mit. */
+.landing .select:focus,
+.landing .auth-field select:focus {
+  background-image:
+    linear-gradient(315deg, transparent 50%, var(--oe-green-ink) 50%),
+    linear-gradient(225deg, var(--oe-green-ink) 50%, transparent 50%);
+}

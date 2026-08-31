@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Check, X } from '@untitledui/icons';
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { UserOrganization } from '@/types/auth';
+import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
 
 interface Props {
   open: boolean;
@@ -205,9 +206,9 @@ export function CreateOrgModal({ open, onClose }: Props) {
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
                   >
-                    <option value="EUR">€ Euro</option>
-                    <option value="CHF">CHF Schweizer Franken</option>
-                    <option value="USD">$ US Dollar</option>
+                    {CURRENCIES.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
                   </select>
                 </label>
                 <label className="auth-field">
@@ -217,10 +218,9 @@ export function CreateOrgModal({ open, onClose }: Props) {
                     value={locale}
                     onChange={(e) => setLocale(e.target.value)}
                   >
-                    <option value="de-DE">Deutsch (Deutschland)</option>
-                    <option value="de-AT">Deutsch (Österreich)</option>
-                    <option value="de-CH">Deutsch (Schweiz)</option>
-                    <option value="en-US">English (US)</option>
+                    {LOCALES.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
                   </select>
                 </label>
                 <label className="auth-field">
@@ -230,10 +230,9 @@ export function CreateOrgModal({ open, onClose }: Props) {
                     value={timezone}
                     onChange={(e) => setTimezone(e.target.value)}
                   >
-                    <option value="Europe/Berlin">Europe/Berlin</option>
-                    <option value="Europe/Vienna">Europe/Vienna</option>
-                    <option value="Europe/Zurich">Europe/Zurich</option>
-                    <option value="UTC">UTC</option>
+                    {TIMEZONES.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
                   </select>
                 </label>
               </>

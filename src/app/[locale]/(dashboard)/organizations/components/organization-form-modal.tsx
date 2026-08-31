@@ -10,6 +10,7 @@ import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-o
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import type { Organization } from '@/types';
+import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
 
 const organizationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -141,33 +142,30 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <label className="auth-field">
                 <span>{t('form.currency')}</span>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="EUR"
-                  {...register('settings.currency')}
-                />
+                <select className="select" {...register('settings.currency')}>
+                  {CURRENCIES.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </label>
 
               <label className="auth-field">
                 <span>{t('form.locale')}</span>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="de-DE"
-                  {...register('settings.locale')}
-                />
+                <select className="select" {...register('settings.locale')}>
+                  {LOCALES.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </label>
             </div>
 
             <label className="auth-field">
               <span>{t('form.timezone')}</span>
-              <input
-                type="text"
-                className="input"
-                placeholder="Europe/Berlin"
-                {...register('settings.timezone')}
-              />
+              <select className="select" {...register('settings.timezone')}>
+                {TIMEZONES.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
             </label>
 
             {isEditing && (
