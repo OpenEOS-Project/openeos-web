@@ -41,17 +41,6 @@
       "deviceMode": "Use as device (POS terminal)",
       "resendVerification": "Resend email",
       "resendVerificationSent": "Confirmation email has been resent.",
-      "highlights": {
-        "head": "Admin interface",
-        "mobile": "Mobile POS",
-        "mobileCopy": "Run it on phone or tablet — anywhere on the venue.",
-        "qrOrder": "Self-order (QR)",
-        "qrOrderCopy": "Guests order via QR themselves — less waiting, more revenue.",
-        "shifts": "Shift planning",
-        "shiftsCopy": "Plan shifts, volunteers sign up online — fully automatic.",
-        "stats": "Real-time analytics",
-        "statsCopy": "Revenue, best sellers, wait times — always in the loop."
-      },
       "errors": {
         "invalidCredentials": "Invalid email or password",
         "accountLocked": "Your account has been locked. Please try again later.",
@@ -59,6 +48,34 @@
         "passwordRequired": "Password is required",
         "invalidEmail": "Invalid email address",
         "emailNotVerified": "Please verify your email address first."
+      },
+      "comic": {
+        "badge": "Admin",
+        "headline": "Run your whole",
+        "headlineAccent": "festival tent.",
+        "status": "All systems normal",
+        "panels": {
+          "checkout": {
+            "step": "Step 1 · Checkout",
+            "copy": "Orders are taken right at the counter — on any tablet, even without a connection."
+          },
+          "receipt": {
+            "step": "Step 2 · Receipt",
+            "copy": "Kitchen and bar tickets print automatically on the right printer."
+          },
+          "runner": {
+            "step": "Step 3 · Service",
+            "copy": "Who carries what where is on the ticket. No shouting, no scraps of paper."
+          },
+          "kitchen": {
+            "step": "Step 4 · Kitchen",
+            "copy": "The kitchen display clears finished orders with a single tap."
+          },
+          "tent": {
+            "step": "Step 5 · Overview",
+            "copy": "Revenue, bestsellers and waiting times come together live in the dashboard."
+          }
+        }
       }
     },
     "register": {

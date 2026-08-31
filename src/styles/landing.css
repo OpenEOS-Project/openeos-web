@@ -1258,7 +1258,10 @@
 }
 .landing .auth__split {
   display: grid;
-  grid-template-columns: 1.85fr 1fr;
+  /* Hochformatige Bildstrecke links, Formular rechts — annähernd
+     gleiche Hälften. Vorher 1.85fr, ausgelegt auf das abgelöste
+     Textkarussell. */
+  grid-template-columns: 1.05fr 1fr;
   gap: 0;
   max-width: none;
   margin: 0;

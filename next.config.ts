@@ -46,6 +46,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // @openeos/ui liefert das Font-Modul als TypeScript-Quelle aus:
+  // next/font-Aufrufe müssen als const im Quelltext ankommen, ein
+  // gebündeltes dist würde daraus var machen und das Font-Plugin
+  // von Next bricht ab.
+  transpilePackages: ['@openeos/ui'],
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',

@@ -1,0 +1,234 @@
+/* ==========================================================
+   Login-Comic — animierte Bildstrecke auf der linken Hälfte
+   des Admin-Logins.
+
+   Fünf Comic-Panels, die den Weg einer Bestellung erzählen:
+   Kasse → Bon → Läufer → Küche → Zelt. Der Wechsel ist eine
+   Überblendung, dazu driftet das sichtbare Panel langsam
+   (Ken-Burns), damit das Bild nicht steht.
+
+   Die Panels liegen unter einer Tinten-Lasur, damit die
+   Marken-Typografie darüber sicher lesbar bleibt — der Text
+   trägt keinen eigenen Hintergrund.
+   ========================================================== */
+
+.login-comic {
+  position: relative;
+  overflow: hidden;
+  /* Kontrast-Token statt --oe-ink: im Dunkeln wäre --oe-ink die
+     Textfarbe und die Fläche würde weiß. */
+  background: var(--oe-contrast);
+  color: var(--oe-on-contrast);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--oe-s6);
+  padding: clamp(28px, 4vw, 56px);
+  min-height: 100%;
+  width: 100%;
+}
+
+/* ---------- Bildbühne ---------- */
+
+/* z-index 0, nicht negativ: ein negativer Wert würde die Bühne hinter
+   den eigenen Hintergrund von .login-comic legen und sie unsichtbar
+   machen. Positioniert reicht, um über dem Hintergrund und unter dem
+   Inhalt (z-index 1) zu liegen. */
+.login-comic__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.login-comic__panel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 1.1s var(--oe-ease),
+    transform 6s linear;
+  will-change: opacity, transform;
+}
+
+.login-comic__panel.is-active {
+  opacity: 1;
+  /* Langsame Drift, solange das Panel steht. */
+  transform: scale(1.12);
+}
+
+/* Lasur: unten dicht für die Fußzeile, oben leicht, damit das
+   Bild sichtbar bleibt. Zusätzlich ein Grünstich, damit die
+   Panels zur Marke gehören und nicht wie Fremdbilder wirken. */
+.login-comic__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* --oe-contrast, nicht --oe-ink: die Lasur muss in beiden Modi
+     abdunkeln. --oe-ink ist im Dunkeln die Textfarbe und würde das
+     Bild aufhellen statt es zu beruhigen. */
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--oe-contrast) 82%, transparent) 0%,
+      color-mix(in oklab, var(--oe-contrast) 62%, transparent) 34%,
+      color-mix(in oklab, var(--oe-contrast) 78%, transparent) 62%,
+      color-mix(in oklab, var(--oe-contrast) 94%, transparent) 100%
+    ),
+    radial-gradient(
+      70% 55% at 85% 5%,
+      color-mix(in oklab, var(--oe-green) 14%, transparent),
+      transparent 65%
+    );
+}
+
+/* ---------- Inhalt über dem Bild ---------- */
+
+.login-comic__top,
+.login-comic__mid,
+.login-comic__foot {
+  position: relative;
+  z-index: 1;
+}
+
+.login-comic__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* .oe-badge--ink füllt mit --oe-contrast — auf dem ohnehin dunklen
+   Bildpanel wäre der Chip von der Lasur nicht zu unterscheiden. Über
+   einem Foto trägt nur eine helle, durchscheinende Fläche. */
+.login-comic__logo .oe-badge {
+  background: color-mix(in oklab, var(--oe-on-contrast) 14%, transparent);
+  border-color: color-mix(in oklab, var(--oe-on-contrast) 22%, transparent);
+  color: var(--oe-green);
+  backdrop-filter: blur(6px);
+}
+
+.login-comic__logo img {
+  height: 30px;
+  width: auto;
+  /* Das dunkle Logo auf Tinte: hart auf Weiß ziehen. */
+  filter: brightness(0) invert(1);
+}
+
+.login-comic__mid {
+  display: grid;
+  gap: 18px;
+  max-width: 30ch;
+}
+
+.login-comic__title {
+  font-family: var(--oe-f-display);
+  font-size: clamp(34px, 4.2vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  margin: 0;
+  text-wrap: balance;
+}
+.login-comic__title i {
+  font-style: italic;
+  color: var(--oe-green);
+  display: block;
+}
+
+/* Bildunterschrift wechselt mit dem Panel. */
+.login-comic__caption {
+  display: grid;
+  gap: 6px;
+  min-height: 3.4em;
+}
+.login-comic__caption span {
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--oe-green);
+}
+.login-comic__caption p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--oe-on-contrast) 78%, transparent);
+}
+
+/* Ein- und Ausblenden der Unterschrift, versetzt zum Bild. */
+.login-comic__caption-inner {
+  animation: login-comic-caption 0.6s var(--oe-ease) both;
+}
+@keyframes login-comic-caption {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Fortschritt ---------- */
+
+.login-comic__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oe-s4);
+  flex-wrap: wrap;
+}
+
+.login-comic__dots {
+  display: flex;
+  gap: 6px;
+}
+.login-comic__dot {
+  width: 26px;
+  height: 3px;
+  border: 0;
+  padding: 0;
+  border-radius: var(--oe-r-full);
+  background: color-mix(in oklab, var(--oe-on-contrast) 26%, transparent);
+  cursor: pointer;
+  transition: background 0.25s var(--oe-ease);
+}
+.login-comic__dot:hover {
+  background: color-mix(in oklab, var(--oe-on-contrast) 50%, transparent);
+}
+.login-comic__dot.is-active {
+  background: var(--oe-green);
+}
+
+.login-comic__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--oe-on-contrast) 55%, transparent);
+}
+
+/* ---------- Bewegungsarm ----------
+   Kein Drift, keine Einblendanimation. Der Panelwechsel bleibt
+   als reine Überblendung erhalten, weil er die Information
+   trägt — nur eben ohne Bewegung. */
+@media (prefers-reduced-motion: reduce) {
+  .login-comic__panel,
+  .login-comic__panel.is-active {
+    transform: none;
+    transition: opacity 0.4s linear;
+  }
+  .login-comic__caption-inner {
+    animation: none;
+  }
+}
+
+/* ---------- Verhältnis zum Shell-Logo ----------
+   Das auth-shell rendert oben rechts ein eigenes Logo. Solange die
+   Bildstrecke sichtbar ist, trägt sie die Marke selbst — zwei Logos
+   auf einem Bildschirm wären doppelt gemoppelt. Unterhalb von 900px
+   ist die Bildstrecke ausgeblendet, dann übernimmt wieder das
+   Shell-Logo. */
+@media (min-width: 901px) {
+  .auth-shell:has(.login-comic) .auth-shell__logo {
+    display: none;
+  }
+}

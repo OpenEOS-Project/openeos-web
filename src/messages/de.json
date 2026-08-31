@@ -41,17 +41,6 @@
       "deviceMode": "Als Gerät verwenden (Kassen-Terminal)",
       "resendVerification": "E-Mail erneut senden",
       "resendVerificationSent": "Bestätigungs-E-Mail wurde erneut gesendet.",
-      "highlights": {
-        "head": "Admin-Interface",
-        "mobile": "Mobile Kasse",
-        "mobileCopy": "Bedienung über Smartphone oder Tablet — überall auf dem Gelände.",
-        "qrOrder": "Online-Bestellung",
-        "qrOrderCopy": "Gäste bestellen per QR-Code selbst — weniger Wartezeit, mehr Umsatz.",
-        "shifts": "Schichtplan",
-        "shiftsCopy": "Schichten planen, Mitarbeiter melden sich online an — alles automatisch.",
-        "stats": "Echtzeit-Statistiken",
-        "statsCopy": "Umsatz, Bestseller, Wartezeiten — immer den Überblick behalten."
-      },
       "errors": {
         "invalidCredentials": "Ungültige E-Mail oder Passwort",
         "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
@@ -59,6 +48,34 @@
         "passwordRequired": "Passwort ist erforderlich",
         "invalidEmail": "Ungültige E-Mail-Adresse",
         "emailNotVerified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse."
+      },
+      "comic": {
+        "badge": "Admin",
+        "headline": "Verwalte dein",
+        "headlineAccent": "ganzes Festzelt.",
+        "status": "Alle Systeme normal",
+        "panels": {
+          "checkout": {
+            "step": "Schritt 1 · Kasse",
+            "copy": "Die Bestellung wird an der Theke aufgenommen — auf jedem Tablet, auch ohne Netz."
+          },
+          "receipt": {
+            "step": "Schritt 2 · Bon",
+            "copy": "Küchen- und Thekenbons laufen automatisch auf dem richtigen Drucker aus."
+          },
+          "runner": {
+            "step": "Schritt 3 · Ausgabe",
+            "copy": "Wer was wohin bringt, steht auf dem Bon. Keine Zurufe, keine Zettelwirtschaft."
+          },
+          "kitchen": {
+            "step": "Schritt 4 · Küche",
+            "copy": "Das Küchendisplay quittiert fertige Bestellungen mit einem Griff."
+          },
+          "tent": {
+            "step": "Schritt 5 · Überblick",
+            "copy": "Umsatz, Bestseller und Wartezeiten laufen live im Dashboard zusammen."
+          }
+        }
       }
     },
     "register": {

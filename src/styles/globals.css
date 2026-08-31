@@ -2,6 +2,13 @@
 @import "./theme.css";
 @import "./typography.css";
 
+/* OpenEOS Designsystem.
+   Die Bridge muss NACH theme.css stehen: Tailwind führt alle
+   @theme-Blöcke in Quellreihenfolge zusammen, damit gewinnen die
+   OpenEOS-Ramps über die Untitled-UI-Defaults. */
+@import "@openeos/ui/css/bridge-untitled.css";
+@import "@openeos/ui/css/index.css";
+
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
 @plugin "tailwindcss-animate";
@@ -66,4 +73,13 @@ input[type="search"]::-webkit-search-cancel-button {
 .recharts-surface g,
 .recharts-surface path {
     outline: none;
+}
+
+/* Die Schriften kommen aus @openeos/ui/fonts (Root-Layout) und setzen
+   --font-oe-*. landing.css und die POS-Styles erwarten die kürzeren
+   --f-*-Namen — hier verbunden, damit nur eine Quelle existiert. */
+:root {
+    --f-sans: var(--font-oe-sans), system-ui, sans-serif;
+    --f-display: var(--font-oe-display), var(--f-sans);
+    --f-mono: var(--font-oe-mono), ui-monospace, monospace;
 }

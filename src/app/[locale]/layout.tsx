@@ -1,4 +1,4 @@
-import { Geist, JetBrains_Mono, Archivo_Black } from 'next/font/google';
+import { openEosFonts } from '@openeos/ui/fonts';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -7,27 +7,6 @@ import { Providers } from '@/components/providers/index';
 import { routing } from '@/i18n/routing';
 
 import '@/styles/globals.css';
-
-const geist = Geist({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--f-sans',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--f-mono',
-  weight: ['400', '500', '600'],
-});
-
-const archivoBlack = Archivo_Black({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--f-display',
-  weight: ['400'],
-});
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -48,7 +27,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <html
       lang={locale}
-      className={`${geist.variable} ${jetbrainsMono.variable} ${archivoBlack.variable}`}
+      className={openEosFonts.className}
       suppressHydrationWarning
     >
       <body
