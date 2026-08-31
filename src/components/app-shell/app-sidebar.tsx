@@ -18,7 +18,7 @@ import { CreateOrgModal } from './create-org-modal';
 
 import { Link } from '@/i18n/routing';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
-import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '@/hooks/use-members';
+import { useMyInvitations } from '@/hooks/use-members';
 import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
@@ -48,9 +48,11 @@ export function AppSidebar() {
   const orgIdForEvent = currentOrganization?.organizationId ?? '';
   const { data: activeEvent } = useActiveEvent(orgIdForEvent);
 
-  const { data: pendingInvitations = [], refetch: refetchInvitations } = useMyInvitations();
-  const acceptInvitation = useAcceptInvitation();
-  const declineInvitation = useDeclineInvitation();
+  // Informational only for now — no accept/decline UI exists yet to route
+  // this badge to (see the removed handleAcceptInvitation/
+  // handleDeclineInvitation below, which were dead code: defined, then
+  // immediately voided, never wired to anything clickable).
+  const { data: pendingInvitations = [] } = useMyInvitations();
 
   const [orgMenuOpen, setOrgMenuOpen] = React.useState(false);
   const [createOrgOpen, setCreateOrgOpen] = React.useState(false);
@@ -100,31 +102,6 @@ export function AppSidebar() {
   const filteredFooterItems = isSuperAdmin
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
-
-  const handleAcceptInvitation = async (token: string) => {
-    try {
-      const result = await acceptInvitation.mutateAsync(token);
-      if (result.data) {
-        setOrganizations([...organizations, result.data]);
-        if (organizations.length === 0) setCurrentOrganization(result.data);
-      }
-      refetchInvitations();
-    } catch {
-      // silently ignore
-    }
-  };
-
-  const handleDeclineInvitation = async (token: string) => {
-    try {
-      await declineInvitation.mutateAsync(token);
-      refetchInvitations();
-    } catch {
-      // silently ignore
-    }
-  };
-
-  void handleAcceptInvitation;
-  void handleDeclineInvitation;
 
   const orgs = organizations.filter((o) => o?.organization);
   const hasMultiple = orgs.length > 1;
