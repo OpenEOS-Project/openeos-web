@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { apiClient } from '@/lib/api-client';
+import { apiClient, authApi } from '@/lib/api-client';
 import type { User, UserOrganization } from '@/types/auth';
 
 interface AuthState {
@@ -16,7 +16,7 @@ interface AuthState {
   setOrganizations: (organizations: UserOrganization[]) => void;
   setCurrentOrganization: (organization: UserOrganization | null) => void;
   setLoading: (isLoading: boolean) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   reset: () => void;
 }
 
@@ -60,7 +60,18 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      logout: () => {
+      logout: async () => {
+        // Access- und Refresh-Token liegen in httpOnly-Cookies, die nur der
+        // Server löschen kann. Ohne diesen Aufruf bliebe die Sitzung dort
+        // gültig — und weil unten ein voller Seitenwechsel folgt, würde der
+        // AuthProvider sie beim Laden der Login-Seite sofort aus dem Cookie
+        // wiederherstellen und direkt zurück ins Dashboard schicken.
+        try {
+          await authApi.logout();
+        } catch {
+          // Server nicht erreichbar oder Sitzung schon abgelaufen: lokal
+          // trotzdem abmelden, damit der Klick nie wirkungslos bleibt.
+        }
         apiClient.clearAccessToken();
         set({
           ...initialState,
