@@ -238,22 +238,39 @@
 
 /* ============================= BUTTONS ============================= */
 .landing .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 10px 18px;
-  border-radius: var(--r);
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 7px;
+  /* Schmaler und enger radiiert als zuvor — Metrik von .oe-btn. */
+  padding: 8px 13px;
+  border-radius: var(--oe-r-sm);
   font-size: 14px; font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform .15s ease, background .2s, color .2s, border-color .2s;
+  text-decoration: none;
+  transition: background .18s, color .18s, border-color .18s, box-shadow .18s, transform .12s;
   white-space: nowrap;
+}
+.landing .btn svg { width: 15px; height: 15px; flex: none; }
+.landing .btn:active { transform: translateY(1px); }
+.landing .btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--oe-green-ink) 30%, transparent);
+}
+.landing .btn:disabled,
+.landing .btn[aria-disabled="true"] {
+  opacity: .45; cursor: not-allowed; transform: none;
 }
 .landing .btn svg { width: 16px; height: 16px; }
 .landing .btn--lg { padding: 14px 22px; font-size: 15px; }
 .landing .btn--block { width: 100%; }
 
 .landing .btn--primary {
-  background: var(--ink); color: var(--paper);
-  border-color: var(--ink);
+  /* --oe-primary statt --ink: im Dunkeln ist --ink die Textfarbe und
+     der Knopf wuerde weiss ausschlagen. */
+  background: var(--oe-primary); color: var(--oe-on-primary);
+  border-color: var(--oe-primary);
 }
 .landing .btn--primary:hover {
   background: var(--green-ink); border-color: var(--green-ink);
@@ -262,7 +279,7 @@
 
 .landing .btn--ghost {
   background: transparent; color: var(--ink);
-  border-color: color-mix(in oklab, var(--ink) 18%, transparent);
+  border-color: var(--oe-line-2);
 }
 .landing .btn--ghost:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); }
 
@@ -1479,14 +1496,15 @@ body:has(.landing) {
   font-weight: 500;
 }
 .landing .auth-field input {
-  font: inherit;
-  padding: 14px 16px;
-  border: 1px solid color-mix(in oklab, var(--ink) 14%, transparent);
-  border-radius: var(--r);
-  background: var(--paper);
+  /* Metrik von .oe-input: kompakter, staerkere Linie, Kartenflaeche
+     statt Seitenfarbe. */
+  font: 500 14px var(--oe-f-sans);
+  padding: 9px 12px;
+  border: 1.5px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: var(--surface);
   color: var(--ink);
-  font-size: 15px;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .15s, box-shadow .15s, background .15s;
   width: 100%;
 }
 .landing .auth-field input:focus {
@@ -2624,7 +2642,9 @@ body:has(.landing) {
 .landing .modal__overlay {
   position: fixed;
   inset: 0;
-  background: color-mix(in oklab, var(--ink) 50%, transparent);
+  /* Fester Schwarzwert statt --ink: im Dunkeln ist --ink hell und der
+     Schleier wuerde aufhellen statt abdunkeln. */
+  background: color-mix(in oklab, #000 55%, transparent);
   backdrop-filter: blur(4px);
   z-index: 100;
   display: flex;
@@ -2635,10 +2655,10 @@ body:has(.landing) {
 }
 
 .landing .modal__panel {
-  background: var(--paper);
-  border-radius: var(--r-lg);
-  border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
-  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.3);
+  background: var(--surface);
+  border-radius: var(--oe-r-lg);
+  border: 1px solid var(--oe-line);
+  box-shadow: var(--oe-sh-3);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -2719,7 +2739,9 @@ body:has(.landing) {
 .landing .modal__backdrop {
   position: fixed;
   inset: 0;
-  background: color-mix(in oklab, var(--ink) 50%, transparent);
+  /* Fester Schwarzwert statt --ink: im Dunkeln ist --ink hell und der
+     Schleier wuerde aufhellen statt abdunkeln. */
+  background: color-mix(in oklab, #000 55%, transparent);
   backdrop-filter: blur(4px);
   z-index: 100;
   display: flex;
@@ -2729,10 +2751,10 @@ body:has(.landing) {
   animation: landing-fadeIn 0.2s ease;
 }
 .landing .modal__box {
-  background: var(--paper);
-  border-radius: var(--r-lg);
-  border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
-  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.3);
+  background: var(--surface);
+  border-radius: var(--oe-r-lg);
+  border: 1px solid var(--oe-line);
+  box-shadow: var(--oe-sh-3);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -2742,10 +2764,11 @@ body:has(.landing) {
   animation: landing-fadeUp 0.25s ease;
 }
 .landing .modal__title {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--ink);
+  margin: 0;
 }
 
 /* ============================= EMPTY STATE ============================= */
@@ -3444,3 +3467,149 @@ body:has(.landing) {
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
+
+/* =============== EINHEITLICHKEIT: BUTTONS, FELDER, MODALS ===============
+   Nachtrag zu den Bestandsregeln weiter oben. Er schliesst Luecken, die
+   im Markup benutzt, aber nie definiert waren, und ergaenzt die
+   Varianten des Designsystems, damit ueber alle Seiten hinweg dieselben
+   Bausteine zur Verfuegung stehen. */
+
+/* ---------- Groessen ----------
+   .btn--sm wurde im Markup verwendet, war aber nirgends definiert. */
+.landing .btn--xs {
+  padding: 4px 9px;
+  font-size: 12px;
+  border-radius: var(--oe-r-xs);
+}
+.landing .btn--xs svg { width: 13px; height: 13px; }
+.landing .btn--sm {
+  padding: 6px 11px;
+  font-size: 13px;
+}
+.landing .btn--icon { padding: 8px; }
+.landing .btn--icon.btn--sm { padding: 6px; }
+
+/* ---------- Varianten ----------
+   .btn--danger wurde fuer Loeschaktionen verwendet, war aber nicht
+   definiert — solche Knoepfe rendern sonst wie neutrale. */
+.landing .btn--danger {
+  background: var(--oe-danger);
+  color: var(--oe-on-danger);
+  border-color: var(--oe-danger);
+}
+.landing .btn--danger:hover {
+  background: color-mix(in oklab, var(--oe-danger) 85%, var(--oe-on-danger));
+}
+.landing .btn--danger-quiet {
+  background: var(--oe-danger-soft);
+  color: var(--oe-danger);
+  border-color: color-mix(in oklab, var(--oe-danger) 20%, transparent);
+}
+.landing .btn--secondary {
+  background: var(--paper-2);
+  color: var(--ink);
+  border-color: var(--oe-line-2);
+}
+.landing .btn--secondary:hover { background: var(--paper-3); }
+.landing .btn--accent {
+  background: var(--oe-green-soft);
+  color: var(--oe-green-ink);
+  border-color: color-mix(in oklab, var(--oe-green-ink) 22%, transparent);
+}
+.landing .btn--accent:hover { background: var(--oe-green-soft-2); }
+.landing .btn--quiet {
+  background: transparent;
+  color: var(--mute);
+  border-color: transparent;
+}
+.landing .btn--quiet:hover {
+  background: color-mix(in oklab, var(--ink) 5%, transparent);
+  color: var(--ink);
+}
+
+/* Primaer laeuft im Designsystem auf Gruen zu. */
+.landing .btn--primary:hover {
+  background: var(--oe-primary-hover);
+  border-color: var(--oe-primary-hover);
+  color: var(--oe-on-primary-hover);
+}
+.landing .btn--ghost:hover {
+  background: color-mix(in oklab, var(--ink) 5%, transparent);
+}
+
+/* ---------- Formularfelder ----------
+   .auth-field__label wird 81-mal verwendet und hatte keine einzige
+   Regel — die Beschriftungen waren unformatiert. Sie folgen jetzt
+   .oe-field > label: Mono, gesperrt, Versalien. */
+.landing .auth-field__label,
+.landing .auth-field > label {
+  font: 500 11px/1 var(--oe-f-mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.landing .auth-field__hint {
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .auth-field__error {
+  font: 500 12px var(--oe-f-mono);
+  color: var(--oe-danger);
+}
+
+/* Select und Textarea trugen bisher keine gemeinsame Regel mit input. */
+.landing .auth-field select,
+.landing .auth-field textarea {
+  font: 500 14px var(--oe-f-sans);
+  padding: 9px 12px;
+  border: 1.5px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.landing .auth-field textarea {
+  min-height: 88px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.landing .auth-field input::placeholder,
+.landing .auth-field textarea::placeholder {
+  color: var(--mute-2);
+}
+.landing .auth-field input:focus,
+.landing .auth-field select:focus,
+.landing .auth-field textarea:focus {
+  outline: 0;
+  border-color: var(--oe-green-ink);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--oe-green) 18%, transparent);
+}
+.landing .auth-field input:disabled,
+.landing .auth-field select:disabled,
+.landing .auth-field textarea:disabled {
+  background: var(--paper-2);
+  color: var(--mute);
+  cursor: not-allowed;
+}
+.landing .auth-field input--error,
+.landing .auth-field .input--error,
+.landing .auth-field.is-invalid input {
+  border-color: var(--oe-danger);
+  background: color-mix(in oklab, var(--oe-danger) 5%, var(--surface));
+}
+
+/* ---------- Modal ----------
+   Zweite Namensvariante mancher Schichtplan-Modals auf denselben Stand
+   ziehen, damit beide identisch aussehen. */
+.landing .modal__box { background: var(--surface); }
+.landing .modal__sub {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--mute);
+}
+.landing .modal__head,
+.landing .modal__foot {
+  border-color: var(--oe-line);
+}
+.landing .modal__foot { background: var(--paper-2); }
