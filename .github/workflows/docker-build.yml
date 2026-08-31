@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
     tags:
       - 'v*'
   pull_request:
@@ -70,8 +71,8 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_APP_VERSION=1.0.${{ github.run_number }}
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'https://api.openeos.de' }}
-            NEXT_PUBLIC_SHOP_URL=${{ vars.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de' }}
+            NEXT_PUBLIC_API_URL=${{ github.ref == 'refs/heads/dev' && 'https://api.staging.openeos.de' || (vars.NEXT_PUBLIC_API_URL || 'https://api.openeos.de') }}
+            NEXT_PUBLIC_SHOP_URL=${{ github.ref == 'refs/heads/dev' && 'https://shop.staging.openeos.de' || (vars.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de') }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
             SENTRY_ORG=${{ vars.SENTRY_ORG }}
             SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
@@ -99,6 +100,32 @@ jobs:
           script: |
             set -e
             cd ${{ vars.DEPLOY_PATH || format('/srv/docker/{0}', github.event.repository.name) }}
+            docker compose pull ${{ vars.DEPLOY_SERVICE }}
+            docker compose up -d ${{ vars.DEPLOY_SERVICE }}
+            docker image prune -f
+
+  deploy-staging:
+    name: Deploy to staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && vars.DEPLOY_ENABLED == 'true'
+    steps:
+      - name: Determine SSH port
+        id: ssh-port
+        run: echo "port=${DEPLOY_PORT:-22}" >> "$GITHUB_OUTPUT"
+        env:
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+
+      - name: Update staging via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ steps.ssh-port.outputs.port }}
+          script: |
+            set -e
+            cd ${{ vars.STAGING_DEPLOY_PATH || format('/srv/docker/staging/{0}', github.event.repository.name) }}
             docker compose pull ${{ vars.DEPLOY_SERVICE }}
             docker compose up -d ${{ vars.DEPLOY_SERVICE }}
             docker image prune -f
