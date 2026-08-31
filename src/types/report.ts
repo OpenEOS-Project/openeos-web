@@ -79,3 +79,18 @@ export interface DeviceReport {
   orders: number;
   revenue: number;
 }
+
+/**
+ * Systemstatus fuer die Statusleiste des Dashboards.
+ *
+ * Die Designvorlage zeigt an vierter Stelle eine TSE-Kachel. OpenEOS hat
+ * keine TSE, deshalb steht dort openOrders — eine Zahl, die es wirklich
+ * gibt.
+ */
+export interface SystemStatus {
+  pos: { online: number; total: number };
+  printers: { online: number; total: number };
+  printQueue: { queued: number; completedLastHour: number };
+  openOrders: number;
+  generatedAt: string;
+}

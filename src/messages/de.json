@@ -326,6 +326,20 @@
         "status": "Status",
         "low": "Niedrig",
         "ok": "OK"
+      },
+      "systemStatus": {
+        "label": "Systemstatus",
+        "pos": "Kassen",
+        "printers": "Drucker",
+        "printQueue": "Warteschlange",
+        "openOrders": "Offene Bestellungen",
+        "noneConfigured": "keine eingerichtet",
+        "jobs": "{count, plural, =0 {keine Bons} one {# Bon} other {# Bons}}",
+        "throughput": "{count} in der letzten Stunde",
+        "openOrdersHint": "noch nicht abgeschlossen",
+        "unreachable": "nicht erreichbar",
+        "partiallyReachable": "teilweise erreichbar",
+        "allConnected": "alle verbunden"
       }
     }
   },

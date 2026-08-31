@@ -7,6 +7,7 @@ import { TopProductsWidget } from './top-products-widget';
 import { HourlyRevenueWidget } from './hourly-revenue-widget';
 import { PaymentMethodsWidget } from './payment-methods-widget';
 import { LowStockWidget } from './low-stock-widget';
+import { SystemStatusWidget } from './system-status-widget';
 
 export { DEFAULT_WIDGET_IDS } from './widget-registry';
 export type { WidgetId } from './widget-registry';
@@ -63,5 +64,11 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
     requiredPermission: 'reports',
     type: 'card',
     Component: LowStockWidget,
+  },
+  {
+    id: 'systemStatus',
+    labelKey: 'widgets.systemStatus.label',
+    type: 'strip',
+    Component: SystemStatusWidget,
   },
 ];

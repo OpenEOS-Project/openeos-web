@@ -6,8 +6,12 @@ export interface WidgetDefinition {
   labelKey: string;
   /** If set, user needs this permission (or admin role) to see this widget */
   requiredPermission?: 'reports';
-  /** 'stat' widgets render in the stat-cards grid; 'card' widgets render in full-width sections below */
-  type: 'stat' | 'card';
+  /**
+   * 'stat' erscheint im Kachelraster, 'card' als Karte darunter,
+   * 'strip' als durchgehende Leiste ueber die volle Breite — die
+   * Statusleiste traegt bewusst keine Kartenhuelle.
+   */
+  type: 'stat' | 'card' | 'strip';
   Component: ComponentType<{ organizationId: string }>;
 }
 
@@ -21,6 +25,7 @@ export const WIDGET_IDS = [
   'hourlyRevenue',
   'paymentMethods',
   'lowStock',
+  'systemStatus',
 ] as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[number];
@@ -30,4 +35,5 @@ export const DEFAULT_WIDGET_IDS: WidgetId[] = [
   'revenueToday',
   'activeEvents',
   'activeUsers',
+  'systemStatus',
 ];

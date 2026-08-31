@@ -4,38 +4,53 @@
    ========================================================== */
 
 .landing {
-  /* core palette */
-  --ink: #0c0f0d;
-  --ink-2: #151a17;
-  --ink-3: #1e2420;
-  --paper: #f5f2ea;
-  --paper-2: #ece7d9;
-  --line: #1a1f1c;
+  /* Palette-Bruecke zum Designsystem.
+     Diese Variablen waren feste Hex-Werte und haben den gesamten
+     Admin-Bereich auf Hell festgenagelt — .landing hat damit die
+     Tokens ueberschrieben, statt ihnen zu folgen. Jetzt zeigen sie auf
+     --oe-*, wodurch alle 239 .app-card- und 87 .app-page-head-Stellen
+     die OpenEOS-Palette samt Dark-Mode uebernehmen, ohne dass eine
+     einzige Seite angefasst werden muss.
 
-  --green: oklch(0.78 0.18 145);
-  --green-2: oklch(0.72 0.19 145);
-  --green-ink: oklch(0.32 0.12 145);
-  --green-soft: oklch(0.92 0.08 145);
+     Neue Regeln bitte direkt --oe-* verwenden; diese Aliase existieren
+     nur fuer den Bestand. */
+  --ink: var(--oe-ink);
+  --ink-2: var(--oe-ink-2);
+  --ink-3: var(--oe-ink-3);
+  --paper: var(--oe-paper);
+  --paper-2: var(--oe-paper-2);
+  --paper-3: var(--oe-paper-3);
+  --surface: var(--oe-surface);
+  --line: var(--oe-line-2);
 
-  --mute: #6b7068;
-  --mute-2: #a8ad9f;
+  --green: var(--oe-green);
+  --green-2: var(--oe-green-2);
+  --green-ink: var(--oe-green-ink);
+  --green-soft: var(--oe-green-soft);
 
-  /* status colors — use these instead of hardcoded hex in components */
-  --danger: #d24545;
-  --danger-soft: rgba(210, 69, 69, 0.12);
-  --warn: #f59e0b;
-  --warn-ink: #92400e;
+  --mute: var(--oe-mute);
+  --mute-2: var(--oe-mute-2);
 
-  --r-sm: 6px;
-  --r: 10px;
-  --r-lg: 18px;
+  /* Statusfarben — nie Hex in Komponenten, immer diese hier. */
+  --danger: var(--oe-danger);
+  --danger-soft: var(--oe-danger-soft);
+  --warn: var(--oe-warn);
+  --warn-ink: var(--oe-warn);
+
+  /* Kontrastflaechen fuer invertierte Bloecke. */
+  --contrast: var(--oe-contrast);
+  --on-contrast: var(--oe-on-contrast);
+
+  --r-sm: var(--oe-r-sm);
+  --r: var(--oe-r);
+  --r-lg: var(--oe-r-lg);
 
   --max: 1280px;
   --pad: clamp(20px, 4vw, 56px);
 
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--f-sans, "Geist", system-ui, sans-serif);
+  font-family: var(--oe-f-sans);
   font-size: 16px;
   line-height: 1.5;
   font-feature-settings: "ss01", "cv11";
@@ -2369,171 +2384,6 @@ body:has(.landing) {
 }
 
 /* ============================= TOPBAR ============================= */
-.landing .app-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background: color-mix(in oklab, var(--paper) 92%, transparent);
-  backdrop-filter: blur(14px) saturate(1.1);
-  border-bottom: 1px solid color-mix(in oklab, var(--ink) 9%, transparent);
-  flex-shrink: 0;
-}
-
-.landing .app-topbar__left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.landing .app-topbar__menu-btn {
-  display: none;
-  width: 36px;
-  height: 36px;
-  background: none;
-  border: 0;
-  border-radius: var(--r-sm);
-  color: var(--ink);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.landing .app-topbar__menu-btn:hover {
-  background: color-mix(in oklab, var(--ink) 6%, transparent);
-}
-
-.landing .app-topbar__menu-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-@media (max-width: 960px) {
-  .landing .app-topbar__menu-btn {
-    display: flex;
-  }
-}
-
-.landing .app-topbar__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--mute);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.landing .app-topbar__breadcrumb-sep {
-  opacity: 0.4;
-  flex-shrink: 0;
-}
-
-.landing .app-topbar__breadcrumb-current {
-  font-weight: 600;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.landing .app-topbar__breadcrumb a {
-  color: var(--mute);
-  white-space: nowrap;
-  transition: color 0.15s;
-}
-
-.landing .app-topbar__breadcrumb a:hover {
-  color: var(--ink);
-}
-
-.landing .app-topbar__right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.landing .app-topbar__icon-btn {
-  width: 36px;
-  height: 36px;
-  background: none;
-  border: 0;
-  border-radius: var(--r-sm);
-  color: var(--mute);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-}
-
-.landing .app-topbar__icon-btn:hover {
-  background: color-mix(in oklab, var(--ink) 6%, transparent);
-  color: var(--ink);
-}
-
-.landing .app-topbar__icon-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.landing .app-topbar__divider {
-  width: 1px;
-  height: 20px;
-  background: color-mix(in oklab, var(--ink) 10%, transparent);
-}
-
-.landing .app-topbar__avatar-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px 4px 4px;
-  background: none;
-  border: 0;
-  border-radius: var(--r);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.landing .app-topbar__avatar-btn:hover {
-  background: color-mix(in oklab, var(--ink) 5%, transparent);
-}
-
-.landing .app-topbar__avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 99px;
-  background: var(--green-ink);
-  color: #eafff0;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.landing .app-topbar__user-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .landing .app-topbar__user-name {
-    display: block;
-  }
-}
-
 /* ============================= CONTENT ============================= */
 .landing .app-content {
   flex: 1;
@@ -2561,17 +2411,17 @@ body:has(.landing) {
 }
 
 .landing .app-page-head__title {
-  font-size: clamp(22px, 3vw, 30px);
+  font-size: clamp(26px, 3vw, 36px);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   margin: 0;
   color: var(--ink);
 }
 
 .landing .app-page-head__sub {
-  margin: 4px 0 0;
-  font-size: 14px;
+  margin: 6px 0 0;
+  font-size: 15px;
   color: var(--mute);
 }
 
@@ -2584,9 +2434,11 @@ body:has(.landing) {
 
 /* ============================= APP CARD ============================= */
 .landing .app-card {
-  background: var(--paper);
-  border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
-  border-radius: var(--r-lg);
+  /* --surface statt --paper: eine Karte in der Seitenfarbe hebt sich
+     nicht ab. Radius und Linie folgen jetzt .oe-card. */
+  background: var(--surface);
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
   overflow: hidden;
   padding: 20px;
 }
@@ -3016,15 +2868,12 @@ body:has(.landing) {
 }
 
 @media (max-width: 960px) {
-  /* No separate .app-mobile-header is rendered — the sticky .app-topbar
-     carries the hamburger and IS the mobile header, so it must stick at the
-     very top. Reserving 56px here left an empty band above it when scrolled. */
-  .landing .app-topbar {
-    top: 0;
-  }
-
+  /* Ohne Topbar traegt der schwebende Knopf die Navigation. Der Inhalt
+     braucht oben rechts Platz dafuer, damit der Seitenkopf nicht
+     darunter laeuft. */
   .landing .app-content {
     padding-top: 16px;
+    padding-right: 64px;
   }
 }
 
@@ -3479,4 +3328,119 @@ body:has(.landing) {
   font-size: 11px;
   color: var(--mute);
   flex-shrink: 0;
+}
+
+/* ===================== ADMIN-SHELL OHNE TOPBAR =====================
+   Die horizontale Leiste ist entfallen. Was sie trug, verteilt sich auf
+   den Inhaltsbereich (Brotkrumen) und den Fuss der Seitenleiste
+   (Benutzer, Sprache, Theme). Auf schmalen Viewports bleibt ein
+   schwebender Knopf als Zugang zur Navigation. */
+
+/* Brotkrumen im Inhalt — bewusst ohne Flaeche, Rahmen oder Hoehe,
+   damit keine neue Leiste entsteht. */
+.landing .app-content .oe-crumbs {
+  margin-bottom: 10px;
+}
+
+/* Navigationsknopf, nur wo die Seitenleiste ausgeblendet ist. */
+.landing .app-shell__menu-btn {
+  display: none;
+}
+@media (max-width: 960px) {
+  .landing .app-shell__menu-btn {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--oe-r-sm);
+    border: 1px solid var(--oe-line-2);
+    background: color-mix(in oklab, var(--surface) 88%, transparent);
+    backdrop-filter: blur(12px);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .landing .app-shell__menu-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Konto-Block im Fuss der Seitenleiste. */
+.landing .app-sidebar__account {
+  display: grid;
+  gap: 8px;
+  padding: 10px 10px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--oe-line);
+}
+.landing .app-sidebar__account-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.landing .app-sidebar__account-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.landing .app-sidebar__account-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* ======================= SYSTEM-STATUSLEISTE =======================
+   Vier Kacheln in einer durchgehenden Leiste, aus der Designvorlage
+   uebernommen. Bewusst ohne Kartenhuelle und ohne Abstand zwischen den
+   Kacheln: sie gehoeren zusammen und lesen sich als ein Streifen. */
+.landing .app-sys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  overflow: hidden;
+  background: var(--surface);
+}
+@media (max-width: 900px) {
+  .landing .app-sys {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.landing .app-sys > div {
+  display: grid;
+  gap: 3px;
+  padding: 14px 18px;
+  border-right: 1px solid var(--oe-line);
+}
+.landing .app-sys > div:last-child {
+  border-right: 0;
+}
+@media (max-width: 900px) {
+  /* Im zweispaltigen Raster darf die rechte Spalte keine Kante tragen,
+     dafuer brauchen die oberen beiden eine untere. */
+  .landing .app-sys > div:nth-child(2n) {
+    border-right: 0;
+  }
+  .landing .app-sys > div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--oe-line);
+  }
+}
+.landing .app-sys__value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 15px var(--oe-f-sans);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }

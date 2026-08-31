@@ -16,6 +16,9 @@ import {
 
 import { CreateOrgModal } from './create-org-modal';
 
+import { LocaleSwitcher } from '@/components/ui/locale-switcher';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+
 import { Link } from '@/i18n/routing';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
 import { useMyInvitations } from '@/hooks/use-members';
@@ -385,6 +388,25 @@ export function AppSidebar() {
 
         {/* Footer items */}
         <div className="app-sidebar__footer">
+          {/* Benutzer, Sprache und Theme sassen frueher in der Topbar.
+              Die ist entfallen, also tragen sie hier. */}
+          {!isCollapsed && (
+            <div className="app-sidebar__account">
+              <div className="app-sidebar__account-user">
+                <span className="oe-avatar oe-avatar--sm oe-avatar--round">
+                  {user?.firstName?.[0]?.toUpperCase() ?? '?'}
+                </span>
+                <span className="app-sidebar__account-name">
+                  {user?.firstName} {user?.lastName}
+                </span>
+              </div>
+              <div className="app-sidebar__account-tools">
+                <LocaleSwitcher />
+                <ThemeToggle />
+              </div>
+            </div>
+          )}
+
           {filteredFooterItems.map((item) => {
             const isActive = item.href ? activeUrl === item.href : false;
             const Icon = item.icon;

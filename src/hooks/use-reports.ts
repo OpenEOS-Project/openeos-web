@@ -81,3 +81,17 @@ export function useStockMovementsReport(organizationId: string, params?: ReportQ
     enabled,
   );
 }
+
+/**
+ * Systemstatus. Bewusst mit kurzem Intervall: die Kachel zeigt an, ob
+ * Kassen und Drucker gerade erreichbar sind — eine Minute alte Daten
+ * waeren dafuer wertlos.
+ */
+export function useSystemStatus(organizationId: string, enabled = true) {
+  return useQuery({
+    queryKey: [...reportKeys.all, organizationId, 'system-status'],
+    queryFn: async () => (await reportsApi.getSystemStatus(organizationId)).data,
+    enabled: !!organizationId && enabled,
+    refetchInterval: 15_000,
+  });
+}

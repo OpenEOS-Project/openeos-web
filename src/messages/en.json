@@ -326,6 +326,20 @@
         "status": "Status",
         "low": "Low",
         "ok": "OK"
+      },
+      "systemStatus": {
+        "label": "System status",
+        "pos": "Tills",
+        "printers": "Printers",
+        "printQueue": "Queue",
+        "openOrders": "Open orders",
+        "noneConfigured": "none set up",
+        "jobs": "{count, plural, =0 {no tickets} one {# ticket} other {# tickets}}",
+        "throughput": "{count} in the past hour",
+        "openOrdersHint": "not yet completed",
+        "unreachable": "unreachable",
+        "partiallyReachable": "partly reachable",
+        "allConnected": "all connected"
       }
     }
   },

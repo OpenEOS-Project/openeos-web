@@ -87,6 +87,7 @@ export function DashboardContainer() {
 
   const statWidgets = activeWidgets.filter((w) => w.type === 'stat');
   const cardWidgets = activeWidgets.filter((w) => w.type === 'card');
+  const stripWidgets = activeWidgets.filter((w) => w.type === 'strip');
 
   // Fetch today's orders for recent-activity section
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -154,6 +155,12 @@ export function DashboardContainer() {
             ))}
           </div>
         )}
+
+        {/* Leisten-Widgets: volle Breite, direkt unter den Kennzahlen,
+            damit der Betriebszustand oben steht statt unten. */}
+        {stripWidgets.map((widget) => (
+          <widget.Component key={widget.id} organizationId={organizationId} />
+        ))}
 
         {/* Card widgets */}
         {cardWidgets.map((widget) => (
