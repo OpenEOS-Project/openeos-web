@@ -136,9 +136,44 @@ jobs:
           script: |
             set -e
             cd ${{ vars.DEPLOY_PATH || format('/srv/docker/{0}', github.event.repository.name) }}
-            docker compose pull ${{ vars.DEPLOY_SERVICE }}
-            docker compose up -d ${{ vars.DEPLOY_SERVICE }}
-            docker image prune -f
+            SERVICE="${{ vars.DEPLOY_SERVICE }}"
+
+            # Merken, welches Image gerade läuft, damit ein fehlgeschlagener
+            # Health-Check darauf zurückrollen kann statt einen kaputten
+            # Stand live zu lassen.
+            PREVIOUS_IMAGE=$(docker compose ps -q $SERVICE 2>/dev/null | head -1 | xargs -r docker inspect --format='{{.Image}}' 2>/dev/null || true)
+
+            docker compose pull $SERVICE
+            docker compose up -d $SERVICE
+
+            CONTAINER_ID=$(docker compose ps -q $SERVICE | head -1)
+            HEALTHY=false
+            for i in $(seq 1 10); do
+              sleep 3
+              # Bewusst 127.0.0.1 und NICHT localhost: im Container zeigt
+              # localhost per /etc/hosts zuerst auf ::1, der Next-Server
+              # lauscht aber nur auf IPv4 0.0.0.0 — über localhost bekommt
+              # man daher immer "connection refused".
+              if docker exec "$CONTAINER_ID" wget -q -O /dev/null http://127.0.0.1:3000/; then
+                HEALTHY=true
+                break
+              fi
+            done
+
+            if [ "$HEALTHY" = "true" ]; then
+              echo "Deploy healthy."
+              docker image prune -f
+            else
+              echo "Neuer Stand hat den Health-Check nach 30s nicht bestanden." >&2
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                echo "Rolle zurück auf $PREVIOUS_IMAGE" >&2
+                docker tag "$PREVIOUS_IMAGE" "$(docker compose config --images $SERVICE | head -1)"
+                docker compose up -d $SERVICE
+              else
+                echo "Kein Vorgänger-Image bekannt (Erst-Deploy?) — kein automatischer Rollback möglich." >&2
+              fi
+              exit 1
+            fi
 
   deploy-staging:
     name: Deploy to staging
@@ -162,6 +197,41 @@ jobs:
           script: |
             set -e
             cd ${{ vars.STAGING_DEPLOY_PATH || format('/srv/docker/staging/{0}', github.event.repository.name) }}
-            docker compose pull ${{ vars.DEPLOY_SERVICE }}
-            docker compose up -d ${{ vars.DEPLOY_SERVICE }}
-            docker image prune -f
+            SERVICE="${{ vars.DEPLOY_SERVICE }}"
+
+            # Merken, welches Image gerade läuft, damit ein fehlgeschlagener
+            # Health-Check darauf zurückrollen kann statt einen kaputten
+            # Stand live zu lassen.
+            PREVIOUS_IMAGE=$(docker compose ps -q $SERVICE 2>/dev/null | head -1 | xargs -r docker inspect --format='{{.Image}}' 2>/dev/null || true)
+
+            docker compose pull $SERVICE
+            docker compose up -d $SERVICE
+
+            CONTAINER_ID=$(docker compose ps -q $SERVICE | head -1)
+            HEALTHY=false
+            for i in $(seq 1 10); do
+              sleep 3
+              # Bewusst 127.0.0.1 und NICHT localhost: im Container zeigt
+              # localhost per /etc/hosts zuerst auf ::1, der Next-Server
+              # lauscht aber nur auf IPv4 0.0.0.0 — über localhost bekommt
+              # man daher immer "connection refused".
+              if docker exec "$CONTAINER_ID" wget -q -O /dev/null http://127.0.0.1:3000/; then
+                HEALTHY=true
+                break
+              fi
+            done
+
+            if [ "$HEALTHY" = "true" ]; then
+              echo "Deploy healthy."
+              docker image prune -f
+            else
+              echo "Neuer Stand hat den Health-Check nach 30s nicht bestanden." >&2
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                echo "Rolle zurück auf $PREVIOUS_IMAGE" >&2
+                docker tag "$PREVIOUS_IMAGE" "$(docker compose config --images $SERVICE | head -1)"
+                docker compose up -d $SERVICE
+              else
+                echo "Kein Vorgänger-Image bekannt (Erst-Deploy?) — kein automatischer Rollback möglich." >&2
+              fi
+              exit 1
+            fi

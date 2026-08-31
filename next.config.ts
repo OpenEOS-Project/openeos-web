@@ -4,6 +4,8 @@ import type { NextConfig } from 'next';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+const isDev = process.env.NODE_ENV === 'development';
+
 // No security headers were set anywhere before this (no CSP, no
 // X-Frame-Options, no HSTS, etc.). This is a pragmatic baseline, not a
 // strict nonce-based CSP — 'unsafe-inline' on script/style is here because
@@ -27,9 +29,14 @@ const securityHeaders = [
       "font-src 'self' data:",
       // API/shop run on separate subdomains (NEXT_PUBLIC_API_URL /
       // NEXT_PUBLIC_SHOP_URL) — connect-src needs https: broadly rather
-      // than a fixed origin since the actual domain is a runtime env var,
-      // not known at build time (see docker-entrypoint.sh).
-      "connect-src 'self' https:",
+      // than a fixed origin, since which domain is in play depends on the
+      // build (production vs. staging URLs are baked in as build args).
+      // In development the API is plain http on another port, which is
+      // neither 'self' nor https:, so it has to be allowed explicitly —
+      // otherwise the local dashboard silently can't reach the backend.
+      isDev
+        ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*"
+        : "connect-src 'self' https:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "object-src 'none'",
