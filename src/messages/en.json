@@ -285,7 +285,10 @@
       "moveDown": "Move down",
       "save": "Save",
       "cancel": "Cancel",
-      "close": "Close"
+      "close": "Close",
+      "arrange": "Arrange",
+      "done": "Done",
+      "editHint": "Drag tiles by the grip, resize from the bottom-right corner."
     },
     "widgets": {
       "empty": "No data available",
@@ -307,16 +310,29 @@
         "product": "Product",
         "category": "Category",
         "qty": "Qty",
-        "revenue": "Revenue"
+        "revenue": "Revenue",
+        "soldCount": "{count, plural, =0 {none sold} one {# sold} other {# sold}}"
       },
       "hourlyRevenue": {
         "label": "Revenue by hour",
         "subtitle": "Hourly revenue breakdown for today",
-        "revenueLabel": "Revenue"
+        "revenueLabel": "Revenue",
+        "forecastLabel": "Forecast",
+        "legendBars": "Revenue per hour",
+        "legendTrend": "Trend",
+        "legendForecast": "Forecast",
+        "peak": "Peak {hour} — {amount}"
       },
       "paymentMethods": {
         "label": "Payment methods",
-        "subtitle": "Payment method breakdown for today"
+        "subtitle": "Payment method breakdown for today",
+        "methods": {
+          "cash": "Cash",
+          "card": "Card",
+          "applePay": "Apple Pay",
+          "googlePay": "Google Pay",
+          "voucher": "Voucher"
+        }
       },
       "lowStock": {
         "label": "Low stock",
@@ -340,7 +356,37 @@
         "unreachable": "unreachable",
         "partiallyReachable": "partly reachable",
         "allConnected": "all connected"
+      },
+      "activity": {
+        "label": "Activity",
+        "subtitle": "Orders, payments and printing in real time",
+        "live": "Live",
+        "empty": "No activity yet",
+        "kind": {
+          "order": "Order",
+          "payment": "Payment",
+          "print": "Print"
+        },
+        "payment": {
+          "cash": "Cash",
+          "card": "Card",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "voucher": "Voucher"
+        },
+        "print": {
+          "queued": "queued",
+          "printing": "printing",
+          "completed": "printed",
+          "failed": "failed"
+        }
       }
+    },
+    "range": {
+      "label": "Period",
+      "today": "Today",
+      "week": "7 days",
+      "event": "Event"
     }
   },
   "navigation": {
@@ -796,7 +842,7 @@
       }
     },
     "support": {
-      "title": "Support",
+      "title": "Support requests",
       "subtitle": "Support chats across all organizations.",
       "threadListEmpty": "No support requests",
       "unreadBadge": "{count} unread",

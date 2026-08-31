@@ -285,7 +285,10 @@
       "moveDown": "Nach unten",
       "save": "Speichern",
       "cancel": "Abbrechen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "arrange": "Anordnen",
+      "done": "Fertig",
+      "editHint": "Kacheln am Griff ziehen, an der Ecke unten rechts in der Größe ändern."
     },
     "widgets": {
       "empty": "Keine Daten verfügbar",
@@ -307,16 +310,29 @@
         "product": "Produkt",
         "category": "Kategorie",
         "qty": "Menge",
-        "revenue": "Umsatz"
+        "revenue": "Umsatz",
+        "soldCount": "{count, plural, =0 {nichts verkauft} one {# verkauft} other {# verkauft}}"
       },
       "hourlyRevenue": {
         "label": "Umsatz nach Stunde",
         "subtitle": "Stündliche Umsatzverteilung für heute",
-        "revenueLabel": "Umsatz"
+        "revenueLabel": "Umsatz",
+        "forecastLabel": "Prognose",
+        "legendBars": "Umsatz je Stunde",
+        "legendTrend": "Verlauf",
+        "legendForecast": "Prognose",
+        "peak": "Spitze {hour} — {amount}"
       },
       "paymentMethods": {
         "label": "Zahlungsmethoden",
-        "subtitle": "Verteilung der Zahlungsarten für heute"
+        "subtitle": "Verteilung der Zahlungsarten für heute",
+        "methods": {
+          "cash": "Bar",
+          "card": "Karte",
+          "applePay": "Apple Pay",
+          "googlePay": "Google Pay",
+          "voucher": "Gutschein"
+        }
       },
       "lowStock": {
         "label": "Niedriger Lagerbestand",
@@ -340,7 +356,37 @@
         "unreachable": "nicht erreichbar",
         "partiallyReachable": "teilweise erreichbar",
         "allConnected": "alle verbunden"
+      },
+      "activity": {
+        "label": "Ereignisse",
+        "subtitle": "Bestellungen, Zahlungen und Druck in Echtzeit",
+        "live": "Live",
+        "empty": "Noch keine Ereignisse",
+        "kind": {
+          "order": "Bestellung",
+          "payment": "Zahlung",
+          "print": "Druck"
+        },
+        "payment": {
+          "cash": "Bar",
+          "card": "Karte",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "voucher": "Gutschein"
+        },
+        "print": {
+          "queued": "in Warteschlange",
+          "printing": "wird gedruckt",
+          "completed": "gedruckt",
+          "failed": "fehlgeschlagen"
+        }
       }
+    },
+    "range": {
+      "label": "Zeitraum",
+      "today": "Heute",
+      "week": "7 Tage",
+      "event": "Event"
     }
   },
   "navigation": {
@@ -1469,7 +1515,7 @@
       }
     },
     "support": {
-      "title": "Support",
+      "title": "Support-Anfragen",
       "subtitle": "Support-Chats aller Organisationen.",
       "threadListEmpty": "Keine Support-Anfragen",
       "unreadBadge": "{count} ungelesen",

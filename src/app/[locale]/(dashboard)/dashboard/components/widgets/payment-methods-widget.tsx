@@ -4,20 +4,35 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePaymentsReport } from '@/hooks/use-reports';
 import { formatCurrency } from '@/utils/format';
+import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
   organizationId: string;
 }
 
+/**
+ * Zahlungsart lesbar machen. Die API liefert den Schluessel aus der
+ * Datenbank ("apple_pay"); der gehoert nicht auf ein Dashboard.
+ * Unbekannte Schluessel werden durchgereicht, statt sie zu verschlucken.
+ */
+const METHOD_KEYS: Record<string, string> = {
+  cash: 'cash',
+  card: 'card',
+  apple_pay: 'applePay',
+  google_pay: 'googlePay',
+  voucher: 'voucher',
+};
+
 export function PaymentMethodsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const range = useDashboardRange();
 
-  const today = useMemo(() => {
-    const date = new Date().toISOString().split('T')[0];
-    return { startDate: date, endDate: date };
-  }, []);
+  const methodLabel = (method: string): string => {
+    const key = METHOD_KEYS[method];
+    return key ? t(`widgets.paymentMethods.methods.${key}`) : method;
+  };
 
-  const { data, isLoading } = usePaymentsReport(organizationId, today);
+  const { data, isLoading } = usePaymentsReport(organizationId, range);
 
   return (
     <div className="app-card app-card--flat">
@@ -39,29 +54,23 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {data.map((row, i) => (
-            <div
-              key={row.method}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 20px',
-                borderTop: i > 0 ? '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' : undefined,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {/* Percentage bar */}
-                <div style={{ width: 48, height: 6, borderRadius: 3, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', overflow: 'hidden' }}>
-                  <div style={{ width: `${row.percentage}%`, height: '100%', background: 'var(--green-ink)', borderRadius: 3 }} />
-                </div>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{row.method}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{row.count}×</span>
-                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--f-mono)', minWidth: 80, textAlign: 'right' }}>{formatCurrency(row.total)}</span>
-                <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', minWidth: 36, textAlign: 'right' }}>{row.percentage.toFixed(1)}%</span>
-              </div>
+          {data.map((row) => (
+            /* Eine Zeile statt gestapelt: Beschriftung, Balken und
+               Prozentwert nebeneinander wie in der Vorlage. Gestapelt
+               wirkte die Liste ueber die Kachelbreite leer. */
+            <div className="pay-row" key={row.method}>
+              <span className="pay-row__label">{methodLabel(row.method)}</span>
+              <span
+                className="pay-row__bar"
+                role="meter"
+                aria-label={methodLabel(row.method)}
+                aria-valuenow={Math.round(row.percentage)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <i style={{ width: `${row.percentage}%` }} />
+              </span>
+              <span className="pay-row__value">{row.percentage.toFixed(1)} %</span>
             </div>
           ))}
         </div>

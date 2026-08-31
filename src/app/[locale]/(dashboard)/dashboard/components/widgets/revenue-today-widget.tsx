@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { ordersApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
+import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
   organizationId: string;
@@ -12,13 +13,13 @@ interface Props {
 
 export function RevenueTodayWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const range = useDashboardRange();
 
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   const { data: ordersResponse, isLoading } = useQuery({
-    queryKey: ['orders', organizationId, 'today', today],
+    queryKey: ['orders', organizationId, 'range', range.startDate, range.endDate],
     queryFn: async () => {
-      const response = await ordersApi.list(organizationId, { dateFrom: today, dateTo: today });
+      const response = await ordersApi.list(organizationId, { dateFrom: range.startDate, dateTo: range.endDate });
       return response.data;
     },
     enabled: !!organizationId,

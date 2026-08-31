@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProductsReport } from '@/hooks/use-reports';
 import { formatCurrency } from '@/utils/format';
+import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
   organizationId: string;
@@ -11,14 +12,9 @@ interface Props {
 
 export function TopProductsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const range = useDashboardRange();
 
-  const today = useMemo(() => {
-    const now = new Date();
-    const date = now.toISOString().split('T')[0];
-    return { startDate: date, endDate: date };
-  }, []);
-
-  const { data, isLoading } = useProductsReport(organizationId, today);
+  const { data, isLoading } = useProductsReport(organizationId, range);
 
   const top5 = useMemo(() => {
     if (!data) return [];
@@ -44,29 +40,23 @@ export function TopProductsWidget({ organizationId }: Props) {
           <p className="empty-state__sub">{t('widgets.empty')}</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>{t('widgets.topProducts.product')}</th>
-                <th>{t('widgets.topProducts.category')}</th>
-                <th style={{ textAlign: 'right' }}>{t('widgets.topProducts.qty')}</th>
-                <th style={{ textAlign: 'right' }}>{t('widgets.topProducts.revenue')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {top5.map((row, i) => (
-                <tr key={row.productId}>
-                  <td className="mono" style={{ color: 'color-mix(in oklab, var(--ink) 40%, transparent)', width: 32 }}>{i + 1}</td>
-                  <td style={{ fontWeight: 600 }}>{row.productName}</td>
-                  <td style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontSize: 13 }}>{row.categoryName}</td>
-                  <td className="mono" style={{ textAlign: 'right' }}>{row.quantitySold}</td>
-                  <td className="mono" style={{ textAlign: 'right', fontWeight: 600 }}>{formatCurrency(row.revenue)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        /* Rangliste statt fuenfspaltiger Tabelle: fuer fuenf Zeilen
+           trug die Tabelle mehr Kopfzeile als Inhalt. Menge und
+           Kategorie stehen jetzt als Beizeile unter dem Namen. */
+        <div className="oe-list">
+          {top5.map((row, i) => (
+            <div className="oe-list__row" key={row.productId}>
+              <span className="oe-rank">{i + 1}</span>
+              <div className="oe-list__main">
+                <b>{row.productName}</b>
+                <span>
+                  {t('widgets.topProducts.soldCount', { count: row.quantitySold })}
+                  {row.categoryName ? ` · ${row.categoryName}` : ''}
+                </span>
+              </div>
+              <span className="oe-mono">{formatCurrency(row.revenue)}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>

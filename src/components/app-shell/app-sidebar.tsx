@@ -8,7 +8,6 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
-  ChevronRight,
   LogOut01,
   Mail01,
   Plus,
@@ -403,6 +402,16 @@ export function AppSidebar() {
               <div className="app-sidebar__account-tools">
                 <LocaleSwitcher />
                 <ThemeToggle />
+                {/* Das Einklappen gehoert zu den Werkzeugen, nicht als
+                    einzelner Pfeil unter die Navigation. */}
+                <button
+                  type="button"
+                  onClick={toggleCollapsed}
+                  className="app-sidebar__tool app-sidebar__tool--collapse"
+                  aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+                >
+                  <ChevronLeft />
+                </button>
               </div>
             </div>
           )}
@@ -437,41 +446,17 @@ export function AppSidebar() {
             <span className="app-sidebar__item-label">Abmelden</span>
           </button>
 
-          <button
-            onClick={toggleCollapsed}
-            className="app-sidebar__collapse-btn"
-            aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
-            style={{ display: 'none' }}
-            id="sidebar-collapse-btn"
-          >
-            {isCollapsed ? (
-              <ChevronRight style={{ width: 16, height: 16 }} />
-            ) : (
-              <ChevronLeft style={{ width: 16, height: 16 }} />
-            )}
-          </button>
-
           {!isCollapsed && (
-            <p
-              style={{
-                margin: 0,
-                padding: '6px 0 2px',
-                textAlign: 'center',
-                fontSize: 11,
-                color: 'color-mix(in oklab, var(--ink) 40%, transparent)',
-              }}
-            >
-              v{APP_VERSION}
+            /* "v" nur vor einer echten Versionsnummer — lokal steht hier
+               "dev", und "vdev" liest sich wie ein Tippfehler. */
+            <p className="app-sidebar__version">
+              {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
             </p>
           )}
         </div>
       </aside>
 
-      <style>{`
-        @media (min-width: 961px) {
-          #sidebar-collapse-btn { display: flex !important; }
-        }
-      `}</style>
+
     </>
   );
 }

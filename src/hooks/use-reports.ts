@@ -95,3 +95,13 @@ export function useSystemStatus(organizationId: string, enabled = true) {
     refetchInterval: 15_000,
   });
 }
+
+/** Ereignisstrom. Kurzes Intervall, weil er den laufenden Betrieb zeigt. */
+export function useActivityStream(organizationId: string, enabled = true) {
+  return useQuery({
+    queryKey: [...reportKeys.all, organizationId, 'activity'],
+    queryFn: async () => (await reportsApi.getActivity(organizationId)).data,
+    enabled: !!organizationId && enabled,
+    refetchInterval: 20_000,
+  });
+}

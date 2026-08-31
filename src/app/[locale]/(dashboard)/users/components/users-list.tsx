@@ -75,7 +75,10 @@ export function UsersList() {
   return (
     <>
       {/* Mobile card list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }} className="md:hidden">
+      {/* Kartenliste nur schmal. Das Layout darf NICHT inline stehen:
+          ein inline display:flex schlaegt md:hidden, dadurch standen
+          Karten und Tabelle auf breiten Viewports uebereinander. */}
+      <div className="flex flex-col gap-2.5 md:hidden">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ fontSize: 15, fontWeight: 700 }}>{t('title')}</h2>
           <span className="badge badge--neutral">{users.length}</span>

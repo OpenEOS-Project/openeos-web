@@ -53,7 +53,11 @@ export const superAdminNavItems: NavItemType[] = [
     icon: Calendar,
   },
   {
-    label: 'Support',
+    // Nicht schlicht "Support": der Fusseintrag heisst schon so und
+    // fuehrt zum eigenen Chat mit dem Support. Hier geht es um den
+    // Posteingang aller Organisationen — beides nebeneinander in der
+    // Seitenleiste war nicht unterscheidbar.
+    label: 'Support-Anfragen',
     href: '/admin/support',
     icon: MessageChatCircle,
   },

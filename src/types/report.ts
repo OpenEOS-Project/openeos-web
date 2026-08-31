@@ -94,3 +94,14 @@ export interface SystemStatus {
   openOrders: number;
   generatedAt: string;
 }
+
+/** Eintrag im Ereignisstrom des Dashboards. */
+export interface ActivityEntry {
+  id: string;
+  /** ISO-Zeitstempel */
+  at: string;
+  kind: 'order' | 'payment' | 'print';
+  tone: 'neutral' | 'ok' | 'error';
+  message: string;
+  amount: number | null;
+}

@@ -10,6 +10,21 @@ export interface NotificationPreferences {
 export interface DashboardPreferences {
   /** Ordered list of enabled dashboard widget ids */
   widgets: string[];
+  /**
+   * Kachelgrößen im 12-Spalten-Raster. Die Reihenfolge steht in
+   * `widgets`, die Größe hier — je ein Ort pro Belang. Fehlt ein
+   * Eintrag, gilt die Standardgröße des Widget-Typs.
+   */
+  sizes?: DashboardWidgetSize[];
+}
+
+/** Größe einer Kachel: Spalten- und Zeilenspanne im Raster. */
+export interface DashboardWidgetSize {
+  id: string;
+  /** Breite in Rasterspalten, 1–12 */
+  w: number;
+  /** Höhe in Rasterzeilen, 1–6 */
+  h: number;
 }
 
 export interface UserPreferences {

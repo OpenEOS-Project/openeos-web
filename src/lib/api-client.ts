@@ -1791,6 +1791,11 @@ export const reportsApi = {
       `/organizations/${organizationId}/reports/devices${reportQuery(params)}`
     ),
 
+  getActivity: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/report').ActivityEntry[]>>(
+      `/organizations/${organizationId}/reports/activity`
+    ),
+
   getSystemStatus: (organizationId: string) =>
     apiClient.get<ApiResponse<import('@/types/report').SystemStatus>>(
       `/organizations/${organizationId}/reports/system-status`

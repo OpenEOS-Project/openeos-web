@@ -26,6 +26,7 @@ export const WIDGET_IDS = [
   'paymentMethods',
   'lowStock',
   'systemStatus',
+  'activity',
 ] as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[number];

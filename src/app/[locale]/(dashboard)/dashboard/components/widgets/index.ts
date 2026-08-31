@@ -8,6 +8,7 @@ import { HourlyRevenueWidget } from './hourly-revenue-widget';
 import { PaymentMethodsWidget } from './payment-methods-widget';
 import { LowStockWidget } from './low-stock-widget';
 import { SystemStatusWidget } from './system-status-widget';
+import { ActivityStreamWidget } from './activity-stream-widget';
 
 export { DEFAULT_WIDGET_IDS } from './widget-registry';
 export type { WidgetId } from './widget-registry';
@@ -70,5 +71,12 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
     labelKey: 'widgets.systemStatus.label',
     type: 'strip',
     Component: SystemStatusWidget,
+  },
+  {
+    id: 'activity',
+    labelKey: 'widgets.activity.label',
+    requiredPermission: 'reports',
+    type: 'card',
+    Component: ActivityStreamWidget,
   },
 ];

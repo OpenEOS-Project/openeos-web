@@ -11,21 +11,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * Der Seitenkopf steht bewusst im Container und nicht hier: Titel und
+ * Bedienelemente (Zeitraum, Anordnen, Anpassen) gehören in dieselbe
+ * Zeile, und die Bedienelemente brauchen Zustand — hier wäre nur der
+ * Titel möglich und die Steuerung müsste darunter stehen.
+ */
 export default async function DashboardPage() {
-  const t = await getTranslations('dashboard');
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Page header */}
-      <div className="app-page-head">
-        <div className="app-page-head__copy">
-          <h1 className="app-page-head__title">{t('title')}</h1>
-          <p className="app-page-head__sub">{t('subtitle')}</p>
-        </div>
-      </div>
-
-      {/* Dashboard content */}
-      <DashboardContainer />
-    </div>
-  );
+  return <DashboardContainer />;
 }

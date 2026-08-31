@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInventoryReport } from '@/hooks/use-reports';
+import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
   organizationId: string;
@@ -10,13 +11,9 @@ interface Props {
 
 export function LowStockWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const range = useDashboardRange();
 
-  const today = useMemo(() => {
-    const date = new Date().toISOString().split('T')[0];
-    return { startDate: date, endDate: date };
-  }, []);
-
-  const { data, isLoading } = useInventoryReport(organizationId, today);
+  const { data, isLoading } = useInventoryReport(organizationId, range);
 
   const top5 = useMemo(() => {
     if (!data) return [];

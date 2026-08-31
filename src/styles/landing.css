@@ -2177,7 +2177,6 @@ body:has(.landing) {
   font-size: 14px;
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
-  border-left: 2px solid transparent;
   white-space: nowrap;
   overflow: hidden;
   cursor: pointer;
@@ -2198,7 +2197,6 @@ body:has(.landing) {
 .landing .app-sidebar__item--active {
   background: color-mix(in oklab, var(--green-soft) 60%, var(--paper-2));
   color: var(--green-ink);
-  border-left-color: var(--green-ink);
   font-weight: 600;
 }
 
@@ -2319,11 +2317,9 @@ body:has(.landing) {
 .landing .app-sidebar--collapsed .app-sidebar__item {
   padding: 9px 0;
   justify-content: center;
-  border-left-color: transparent;
 }
 
 .landing .app-sidebar--collapsed .app-sidebar__item--active {
-  border-left-color: transparent;
   border-radius: var(--r);
 }
 
@@ -3658,4 +3654,299 @@ body:has(.landing) {
   background-image:
     linear-gradient(315deg, transparent 50%, var(--oe-green-ink) 50%),
     linear-gradient(225deg, var(--oe-green-ink) 50%, transparent 50%);
+}
+
+/* ---------- Werkzeuge im Sidebar-Fuß ----------
+   Sprache, Theme und Einklappen kamen aus drei Quellen mit drei
+   verschiedenen Groessen: die Sprachwahl als schmale Pille, der
+   Theme-Umschalter als 40px-Quadrat, der Pfeil freistehend unter der
+   Navigation. Hier auf ein Format gebracht. */
+.landing .app-sidebar__account-tools > button,
+.landing .app-sidebar__tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--oe-r-sm);
+  background: transparent;
+  color: var(--mute);
+  font: 500 12px var(--oe-f-mono);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.landing .app-sidebar__account-tools > button:hover,
+.landing .app-sidebar__tool:hover {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  border-color: var(--oe-line);
+  color: var(--ink);
+}
+.landing .app-sidebar__account-tools > button svg,
+.landing .app-sidebar__tool svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+/* Das Einklappen sitzt rechts, abgesetzt von Sprache und Theme. */
+.landing .app-sidebar__tool--collapse {
+  margin-left: auto;
+}
+/* Ein Icon fuer beide Richtungen — eingeklappt gedreht. */
+.landing .app-sidebar--collapsed .app-sidebar__tool--collapse svg {
+  transform: rotate(180deg);
+}
+
+.landing .app-sidebar__version {
+  margin: 0;
+  padding: 8px 10px 2px;
+  font: 500 10px var(--oe-f-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+  text-align: center;
+}
+
+/* ========================= DASHBOARD-RASTER =========================
+   Die Kacheln lagen zuvor als volle Breite untereinander — vier
+   Kennzahlen brauchten damit vier Bildschirmhoehen. Zwoelf Spalten,
+   weil darin Halbe, Drittel, Viertel und Sechstel glatt aufgehen. */
+.landing .dash-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  /* 132px, weil eine Kennzahlkachel gemessen 123px braucht.
+     Bei 120px scrollte jede von ihnen um drei Pixel. */
+  grid-auto-rows: 132px;
+  gap: 14px;
+  align-items: stretch;
+}
+/* Schmale Viewports: das Raster taugt nicht zum Anordnen, die Kacheln
+   stehen untereinander. Die gespeicherten Breiten bleiben erhalten und
+   greifen wieder, sobald Platz da ist. */
+@media (max-width: 900px) {
+  .landing .dash-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  .landing .dash-tile {
+    grid-column: span 1 !important;
+    grid-row: auto !important;
+  }
+}
+
+.landing .dash-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+/* Die Kachel fuellt ihre Rasterflaeche; der Inhalt scrollt, statt das
+   Raster auseinanderzudruecken. */
+.landing .dash-tile__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.landing .dash-tile__body > * {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--oe-line-2) transparent;
+}
+
+.landing .dash-tile--editing {
+  outline: 1px dashed var(--oe-line-2);
+  outline-offset: 3px;
+  border-radius: var(--oe-r);
+}
+.landing .dash-tile--dragging {
+  z-index: 5;
+  opacity: 0.9;
+  box-shadow: var(--oe-sh-3);
+}
+
+/* Kopfleiste im Bearbeitungsmodus */
+/* Schwebt ueber der Kachel, statt Hoehe zu belegen — sonst scrollen
+   die Kennzahlkacheln, sobald der Bearbeitungsmodus aktiv ist. */
+/* Schwebt ueber der Kachel, statt Hoehe zu belegen — sonst scrollen
+   die Kennzahlkacheln im Bearbeitungsmodus. Nur so breit wie noetig und
+   rechts angeschlagen: ueber die volle Breite verdeckte sie die
+   Ueberschriften der Widgets. */
+.landing .dash-tile__bar {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--paper-2) 94%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--oe-line);
+  box-shadow: var(--oe-sh-1);
+}
+.landing .dash-tile__grip {
+  display: inline-flex;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: var(--mute);
+  cursor: grab;
+}
+.landing .dash-tile__grip:active { cursor: grabbing; }
+.landing .dash-tile__grip svg { width: 15px; height: 15px; }
+.landing .dash-tile__size {
+  font: 500 11px var(--oe-f-mono);
+  color: var(--mute-2);
+}
+.landing .dash-tile__remove {
+  display: inline-flex;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: var(--mute);
+  cursor: pointer;
+  border-radius: var(--oe-r-xs);
+}
+.landing .dash-tile__remove:hover { color: var(--oe-danger); }
+.landing .dash-tile__remove svg { width: 14px; height: 14px; }
+
+/* Groessenanfasser unten rechts */
+.landing .dash-tile__resize {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  border-right: 2px solid var(--oe-green-ink);
+  border-bottom: 2px solid var(--oe-green-ink);
+  border-bottom-right-radius: var(--oe-r-xs);
+  opacity: 0.55;
+}
+.landing .dash-tile__resize:hover,
+.landing .dash-tile__resize:focus-visible { opacity: 1; }
+
+/* Zeitraum und Knoepfe stehen im Seitenkopf, ganz oben rechts neben
+   dem Titel — vorher lagen sie in einer eigenen Zeile darunter und
+   schoben das Dashboard nach unten. */
+.landing .dash-head {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.landing .dash-head__actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+@media (max-width: 700px) {
+  /* Schmal reicht die Breite nicht fuer Titel und Steuerung
+     nebeneinander; die Steuerung rutscht dann unter den Titel. */
+  .landing .dash-head__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- Diagramm-Karte ----------
+   Das Diagramm hatte eine feste Hoehe von 220px. In einer Kachel, die
+   sich in der Groesse aendern laesst, ergibt das entweder abgeschnittene
+   Achsen oder leeren Raum darunter. Es fuellt jetzt, was uebrig bleibt. */
+.landing .chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.landing .chart-card__plot {
+  flex: 1;
+  min-height: 120px;
+  margin-top: 8px;
+}
+.landing .chart-card__state {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 24px 0;
+}
+.landing .chart-card__legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 8px;
+  font: 500 11px var(--oe-f-mono);
+  color: var(--mute);
+  flex-wrap: wrap;
+}
+.landing .chart-card__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.landing .chart-card__legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* ---------- Ereignisstrom ----------
+   Die Liste fuellt die Kachel und scrollt darin, statt sie zu dehnen —
+   sonst waere die Kachelhoehe von der Zahl der Ereignisse abhaengig. */
+.landing .stream-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.landing .stream-card__list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--oe-line-2) transparent;
+}
+
+/* ---------- Zahlungsmethoden ----------
+   Beschriftung, Balken und Prozentwert in einer Zeile — gestapelt (wie
+   bei .oe-meter) blieb ueber die Kachelbreite zu viel Luft, und die
+   Anteile liessen sich nicht mehr auf einen Blick vergleichen. */
+.landing .pay-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 96px) 1fr 64px;
+  gap: 12px;
+  align-items: center;
+  font-size: 13.5px;
+  padding: 5px 0;
+}
+.landing .pay-row__label {
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.landing .pay-row__bar {
+  height: 8px;
+  border-radius: var(--oe-r-full);
+  background: var(--paper-3);
+  overflow: hidden;
+}
+.landing .pay-row__bar i {
+  display: block;
+  height: 100%;
+  border-radius: var(--oe-r-full);
+  background: var(--oe-green-ink);
+  transition: width var(--oe-dur-3) var(--oe-ease);
+}
+.landing .pay-row__value {
+  font-family: var(--oe-f-mono);
+  font-size: 12.5px;
+  text-align: right;
+  color: var(--mute);
 }

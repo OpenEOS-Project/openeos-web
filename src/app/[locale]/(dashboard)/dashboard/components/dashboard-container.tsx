@@ -5,14 +5,17 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { useEvents } from '@/hooks/use-events';
+import { useEvents, useActiveEvent } from '@/hooks/use-events';
 import { ordersApi } from '@/lib/api-client';
 import type { Order } from '@/types/order';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
 import { CustomizeModal } from './customize-modal';
+import { DashboardGrid } from './dashboard-grid';
+import { DashboardRangeProvider, rangeFor, type RangeKey } from './dashboard-range';
 import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
+import type { DashboardWidgetSize } from '@/types/settings';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
@@ -43,12 +46,19 @@ export function DashboardContainer() {
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
 
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  /* Griffe erscheinen nur hier — sonst verschiebt jeder Scrollversuch
+     die Anordnung. */
+  const [isEditing, setIsEditing] = useState(false);
+  const [rangeKey, setRangeKey] = useState<RangeKey>('today');
 
   if (user?.isSuperAdmin) {
     return <SuperAdminDashboard />;
   }
 
   const organizationId = currentOrganization?.organizationId || '';
+  /* Fuer die Auswahl "Event": ohne laufende Veranstaltung bleibt der
+     Knopf gesperrt. */
+  const { data: activeEvent } = useActiveEvent(organizationId);
   const role = currentOrganization?.role;
   const permissions = currentOrganization?.permissions;
 
@@ -85,9 +95,14 @@ export function DashboardContainer() {
       .filter(Boolean);
   }, [enabledIds, availableWidgets]);
 
-  const statWidgets = activeWidgets.filter((w) => w.type === 'stat');
-  const cardWidgets = activeWidgets.filter((w) => w.type === 'card');
-  const stripWidgets = activeWidgets.filter((w) => w.type === 'strip');
+  /* Groessen aus den Voreinstellungen; fehlt ein Eintrag, greift die
+     Vorgabe des Widget-Typs. */
+  const sizes: DashboardWidgetSize[] | undefined = preferences?.dashboard?.sizes;
+
+  const range = useMemo(
+    () => rangeFor(rangeKey, activeEvent ?? undefined),
+    [rangeKey, activeEvent?.startDate, activeEvent?.endDate],
+  );
 
   // Fetch today's orders for recent-activity section
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -110,9 +125,21 @@ export function DashboardContainer() {
 
   function handleSave(ids: string[]) {
     updatePreferences.mutate(
-      { dashboard: { widgets: ids } },
+      { dashboard: { widgets: ids, sizes } },
       { onSuccess: () => setIsCustomizeOpen(false) },
     );
+  }
+
+  /* Reihenfolge, Groesse und Entfernen schreiben alle denselben
+     Datensatz — sonst ueberschriebe der jeweils letzte Aufruf die
+     Aenderung des vorherigen. */
+  function persist(next: { widgets?: string[]; sizes?: DashboardWidgetSize[] }) {
+    updatePreferences.mutate({
+      dashboard: {
+        widgets: next.widgets ?? enabledIds,
+        sizes: next.sizes ?? sizes,
+      },
+    });
   }
 
   if (!organizationId) {
@@ -131,41 +158,65 @@ export function DashboardContainer() {
 
   return (
     <>
-      {/* Page header row with Anpassen button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: -8 }}>
+      <div className="app-page-head dash-head">
+        <div className="app-page-head__copy">
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">
+            {isEditing ? t('customize.editHint') : t('subtitle')}
+          </p>
+        </div>
+
+        <div className="app-page-head__actions dash-head__actions">
+        {isEditing ? null : (
+          <div className="oe-segment" role="group" aria-label={t('range.label')}>
+            {(['today', 'week', 'event'] as RangeKey[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={rangeKey === key}
+                className={rangeKey === key ? 'is-active' : undefined}
+                /* "Event" nur, wenn eine Veranstaltung laeuft — sonst
+                   waere der Zeitraum leer und die Auswahl folgenlos. */
+                disabled={key === 'event' && !activeEvent}
+                onClick={() => setRangeKey(key)}
+              >
+                {t(`range.${key}`)}
+              </button>
+            ))}
+          </div>
+        )}
+        <button
+          type="button"
+          className={isEditing ? 'btn btn--primary btn--sm' : 'btn btn--ghost btn--sm'}
+          onClick={() => setIsEditing((v) => !v)}
+        >
+          {isEditing ? t('customize.done') : t('customize.arrange')}
+        </button>
         <button
           type="button"
           className="btn btn--ghost btn--sm"
           onClick={() => setIsCustomizeOpen(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
           </svg>
           {t('customize.button')}
         </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* Stat widgets grid */}
-        {statWidgets.length > 0 && (
-          <div className="stat-cards">
-            {statWidgets.map((widget) => (
-              <widget.Component key={widget.id} organizationId={organizationId} />
-            ))}
-          </div>
-        )}
-
-        {/* Leisten-Widgets: volle Breite, direkt unter den Kennzahlen,
-            damit der Betriebszustand oben steht statt unten. */}
-        {stripWidgets.map((widget) => (
-          <widget.Component key={widget.id} organizationId={organizationId} />
-        ))}
-
-        {/* Card widgets */}
-        {cardWidgets.map((widget) => (
-          <widget.Component key={widget.id} organizationId={organizationId} />
-        ))}
+        <DashboardRangeProvider value={range}>
+          <DashboardGrid
+          widgets={activeWidgets}
+          sizes={sizes}
+          organizationId={organizationId}
+          editing={isEditing}
+          onOrderChange={(ids) => persist({ widgets: ids })}
+          onSizesChange={(next) => persist({ sizes: next })}
+          onRemove={(id) => persist({ widgets: enabledIds.filter((w) => w !== id) })}
+          />
+        </DashboardRangeProvider>
 
         {/* Recent activity — always shown */}
         <div className="app-card app-card--flat">
