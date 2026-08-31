@@ -1080,7 +1080,8 @@
       "success": {
         "title": "Import successful",
         "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
-      }
+      },
+      "networkError": "Import failed — the server could not be reached. Please try again."
     }
   },
   "productionStations": {
