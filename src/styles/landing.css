@@ -3398,21 +3398,6 @@ body:has(.landing) {
   margin-bottom: 4px;
   border-bottom: 1px solid var(--oe-line);
 }
-.landing .app-sidebar__account-user {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-}
-.landing .app-sidebar__account-name {
-  font-size: 13.5px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .landing .app-sidebar__account-tools {
   display: flex;
   align-items: center;
@@ -3969,46 +3954,25 @@ body:has(.landing) {
 .landing .app-sidebar__account {
   position: relative;
 }
-.landing .app-sidebar__account-user {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+/* Das Dropdown kommt aus dem Designsystem; hier nur, was der Platz in
+   der Seitenleiste verlangt. */
+.landing .app-sidebar__account-dd {
+  display: block;
   width: 100%;
+}
+.landing .app-sidebar__account-dd .oe-dd__trigger {
+  gap: 9px;
   padding: 5px 6px;
-  border: 1px solid transparent;
-  border-radius: var(--oe-r-sm);
-  background: none;
-  cursor: pointer;
-  text-align: start;
-  transition: background .15s, border-color .15s;
 }
-.landing .app-sidebar__account-user:hover,
-.landing .app-sidebar__account-user[aria-expanded="true"] {
-  background: color-mix(in oklab, var(--ink) 6%, transparent);
-  border-color: var(--oe-line);
+/* Der Name darf kürzen, der Chevron nicht wegrutschen. */
+.landing .app-sidebar__account-dd .oe-dd__val {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
-.landing .app-sidebar__account-chev {
-  width: 14px;
-  height: 14px;
-  margin-left: auto;
-  flex: none;
-  color: var(--mute);
-  transition: transform .15s;
-}
-.landing .app-sidebar__account-user[aria-expanded="true"] .app-sidebar__account-chev {
-  transform: rotate(180deg);
-}
-
-/* Öffnet nach oben: der Fuß sitzt am unteren Bildschirmrand. */
-.landing .app-sidebar__account-menu {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 30;
-}
-.landing .app-sidebar__account-menu a.oe-menu__item {
-  text-decoration: none;
+/* Das Panel füllt die Breite der Leiste statt der Auslöserbreite. */
+.landing .app-sidebar__account-dd .oe-dd__panel {
+  max-width: none;
 }
 
 /* Support als Symbol — gleiche Größe wie Sprache, Theme, Einklappen. */

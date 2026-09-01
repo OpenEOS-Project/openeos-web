@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Calendar,
   Check,
@@ -15,6 +15,13 @@ import {
 
 import { CreateOrgModal } from './create-org-modal';
 import { Logo } from '@/components/foundations/logo/logo';
+import {
+  Dropdown,
+  DropdownCaption,
+  DropdownLink,
+  DropdownOption,
+  DropdownSeparator,
+} from '@openeos/ui';
 
 import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -60,8 +67,9 @@ export function AppSidebar() {
   const [orgMenuOpen, setOrgMenuOpen] = React.useState(false);
   const [createOrgOpen, setCreateOrgOpen] = React.useState(false);
   const orgWrapRef = React.useRef<HTMLDivElement | null>(null);
-  const [userMenuOpen, setUserMenuOpen] = React.useState(false);
-  const userWrapRef = React.useRef<HTMLDivElement | null>(null);
+  /* DropdownLink rendert ein <a>; der Sprachpraefix muss deshalb selbst
+     davor, anders als beim Link aus i18n/routing. */
+  const locale = useLocale();
 
   React.useEffect(() => {
     setMobileOpen(false);
@@ -78,29 +86,7 @@ export function AppSidebar() {
     return () => document.removeEventListener('mousedown', onClick);
   }, [orgMenuOpen]);
 
-  React.useEffect(() => {
-    if (!userMenuOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (userWrapRef.current && !userWrapRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    const onEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setUserMenuOpen(false);
-    };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onEscape);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onEscape);
-    };
-  }, [userMenuOpen]);
 
-  /* Menue schliessen, sobald die Seite wechselt — sonst bliebe es nach
-     einem Klick auf "Einstellungen" offen stehen. */
-  React.useEffect(() => {
-    setUserMenuOpen(false);
-  }, [pathname]);
 
   const activeUrl = pathname.replace(/^\/(de|en)/, '');
 
@@ -423,52 +409,44 @@ export function AppSidebar() {
               Einstellungen und Abmelden liegen jetzt im Menue am
               Benutzer, Support als Symbol bei den Werkzeugen. */}
           {!isCollapsed && (
-            <div className="app-sidebar__account" ref={userWrapRef}>
-              <button
-                type="button"
-                className="app-sidebar__account-user"
-                aria-haspopup="menu"
-                aria-expanded={userMenuOpen}
-                onClick={() => setUserMenuOpen((v) => !v)}
+            <div className="app-sidebar__account">
+              {/* Dropdown aus dem Designsystem statt eines eigenen
+                  Menues: oeffnet nach oben, weil der Fuss der
+                  Seitenleiste am unteren Bildschirmrand sitzt. */}
+              <Dropdown
+                className="app-sidebar__account-dd"
+                placement="top"
+                block
+                triggerVariant="quiet"
+                trigger={
+                  <>
+                    <span className="oe-avatar oe-avatar--sm oe-avatar--round">
+                      {user?.firstName?.[0]?.toUpperCase() ?? '?'}
+                    </span>
+                    <span className="oe-dd__val">
+                      {user?.firstName} {user?.lastName}
+                    </span>
+                  </>
+                }
               >
-                <span className="oe-avatar oe-avatar--sm oe-avatar--round">
-                  {user?.firstName?.[0]?.toUpperCase() ?? '?'}
-                </span>
-                <span className="app-sidebar__account-name">
-                  {user?.firstName} {user?.lastName}
-                </span>
-                <ChevronDown className="app-sidebar__account-chev" />
-              </button>
-
-              {userMenuOpen && (
-                /* Oeffnet nach oben — der Fuss der Seitenleiste sitzt am
-                   unteren Bildschirmrand, nach unten waere kein Platz. */
-                <div className="oe-menu app-sidebar__account-menu" role="menu">
-                  {menuFooterItems.map((item) =>
-                    item.href ? (
-                      <Link
-                        key={item.href}
-                        href={item.href as never}
-                        role="menuitem"
-                        className="oe-menu__item"
-                      >
-                        {item.icon ? <item.icon /> : null}
-                        {item.label}
-                      </Link>
-                    ) : null,
-                  )}
-                  <div className="oe-menu__sep" role="separator" />
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="oe-menu__item oe-menu__item--danger"
-                    onClick={logout}
-                  >
-                    <LogOut01 />
-                    Abmelden
-                  </button>
-                </div>
-              )}
+                <DropdownCaption>{currentOrganization?.organization?.name}</DropdownCaption>
+                {menuFooterItems.map((item) =>
+                  item.href ? (
+                    <DropdownLink
+                      key={item.href}
+                      href={`/${locale}${item.href}`}
+                      selected={activeUrl === item.href}
+                      icon={item.icon ? <item.icon /> : undefined}
+                    >
+                      {item.label}
+                    </DropdownLink>
+                  ) : null,
+                )}
+                <DropdownSeparator />
+                <DropdownOption danger icon={<LogOut01 />} onClick={logout}>
+                  Abmelden
+                </DropdownOption>
+              </Dropdown>
 
               <div className="app-sidebar__account-tools">
                 {supportItem?.href && (
