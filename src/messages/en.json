@@ -406,7 +406,8 @@
     "admin": "Admin",
     "rentalHardware": "Rental Hardware",
     "productionStations": "Stations",
-    "templates": "Templates"
+    "templates": "Templates",
+    "invoices": "Invoices"
   },
   "settings": {
     "title": "Settings",
@@ -2659,5 +2660,33 @@
       "difference": "Difference",
       "notes": "Notes"
     }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "subtitle": "Every invoice for activated events.",
+    "table": {
+      "number": "Number",
+      "date": "Date",
+      "description": "Item",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": ""
+    },
+    "status": {
+      "paid": "Paid",
+      "open": "Open",
+      "draft": "Draft",
+      "uncollectible": "Uncollectible",
+      "void": "Voided"
+    },
+    "download": "PDF",
+    "downloadFailed": "The PDF could not be loaded.",
+    "viewAtStripe": "View at Stripe",
+    "noNumber": "no number",
+    "empty": {
+      "title": "No invoices yet",
+      "description": "Once an event has been paid for online, its invoice appears here. Documents for orders placed on account arrive by email and are not listed here."
+    },
+    "issuerNote": "Invoices are issued through our payment provider, Stripe."
   }
 }

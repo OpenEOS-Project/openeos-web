@@ -406,7 +406,8 @@
     "admin": "Admin",
     "rentalHardware": "Miet-Hardware",
     "productionStations": "Standorte",
-    "templates": "Vorlagen"
+    "templates": "Vorlagen",
+    "invoices": "Rechnungen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -2659,5 +2660,33 @@
       "difference": "Differenz",
       "notes": "Notiz"
     }
+  },
+  "invoices": {
+    "title": "Rechnungen",
+    "subtitle": "Alle Rechnungen zu freigeschalteten Veranstaltungen.",
+    "table": {
+      "number": "Nummer",
+      "date": "Datum",
+      "description": "Position",
+      "amount": "Betrag",
+      "status": "Status",
+      "actions": ""
+    },
+    "status": {
+      "paid": "Bezahlt",
+      "open": "Offen",
+      "draft": "Entwurf",
+      "uncollectible": "Uneinbringlich",
+      "void": "Storniert"
+    },
+    "download": "PDF",
+    "downloadFailed": "Das PDF konnte nicht geladen werden.",
+    "viewAtStripe": "Bei Stripe ansehen",
+    "noNumber": "ohne Nummer",
+    "empty": {
+      "title": "Noch keine Rechnungen",
+      "description": "Sobald eine Veranstaltung online bezahlt wurde, erscheint die Rechnung hier. Belege zu Bestellungen auf Rechnung werden per E-Mail zugestellt und stehen nicht in dieser Liste."
+    },
+    "issuerNote": "Rechnungen werden über unseren Zahlungsdienstleister Stripe ausgestellt."
   }
 }

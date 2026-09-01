@@ -558,6 +558,26 @@ export const eventsApi = {
 
 // Billing API (company lookup for "Kauf auf Rechnung")
 export const billingApi = {
+  listInvoices: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').OrganizationInvoice[]>>(
+      `/organizations/${organizationId}/billing/invoices`
+    ),
+
+  /** Holt das PDF mit angehängtem JWT. Ein window.open der URL wäre anonym
+   *  und liefe in ein 401 — dasselbe Muster wie beim Schichtplan-Export. */
+  invoicePdf: async (organizationId: string, invoiceId: string): Promise<Blob> => {
+    const url = `${API_URL}/organizations/${organizationId}/billing/invoices/${invoiceId}/pdf`;
+    const token = apiClient.getAccessToken();
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      throw new Error(`Download fehlgeschlagen (${res.status})`);
+    }
+    return res.blob();
+  },
+
   companySearch: (organizationId: string, q: string) =>
     apiClient.get<ApiResponse<import('@/types/billing').CompanySearchResponse>>(
       `/organizations/${organizationId}/billing/company-search?q=${encodeURIComponent(q)}`

@@ -55,3 +55,18 @@ export interface CompanySearchResponse {
   enabled: boolean;
   results: CompanySearchResultItem[];
 }
+
+/** Eine von Stripe ausgestellte Rechnung. */
+export interface OrganizationInvoice {
+  id: string;
+  /** Fortlaufende Rechnungsnummer von Stripe. Entwürfe haben noch keine. */
+  number: string | null;
+  issuedAt: string | null;
+  total: number;
+  currency: string;
+  status: string;
+  paid: boolean;
+  description: string | null;
+  hostedUrl: string | null;
+  hasPdf: boolean;
+}

@@ -14,6 +14,7 @@ import {
   Coins01,
   ShoppingBag01,
   Tablet02,
+  ReceiptCheck,
   Tag01,
   Users01,
 } from '@untitledui/icons';
@@ -147,6 +148,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     href: '/reports',
     icon: LineChartUp01,
     requiredPermission: 'reports',
+  },
+  {
+    // Abrechnungsdaten der Organisation — es gibt kein Berechtigungsmodul
+    // dafuer, und Mitglieder haben darin nichts zu suchen.
+    label: 'Rechnungen',
+    href: '/invoices',
+    icon: ReceiptCheck,
+    adminOnly: true,
   },
 ];
 
