@@ -3311,9 +3311,13 @@ body:has(.landing) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 14px;
-  align-items: start;
+  /* Kein align-items:start — sonst waere jede Kachel nur so hoch wie ihr
+     eigener Text, und eine Zeile aus drei Anbietern haette drei Hoehen.
+     Gestreckt richten sich die Unterkanten aneinander aus. */
 }
 .landing .integration-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--oe-line);
   border-radius: var(--oe-r);
   background: var(--surface);
@@ -3358,6 +3362,9 @@ body:has(.landing) {
   color: var(--mute);
 }
 .landing .integration-card__desc {
+  /* Nimmt den Rest der Kachel ein, damit unterschiedlich lange Texte die
+     Kopfzeile nicht verschieben. */
+  flex: 1;
   margin: 10px 0 0;
   font-size: 13px;
   line-height: 1.5;
