@@ -223,6 +223,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         description: data.description || undefined,
         categoryId: data.categoryId,
         price: data.price,
+        /* Bei Steuerbefreiung zaehlt die 0, die im Feld steht — nicht ein
+           alter Satz aus der Zeit, als die Organisation noch steuerpflichtig
+           war. Sonst schickte das Formular etwas anderes, als es anzeigt,
+           und der Server wiese es zu Recht zurueck. */
+        taxRate: taxExempt ? 0 : data.taxRate ?? 0,
         isActive: data.isActive,
         isAvailable: data.isAvailable,
         trackInventory: data.trackInventory,
@@ -361,31 +366,30 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                 )}
               />
 
-              {/* Price */}
-              <Controller
-                name="price"
-                control={control}
-                render={({ field }) => (
-                  <label className="auth-field">
-                    <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
-                    <PriceInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      invalid={!!errors.price}
-                    />
-                    {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
-                  </label>
-                )}
-              />
+              {/* Preis und Steuersatz gehören zusammen gelesen — ein Betrag
+                  ohne seinen Satz sagt nicht, was der Gast zahlt. */}
+              <div className="field-row">
+                <Controller
+                  name="price"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                      <PriceInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        invalid={!!errors.price}
+                      />
+                      {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
+                    </label>
+                  )}
+                />
 
-              {/* Bei einer steuerbefreiten Organisation gäbe es genau eine
-                  Möglichkeit — dann ist ein Auswahlfeld nur im Weg. */}
-              {taxExempt ? (
-                <p style={{ fontSize: 12, color: 'var(--mute)', margin: 0 }}>
-                  {t('form.taxRate.exemptHint')}
-                </p>
-              ) : (
+                {/* Bei einer steuerbefreiten Organisation bleibt das Feld
+                    sichtbar, steht auf 0 und lässt sich nicht ändern. Es
+                    ganz wegzulassen sähe aus, als sei der Satz ungeklärt —
+                    er ist geklärt, nur eben null. */}
                 <Controller
                   name="taxRate"
                   control={control}
@@ -394,7 +398,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       <span>{t('form.taxRate.label')}</span>
                       <select
                         className="select"
-                        value={String(field.value ?? 0)}
+                        value={String(taxExempt ? 0 : field.value ?? 0)}
+                        disabled={taxExempt}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                         onBlur={field.onBlur}
                       >
@@ -407,6 +412,12 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     </label>
                   )}
                 />
+              </div>
+
+              {taxExempt && (
+                <p style={{ fontSize: 12, color: 'var(--mute)', margin: '-8px 0 0' }}>
+                  {t('form.taxRate.exemptHint')}
+                </p>
               )}
 
               {/* Production Station */}

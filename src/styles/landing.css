@@ -3202,6 +3202,19 @@ body:has(.landing) {
   color: var(--mute);
 }
 
+/* ---------- Feldpaar in einer Zeile ----------
+   Zwei Felder, die zusammen gelesen werden. Unter 420px untereinander,
+   weil zwei halbe Spalten dort fuer keines von beiden reichen. */
+.landing .field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 420px) {
+  .landing .field-row { grid-template-columns: 1fr; }
+}
+
 /* ---------- Betragseingabe ----------
    Siehe PriceInput. Der Aufbau kommt aus dem Designsystem
    (.oe-input-group); hier steht nur, was die Dashboard-Felder davon
