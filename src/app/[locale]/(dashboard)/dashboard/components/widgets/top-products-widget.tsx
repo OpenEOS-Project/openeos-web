@@ -26,7 +26,7 @@ export function TopProductsWidget({ organizationId }: Props) {
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('widgets.topProducts.label')}</h2>
-          <p className="app-card__sub">{t('widgets.topProducts.subtitle')}</p>
+          <p className="app-card__sub">{t('widgets.topProducts.subtitle', { period: t(`range.period.${range.key}`) })}</p>
         </div>
       </div>
 

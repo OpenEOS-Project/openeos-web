@@ -207,13 +207,12 @@
     "subtitle": "Overview of your current business activity",
     "welcome": "Welcome, {name}!",
     "stats": {
-      "ordersToday": "Orders today",
-      "revenue": "Revenue today",
+      "revenue": "Revenue",
       "activeEvents": "Active events",
       "activeUsers": "Active users",
-      "vsYesterday": "vs. yesterday",
       "eventsRunning": "events running",
-      "usersOnline": "users online"
+      "usersOnline": "users online",
+      "orders": "Orders"
     },
     "recentActivity": {
       "title": "Recent Activity",
@@ -292,10 +291,10 @@
     "widgets": {
       "empty": "No data available",
       "ordersToday": {
-        "label": "Orders today"
+        "label": "Orders"
       },
       "revenueToday": {
-        "label": "Revenue today"
+        "label": "Revenue"
       },
       "activeEvents": {
         "label": "Active events"
@@ -304,8 +303,8 @@
         "label": "Active users"
       },
       "topProducts": {
-        "label": "Top products today",
-        "subtitle": "The 5 highest-revenue products for today",
+        "label": "Top products",
+        "subtitle": "The five highest-grossing products · {period}",
         "product": "Product",
         "category": "Category",
         "qty": "Qty",
@@ -314,7 +313,7 @@
       },
       "hourlyRevenue": {
         "label": "Revenue by hour",
-        "subtitle": "Hourly revenue breakdown for today",
+        "subtitle": "Hourly revenue distribution · {period}",
         "revenueLabel": "Revenue",
         "forecastLabel": "Forecast",
         "legendBars": "Revenue per hour",
@@ -324,7 +323,7 @@
       },
       "paymentMethods": {
         "label": "Payment methods",
-        "subtitle": "Payment method breakdown for today",
+        "subtitle": "Split by payment method · {period}",
         "methods": {
           "cash": "Cash",
           "card": "Card",
@@ -385,7 +384,12 @@
       "label": "Period",
       "today": "Today",
       "week": "7 days",
-      "event": "Event"
+      "event": "Event",
+      "period": {
+        "today": "today",
+        "week": "last 7 days",
+        "event": "event"
+      }
     }
   },
   "navigation": {

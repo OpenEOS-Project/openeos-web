@@ -13,6 +13,8 @@ import { createContext, useContext, useMemo } from 'react';
 export type RangeKey = 'today' | 'week' | 'event';
 
 export interface DashboardRange {
+  /** Welcher Zeitraum gewaehlt ist — die Widgets beschriften sich danach. */
+  key: RangeKey;
   startDate: string;
   endDate: string;
 }
@@ -33,15 +35,19 @@ export function rangeFor(key: RangeKey, event?: { startDate?: string | null; end
   if (key === 'week') {
     const von = new Date(heute);
     von.setDate(von.getDate() - 6);
-    return { startDate: isoDate(von), endDate: isoDate(heute) };
+    return { key, startDate: isoDate(von), endDate: isoDate(heute) };
   }
   if (key === 'event' && event?.startDate) {
     return {
+      key,
       startDate: event.startDate.slice(0, 10),
       endDate: (event.endDate ?? event.startDate).slice(0, 10),
     };
   }
-  return { startDate: isoDate(heute), endDate: isoDate(heute) };
+  /* Ohne laufende Veranstaltung faellt 'event' auf heute zurueck — dann
+     ist auch die Beschriftung 'heute', sonst behauptete sie einen
+     Zeitraum, der gar nicht abgefragt wurde. */
+  return { key: 'today', startDate: isoDate(heute), endDate: isoDate(heute) };
 }
 
 export function DashboardRangeProvider({

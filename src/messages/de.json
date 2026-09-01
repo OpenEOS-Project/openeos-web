@@ -207,13 +207,12 @@
     "subtitle": "Übersicht über Ihre aktuelle Geschäftstätigkeit",
     "welcome": "Willkommen, {name}!",
     "stats": {
-      "ordersToday": "Bestellungen heute",
-      "revenue": "Umsatz heute",
+      "revenue": "Umsatz",
       "activeEvents": "Aktive Events",
       "activeUsers": "Aktive Benutzer",
-      "vsYesterday": "vs. gestern",
       "eventsRunning": "Events laufen",
-      "usersOnline": "Benutzer online"
+      "usersOnline": "Benutzer online",
+      "orders": "Bestellungen"
     },
     "recentActivity": {
       "title": "Letzte Aktivitäten",
@@ -292,10 +291,10 @@
     "widgets": {
       "empty": "Keine Daten verfügbar",
       "ordersToday": {
-        "label": "Bestellungen heute"
+        "label": "Bestellungen"
       },
       "revenueToday": {
-        "label": "Umsatz heute"
+        "label": "Umsatz"
       },
       "activeEvents": {
         "label": "Aktive Events"
@@ -304,8 +303,8 @@
         "label": "Aktive Benutzer"
       },
       "topProducts": {
-        "label": "Top-Produkte heute",
-        "subtitle": "Die 5 umsatzstärksten Produkte des heutigen Tages",
+        "label": "Top-Produkte",
+        "subtitle": "Die 5 umsatzstärksten Produkte · {period}",
         "product": "Produkt",
         "category": "Kategorie",
         "qty": "Menge",
@@ -314,7 +313,7 @@
       },
       "hourlyRevenue": {
         "label": "Umsatz nach Stunde",
-        "subtitle": "Stündliche Umsatzverteilung für heute",
+        "subtitle": "Stündliche Umsatzverteilung · {period}",
         "revenueLabel": "Umsatz",
         "forecastLabel": "Prognose",
         "legendBars": "Umsatz je Stunde",
@@ -324,7 +323,7 @@
       },
       "paymentMethods": {
         "label": "Zahlungsmethoden",
-        "subtitle": "Verteilung der Zahlungsarten für heute",
+        "subtitle": "Verteilung der Zahlungsarten · {period}",
         "methods": {
           "cash": "Bar",
           "card": "Karte",
@@ -385,7 +384,12 @@
       "label": "Zeitraum",
       "today": "Heute",
       "week": "7 Tage",
-      "event": "Event"
+      "event": "Event",
+      "period": {
+        "today": "heute",
+        "week": "letzte 7 Tage",
+        "event": "Veranstaltung"
+      }
     }
   },
   "navigation": {

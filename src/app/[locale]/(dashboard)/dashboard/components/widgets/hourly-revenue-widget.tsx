@@ -128,7 +128,7 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('widgets.hourlyRevenue.label')}</h2>
-          <p className="app-card__sub">{t('widgets.hourlyRevenue.subtitle')}</p>
+          <p className="app-card__sub">{t('widgets.hourlyRevenue.subtitle', { period: t(`range.period.${range.key}`) })}</p>
         </div>
       </div>
 

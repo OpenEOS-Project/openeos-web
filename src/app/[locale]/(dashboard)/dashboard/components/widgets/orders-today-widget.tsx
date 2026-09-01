@@ -31,9 +31,12 @@ export function OrdersTodayWidget({ organizationId }: Props) {
 
   return (
     <div className="stat-card">
-      <div className="stat-card__label">{t('stats.ordersToday')}</div>
+      <div className="stat-card__label">{t('stats.orders')}</div>
       <div className="stat-card__value">{isLoading ? '—' : count}</div>
-      <div className="stat-card__sub">{t('stats.vsYesterday')}</div>
+      {/* Zuvor stand hier "vs. gestern" — ohne dass je ein Vergleichswert
+          berechnet wurde. Der Zeitraum ist die Angabe, die hier wirklich
+          etwas aussagt, und er folgt der Auswahl oben. */}
+      <div className="stat-card__sub">{t(`range.period.${range.key}`)}</div>
     </div>
   );
 }

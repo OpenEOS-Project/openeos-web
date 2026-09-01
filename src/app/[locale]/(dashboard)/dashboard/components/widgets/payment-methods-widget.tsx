@@ -39,7 +39,7 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('widgets.paymentMethods.label')}</h2>
-          <p className="app-card__sub">{t('widgets.paymentMethods.subtitle')}</p>
+          <p className="app-card__sub">{t('widgets.paymentMethods.subtitle', { period: t(`range.period.${range.key}`) })}</p>
         </div>
       </div>
 
@@ -53,7 +53,7 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
           <p className="empty-state__sub">{t('widgets.empty')}</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div className="pay-rows">
           {data.map((row) => (
             /* Eine Zeile statt gestapelt: Beschriftung, Balken und
                Prozentwert nebeneinander wie in der Vorlage. Gestapelt

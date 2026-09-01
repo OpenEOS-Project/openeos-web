@@ -2505,6 +2505,15 @@ body:has(.landing) {
   padding: 0;
 }
 
+/* Der Kartenfuss hatte ueberhaupt keine Regel — die Klasse wurde benutzt,
+   war aber nie definiert, weshalb der Text im Umsatzdiagramm am linken
+   Rand klebte. Masse wie im Kopf, damit beide Enden der Karte gleich
+   eingerueckt sind. */
+.landing .app-card__foot {
+  padding: 12px 20px 14px;
+  border-top: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
 /* ============================= STAT CARD ============================= */
 .landing .stat-cards {
   display: grid;
@@ -4105,10 +4114,17 @@ body:has(.landing) {
   flex-direction: column;
   min-height: 0;
 }
+/* Seitliche Polsterung wie im Kartenkopf. .app-card--flat setzt die
+   Polsterung des Rumpfs auf null — richtig fuer randlose Listen wie die
+   Top-Produkte, aber Diagramm und Legende klebten dadurch am Kartenrand,
+   und der letzte Legendeneintrag wurde abgeschnitten. Diese Karte hat
+   ausserdem gar keinen .app-card__body, an dem die Polsterung haengen
+   koennte — sie muss also hier stehen. */
 .landing .chart-card__plot {
   flex: 1;
   min-height: 120px;
   margin-top: 8px;
+  padding: 0 20px;
 }
 .landing .chart-card__state {
   flex: 1;
@@ -4120,7 +4136,7 @@ body:has(.landing) {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  padding-top: 8px;
+  padding: 8px 20px 0;
   font: 500 11px var(--oe-f-mono);
   color: var(--mute);
   flex-wrap: wrap;
@@ -4157,6 +4173,10 @@ body:has(.landing) {
    Beschriftung, Balken und Prozentwert in einer Zeile — gestapelt (wie
    bei .oe-meter) blieb ueber die Kachelbreite zu viel Luft, und die
    Anteile liessen sich nicht mehr auf einen Blick vergleichen. */
+/* Dieselbe seitliche Polsterung wie im Kartenkopf — siehe .chart-card__plot. */
+.landing .pay-rows {
+  padding: 12px 20px 16px;
+}
 .landing .pay-row {
   display: grid;
   grid-template-columns: minmax(72px, 96px) 1fr 64px;

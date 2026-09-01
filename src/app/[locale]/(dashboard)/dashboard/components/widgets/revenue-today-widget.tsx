@@ -37,7 +37,10 @@ export function RevenueTodayWidget({ organizationId }: Props) {
     <div className="stat-card stat-card--accent">
       <div className="stat-card__label">{t('stats.revenue')}</div>
       <div className="stat-card__value">{isLoading ? '—' : formatCurrency(revenue)}</div>
-      <div className="stat-card__sub">{t('stats.vsYesterday')}</div>
+      {/* Zuvor stand hier "vs. gestern" — ohne dass je ein Vergleichswert
+          berechnet wurde. Der Zeitraum ist die Angabe, die hier wirklich
+          etwas aussagt, und er folgt der Auswahl oben. */}
+      <div className="stat-card__sub">{t(`range.period.${range.key}`)}</div>
     </div>
   );
 }
