@@ -2556,15 +2556,15 @@ body:has(.landing) {
 
 .landing .data-table th {
   padding: 10px 16px;
-  text-align: left;
-  font-family: var(--f-mono, "JetBrains Mono", ui-monospace, monospace);
-  font-size: 10px;
+  text-align: start;
+  font-family: var(--oe-f-mono);
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .09em;
   color: var(--mute);
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
-  border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+  border-bottom: 1px solid var(--oe-line);
 }
 
 .landing .data-table th.text-right,
@@ -2574,13 +2574,15 @@ body:has(.landing) {
 
 .landing .data-table td {
   padding: 12px 16px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
-  border-bottom: 1px solid color-mix(in oklab, var(--ink) 6%, transparent);
+  border-bottom: 1px solid var(--oe-line);
+  vertical-align: middle;
 }
 
 .landing .data-table td.mono {
-  font-family: var(--f-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .landing .data-table tbody tr:last-child td {
@@ -2592,7 +2594,7 @@ body:has(.landing) {
 }
 
 .landing .data-table tbody tr:hover {
-  background: color-mix(in oklab, var(--green-soft) 30%, var(--paper));
+  background: color-mix(in oklab, var(--oe-green-soft) 35%, transparent);
 }
 
 /* ============================= BADGES ============================= */
@@ -4029,4 +4031,46 @@ body:has(.landing) {
 .landing .app-sidebar__logo--small img {
   height: 32px;
   width: 32px;
+}
+
+
+/* ---------- Tabellen: Ergänzungen aus .oe-table ----------
+   .data-table ist die gemeinsame Klasse im Admin (27 Stellen). Statt
+   sie auszutauschen, ist sie oben auf die Metrik von .oe-table
+   gebracht; hier kommt dazu, was ihr noch fehlte. */
+
+/* Rahmen und Radius um eine Tabelle — .oe-table-wrap. */
+.landing .data-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  overflow: hidden;
+}
+
+/* Zahlenspalten: rechtsbündig, Ziffern gleicher Breite. Betragsspalten
+   ohne das springen beim Aktualisieren in der Breite. */
+.landing .data-table th.text-right,
+.landing .data-table td.text-right,
+.landing .data-table .data-table__num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.landing .data-table td.data-table__num {
+  font-family: var(--oe-f-mono);
+}
+
+/* Belegnummern und Kennungen — zurückgenommen, sie tragen die Zeile
+   nicht. */
+.landing .data-table .data-table__id {
+  font-family: var(--oe-f-mono);
+  font-size: 13px;
+  color: var(--mute);
+}
+
+/* Gedrängte Variante für Listen in Karten. */
+.landing .data-table--compact td {
+  padding: 8px 14px;
+}
+.landing .data-table--compact th {
+  padding: 8px 14px;
 }

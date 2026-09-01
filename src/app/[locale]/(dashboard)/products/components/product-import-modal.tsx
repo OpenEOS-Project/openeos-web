@@ -324,17 +324,19 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                   )}
 
                   {/* Rows table */}
-                  <div style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto', border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                  {/* Gemeinsame Tabellenklasse statt Inline-Stilen — sonst
+                      folgt diese Vorschau weder Palette noch Dark-Mode. */}
+                  <div className="data-table-wrap" style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto' }}>
+                    <table className="data-table data-table--compact">
                       <thead>
-                        <tr style={{ background: 'color-mix(in oklab, var(--ink) 5%, transparent)' }}>
-                          <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, whiteSpace: 'nowrap' }}>{t('table.line')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{t('table.name')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{t('table.category')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>{t('table.price')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{t('table.pfand')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{t('table.icon')}</th>
-                          <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{t('table.action')}</th>
+                        <tr>
+                          <th>{t('table.line')}</th>
+                          <th>{t('table.name')}</th>
+                          <th>{t('table.category')}</th>
+                          <th className="text-right">{t('table.price')}</th>
+                          <th className="text-right">{t('table.pfand')}</th>
+                          <th>{t('table.icon')}</th>
+                          <th>{t('table.action')}</th>
                         </tr>
                       </thead>
                       <tbody>

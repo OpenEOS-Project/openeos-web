@@ -108,13 +108,13 @@ export function AdminPrintersContainer() {
               Keine wartenden Drucker-Agents. Sobald ein RPi-Agent sich registriert, erscheint er hier.
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="data-table">
               <thead>
-                <tr style={{ textAlign: 'left', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Name</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Status</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Zuletzt gesehen</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', textAlign: 'right' }}>Aktion</th>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Zuletzt gesehen</th>
+                  <th className="text-right">Aktion</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,7 +122,7 @@ export function AdminPrintersContainer() {
                   const online = isRecentlySeen(d.lastSeenAt);
                   return (
                     <tr key={d.id}>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 14, fontWeight: 600 }}>
+                      <td style={{ fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span
                             aria-hidden
@@ -138,15 +138,15 @@ export function AdminPrintersContainer() {
                           {d.suggestedName || d.name}
                         </div>
                       </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
+                      <td>
                         <span className={online ? 'badge badge--success' : 'badge badge--warning'}>
                           {online ? 'Online · wartet auf Zuordnung' : d.status === 'pending' ? 'Wartet auf Zuordnung' : d.status}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                      <td style={{ color: 'var(--mute)' }}>
                         {formatDateTime(d.lastSeenAt)}
                       </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', textAlign: 'right' }}>
+                      <td className="text-right">
                         <div style={{ display: 'inline-flex', gap: 6 }}>
                           <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setAssignTarget(d)}>
                             Zuordnen
@@ -190,15 +190,15 @@ export function AdminPrintersContainer() {
               Noch keine Drucker einer Organisation zugewiesen.
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="data-table">
               <thead>
-                <tr style={{ textAlign: 'left', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Organisation</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Drucker</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Typ</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Online</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>Zuletzt gesehen</th>
-                  <th style={{ padding: '10px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', textAlign: 'right' }}>Aktionen</th>
+                <tr>
+                  <th>Organisation</th>
+                  <th>Drucker</th>
+                  <th>Typ</th>
+                  <th>Online</th>
+                  <th>Zuletzt gesehen</th>
+                  <th className="text-right">Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -251,16 +251,16 @@ function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProp
   const typeLabel = printer.type === 'kitchen' ? 'Küche' : printer.type === 'label' ? 'Etiketten' : 'Beleg';
   return (
     <tr>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 14 }}>
+      <td>
         {printer.organization?.name ?? '—'}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 14, fontWeight: 600 }}>
+      <td style={{ fontWeight: 600 }}>
         {printer.name}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 13 }}>
+      <td>
         {typeLabel}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
+      <td>
         {(() => {
           const online = printer.isOnline || isRecentlySeen(printer.lastSeenAt);
           return (
@@ -282,10 +282,10 @@ function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProp
           );
         })()}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+      <td style={{ color: 'var(--mute)' }}>
         {formatDateTime(printer.lastSeenAt)}
       </td>
-      <td style={{ padding: '12px 16px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)', textAlign: 'right' }}>
+      <td className="text-right">
         <div style={{ display: 'inline-flex', gap: 6 }}>
           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={onTestPrint} disabled={isBusy}>
             Test-Druck
