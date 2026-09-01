@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { useActivateEvent, useOrderInvoice } from '@/hooks/use-events';
+import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hooks/use-events';
 import { billingApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -30,6 +30,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
 
   const orderInvoice = useOrderInvoice();
   const activateEvent = useActivateEvent();
+  const createCheckout = useCreateEventCheckout();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -102,7 +103,24 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     city.trim().length > 0 &&
     confirmed;
 
-  const isSubmitting = orderInvoice.isPending || activateEvent.isPending;
+  const isSubmitting = orderInvoice.isPending || activateEvent.isPending || createCheckout.isPending;
+
+  // Die Rechnung ist die Ausnahme, nicht der Regelweg: nur Organisationen,
+  // denen sie ausdrücklich eingeräumt wurde, sehen das Adressformular.
+  const payByInvoice = billing.billingMode === 'invoice';
+  const payOnline = !payByInvoice && billing.onlinePaymentAvailable;
+
+  const handlePayOnline = async () => {
+    setError(null);
+    try {
+      const { checkoutUrl } = await createCheckout.mutateAsync({ organizationId, id: event.id });
+      // Vollständiger Seitenwechsel statt Router-Navigation — das Ziel liegt
+      // bei Stripe, nicht in dieser Anwendung.
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      setError(err instanceof ApiException ? err.message : tErrors('generic'));
+    }
+  };
 
   const handleSubmit = async () => {
     if (!formValid) return;
@@ -129,11 +147,19 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     }
   };
 
-  const eventDate = event.startDate
-    ? new Intl.DateTimeFormat(currencyLocale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
-        new Date(event.startDate)
-      )
-    : null;
+  const dateFormat = new Intl.DateTimeFormat(currencyLocale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  const startsOn = event.startDate ? dateFormat.format(new Date(event.startDate)) : null;
+  const endsOn = event.endDate ? dateFormat.format(new Date(event.endDate)) : null;
+  // Über Mitternacht endet die Veranstaltung formal am Folgetag. Für den Beleg
+  // zählt der Zeitraum, den der Kunde bucht — also die Veranstaltungstage.
+  const eventDate =
+    startsOn && endsOn && endsOn !== startsOn && billing.days > 1
+      ? `${startsOn} – ${endsOn}`
+      : startsOn;
 
   return (
     <div className="modal__overlay" onClick={onClose}>
@@ -154,31 +180,46 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
           <div
             style={{
               display: 'flex',
-              alignItems: 'baseline',
-              flexWrap: 'wrap',
-              gap: 10,
+              flexDirection: 'column',
+              gap: 6,
               padding: '12px 14px',
               background: 'color-mix(in oklab, var(--ink) 4%, var(--paper))',
               border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
               borderRadius: 10,
             }}
           >
-            {billing.discountPercent > 0 && (
-              <span
-                style={{
-                  fontSize: 13,
-                  textDecoration: 'line-through',
-                  color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
-                }}
-              >
-                {formatCurrency(billing.price, currencyLocale)}
+            <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 10 }}>
+              {billing.discountPercent > 0 && (
+                <span
+                  style={{
+                    fontSize: 13,
+                    textDecoration: 'line-through',
+                    color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
+                  }}
+                >
+                  {formatCurrency(billing.price, currencyLocale)}
+                </span>
+              )}
+              <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)' }}>
+                {formatCurrency(billing.finalPrice, currencyLocale)}
               </span>
-            )}
-            <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)' }}>
-              {formatCurrency(billing.finalPrice, currencyLocale)}
-            </span>
-            {billing.discountPercent > 0 && (
-              <span className="badge badge--success">{t('discount', { percent: billing.discountPercent })}</span>
+              {billing.discountPercent > 0 && (
+                <span className="badge badge--success">
+                  {billing.discountReason === 'first-event'
+                    ? t('discountFirstEvent', { percent: billing.discountPercent })
+                    : t('discount', { percent: billing.discountPercent })}
+                </span>
+              )}
+            </div>
+            {/* Bei einer eintägigen Veranstaltung sagt "1 × 25 €" nichts, was der
+                Betrag darüber nicht schon zeigt. */}
+            {billing.days > 1 && (
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                {t('breakdown', {
+                  days: billing.days,
+                  pricePerDay: formatCurrency(billing.pricePerDay, currencyLocale),
+                })}
+              </div>
             )}
           </div>
 
@@ -186,7 +227,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
             {t('noVat')}
           </p>
 
-          {billing.billingMode === 'prepaid' ? (
+          {!payByInvoice ? (
             <div
               role="status"
               style={{
@@ -197,7 +238,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                 color: 'var(--ink)',
               }}
             >
-              {t('prepaidNotice')}
+              {payOnline ? t('onlineNotice') : t('unavailableNotice')}
             </div>
           ) : (
             <>
@@ -336,7 +377,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
           <button type="button" className="btn btn--ghost" onClick={onClose} disabled={isSubmitting}>
             {tCommon('cancel')}
           </button>
-          {billing.billingMode !== 'prepaid' && (
+          {payByInvoice && (
             <button
               type="button"
               className="btn btn--primary"
@@ -344,6 +385,16 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
               disabled={!formValid || isSubmitting}
             >
               {isSubmitting ? tCommon('saving') : t('submit')}
+            </button>
+          )}
+          {payOnline && (
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={handlePayOnline}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t('redirecting') : t('payOnline')}
             </button>
           )}
         </div>

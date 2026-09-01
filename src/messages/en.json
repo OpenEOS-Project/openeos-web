@@ -884,7 +884,14 @@
       "locationPlaceholder": "Event location",
       "startDate": "Start date",
       "date": "Date",
-      "endDate": "End date"
+      "endDate": "End date",
+      "start": "Start",
+      "end": "End",
+      "lastDay": "Last day",
+      "multiDay": "Multi-day event",
+      "multiDayHint": "If the event runs across several days, every day is charged.",
+      "startRequired": "A start is required",
+      "endBeforeStart": "The end must not be before the start"
     },
     "status": {
       "active": "Active",
@@ -930,7 +937,15 @@
         "zip": "ZIP code",
         "city": "City",
         "confirm": "I confirm that the name and billing address are correct and complete."
-      }
+      },
+      "breakdown": "{days} × {pricePerDay} per event day",
+      "discountFirstEvent": "{percent}% off your first event",
+      "onlineNotice": "You will be taken to a secure payment page. The invoice follows by email.",
+      "unavailableNotice": "Online payment is currently unavailable — please get in touch.",
+      "payOnline": "Place binding order",
+      "redirecting": "Redirecting …",
+      "paymentCancelled": "Payment cancelled — the event was not activated.",
+      "paymentPending": "The payment is still being processed. Please check again in a moment."
     }
   },
   "categories": {

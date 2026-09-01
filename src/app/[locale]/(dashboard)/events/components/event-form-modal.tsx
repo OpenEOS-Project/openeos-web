@@ -10,27 +10,36 @@ import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { composeEventRange, countEventDays, deriveShopWindows, splitEventRange } from '@/lib/event-schedule';
 import type { Event } from '@/types';
-import type { ShopOpeningHours, ShopWeekday } from '@/types/event';
 import { ApiException } from '@/types/api';
 
-const WEEKDAYS: { key: ShopWeekday; label: string }[] = [
-  { key: 'mon', label: 'Montag' },
-  { key: 'tue', label: 'Dienstag' },
-  { key: 'wed', label: 'Mittwoch' },
-  { key: 'thu', label: 'Donnerstag' },
-  { key: 'fri', label: 'Freitag' },
-  { key: 'sat', label: 'Samstag' },
-  { key: 'sun', label: 'Sonntag' },
-];
+const DAY_FORMAT = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+const TIME_FORMAT = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
 
-const eventSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  description: z.string().optional(),
-  startDate: z.string().optional(),
-  shopEnabled: z.boolean().optional(),
-  shopServiceFee: z.string().optional(),
-});
+function formatRange(start: Date, end: Date): string {
+  return `${DAY_FORMAT.format(start)} ${TIME_FORMAT.format(start)} – ${DAY_FORMAT.format(end)} ${TIME_FORMAT.format(end)}`;
+}
+
+const eventSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required').max(200),
+    description: z.string().optional(),
+    startDate: z.string().min(1, 'Beginn ist erforderlich'),
+    startTime: z.string().optional(),
+    multiDay: z.boolean().optional(),
+    endDate: z.string().optional(),
+    endTime: z.string().optional(),
+    shopEnabled: z.boolean().optional(),
+    shopServiceFee: z.string().optional(),
+  })
+  // Nur der mehrtaegige Fall braucht eine Reihenfolgepruefung. Bei einem
+  // einzelnen Tag ist eine Endzeit vor der Startzeit keine Falscheingabe,
+  // sondern die Nacht danach.
+  .refine((data) => !data.multiDay || !data.endDate || data.endDate >= data.startDate, {
+    path: ['endDate'],
+    message: 'Das Ende darf nicht vor dem Beginn liegen',
+  });
 
 type EventFormData = z.infer<typeof eventSchema>;
 
@@ -52,12 +61,11 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
-  const [openingHours, setOpeningHours] = useState<ShopOpeningHours>({});
-
   const {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -65,31 +73,49 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
       name: '',
       description: '',
       startDate: '',
+      startTime: '',
+      multiDay: false,
+      endDate: '',
+      endTime: '',
       shopEnabled: false,
       shopServiceFee: '',
     },
   });
 
+  const watched = watch();
+  const range = composeEventRange({
+    startDate: watched.startDate ?? '',
+    startTime: watched.startTime ?? '',
+    endDate: watched.endDate ?? '',
+    endTime: watched.endTime ?? '',
+    multiDay: !!watched.multiDay,
+  });
+  const days = range ? countEventDays(range.start, range.end) : 0;
+  const windows = range ? deriveShopWindows(range.start, range.end) : [];
+
   useEffect(() => {
     if (event) {
       const fee = event.settings?.shop?.serviceFee;
+      const dates = splitEventRange(event.startDate, event.endDate);
       reset({
         name: event.name,
         description: event.description || '',
-        startDate: event.startDate ? event.startDate.split('T')[0] : '',
+        ...dates,
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
       });
-      setOpeningHours(event.settings?.shop?.openingHours ?? {});
     } else {
       reset({
         name: '',
         description: '',
         startDate: '',
+        startTime: '',
+        multiDay: false,
+        endDate: '',
+        endTime: '',
         shopEnabled: false,
         shopServiceFee: '',
       });
-      setOpeningHours({});
     }
   }, [event, reset]);
 
@@ -100,9 +126,27 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     try {
       const parsedFee = parseFloat(String(data.shopServiceFee ?? '').replace(',', '.'));
       const serviceFee = Number.isFinite(parsedFee) && parsedFee > 0 ? Math.round(parsedFee * 100) / 100 : undefined;
-      const shopSettings = data.shopEnabled
-        ? { enabled: true, openingHours, serviceFee }
-        : { enabled: false, openingHours, serviceFee };
+      // Neue und bearbeitete Shops richten sich nach dem Veranstaltungszeitraum.
+      // Die Wochentags-Tabelle wird nicht mehr gepflegt; ein Bestandsshop
+      // wechselt in dem Moment, in dem er hier gespeichert wird.
+      const shopSettings = {
+        enabled: !!data.shopEnabled,
+        hoursMode: 'event' as const,
+        serviceFee,
+      };
+
+      const composed = composeEventRange({
+        startDate: data.startDate,
+        startTime: data.startTime ?? '',
+        endDate: data.endDate ?? '',
+        endTime: data.endTime ?? '',
+        multiDay: !!data.multiDay,
+      });
+      if (!composed) {
+        setError(t('form.startRequired'));
+        return;
+      }
+
       if (isEditing && event) {
         await updateEvent.mutateAsync({
           organizationId,
@@ -110,9 +154,8 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
-            // Veranstaltungen sind eintägig — Ende immer gleich Start
-            startDate: data.startDate || undefined,
-            endDate: data.startDate || undefined,
+            startDate: composed.start.toISOString(),
+            endDate: composed.end.toISOString(),
             settings: {
               ...event.settings,
               shop: shopSettings,
@@ -125,12 +168,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           data: {
             name: data.name,
             description: data.description || undefined,
-            // Veranstaltungen sind eintägig — Ende immer gleich Start
-            startDate: data.startDate || undefined,
-            endDate: data.startDate || undefined,
-            settings: data.shopEnabled
-              ? { shop: shopSettings }
-              : undefined,
+            startDate: composed.start.toISOString(),
+            endDate: composed.end.toISOString(),
+            settings: { shop: shopSettings },
           },
         });
       }
@@ -195,16 +235,95 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               )}
             />
 
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => (
-                <label className="auth-field">
-                  <span>{t('form.date')}</span>
-                  <input type="date" {...field} />
-                </label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 12 }}>
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field }) => (
+                    <label
+                      className="auth-field"
+                      style={errors.startDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
+                    >
+                      <span>
+                        {t('form.start')} <span style={{ color: 'var(--danger)' }}>*</span>
+                      </span>
+                      <input type="date" {...field} />
+                    </label>
+                  )}
+                />
+                <Controller
+                  name="startTime"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>&nbsp;</span>
+                      <input type="time" {...field} />
+                    </label>
+                  )}
+                />
+              </div>
+              {errors.startDate && (
+                <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.startRequired')}</span>
               )}
-            />
+
+              <Controller
+                name="multiDay"
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={!!value}
+                      onChange={(e) => onChange(e.target.checked)}
+                      style={{ width: 16, height: 16, accentColor: 'var(--green-ink)' }}
+                    />
+                    <span style={{ fontSize: 13, color: 'var(--ink)' }}>{t('form.multiDay')}</span>
+                  </label>
+                )}
+              />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 12 }}>
+                {watched.multiDay ? (
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field }) => (
+                      <label
+                        className="auth-field"
+                        style={errors.endDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
+                      >
+                        <span>{t('form.lastDay')}</span>
+                        <input type="date" min={watched.startDate || undefined} {...field} />
+                      </label>
+                    )}
+                  />
+                ) : (
+                  <div style={{ alignSelf: 'end', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', paddingBottom: 10 }}>
+                    {t('form.multiDayHint')}
+                  </div>
+                )}
+                <Controller
+                  name="endTime"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.end')}</span>
+                      <input type="time" {...field} />
+                    </label>
+                  )}
+                />
+              </div>
+              {errors.endDate && (
+                <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.endBeforeStart')}</span>
+              )}
+
+              {range && (
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
+                  {formatRange(range.start, range.end)} · {days === 1 ? 'ein Veranstaltungstag' : `${days} Veranstaltungstage`}
+                </div>
+              )}
+            </div>
 
             <Controller
               name="shopEnabled"
@@ -273,54 +392,30 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
                           Öffnungszeiten
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {WEEKDAYS.map(({ key, label }) => {
-                            const window = openingHours[key];
-                            const open = window !== null && window !== undefined;
-                            return (
-                              <div key={key} style={{ display: 'grid', gridTemplateColumns: '110px 18px 1fr 1fr', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 13, color: 'var(--ink)' }}>{label}</span>
-                                <input
-                                  type="checkbox"
-                                  checked={open}
-                                  onChange={(e) =>
-                                    setOpeningHours((prev) => ({
-                                      ...prev,
-                                      [key]: e.target.checked ? { start: prev[key]?.start ?? '10:00', end: prev[key]?.end ?? '22:00' } : null,
-                                    }))
-                                  }
-                                  style={{ width: 16, height: 16, accentColor: 'var(--green-ink)', cursor: 'pointer' }}
-                                />
-                                <input
-                                  type="time"
-                                  value={window?.start ?? ''}
-                                  disabled={!open}
-                                  onChange={(e) =>
-                                    setOpeningHours((prev) => ({
-                                      ...prev,
-                                      [key]: { start: e.target.value, end: prev[key]?.end ?? '22:00' },
-                                    }))
-                                  }
-                                  style={{ padding: '6px 8px', fontSize: 12, border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)', borderRadius: 6, background: 'var(--paper)', opacity: open ? 1 : 0.5 }}
-                                />
-                                <input
-                                  type="time"
-                                  value={window?.end ?? ''}
-                                  disabled={!open}
-                                  onChange={(e) =>
-                                    setOpeningHours((prev) => ({
-                                      ...prev,
-                                      [key]: { start: prev[key]?.start ?? '10:00', end: e.target.value },
-                                    }))
-                                  }
-                                  style={{ padding: '6px 8px', fontSize: 12, border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)', borderRadius: 6, background: 'var(--paper)', opacity: open ? 1 : 0.5 }}
-                                />
+                        {windows.length === 0 ? (
+                          <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
+                            Bitte zuerst den Zeitraum der Veranstaltung eintragen.
+                          </p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {windows.map((w) => (
+                              <div
+                                key={w.start.toISOString()}
+                                style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: 'var(--ink)' }}
+                              >
+                                <span>{DAY_FORMAT.format(w.start)}</span>
+                                <span style={{ fontFamily: 'var(--f-mono)' }}>
+                                  {TIME_FORMAT.format(w.start)} – {TIME_FORMAT.format(w.end)}
+                                  {w.end.getDate() !== w.start.getDate() && (
+                                    <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}> (+1)</span>
+                                  )}
+                                </span>
                               </div>
-                            );
-                          })}
-                        </div>
+                            ))}
+                          </div>
+                        )}
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
-                          Im Test-Modus ist der Shop unabhängig von Öffnungszeiten erreichbar. Tage ohne Häkchen bleiben geschlossen.
+                          Der Shop öffnet zu den Zeiten der Veranstaltung — bei einer Endzeit vor der Startzeit über Mitternacht hinweg. Im Test-Modus ist er unabhängig davon erreichbar.
                         </p>
                       </div>
                     )}

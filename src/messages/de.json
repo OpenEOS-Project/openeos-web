@@ -697,7 +697,14 @@
       "locationPlaceholder": "Veranstaltungsort",
       "startDate": "Startdatum",
       "date": "Datum",
-      "endDate": "Enddatum"
+      "endDate": "Enddatum",
+      "start": "Beginn",
+      "end": "Ende",
+      "lastDay": "Letzter Tag",
+      "multiDay": "Mehrtägige Veranstaltung",
+      "multiDayHint": "Läuft die Veranstaltung über mehrere Tage, wird jeder Tag abgerechnet.",
+      "startRequired": "Beginn ist erforderlich",
+      "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
     },
     "status": {
       "active": "Aktiv",
@@ -743,7 +750,15 @@
         "zip": "PLZ",
         "city": "Ort",
         "confirm": "Ich bestätige, dass Name und Rechnungsanschrift korrekt und vollständig sind."
-      }
+      },
+      "breakdown": "{days} × {pricePerDay} pro Veranstaltungstag",
+      "discountFirstEvent": "{percent} % auf die erste Veranstaltung",
+      "onlineNotice": "Sie werden zur gesicherten Zahlungsseite weitergeleitet. Die Rechnung erhalten Sie anschließend per E-Mail.",
+      "unavailableNotice": "Online-Zahlung ist derzeit nicht verfügbar — bitte kontaktieren Sie uns.",
+      "payOnline": "Zahlungspflichtig bestellen",
+      "redirecting": "Weiterleitung …",
+      "paymentCancelled": "Zahlung abgebrochen — die Veranstaltung wurde nicht freigeschaltet.",
+      "paymentPending": "Die Zahlung wird noch verarbeitet. Bitte in einem Moment erneut nachsehen."
     }
   },
   "categories": {

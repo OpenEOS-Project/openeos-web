@@ -159,6 +159,35 @@ export function useEventBillingLookup() {
   });
 }
 
+/**
+ * Legt die Stripe-Zahlungsseite an. Der Browser verlässt danach die
+ * Anwendung — invalidiert wird deshalb erst bei der Rückkehr, über
+ * useSyncEventPayment.
+ */
+export function useCreateEventCheckout() {
+  return useMutation({
+    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
+      const response = await eventsApi.createCheckout(organizationId, id);
+      return response.data;
+    },
+  });
+}
+
+/** Gleicht nach der Rückkehr aus dem Checkout den Zahlungsstand ab. */
+export function useSyncEventPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
+      const response = await eventsApi.syncPayment(organizationId, id);
+      return response.data;
+    },
+    onSuccess: (_data, { organizationId }) => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+    },
+  });
+}
+
 export function useOrderInvoice() {
   const queryClient = useQueryClient();
 

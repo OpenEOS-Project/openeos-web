@@ -9,10 +9,21 @@ export interface BillingAddressDetails {
   city: string;
 }
 
+/** Woher der Nachlass stammt — bestimmt nur die Beschriftung. */
+export type EventDiscountReason = 'first-event' | 'organization' | null;
+
 export interface EventBilling {
+  /** Preis je Veranstaltungstag, vor Nachlass. */
+  pricePerDay: number;
+  /** Abgerechnete Veranstaltungstage. */
+  days: number;
+  /** pricePerDay × days, vor Nachlass. */
   price: number;
   discountPercent: number;
+  discountReason: EventDiscountReason;
   finalPrice: number;
+  /** Ob Stripe konfiguriert ist — sonst bleibt nur der Kauf auf Rechnung. */
+  onlinePaymentAvailable: boolean;
   billingMode: EventBillingMode;
   billingStatus: EventBillingStatus;
   organizationName: string;

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import {
@@ -9,6 +10,7 @@ import {
   useSetTestMode,
   useDeleteEvent,
   useEventBillingLookup,
+  useSyncEventPayment,
 } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import { toast } from '@/components/shared/toast';
@@ -37,6 +39,48 @@ export function EventsContainer() {
   const deactivateEvent = useDeactivateEvent();
   const setTestMode = useSetTestMode();
   const billingLookup = useEventBillingLookup();
+  const syncPayment = useSyncEventPayment();
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const paymentResult = searchParams.get('payment');
+  const paidEventId = searchParams.get('eventId');
+  // React ruft Effekte im Entwicklungsmodus doppelt auf. Ohne diese Sperre
+  // liefe der Abgleich zweimal und der Nutzer sähe zwei Meldungen.
+  const handledReturn = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!paymentResult || !organizationId) return;
+    const marker = `${paymentResult}:${paidEventId ?? ''}`;
+    if (handledReturn.current === marker) return;
+    handledReturn.current = marker;
+
+    // Den Rückkehr-Parameter aus der Adresszeile nehmen, damit ein Neuladen
+    // die Meldung nicht wiederholt.
+    router.replace('/events');
+
+    if (paymentResult === 'cancelled') {
+      toast.error(t('checkout.paymentCancelled'));
+      return;
+    }
+    if (paymentResult !== 'success' || !paidEventId) return;
+
+    void (async () => {
+      try {
+        const billing = await syncPayment.mutateAsync({ organizationId, id: paidEventId });
+        if (billing.billingStatus === 'paid') {
+          await activateEvent.mutateAsync({ organizationId, id: paidEventId });
+          toast.success(t('checkout.success'));
+        } else {
+          // Der Webhook ist noch unterwegs. Die Zahlung ist dadurch nicht
+          // verloren — die Veranstaltung lässt sich gleich erneut aktivieren.
+          toast.error(t('checkout.paymentPending'));
+        }
+      } catch {
+        toast.error(tErrors('generic'));
+      }
+    })();
+  }, [paymentResult, paidEventId, organizationId, router, syncPayment, activateEvent, t, tErrors]);
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);

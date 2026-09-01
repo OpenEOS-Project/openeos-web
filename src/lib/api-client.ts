@@ -534,6 +534,16 @@ export const eventsApi = {
       data
     ),
 
+  createCheckout: (organizationId: string, id: string) =>
+    apiClient.post<ApiResponse<{ checkoutUrl: string }>>(
+      `/organizations/${organizationId}/events/${id}/checkout`
+    ),
+
+  syncPayment: (organizationId: string, id: string) =>
+    apiClient.post<ApiResponse<import('@/types/billing').EventBilling>>(
+      `/organizations/${organizationId}/events/${id}/billing/sync`
+    ),
+
   copyProductsFrom: (
     organizationId: string,
     targetEventId: string,

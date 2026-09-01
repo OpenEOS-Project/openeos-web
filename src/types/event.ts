@@ -10,6 +10,18 @@ export interface ShopTimeWindow {
 
 export type ShopOpeningHours = Partial<Record<ShopWeekday, ShopTimeWindow | null>>;
 
+/** Ein konkretes Zeitfenster mit ISO-Zeitpunkten. Kann über Mitternacht laufen. */
+export interface ShopWindow {
+  start: string;
+  end: string;
+}
+
+/**
+ * 'event': Öffnungszeiten leiten sich aus dem Veranstaltungszeitraum ab.
+ * 'weekly': feste Wochentags-Tabelle (Bestandsshops).
+ */
+export type ShopHoursMode = 'event' | 'weekly';
+
 export interface EventSettings {
   orderNumberPrefix?: string;
   enableOnlineOrdering?: boolean;
@@ -18,6 +30,7 @@ export interface EventSettings {
   maxOrdersPerHour?: number;
   shop?: {
     enabled?: boolean;
+    hoursMode?: ShopHoursMode;
     openingHours?: ShopOpeningHours;
     serviceFee?: number;
   };
@@ -40,7 +53,8 @@ export interface Event {
 export interface CreateEventData {
   name: string;
   description?: string;
-  startDate?: string;
+  /** Pflicht — Preis und Öffnungszeiten hängen daran. */
+  startDate: string;
   endDate?: string;
   settings?: Partial<EventSettings>;
 }
