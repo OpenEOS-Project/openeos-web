@@ -14,6 +14,7 @@ import {
 } from '@untitledui/icons';
 
 import { CreateOrgModal } from './create-org-modal';
+import { SidebarLogo } from './sidebar-logo';
 
 import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -153,10 +154,7 @@ export function AppSidebar() {
       <>
         <div className="app-sidebar" style={{ opacity: 0, pointerEvents: 'none' }} />
         <aside className={sidebarClasses}>
-          <div className="app-sidebar__logo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo_dark.png" alt="OpenEOS" />
-          </div>
+          <SidebarLogo collapsed={isCollapsed} />
           <nav className="app-sidebar__nav">
             {[...Array(5)].map((_, i) => (
               <div
@@ -188,11 +186,7 @@ export function AppSidebar() {
       )}
 
       <aside className={sidebarClasses}>
-        {/* Logo */}
-        <div className="app-sidebar__logo">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo_dark.png" alt="OpenEOS" />
-        </div>
+        <SidebarLogo collapsed={isCollapsed} />
 
         {/* Org block + selector */}
         {!isCollapsed && (

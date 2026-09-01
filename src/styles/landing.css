@@ -3696,8 +3696,13 @@ body:has(.landing) {
   margin-left: auto;
 }
 /* Eingeklappt als eigener Knopf mittig unter den Symbolen; der Pfeil
-   zeigt dann nach rechts. */
+   zeigt dann nach rechts.
+
+   display:flex statt des geerbten inline-flex: bei einem
+   inline-Element zentriert margin:auto nicht, der Pfeil stand dadurch
+   links aus der Mitte. */
 .landing .app-sidebar__tool--expand {
+  display: flex;
   margin: 4px auto 0;
 }
 .landing .app-sidebar__tool--expand svg {
@@ -4011,4 +4016,17 @@ body:has(.landing) {
 .landing .app-sidebar__tool--active {
   background: var(--oe-green-soft);
   color: var(--oe-green-ink);
+}
+
+
+/* ---------- Bildmarke im eingeklappten Zustand ----------
+   Das volle Logo ist breit, das kleine quadratisch. Bei 44px Hoehe
+   waere es breiter als die 40px, die zwischen den Innenabstaenden der
+   72px-Leiste bleiben. */
+.landing .app-sidebar__logo--small {
+  padding: 18px 8px 14px;
+}
+.landing .app-sidebar__logo--small img {
+  height: 32px;
+  width: 32px;
 }
