@@ -59,6 +59,8 @@ export function AppSidebar() {
   const [orgMenuOpen, setOrgMenuOpen] = React.useState(false);
   const [createOrgOpen, setCreateOrgOpen] = React.useState(false);
   const orgWrapRef = React.useRef<HTMLDivElement | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false);
+  const userWrapRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     setMobileOpen(false);
@@ -74,6 +76,30 @@ export function AppSidebar() {
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
   }, [orgMenuOpen]);
+
+  React.useEffect(() => {
+    if (!userMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (userWrapRef.current && !userWrapRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setUserMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onEscape);
+    };
+  }, [userMenuOpen]);
+
+  /* Menue schliessen, sobald die Seite wechselt — sonst bliebe es nach
+     einem Klick auf "Einstellungen" offen stehen. */
+  React.useEffect(() => {
+    setUserMenuOpen(false);
+  }, [pathname]);
 
   const activeUrl = pathname.replace(/^\/(de|en)/, '');
 
@@ -104,6 +130,13 @@ export function AppSidebar() {
   const filteredFooterItems = isSuperAdmin
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
+
+  /* Support steht als Symbol bei den Werkzeugen, alles Uebrige im Menue
+     am Benutzer. Ueber den Pfad ausgewaehlt und nicht ueber die
+     Position, damit ein Umsortieren der Navigation das hier nicht
+     stillschweigend kaputtmacht. */
+  const supportItem = filteredFooterItems.find((item) => item.href === '/support');
+  const menuFooterItems = filteredFooterItems.filter((item) => item.href !== '/support');
 
   const orgs = organizations.filter((o) => o?.organization);
   const hasMultiple = orgs.length > 1;
@@ -387,28 +420,80 @@ export function AppSidebar() {
 
         {/* Footer items */}
         <div className="app-sidebar__footer">
-          {/* Benutzer, Sprache und Theme sassen frueher in der Topbar.
-              Die ist entfallen, also tragen sie hier. */}
+          {/* Vorher sechs Zeilen fuer vier Funktionen: Benutzer,
+              Werkzeuge, Support, Einstellungen, Abmelden, Version.
+              Einstellungen und Abmelden liegen jetzt im Menue am
+              Benutzer, Support als Symbol bei den Werkzeugen. */}
           {!isCollapsed && (
-            <div className="app-sidebar__account">
-              <div className="app-sidebar__account-user">
+            <div className="app-sidebar__account" ref={userWrapRef}>
+              <button
+                type="button"
+                className="app-sidebar__account-user"
+                aria-haspopup="menu"
+                aria-expanded={userMenuOpen}
+                onClick={() => setUserMenuOpen((v) => !v)}
+              >
                 <span className="oe-avatar oe-avatar--sm oe-avatar--round">
                   {user?.firstName?.[0]?.toUpperCase() ?? '?'}
                 </span>
                 <span className="app-sidebar__account-name">
                   {user?.firstName} {user?.lastName}
                 </span>
-              </div>
+                <ChevronDown className="app-sidebar__account-chev" />
+              </button>
+
+              {userMenuOpen && (
+                /* Oeffnet nach oben — der Fuss der Seitenleiste sitzt am
+                   unteren Bildschirmrand, nach unten waere kein Platz. */
+                <div className="oe-menu app-sidebar__account-menu" role="menu">
+                  {menuFooterItems.map((item) =>
+                    item.href ? (
+                      <Link
+                        key={item.href}
+                        href={item.href as never}
+                        role="menuitem"
+                        className="oe-menu__item"
+                      >
+                        {item.icon ? <item.icon /> : null}
+                        {item.label}
+                      </Link>
+                    ) : null,
+                  )}
+                  <div className="oe-menu__sep" role="separator" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="oe-menu__item oe-menu__item--danger"
+                    onClick={logout}
+                  >
+                    <LogOut01 />
+                    Abmelden
+                  </button>
+                </div>
+              )}
+
               <div className="app-sidebar__account-tools">
+                {supportItem?.href && (
+                  <Link
+                    href={supportItem.href as never}
+                    className={cx(
+                      'app-sidebar__tool',
+                      activeUrl === supportItem.href && 'app-sidebar__tool--active',
+                    )}
+                    aria-label={supportItem.label}
+                    title={supportItem.label}
+                  >
+                    {supportItem.icon ? <supportItem.icon /> : null}
+                  </Link>
+                )}
                 <LocaleSwitcher />
                 <ThemeToggle />
-                {/* Das Einklappen gehoert zu den Werkzeugen, nicht als
-                    einzelner Pfeil unter die Navigation. */}
                 <button
                   type="button"
                   onClick={toggleCollapsed}
                   className="app-sidebar__tool app-sidebar__tool--collapse"
-                  aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+                  aria-label="Seitenleiste einklappen"
+                  title="Seitenleiste einklappen"
                 >
                   <ChevronLeft />
                 </button>
@@ -416,35 +501,50 @@ export function AppSidebar() {
             </div>
           )}
 
-          {filteredFooterItems.map((item) => {
-            const isActive = item.href ? activeUrl === item.href : false;
-            const Icon = item.icon;
+          {/* Eingeklappt faellt der Konto-Block weg — ohne diesen Knopf
+              gaebe es keinen Weg zurueck. Zwei Stellen statt einer mit
+              Negativabstand: jede an ihrem natuerlichen Platz. */}
+          {isCollapsed && (
+            <button
+              type="button"
+              onClick={toggleCollapsed}
+              className="app-sidebar__tool app-sidebar__tool--expand"
+              aria-label="Seitenleiste ausklappen"
+              title="Seitenleiste ausklappen"
+            >
+              <ChevronLeft />
+            </button>
+          )}
 
-            if (!item.href) return null;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href as never}
-                className={cx(
-                  'app-sidebar__item',
-                  isActive && 'app-sidebar__item--active',
-                )}
-              >
-                {Icon && <Icon className="" />}
-                <span className="app-sidebar__item-label">{item.label}</span>
-              </Link>
-            );
-          })}
-
-          <button
-            onClick={logout}
-            className="app-sidebar__item"
-            style={{ width: '100%', borderTop: 0, borderRight: 0, borderBottom: 0 }}
-          >
-            <LogOut01 style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
-            <span className="app-sidebar__item-label">Abmelden</span>
-          </button>
+          {/* Eingeklappt bleibt nur Platz fuer Symbole — dann stehen die
+              Eintraege wie zuvor untereinander. */}
+          {isCollapsed &&
+            filteredFooterItems.map((item) =>
+              item.href ? (
+                <Link
+                  key={item.href}
+                  href={item.href as never}
+                  className={cx(
+                    'app-sidebar__item',
+                    activeUrl === item.href && 'app-sidebar__item--active',
+                  )}
+                  aria-label={item.label}
+                  title={item.label}
+                >
+                  {item.icon ? <item.icon /> : null}
+                </Link>
+              ) : null,
+            )}
+          {isCollapsed && (
+            <button
+              onClick={logout}
+              className="app-sidebar__item"
+              aria-label="Abmelden"
+              title="Abmelden"
+            >
+              <LogOut01 style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
+            </button>
+          )}
 
           {!isCollapsed && (
             /* "v" nur vor einer echten Versionsnummer — lokal steht hier

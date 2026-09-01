@@ -3691,12 +3691,16 @@ body:has(.landing) {
   height: 15px;
   flex: none;
 }
-/* Das Einklappen sitzt rechts, abgesetzt von Sprache und Theme. */
+/* Ausgeklappt rechts in der Werkzeugzeile. */
 .landing .app-sidebar__tool--collapse {
   margin-left: auto;
 }
-/* Ein Icon fuer beide Richtungen — eingeklappt gedreht. */
-.landing .app-sidebar--collapsed .app-sidebar__tool--collapse svg {
+/* Eingeklappt als eigener Knopf mittig unter den Symbolen; der Pfeil
+   zeigt dann nach rechts. */
+.landing .app-sidebar__tool--expand {
+  margin: 4px auto 0;
+}
+.landing .app-sidebar__tool--expand svg {
   transform: rotate(180deg);
 }
 
@@ -3949,4 +3953,62 @@ body:has(.landing) {
   font-size: 12.5px;
   text-align: right;
   color: var(--mute);
+}
+
+/* ---------- Benutzermenü im Sidebar-Fuß ----------
+   Der Fuß trug zuvor sechs Zeilen für vier Funktionen. Einstellungen
+   und Abmelden liegen jetzt im Menü am Benutzer, Support als Symbol
+   bei den Werkzeugen. */
+.landing .app-sidebar__account {
+  position: relative;
+}
+.landing .app-sidebar__account-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--oe-r-sm);
+  background: none;
+  cursor: pointer;
+  text-align: start;
+  transition: background .15s, border-color .15s;
+}
+.landing .app-sidebar__account-user:hover,
+.landing .app-sidebar__account-user[aria-expanded="true"] {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  border-color: var(--oe-line);
+}
+.landing .app-sidebar__account-chev {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  flex: none;
+  color: var(--mute);
+  transition: transform .15s;
+}
+.landing .app-sidebar__account-user[aria-expanded="true"] .app-sidebar__account-chev {
+  transform: rotate(180deg);
+}
+
+/* Öffnet nach oben: der Fuß sitzt am unteren Bildschirmrand. */
+.landing .app-sidebar__account-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+}
+.landing .app-sidebar__account-menu a.oe-menu__item {
+  text-decoration: none;
+}
+
+/* Support als Symbol — gleiche Größe wie Sprache, Theme, Einklappen. */
+.landing a.app-sidebar__tool {
+  text-decoration: none;
+}
+.landing .app-sidebar__tool--active {
+  background: var(--oe-green-soft);
+  color: var(--oe-green-ink);
 }
