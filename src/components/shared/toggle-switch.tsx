@@ -1,5 +1,7 @@
 'use client';
 
+import { Switch } from '@openeos/ui';
+
 interface ToggleSwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
@@ -10,7 +12,15 @@ interface ToggleSwitchProps {
   'aria-labelledby'?: string;
 }
 
-/** Standard toggle used across all dashboard forms — styled via .toggle in landing.css. */
+/**
+ * Standardschalter aller Dashboard-Formulare.
+ *
+ * Reicht nur noch an den Schalter des Designsystems durch. Zuvor stand
+ * hier eine eigene Umsetzung mit `.toggle` in landing.css, parallel zu
+ * `.oe-switch` — zwei Schalter, die dasselbe tun und sich getrennt
+ * verändern konnten. Die Schnittstelle bleibt, damit die Aufrufstellen
+ * unberührt bleiben: sie geben einen Wahrheitswert, kein Ereignis.
+ */
 export function ToggleSwitch({
   checked,
   onChange,
@@ -19,17 +29,12 @@ export function ToggleSwitch({
   'aria-labelledby': ariaLabelledBy,
 }: ToggleSwitchProps) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
+    <Switch
+      checked={checked}
+      disabled={disabled}
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      disabled={disabled}
-      className="toggle"
-      onClick={() => onChange(!checked)}
-    >
-      <span className="toggle__knob" />
-    </button>
+      onChange={(event) => onChange(event.target.checked)}
+    />
   );
 }

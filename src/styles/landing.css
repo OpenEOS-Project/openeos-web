@@ -3128,71 +3128,8 @@ body:has(.landing) {
 }
 
 /* Toggle switch (shared/toggle-switch.tsx) */
-.landing .toggle {
-  width: 38px;
-  height: 21px;
-  border-radius: 11px;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: color-mix(in oklab, var(--ink) 20%, transparent);
-  position: relative;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-.landing .toggle[aria-checked='true'] { background: var(--green-ink); }
-.landing .toggle:disabled { opacity: 0.5; cursor: not-allowed; }
-.landing .toggle__knob {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 17px;
-  height: 17px;
-  border-radius: 9px;
-  background: var(--paper);
-  transition: left 0.2s;
-  display: block;
-}
-.landing .toggle[aria-checked='true'] .toggle__knob { left: 19px; }
-
-/* ---------- An/Aus-Einstellungen ----------
-   Eine Zeile mit Beschriftung und Kippschalter, siehe SettingToggle. Die
-   Masse sind bewusst knapp: solche Zeilen stehen oft zu dritt oder viert
-   untereinander in einem Dialog, und jede ueberfluessige Polsterung
-   schiebt die Schaltflaechen aus dem Bild. */
-.landing .setting-toggle {
-  border: 1px solid var(--oe-line);
-  border-radius: var(--oe-r-sm);
-  background: var(--paper-2);
-  padding: 10px 12px;
-}
-.landing .setting-toggle__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.landing .setting-toggle__copy { min-width: 0; }
-.landing .setting-toggle__label {
-  font: 600 13px var(--oe-f-sans);
-  color: var(--ink);
-}
-.landing .setting-toggle__hint {
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--mute);
-}
-/* Untergeordnete Felder ruecken ein und bekommen eine Trennlinie, damit
-   erkennbar bleibt, dass sie zu dieser Einstellung gehoeren. */
-.landing .setting-toggle__body {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--oe-line);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* Schalter und An/Aus-Zeile kommen aus @openeos/ui (.oe-switch,
+   .oe-setting). Hier stand beides doppelt. */
 
 /* Modal width variants (default .modal__panel is 520px) */
 .landing .modal__panel--sm { max-width: 440px; }
