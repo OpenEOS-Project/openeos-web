@@ -118,20 +118,20 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               )}
             />
 
-            <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12 }}>
-              <Controller
-                name="isActive"
-                control={control}
-                render={({ field }) => (
-                  <SettingToggle
-                    label={t('form.isActive')}
-                    hint={t('form.isActiveHint')}
-                    checked={!!field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
+            {/* Ohne Wrapper: SettingToggle bringt seinen Rahmen selbst mit,
+                der aeussere ergab einen Kasten im Kasten. */}
+            <Controller
+              name="isActive"
+              control={control}
+              render={({ field }) => (
+                <SettingToggle
+                  label={t('form.isActive')}
+                  hint={t('form.isActiveHint')}
+                  checked={!!field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
           </div>
 
           <div className="modal__foot">
