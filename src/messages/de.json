@@ -699,13 +699,10 @@
       "startDate": "Startdatum",
       "date": "Datum",
       "endDate": "Enddatum",
-      "start": "Beginn",
-      "end": "Ende",
-      "lastDay": "Letzter Tag",
-      "multiDay": "Mehrtägige Veranstaltung",
-      "multiDayHint": "Läuft die Veranstaltung über mehrere Tage, wird jeder Tag abgerechnet.",
       "startRequired": "Beginn ist erforderlich",
-      "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
+      "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen",
+      "dayCount": "{days, plural, one {Ein Veranstaltungstag} other {# Veranstaltungstage}}",
+      "endHint": "Ohne Enddatum dauert die Veranstaltung einen Tag."
     },
     "status": {
       "active": "Aktiv",

@@ -3,43 +3,107 @@
  *
  * Massgeblich rechnet der Server (`event-schedule.util.ts` in openeos-api);
  * er kennt die Zeitzone der Organisation und liefert die Fenster, nach denen
- * sich der Shop richtet. Hier geht es nur um das Formular: welchen Zeitraum
- * die eingegebenen Felder ergeben, wie viele Tage das sind und wie die
- * Oeffnungszeiten daraus aussehen werden. Gerechnet wird in der Zeitzone des
- * Browsers — beim Anlegen einer Veranstaltung sitzt der Mensch praktisch
- * immer in derselben Zone wie die Veranstaltung.
+ * sich der Shop richtet. Hier geht es nur um das Formular: welche Tage der
+ * eingetragene Zeitraum umfasst und wie die Oeffnungszeiten darauf liegen.
  *
- * Aendert sich die Regel dort, muss sie hier mitgehen. Beide Seiten kennen
- * denselben Begriff des Veranstaltungstags: er beginnt um 06:00, damit eine
- * Nacht nicht in zwei Tage zerfaellt.
+ * Eine Veranstaltung ist ein Bereich aus Kalendertagen; die Uhrzeiten stehen
+ * an den einzelnen Shop-Tagen. Endet ein Tag nicht spaeter, als er beginnt,
+ * gehoert sein Ende auf den Folgetag — "10 bis 2 Uhr" ist eine Nacht.
+ *
+ * Aendert sich die Regel dort, muss sie hier mitgehen.
  */
 
-const EVENT_DAY_START_HOUR = 6;
+/** Ein Oeffnungstag, wie ihn das Formular fuehrt. */
+export interface ShopDaySetting {
+  /** 'YYYY-MM-DD' */
+  date: string;
+  /** 'HH:mm' */
+  start: string;
+  /** 'HH:mm' */
+  end: string;
+}
+
+/** Ein Oeffnungstag im Formular, inklusive der geschlossenen. */
+export interface ShopDayRow extends ShopDaySetting {
+  open: boolean;
+}
+
+export const DEFAULT_DAY_START = '10:00';
+export const DEFAULT_DAY_END = '22:00';
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-export interface ShopWindowPreview {
-  start: Date;
-  end: Date;
+function dayNumber(dateKey: string): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
+  if (!match) return null;
+  return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) / MS_PER_DAY;
 }
 
-export interface EventDateFields {
-  /** 'YYYY-MM-DD' */
-  startDate: string;
-  /** 'HH:mm' */
-  startTime: string;
-  /** 'YYYY-MM-DD' — letzter Veranstaltungstag, nur bei mehrtaegigen. */
-  endDate: string;
-  /** 'HH:mm' */
-  endTime: string;
-  multiDay: boolean;
+function dayKey(day: number): string {
+  const date = new Date(day * MS_PER_DAY);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
 }
 
-function parseDateTime(date: string, time: string): Date | null {
-  if (!date) return null;
-  const [year, month, day] = date.split('-').map(Number);
-  if (!year || !month || !day) return null;
-  const [hour, minute] = (time || '00:00').split(':').map(Number);
-  return new Date(year, month - 1, day, hour || 0, minute || 0, 0, 0);
+/** Die Kalendertage des Zeitraums, der Reihe nach. Beide Enden zaehlen mit. */
+export function listEventDays(startDate: string, endDate: string): string[] {
+  const first = dayNumber(startDate);
+  if (first === null) return [];
+  const last = dayNumber(endDate || startDate);
+  if (last === null || last < first) return [dayKey(first)];
+  return Array.from({ length: last - first + 1 }, (_, offset) => dayKey(first + offset));
+}
+
+/** Abgerechnete Veranstaltungstage. */
+export function countEventDays(startDate: string, endDate: string): number {
+  return Math.max(1, listEventDays(startDate, endDate).length);
+}
+
+/**
+ * Die Tagesliste an einen geaenderten Zeitraum angleichen.
+ *
+ * Tage, die schon eingestellt waren, behalten ihre Uhrzeiten — wer den
+ * Zeitraum um einen Tag verlaengert, will die uebrigen nicht neu eintragen.
+ * Neue Tage uebernehmen die Zeiten des letzten bekannten Tages, weil sich
+ * die Oeffnungszeiten eines Festes selten von Tag zu Tag voellig aendern.
+ */
+export function syncShopDays(
+  startDate: string,
+  endDate: string,
+  existing: ShopDayRow[],
+): ShopDayRow[] {
+  const known = new Map(existing.map((row) => [row.date, row]));
+  const last = existing[existing.length - 1];
+  const fallbackStart = last?.start || DEFAULT_DAY_START;
+  const fallbackEnd = last?.end || DEFAULT_DAY_END;
+
+  return listEventDays(startDate, endDate).map((date) => {
+    const row = known.get(date);
+    if (row) return row;
+    return { date, start: fallbackStart, end: fallbackEnd, open: true };
+  });
+}
+
+/** Nur die geoeffneten Tage — das ist, was gespeichert wird. */
+export function toStoredDays(rows: ShopDayRow[]): ShopDaySetting[] {
+  return rows
+    .filter((row) => row.open)
+    .map(({ date, start, end }) => ({ date, start, end }));
+}
+
+/** Gespeicherte Tage zurueck ins Formular, geschlossene Tage ergaenzt. */
+export function fromStoredDays(
+  startDate: string,
+  endDate: string,
+  stored: ShopDaySetting[] | undefined,
+): ShopDayRow[] {
+  const known = new Map((stored ?? []).map((day) => [day.date, day]));
+  return listEventDays(startDate, endDate).map((date) => {
+    const day = known.get(date);
+    return day
+      ? { ...day, open: true }
+      : { date, start: DEFAULT_DAY_START, end: DEFAULT_DAY_END, open: stored ? false : true };
+  });
 }
 
 function toMinutes(time: string): number {
@@ -47,100 +111,25 @@ function toMinutes(time: string): number {
   return (hour || 0) * 60 + (minute || 0);
 }
 
-/**
- * Aus den Formularfeldern den tatsaechlichen Zeitraum bilden.
- *
- * Der eine Kniff: liegt die Endzeit nicht nach der Startzeit, ist das Ende am
- * Folgetag gemeint. "18:00 bis 03:00" ist eine Nacht, kein Datumsfehler —
- * deshalb muss das Enddatum in dem Fall einen Tag weiterspringen, sonst
- * laege das Ende vor dem Beginn.
- */
-export function composeEventRange(fields: EventDateFields): { start: Date; end: Date } | null {
-  const start = parseDateTime(fields.startDate, fields.startTime);
-  if (!start) return null;
-
-  const lastDay = fields.multiDay && fields.endDate ? fields.endDate : fields.startDate;
-  const end = parseDateTime(lastDay, fields.endTime);
-  if (!end) return null;
-
-  if (toMinutes(fields.endTime) <= toMinutes(fields.startTime)) {
-    end.setDate(end.getDate() + 1);
-  }
-
-  return { start, end };
+/** Laeuft dieser Tag ueber Mitternacht? */
+export function isOvernight(row: ShopDaySetting): boolean {
+  return toMinutes(row.end) <= toMinutes(row.start);
 }
 
-/** Die Formularfelder zu einem bestehenden Zeitraum zurueckgewinnen. */
-export function splitEventRange(
-  startIso: string | null,
-  endIso: string | null,
-): EventDateFields {
+/** 'YYYY-MM-DD' als Datum fuer die Anzeige. */
+export function parseDayKey(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** Zeitraum als lokale Mitternacht — so wird er an die API geschickt. */
+export function toIsoAtMidnight(dateKey: string): string {
+  return parseDayKey(dateKey).toISOString();
+}
+
+/** Der Kalendertag eines ISO-Zeitpunkts, in der Zone des Browsers. */
+export function toDayKey(iso: string): string {
+  const date = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  const asDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const asTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-
-  const empty: EventDateFields = {
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-    multiDay: false,
-  };
-  if (!startIso) return empty;
-
-  const start = new Date(startIso);
-  if (Number.isNaN(start.getTime())) return empty;
-  const end = endIso ? new Date(endIso) : start;
-  const effectiveEnd = Number.isNaN(end.getTime()) ? start : end;
-
-  // Ein Ende, das ueber Mitternacht gerutscht ist, gehoert im Formular
-  // wieder auf den Tag, an dem der Abend begonnen hat.
-  const overnight = asTime(effectiveEnd) <= asTime(start);
-  const lastDay = new Date(effectiveEnd);
-  if (overnight) lastDay.setDate(lastDay.getDate() - 1);
-
-  return {
-    startDate: asDate(start),
-    startTime: asTime(start),
-    endDate: asDate(lastDay),
-    endTime: asTime(effectiveEnd),
-    multiDay: asDate(lastDay) !== asDate(start),
-  };
-}
-
-function eventDayNumber(date: Date): number {
-  const shifted = new Date(date);
-  if (shifted.getHours() < EVENT_DAY_START_HOUR) shifted.setDate(shifted.getDate() - 1);
-  return Math.floor(
-    Date.UTC(shifted.getFullYear(), shifted.getMonth(), shifted.getDate()) / MS_PER_DAY,
-  );
-}
-
-/** Abgerechnete Veranstaltungstage, immer mindestens einer. */
-export function countEventDays(start: Date, end: Date): number {
-  const first = eventDayNumber(start);
-  const last = eventDayNumber(end);
-  if (last <= first) return 1;
-  return last - first + 1;
-}
-
-/**
- * Die Oeffnungszeiten, die sich aus dem Zeitraum ergeben: je
- * Veranstaltungstag ein Fenster mit denselben Uhrzeiten.
- */
-export function deriveShopWindows(start: Date, end: Date): ShopWindowPreview[] {
-  const days = countEventDays(start, end);
-  const overnight =
-    end.getHours() * 60 + end.getMinutes() <= start.getHours() * 60 + start.getMinutes();
-
-  const windows: ShopWindowPreview[] = [];
-  for (let offset = 0; offset < days; offset += 1) {
-    const open = new Date(start);
-    open.setDate(open.getDate() + offset);
-    const close = new Date(start);
-    close.setDate(close.getDate() + offset + (overnight ? 1 : 0));
-    close.setHours(end.getHours(), end.getMinutes(), 0, 0);
-    windows.push({ start: open, end: close });
-  }
-  return windows;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

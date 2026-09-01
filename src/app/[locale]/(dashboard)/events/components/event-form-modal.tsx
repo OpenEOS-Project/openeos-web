@@ -8,35 +8,34 @@ import { z } from 'zod';
 
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
+import {
+  countEventDays,
+  fromStoredDays,
+  isOvernight,
+  parseDayKey,
+  syncShopDays,
+  toDayKey,
+  toIsoAtMidnight,
+  toStoredDays,
+  type ShopDayRow,
+} from '@/lib/event-schedule';
 import { useAuthStore } from '@/stores/auth-store';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
-import { composeEventRange, countEventDays, deriveShopWindows, splitEventRange } from '@/lib/event-schedule';
 import type { Event } from '@/types';
 import { ApiException } from '@/types/api';
 
 const DAY_FORMAT = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-const TIME_FORMAT = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-function formatRange(start: Date, end: Date): string {
-  return `${DAY_FORMAT.format(start)} ${TIME_FORMAT.format(start)} – ${DAY_FORMAT.format(end)} ${TIME_FORMAT.format(end)}`;
-}
 
 const eventSchema = z
   .object({
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().optional(),
     startDate: z.string().min(1, 'Beginn ist erforderlich'),
-    startTime: z.string().optional(),
-    multiDay: z.boolean().optional(),
     endDate: z.string().optional(),
-    endTime: z.string().optional(),
     shopEnabled: z.boolean().optional(),
     shopServiceFee: z.string().optional(),
   })
-  // Nur der mehrtaegige Fall braucht eine Reihenfolgepruefung. Bei einem
-  // einzelnen Tag ist eine Endzeit vor der Startzeit keine Falscheingabe,
-  // sondern die Nacht danach.
-  .refine((data) => !data.multiDay || !data.endDate || data.endDate >= data.startDate, {
+  .refine((data) => !data.endDate || data.endDate >= data.startDate, {
     path: ['endDate'],
     message: 'Das Ende darf nicht vor dem Beginn liegen',
   });
@@ -48,6 +47,15 @@ interface EventFormModalProps {
   event?: Event | null;
   onClose: () => void;
 }
+
+const EMPTY_FORM: EventFormData = {
+  name: '',
+  description: '',
+  startDate: '',
+  endDate: '',
+  shopEnabled: false,
+  shopServiceFee: '',
+};
 
 export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) {
   const t = useTranslations('events');
@@ -61,6 +69,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
+  /* Die Oeffnungstage stehen neben dem Formular, nicht darin: sie haengen am
+     Zeitraum und werden bei jeder Datumsaenderung angeglichen. Ein
+     Formularfeld je Tag wuerde bedeuten, Felder zur Laufzeit an- und
+     abzumelden. */
+  const [shopDays, setShopDays] = useState<ShopDayRow[]>([]);
+
   const {
     control,
     handleSubmit,
@@ -69,55 +83,48 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     formState: { errors, isSubmitting },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      startDate: '',
-      startTime: '',
-      multiDay: false,
-      endDate: '',
-      endTime: '',
-      shopEnabled: false,
-      shopServiceFee: '',
-    },
+    defaultValues: EMPTY_FORM,
   });
 
-  const watched = watch();
-  const range = composeEventRange({
-    startDate: watched.startDate ?? '',
-    startTime: watched.startTime ?? '',
-    endDate: watched.endDate ?? '',
-    endTime: watched.endTime ?? '',
-    multiDay: !!watched.multiDay,
-  });
-  const days = range ? countEventDays(range.start, range.end) : 0;
-  const windows = range ? deriveShopWindows(range.start, range.end) : [];
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
 
   useEffect(() => {
     if (event) {
       const fee = event.settings?.shop?.serviceFee;
-      const dates = splitEventRange(event.startDate, event.endDate);
+      const start = event.startDate ? toDayKey(event.startDate) : '';
+      const end = event.endDate ? toDayKey(event.endDate) : start;
       reset({
         name: event.name,
         description: event.description || '',
-        ...dates,
+        startDate: start,
+        endDate: end,
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
       });
+      setShopDays(start ? fromStoredDays(start, end, event.settings?.shop?.days) : []);
     } else {
-      reset({
-        name: '',
-        description: '',
-        startDate: '',
-        startTime: '',
-        multiDay: false,
-        endDate: '',
-        endTime: '',
-        shopEnabled: false,
-        shopServiceFee: '',
-      });
+      reset(EMPTY_FORM);
+      setShopDays([]);
     }
   }, [event, reset]);
+
+  /* Der Zeitraum bestimmt, welche Tage es gibt. Schon eingestellte Tage
+     behalten dabei ihre Uhrzeiten — siehe syncShopDays. */
+  useEffect(() => {
+    if (!startDate) {
+      setShopDays([]);
+      return;
+    }
+    setShopDays((previous) => syncShopDays(startDate, endDate || startDate, previous));
+  }, [startDate, endDate]);
+
+  const days = startDate ? countEventDays(startDate, endDate || startDate) : 0;
+
+  const updateDay = (date: string, patch: Partial<ShopDayRow>) =>
+    setShopDays((previous) =>
+      previous.map((row) => (row.date === date ? { ...row, ...patch } : row)),
+    );
 
   const onSubmit = async (data: EventFormData) => {
     if (!organizationId) return;
@@ -126,52 +133,30 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     try {
       const parsedFee = parseFloat(String(data.shopServiceFee ?? '').replace(',', '.'));
       const serviceFee = Number.isFinite(parsedFee) && parsedFee > 0 ? Math.round(parsedFee * 100) / 100 : undefined;
-      // Neue und bearbeitete Shops richten sich nach dem Veranstaltungszeitraum.
-      // Die Wochentags-Tabelle wird nicht mehr gepflegt; ein Bestandsshop
-      // wechselt in dem Moment, in dem er hier gespeichert wird.
       const shopSettings = {
         enabled: !!data.shopEnabled,
         hoursMode: 'event' as const,
+        days: toStoredDays(shopDays),
         serviceFee,
       };
 
-      const composed = composeEventRange({
-        startDate: data.startDate,
-        startTime: data.startTime ?? '',
-        endDate: data.endDate ?? '',
-        endTime: data.endTime ?? '',
-        multiDay: !!data.multiDay,
-      });
-      if (!composed) {
-        setError(t('form.startRequired'));
-        return;
-      }
+      const payload = {
+        name: data.name,
+        description: data.description || undefined,
+        startDate: toIsoAtMidnight(data.startDate),
+        endDate: toIsoAtMidnight(data.endDate || data.startDate),
+      };
 
       if (isEditing && event) {
         await updateEvent.mutateAsync({
           organizationId,
           id: event.id,
-          data: {
-            name: data.name,
-            description: data.description || undefined,
-            startDate: composed.start.toISOString(),
-            endDate: composed.end.toISOString(),
-            settings: {
-              ...event.settings,
-              shop: shopSettings,
-            },
-          },
+          data: { ...payload, settings: { ...event.settings, shop: shopSettings } },
         });
       } else {
         await createEvent.mutateAsync({
           organizationId,
-          data: {
-            name: data.name,
-            description: data.description || undefined,
-            startDate: composed.start.toISOString(),
-            endDate: composed.end.toISOString(),
-            settings: { shop: shopSettings },
-          },
+          data: { ...payload, settings: { shop: shopSettings } },
         });
       }
       onClose();
@@ -208,11 +193,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               render={({ field }) => (
                 <label className="auth-field" style={errors.name ? { '--field-border': 'var(--danger)' } as React.CSSProperties : {}}>
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
-                  <input
-                    type="text"
-                    placeholder={t('form.namePlaceholder')}
-                    {...field}
-                  />
+                  <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
                     <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
                   )}
@@ -226,17 +207,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               render={({ field }) => (
                 <label className="auth-field">
                   <span>{t('form.description')}</span>
-                  <input
-                    type="text"
-                    placeholder={t('form.descriptionPlaceholder')}
-                    {...field}
-                  />
+                  <input type="text" placeholder={t('form.descriptionPlaceholder')} {...field} />
                 </label>
               )}
             />
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <Controller
                   name="startDate"
                   control={control}
@@ -246,19 +223,22 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       style={errors.startDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
                     >
                       <span>
-                        {t('form.start')} <span style={{ color: 'var(--danger)' }}>*</span>
+                        {t('form.startDate')} <span style={{ color: 'var(--danger)' }}>*</span>
                       </span>
                       <input type="date" {...field} />
                     </label>
                   )}
                 />
                 <Controller
-                  name="startTime"
+                  name="endDate"
                   control={control}
                   render={({ field }) => (
-                    <label className="auth-field">
-                      <span>&nbsp;</span>
-                      <input type="time" {...field} />
+                    <label
+                      className="auth-field"
+                      style={errors.endDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
+                    >
+                      <span>{t('form.endDate')}</span>
+                      <input type="date" min={startDate || undefined} {...field} />
                     </label>
                   )}
                 />
@@ -266,63 +246,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               {errors.startDate && (
                 <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.startRequired')}</span>
               )}
-
-              <Controller
-                name="multiDay"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={!!value}
-                      onChange={(e) => onChange(e.target.checked)}
-                      style={{ width: 16, height: 16, accentColor: 'var(--green-ink)' }}
-                    />
-                    <span style={{ fontSize: 13, color: 'var(--ink)' }}>{t('form.multiDay')}</span>
-                  </label>
-                )}
-              />
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 12 }}>
-                {watched.multiDay ? (
-                  <Controller
-                    name="endDate"
-                    control={control}
-                    render={({ field }) => (
-                      <label
-                        className="auth-field"
-                        style={errors.endDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
-                      >
-                        <span>{t('form.lastDay')}</span>
-                        <input type="date" min={watched.startDate || undefined} {...field} />
-                      </label>
-                    )}
-                  />
-                ) : (
-                  <div style={{ alignSelf: 'end', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', paddingBottom: 10 }}>
-                    {t('form.multiDayHint')}
-                  </div>
-                )}
-                <Controller
-                  name="endTime"
-                  control={control}
-                  render={({ field }) => (
-                    <label className="auth-field">
-                      <span>{t('form.end')}</span>
-                      <input type="time" {...field} />
-                    </label>
-                  )}
-                />
-              </div>
               {errors.endDate && (
                 <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.endBeforeStart')}</span>
               )}
-
-              {range && (
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                  {formatRange(range.start, range.end)} · {days === 1 ? 'ein Veranstaltungstag' : `${days} Veranstaltungstage`}
-                </div>
-              )}
+              <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
+              </span>
             </div>
 
             <Controller
@@ -358,6 +287,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         </div>
                       </div>
                     </label>
+
                     {value && event && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                         <code
@@ -387,38 +317,82 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         </button>
                       </div>
                     )}
+
                     {value && (
                       <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
                           Öffnungszeiten
                         </div>
-                        {windows.length === 0 ? (
+
+                        {shopDays.length === 0 ? (
                           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
                             Bitte zuerst den Zeitraum der Veranstaltung eintragen.
                           </p>
                         ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            {windows.map((w) => (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {shopDays.map((row) => (
                               <div
-                                key={w.start.toISOString()}
-                                style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: 'var(--ink)' }}
+                                key={row.date}
+                                style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: '92px 18px 1fr 1fr 34px',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                }}
                               >
-                                <span>{DAY_FORMAT.format(w.start)}</span>
-                                <span style={{ fontFamily: 'var(--f-mono)' }}>
-                                  {TIME_FORMAT.format(w.start)} – {TIME_FORMAT.format(w.end)}
-                                  {w.end.getDate() !== w.start.getDate() && (
-                                    <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}> (+1)</span>
-                                  )}
+                                <span style={{ fontSize: 13, color: 'var(--ink)' }}>
+                                  {DAY_FORMAT.format(parseDayKey(row.date))}
+                                </span>
+                                <input
+                                  type="checkbox"
+                                  checked={row.open}
+                                  onChange={(e) => updateDay(row.date, { open: e.target.checked })}
+                                  aria-label={`${DAY_FORMAT.format(parseDayKey(row.date))} geöffnet`}
+                                  style={{ width: 16, height: 16, accentColor: 'var(--green-ink)', cursor: 'pointer' }}
+                                />
+                                <input
+                                  type="time"
+                                  value={row.start}
+                                  disabled={!row.open}
+                                  onChange={(e) => updateDay(row.date, { start: e.target.value })}
+                                  style={{
+                                    padding: '6px 8px', fontSize: 12, borderRadius: 6,
+                                    border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
+                                    background: 'var(--paper)', opacity: row.open ? 1 : 0.5,
+                                  }}
+                                />
+                                <input
+                                  type="time"
+                                  value={row.end}
+                                  disabled={!row.open}
+                                  onChange={(e) => updateDay(row.date, { end: e.target.value })}
+                                  style={{
+                                    padding: '6px 8px', fontSize: 12, borderRadius: 6,
+                                    border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
+                                    background: 'var(--paper)', opacity: row.open ? 1 : 0.5,
+                                  }}
+                                />
+                                {/* Ohne diesen Hinweis liest sich "10:00 – 02:00"
+                                    wie ein Zahlendreher statt wie eine Nacht. */}
+                                <span
+                                  style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}
+                                  title="Endet am Folgetag"
+                                >
+                                  {row.open && isOvernight(row) ? '+1' : ''}
                                 </span>
                               </div>
                             ))}
                           </div>
                         )}
+
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
-                          Der Shop öffnet zu den Zeiten der Veranstaltung — bei einer Endzeit vor der Startzeit über Mitternacht hinweg. Im Test-Modus ist er unabhängig davon erreichbar.
+                          Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet
+                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Test-Modus ist der Shop unabhängig
+                          von den Öffnungszeiten erreichbar.
                         </p>
                       </div>
                     )}
+
                     {value && (
                       <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>

@@ -17,10 +17,23 @@ export interface ShopWindow {
 }
 
 /**
- * 'event': Öffnungszeiten leiten sich aus dem Veranstaltungszeitraum ab.
+ * 'event': Öffnungszeiten je Veranstaltungstag (`days`).
  * 'weekly': feste Wochentags-Tabelle (Bestandsshops).
  */
 export type ShopHoursMode = 'event' | 'weekly';
+
+/**
+ * Ein Öffnungstag des Shops. Nur geöffnete Tage stehen in der Liste —
+ * ein geschlossener Tag fehlt einfach.
+ */
+export interface ShopDaySetting {
+  /** Veranstaltungstag als 'YYYY-MM-DD'. */
+  date: string;
+  /** 'HH:mm' */
+  start: string;
+  /** 'HH:mm'. Nicht später als `start` heißt: Ende am Folgetag. */
+  end: string;
+}
 
 export interface EventSettings {
   orderNumberPrefix?: string;
@@ -31,6 +44,7 @@ export interface EventSettings {
   shop?: {
     enabled?: boolean;
     hoursMode?: ShopHoursMode;
+    days?: ShopDaySetting[];
     openingHours?: ShopOpeningHours;
     serviceFee?: number;
   };

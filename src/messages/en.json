@@ -886,13 +886,10 @@
       "startDate": "Start date",
       "date": "Date",
       "endDate": "End date",
-      "start": "Start",
-      "end": "End",
-      "lastDay": "Last day",
-      "multiDay": "Multi-day event",
-      "multiDayHint": "If the event runs across several days, every day is charged.",
       "startRequired": "A start is required",
-      "endBeforeStart": "The end must not be before the start"
+      "endBeforeStart": "The end must not be before the start",
+      "dayCount": "{days, plural, one {One event day} other {# event days}}",
+      "endHint": "Without an end date the event lasts one day."
     },
     "status": {
       "active": "Active",
