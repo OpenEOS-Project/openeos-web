@@ -13,6 +13,17 @@ import type { Category } from '@/types/category';
 import { ColorPicker } from '@/components/shared/color-picker';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
+/*
+ * Dieses Modal lag zweimal im Baum, unter products/ und unter categories/,
+ * beide in Benutzung und fast gleich — aber schon auseinandergelaufen: die
+ * eine Fassung kannte einen onCreated-Rueckruf, die andere nicht, und sie
+ * legten unterschiedliche Standardfarben an. Was ein Nutzer sah, hing davon
+ * ab, ueber welche Seite er das Modal geoeffnet hatte.
+ *
+ * Geblieben ist die Obermenge. Deshalb liegt es hier und nicht unter einer
+ * der beiden Seiten: keine von beiden ist die Heimat.
+ */
+
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().optional(),
@@ -30,9 +41,16 @@ interface CategoryFormModalProps {
   eventId: string;
   category?: Category | null;
   onClose: () => void;
+  onCreated?: (category: Category) => void;
 }
 
-export function CategoryFormModal({ isOpen, eventId, category, onClose }: CategoryFormModalProps) {
+export function CategoryFormModal({
+  isOpen,
+  eventId,
+  category,
+  onClose,
+  onCreated,
+}: CategoryFormModalProps) {
   const t = useTranslations('categories');
   const tCommon = useTranslations('common');
   const isEditing = !!category;
@@ -53,7 +71,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
     defaultValues: {
       name: '',
       description: '',
-      color: '',
+      color: '#6366f1',
       parentId: '',
       sortOrder: 0,
       isActive: true,
@@ -67,7 +85,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
       reset({
         name: category.name,
         description: category.description || '',
-        color: category.color || '',
+        color: category.color || '#6366f1',
         parentId: category.parentId || '',
         sortOrder: category.sortOrder,
         isActive: category.isActive,
@@ -77,7 +95,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
       reset({
         name: '',
         description: '',
-        color: '',
+        color: '#6366f1',
         parentId: '',
         sortOrder: 0,
         isActive: true,
@@ -105,7 +123,7 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
           },
         });
       } else {
-        await createCategory.mutateAsync({
+        const result = await createCategory.mutateAsync({
           eventId,
           data: {
             name: data.name,
@@ -117,6 +135,9 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
             productionStationId: data.productionStationId || undefined,
           },
         });
+        if (onCreated && result) {
+          onCreated(result);
+        }
       }
       onClose();
     } catch {

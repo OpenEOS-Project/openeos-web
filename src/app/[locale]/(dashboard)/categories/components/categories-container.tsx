@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Category } from '@/types/category';
 
-import { CategoryFormModal } from './category-form-modal';
+import { CategoryFormModal } from '@/components/shared/category-form-modal';
 import { CategoriesList } from './categories-list';
 
 export function CategoriesContainer() {

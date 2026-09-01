@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useRouter, usePathname } from 'next/navigation';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ListLoading } from '@/components/shared/list-states';
 
 export function PreferencesSection() {
@@ -124,24 +124,23 @@ export function PreferencesSection() {
           <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('notifications.title')}</h3>
         </div>
 
-        {(['email', 'push'] as const).map((type, i) => {
-          const isChecked = type === 'email'
-            ? (preferences?.notifications?.email ?? true)
-            : (preferences?.notifications?.push ?? false);
-          return (
-            <div key={type} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i === 0 ? '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' : 'none' }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`notifications.${type}`)}</div>
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`notifications.${type}Description`)}</div>
-              </div>
-              <ToggleSwitch
+        <div className="oe-setting-list" style={{ padding: '0 20px' }}>
+          {(['email', 'push'] as const).map((type) => {
+            const isChecked = type === 'email'
+              ? (preferences?.notifications?.email ?? true)
+              : (preferences?.notifications?.push ?? false);
+            return (
+              <SettingToggle
+                key={type}
+                flush
+                label={t(`notifications.${type}`)}
+                hint={t(`notifications.${type}Description`)}
                 checked={isChecked}
                 onChange={(value) => handleNotificationChange(type, value)}
-                aria-label={t(`notifications.${type}`)}
               />
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

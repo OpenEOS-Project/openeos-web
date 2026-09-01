@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { Category } from '@/types/category';
 import type { Product, ProductOptionGroup } from '@/types/product';
 
-import { CategoryFormModal } from './category-form-modal';
+import { CategoryFormModal } from '@/components/shared/category-form-modal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const productSchema = z.object({

@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 import type { ShiftPlan } from '@/types/shift';
 
 interface PlanSettingsProps {
@@ -34,24 +34,25 @@ interface ToggleRowProps {
   isLast?: boolean;
 }
 
+/**
+ * Eine Zeile dieser Karte.
+ *
+ * Die Zeile selbst kommt aus dem Designsystem; die Trennlinie bleibt hier,
+ * weil in dieser Karte Schalter und Zahlenfelder abwechselnd stehen. Eine
+ * Liste, die ihre Linien ueber Geschwister-Regeln zieht, waere dazwischen
+ * mal richtig und mal nicht — hier weiss nur der Aufrufer, welche Zeile
+ * die letzte ist.
+ */
 function ToggleRow({ title, description, checked, onChange, isLast }: ToggleRowProps) {
   return (
     <div
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
         paddingBottom: isLast ? 0 : 16,
         marginBottom: isLast ? 0 : 16,
-        borderBottom: isLast ? 'none' : '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+        borderBottom: isLast ? 'none' : '1px solid var(--oe-line)',
       }}
     >
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: 14 }}>{title}</div>
-        <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>{description}</div>
-      </div>
-      <ToggleSwitch checked={checked} onChange={onChange} aria-label={title} />
+      <SettingToggle flush label={title} hint={description} checked={checked} onChange={onChange} />
     </div>
   );
 }

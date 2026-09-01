@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api-client';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 import { toast } from '@/components/shared/toast';
 import type { AdminNotifyOnSettings } from '@/types/admin';
 
@@ -90,29 +90,19 @@ export function PlatformNotificationsSection() {
       </div>
 
       <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', borderRadius: 10, overflow: 'hidden' }}>
-        {NOTIFY_ON_KEYS.map((key, i) => (
-          <div
-            key={key}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 16px',
-              borderBottom: i < NOTIFY_ON_KEYS.length - 1 ? '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' : 'none',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`notifyOn.${key}`)}</div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`notifyOn.${key}Description`)}</div>
-            </div>
-            <ToggleSwitch
+        <div className="oe-setting-list" style={{ padding: '0 16px' }}>
+          {NOTIFY_ON_KEYS.map((key) => (
+            <SettingToggle
+              key={key}
+              flush
+              label={t(`notifyOn.${key}`)}
+              hint={t(`notifyOn.${key}Description`)}
               checked={notifyOn[key]}
-              onChange={(value) => setNotifyOn((prev) => ({ ...prev, [key]: value }))}
               disabled={updateSettings.isPending}
-              aria-label={t(`notifyOn.${key}`)}
+              onChange={(value) => setNotifyOn((prev) => ({ ...prev, [key]: value }))}
             />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 16, marginTop: 4 }}>

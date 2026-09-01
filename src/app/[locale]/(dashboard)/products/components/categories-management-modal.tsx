@@ -7,7 +7,7 @@ import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 
-import { CategoryFormModal } from './category-form-modal';
+import { CategoryFormModal } from '@/components/shared/category-form-modal';
 
 interface CategoriesManagementModalProps {
   isOpen: boolean;

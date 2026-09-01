@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 export function OrganizationPosSection() {
   const t = useTranslations('settings.organizationPos');
@@ -134,38 +134,28 @@ export function OrganizationPosSection() {
           <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('options.title')}</h3>
         </div>
 
-        {(
-          [
-            { key: 'requireTableNumber', defaultValue: false },
-            { key: 'autoPrintReceipt', defaultValue: false },
-            { key: 'soundEnabled', defaultValue: true },
-          ] as const
-        ).map(({ key, defaultValue }, i, arr) => {
-          const isChecked = posSettings?.[key] ?? defaultValue;
-          return (
-            <div
-              key={key}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 20px',
-                borderBottom: i < arr.length - 1 ? '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' : 'none',
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`options.${key}`)}</div>
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t(`options.${key}Description`)}</div>
-              </div>
-              <ToggleSwitch
+        <div className="oe-setting-list" style={{ padding: '0 20px' }}>
+          {(
+            [
+              { key: 'requireTableNumber', defaultValue: false },
+              { key: 'autoPrintReceipt', defaultValue: false },
+              { key: 'soundEnabled', defaultValue: true },
+            ] as const
+          ).map(({ key, defaultValue }) => {
+            const isChecked = posSettings?.[key] ?? defaultValue;
+            return (
+              <SettingToggle
+                key={key}
+                flush
+                label={t(`options.${key}`)}
+                hint={t(`options.${key}Description`)}
                 checked={isChecked}
-                onChange={(value) => handleToggleChange(key, value)}
                 disabled={updateSettings.isPending}
-                aria-label={t(`options.${key}`)}
+                onChange={(value) => handleToggleChange(key, value)}
               />
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

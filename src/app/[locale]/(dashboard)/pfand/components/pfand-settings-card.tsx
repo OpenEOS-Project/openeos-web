@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 type PfandPolicy = { tableService: boolean; counterPickup: boolean };
 
@@ -56,34 +56,24 @@ export function PfandSettingsCard() {
         </p>
       </div>
 
-      {rows.map(({ key }, i, arr) => {
-        const isChecked = policy[key];
-        return (
-          <div
-            key={key}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 20px',
-              borderBottom: i < arr.length - 1 ? '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' : 'none',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{t(`${key}.label`)}</div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                {t(`${key}.description`)}
-              </div>
-            </div>
-            <ToggleSwitch
+      {/* Die Trennlinien zieht die Liste, nicht die einzelne Zeile — die
+          seitliche Polsterung sitzt deshalb hier und nicht in den Zeilen. */}
+      <div className="oe-setting-list" style={{ padding: '0 20px' }}>
+        {rows.map(({ key }) => {
+          const isChecked = policy[key];
+          return (
+            <SettingToggle
+              key={key}
+              flush
+              label={t(`${key}.label`)}
+              hint={t(`${key}.description`)}
               checked={isChecked}
-              onChange={() => updatePolicy.mutate({ [key]: !isChecked })}
               disabled={updatePolicy.isPending}
-              aria-label={t(`${key}.label`)}
+              onChange={() => updatePolicy.mutate({ [key]: !isChecked })}
             />
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
