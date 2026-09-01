@@ -3330,6 +3330,13 @@ body:has(.landing) {
   align-items: center;
   gap: 12px;
 }
+.landing .integration-card__logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: var(--oe-r-sm);
+}
 .landing .integration-card__icon {
   display: inline-flex;
   align-items: center;

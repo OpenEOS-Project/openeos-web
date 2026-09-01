@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
+import { IntegrationLogo } from './integration-logo';
 import { SumUpIntegration } from './sumup-integration';
 
 /**
@@ -19,13 +20,11 @@ interface IntegrationEntry {
   name: string;
   vendor: string;
   description: string;
+  /** Hausfarbe des Anbieters, solange kein Logo hinterlegt ist. */
+  color: string;
   available: boolean;
   /** Einstellungen der Anbindung; fehlen sie, gibt es nichts zu öffnen. */
   panel?: React.ReactNode;
-}
-
-function IntegrationIcon({ children }: { children: React.ReactNode }) {
-  return <div className="integration-card__icon">{children}</div>;
 }
 
 export function IntegrationsContainer() {
@@ -38,6 +37,7 @@ export function IntegrationsContainer() {
       name: 'SumUp',
       vendor: t('sumup.vendor'),
       description: t('sumup.description'),
+      color: '#1B1B1B',
       available: true,
       panel: <SumUpIntegration />,
     },
@@ -46,13 +46,15 @@ export function IntegrationsContainer() {
       name: 'Stripe',
       vendor: t('stripe.vendor'),
       description: t('stripe.description'),
+      color: '#635BFF',
       available: false,
     },
     {
-      id: 'lexoffice',
-      name: 'lexoffice',
-      vendor: t('lexoffice.vendor'),
-      description: t('lexoffice.description'),
+      id: 'fiskaly',
+      name: 'fiskaly',
+      vendor: t('fiskaly.vendor'),
+      description: t('fiskaly.description'),
+      color: '#0F766E',
       available: false,
     },
   ];
@@ -64,7 +66,7 @@ export function IntegrationsContainer() {
         return (
           <div key={entry.id} className={`integration-card${isOpen ? ' is-open' : ''}`}>
             <div className="integration-card__head">
-              <IntegrationIcon>{entry.name.slice(0, 1)}</IntegrationIcon>
+              <IntegrationLogo id={entry.id} name={entry.name} color={entry.color} />
               <div className="integration-card__copy">
                 <div className="integration-card__name">{entry.name}</div>
                 <div className="integration-card__vendor">{entry.vendor}</div>

@@ -2723,9 +2723,9 @@
       "vendor": "Kartenzahlung",
       "description": "Zahlungen im Online-Shop über Stripe abwickeln."
     },
-    "lexoffice": {
-      "vendor": "Buchhaltung",
-      "description": "Umsätze automatisch an die Buchhaltung übergeben."
+    "fiskaly": {
+      "vendor": "Kassensicherung",
+      "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung."
     }
   }
 }

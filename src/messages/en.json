@@ -2723,9 +2723,9 @@
       "vendor": "Card payments",
       "description": "Take online shop payments through Stripe."
     },
-    "lexoffice": {
-      "vendor": "Accounting",
-      "description": "Hand revenue over to accounting automatically."
+    "fiskaly": {
+      "vendor": "Fiscalisation",
+      "description": "Cloud TSE for the German cash register security regulation."
     }
   }
 }
