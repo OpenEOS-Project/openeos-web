@@ -1007,6 +1007,10 @@
       "created": "Category created successfully",
       "updated": "Category updated successfully",
       "deleted": "Category deleted successfully"
+    },
+    "reorder": {
+      "handle": "Drag to reorder",
+      "hint": "The order decides how categories appear at the till. Drag the handle to change it."
     }
   },
   "products": {
@@ -1014,7 +1018,7 @@
     "subtitle": "Manage your products and prices",
     "create": "Create product",
     "edit": "Edit product",
-    "manageCategories": "Manage categories",
+    "manageCategories": "Edit categories",
     "selectEvent": "Event",
     "selectEventPlaceholder": "Select event...",
     "noEvents": {

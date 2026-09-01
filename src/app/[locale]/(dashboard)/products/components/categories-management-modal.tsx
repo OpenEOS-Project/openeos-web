@@ -1,13 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
-import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
+import { useCategories, useDeleteCategory, useReorderCategories } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 
 import { CategoryFormModal } from '@/components/shared/category-form-modal';
+import { CategorySortableRow } from './category-sortable-row';
 
 interface CategoriesManagementModalProps {
   isOpen: boolean;
@@ -29,6 +45,39 @@ export function CategoriesManagementModal({
 
   const { data: categories, isLoading } = useCategories(eventId);
   const deleteCategory = useDeleteCategory();
+  const reorderCategories = useReorderCategories();
+
+  /* Die Reihenfolge liegt waehrend des Ziehens lokal, damit die Zeile
+     sofort an ihrem neuen Platz steht. Der Server wird danach informiert;
+     kommt seine Antwort, uebernimmt wieder seine Reihenfolge. */
+  const [order, setOrder] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (categories) setOrder(categories.map((c) => c.id));
+  }, [categories]);
+
+  const sensors = useSensors(
+    /* Erst ab acht Pixeln gilt es als Ziehen — sonst waere schon ein Druck
+       auf den Griff eine Verschiebung. */
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const sorted = order
+    .map((id) => categories?.find((c) => c.id === id))
+    .filter((c): c is Category => !!c);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const from = order.indexOf(String(active.id));
+    const to = order.indexOf(String(over.id));
+    if (from < 0 || to < 0) return;
+
+    const next = arrayMove(order, from, to);
+    setOrder(next);
+    reorderCategories.mutate({ eventId, categoryIds: next });
+  };
 
   const handleCreateClick = () => {
     setEditingCategory(null);
@@ -98,51 +147,31 @@ export function CategoriesManagementModal({
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {categories.map((category) => (
-                  <div
-                    key={category.id}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-                      borderRadius: 10, padding: '10px 14px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                        background: category.color ? `${category.color}20` : 'color-mix(in oklab, var(--ink) 8%, transparent)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={category.color || 'currentColor'} strokeWidth="2">
-                          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-                          <line x1="7" y1="7" x2="7.01" y2="7" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{category.name}</div>
-                        {category.description && (
-                          <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 300 }}>
-                            {category.description}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span className={category.isActive ? 'badge badge--success' : 'badge badge--neutral'}>
-                        {t(`status.${category.isActive ? 'active' : 'inactive'}`)}
-                      </span>
-                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => handleEditClick(category)}>
-                        {tCommon('edit') ?? 'Edit'}
-                      </button>
-                      <button className="btn btn--ghost" style={{ padding: '4px 10px', fontSize: 12, color: 'var(--danger)' }} onClick={() => handleDeleteClick(category)}>
-                        {tCommon('delete')}
-                      </button>
-                    </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={order} strategy={verticalListSortingStrategy}>
+                  <div className="cat-list">
+                    {sorted.map((category) => (
+                      <CategorySortableRow
+                        key={category.id}
+                        category={category}
+                        onEdit={handleEditClick}
+                        onDelete={handleDeleteClick}
+                        editLabel={tCommon('edit')}
+                        deleteLabel={tCommon('delete')}
+                        statusLabel={t('status.inactive')}
+                        dragLabel={t('reorder.handle')}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
+
+            <p className="cat-list__hint">{t('reorder.hint')}</p>
           </div>
 
           <div className="modal__foot">

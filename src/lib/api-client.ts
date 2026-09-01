@@ -601,8 +601,11 @@ export const categoriesApi = {
   delete: (eventId: string, id: string) =>
     apiClient.delete(`/events/${eventId}/categories/${id}`),
 
-  reorder: (eventId: string, items: { id: string; sortOrder: number }[]) =>
-    apiClient.post(`/events/${eventId}/categories/reorder`, { items }),
+  /* PATCH mit einer reinen ID-Liste — so erwartet es die API. Hier stand
+     ein POST mit { items: [{id, sortOrder}] }; beides passte nicht, der
+     Aufruf konnte nie durchgehen. */
+  reorder: (eventId: string, categoryIds: string[]) =>
+    apiClient.patch(`/events/${eventId}/categories/reorder`, { categoryIds }),
 };
 
 // Uploads API

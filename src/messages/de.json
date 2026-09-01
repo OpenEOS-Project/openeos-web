@@ -820,6 +820,10 @@
       "created": "Kategorie erfolgreich erstellt",
       "updated": "Kategorie erfolgreich aktualisiert",
       "deleted": "Kategorie erfolgreich gelöscht"
+    },
+    "reorder": {
+      "handle": "Zum Verschieben ziehen",
+      "hint": "Die Reihenfolge bestimmt, wie die Kategorien an der Kasse erscheinen. Zum Ändern am Griff ziehen."
     }
   },
   "products": {
@@ -827,7 +831,7 @@
     "subtitle": "Verwalten Sie Ihre Produkte und Preise",
     "create": "Produkt erstellen",
     "edit": "Produkt bearbeiten",
-    "manageCategories": "Kategorien verwalten",
+    "manageCategories": "Kategorien bearbeiten",
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {

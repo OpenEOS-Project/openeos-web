@@ -11,6 +11,7 @@ interface ProductsListProps {
   eventId: string;
   onCreateClick: () => void;
   onImportClick: () => void;
+  onManageCategoriesClick: () => void;
   onEditClick: (product: Product) => void;
   onDeleteClick: (product: Product) => void;
   onAdjustStockClick: (product: Product) => void;
@@ -20,6 +21,7 @@ export function ProductsList({
   eventId,
   onCreateClick,
   onImportClick,
+  onManageCategoriesClick,
   onEditClick,
   onDeleteClick,
   onAdjustStockClick,
@@ -77,6 +79,9 @@ export function ProductsList({
           <p className="app-card__sub">{t('subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--ghost" onClick={onManageCategoriesClick}>
+            {t('manageCategories')}
+          </button>
           <button className="btn btn--ghost" onClick={onImportClick}>
             {t('import.trigger')}
           </button>

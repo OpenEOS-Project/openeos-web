@@ -29,7 +29,6 @@ const categorySchema = z.object({
   description: z.string().optional(),
   color: z.string().optional(),
   parentId: z.string().optional(),
-  sortOrder: z.coerce.number().min(0).optional(),
   isActive: z.boolean(),
   productionStationId: z.string().optional(),
 });
@@ -73,7 +72,6 @@ export function CategoryFormModal({
       description: '',
       color: '#6366f1',
       parentId: '',
-      sortOrder: 0,
       isActive: true,
       productionStationId: '',
     },
@@ -87,7 +85,6 @@ export function CategoryFormModal({
         description: category.description || '',
         color: category.color || '#6366f1',
         parentId: category.parentId || '',
-        sortOrder: category.sortOrder,
         isActive: category.isActive,
         productionStationId: category.productionStationId || '',
       });
@@ -97,7 +94,6 @@ export function CategoryFormModal({
         description: '',
         color: '#6366f1',
         parentId: '',
-        sortOrder: 0,
         isActive: true,
         productionStationId: '',
       });
@@ -117,7 +113,6 @@ export function CategoryFormModal({
             description: data.description || undefined,
             color: data.color || undefined,
             parentId: data.parentId || null,
-            sortOrder: data.sortOrder,
             isActive: data.isActive,
             productionStationId: data.productionStationId || null,
           },
@@ -130,7 +125,6 @@ export function CategoryFormModal({
             description: data.description || undefined,
             color: data.color || undefined,
             parentId: data.parentId || undefined,
-            sortOrder: data.sortOrder,
             isActive: data.isActive,
             productionStationId: data.productionStationId || undefined,
           },
@@ -189,16 +183,6 @@ export function CategoryFormModal({
               )}
             />
 
-              <Controller
-              name="sortOrder"
-              control={control}
-              render={({ field }) => (
-                <label className="auth-field">
-                  <span>{t('table.sortOrder')}</span>
-                  <input type="number" min="0" step="1" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
-                </label>
-              )}
-            />
 
               <Controller
               name="color"

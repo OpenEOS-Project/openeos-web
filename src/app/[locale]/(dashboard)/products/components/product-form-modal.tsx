@@ -20,6 +20,7 @@ import type { Product, ProductOptionGroup } from '@/types/product';
 
 import { CategoryFormModal } from '@/components/shared/category-form-modal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { PriceInput } from '@/components/shared/price-input';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -352,7 +353,12 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                 render={({ field }) => (
                   <label className="auth-field">
                     <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
-                    <input type="number" step="0.01" placeholder={t('form.pricePlaceholder')} value={String(field.value)} onChange={field.onChange} onBlur={field.onBlur} />
+                    <PriceInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      aria-invalid={!!errors.price}
+                    />
                     {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
                   </label>
                 )}

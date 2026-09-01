@@ -99,12 +99,13 @@ export function useReorderCategories() {
   return useMutation({
     mutationFn: async ({
       eventId,
-      items,
+      categoryIds,
     }: {
       eventId: string;
-      items: { id: string; sortOrder: number }[];
+      /** Die IDs in der gewünschten Reihenfolge; der Index wird zur Sortierung. */
+      categoryIds: string[];
     }) => {
-      await categoriesApi.reorder(eventId, items);
+      await categoriesApi.reorder(eventId, categoryIds);
     },
     onSuccess: (_, { eventId }) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.list(eventId) });

@@ -83,9 +83,6 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     href: '/products',
     icon: ShoppingBag01,
     requiredPermission: 'products',
-    items: [
-      { label: 'Kategorien', href: '/categories' },
-    ],
   },
   {
     label: 'Inventur',

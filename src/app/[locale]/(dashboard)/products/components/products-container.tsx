@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
 
+import { CategoriesManagementModal } from './categories-management-modal';
 import { ProductFormModal } from './product-form-modal';
 import { ProductImportModal } from './product-import-modal';
 import { ProductsList } from './products-list';
@@ -20,6 +21,7 @@ export function ProductsContainer() {
   const tCommon = useTranslations('common');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [adjustingStockProduct, setAdjustingStockProduct] = useState<Product | null>(null);
@@ -110,9 +112,16 @@ export function ProductsContainer() {
         eventId={eventId}
         onCreateClick={handleCreateClick}
         onImportClick={() => setIsImportModalOpen(true)}
+        onManageCategoriesClick={() => setIsCategoriesModalOpen(true)}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
         onAdjustStockClick={handleAdjustStockClick}
+      />
+
+      <CategoriesManagementModal
+        isOpen={isCategoriesModalOpen}
+        eventId={eventId}
+        onClose={() => setIsCategoriesModalOpen(false)}
       />
 
       <ProductImportModal
