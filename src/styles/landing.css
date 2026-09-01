@@ -1502,11 +1502,16 @@ body:has(.landing) {
   font-weight: 500;
 }
 .landing .auth-field input {
-  /* Metrik von .oe-input: kompakter, staerkere Linie, Kartenflaeche
-     statt Seitenfarbe. */
-  font: 500 14px var(--oe-f-sans);
-  padding: 9px 12px;
-  border: 1.5px solid var(--oe-line-2);
+  /* Eine Zeile Text, ein Rahmen, etwas Luft — mehr braucht ein Feld
+     nicht. Die vorherigen 14px auf 9px Polsterung ergaben gut 41px hohe
+     Felder; in einem Formular mit acht davon steht dann mehr Rahmen als
+     Inhalt auf dem Schirm. --oe-control-h-md haelt Text-, Auswahl- und
+     Datumsfelder auf derselben Hoehe, damit eine Reihe nebeneinander
+     nicht ausfranst. */
+  font: 500 13px var(--oe-f-sans);
+  min-height: var(--oe-control-h-md, 34px);
+  padding: 6px 11px;
+  border: 1px solid var(--oe-line-2);
   border-radius: var(--oe-r-sm);
   background: var(--surface);
   color: var(--ink);
@@ -3124,9 +3129,9 @@ body:has(.landing) {
 
 /* Toggle switch (shared/toggle-switch.tsx) */
 .landing .toggle {
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
+  width: 38px;
+  height: 21px;
+  border-radius: 11px;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -3141,14 +3146,53 @@ body:has(.landing) {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  width: 17px;
+  height: 17px;
+  border-radius: 9px;
   background: var(--paper);
   transition: left 0.2s;
   display: block;
 }
-.landing .toggle[aria-checked='true'] .toggle__knob { left: 22px; }
+.landing .toggle[aria-checked='true'] .toggle__knob { left: 19px; }
+
+/* ---------- An/Aus-Einstellungen ----------
+   Eine Zeile mit Beschriftung und Kippschalter, siehe SettingToggle. Die
+   Masse sind bewusst knapp: solche Zeilen stehen oft zu dritt oder viert
+   untereinander in einem Dialog, und jede ueberfluessige Polsterung
+   schiebt die Schaltflaechen aus dem Bild. */
+.landing .setting-toggle {
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--paper-2);
+  padding: 10px 12px;
+}
+.landing .setting-toggle__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.landing .setting-toggle__copy { min-width: 0; }
+.landing .setting-toggle__label {
+  font: 600 13px var(--oe-f-sans);
+  color: var(--ink);
+}
+.landing .setting-toggle__hint {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mute);
+}
+/* Untergeordnete Felder ruecken ein und bekommen eine Trennlinie, damit
+   erkennbar bleibt, dass sie zu dieser Einstellung gehoeren. */
+.landing .setting-toggle__body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--oe-line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 /* Modal width variants (default .modal__panel is 520px) */
 .landing .modal__panel--sm { max-width: 440px; }
@@ -3549,9 +3593,10 @@ body:has(.landing) {
 /* Select und Textarea trugen bisher keine gemeinsame Regel mit input. */
 .landing .auth-field select,
 .landing .auth-field textarea {
-  font: 500 14px var(--oe-f-sans);
-  padding: 9px 12px;
-  border: 1.5px solid var(--oe-line-2);
+  font: 500 13px var(--oe-f-sans);
+  min-height: var(--oe-control-h-md, 34px);
+  padding: 6px 11px;
+  border: 1px solid var(--oe-line-2);
   border-radius: var(--oe-r-sm);
   background: var(--surface);
   color: var(--ink);
@@ -3559,7 +3604,7 @@ body:has(.landing) {
   transition: border-color .15s, box-shadow .15s, background .15s;
 }
 .landing .auth-field textarea {
-  min-height: 88px;
+  min-height: 72px;
   resize: vertical;
   line-height: 1.5;
 }
@@ -3626,27 +3671,38 @@ body:has(.landing) {
    Der Winkel entsteht aus zwei diagonalen Verlaeufen statt aus einem
    SVG: background-image kennt kein currentColor, ein eingebettetes SVG
    haette also eine feste Farbe und wuerde im Dark-Mode verschwinden.
-   Verlaeufe duerfen var() lesen. */
+   Verlaeufe duerfen var() lesen.
+
+   Der Winkel dreht sich bewusst NICHT beim Fokus. Zuvor tat er das, und
+   zwar doppelt falsch: die Regel drehte die Verlaufswinkel, liess aber
+   die beiden Positionen stehen — die Haelften standen verkehrt
+   zueinander und ergaben einen gefuellten Keil statt eines Winkels. Und
+   :focus heisst ohnehin nicht "aufgeklappt": ein Auswahlfeld laesst sich
+   mit der Tabulatortaste fokussieren, ohne dass sich etwas oeffnet. Der
+   gedrehte Pfeil behauptete also einen Zustand, den es nicht gab.
+   Geblieben ist die Einfaerbung, die zum Fokus tatsaechlich passt. */
 .landing .select,
 .landing .auth-field select {
   appearance: none;
-  padding-right: 32px;
+  padding-right: 30px;
+  /* Zwei schmale Baender statt zweier gefuellter Haelften: das ergibt
+     einen duennen Winkel statt eines massiven Dreiecks und passt zu dem
+     Chevron, den .oe-select-wrap im Designsystem zeichnet. */
   background-image:
-    linear-gradient(45deg, transparent 50%, var(--mute) 50%),
-    linear-gradient(135deg, var(--mute) 50%, transparent 50%);
+    linear-gradient(45deg, transparent 42%, var(--mute) 42%, var(--mute) 58%, transparent 58%),
+    linear-gradient(135deg, transparent 42%, var(--mute) 42%, var(--mute) 58%, transparent 58%);
   background-size: 6px 6px, 6px 6px;
   background-position:
-    right 16px center,
+    right 15px center,
     right 11px center;
   background-repeat: no-repeat;
   cursor: pointer;
 }
-/* Beim Aufklappen dreht der Winkel mit. */
 .landing .select:focus,
 .landing .auth-field select:focus {
   background-image:
-    linear-gradient(315deg, transparent 50%, var(--oe-green-ink) 50%),
-    linear-gradient(225deg, var(--oe-green-ink) 50%, transparent 50%);
+    linear-gradient(45deg, transparent 42%, var(--oe-green-ink) 42%, var(--oe-green-ink) 58%, transparent 58%),
+    linear-gradient(135deg, transparent 42%, var(--oe-green-ink) 42%, var(--oe-green-ink) 58%, transparent 58%);
 }
 
 /* ---------- Werkzeuge im Sidebar-Fuß ----------

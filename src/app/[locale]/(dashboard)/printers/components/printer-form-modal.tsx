@@ -8,6 +8,7 @@ import { useCreatePrinter, useUpdatePrinter } from '@/hooks/use-printers';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Printer, CreatePrinterData, UpdatePrinterData } from '@/types/printer';
 import type { Device } from '@/types/device';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 interface PrinterFormModalProps {
   organizationId: string;
@@ -137,15 +138,11 @@ export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFo
               </select>
             </FormRow>
 
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.hasCashDrawer')}</span>
-              <input
-                type="checkbox"
-                checked={hasCashDrawer}
-                onChange={(e) => setHasCashDrawer(e.target.checked)}
-                style={{ width: 18, height: 18, accentColor: 'var(--green-ink)' }}
-              />
-            </label>
+            <SettingToggle
+              label={t('form.hasCashDrawer')}
+              checked={hasCashDrawer}
+              onChange={setHasCashDrawer}
+            />
 
             <FormRow label={t('form.device')}>
               <select

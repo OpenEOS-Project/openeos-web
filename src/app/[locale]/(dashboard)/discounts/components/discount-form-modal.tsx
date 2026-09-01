@@ -10,9 +10,9 @@ import {
   useCreateDiscountVoucher,
   useUpdateDiscountVoucher,
 } from '@/hooks/use-discount-vouchers';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { DiscountVoucher } from '@/types/discount-voucher';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const voucherSchema = z
   .object({
@@ -187,13 +187,12 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                 name="isActive"
                 control={control}
                 render={({ field }) => (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
-                      <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.isActiveHint')}</div>
-                    </div>
-                    <ToggleSwitch checked={field.value} onChange={field.onChange} aria-label={t('form.isActive')} />
-                  </div>
+                  <SettingToggle
+                    label={t('form.isActive')}
+                    hint={t('form.isActiveHint')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
 
@@ -201,13 +200,12 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                 name="allowMultiplePerOrder"
                 control={control}
                 render={({ field }) => (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.allowMultiple')}</div>
-                      <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.allowMultipleHint')}</div>
-                    </div>
-                    <ToggleSwitch checked={field.value} onChange={field.onChange} aria-label={t('form.allowMultiple')} />
-                  </div>
+                  <SettingToggle
+                    label={t('form.allowMultiple')}
+                    hint={t('form.allowMultipleHint')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
             </div>

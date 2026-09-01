@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, sumupApi } from '@/lib/api-client';
 import { toast } from '@/components/shared/toast';
 import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 interface DeviceSettingsProps {
   device: Device;
@@ -236,22 +237,12 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           title={t('devices.detail.settings.auth.title')}
           description={t('devices.detail.settings.auth.description')}
         >
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, cursor: 'pointer' }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
-                {t('devices.detail.settings.auth.requirePin')}
-              </p>
-              <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: '2px 0 0' }}>
-                {t('devices.detail.settings.auth.requirePinDescription')}
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={requirePin}
-              onChange={(e) => setRequirePin(e.target.checked)}
-              style={{ width: 18, height: 18, accentColor: 'var(--green-ink)', flexShrink: 0 }}
-            />
-          </label>
+          <SettingToggle
+            label={t('devices.detail.settings.auth.requirePin')}
+            hint={t('devices.detail.settings.auth.requirePinDescription')}
+            checked={requirePin}
+            onChange={setRequirePin}
+          />
           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginTop: 12 }}>
             {t('devices.detail.settings.auth.pinManagedPerMember')}
           </p>

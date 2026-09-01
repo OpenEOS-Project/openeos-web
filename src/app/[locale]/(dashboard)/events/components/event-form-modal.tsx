@@ -23,6 +23,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Event } from '@/types';
 import { ApiException } from '@/types/api';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const DAY_FORMAT = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 
@@ -260,35 +261,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               render={({ field: { value, onChange } }) => {
                 const shopUrl = event ? shopUrlForEvent(event.id) : SHOP_URL;
                 return (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                      padding: '14px 16px',
-                      background: 'color-mix(in oklab, var(--ink) 4%, var(--paper))',
-                      border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-                      borderRadius: 10,
-                    }}
+                  <SettingToggle
+                    label="Online-Shop aktivieren"
+                    hint="Kunden können Artikel des Events online bestellen und per Karte bezahlen."
+                    checked={!!value}
+                    onChange={onChange}
                   >
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={!!value}
-                        onChange={(e) => onChange(e.target.checked)}
-                        style={{ width: 18, height: 18, accentColor: 'var(--green-ink)' }}
-                      />
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
-                          Online-Shop aktivieren
-                        </div>
-                        <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                          Kunden können Artikel des Events online bestellen und per Karte bezahlen.
-                        </div>
-                      </div>
-                    </label>
-
-                    {value && event && (
+                    {event && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                         <code
                           style={{
@@ -318,11 +297,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       </div>
                     )}
 
-                    {value && (
-                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
-                          Öffnungszeiten
-                        </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
+                        Öffnungszeiten
+                      </div>
 
                         {shopDays.length === 0 ? (
                           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
@@ -390,14 +368,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                           bleibt. Tage ohne Häkchen bleiben geschlossen. Im Test-Modus ist der Shop unabhängig
                           von den Öffnungszeiten erreichbar.
                         </p>
-                      </div>
-                    )}
+                    </div>
 
-                    {value && (
-                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)' }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>
-                          Servicegebühr
-                        </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>
+                        Servicegebühr
+                      </div>
                         <Controller
                           name="shopServiceFee"
                           control={control}
@@ -428,11 +404,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                           )}
                         />
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 6, marginBottom: 0 }}>
-                          Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                        Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr.
+                      </p>
+                    </div>
+                  </SettingToggle>
                 );
               }}
             />

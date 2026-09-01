@@ -10,6 +10,7 @@ import { useProductionStations, useCreateProductionStation, useUpdateProductionS
 import { usePrinters } from '@/hooks/use-printers';
 import type { ProductionStation } from '@/types/production-station';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const productionStationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -217,20 +218,11 @@ export function ProductionStationFormModal({
                 name="isActive"
                 control={control}
                 render={({ field }) => (
-                  <label style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 16px', borderRadius: 10,
-                    border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                    cursor: 'pointer',
-                  }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{t('form.active')}</p>
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--green-ink)' }}
-                    />
-                  </label>
+                  <SettingToggle
+                    label={t('form.active')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
             </div>
