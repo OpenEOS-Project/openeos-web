@@ -37,6 +37,8 @@ export interface ShopDaySetting {
 
 export interface EventSettings {
   orderNumberPrefix?: string;
+  /** Sofort kassieren oder auf Deckel buchen — je Veranstaltung. */
+  orderingMode?: 'immediate' | 'tab';
   enableOnlineOrdering?: boolean;
   enableTableService?: boolean;
   enableTakeaway?: boolean;

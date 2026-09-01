@@ -32,6 +32,7 @@ const eventSchema = z
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().optional(),
     startDate: z.string().min(1, 'Beginn ist erforderlich'),
+    orderingMode: z.enum(['immediate', 'tab']).optional(),
     endDate: z.string().optional(),
     shopEnabled: z.boolean().optional(),
     shopServiceFee: z.string().optional(),
@@ -152,12 +153,15 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         await updateEvent.mutateAsync({
           organizationId,
           id: event.id,
-          data: { ...payload, settings: { ...event.settings, shop: shopSettings } },
+          data: {
+            ...payload,
+            settings: { ...event.settings, orderingMode: data.orderingMode, shop: shopSettings },
+          },
         });
       } else {
         await createEvent.mutateAsync({
           organizationId,
-          data: { ...payload, settings: { shop: shopSettings } },
+          data: { ...payload, settings: { orderingMode: data.orderingMode, shop: shopSettings } },
         });
       }
       onClose();
@@ -254,6 +258,23 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
               </span>
             </div>
+
+            <Controller
+              name="orderingMode"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.orderingMode')}</span>
+                  <select className="select" value={field.value || 'immediate'} onChange={field.onChange}>
+                    <option value="immediate">{t('form.orderingModeImmediate')}</option>
+                    <option value="tab">{t('form.orderingModeTab')}</option>
+                  </select>
+                  <span style={{ fontSize: 12, color: 'var(--mute)', marginTop: 4 }}>
+                    {t('form.orderingModeHint')}
+                  </span>
+                </label>
+              )}
+            />
 
             <Controller
               name="shopEnabled"

@@ -344,8 +344,6 @@ export default function DevicePosPage() {
     enabled: hasHydrated && status === 'verified',
   });
 
-  const orderingMode = orgData?.data?.settings?.pos?.orderingMode || 'immediate';
-
   // Mirror the live cart to paired customer displays. Shared helper keeps the
   // Pfand policy in sync with the checkout logic in PosCart.
   const chargePfand = resolveChargePfand(orgData?.data?.settings?.pfand, serviceMode);
@@ -366,6 +364,16 @@ export default function DevicePosPage() {
     if (!activeEvent) return;
     if (eventId !== activeEvent.id) setEventId(activeEvent.id);
   }, [eventId, activeEvent, setEventId]);
+
+  /* Die Betriebsart steht an der Veranstaltung. Bis alle Veranstaltungen
+     eine haben, gilt ersatzweise die der Organisation — dasselbe Team
+     macht im Sommer Deckel und beim Weihnachtsmarkt Barverkauf, deshalb
+     gehoert die Entscheidung ans Fest und nicht an den Verein. */
+  const orderingMode =
+    activeEvent?.settings?.orderingMode ||
+    orgData?.data?.settings?.pos?.orderingMode ||
+    'immediate';
+
 
   const { data: categoriesData } = useQuery({
     queryKey: ['device-categories', eventId],

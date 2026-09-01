@@ -23,11 +23,13 @@ export interface OrganizationSettings {
     footerText?: string;
     showTaxDetails: boolean;
   };
+  /** Weist die Organisation Umsatzsteuer aus? Vereine und Kleinunternehmer nicht. */
+  vatExempt?: boolean;
   pos?: {
     requireTableNumber: boolean;
     autoPrintReceipt: boolean;
     soundEnabled: boolean;
-    orderingMode: 'immediate' | 'tab';
+    orderingMode?: 'immediate' | 'tab';
   };
   pfand?: {
     tableService?: boolean;

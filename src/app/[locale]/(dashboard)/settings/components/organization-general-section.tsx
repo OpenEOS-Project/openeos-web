@@ -10,6 +10,7 @@ import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const orgGeneralSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),
@@ -182,6 +183,18 @@ export function OrganizationGeneralSection() {
           <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
             {updateOrg.isPending ? t('saving') : t('saveChanges')}
           </button>
+          {/* Steuerpflicht. Bewusst hier und nicht bei den Produkten: sie
+              gilt fuer die ganze Organisation, und aus ihr folgt, welche
+              Saetze ein Produkt ueberhaupt tragen darf. */}
+          <SettingToggle
+            label={t('vatExempt.label')}
+            hint={t('vatExempt.hint')}
+            checked={currentOrganization.organization?.settings?.vatExempt !== false}
+            onChange={(checked) =>
+              updateOrg.mutate({ settings: { vatExempt: checked } } as Partial<OrgGeneralFormData>)
+            }
+          />
+
         </div>
       </form>
     </div>

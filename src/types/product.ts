@@ -31,6 +31,8 @@ export interface Product {
   name: string;
   description: string | null;
   price: number;
+  /** Umsatzsteuersatz in Prozent. 0 heißt steuerfrei. */
+  taxRate?: number;
   imageUrl: string | null;
   isActive: boolean;
   isAvailable: boolean;
@@ -54,6 +56,7 @@ export interface CreateProductData {
   name: string;
   description?: string;
   price: number;
+  taxRate?: number;
   imageUrl?: string;
   isActive?: boolean;
   isAvailable?: boolean;
@@ -72,6 +75,7 @@ export interface UpdateProductData {
   name?: string;
   description?: string | null;
   price?: number;
+  taxRate?: number;
   imageUrl?: string | null;
   isActive?: boolean;
   isAvailable?: boolean;

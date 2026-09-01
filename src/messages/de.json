@@ -537,7 +537,11 @@
       "uploadLogo": "Logo hochladen",
       "removeLogo": "Logo entfernen",
       "saving": "Speichern...",
-      "saveChanges": "Änderungen speichern"
+      "saveChanges": "Änderungen speichern",
+      "vatExempt": {
+        "label": "Keine Umsatzsteuer",
+        "hint": "Für Vereine und Kleinunternehmer nach § 19 UStG. Ist das an, tragen Produkte 0 % und es gibt keine Auswahl."
+      }
     },
     "organizationContact": {
       "title": "Kontakt",
@@ -703,7 +707,11 @@
       "startRequired": "Beginn ist erforderlich",
       "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen",
       "dayCount": "{days, plural, one {Ein Veranstaltungstag} other {# Veranstaltungstage}}",
-      "endHint": "Ohne Enddatum dauert die Veranstaltung einen Tag."
+      "endHint": "Ohne Enddatum dauert die Veranstaltung einen Tag.",
+      "orderingMode": "Kassiermodus",
+      "orderingModeImmediate": "Sofort kassieren",
+      "orderingModeTab": "Auf Deckel buchen",
+      "orderingModeHint": "Bestimmt, ob an der Kasse direkt bezahlt oder auf einen Deckel gebucht wird."
     },
     "status": {
       "active": "Aktiv",
@@ -904,6 +912,13 @@
         "chooseIcon": "Icon wählen",
         "remove": "Entfernen",
         "uploading": "Wird hochgeladen..."
+      },
+      "taxRate": {
+        "label": "Mehrwertsteuer",
+        "standard": "{rate} % (Regelsatz)",
+        "reduced": "{rate} % (ermäßigt)",
+        "zero": "0 % (steuerfrei)",
+        "exemptHint": "Die Organisation weist keine Umsatzsteuer aus. Umstellbar in den Organisationseinstellungen."
       }
     },
     "status": {

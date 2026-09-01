@@ -537,7 +537,11 @@
       "uploadLogo": "Upload logo",
       "removeLogo": "Remove logo",
       "saving": "Saving...",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "vatExempt": {
+        "label": "No VAT",
+        "hint": "For associations and small businesses. When on, products carry 0% and no rate can be chosen."
+      }
     },
     "organizationContact": {
       "title": "Contact",
@@ -890,7 +894,11 @@
       "startRequired": "A start is required",
       "endBeforeStart": "The end must not be before the start",
       "dayCount": "{days, plural, one {One event day} other {# event days}}",
-      "endHint": "Without an end date the event lasts one day."
+      "endHint": "Without an end date the event lasts one day.",
+      "orderingMode": "Checkout mode",
+      "orderingModeImmediate": "Pay immediately",
+      "orderingModeTab": "Run a tab",
+      "orderingModeHint": "Decides whether the till takes payment right away or books onto a tab."
     },
     "status": {
       "active": "Active",
@@ -1091,6 +1099,13 @@
         "chooseIcon": "Choose icon",
         "remove": "Remove",
         "uploading": "Uploading..."
+      },
+      "taxRate": {
+        "label": "VAT",
+        "standard": "{rate}% (standard)",
+        "reduced": "{rate}% (reduced)",
+        "zero": "0% (exempt)",
+        "exemptHint": "This organisation does not charge VAT. Change it in the organisation settings."
       }
     },
     "status": {

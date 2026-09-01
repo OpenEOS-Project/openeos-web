@@ -21,12 +21,15 @@ import type { Product, ProductOptionGroup } from '@/types/product';
 import { CategoryFormModal } from '@/components/shared/category-form-modal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { PriceInput } from '@/components/shared/price-input';
+import { useOrganization } from '@/hooks/use-organizations';
+import { taxRatesFor } from '@/lib/tax-rates';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().optional(),
   categoryId: z.string().uuid('Category is required'),
   price: z.coerce.number().min(0, 'Price must be positive'),
+  taxRate: z.coerce.number().min(0).max(100).optional(),
   isActive: z.boolean(),
   isAvailable: z.boolean(),
   trackInventory: z.boolean(),
@@ -57,6 +60,15 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const updateProduct = useUpdateProduct();
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
+
+  /* Welche Steuersätze zur Auswahl stehen, hängt an der Organisation:
+     ein steuerbefreiter Verein bekommt nur 0 %. */
+  const { data: organization } = useOrganization(organizationId);
+  const taxRates = taxRatesFor(
+    organization?.settings?.address?.country,
+    organization?.settings?.vatExempt,
+  );
+  const taxExempt = taxRates.length === 1 && taxRates[0].rate === 0;
   const { data: pfandTypes } = usePfandTypes(organizationId || undefined);
 
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroup[]>([]);
@@ -80,6 +92,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       description: '',
       categoryId: '',
       price: 0,
+      taxRate: 0,
       isActive: true,
       isAvailable: true,
       trackInventory: false,
@@ -102,6 +115,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         description: product.description || '',
         categoryId: product.categoryId,
         price: product.price,
+        taxRate: product.taxRate ?? 0,
         isActive: product.isActive,
         isAvailable: product.isAvailable,
         trackInventory: product.trackInventory,
@@ -119,6 +133,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         description: '',
         categoryId: '',
         price: 0,
+      taxRate: 0,
         isActive: true,
         isAvailable: true,
         trackInventory: false,
@@ -363,6 +378,36 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   </label>
                 )}
               />
+
+              {/* Bei einer steuerbefreiten Organisation gäbe es genau eine
+                  Möglichkeit — dann ist ein Auswahlfeld nur im Weg. */}
+              {taxExempt ? (
+                <p style={{ fontSize: 12, color: 'var(--mute)', margin: 0 }}>
+                  {t('form.taxRate.exemptHint')}
+                </p>
+              ) : (
+                <Controller
+                  name="taxRate"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="auth-field">
+                      <span>{t('form.taxRate.label')}</span>
+                      <select
+                        className="select"
+                        value={String(field.value ?? 0)}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onBlur={field.onBlur}
+                      >
+                        {taxRates.map((option) => (
+                          <option key={option.rate} value={option.rate}>
+                            {t(`form.taxRate.${option.labelKey}`, { rate: option.rate })}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                />
+              )}
 
               {/* Production Station */}
               {(productionStations?.length ?? 0) > 0 && (
