@@ -53,7 +53,7 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const range = useDashboardRange();
 
-  const { data, isLoading } = useHourlyReport(organizationId, range);
+  const { data, isLoading } = useHourlyReport(organizationId, range.query);
 
   const chartData = useMemo<Punkt[]>(() => {
     if (!data || data.length === 0) return [];

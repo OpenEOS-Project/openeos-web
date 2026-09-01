@@ -15,8 +15,17 @@ export type RangeKey = 'today' | 'week' | 'event';
 export interface DashboardRange {
   /** Welcher Zeitraum gewaehlt ist — die Widgets beschriften sich danach. */
   key: RangeKey;
-  startDate: string;
-  endDate: string;
+  /**
+   * Was an die API geht, und nur das.
+   *
+   * Getrennt vom Schluessel, weil die Berichts-Endpunkte unbekannte
+   * Abfrageparameter mit 400 ablehnen. Solange der Schluessel neben
+   * startDate und endDate im selben Objekt lag, reichte ein
+   * `useHourlyReport(orgId, range)` aus, um ihn mitzuschicken — und
+   * TypeScript sah nichts davon, weil ueberzaehlige Felder nur bei
+   * Objektliteralen geprueft werden, nicht bei Variablen.
+   */
+  query: { startDate: string; endDate: string };
 }
 
 const RangeContext = createContext<DashboardRange | null>(null);
@@ -35,19 +44,21 @@ export function rangeFor(key: RangeKey, event?: { startDate?: string | null; end
   if (key === 'week') {
     const von = new Date(heute);
     von.setDate(von.getDate() - 6);
-    return { key, startDate: isoDate(von), endDate: isoDate(heute) };
+    return { key, query: { startDate: isoDate(von), endDate: isoDate(heute) } };
   }
   if (key === 'event' && event?.startDate) {
     return {
       key,
-      startDate: event.startDate.slice(0, 10),
-      endDate: (event.endDate ?? event.startDate).slice(0, 10),
+      query: {
+        startDate: event.startDate.slice(0, 10),
+        endDate: (event.endDate ?? event.startDate).slice(0, 10),
+      },
     };
   }
   /* Ohne laufende Veranstaltung faellt 'event' auf heute zurueck — dann
      ist auch die Beschriftung 'heute', sonst behauptete sie einen
      Zeitraum, der gar nicht abgefragt wurde. */
-  return { key: 'today', startDate: isoDate(heute), endDate: isoDate(heute) };
+  return { key: 'today', query: { startDate: isoDate(heute), endDate: isoDate(heute) } };
 }
 
 export function DashboardRangeProvider({
@@ -57,7 +68,7 @@ export function DashboardRangeProvider({
   value: DashboardRange;
   children: React.ReactNode;
 }) {
-  const stable = useMemo(() => value, [value.startDate, value.endDate]);
+  const stable = useMemo(() => value, [value.key, value.query.startDate, value.query.endDate]);
   return <RangeContext.Provider value={stable}>{children}</RangeContext.Provider>;
 }
 

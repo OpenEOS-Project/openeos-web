@@ -17,9 +17,9 @@ export function RevenueTodayWidget({ organizationId }: Props) {
 
 
   const { data: ordersResponse, isLoading } = useQuery({
-    queryKey: ['orders', organizationId, 'range', range.startDate, range.endDate],
+    queryKey: ['orders', organizationId, 'range', range.query.startDate, range.query.endDate],
     queryFn: async () => {
-      const response = await ordersApi.list(organizationId, { dateFrom: range.startDate, dateTo: range.endDate });
+      const response = await ordersApi.list(organizationId, { dateFrom: range.query.startDate, dateTo: range.query.endDate });
       return response.data;
     },
     enabled: !!organizationId,

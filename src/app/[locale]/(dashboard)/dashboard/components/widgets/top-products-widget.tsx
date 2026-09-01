@@ -14,7 +14,7 @@ export function TopProductsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const range = useDashboardRange();
 
-  const { data, isLoading } = useProductsReport(organizationId, range);
+  const { data, isLoading } = useProductsReport(organizationId, range.query);
 
   const top5 = useMemo(() => {
     if (!data) return [];

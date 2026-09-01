@@ -13,7 +13,7 @@ export function LowStockWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const range = useDashboardRange();
 
-  const { data, isLoading } = useInventoryReport(organizationId, range);
+  const { data, isLoading } = useInventoryReport(organizationId, range.query);
 
   const top5 = useMemo(() => {
     if (!data) return [];

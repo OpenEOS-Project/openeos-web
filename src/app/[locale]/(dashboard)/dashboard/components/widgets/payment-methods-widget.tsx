@@ -32,7 +32,7 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
     return key ? t(`widgets.paymentMethods.methods.${key}`) : method;
   };
 
-  const { data, isLoading } = usePaymentsReport(organizationId, range);
+  const { data, isLoading } = usePaymentsReport(organizationId, range.query);
 
   return (
     <div className="app-card app-card--flat">
