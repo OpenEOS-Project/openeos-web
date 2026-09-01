@@ -333,22 +333,16 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                                   value={row.start}
                                   disabled={!row.open}
                                   onChange={(e) => updateDay(row.date, { start: e.target.value })}
-                                  style={{
-                                    padding: '6px 8px', fontSize: 12, borderRadius: 6,
-                                    border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                                    background: 'var(--paper)', opacity: row.open ? 1 : 0.5,
-                                  }}
+                                  className="input"
+                                  style={{ opacity: row.open ? 1 : 0.5 }}
                                 />
                                 <input
                                   type="time"
                                   value={row.end}
                                   disabled={!row.open}
                                   onChange={(e) => updateDay(row.date, { end: e.target.value })}
-                                  style={{
-                                    padding: '6px 8px', fontSize: 12, borderRadius: 6,
-                                    border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                                    background: 'var(--paper)', opacity: row.open ? 1 : 0.5,
-                                  }}
+                                  className="input"
+                                  style={{ opacity: row.open ? 1 : 0.5 }}
                                 />
                                 {/* Ohne diesen Hinweis liest sich "10:00 – 02:00"
                                     wie ein Zahlendreher statt wie eine Nacht. */}
@@ -387,15 +381,8 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                                 placeholder="0.00"
                                 value={feeField.value ?? ''}
                                 onChange={(e) => feeField.onChange(e.target.value)}
-                                style={{
-                                  flex: 1,
-                                  padding: '8px 10px',
-                                  fontSize: 13,
-                                  border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)',
-                                  borderRadius: 6,
-                                  background: 'var(--paper)',
-                                  fontFamily: 'var(--f-mono)',
-                                }}
+                                className="input"
+                                style={{ flex: 1, fontFamily: 'var(--oe-f-mono)' }}
                               />
                               <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
                                 EUR pro Bestellung
