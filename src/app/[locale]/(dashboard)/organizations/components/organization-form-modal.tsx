@@ -8,9 +8,9 @@ import { z } from 'zod';
 
 import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-organizations';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import type { Organization } from '@/types';
 import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const organizationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -191,26 +191,19 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                   />
                 </label>
 
-                <div
-                  style={{
-                    gridColumn: '1 / -1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                    borderRadius: 10,
-                    padding: 12,
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.prioritySupport')}</div>
-                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.prioritySupportHint')}</div>
-                  </div>
+                {/* Spannt ueber beide Rasterspalten — die Zeile traegt ihren
+                    eigenen Rahmen und wirkt halbbreit wie ein Bruchstueck. */}
+                <div style={{ gridColumn: '1 / -1' }}>
                   <Controller
                     name="prioritySupport"
                     control={control}
                     render={({ field }) => (
-                      <ToggleSwitch checked={field.value} onChange={field.onChange} aria-label={t('form.prioritySupport')} />
+                      <SettingToggle
+                        label={t('form.prioritySupport')}
+                        hint={t('form.prioritySupportHint')}
+                        checked={!!field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
                 </div>

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useUpdateMember, useSetMemberPin, useRemoveMemberPin } from '@/hooks/use-members';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 interface EditPermissionsModalProps {
   isOpen: boolean;
@@ -125,14 +125,12 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
             </div>
           )}
 
-          {/* Admin toggle */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-            <ToggleSwitch checked={isAdmin} onChange={setIsAdmin} aria-label={t('form.isAdmin')} />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>{t('form.isAdmin')}</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>{t('form.isAdminHint')}</div>
-            </div>
-          </label>
+          <SettingToggle
+            label={t('form.isAdmin')}
+            hint={t('form.isAdminHint')}
+            checked={isAdmin}
+            onChange={setIsAdmin}
+          />
 
           {/* Module permissions */}
           {!isAdmin && (

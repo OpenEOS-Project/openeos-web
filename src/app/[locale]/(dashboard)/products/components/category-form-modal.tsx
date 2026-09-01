@@ -8,10 +8,10 @@ import { z } from 'zod';
 
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
 import { useProductionStations } from '@/hooks/use-production-stations';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 import { ColorPicker } from '@/components/shared/color-picker';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -68,7 +68,6 @@ export function CategoryFormModal({
     },
   });
 
-  const isActiveValue = watch('isActive');
 
   useEffect(() => {
     if (category) {
@@ -179,33 +178,31 @@ export function CategoryFormModal({
               )}
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <Controller
-                name="color"
-                control={control}
-                render={({ field }) => (
-                  <div className="auth-field">
-                    <span>{t('form.color')}</span>
-                    <ColorPicker
-                      value={field.value || '#6366f1'}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                    />
-                  </div>
-                )}
-              />
+              name="sortOrder"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('table.sortOrder')}</span>
+                  <input type="number" min="0" step="1" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                </label>
+              )}
+            />
 
               <Controller
-                name="sortOrder"
-                control={control}
-                render={({ field }) => (
-                  <label className="auth-field">
-                    <span>{t('table.sortOrder')}</span>
-                    <input type="number" min="0" step="1" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
-                  </label>
-                )}
-              />
-            </div>
+              name="color"
+              control={control}
+              render={({ field }) => (
+                <div className="auth-field">
+                  <span>{t('form.color')}</span>
+                  <ColorPicker
+                    value={field.value || '#6366f1'}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                </div>
+              )}
+            />
 
             {availableParents.length > 0 && (
               <Controller
@@ -243,23 +240,17 @@ export function CategoryFormModal({
               />
             )}
 
+            {/* Ohne Hinweistext: er sagte nur "Aktiv" bzw. "Inaktiv" und
+                wiederholte damit, was der Schalter daneben schon zeigt. */}
             <Controller
               name="isActive"
               control={control}
               render={({ field }) => (
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                  borderRadius: 10, padding: '12px 16px',
-                }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
-                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.55 }}>
-                      {isActiveValue ? t('status.active') : t('status.inactive')}
-                    </div>
-                  </div>
-                  <ToggleSwitch checked={field.value} onChange={field.onChange} />
-                </div>
+                <SettingToggle
+                  label={t('form.isActive')}
+                  checked={!!field.value}
+                  onChange={field.onChange}
+                />
               )}
             />
           </div>

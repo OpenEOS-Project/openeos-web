@@ -87,7 +87,7 @@ export function ReportsFilterBar({ filter, events, eventsLoading, onChange, acti
             {t('filter.event')}
           </label>
           <select
-            className="input"
+            className="select"
             style={{ minWidth: 200, padding: '7px 10px', fontSize: 13 }}
             value={filter.eventId}
             onChange={(e) => onChange({ ...filter, eventId: e.target.value })}

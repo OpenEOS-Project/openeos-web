@@ -3146,6 +3146,10 @@ body:has(.landing) {
 .landing .color-picker__swatches {
   display: flex;
   gap: 6px;
+  /* Umbruch als Sicherheitsnetz. Zwoelf Felder plus Plus-Knopf brauchen
+     gut 360px; steht der Waehler doch einmal in einer schmalen Spalte,
+     soll er in zwei Reihen rutschen statt aus dem Dialog zu laufen. */
+  flex-wrap: wrap;
 }
 .landing .color-picker__swatch {
   width: 22px;

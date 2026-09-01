@@ -8,7 +8,6 @@ import { z } from 'zod';
 
 import { ProductImage } from '@/components/shared/product-image';
 import { PosIconPicker } from '@/components/shared/pos-icon-picker';
-import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
@@ -20,6 +19,7 @@ import type { Category } from '@/types/category';
 import type { Product, ProductOptionGroup } from '@/types/product';
 
 import { CategoryFormModal } from './category-form-modal';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -236,12 +236,6 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     onClose();
   };
 
-  const inputRow: React.CSSProperties = {
-    width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
-    border: '1px solid color-mix(in oklab, var(--ink) 14%, transparent)',
-    background: 'var(--paper)', color: 'var(--ink)', outline: 'none',
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -421,13 +415,13 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <input
                         type="text"
-                        style={{ ...inputRow, flex: 1 }}
+                        className="input" style={{ flex: 1 }}
                         placeholder={t('form.groupNamePlaceholder')}
                         value={group.name}
                         onChange={(e) => handleUpdateGroup(groupIndex, 'name', e.target.value)}
                       />
                       <select
-                        style={inputRow}
+                        className="select"
                         value={group.type}
                         onChange={(e) => handleUpdateGroup(groupIndex, 'type', e.target.value)}
                       >
@@ -462,7 +456,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                           <div key={optionIndex} style={{ display: 'grid', gridTemplateColumns: '1fr 100px auto auto', gap: 6, marginBottom: 4, alignItems: 'center' }}>
                             <input
                               type="text"
-                              style={inputRow}
+                              className="input"
                               placeholder={t('form.optionName')}
                               value={option.name}
                               onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'name', e.target.value)}
@@ -470,7 +464,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                             <input
                               type="number"
                               step="0.01"
-                              style={inputRow}
+                              className="input"
                               placeholder="0.00"
                               value={option.priceModifier}
                               onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'priceModifier', parseFloat(e.target.value) || 0)}
@@ -502,48 +496,45 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
               </div>
 
               {/* Status Toggles */}
-              <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <Controller
-                  name="isActive"
-                  control={control}
-                  render={({ field }) => (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isActive')}</div>
-                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.activeDescription')}</div>
-                      </div>
-                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
-                    </div>
-                  )}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <SettingToggle
+                    label={t('form.isActive')}
+                    hint={t('form.activeDescription')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
 
-                <Controller
-                  name="isAvailable"
-                  control={control}
-                  render={({ field }) => (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.isAvailable')}</div>
-                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.availableDescription')}</div>
-                      </div>
-                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
-                    </div>
-                  )}
-                />
+              <Controller
+                name="isAvailable"
+                control={control}
+                render={({ field }) => (
+                  <SettingToggle
+                    label={t('form.isAvailable')}
+                    hint={t('form.availableDescription')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
 
-                <Controller
-                  name="trackInventory"
-                  control={control}
-                  render={({ field }) => (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.trackInventory')}</div>
-                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>{t('form.trackInventoryDescription')}</div>
-                      </div>
-                      <ToggleSwitch checked={field.value} onChange={field.onChange} />
-                    </div>
-                  )}
-                />
+              <Controller
+                name="trackInventory"
+                control={control}
+                render={({ field }) => (
+                  <SettingToggle
+                    label={t('form.trackInventory')}
+                    hint={t('form.trackInventoryDescription')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
               </div>
 
               {/* Inventory Fields */}
