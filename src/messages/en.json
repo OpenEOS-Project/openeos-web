@@ -274,7 +274,7 @@
       }
     },
     "customize": {
-      "button": "Customize",
+      "button": "Customise",
       "title": "Customize Dashboard",
       "description": "Choose which widgets to display on your dashboard and set their order.",
       "enabled": "Active",
@@ -284,9 +284,10 @@
       "save": "Save",
       "cancel": "Cancel",
       "close": "Close",
-      "arrange": "Arrange",
       "done": "Done",
-      "editHint": "Drag tiles by the grip, resize from the bottom-right corner."
+      "editHint": "Drag tiles by the grip, resize from the bottom-right corner.",
+      "add": "Add tile",
+      "allAdded": "Every tile is already on the dashboard"
     },
     "widgets": {
       "empty": "No data available",

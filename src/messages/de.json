@@ -284,9 +284,10 @@
       "save": "Speichern",
       "cancel": "Abbrechen",
       "close": "Schließen",
-      "arrange": "Anordnen",
       "done": "Fertig",
-      "editHint": "Kacheln am Griff ziehen, an der Ecke unten rechts in der Größe ändern."
+      "editHint": "Kacheln am Griff ziehen, an der Ecke unten rechts in der Größe ändern.",
+      "add": "Kachel hinzufügen",
+      "allAdded": "Alle Kacheln sind bereits auf dem Dashboard"
     },
     "widgets": {
       "empty": "Keine Daten verfügbar",

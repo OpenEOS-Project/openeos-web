@@ -10,8 +10,8 @@ import { ordersApi } from '@/lib/api-client';
 import type { Order } from '@/types/order';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
-import { CustomizeModal } from './customize-modal';
 import { DashboardGrid } from './dashboard-grid';
+import { Dropdown, DropdownCaption, DropdownOption } from '@openeos/ui';
 import { DashboardRangeProvider, rangeFor, type RangeKey } from './dashboard-range';
 import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
@@ -45,7 +45,6 @@ export function DashboardContainer() {
   const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
 
-  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   /* Griffe erscheinen nur hier — sonst verschiebt jeder Scrollversuch
      die Anordnung. */
   const [isEditing, setIsEditing] = useState(false);
@@ -99,6 +98,12 @@ export function DashboardContainer() {
      Vorgabe des Widget-Typs. */
   const sizes: DashboardWidgetSize[] | undefined = preferences?.dashboard?.sizes;
 
+  /* Was noch nicht auf dem Brett liegt — die Auswahl zum Hinzufuegen. */
+  const inactiveWidgets = useMemo(
+    () => availableWidgets.filter((w) => !enabledIds.includes(w.id)),
+    [availableWidgets, enabledIds],
+  );
+
   const range = useMemo(
     () => rangeFor(rangeKey, activeEvent ?? undefined),
     [rangeKey, activeEvent?.startDate, activeEvent?.endDate],
@@ -123,12 +128,6 @@ export function DashboardContainer() {
       .slice(0, 10);
   }, [ordersResponse]);
 
-  function handleSave(ids: string[]) {
-    updatePreferences.mutate(
-      { dashboard: { widgets: ids, sizes } },
-      { onSuccess: () => setIsCustomizeOpen(false) },
-    );
-  }
 
   /* Reihenfolge, Groesse und Entfernen schreiben alle denselben
      Datensatz — sonst ueberschriebe der jeweils letzte Aufruf die
@@ -167,41 +166,60 @@ export function DashboardContainer() {
         </div>
 
         <div className="app-page-head__actions dash-head__actions">
-        {isEditing ? null : (
-          <div className="oe-segment" role="group" aria-label={t('range.label')}>
-            {(['today', 'week', 'event'] as RangeKey[]).map((key) => (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={rangeKey === key}
-                className={rangeKey === key ? 'is-active' : undefined}
-                /* "Event" nur, wenn eine Veranstaltung laeuft — sonst
-                   waere der Zeitraum leer und die Auswahl folgenlos. */
-                disabled={key === 'event' && !activeEvent}
-                onClick={() => setRangeKey(key)}
-              >
-                {t(`range.${key}`)}
-              </button>
-            ))}
-          </div>
-        )}
-        <button
-          type="button"
-          className={isEditing ? 'btn btn--primary btn--sm' : 'btn btn--ghost btn--sm'}
-          onClick={() => setIsEditing((v) => !v)}
-        >
-          {isEditing ? t('customize.done') : t('customize.arrange')}
-        </button>
-        <button
-          type="button"
-          className="btn btn--ghost btn--sm"
-          onClick={() => setIsCustomizeOpen(true)}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-          </svg>
-          {t('customize.button')}
-        </button>
+          {isEditing ? (
+            /* Hinzufuegen gehoert in den Bearbeitungsmodus — sonst
+               braeuchte es einen zweiten Knopf daneben, der dasselbe
+               Thema aus einer anderen Richtung angeht. */
+            <Dropdown
+              label={t('customize.add')}
+              triggerSize="sm"
+              align="end"
+              prefix={inactiveWidgets.length > 0 ? String(inactiveWidgets.length) : undefined}
+            >
+              {inactiveWidgets.length === 0 ? (
+                <DropdownCaption>{t('customize.allAdded')}</DropdownCaption>
+              ) : (
+                inactiveWidgets.map((w) => (
+                  <DropdownOption
+                    key={w.id}
+                    onClick={() => persist({ widgets: [...enabledIds, w.id] })}
+                  >
+                    {t(w.labelKey)}
+                  </DropdownOption>
+                ))
+              )}
+            </Dropdown>
+          ) : (
+            <div className="oe-segment" role="group" aria-label={t('range.label')}>
+              {(['today', 'week', 'event'] as RangeKey[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={rangeKey === key}
+                  className={rangeKey === key ? 'is-active' : undefined}
+                  /* "Event" nur, wenn eine Veranstaltung laeuft — sonst
+                     waere der Zeitraum leer und die Auswahl folgenlos. */
+                  disabled={key === 'event' && !activeEvent}
+                  onClick={() => setRangeKey(key)}
+                >
+                  {t(`range.${key}`)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={isEditing ? 'btn btn--primary btn--sm' : 'btn btn--ghost btn--sm'}
+            onClick={() => setIsEditing((v) => !v)}
+          >
+            {!isEditing && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            )}
+            {isEditing ? t('customize.done') : t('customize.button')}
+          </button>
         </div>
       </div>
 
@@ -314,15 +332,6 @@ export function DashboardContainer() {
       </div>
 
       {/* Customize modal */}
-      {isCustomizeOpen && (
-        <CustomizeModal
-          enabledIds={enabledIds}
-          availableWidgets={availableWidgets}
-          onSave={handleSave}
-          onClose={() => setIsCustomizeOpen(false)}
-          isSaving={updatePreferences.isPending}
-        />
-      )}
     </>
   );
 }
