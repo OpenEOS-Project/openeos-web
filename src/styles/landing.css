@@ -3221,8 +3221,12 @@ body:has(.landing) {
    abweichend brauchen: der Anhang muss zur Metrik von .input passen, die
    1px Rahmen und 34px Hoehe hat statt der 1.5px des Pakets. */
 .landing .price-group {
-  align-self: flex-start;
-  min-width: 132px;
+  /* Fuellt sein Feld. Zuvor stand hier align-self:flex-start, damit das
+     Feld in einer Flex-Spalte nicht auf volle Breite gezogen wird — das
+     liess es aber neben einem gleichrangigen Feld schmaler wirken, als
+     gehoere es zu einer anderen Sorte. Die Breite bestimmt jetzt der
+     Platz, den es bekommt. */
+  width: 100%;
 }
 .landing .price-group .input {
   border-start-end-radius: 0;

@@ -409,16 +409,22 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                           </option>
                         ))}
                       </select>
+                      {/* Der Hinweis gehoert unter das Feld, das er erklaert.
+                          Ueber die ganze Breite gesetzt sah er aus, als
+                          betraefe er auch den Preis. */}
+                      {/* Als <p class="auth-field__hint">, nicht als <span>:
+                          ".auth-field > span" ist die Beschriftung und setzt
+                          Grossbuchstaben in Schreibmaschinenschrift — der
+                          Hinweis kam darin als zweite Ueberschrift heraus. */}
+                      {taxExempt && (
+                        <p className="auth-field__hint" style={{ margin: '4px 0 0' }}>
+                          {t('form.taxRate.exemptHint')}
+                        </p>
+                      )}
                     </label>
                   )}
                 />
               </div>
-
-              {taxExempt && (
-                <p style={{ fontSize: 12, color: 'var(--mute)', margin: '-8px 0 0' }}>
-                  {t('form.taxRate.exemptHint')}
-                </p>
-              )}
 
               {/* Production Station */}
               {(productionStations?.length ?? 0) > 0 && (
