@@ -44,12 +44,11 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
       </div>
 
       {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
-          <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div className="widget-state">
+          <span className="oe-spinner" />
         </div>
       ) : !data || data.length === 0 ? (
-        <div className="empty-state" style={{ padding: '32px 0' }}>
+        <div className="widget-state">
           <p className="empty-state__sub">{t('widgets.empty')}</p>
         </div>
       ) : (

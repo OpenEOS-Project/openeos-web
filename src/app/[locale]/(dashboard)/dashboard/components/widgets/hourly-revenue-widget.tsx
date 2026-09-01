@@ -133,11 +133,11 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="chart-card__state">
+        <div className="widget-state">
           <span className="oe-spinner" />
         </div>
       ) : chartData.length === 0 ? (
-        <div className="chart-card__state">
+        <div className="widget-state">
           <p className="empty-state__sub">{t('widgets.empty')}</p>
         </div>
       ) : (

@@ -4126,11 +4126,18 @@ body:has(.landing) {
   margin-top: 8px;
   padding: 0 20px;
 }
-.landing .chart-card__state {
+/* Lade- und Leermeldung einer Dashboard-Kachel.
+   Fuellt die Kachel und setzt die Meldung in deren Mitte. Drei Widgets
+   hatten stattdessen .empty-state mit fester Polsterung oben — in einer
+   Kachel, deren Hoehe der Nutzer selbst einstellt, klebte die Meldung
+   dann oben, waehrend sie nebenan mittig stand. Der Name sagt bewusst
+   nicht "chart": es sind auch Listen. */
+.landing .widget-state {
   flex: 1;
   display: grid;
   place-items: center;
-  padding: 24px 0;
+  padding: 24px 20px;
+  text-align: center;
 }
 .landing .chart-card__legend {
   display: flex;

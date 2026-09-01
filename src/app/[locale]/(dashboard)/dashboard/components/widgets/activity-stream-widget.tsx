@@ -54,11 +54,11 @@ export function ActivityStreamWidget({ organizationId }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="chart-card__state">
+        <div className="widget-state">
           <span className="oe-spinner" />
         </div>
       ) : !data || data.length === 0 ? (
-        <div className="chart-card__state">
+        <div className="widget-state">
           <p className="empty-state__sub">{t('empty')}</p>
         </div>
       ) : (
