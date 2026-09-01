@@ -116,9 +116,8 @@
         "organization": {
           "label": "Organization",
           "title": "Your organization",
-          "copy": "Club, event organizer or business. You can also skip this and create an organization later.",
-          "name": "Organization name (optional)",
-          "hint": "Will appear on invoices and receipts. Can be changed later."
+          "copy": "Club, promoter or business. Your events, products and tills run under this name.",
+          "name": "Organisation name"
         },
         "confirm": {
           "label": "Confirmation",
@@ -127,7 +126,6 @@
           "summaryAccount": "Account",
           "summaryPersonal": "Personal",
           "summaryOrganization": "Organization",
-          "organizationLater": "— add later —",
           "terms": "I accept the Terms and Privacy Policy.",
           "newsletter": "I'd like to receive occasional updates."
         }

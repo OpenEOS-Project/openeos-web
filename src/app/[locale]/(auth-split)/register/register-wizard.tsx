@@ -87,7 +87,9 @@ export function RegisterWizard() {
       if (!data.lastName) next.lastName = tErr('required');
       else if (data.lastName.trim().length < 2) next.lastName = tErr('nameShort');
     } else if (current === 'organization') {
-      // organization name optional
+      if (!data.organizationName) next.organizationName = tErr('required');
+      else if (data.organizationName.trim().length < 2)
+        next.organizationName = tErr('nameShort');
     } else if (current === 'confirm') {
       if (!data.terms) next.terms = tErr('termsRequired');
     }
@@ -116,7 +118,7 @@ export function RegisterWizard() {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        organizationName: data.organizationName || undefined,
+        organizationName: data.organizationName,
       });
       setDone(true);
     } catch (err) {
@@ -289,7 +291,7 @@ export function RegisterWizard() {
           <div className="auth-fields">
             <Field
               label={t('steps.organization.name')}
-              hint={t('steps.organization.hint')}
+              error={errors.organizationName}
               value={data.organizationName}
               onChange={(v) => update('organizationName', v)}
             />
@@ -308,7 +310,7 @@ export function RegisterWizard() {
             />
             <SummaryRow
               label={t('steps.confirm.summaryOrganization')}
-              value={data.organizationName || t('steps.confirm.organizationLater')}
+              value={data.organizationName}
             />
 
             <label className="auth-check auth-check--block">

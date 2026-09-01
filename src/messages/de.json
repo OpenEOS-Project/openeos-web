@@ -116,9 +116,8 @@
         "organization": {
           "label": "Organisation",
           "title": "Deine Organisation",
-          "copy": "Verein, Veranstalter oder Betrieb. Du kannst diesen Schritt auch überspringen und später eine Organisation anlegen.",
-          "name": "Name der Organisation (optional)",
-          "hint": "Erscheint später auf Rechnungen und Bons. Kann jederzeit geändert werden."
+          "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später deine Veranstaltungen, Produkte und Kassen.",
+          "name": "Name der Organisation"
         },
         "confirm": {
           "label": "Bestätigung",
@@ -127,7 +126,6 @@
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
-          "organizationLater": "— später anlegen —",
           "terms": "Ich akzeptiere die AGB und die Datenschutzerklärung.",
           "newsletter": "Ich möchte gelegentlich Updates und Neuigkeiten erhalten."
         }
