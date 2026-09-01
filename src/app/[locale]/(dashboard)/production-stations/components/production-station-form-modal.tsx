@@ -11,6 +11,7 @@ import { usePrinters } from '@/hooks/use-printers';
 import type { ProductionStation } from '@/types/production-station';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { ColorPicker } from '@/components/shared/color-picker';
 
 const productionStationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -170,16 +171,11 @@ export function ProductionStationFormModal({
                 control={control}
                 render={({ field }) => (
                   <FormRow label={t('form.color')}>
-                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                      <input
-                        type="color"
-                        value={field.value || '#6366f1'}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        style={{ width: 44, height: 36, borderRadius: 8, border: '1px solid color-mix(in oklab, var(--ink) 12%, transparent)', cursor: 'pointer', padding: 2 }}
-                      />
-                      <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{field.value || '#6366f1'}</span>
-                    </div>
+                    <ColorPicker
+                      value={field.value || '#6366f1'}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
                   </FormRow>
                 )}
               />

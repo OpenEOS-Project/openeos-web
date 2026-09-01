@@ -11,6 +11,7 @@ import { useProductionStations } from '@/hooks/use-production-stations';
 import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
+import { ColorPicker } from '@/components/shared/color-picker';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -173,10 +174,14 @@ export function CategoryFormModal({ isOpen, eventId, category, onClose }: Catego
                 name="color"
                 control={control}
                 render={({ field }) => (
-                  <label className="auth-field">
+                  <div className="auth-field">
                     <span>{t('form.color')}</span>
-                    <input type="color" value={field.value || '#6366f1'} onChange={field.onChange} onBlur={field.onBlur} style={{ height: 40, padding: 4 }} />
-                  </label>
+                    <ColorPicker
+                      value={field.value || '#6366f1'}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  </div>
                 )}
               />
 

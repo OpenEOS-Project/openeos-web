@@ -2824,17 +2824,23 @@ body:has(.landing) {
 }
 
 /* ============================= FORM INPUTS ============================= */
+/* Dieselbe Metrik wie .auth-field. Es gibt im Dashboard zwei
+   Feld-Konventionen nebeneinander — .auth-field (227 Stellen) und das
+   blanke .input/.select/.textarea (162 Stellen) — und sie sahen
+   unterschiedlich aus: 14px auf 10px Polsterung gegen 13px auf 6px, gut
+   acht Pixel Unterschied in der Hoehe. Welche ein Dialog erwischte, hing
+   davon ab, welches Muster jemand zufaellig kopiert hatte. */
 .landing .input,
 .landing .select,
 .landing .textarea {
-  font: inherit;
+  font: 500 13px var(--oe-f-sans);
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid color-mix(in oklab, var(--ink) 14%, transparent);
-  border-radius: var(--r);
-  background: var(--paper);
+  min-height: var(--oe-control-h-md, 34px);
+  padding: 6px 11px;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: var(--surface);
   color: var(--ink);
-  font-size: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
   appearance: none;
 }
@@ -2843,8 +2849,8 @@ body:has(.landing) {
 .landing .select:focus,
 .landing .textarea:focus {
   outline: none;
-  border-color: var(--green-ink);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 20%, transparent);
+  border-color: var(--oe-green-ink);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--oe-green) 18%, transparent);
 }
 
 .landing .input::placeholder,
@@ -2852,17 +2858,14 @@ body:has(.landing) {
   color: var(--mute-2);
 }
 
-.landing .select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7068' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-  cursor: pointer;
-}
+/* Der Pfeil fuer .select steht weiter unten bei den Auswahlfeldern.
+   Hier stand er ein zweites Mal, als SVG mit fest verdrahtetem #6b7068 —
+   im Dunkelmodus waere er darin verschwunden. */
 
 .landing .textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 72px;
+  line-height: 1.5;
 }
 
 .landing .field-label {
@@ -3130,6 +3133,70 @@ body:has(.landing) {
 /* Toggle switch (shared/toggle-switch.tsx) */
 /* Schalter und An/Aus-Zeile kommen aus @openeos/ui (.oe-switch,
    .oe-setting). Hier stand beides doppelt. */
+
+/* ---------- Farbwahl ----------
+   Siehe ColorPicker. Die Felder sind bewusst klein und dicht: es sind
+   achtzehn Stueck, und sie sollen in eine Zeile eines Dialogs passen,
+   ohne ihn zu dominieren. */
+.landing .color-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.landing .color-picker__swatches {
+  display: flex;
+  gap: 6px;
+}
+.landing .color-picker__swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--oe-r-xs, 6px);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  background: var(--swatch);
+  cursor: pointer;
+  /* Der Ring liegt aussen statt als Rahmen innen — ein Innenrahmen
+     wuerde die Farbflaeche verkleinern, und dann sieht die gewaehlte
+     Farbe anders aus als die daneben. */
+  transition: box-shadow .12s, transform .12s;
+}
+.landing .color-picker__swatch:hover { transform: scale(1.08); }
+.landing .color-picker__swatch.is-selected {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--oe-green-ink);
+}
+.landing .color-picker__swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--oe-green-ink);
+}
+.landing .color-picker__swatch--custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mute);
+  /* Karo-Muster als Hinweis "noch nichts gewaehlt"; sobald eine eigene
+     Farbe gesetzt ist, deckt sie es ab. */
+  background-color: var(--swatch);
+  background-image:
+    linear-gradient(45deg, color-mix(in oklab, var(--ink) 8%, transparent) 25%, transparent 25%),
+    linear-gradient(-45deg, color-mix(in oklab, var(--ink) 8%, transparent) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, color-mix(in oklab, var(--ink) 8%, transparent) 75%),
+    linear-gradient(-45deg, transparent 75%, color-mix(in oklab, var(--ink) 8%, transparent) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+/* Das native Feld bleibt bedienbar, aber unsichtbar — es wird nur ueber
+   den Knopf davor ausgeloest. display:none wuerde click() verhindern. */
+.landing .color-picker__native {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.landing .color-picker__value {
+  font: 500 12px var(--oe-f-mono);
+  color: var(--mute);
+}
 
 /* Modal width variants (default .modal__panel is 520px) */
 .landing .modal__panel--sm { max-width: 440px; }
