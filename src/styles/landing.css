@@ -60,9 +60,15 @@
 
 .landing * { box-sizing: border-box; }
 .landing img { max-width: 100%; display: block; }
-.landing button { font: inherit; }
-.landing a { color: inherit; text-decoration: none; }
-.landing ul { list-style: none; padding: 0; margin: 0; }
+/* Grundstellungen bewusst ohne Gewicht in der Spezifitaet: :where()
+   zaehlt null, die Regeln greifen damit nur dort, wo keine Komponente
+   etwas sagt. Zuvor stand hier ".landing button", und weil landing.css
+   nach dem Designsystem geladen wird, hat dieser Reset die Schrift von
+   .oe-segment und .oe-dd__trigger ueberschrieben — die Segmentknoepfe
+   rendered mit 16px statt 13px. */
+:where(.landing) button { font: inherit; }
+:where(.landing) a { color: inherit; text-decoration: none; }
+:where(.landing) ul { list-style: none; padding: 0; margin: 0; }
 
 /* grain overlay */
 .landing .grain {
