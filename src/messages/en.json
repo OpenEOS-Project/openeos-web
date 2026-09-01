@@ -407,7 +407,8 @@
     "rentalHardware": "Rental Hardware",
     "productionStations": "Stations",
     "templates": "Templates",
-    "invoices": "Invoices"
+    "invoices": "Invoices",
+    "integrations": "Integrations"
   },
   "settings": {
     "title": "Settings",
@@ -1385,7 +1386,8 @@
       "counterPickup": {
         "label": "Deposit for counter / takeaway",
         "description": "A deposit is charged for counter sales and takeaway."
-      }
+      },
+      "trigger": "Settings"
     }
   },
   "support": {
@@ -2689,5 +2691,26 @@
       "description": "Once an event has been paid for online, its invoice appears here. Documents for orders placed on account arrive by email and are not listed here."
     },
     "issuerNote": "Invoices are issued through our payment provider, Stripe."
+  },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Connect and configure external services.",
+    "soon": "Soon",
+    "actions": {
+      "configure": "Set up",
+      "close": "Close"
+    },
+    "sumup": {
+      "vendor": "Card payments",
+      "description": "Card readers at the till and card payments in the online shop."
+    },
+    "stripe": {
+      "vendor": "Card payments",
+      "description": "Take online shop payments through Stripe."
+    },
+    "lexoffice": {
+      "vendor": "Accounting",
+      "description": "Hand revenue over to accounting automatically."
+    }
   }
 }

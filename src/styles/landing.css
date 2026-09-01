@@ -3202,54 +3202,27 @@ body:has(.landing) {
   color: var(--mute);
 }
 
-/* ---------- Preiseingabe ----------
-   Siehe PriceInput. Euro und Cent stehen als zwei Felder nebeneinander,
-   optisch aber als eines: der Rahmen gehoert der Huelle, die Felder
-   darin haben keinen eigenen. */
-.landing .price-input {
-  display: inline-flex;
-  align-items: center;
-  /* .auth-field ist eine Flex-Spalte und streckt seine Kinder. Ohne das
-     hier zoege sich das Feld ueber die ganze Breite und schoebe das
-     Waehrungszeichen an den rechten Rand, weit weg von der Zahl. */
+/* ---------- Betragseingabe ----------
+   Siehe PriceInput. Der Aufbau kommt aus dem Designsystem
+   (.oe-input-group); hier steht nur, was die Dashboard-Felder davon
+   abweichend brauchen: der Anhang muss zur Metrik von .input passen, die
+   1px Rahmen und 34px Hoehe hat statt der 1.5px des Pakets. */
+.landing .price-group {
   align-self: flex-start;
-  gap: 1px;
-  min-height: var(--oe-control-h-md, 34px);
-  padding: 0 11px;
-  border: 1px solid var(--oe-line-2);
-  border-radius: var(--oe-r-sm);
-  background: var(--surface);
-  transition: border-color .15s, box-shadow .15s;
+  min-width: 132px;
 }
-.landing .price-input:focus-within {
-  border-color: var(--oe-green-ink);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--oe-green) 18%, transparent);
-}
-.landing .price-input[aria-invalid='true'] { border-color: var(--danger); }
-/* Die inneren Felder tragen .input fuer Schrift und Farbe, geben aber
-   Rahmen, Flaeche und Polsterung an die Huelle ab. */
-.landing .price-input .input {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-  min-height: 0;
-  font-family: var(--oe-f-mono);
+.landing .price-group .input {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
   text-align: right;
+  font-family: var(--oe-f-mono);
 }
-.landing .price-input .input:focus { box-shadow: none; }
-/* Zwei Klassen tief, damit die Breite gegen ".landing .auth-field input"
-   ankommt: dessen Element-Selektor macht es spezifischer als eine reine
-   Klassenregel, und sein width:100% zog das Feld sonst auf volle Breite. */
-.landing .price-input .price-input__euro { width: 5ch; }
-.landing .price-input .price-input__cent { width: 2.5ch; text-align: left; }
-.landing .price-input__separator {
-  font: 500 13px var(--oe-f-mono);
-  color: var(--ink);
-}
-.landing .price-input__currency {
-  margin-left: 6px;
-  font: 500 13px var(--oe-f-sans);
+.landing .price-group .oe-input-group__addon {
+  border-width: 1px;
+  border-inline-start: 0;
+  border-color: var(--oe-line-2);
+  background: var(--paper-2);
+  font: 500 12px var(--oe-f-sans);
   color: var(--mute);
 }
 
@@ -3311,6 +3284,65 @@ body:has(.landing) {
   margin: 10px 0 0;
   font-size: 12px;
   color: var(--mute);
+}
+
+/* ---------- Integrationen ----------
+   Karten statt Reitern: eine Anbindung soll sich hinzufuegen lassen, ohne
+   dass die Seite umgebaut wird. Die Einstellungen klappen in der Karte
+   auf, damit man beim Einrichten sieht, wovon die Rede ist. */
+.landing .integration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.landing .integration-card {
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  background: var(--surface);
+  padding: 16px;
+}
+.landing .integration-card.is-open {
+  /* Die aufgeklappte Karte nimmt die ganze Zeile — die Einstellungen
+     brauchen mehr Platz als die Kachelbreite. */
+  grid-column: 1 / -1;
+  border-color: var(--oe-green-ink);
+}
+.landing .integration-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.landing .integration-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  font: 700 15px var(--oe-f-sans);
+  color: var(--ink);
+}
+.landing .integration-card__copy { flex: 1; min-width: 0; }
+.landing .integration-card__name { font: 600 14px var(--oe-f-sans); color: var(--ink); }
+.landing .integration-card__vendor {
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.landing .integration-card__desc {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.landing .integration-card__panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--oe-line);
 }
 
 /* Modal width variants (default .modal__panel is 520px) */

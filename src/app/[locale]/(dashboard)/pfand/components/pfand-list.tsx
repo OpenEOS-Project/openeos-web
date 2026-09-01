@@ -9,11 +9,12 @@ import type { PfandType } from '@/types/pfand';
 interface PfandListProps {
   organizationId: string;
   onCreateClick: () => void;
+  onSettingsClick: () => void;
   onEditClick: (type: PfandType) => void;
   onDeleteClick: (type: PfandType) => void;
 }
 
-export function PfandList({ organizationId, onCreateClick, onEditClick, onDeleteClick }: PfandListProps) {
+export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEditClick, onDeleteClick }: PfandListProps) {
   const t = useTranslations('pfand');
 
   const { data: types, isLoading, error } = usePfandTypes(organizationId);
@@ -56,9 +57,14 @@ export function PfandList({ organizationId, onCreateClick, onEditClick, onDelete
           <h2 className="app-card__title">{t('title')}</h2>
           <p className="app-card__sub">{t('subtitle')}</p>
         </div>
-        <button className="btn btn--primary" onClick={onCreateClick}>
-          {t('create')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--ghost" onClick={onSettingsClick}>
+            {t('settings.trigger')}
+          </button>
+          <button className="btn btn--primary" onClick={onCreateClick}>
+            {t('create')}
+          </button>
+        </div>
       </div>
 
       <div style={{ overflowX: 'auto' }}>

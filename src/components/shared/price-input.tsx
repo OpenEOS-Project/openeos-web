@@ -1,132 +1,82 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PriceInputProps {
-  /** Betrag in Euro, so wie er im Formular steht. */
+  /** Betrag, so wie er im Formular steht. */
   value: number | string;
   onChange: (value: number) => void;
   onBlur?: () => void;
-  currencySymbol?: string;
-  autoFocus?: boolean;
-  'aria-invalid'?: boolean;
+  /** Anhang rechts. Standard EUR; Organisationen können eine andere Währung führen. */
+  currency?: string;
+  placeholder?: string;
+  invalid?: boolean;
 }
 
-/** Zerlegt einen Betrag in ganze Euro und Cent. */
-function split(value: number | string): { euro: string; cent: string } {
+/** Anzeige mit Komma, weil hier deutsch gerechnet wird. */
+function format(value: number | string): string {
   const amount = typeof value === 'number' ? value : parseFloat(String(value).replace(',', '.'));
-  if (!Number.isFinite(amount)) return { euro: '', cent: '' };
-  const cents = Math.round(Math.abs(amount) * 100);
-  return {
-    euro: String(Math.floor(cents / 100)),
-    cent: String(cents % 100).padStart(2, '0'),
-  };
+  if (!Number.isFinite(amount)) return '';
+  return amount.toFixed(2).replace('.', ',');
 }
 
-function toAmount(euro: string, cent: string): number {
-  const e = parseInt(euro || '0', 10) || 0;
-  // Eine einzelne Ziffer im Cent-Feld sind Zehner: "5" heisst 50 Cent, nicht 5.
-  // Sonst wuerde aus 3 € 5 unterwegs 3,05 € statt der erwarteten 3,50 €.
-  const raw = cent.trim();
-  const c = raw.length === 1 ? parseInt(raw, 10) * 10 : parseInt(raw || '0', 10) || 0;
-  return e + Math.min(c, 99) / 100;
+/** Liest Komma wie Punkt und ignoriert alles andere. */
+function parse(text: string): number {
+  const cleaned = text.replace(/[^\d,.-]/g, '').replace(',', '.');
+  const amount = parseFloat(cleaned);
+  return Number.isFinite(amount) ? Math.round(amount * 100) / 100 : 0;
 }
 
 /**
- * Preiseingabe in zwei Feldern: Euro und Cent.
+ * Betragseingabe: ein Feld mit der Währung als Anhang.
  *
- * Ein einzelnes Zahlenfeld mit Schrittweite 0,01 sieht harmlos aus, ist an
- * der Kasse aber unangenehm: das Dezimaltrennzeichen unterscheidet sich je
- * nach Tastatur, auf dem Telefon erscheint mal ein Komma und mal ein Punkt,
- * und die kleinen Pfeile springen in Ein-Cent-Schritten. Zwei Felder
- * brauchen kein Trennzeichen.
+ * Es bleibt ein Textfeld, kein `type="number"`. Dessen Pfeile springen in
+ * Ein-Cent-Schritten, das Mausrad verstellt versehentlich den Preis, und
+ * je nach Tastatur wird mal Komma und mal Punkt akzeptiert. Hier gelten
+ * beide.
  *
- * Komma oder Punkt im Euro-Feld springen weiter zum Cent, die Rücktaste
- * im leeren Cent-Feld führt zurück. Wer "3,50" tippt, landet also richtig,
- * ohne die Felder bewusst wechseln zu müssen.
+ * Formatiert wird erst beim Verlassen des Felds — währenddessen bliebe
+ * sonst der Cursor nicht stehen, sobald aus "4," ein "4,00" würde.
  */
 export function PriceInput({
   value,
   onChange,
   onBlur,
-  currencySymbol = '€',
-  autoFocus,
-  'aria-invalid': ariaInvalid,
+  currency = 'EUR',
+  placeholder = '0,00',
+  invalid,
 }: PriceInputProps) {
-  const [parts, setParts] = useState(() => split(value));
-  const centRef = useRef<HTMLInputElement>(null);
-  const euroRef = useRef<HTMLInputElement>(null);
+  const [text, setText] = useState(() => format(value));
+  const [editing, setEditing] = useState(false);
 
-  /* Der Betrag kann sich von aussen aendern — beim Oeffnen des Dialogs mit
-     einem bestehenden Produkt. Waehrend des Tippens nicht zurueckschreiben,
-     sonst verschwindet ein halb eingegebener Cent-Wert. */
+  /* Von außen gesetzte Werte übernehmen — etwa beim Öffnen des Dialogs mit
+     einem bestehenden Produkt. Während des Tippens nicht, sonst würde die
+     Eingabe unter dem Cursor umgeschrieben. */
   useEffect(() => {
-    const next = split(value);
-    setParts((current) =>
-      toAmount(current.euro, current.cent) === toAmount(next.euro, next.cent) ? current : next,
-    );
-  }, [value]);
-
-  const update = (euro: string, cent: string) => {
-    setParts({ euro, cent });
-    onChange(toAmount(euro, cent));
-  };
-
-  const digitsOnly = (raw: string, max: number) => raw.replace(/\D/g, '').slice(0, max);
+    if (!editing) setText(format(value));
+  }, [value, editing]);
 
   return (
-    <div className="price-input" aria-invalid={ariaInvalid}>
+    <div className="oe-input-group price-group">
       <input
-        ref={euroRef}
-        className="input price-input__euro"
-        inputMode="numeric"
+        type="text"
+        inputMode="decimal"
         autoComplete="off"
-        autoFocus={autoFocus}
-        placeholder="0"
-        aria-label="Euro"
-        value={parts.euro}
-        onChange={(e) => update(digitsOnly(e.target.value, 6), parts.cent)}
-        onKeyDown={(e) => {
-          // Wer die Zahl am Stueck tippt, trennt sie mit Komma oder Punkt.
-          if (e.key === ',' || e.key === '.') {
-            e.preventDefault();
-            centRef.current?.focus();
-          }
+        className={`input${invalid ? ' input--error' : ''}`}
+        placeholder={placeholder}
+        value={text}
+        onFocus={() => setEditing(true)}
+        onChange={(event) => {
+          setText(event.target.value);
+          onChange(parse(event.target.value));
         }}
-        onBlur={onBlur}
-      />
-      <span className="price-input__separator" aria-hidden="true">,</span>
-      <input
-        ref={centRef}
-        className="input price-input__cent"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="00"
-        aria-label="Cent"
-        value={parts.cent}
-        onChange={(e) => update(parts.euro, digitsOnly(e.target.value, 2))}
-        onKeyDown={(e) => {
-          if (e.key === 'Backspace' && parts.cent === '') {
-            e.preventDefault();
-            euroRef.current?.focus();
-          }
-        }}
-        onFocus={(e) => e.target.select()}
         onBlur={() => {
-          // Beim Verlassen auf zwei Stellen auffuellen, damit dort nicht
-          // "3,5" stehen bleibt, wo 3,50 gemeint war.
-          if (parts.cent !== '') {
-            const padded = String(Math.min(toAmountCent(parts.cent), 99)).padStart(2, '0');
-            if (padded !== parts.cent) setParts((p) => ({ ...p, cent: padded }));
-          }
+          setEditing(false);
+          setText(format(parse(text)));
           onBlur?.();
         }}
       />
-      <span className="price-input__currency">{currencySymbol}</span>
+      <span className="oe-input-group__addon">{currency}</span>
     </div>
   );
-}
-
-function toAmountCent(cent: string): number {
-  return cent.length === 1 ? parseInt(cent, 10) * 10 : parseInt(cent, 10) || 0;
 }

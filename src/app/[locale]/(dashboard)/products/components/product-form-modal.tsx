@@ -357,7 +357,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
-                      aria-invalid={!!errors.price}
+                      invalid={!!errors.price}
                     />
                     {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
                   </label>

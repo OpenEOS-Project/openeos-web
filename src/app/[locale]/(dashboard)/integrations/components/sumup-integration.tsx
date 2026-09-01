@@ -9,7 +9,7 @@ import type { SumUpReader } from '@/types/sumup';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
 
-export function OrganizationSumupSection() {
+export function SumUpIntegration() {
   const t = useTranslations('settings.organizationSumup');
   const tCommon = useTranslations('common');
   const { currentOrganization, setCurrentOrganization } = useAuthStore();

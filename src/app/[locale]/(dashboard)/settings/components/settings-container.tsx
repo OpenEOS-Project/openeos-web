@@ -8,9 +8,7 @@ import { SecuritySection } from './security-section';
 import { PreferencesSection } from './preferences-section';
 import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
-import { OrganizationBillingSection } from './organization-billing-section';
 import { OrganizationPosSection } from './organization-pos-section';
-import { OrganizationSumupSection } from './organization-sumup-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -64,9 +62,7 @@ export function SettingsContainer() {
   const organizationTabs: SettingsTab[] = [
     { id: 'org-general', label: t('organizationGeneral.title'), children: <OrganizationGeneralSection /> },
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
-    { id: 'org-billing', label: t('organizationBilling.title'), children: <OrganizationBillingSection /> },
     { id: 'org-pos', label: t('organizationPos.title'), children: <OrganizationPosSection /> },
-    { id: 'org-sumup', label: t('organizationSumup.title'), children: <OrganizationSumupSection /> },
   ];
 
   return (

@@ -10,7 +10,7 @@ import type { PfandType } from '@/types/pfand';
 
 import { PfandFormModal } from './pfand-form-modal';
 import { PfandList } from './pfand-list';
-import { PfandSettingsCard } from './pfand-settings-card';
+import { PfandSettingsModal } from './pfand-settings-modal';
 
 export function PfandContainer() {
   const t = useTranslations('pfand');
@@ -18,6 +18,7 @@ export function PfandContainer() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingType, setEditingType] = useState<PfandType | null>(null);
   const [deletingType, setDeletingType] = useState<PfandType | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -51,14 +52,16 @@ export function PfandContainer() {
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <PfandSettingsCard />
         <PfandList
           organizationId={organizationId}
+          onSettingsClick={() => setIsSettingsOpen(true)}
           onCreateClick={() => setIsCreateModalOpen(true)}
           onEditClick={(type) => setEditingType(type)}
           onDeleteClick={(type) => setDeletingType(type)}
         />
       </div>
+
+      <PfandSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       <PfandFormModal
         isOpen={isCreateModalOpen || !!editingType}

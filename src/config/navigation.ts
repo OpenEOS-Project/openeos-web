@@ -14,6 +14,7 @@ import {
   Coins01,
   ShoppingBag01,
   Tablet02,
+  PuzzlePiece01,
   ReceiptCheck,
   Tag01,
   Users01,
@@ -152,6 +153,13 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     label: 'Rechnungen',
     href: '/invoices',
     icon: ReceiptCheck,
+    adminOnly: true,
+  },
+  {
+    // Zugangsdaten zu fremden Diensten; dasselbe Argument wie oben.
+    label: 'Integrationen',
+    href: '/integrations',
+    icon: PuzzlePiece01,
     adminOnly: true,
   },
 ];

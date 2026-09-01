@@ -10,6 +10,7 @@ import { useCreatePfandType, useUpdatePfandType } from '@/hooks/use-pfand-types'
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { PfandType } from '@/types/pfand';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { PriceInput } from '@/components/shared/price-input';
 
 const pfandSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
@@ -106,7 +107,12 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               render={({ field }) => (
                 <label className="auth-field">
                   <span>{t('form.amount')} <span style={{ color: 'var(--danger)' }}>*</span></span>
-                  <input type="number" step="0.01" min="0" placeholder="2.00" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                  <PriceInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    invalid={!!errors.amount}
+                  />
                   {errors.amount && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.amount.message}</span>}
                 </label>
               )}

@@ -407,7 +407,8 @@
     "rentalHardware": "Miet-Hardware",
     "productionStations": "Standorte",
     "templates": "Vorlagen",
-    "invoices": "Rechnungen"
+    "invoices": "Rechnungen",
+    "integrations": "Integrationen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1198,7 +1199,8 @@
       "counterPickup": {
         "label": "Pfand bei Theke / Abholung",
         "description": "Bei Verkauf an der Theke bzw. zum Mitnehmen wird Pfand erhoben."
-      }
+      },
+      "trigger": "Einstellungen"
     }
   },
   "support": {
@@ -2689,5 +2691,26 @@
       "description": "Sobald eine Veranstaltung online bezahlt wurde, erscheint die Rechnung hier. Belege zu Bestellungen auf Rechnung werden per E-Mail zugestellt und stehen nicht in dieser Liste."
     },
     "issuerNote": "Rechnungen werden über unseren Zahlungsdienstleister Stripe ausgestellt."
+  },
+  "integrations": {
+    "title": "Integrationen",
+    "subtitle": "Externe Dienste anbinden und einrichten.",
+    "soon": "Bald",
+    "actions": {
+      "configure": "Einrichten",
+      "close": "Schließen"
+    },
+    "sumup": {
+      "vendor": "Kartenzahlung",
+      "description": "Kartenlesegeräte an der Kasse und Kartenzahlung im Online-Shop."
+    },
+    "stripe": {
+      "vendor": "Kartenzahlung",
+      "description": "Zahlungen im Online-Shop über Stripe abwickeln."
+    },
+    "lexoffice": {
+      "vendor": "Buchhaltung",
+      "description": "Umsätze automatisch an die Buchhaltung übergeben."
+    }
   }
 }

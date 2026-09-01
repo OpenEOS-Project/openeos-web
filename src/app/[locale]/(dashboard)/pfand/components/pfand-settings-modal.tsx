@@ -6,13 +6,28 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
 type PfandPolicy = { tableService: boolean; counterPickup: boolean };
 
 const DEFAULTS: PfandPolicy = { tableService: false, counterPickup: true };
 
-export function PfandSettingsCard() {
+interface PfandSettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+/**
+ * Die Pfand-Regeln als Dialog.
+ *
+ * Zuvor stand die Karte dauerhaft ueber der Typenliste. Es sind zwei
+ * Schalter, die man einmal setzt und danach kaum wieder anfasst — sie
+ * schoben die eigentliche Arbeit, das Anlegen der Pfand-Typen, jedes Mal
+ * nach unten aus dem Bild.
+ */
+export function PfandSettingsModal({ isOpen, onClose }: PfandSettingsModalProps) {
   const t = useTranslations('pfand.settings');
+  const tCommon = useTranslations('common');
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -40,7 +55,7 @@ export function PfandSettingsCard() {
     },
   });
 
-  if (!currentOrganization) return null;
+  if (!isOpen || !currentOrganization) return null;
 
   const rows: { key: keyof PfandPolicy }[] = [
     { key: 'tableService' },
@@ -48,17 +63,19 @@ export function PfandSettingsCard() {
   ];
 
   return (
-    <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('title')}</h3>
-        <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
-          {t('description')}
-        </p>
-      </div>
+    <div className="modal__overlay" onClick={onClose}>
+      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div>
+            <h2>{t('title')}</h2>
+            <p className="modal__sub">{t('description')}</p>
+          </div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
 
-      {/* Die Trennlinien zieht die Liste, nicht die einzelne Zeile — die
-          seitliche Polsterung sitzt deshalb hier und nicht in den Zeilen. */}
-      <div className="oe-setting-list" style={{ padding: '0 20px' }}>
+        <div className="modal__body">
+          {/* Die Trennlinien zieht die Liste, nicht die einzelne Zeile. */}
+          <div className="oe-setting-list">
         {rows.map(({ key }) => {
           const isChecked = policy[key];
           return (
@@ -72,7 +89,15 @@ export function PfandSettingsCard() {
               onChange={() => updatePolicy.mutate({ [key]: !isChecked })}
             />
           );
-        })}
+          })}
+          </div>
+        </div>
+
+        <div className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            {tCommon('close')}
+          </button>
+        </div>
       </div>
     </div>
   );

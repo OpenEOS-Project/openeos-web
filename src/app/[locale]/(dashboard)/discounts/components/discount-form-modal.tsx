@@ -13,6 +13,7 @@ import {
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { PriceInput } from '@/components/shared/price-input';
 
 const voucherSchema = z
   .object({
@@ -174,7 +175,12 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                 render={({ field }) => (
                   <label className="auth-field">
                     <span>{t('form.amount')} <span style={{ color: 'var(--danger)' }}>*</span></span>
-                    <input type="number" step="0.01" min="0" placeholder="3.00" value={String(field.value ?? 0)} onChange={field.onChange} onBlur={field.onBlur} />
+                    <PriceInput
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      invalid={!!errors.amount}
+                    />
                     {errors.amount && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.amount.message}</span>}
                   </label>
                 )}
