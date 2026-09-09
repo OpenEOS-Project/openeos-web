@@ -47,19 +47,33 @@ function rectOf(el: HTMLElement): Rect {
 export function WelcomeTour({ onFinish }: Props) {
   const t = useTranslations('onboarding.tour');
 
-  /* Nur Schritte, deren Ziel wirklich im Dokument steht. Einmal beim
-     Start ermittelt — währenddessen ändert sich die Seite nicht, und ein
-     Neuberechnen bei jedem Schritt könnte die Liste unter dem Nutzer
-     umsortieren. */
-  const steps = useMemo(
-    () => TOUR_STEPS.filter((s) => s.centered || findTarget(s) !== null),
-    [],
-  );
-
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
 
-  const step = steps[index];
+  /* Zaehlt mit, sobald ein Ziel auftaucht oder verschwindet.
+     Die Liste wurde zuerst einmalig beim Start gefiltert — das ging
+     schief: die Quick-Start-Karte laedt ihren Status erst und stand zu
+     dem Zeitpunkt noch nicht im Dokument, also fiel ausgerechnet der
+     Schritt weg, der sie erklaert. Gemessen lief die Tour deshalb mit
+     sieben statt acht Schritten. */
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    /* Kurz nach dem Start noch einmal nachsehen: bis dahin sind die
+       Abfragen des Dashboards durch. */
+    const timer = window.setTimeout(() => setTick((t) => t + 1), 600);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const steps = useMemo(
+    () => TOUR_STEPS.filter((s) => s.centered || findTarget(s) !== null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tick],
+  );
+
+  /* Waechst die Liste nachtraeglich, bleibt der Index gueltig; schrumpft
+     sie, zeigte er sonst ins Leere. */
+  const sicherIndex = Math.min(index, Math.max(0, steps.length - 1));
+  const step = steps[sicherIndex];
 
   const messen = useCallback(() => {
     if (!step) return;
@@ -105,7 +119,7 @@ export function WelcomeTour({ onFinish }: Props) {
 
   if (!step) return null;
 
-  const letzter = index === steps.length - 1;
+  const letzter = sicherIndex === steps.length - 1;
   const mittig = !rect;
 
   /* Die Sprechblase neben das Ziel legen, aber nie über den Rand hinaus. */
@@ -146,7 +160,7 @@ export function WelcomeTour({ onFinish }: Props) {
       )}
 
       <div className="tour__bubble" style={bubbleStyle}>
-        <div className="tour__count">{t('progress', { step: index + 1, total: steps.length })}</div>
+        <div className="tour__count">{t('progress', { step: sicherIndex + 1, total: steps.length })}</div>
         <h2 className="tour__title">{t(`steps.${step.id}.title`)}</h2>
         <p className="tour__text">{t(`steps.${step.id}.text`)}</p>
 
@@ -155,7 +169,7 @@ export function WelcomeTour({ onFinish }: Props) {
             {t('skip')}
           </button>
           <div className="tour__nav">
-            {index > 0 && (
+            {sicherIndex > 0 && (
               <button type="button" className="btn btn--ghost btn--sm" onClick={zurueck}>
                 {t('back')}
               </button>
