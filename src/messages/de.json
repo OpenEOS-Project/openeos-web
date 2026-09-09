@@ -530,7 +530,12 @@
         "push": "Push-Benachrichtigungen",
         "pushDescription": "Browser-Benachrichtigungen erhalten"
       },
-      "saved": "Einstellungen gespeichert"
+      "saved": "Einstellungen gespeichert",
+      "tour": {
+        "title": "Rundgang",
+        "description": "Die kurze Einführung in die Oberfläche noch einmal ansehen.",
+        "restart": "Erneut starten"
+      }
     },
     "organizationGeneral": {
       "title": "Allgemein",
@@ -2730,6 +2735,80 @@
     "fiskaly": {
       "vendor": "Kassensicherung",
       "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung."
+    }
+  },
+  "onboarding": {
+    "quickStart": {
+      "title": "Erste Schritte",
+      "subtitle": "So wird Ihre Veranstaltung verkaufsbereit.",
+      "hide": "Ausblenden",
+      "progress": "{done} von {total}",
+      "go": "Los",
+      "done": "{count, plural, one {# angelegt} other {# angelegt}}",
+      "steps": {
+        "event": {
+          "label": "Veranstaltung anlegen",
+          "hint": "Name und Zeitraum festlegen."
+        },
+        "activate": {
+          "label": "Veranstaltung freischalten",
+          "hint": "Ohne Freischaltung nimmt die Kasse keine Bestellungen an."
+        },
+        "categories": {
+          "label": "Kategorien anlegen",
+          "hint": "Getränke, Speisen — die Gliederung Ihrer Karte."
+        },
+        "products": {
+          "label": "Produkte anlegen",
+          "hint": "Mit Preis und Mehrwertsteuer."
+        },
+        "device": {
+          "label": "Kasse freigeben",
+          "hint": "Ein Gerät koppeln, an dem verkauft wird."
+        }
+      }
+    },
+    "tour": {
+      "title": "Rundgang",
+      "progress": "Schritt {step} von {total}",
+      "skip": "Überspringen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "finish": "Fertig",
+      "steps": {
+        "welcome": {
+          "title": "Willkommen bei OpenEOS",
+          "text": "Ein kurzer Rundgang zeigt Ihnen, wo Sie was finden. Dauert keine Minute — und Sie können jederzeit abbrechen."
+        },
+        "nav": {
+          "title": "Die Navigation",
+          "text": "Links erreichen Sie alle Bereiche. Was Sie hier sehen, hängt von Ihren Berechtigungen ab — Mitglieder sehen weniger als Administratoren."
+        },
+        "events": {
+          "title": "Veranstaltungen",
+          "text": "Jedes Fest ist eine eigene Veranstaltung mit eigenen Produkten und Zahlen. Hier legen Sie sie an und schalten sie frei."
+        },
+        "products": {
+          "title": "Produkte",
+          "text": "Ihre Karte: Kategorien und Produkte mit Preis und Mehrwertsteuer. Die Reihenfolge der Kategorien bestimmt, wie sie an der Kasse erscheinen."
+        },
+        "devices": {
+          "title": "Geräte",
+          "text": "Tablets und Kassen melden sich hier an und warten auf Ihre Freigabe. Erst danach können sie verkaufen."
+        },
+        "quickStart": {
+          "title": "Erste Schritte",
+          "text": "Diese Liste führt Sie durch die Einrichtung und hakt ab, was schon steht. Sie verschwindet von selbst, sobald alles erledigt ist."
+        },
+        "range": {
+          "title": "Zeitraum",
+          "text": "Alle Zahlen auf dieser Seite beziehen sich auf den hier gewählten Zeitraum — heute, die letzten sieben Tage oder die laufende Veranstaltung."
+        },
+        "help": {
+          "title": "Wenn etwas klemmt",
+          "text": "Über den Support erreichen Sie uns direkt. Den Rundgang können Sie in den Einstellungen jederzeit erneut starten."
+        }
+      }
     }
   }
 }

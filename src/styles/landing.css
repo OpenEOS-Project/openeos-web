@@ -3385,6 +3385,165 @@ body:has(.landing) {
   border-top: 1px solid var(--oe-line);
 }
 
+/* ---------- Willkommens-Tour ----------
+   Das Loch im Schleier entsteht ueber einen sehr weiten Schatten am
+   hervorgehobenen Rechteck statt ueber eine Maske: so ist es eine
+   einzige Flaeche, die ueberall gleich abdunkelt, und das Element
+   darunter behaelt seine Farben. */
+.landing .tour {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+.landing .tour__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+.landing .tour__spot {
+  position: absolute;
+  border-radius: var(--oe-r-sm);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  /* Klicks gehen daneben ins Leere, nicht auf die Oberflaeche darunter —
+     waehrend der Tour soll niemand versehentlich etwas ausloesen. */
+  pointer-events: none;
+  transition: top .2s, left .2s, width .2s, height .2s;
+}
+.landing .tour__bubble {
+  position: absolute;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  padding: 16px 18px 14px;
+  border-radius: var(--oe-r);
+  background: var(--surface);
+  border: 1px solid var(--oe-line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+.landing .tour__count {
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: .04em;
+  color: var(--mute);
+}
+.landing .tour__title {
+  margin: 4px 0 0;
+  font: 700 16px var(--oe-f-sans);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.landing .tour__text {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.landing .tour__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+.landing .tour__nav {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------- Quick-Start ----------
+   Die Einrichtungs-Checkliste auf dem Dashboard. Sie steht ganz oben und
+   verschwindet, sobald alle Schritte erledigt sind — deshalb darf sie
+   ruhig Platz nehmen, sie ist nicht von Dauer. */
+.landing .quick-start__body {
+  padding: 16px 20px 18px;
+}
+.landing .quick-start__progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.landing .quick-start__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--oe-r-full);
+  background: var(--paper-3);
+  overflow: hidden;
+}
+.landing .quick-start__bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--oe-green-ink);
+  transition: width .3s;
+}
+.landing .quick-start__count {
+  font: 500 12px var(--oe-f-mono);
+  color: var(--mute);
+  white-space: nowrap;
+}
+.landing .quick-start__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+.landing .quick-start__step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+}
+.landing .quick-start__step + .quick-start__step {
+  border-top: 1px solid var(--oe-line);
+}
+/* Die Ziffer wird zum Haken, sobald der Schritt sitzt — dieselbe Stelle,
+   damit die Zeile beim Erledigen nicht springt. */
+.landing .quick-start__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--oe-line-2);
+  font: 600 11px var(--oe-f-mono);
+  color: var(--mute);
+}
+/* Auf der dunkelgruenen Fuellung gehoert --oe-on-accent, nicht
+   --oe-on-signal: Letzteres ist fuer Flaechen in --oe-green gedacht und
+   deshalb fast schwarz — der Haken war darauf unsichtbar. */
+.landing .quick-start__step.is-done .quick-start__marker {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-ink);
+  color: var(--oe-on-accent);
+}
+.landing .quick-start__copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.landing .quick-start__label {
+  font: 600 13px var(--oe-f-sans);
+  color: var(--ink);
+}
+.landing .quick-start__step.is-done .quick-start__label {
+  color: var(--mute);
+}
+.landing .quick-start__hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mute);
+}
+.landing .quick-start__done {
+  font: 500 12px var(--oe-f-mono);
+  color: var(--mute);
+  white-space: nowrap;
+}
+
 /* Modal width variants (default .modal__panel is 520px) */
 .landing .modal__panel--sm { max-width: 440px; }
 .landing .modal__panel--md { max-width: 560px; }

@@ -557,6 +557,13 @@ export const eventsApi = {
 };
 
 // Billing API (company lookup for "Kauf auf Rechnung")
+export const onboardingApi = {
+  status: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/onboarding').OnboardingStatus>>(
+      `/organizations/${organizationId}/onboarding/status`
+    ),
+};
+
 export const billingApi = {
   listInvoices: (organizationId: string) =>
     apiClient.get<ApiResponse<import('@/types/billing').OrganizationInvoice[]>>(

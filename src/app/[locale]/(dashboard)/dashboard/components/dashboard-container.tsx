@@ -16,6 +16,7 @@ import { DashboardRangeProvider, rangeFor, type RangeKey } from './dashboard-ran
 import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
+import { QuickStartCard } from './onboarding/quick-start-card';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
@@ -190,7 +191,7 @@ export function DashboardContainer() {
               )}
             </Dropdown>
           ) : (
-            <div className="oe-segment" role="group" aria-label={t('range.label')}>
+            <div className="oe-segment" role="group" aria-label={t('range.label')} data-tour="dashboard-range">
               {(['today', 'week', 'event'] as RangeKey[]).map((key) => (
                 <button
                   key={key}
@@ -224,6 +225,10 @@ export function DashboardContainer() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Ganz oben, solange die Einrichtung laeuft — sie blendet sich
+            selbst aus, sobald alle Schritte sitzen. */}
+        <QuickStartCard organizationId={organizationId} />
+
         <DashboardRangeProvider value={range}>
           <DashboardGrid
           widgets={activeWidgets}

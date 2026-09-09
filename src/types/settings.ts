@@ -27,11 +27,26 @@ export interface DashboardWidgetSize {
   h: number;
 }
 
+/**
+ * Was der Nutzer beim Einstieg schon gesehen hat.
+ *
+ * Der Fortschritt der Einrichtung steht bewusst nicht hier — der wird
+ * aus den echten Daten abgeleitet (siehe useOnboardingStatus). Hier
+ * steht nur, was sich sonst nirgends ablesen ließe.
+ */
+export interface OnboardingPreferences {
+  /** Version der zuletzt abgeschlossenen Tour. */
+  tourVersion?: number;
+  tourCompletedAt?: string;
+  quickStartHidden?: boolean;
+}
+
 export interface UserPreferences {
   theme: ThemePreference;
   locale: LocalePreference;
   notifications: NotificationPreferences;
   dashboard?: DashboardPreferences;
+  onboarding?: OnboardingPreferences;
 }
 
 // 2FA Types
@@ -120,6 +135,7 @@ export interface UpdatePreferencesDto {
   locale?: LocalePreference;
   notifications?: Partial<NotificationPreferences>;
   dashboard?: DashboardPreferences;
+  onboarding?: OnboardingPreferences;
 }
 
 export interface VerifyTotpSetupDto {

@@ -142,6 +142,27 @@ export function PreferencesSection() {
           })}
         </div>
       </div>
+
+      {/* Der Rundgang verspricht in seinem letzten Schritt, dass man ihn
+          hier erneut starten kann — dieser Knopf loest das ein. */}
+      <div className="app-card">
+        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('tour.title')}</h3>
+            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
+              {t('tour.description')}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            disabled={updatePreferences.isPending}
+            onClick={() => updatePreferences.mutate({ onboarding: { tourVersion: 0 } })}
+          >
+            {t('tour.restart')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -337,7 +337,7 @@ export function AppSidebar() {
         )}
 
         {/* Navigation */}
-        <nav className="app-sidebar__nav">
+        <nav className="app-sidebar__nav" data-tour="nav">
           {navItems.map((item, index) => {
             if (item.divider) {
               return (
@@ -363,7 +363,14 @@ export function AppSidebar() {
               subItems.some((sub) => activeUrl === sub.href || activeUrl.startsWith(sub.href + '/'));
 
             return (
-              <div key={item.href} className="app-sidebar__group">
+              /* Anker fuer die Tour, aus dem Pfad abgeleitet: /events wird
+                 zu nav-events. Kein Sonderfall je Eintrag, und ein neuer
+                 Navigationspunkt bringt seinen Anker von selbst mit. */
+              <div
+                key={item.href}
+                className="app-sidebar__group"
+                data-tour={`nav-${item.href.replace(/^\//, '').replace(/\//g, '-')}`}
+              >
                 <Link
                   href={item.href as never}
                   className={cx(
@@ -458,6 +465,7 @@ export function AppSidebar() {
                     )}
                     aria-label={supportItem.label}
                     title={supportItem.label}
+                    data-tour="nav-support"
                   >
                     {supportItem.icon ? <supportItem.icon /> : null}
                   </Link>

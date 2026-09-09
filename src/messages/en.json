@@ -530,7 +530,12 @@
         "push": "Push notifications",
         "pushDescription": "Receive browser notifications"
       },
-      "saved": "Settings saved"
+      "saved": "Settings saved",
+      "tour": {
+        "title": "Tour",
+        "description": "Take the short walkthrough of the interface again.",
+        "restart": "Restart"
+      }
     },
     "organizationGeneral": {
       "title": "General",
@@ -2730,6 +2735,80 @@
     "fiskaly": {
       "vendor": "Fiscalisation",
       "description": "Cloud TSE for the German cash register security regulation."
+    }
+  },
+  "onboarding": {
+    "quickStart": {
+      "title": "First steps",
+      "subtitle": "What it takes to start selling.",
+      "hide": "Hide",
+      "progress": "{done} of {total}",
+      "go": "Go",
+      "done": "{count, plural, one {# created} other {# created}}",
+      "steps": {
+        "event": {
+          "label": "Create the event",
+          "hint": "Give it a name and a date range."
+        },
+        "activate": {
+          "label": "Activate the event",
+          "hint": "Until it is activated the till takes no orders."
+        },
+        "categories": {
+          "label": "Create categories",
+          "hint": "Drinks, food — how your menu is grouped."
+        },
+        "products": {
+          "label": "Create products",
+          "hint": "With price and VAT."
+        },
+        "device": {
+          "label": "Pair a till",
+          "hint": "Approve the device you will sell from."
+        }
+      }
+    },
+    "tour": {
+      "title": "Tour",
+      "progress": "Step {step} of {total}",
+      "skip": "Skip",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Done",
+      "steps": {
+        "welcome": {
+          "title": "Welcome to OpenEOS",
+          "text": "A short tour to show you where things are. It takes under a minute, and you can stop any time."
+        },
+        "nav": {
+          "title": "Navigation",
+          "text": "Every area is reachable from the left. What you see depends on your permissions — members see less than admins."
+        },
+        "events": {
+          "title": "Events",
+          "text": "Each festival is its own event with its own products and figures. Create and activate them here."
+        },
+        "products": {
+          "title": "Products",
+          "text": "Your menu: categories and products with price and VAT. The order of categories decides how they appear at the till."
+        },
+        "devices": {
+          "title": "Devices",
+          "text": "Tablets and tills register here and wait for your approval. Only then can they sell."
+        },
+        "quickStart": {
+          "title": "First steps",
+          "text": "This list walks you through setup and ticks off what is already done. It disappears once everything is in place."
+        },
+        "range": {
+          "title": "Period",
+          "text": "Every figure on this page refers to the period picked here — today, the last seven days, or the running event."
+        },
+        "help": {
+          "title": "If something goes wrong",
+          "text": "Support reaches us directly. You can restart this tour any time from the settings."
+        }
+      }
     }
   }
 }
