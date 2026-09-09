@@ -11,11 +11,16 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <AuthGuard>
-      <AppShell>{children}</AppShell>
-      {/* Innerhalb des Guards, damit die Tour nur laeuft, wenn jemand
-          angemeldet ist — ihre Ziele sind Teile der angemeldeten
-          Oberflaeche. */}
-      <TourHost />
+      <AppShell>
+        {/* Innerhalb von AppShell, nicht daneben: dort sitzt die Klasse
+            .landing, an der saemtliche Regeln des Designsystems haengen.
+            Ausserhalb blieb die Tour zwar im DOM, aber ungestylt —
+            position:static statt fixed, Sprechblase ueber die volle
+            Breite, kein Schleier. Wo im Baum sie steht, ist sonst egal:
+            sie liegt fest ueber der Seite. */}
+        <TourHost />
+        {children}
+      </AppShell>
     </AuthGuard>
   );
 }
