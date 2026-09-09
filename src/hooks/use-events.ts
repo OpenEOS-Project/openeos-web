@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { eventsApi } from '@/lib/api-client';
+
+import { onboardingKeys } from './use-onboarding';
 import type { CreateEventData, Event, UpdateEventData } from '@/types/event';
 import type { OrderInvoiceData } from '@/types/billing';
 
@@ -111,6 +113,9 @@ export function useActivateEvent() {
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
+      /* Der Quick-Start haengt am Zustand der Veranstaltung: sowohl der
+         Testmodus als auch die Freischaltung erledigen denselben Schritt. */
+      queryClient.invalidateQueries({ queryKey: onboardingKeys.status(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });
@@ -127,6 +132,9 @@ export function useDeactivateEvent() {
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
+      /* Der Quick-Start haengt am Zustand der Veranstaltung: sowohl der
+         Testmodus als auch die Freischaltung erledigen denselben Schritt. */
+      queryClient.invalidateQueries({ queryKey: onboardingKeys.status(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });
@@ -143,6 +151,9 @@ export function useSetTestMode() {
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
+      /* Der Quick-Start haengt am Zustand der Veranstaltung: sowohl der
+         Testmodus als auch die Freischaltung erledigen denselben Schritt. */
+      queryClient.invalidateQueries({ queryKey: onboardingKeys.status(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
     },
   });

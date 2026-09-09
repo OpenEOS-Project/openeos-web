@@ -2751,8 +2751,8 @@
           "hint": "Name und Zeitraum festlegen."
         },
         "activate": {
-          "label": "Veranstaltung freischalten",
-          "hint": "Ohne Freischaltung nimmt die Kasse keine Bestellungen an."
+          "label": "Verkauf freigeben",
+          "hint": "Zum Ausprobieren genügt der Testmodus: {max} Bestellungen, ohne Kosten."
         },
         "categories": {
           "label": "Kategorien anlegen",
@@ -2766,7 +2766,11 @@
           "label": "Kasse freigeben",
           "hint": "Ein Gerät koppeln, an dem verkauft wird."
         }
-      }
+      },
+      "tryOut": "Testen",
+      "testRunning": "Test · {used}/{max}",
+      "activated": "freigeschaltet",
+      "activateNow": "Freischalten"
     },
     "tour": {
       "title": "Rundgang",
@@ -2786,7 +2790,7 @@
         },
         "events": {
           "title": "Veranstaltungen",
-          "text": "Jedes Fest ist eine eigene Veranstaltung mit eigenen Produkten und Zahlen. Hier legen Sie sie an und schalten sie frei."
+          "text": "Jedes Fest ist eine eigene Veranstaltung mit eigenen Produkten und Zahlen. Hier legen Sie sie an — zum Ausprobieren genügt der Testmodus."
         },
         "products": {
           "title": "Produkte",

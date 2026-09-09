@@ -3538,6 +3538,12 @@ body:has(.landing) {
   line-height: 1.4;
   color: var(--mute);
 }
+.landing .quick-start__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
 .landing .quick-start__done {
   font: 500 12px var(--oe-f-mono);
   color: var(--mute);

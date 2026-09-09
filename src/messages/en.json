@@ -2751,8 +2751,8 @@
           "hint": "Give it a name and a date range."
         },
         "activate": {
-          "label": "Activate the event",
-          "hint": "Until it is activated the till takes no orders."
+          "label": "Enable selling",
+          "hint": "Test mode is enough to try things out: {max} orders, free of charge."
         },
         "categories": {
           "label": "Create categories",
@@ -2766,7 +2766,11 @@
           "label": "Pair a till",
           "hint": "Approve the device you will sell from."
         }
-      }
+      },
+      "tryOut": "Try it",
+      "testRunning": "Test · {used}/{max}",
+      "activated": "activated",
+      "activateNow": "Activate"
     },
     "tour": {
       "title": "Tour",
@@ -2786,7 +2790,7 @@
         },
         "events": {
           "title": "Events",
-          "text": "Each festival is its own event with its own products and figures. Create and activate them here."
+          "text": "Each festival is its own event with its own products and figures. Create them here — test mode is enough to try things out."
         },
         "products": {
           "title": "Products",

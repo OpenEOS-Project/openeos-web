@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { useSetTestMode } from '@/hooks/use-events';
 import { useOnboardingStatus } from '@/hooks/use-onboarding';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import type { OnboardingStepId } from '@/types/onboarding';
@@ -40,6 +41,7 @@ export function QuickStartCard({ organizationId }: Props) {
   const { data: status, isLoading } = useOnboardingStatus(organizationId);
   const { data: preferences } = usePreferences();
   const updatePreferences = useUpdatePreferences();
+  const setTestMode = useSetTestMode();
 
   const versteckt = preferences?.onboarding?.quickStartHidden === true;
   const fertig = !!status && status.completed === status.total;
@@ -49,6 +51,7 @@ export function QuickStartCard({ organizationId }: Props) {
   if (isLoading || !status || versteckt || fertig) return null;
 
   const anteil = Math.round((status.completed / status.total) * 100);
+  const imTest = status.eventStatus === 'test';
 
   return (
     <div className="app-card quick-start" data-tour="quick-start">
@@ -103,10 +106,53 @@ export function QuickStartCard({ organizationId }: Props) {
 
               <span className="quick-start__copy">
                 <span className="quick-start__label">{t(`steps.${step.id}.label`)}</span>
-                <span className="quick-start__hint">{t(`steps.${step.id}.hint`)}</span>
+                <span className="quick-start__hint">
+                  {t(`steps.${step.id}.hint`, { max: status.testOrderLimit })}
+                </span>
               </span>
 
-              {step.done ? (
+              {step.id === 'activate' ? (
+                /* Der einzige Schritt mit zwei Wegen: testen oder kaufen.
+                   Beide stehen nebeneinander, damit niemand den kostenlosen
+                   uebersieht und den Kauf fuer alternativlos haelt. */
+                <span className="quick-start__actions">
+                  {step.done && !imTest && (
+                    <span className="quick-start__done">{t('activated')}</span>
+                  )}
+
+                  {imTest && (
+                    <span className="quick-start__done">
+                      {t('testRunning', {
+                        used: status.testOrdersUsed ?? 0,
+                        max: status.testOrderLimit,
+                      })}
+                    </span>
+                  )}
+
+                  {!step.done && status.eventId && (
+                    <button
+                      type="button"
+                      className="btn btn--ghost btn--sm"
+                      disabled={setTestMode.isPending}
+                      onClick={() =>
+                        setTestMode.mutate({ organizationId, id: status.eventId! })
+                      }
+                    >
+                      {t('tryOut')}
+                    </button>
+                  )}
+
+                  {!(step.done && !imTest) && (
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--sm"
+                      onClick={() => router.push(ZIELE.activate)}
+                    >
+                      {imTest || status.eventId ? t('activateNow') : t('go')}
+                    </button>
+                  )}
+                </span>
+              ) : step.done ? (
                 <span className="quick-start__done">{t('done', { count: step.count })}</span>
               ) : (
                 <button
