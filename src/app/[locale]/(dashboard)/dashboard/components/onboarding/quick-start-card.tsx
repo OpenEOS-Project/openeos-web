@@ -132,7 +132,7 @@ export function QuickStartCard({ organizationId }: Props) {
                   {!step.done && status.eventId && (
                     <button
                       type="button"
-                      className="btn btn--ghost btn--sm"
+                      className="btn btn--primary btn--sm"
                       disabled={setTestMode.isPending}
                       onClick={() =>
                         setTestMode.mutate({ organizationId, id: status.eventId! })
@@ -145,7 +145,11 @@ export function QuickStartCard({ organizationId }: Props) {
                   {!(step.done && !imTest) && (
                     <button
                       type="button"
-                      className="btn btn--primary btn--sm"
+                      /* Zurueckhaltend, solange der kostenlose Weg danebensteht:
+                         der Kauf ist eine Moeglichkeit, nicht der Normalfall.
+                         Ohne Veranstaltung fuehrt der Knopf nur zur Liste und
+                         ist dort der einzige — dann traegt er die Zeile. */
+                      className={`btn btn--sm ${status.eventId ? 'btn--ghost' : 'btn--primary'}`}
                       onClick={() => router.push(ZIELE.activate)}
                     >
                       {imTest || status.eventId ? t('activateNow') : t('go')}
