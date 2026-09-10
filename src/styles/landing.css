@@ -4356,6 +4356,19 @@ body:has(.landing) {
   height: 16px;
 }
 
+/* Unter der Kontozeile, bewusst leise: die Nummer braucht man nur, wenn
+   man nach ihr fragt. Ohne Trennlinie darueber — der Fuss ist jetzt
+   eine Einheit und nicht mehr drei gestapelte Bloecke. */
+.landing .app-sidebar__version {
+  margin: 0;
+  padding: 0 10px 4px;
+  font: 500 10px var(--oe-f-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+  text-align: center;
+}
+
 /* Einklappen sitzt im Kopf. Absolut positioniert, damit das Logo in der
    Mitte bleibt und nicht vom Knopf zur Seite gedrueckt wird. */
 .landing .app-sidebar__logo {

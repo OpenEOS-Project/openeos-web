@@ -514,9 +514,6 @@ export function AppSidebar() {
                 <DropdownOption danger icon={<LogOut01 />} onClick={logout}>
                   Abmelden
                 </DropdownOption>
-                <DropdownCaption>
-                  {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
-                </DropdownCaption>
               </Dropdown>
 
               {/* Zweiter Weg neben dem Menueeintrag: im Menue vermutet ihn
@@ -532,6 +529,14 @@ export function AppSidebar() {
                 <LogOut01 />
               </button>
             </div>
+          )}
+
+          {!isCollapsed && (
+            /* "v" nur vor einer echten Versionsnummer — lokal steht hier
+               "dev", und "vdev" liest sich wie ein Tippfehler. */
+            <p className="app-sidebar__version">
+              {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
+            </p>
           )}
 
           {/* Eingeklappt bleibt nur Platz fuer Symbole — dann stehen die
