@@ -3798,18 +3798,12 @@ body:has(.landing) {
 
 /* Konto-Block im Fuss der Seitenleiste. */
 .landing .app-sidebar__account {
-  display: grid;
-  gap: 8px;
-  padding: 10px 10px 12px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--oe-line);
-}
-.landing .app-sidebar__account-tools {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 6px;
+  padding: 8px;
 }
+
 
 /* ======================= SYSTEM-STATUSLEISTE =======================
    Vier Kacheln in einer durchgehenden Leiste, aus der Designvorlage
@@ -4061,68 +4055,6 @@ body:has(.landing) {
     linear-gradient(135deg, transparent 42%, var(--oe-green-ink) 42%, var(--oe-green-ink) 58%, transparent 58%);
 }
 
-/* ---------- Werkzeuge im Sidebar-Fuß ----------
-   Sprache, Theme und Einklappen kamen aus drei Quellen mit drei
-   verschiedenen Groessen: die Sprachwahl als schmale Pille, der
-   Theme-Umschalter als 40px-Quadrat, der Pfeil freistehend unter der
-   Navigation. Hier auf ein Format gebracht. */
-.landing .app-sidebar__account-tools > button,
-.landing .app-sidebar__tool {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 30px;
-  min-width: 30px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: var(--oe-r-sm);
-  background: transparent;
-  color: var(--mute);
-  font: 500 12px var(--oe-f-mono);
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
-}
-.landing .app-sidebar__account-tools > button:hover,
-.landing .app-sidebar__tool:hover {
-  background: color-mix(in oklab, var(--ink) 6%, transparent);
-  border-color: var(--oe-line);
-  color: var(--ink);
-}
-.landing .app-sidebar__account-tools > button svg,
-.landing .app-sidebar__tool svg {
-  width: 15px;
-  height: 15px;
-  flex: none;
-}
-/* Ausgeklappt rechts in der Werkzeugzeile. */
-.landing .app-sidebar__tool--collapse {
-  margin-left: auto;
-}
-/* Eingeklappt als eigener Knopf mittig unter den Symbolen; der Pfeil
-   zeigt dann nach rechts.
-
-   display:flex statt des geerbten inline-flex: bei einem
-   inline-Element zentriert margin:auto nicht, der Pfeil stand dadurch
-   links aus der Mitte. */
-.landing .app-sidebar__tool--expand {
-  display: flex;
-  margin: 4px auto 0;
-}
-.landing .app-sidebar__tool--expand svg {
-  transform: rotate(180deg);
-}
-
-.landing .app-sidebar__version {
-  margin: 0;
-  padding: 8px 10px 2px;
-  font: 500 10px var(--oe-f-mono);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--mute-2);
-  text-align: center;
-}
 
 /* ========================= DASHBOARD-RASTER =========================
    Die Kacheln lagen zuvor als volle Breite untereinander — vier
@@ -4394,7 +4326,80 @@ body:has(.landing) {
    der Seitenleiste verlangt. */
 .landing .app-sidebar__account-dd {
   display: block;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Ausstieg neben dem Namen. Grau wie die uebrige Leiste, damit er das
+   Bild nicht dominiert, und erst unter dem Zeiger in der Warnfarbe. */
+.landing .app-sidebar__logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--oe-r-sm);
+  background: transparent;
+  color: var(--mute-2);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.landing .app-sidebar__logout:hover {
+  background: color-mix(in oklab, var(--danger) 12%, transparent);
+  border-color: color-mix(in oklab, var(--danger) 35%, transparent);
+  color: var(--danger);
+}
+.landing .app-sidebar__logout svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Einklappen sitzt im Kopf. Absolut positioniert, damit das Logo in der
+   Mitte bleibt und nicht vom Knopf zur Seite gedrueckt wird. */
+.landing .app-sidebar__logo {
+  position: relative;
+}
+.landing .app-sidebar__collapse {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--oe-r-sm);
+  background: transparent;
+  color: var(--mute-2);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.landing .app-sidebar__collapse:hover {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  border-color: var(--oe-line);
+  color: var(--ink);
+}
+.landing .app-sidebar__collapse svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Eingeklappt fehlt rechts der Platz: dann unter das Logo, und der
+   Pfeil zeigt dorthin, wohin die Leiste wieder aufgeht. */
+.landing .app-sidebar--collapsed .app-sidebar__logo {
+  flex-direction: column;
+  gap: 10px;
+}
+.landing .app-sidebar--collapsed .app-sidebar__collapse {
+  position: static;
+  transform: none;
+}
+.landing .app-sidebar--collapsed .app-sidebar__collapse svg {
+  transform: rotate(180deg);
 }
 .landing .app-sidebar__account-dd .oe-dd__trigger {
   gap: 9px;
@@ -4412,13 +4417,8 @@ body:has(.landing) {
 }
 
 /* Support als Symbol — gleiche Größe wie Sprache, Theme, Einklappen. */
-.landing a.app-sidebar__tool {
-  text-decoration: none;
-}
-.landing .app-sidebar__tool--active {
-  background: var(--oe-green-soft);
-  color: var(--oe-green-ink);
-}
+
+
 
 
 /* ---------- Bildmarke im eingeklappten Zustand ----------

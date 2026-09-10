@@ -8,9 +8,13 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  Globe01,
   LogOut01,
   Mail01,
+  Monitor01,
+  Moon01,
   Plus,
+  Sun,
 } from '@untitledui/icons';
 
 import { CreateOrgModal } from './create-org-modal';
@@ -23,10 +27,13 @@ import {
   DropdownSeparator,
 } from '@openeos/ui';
 
-import { LocaleSwitcher } from '@/components/ui/locale-switcher';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useTheme } from 'next-themes';
 
-import { Link } from '@/i18n/routing';
+import {
+  Link,
+  usePathname as useLocalePathname,
+  useRouter as useLocaleRouter,
+} from '@/i18n/routing';
 import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
 import { useMyInvitations } from '@/hooks/use-members';
 import { useActiveEvent } from '@/hooks/use-events';
@@ -70,6 +77,17 @@ export function AppSidebar() {
   /* DropdownLink rendert ein <a>; der Sprachpraefix muss deshalb selbst
      davor, anders als beim Link aus i18n/routing. */
   const locale = useLocale();
+
+  /* Sprache und Erscheinungsbild sitzen jetzt im Menue am Benutzer statt
+     als eigene Knoepfe im Fuss. Beides braucht seinen eigenen Router
+     bzw. Hook — der Pfad ohne Sprachpraefix kommt aus i18n/routing. */
+  const localeRouter = useLocaleRouter();
+  const localePathname = useLocalePathname();
+  const { theme, setTheme } = useTheme();
+  /* next-themes kennt das Thema erst im Browser. Vor dem Einhaengen
+     stuende sonst serverseitig ein anderes Haekchen als danach. */
+  const [themeBereit, setThemeBereit] = React.useState(false);
+  React.useEffect(() => setThemeBereit(true), []);
 
   React.useEffect(() => {
     setMobileOpen(false);
@@ -118,12 +136,6 @@ export function AppSidebar() {
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
 
-  /* Support steht als Symbol bei den Werkzeugen, alles Uebrige im Menue
-     am Benutzer. Ueber den Pfad ausgewaehlt und nicht ueber die
-     Position, damit ein Umsortieren der Navigation das hier nicht
-     stillschweigend kaputtmacht. */
-  const supportItem = filteredFooterItems.find((item) => item.href === '/support');
-  const menuFooterItems = filteredFooterItems.filter((item) => item.href !== '/support');
 
   const orgs = organizations.filter((o) => o?.organization);
   const hasMultiple = orgs.length > 1;
@@ -176,6 +188,19 @@ export function AppSidebar() {
       <aside className={sidebarClasses}>
         <div className={cx('app-sidebar__logo', isCollapsed && 'app-sidebar__logo--small')}>
           <Logo iconOnly={isCollapsed} height={isCollapsed ? 32 : 44} />
+          {/* Frueher unten zwischen Sprache und Thema — dort war er ein
+              Werkzeug unter vieren und schwer zu deuten. Oben neben dem
+              Logo sitzt er da, wo die Leiste selbst anfaengt. */}
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            className="app-sidebar__collapse"
+            aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+            title={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+            aria-expanded={!isCollapsed}
+          >
+            <ChevronLeft />
+          </button>
         </div>
 
         {/* Org block + selector */}
@@ -411,15 +436,13 @@ export function AppSidebar() {
 
         {/* Footer items */}
         <div className="app-sidebar__footer">
-          {/* Vorher sechs Zeilen fuer vier Funktionen: Benutzer,
-              Werkzeuge, Support, Einstellungen, Abmelden, Version.
-              Einstellungen und Abmelden liegen jetzt im Menue am
-              Benutzer, Support als Symbol bei den Werkzeugen. */}
+          {/* Nur noch eine Zeile: Name mit Menue, daneben der Ausstieg.
+              Sprache, Erscheinungsbild und Version sind ins Menue
+              gewandert, Support in die Navigation, das Einklappen nach
+              oben — vier ungleich breite Symbole nebeneinander ergaben
+              keine lesbare Reihe. */}
           {!isCollapsed && (
             <div className="app-sidebar__account">
-              {/* Dropdown aus dem Designsystem statt eines eigenen
-                  Menues: oeffnet nach oben, weil der Fuss der
-                  Seitenleiste am unteren Bildschirmrand sitzt. */}
               <Dropdown
                 className="app-sidebar__account-dd"
                 placement="top"
@@ -437,7 +460,7 @@ export function AppSidebar() {
                 }
               >
                 <DropdownCaption>{currentOrganization?.organization?.name}</DropdownCaption>
-                {menuFooterItems.map((item) =>
+                {filteredFooterItems.map((item) =>
                   item.href ? (
                     <DropdownLink
                       key={item.href}
@@ -449,55 +472,66 @@ export function AppSidebar() {
                     </DropdownLink>
                   ) : null,
                 )}
+
+                <DropdownSeparator />
+                <DropdownCaption>Sprache</DropdownCaption>
+                {[
+                  { code: 'de', label: 'Deutsch' },
+                  { code: 'en', label: 'English' },
+                ].map((sprache) => (
+                  <DropdownOption
+                    key={sprache.code}
+                    selected={locale === sprache.code}
+                    icon={<Globe01 />}
+                    onClick={() =>
+                      localeRouter.replace(localePathname, {
+                        locale: sprache.code as 'de' | 'en',
+                      })
+                    }
+                  >
+                    {sprache.label}
+                  </DropdownOption>
+                ))}
+
+                <DropdownSeparator />
+                <DropdownCaption>Erscheinungsbild</DropdownCaption>
+                {[
+                  { wert: 'light', label: 'Hell', Symbol: Sun },
+                  { wert: 'dark', label: 'Dunkel', Symbol: Moon01 },
+                  { wert: 'system', label: 'System', Symbol: Monitor01 },
+                ].map(({ wert, label, Symbol }) => (
+                  <DropdownOption
+                    key={wert}
+                    selected={themeBereit && theme === wert}
+                    icon={<Symbol />}
+                    onClick={() => setTheme(wert)}
+                  >
+                    {label}
+                  </DropdownOption>
+                ))}
+
                 <DropdownSeparator />
                 <DropdownOption danger icon={<LogOut01 />} onClick={logout}>
                   Abmelden
                 </DropdownOption>
+                <DropdownCaption>
+                  {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
+                </DropdownCaption>
               </Dropdown>
 
-              <div className="app-sidebar__account-tools">
-                {supportItem?.href && (
-                  <Link
-                    href={supportItem.href as never}
-                    className={cx(
-                      'app-sidebar__tool',
-                      activeUrl === supportItem.href && 'app-sidebar__tool--active',
-                    )}
-                    aria-label={supportItem.label}
-                    title={supportItem.label}
-                    data-tour="nav-support"
-                  >
-                    {supportItem.icon ? <supportItem.icon /> : null}
-                  </Link>
-                )}
-                <LocaleSwitcher />
-                <ThemeToggle />
-                <button
-                  type="button"
-                  onClick={toggleCollapsed}
-                  className="app-sidebar__tool app-sidebar__tool--collapse"
-                  aria-label="Seitenleiste einklappen"
-                  title="Seitenleiste einklappen"
-                >
-                  <ChevronLeft />
-                </button>
-              </div>
+              {/* Zweiter Weg neben dem Menueeintrag: im Menue vermutet ihn
+                  nicht jeder, und Abmelden ist nichts, wonach man suchen
+                  sollte. Dezent, bis der Zeiger darauf steht. */}
+              <button
+                type="button"
+                onClick={logout}
+                className="app-sidebar__logout"
+                aria-label="Abmelden"
+                title="Abmelden"
+              >
+                <LogOut01 />
+              </button>
             </div>
-          )}
-
-          {/* Eingeklappt faellt der Konto-Block weg — ohne diesen Knopf
-              gaebe es keinen Weg zurueck. Zwei Stellen statt einer mit
-              Negativabstand: jede an ihrem natuerlichen Platz. */}
-          {isCollapsed && (
-            <button
-              type="button"
-              onClick={toggleCollapsed}
-              className="app-sidebar__tool app-sidebar__tool--expand"
-              aria-label="Seitenleiste ausklappen"
-              title="Seitenleiste ausklappen"
-            >
-              <ChevronLeft />
-            </button>
           )}
 
           {/* Eingeklappt bleibt nur Platz fuer Symbole — dann stehen die
@@ -528,14 +562,6 @@ export function AppSidebar() {
             >
               <LogOut01 style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
             </button>
-          )}
-
-          {!isCollapsed && (
-            /* "v" nur vor einer echten Versionsnummer — lokal steht hier
-               "dev", und "vdev" liest sich wie ein Tippfehler. */
-            <p className="app-sidebar__version">
-              {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
-            </p>
           )}
         </div>
       </aside>

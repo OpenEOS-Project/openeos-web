@@ -162,14 +162,15 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     icon: PuzzlePiece01,
     adminOnly: true,
   },
-];
-
-export const dashboardFooterItems: NavItemType[] = [
+  { divider: true },
   {
     label: 'Support',
     href: '/support',
     icon: MessageChatCircle,
   },
+];
+
+export const dashboardFooterItems: NavItemType[] = [
   {
     label: 'Einstellungen',
     href: '/settings',
