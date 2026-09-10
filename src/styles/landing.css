@@ -4414,6 +4414,11 @@ body:has(.landing) {
 /* Das Panel füllt die Breite der Leiste statt der Auslöserbreite. */
 .landing .app-sidebar__account-dd .oe-dd__panel {
   max-width: none;
+  /* Das Designsystem deckelt Panels bei 280px — gedacht fuer Listen,
+     durch die man ohnehin scrollt. Hier stuende Abmelden unter der
+     Kante, also genau das wieder versteckt, was sichtbar sein soll.
+     Der Fuss sitzt unten, nach oben ist die ganze Leiste frei. */
+  max-height: min(440px, calc(100vh - 120px));
 }
 
 /* Support als Symbol — gleiche Größe wie Sprache, Theme, Einklappen. */
