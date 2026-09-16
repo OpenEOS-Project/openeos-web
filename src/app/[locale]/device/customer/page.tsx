@@ -130,7 +130,7 @@ export default function DeviceCustomerDisplayPage() {
             /* Eigenes img statt next/image: die Größe hängt an der
                Schriftgröße der Anzeige, nicht an festen Maßen. */
             // eslint-disable-next-line @next/next/no-img-element
-            <img src="/logo_light_trans.png" alt="" className="display-skin__logo" />
+            <img src={design.logoUrl} alt="" className="display-skin__logo" />
           )}
           {design.headline || organizationName || t('title')}
         </span>

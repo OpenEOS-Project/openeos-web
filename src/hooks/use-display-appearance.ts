@@ -40,29 +40,40 @@ export function useDisplayAppearance() {
 
   const thema = themaAufloesen(design.theme);
 
+  const gross = design.scale === 'large';
+
   useEffect(() => {
     const wurzel = document.documentElement;
-    const vorher = wurzel.classList.contains('dark-mode');
+    const vorherDunkel = wurzel.classList.contains('dark-mode');
+    const vorherGroesse = wurzel.style.fontSize;
 
     wurzel.classList.toggle('dark-mode', thema === 'dark');
 
-    /* Beim Verlassen zurückdrehen: die Anzeige bestimmt das Aussehen nur,
-       solange sie sichtbar ist, nicht für die ganze Anwendung. */
+    /* Die Schriftgröße muss an der Wurzel hängen, nicht am Container der
+       Anzeige: die Größenklassen der Oberfläche rechnen in rem, und rem
+       bezieht sich immer auf das Wurzelelement. Am Container gesetzt
+       bliebe sie wirkungslos. */
+    wurzel.style.fontSize = gross ? '135%' : '';
+
     return () => {
-      wurzel.classList.toggle('dark-mode', vorher);
+      wurzel.classList.toggle('dark-mode', vorherDunkel);
+      wurzel.style.fontSize = vorherGroesse;
     };
-  }, [thema]);
+  }, [thema, gross]);
 
   return useMemo(
     () => ({
       thema,
       /** Klasse für den Wurzelcontainer der Anzeige. */
-      klasse: `display-skin${design.scale === 'large' ? ' display-skin--large' : ''}`,
+      klasse: `display-skin${gross ? ' display-skin--large' : ''}`,
+      /* Auf hellem Grund braucht es das dunkle Logo — sonst steht es
+         unsichtbar in der Kopfzeile. */
+      logoUrl: thema === 'light' ? '/logo_dark_trans.png' : '/logo_light_trans.png',
       headline: design.headline?.trim() || null,
       idleText: design.idleText?.trim() || null,
       showLogo: design.showLogo !== false,
       autoClearSeconds: design.autoClearSeconds ?? 0,
     }),
-    [thema, design.scale, design.headline, design.idleText, design.showLogo, design.autoClearSeconds],
+    [thema, gross, design.headline, design.idleText, design.showLogo, design.autoClearSeconds],
   );
 }
