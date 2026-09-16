@@ -1268,6 +1268,17 @@
   font: inherit;
   cursor: pointer;
 }
+.landing .auth-form__devices {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.landing .auth-form__devices .auth-form__device {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+}
 .landing .auth-form__device {
   display: flex;
   align-items: center;

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight, Tablet02 } from '@untitledui/icons';
+import { ArrowRight, Tablet02, Tv01 } from '@untitledui/icons';
 
 import { Link } from '@/i18n/routing';
 import { apiClient, authApi } from '@/lib/api-client';
@@ -268,10 +268,18 @@ export function LoginForm() {
         </Link>
       </p>
 
-      <Link href="/device/register" className="auth-form__device">
-        <Tablet02 />
-        <span>{t('deviceMode')}</span>
-      </Link>
+      <div className="auth-form__devices">
+        <Link href="/device/register" className="auth-form__device">
+          <Tablet02 />
+          <span>{t('deviceMode')}</span>
+        </Link>
+        {/* Eigener Einstieg, weil eine Anzeige nichts einzugeben hat:
+            dort wird nur ein Code gezeigt, den jemand anders eintippt. */}
+        <Link href="/device/display" className="auth-form__device">
+          <Tv01 />
+          <span>{t('displayMode')}</span>
+        </Link>
+      </div>
     </div>
   );
 }

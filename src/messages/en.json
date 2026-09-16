@@ -83,7 +83,8 @@
         "submit": "Send login link",
         "explain": "We will send you a link that signs you in without a password.",
         "sent": "If an account exists for this address, the link is on its way. It is valid for 15 minutes."
-      }
+      },
+      "displayMode": "Use as a display (screen)"
     },
     "register": {
       "title": "Create your account.",
@@ -2043,7 +2044,8 @@
       "error": "Error",
       "tryAgain": "Try Again",
       "loginRequired": "Please sign in to continue",
-      "login": "Sign In"
+      "login": "Sign In",
+      "cta": "Connect a display"
     },
     "detail": {
       "tabs": {

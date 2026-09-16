@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tablet02, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 import { useDeviceStore } from '@/stores/device-store';
+import { zielRouteFuerGeraet } from '@/lib/device-route';
 
 type RegistrationStep = 'form' | 'pending' | 'verified' | 'blocked';
 
@@ -68,15 +69,7 @@ export default function DeviceRegisterPage() {
       setStep('verified');
       const timer = setTimeout(() => {
         const { deviceClass, settings } = useDeviceStore.getState();
-        const displayMode = (settings as { displayMode?: string })?.displayMode;
-        // Displays default to the customer-facing screen unless explicitly a station display
-        const targetRoute =
-          deviceClass === 'display'
-            ? displayMode === 'station'
-              ? '/device/station'
-              : '/device/customer'
-            : '/device/pos';
-        router.push(targetRoute);
+        router.push(zielRouteFuerGeraet(deviceClass, settings as { displayMode?: string }));
       }, 2000);
       return () => clearTimeout(timer);
     } else if (status === 'blocked') {

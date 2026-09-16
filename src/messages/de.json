@@ -83,7 +83,8 @@
         "submit": "Anmeldelink senden",
         "explain": "Wir senden dir einen Link, mit dem du dich ohne Passwort anmeldest.",
         "sent": "Falls ein Konto mit dieser Adresse besteht, ist der Link unterwegs. Er gilt 15 Minuten."
-      }
+      },
+      "displayMode": "Als Anzeige verwenden (Monitor)"
     },
     "register": {
       "title": "Konto erstellen.",
@@ -2043,7 +2044,8 @@
       "error": "Fehler",
       "tryAgain": "Erneut versuchen",
       "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
-      "login": "Anmelden"
+      "login": "Anmelden",
+      "cta": "Anzeige verbinden"
     },
     "detail": {
       "tabs": {

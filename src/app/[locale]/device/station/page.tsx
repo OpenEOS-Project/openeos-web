@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -74,7 +74,9 @@ export default function DeviceStationPage() {
     queryKey: ['station-items'],
     queryFn: () => deviceApi.getStationItems(),
     enabled: hasHydrated && status === 'verified' && !!stationId,
-    refetchInterval: 30000,
+    /* Nur noch Rueckfallebene — den Takt geben jetzt die Ereignisse vor.
+       Greift, wenn die Verbindung abgerissen ist, ohne dass es auffiel. */
+    refetchInterval: 120000,
   });
 
   const orders: StationOrder[] = stationData?.data || [];
@@ -87,13 +89,32 @@ export default function DeviceStationPage() {
     },
   });
 
-  // Station realtime was removed — data arrives via the 30s poll; refetch
-  // immediately whenever the socket (re)connects so the view is fresh.
+  /* Die Anzeige hing zuletzt an einer 30-Sekunden-Abfrage: eine Bestellung
+     konnte eine halbe Minute in der Kueche liegen, bevor sie jemand sah.
+     Die Ereignisse dafuer verschickt der Server laengst an den
+     Organisationsraum, dem jedes Geraet beim Verbinden beitritt — es hat
+     nur niemand zugehoert.
+
+     Die Abfrage bleibt als Netz darunter, nur seltener: sie faengt die
+     Luecke, waehrend die Verbindung weg ist. */
   const handleStationEvent = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['station-items'] });
   }, [queryClient]);
 
-  const { isConnected } = useDeviceSocket({ onConnect: handleStationEvent });
+  const socketEvents = useMemo(
+    () => ({
+      orderCreated: handleStationEvent,
+      orderUpdated: handleStationEvent,
+      orderItemStatusChanged: handleStationEvent,
+      kitchenOrderCancelled: handleStationEvent,
+    }),
+    [handleStationEvent],
+  );
+
+  const { isConnected } = useDeviceSocket({
+    onConnect: handleStationEvent,
+    on: socketEvents,
+  });
 
   // Loading
   if (!hasHydrated) {

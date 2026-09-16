@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { Tv01 } from '@untitledui/icons';
+
+import { Link } from '@/i18n/routing';
 import { DevicesList } from './components/devices-list';
 import { DeviceRegistrationInfo } from './components/device-registration-info';
 
@@ -21,6 +24,12 @@ export default async function DevicesPage() {
           <h1 className="app-page-head__title">{t('title')}</h1>
           <p className="app-page-head__sub">{t('description')}</p>
         </div>
+        {/* Die Gegenseite zum Code auf dem Bildschirm. Ohne diesen Weg war
+            die Seite zwar vorhanden, aber von nirgendwo erreichbar. */}
+        <Link href="/devices/verify" className="btn btn--primary btn--sm">
+          <Tv01 />
+          <span>{t('verify.cta')}</span>
+        </Link>
       </div>
 
       {/* Registration Info with QR Code (for POS devices) */}
