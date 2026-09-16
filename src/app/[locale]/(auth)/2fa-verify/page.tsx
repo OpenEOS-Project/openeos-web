@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
 import { Checkbox } from '@/components/ui/checkbox/checkbox';
 import { twoFactorApi, authApi, apiClient } from '@/lib/api-client';
+import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { useAuthStore } from '@/stores/auth-store';
 
 const verifySchema = z.object({
@@ -68,25 +69,6 @@ export default function TwoFactorVerifyPage() {
 
   const codeValue = watch('code');
 
-  const getDeviceFingerprint = () => {
-    // Simple device fingerprint based on browser info
-    const data = [
-      navigator.userAgent,
-      navigator.language,
-      screen.width,
-      screen.height,
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ].join('|');
-
-    // Simple hash
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(16);
-  };
 
   const getDeviceInfo = () => {
     const ua = navigator.userAgent;

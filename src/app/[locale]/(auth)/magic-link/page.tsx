@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/buttons/button';
 import { apiClient, authApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
+import { isTwoFactorRequired } from '@/types/auth';
 
 type Status = 'loading' | 'error';
 
@@ -48,6 +49,17 @@ export default function MagicLinkPage() {
       try {
         const response = await authApi.verifyMagicLink(token);
         const daten = response.data;
+
+        /* Auch über den Link bleibt der zweite Faktor stehen, wenn er
+           eingerichtet ist — dann geht es dort weiter statt hier. */
+        if (isTwoFactorRequired(daten)) {
+          const params = new URLSearchParams({
+            token: daten.twoFactorToken,
+            method: daten.twoFactorMethod,
+          });
+          window.location.href = `/2fa-verify?${params.toString()}`;
+          return;
+        }
 
         if ('accessToken' in daten) {
           apiClient.setAccessToken(daten.accessToken);

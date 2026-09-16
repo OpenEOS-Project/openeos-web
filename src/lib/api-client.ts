@@ -275,7 +275,7 @@ export const apiClient = new ApiClient();
 
 // Auth API
 export const authApi = {
-  login: (credentials: { email: string; password: string }) =>
+  login: (credentials: { email: string; password: string; deviceFingerprint?: string }) =>
     apiClient.post<ApiResponse<import('@/types/auth').LoginResponse>>('/auth/login', credentials, {
       skipAuth: true,
     }),
