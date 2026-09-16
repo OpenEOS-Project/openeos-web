@@ -4503,3 +4503,74 @@ body:has(.landing) {
 .landing .data-table--compact th {
   padding: 8px 14px;
 }
+
+/* ===================== ZUSCHRIFTEN (ADMIN) ===================== */
+.landing .feedback-admin__filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.landing .feedback-admin__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.landing .feedback-admin__item {
+  display: grid;
+  gap: 8px;
+  padding: 16px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.landing .feedback-admin__item:first-child {
+  border-top: 0;
+}
+/* Erledigtes bleibt lesbar, tritt aber zurück. */
+.landing .feedback-admin__item.is-handled {
+  opacity: .55;
+}
+.landing .feedback-admin__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+}
+.landing .feedback-admin__kind {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+.landing .feedback-admin__warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--warn);
+}
+.landing .feedback-admin__warn svg {
+  width: 13px;
+  height: 13px;
+}
+.landing .feedback-admin__message {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.landing .feedback-admin__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.landing .feedback-admin__from {
+  font-size: 13px;
+  color: var(--mute);
+}
+.landing .feedback-admin__from:hover {
+  color: var(--ink);
+}

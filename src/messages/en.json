@@ -884,6 +884,27 @@
         "placeholder": "Write a reply…",
         "send": "Send"
       }
+    },
+    "feedback": {
+      "title": "Enquiries",
+      "description": "Feedback, ideas and requests from the website.",
+      "kinds": {
+        "alle": "All",
+        "feature": "Ideas",
+        "feedback": "Feedback",
+        "demo": "Demo",
+        "contact": "Contact",
+        "hardware": "Hardware",
+        "gateway": "Gateway"
+      },
+      "showingOpen": "Open only",
+      "showingAll": "Show all",
+      "loading": "Loading …",
+      "empty": "No enquiries in this selection.",
+      "markHandled": "Done",
+      "reopen": "Reopen",
+      "notNotified": "not delivered",
+      "notNotifiedHint": "No notification went out — check the recipient address in settings."
     }
   },
   "theme": {

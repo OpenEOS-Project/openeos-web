@@ -1585,6 +1585,27 @@
         "placeholder": "Antwort schreiben…",
         "send": "Senden"
       }
+    },
+    "feedback": {
+      "title": "Zuschriften",
+      "description": "Rückmeldungen, Wünsche und Anfragen von der Website.",
+      "kinds": {
+        "alle": "Alle",
+        "feature": "Wünsche",
+        "feedback": "Rückmeldungen",
+        "demo": "Demo",
+        "contact": "Kontakt",
+        "hardware": "Hardware",
+        "gateway": "Gateway"
+      },
+      "showingOpen": "Nur offene",
+      "showingAll": "Alle anzeigen",
+      "loading": "Wird geladen …",
+      "empty": "Keine Zuschriften in dieser Auswahl.",
+      "markHandled": "Erledigt",
+      "reopen": "Wieder öffnen",
+      "notNotified": "nicht zugestellt",
+      "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen."
     }
   },
   "pos": {

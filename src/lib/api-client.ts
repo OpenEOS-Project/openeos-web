@@ -863,6 +863,22 @@ export const paymentsApi = {
 
 // Admin API (Super-Admin only)
 export const adminApi = {
+  // Zuschriften von der Website
+  listContactRequests: (params?: { type?: string; handled?: boolean }) => {
+    const q = new URLSearchParams();
+    if (params?.type) q.set('type', params.type);
+    if (params?.handled !== undefined) q.set('handled', String(params.handled));
+    const suffix = q.toString() ? `?${q}` : '';
+    return apiClient.get<ApiResponse<import('@/types/contact').ContactRequest[]>>(
+      `/admin/contact-requests${suffix}`,
+    );
+  },
+
+  toggleContactRequestHandled: (id: string) =>
+    apiClient.patch<ApiResponse<import('@/types/contact').ContactRequest>>(
+      `/admin/contact-requests/${id}/handled`,
+    ),
+
   // Users
   listUsers: (params?: { search?: string; page?: number; limit?: number }) =>
     apiClient.get<ApiResponse<import('@/types/admin').AdminUser[]> & { meta: import('@/types/api').PaginationMeta }>(

@@ -1,5 +1,6 @@
 import {
   BarChartSquare02,
+  Inbox01,
   Building07,
   Calendar,
   ClipboardCheck,
@@ -62,6 +63,13 @@ export const superAdminNavItems: NavItemType[] = [
     label: 'Support-Anfragen',
     href: '/admin/support',
     icon: MessageChatCircle,
+  },
+  {
+    // Was über die Website hereinkommt. Getrennt vom Support, weil hier
+    // niemand auf Antwort wartet — Wünsche liest man in Ruhe durch.
+    label: 'Zuschriften',
+    href: '/admin/feedback',
+    icon: Inbox01,
   },
 ];
 
