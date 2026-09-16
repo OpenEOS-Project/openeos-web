@@ -30,6 +30,14 @@ export function useDisplayAppearance() {
   const { settings } = useDeviceStore();
   const design = (settings?.display ?? {}) as DisplayAppearance;
 
+  /* Einmal beim Start nachfragen. Der Speicher hält den Stand vom
+     Zeitpunkt der Kopplung fest; wer etwas ändert, während der Bildschirm
+     aus ist, sähe seine Änderung sonst nie — das laufende Ereignis
+     erreicht nur Anzeigen, die gerade an sind. */
+  useEffect(() => {
+    void useDeviceStore.getState().checkStatus();
+  }, []);
+
   const thema = themaAufloesen(design.theme);
 
   useEffect(() => {
