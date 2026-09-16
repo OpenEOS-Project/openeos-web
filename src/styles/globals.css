@@ -83,3 +83,20 @@ input[type="search"]::-webkit-search-cancel-button {
     --f-display: var(--font-oe-display), var(--f-sans);
     --f-mono: var(--font-oe-mono), ui-monospace, monospace;
 }
+
+/* ===================== ANZEIGEN-SKALIERUNG =====================
+   Bildschirme hängen unterschiedlich weit weg. Statt jede Schriftgröße
+   einzeln zu verdoppeln, skaliert die Wurzelgröße — die Tailwind-Größen
+   in den Anzeigen sind relativ und wachsen mit. */
+.display-skin--large {
+  font-size: 1.35rem;
+}
+.display-skin--large .text-sm { font-size: 1rem; }
+.display-skin--large .text-xs { font-size: 0.9rem; }
+
+/* Das Logo folgt der Schriftgröße der Kopfzeile statt fester Pixel. */
+.display-skin__logo {
+  height: 1.6em;
+  width: auto;
+  object-fit: contain;
+}

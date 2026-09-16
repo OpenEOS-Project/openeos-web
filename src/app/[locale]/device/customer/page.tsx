@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CheckCircle, ShoppingBag03, Wifi, WifiOff } from '@untitledui/icons';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
+import { useDisplayAppearance } from '@/hooks/use-display-appearance';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import type { CustomerCartPayload } from '@/hooks/use-customer-display-broadcast';
@@ -32,12 +33,13 @@ export default function DeviceCustomerDisplayPage() {
   const posDeviceId = deviceSettings?.posDeviceId as string | undefined;
 
   const [cart, setCart] = useState<PosCartUpdatedEvent | null>(null);
+  const design = useDisplayAppearance();
 
   // Redirect unverified devices to the pairing screen
   useEffect(() => {
     if (!hasHydrated) return;
     if (!deviceId || !deviceToken || status !== 'verified') {
-      router.replace('/device/register');
+      router.replace('/device/display');
     }
   }, [hasHydrated, deviceId, deviceToken, status, router]);
 
@@ -54,7 +56,7 @@ export default function DeviceCustomerDisplayPage() {
   const handleDeviceStatusChanged = useCallback((data: unknown) => {
     const payload = data as { status?: string };
     if (payload?.status === 'blocked') {
-      router.replace('/device/register');
+      router.replace('/device/display');
       return;
     }
     refreshDeviceStatus();
@@ -120,11 +122,17 @@ export default function DeviceCustomerDisplayPage() {
   const isCompleted = cart?.status === 'completed';
 
   return (
-    <div className="flex h-screen flex-col bg-secondary">
+    <div className={`flex h-screen flex-col bg-secondary ${design.klasse}`}>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-secondary bg-primary px-6 py-3">
-        <span className="text-lg font-semibold text-primary">
-          {organizationName || t('title')}
+        <span className="flex items-center gap-3 text-lg font-semibold text-primary">
+          {design.showLogo && (
+            /* Eigenes img statt next/image: die Größe hängt an der
+               Schriftgröße der Anzeige, nicht an festen Maßen. */
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src="/logo_light_trans.png" alt="" className="display-skin__logo" />
+          )}
+          {design.headline || organizationName || t('title')}
         </span>
         <span className="flex items-center gap-2 text-sm text-tertiary">
           {isConnected ? (
@@ -174,8 +182,10 @@ export default function DeviceCustomerDisplayPage() {
             <ShoppingBag03 className="size-12 text-brand-600 dark:text-brand-400" />
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary">{t('welcome')}</p>
-            <p className="mt-2 text-xl text-tertiary">{t('welcomeSubtitle')}</p>
+            <p className="text-4xl font-bold text-primary">{design.idleText || t('welcome')}</p>
+            {!design.idleText && (
+              <p className="mt-2 text-xl text-tertiary">{t('welcomeSubtitle')}</p>
+            )}
           </div>
         </div>
       ) : (

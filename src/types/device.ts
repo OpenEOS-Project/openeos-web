@@ -5,6 +5,22 @@ export type DeviceStatus = 'pending' | 'verified' | 'blocked';
 export type DeviceClass = 'pos' | 'display' | 'admin' | 'printer_agent';
 
 // Display mode (sub-type for display devices)
+/**
+ * Aussehen und Inhalt einer Anzeige — Spiegel von DisplayAppearance in
+ * der API. Alles optional: fehlt ein Wert, entscheidet die Anzeige.
+ */
+export interface DisplayAppearance {
+  theme?: 'dark' | 'light' | 'auto';
+  scale?: 'normal' | 'large';
+  /** Eigene Kopfzeile statt des Organisationsnamens. */
+  headline?: string;
+  showLogo?: boolean;
+  /** Text, solange nichts anzuzeigen ist. */
+  idleText?: string;
+  /** Stationsanzeige: erledigte Bestellungen ausblenden; 0 heisst nie. */
+  autoClearSeconds?: number;
+}
+
 export type DisplayMode = 'kitchen' | 'delivery' | 'menu' | 'pickup' | 'sales' | 'customer' | 'station';
 
 // Service mode for POS devices
@@ -46,6 +62,7 @@ export interface Device {
     serviceMode?: ServiceMode;
     printerMode?: PrinterMode;
     requirePin?: boolean;
+    display?: DisplayAppearance;
     [key: string]: unknown;
   };
   createdAt: string;

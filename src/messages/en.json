@@ -2104,6 +2104,25 @@
           "posDevice": "POS device",
           "posDeviceNone": "No POS selected",
           "posDeviceHint": "The display mirrors the selected POS device's cart in real time."
+        },
+        "appearance": {
+          "title": "Appearance & content",
+          "description": "How this display looks and what it shows.",
+          "theme": "Colour scheme",
+          "themeDark": "Dark",
+          "themeLight": "Light",
+          "themeAuto": "By time of day",
+          "scale": "Text size",
+          "scaleNormal": "Normal",
+          "scaleLarge": "Large (for viewing from afar)",
+          "headline": "Header",
+          "headlinePlaceholder": "Leave empty for the organisation name",
+          "idleText": "Idle message",
+          "idleTextPlaceholder": "e.g. Welcome!",
+          "autoClear": "Clear completed",
+          "autoClearOff": "Keep on screen",
+          "showLogo": "Show logo",
+          "showLogoHint": "Displays the organisation logo in the header."
         }
       },
       "printer": {

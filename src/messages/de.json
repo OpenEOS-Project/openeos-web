@@ -2104,6 +2104,25 @@
           "posDevice": "Kasse",
           "posDeviceNone": "Keine Kasse ausgewählt",
           "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an."
+        },
+        "appearance": {
+          "title": "Aussehen & Inhalt",
+          "description": "Wie diese Anzeige aussieht und was darauf steht.",
+          "theme": "Farbgebung",
+          "themeDark": "Dunkel",
+          "themeLight": "Hell",
+          "themeAuto": "Nach Tageszeit",
+          "scale": "Schriftgröße",
+          "scaleNormal": "Normal",
+          "scaleLarge": "Groß (für weite Entfernung)",
+          "headline": "Kopfzeile",
+          "headlinePlaceholder": "Leer lassen für den Vereinsnamen",
+          "idleText": "Text im Ruhezustand",
+          "idleTextPlaceholder": "z. B. Herzlich willkommen!",
+          "autoClear": "Erledigte ausblenden",
+          "autoClearOff": "Stehen lassen",
+          "showLogo": "Logo anzeigen",
+          "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein."
         }
       },
       "printer": {

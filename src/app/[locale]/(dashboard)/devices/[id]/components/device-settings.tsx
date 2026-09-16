@@ -53,6 +53,16 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
   const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'customer');
   const [posDeviceId, setPosDeviceId] = useState(device.settings?.posDeviceId || '');
+  /* Aussehen der Anzeige. Leere Zeichenkette heisst "nichts eigenes
+     gesetzt" — dann greift die Vorgabe der Anzeige selbst. */
+  const [theme, setTheme] = useState(device.settings?.display?.theme ?? 'dark');
+  const [scale, setScale] = useState(device.settings?.display?.scale ?? 'normal');
+  const [headline, setHeadline] = useState(device.settings?.display?.headline ?? '');
+  const [showLogo, setShowLogo] = useState(device.settings?.display?.showLogo ?? true);
+  const [idleText, setIdleText] = useState(device.settings?.display?.idleText ?? '');
+  const [autoClearSeconds, setAutoClearSeconds] = useState(
+    String(device.settings?.display?.autoClearSeconds ?? 0),
+  );
 
   useEffect(() => {
     setName(device.name);
@@ -62,6 +72,12 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
     setDisplayMode(device.settings?.displayMode || 'customer');
     setPosDeviceId(device.settings?.posDeviceId || '');
+    setTheme(device.settings?.display?.theme ?? 'dark');
+    setScale(device.settings?.display?.scale ?? 'normal');
+    setHeadline(device.settings?.display?.headline ?? '');
+    setShowLogo(device.settings?.display?.showLogo ?? true);
+    setIdleText(device.settings?.display?.idleText ?? '');
+    setAutoClearSeconds(String(device.settings?.display?.autoClearSeconds ?? 0));
   }, [device]);
 
   const readersQuery = useQuery({
@@ -104,6 +120,18 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             type === 'display' && displayMode === 'customer'
               ? (posDeviceId || undefined)
               : device.settings?.posDeviceId,
+          display:
+            type === 'display'
+              ? {
+                  theme,
+                  scale,
+                  // Leeres Feld heisst "Vorgabe", nicht "leerer Text".
+                  headline: headline.trim() || undefined,
+                  showLogo,
+                  idleText: idleText.trim() || undefined,
+                  autoClearSeconds: Number(autoClearSeconds) || 0,
+                }
+              : device.settings?.display,
         },
       }),
     onSuccess: () => {
@@ -198,6 +226,70 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
                 {t('devices.detail.settings.display.posDeviceHint')}
               </p>
             )}
+          </div>
+        </SectionCard>
+      )}
+
+      {type === 'display' && (
+        <SectionCard
+          title={t('devices.detail.settings.appearance.title')}
+          description={t('devices.detail.settings.appearance.description')}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <FormRow label={t('devices.detail.settings.appearance.theme')}>
+              <select className="select" value={theme} onChange={(e) => setTheme(e.target.value as typeof theme)}>
+                <option value="dark">{t('devices.detail.settings.appearance.themeDark')}</option>
+                <option value="light">{t('devices.detail.settings.appearance.themeLight')}</option>
+                <option value="auto">{t('devices.detail.settings.appearance.themeAuto')}</option>
+              </select>
+            </FormRow>
+
+            <FormRow label={t('devices.detail.settings.appearance.scale')}>
+              <select className="select" value={scale} onChange={(e) => setScale(e.target.value as typeof scale)}>
+                <option value="normal">{t('devices.detail.settings.appearance.scaleNormal')}</option>
+                <option value="large">{t('devices.detail.settings.appearance.scaleLarge')}</option>
+              </select>
+            </FormRow>
+
+            <FormRow label={t('devices.detail.settings.appearance.headline')}>
+              <input
+                className="input"
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+                placeholder={t('devices.detail.settings.appearance.headlinePlaceholder')}
+              />
+            </FormRow>
+
+            <FormRow label={t('devices.detail.settings.appearance.idleText')}>
+              <input
+                className="input"
+                value={idleText}
+                onChange={(e) => setIdleText(e.target.value)}
+                placeholder={t('devices.detail.settings.appearance.idleTextPlaceholder')}
+              />
+            </FormRow>
+
+            {displayMode === 'station' && (
+              <FormRow label={t('devices.detail.settings.appearance.autoClear')}>
+                <select
+                  className="select"
+                  value={autoClearSeconds}
+                  onChange={(e) => setAutoClearSeconds(e.target.value)}
+                >
+                  <option value="0">{t('devices.detail.settings.appearance.autoClearOff')}</option>
+                  <option value="10">10 Sekunden</option>
+                  <option value="30">30 Sekunden</option>
+                  <option value="60">60 Sekunden</option>
+                </select>
+              </FormRow>
+            )}
+
+            <SettingToggle
+              label={t('devices.detail.settings.appearance.showLogo')}
+              hint={t('devices.detail.settings.appearance.showLogoHint')}
+              checked={showLogo}
+              onChange={setShowLogo}
+            />
           </div>
         </SectionCard>
       )}

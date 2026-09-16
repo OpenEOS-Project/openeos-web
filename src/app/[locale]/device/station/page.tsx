@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
+import { useDisplayAppearance } from '@/hooks/use-display-appearance';
 import { CheckCircle as CheckCircleIcon } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
 import { StationHeader } from './components/station-header';
@@ -53,12 +54,13 @@ export default function DeviceStationPage() {
   } = useDeviceStore();
 
   const stationId = deviceSettings?.stationId as string | undefined;
+  const design = useDisplayAppearance();
 
   // Check auth after hydration
   useEffect(() => {
     if (!hasHydrated) return;
     if (!deviceId || !deviceToken || status !== 'verified') {
-      router.replace('/device/register');
+      router.replace('/device/display');
     }
   }, [hasHydrated, deviceId, deviceToken, status, router]);
 
@@ -97,6 +99,10 @@ export default function DeviceStationPage() {
 
      Die Abfrage bleibt als Netz darunter, nur seltener: sie faengt die
      Luecke, waehrend die Verbindung weg ist. */
+  const refreshDeviceStatus = useCallback(() => {
+    void useDeviceStore.getState().checkStatus();
+  }, []);
+
   const handleStationEvent = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['station-items'] });
   }, [queryClient]);
@@ -107,8 +113,11 @@ export default function DeviceStationPage() {
       orderUpdated: handleStationEvent,
       orderItemStatusChanged: handleStationEvent,
       kitchenOrderCancelled: handleStationEvent,
+      // Ohne diesen Eintrag griffe eine Aenderung im Dashboard erst beim
+      // naechsten Neuladen — auf einem Bildschirm ohne Tastatur also nie.
+      deviceSettingsUpdated: refreshDeviceStatus,
     }),
-    [handleStationEvent],
+    [handleStationEvent, refreshDeviceStatus],
   );
 
   const { isConnected } = useDeviceSocket({
@@ -153,9 +162,9 @@ export default function DeviceStationPage() {
   const pickupOrders = orders.filter(o => o.order.fulfillmentType !== 'table_service');
 
   return (
-    <div className="flex h-screen flex-col bg-secondary">
+    <div className={`flex h-screen flex-col bg-secondary ${design.klasse}`}>
       <StationHeader
-        stationName={deviceName || t('title')}
+        stationName={design.headline || deviceName || t('title')}
         stationColor={null}
         isConnected={isConnected}
         organizationName={orgData?.data?.name}
@@ -178,7 +187,9 @@ export default function DeviceStationPage() {
                 <CheckCircleIcon className="size-10 text-brand-600 dark:text-brand-400" />
               </div>
               <div className="text-center">
-                <p className="text-xl font-semibold text-primary">{t('noOrders')}</p>
+                <p className="text-xl font-semibold text-primary">
+                  {design.idleText || t('noOrders')}
+                </p>
                 <p className="mt-1 text-sm text-tertiary">{t('connected')}</p>
               </div>
             </div>
