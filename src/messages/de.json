@@ -81,7 +81,7 @@
         "useLink": "Lieber ohne Passwort? Link per E-Mail anfordern",
         "usePassword": "Doch mit Passwort anmelden",
         "submit": "Anmeldelink senden",
-        "explain": "Wir senden Ihnen einen Link, mit dem Sie sich ohne Passwort anmelden.",
+        "explain": "Wir senden dir einen Link, mit dem du dich ohne Passwort anmeldest.",
         "sent": "Falls ein Konto mit dieser Adresse besteht, ist der Link unterwegs. Er gilt 15 Minuten."
       }
     },
@@ -107,13 +107,13 @@
         "account": {
           "label": "Konto",
           "title": "Dein Konto",
-          "copy": "E-Mail-Adresse für Ihren OpenEOS-Zugang.",
+          "copy": "E-Mail-Adresse für deinen OpenEOS-Zugang.",
           "email": "E-Mail-Adresse",
           "password": "Passwort",
           "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
           "passwordConfirm": "Passwort bestätigen",
           "withPassword": "Zusätzlich ein Passwort festlegen",
-          "withPasswordHint": "Ohne Passwort melden Sie sich per Link an, den wir Ihnen per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
+          "withPasswordHint": "Ohne Passwort meldest du dich per Link an, den wir dir per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
         },
         "personal": {
           "label": "Du",
@@ -153,7 +153,7 @@
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
       "resendSent": "E-Mail wurde erneut gesendet.",
-      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht."
+      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchst du nicht."
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
@@ -194,7 +194,7 @@
     },
     "logout": "Abmelden",
     "magicLinkPage": {
-      "loading": "Sie werden angemeldet …",
+      "loading": "Du wirst angemeldet …",
       "errorTitle": "Anmeldung fehlgeschlagen",
       "error": "Dieser Anmeldelink ist ungültig oder abgelaufen.",
       "missingToken": "Dieser Aufruf enthält keinen Anmeldelink.",
