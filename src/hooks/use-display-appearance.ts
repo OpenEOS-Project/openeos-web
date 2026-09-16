@@ -68,7 +68,7 @@ export function useDisplayAppearance() {
       klasse: `display-skin${gross ? ' display-skin--large' : ''}`,
       /* Auf hellem Grund braucht es das dunkle Logo — sonst steht es
          unsichtbar in der Kopfzeile. */
-      logoUrl: thema === 'light' ? '/logo_dark_trans.png' : '/logo_light_trans.png',
+      logoUrl: thema === 'light' ? '/logo_dark.png' : '/logo_light.png',
       headline: design.headline?.trim() || null,
       idleText: design.idleText?.trim() || null,
       showLogo: design.showLogo !== false,
