@@ -71,26 +71,6 @@ export default function DeviceStationPage() {
     enabled: hasHydrated && status === 'verified',
   });
 
-  // Fetch station items
-  const { data: stationData, isLoading } = useQuery({
-    queryKey: ['station-items'],
-    queryFn: () => deviceApi.getStationItems(),
-    enabled: hasHydrated && status === 'verified' && !!stationId,
-    /* Nur noch Rueckfallebene — den Takt geben jetzt die Ereignisse vor.
-       Greift, wenn die Verbindung abgerissen ist, ohne dass es auffiel. */
-    refetchInterval: 120000,
-  });
-
-  const orders: StationOrder[] = stationData?.data || [];
-
-  // Mark item ready mutation
-  const markReady = useMutation({
-    mutationFn: (itemId: string) => deviceApi.markStationItemReady(itemId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['station-items'] });
-    },
-  });
-
   /* Die Anzeige hing zuletzt an einer 30-Sekunden-Abfrage: eine Bestellung
      konnte eine halbe Minute in der Kueche liegen, bevor sie jemand sah.
      Die Ereignisse dafuer verschickt der Server laengst an den
@@ -123,6 +103,29 @@ export default function DeviceStationPage() {
   const { isConnected } = useDeviceSocket({
     onConnect: handleStationEvent,
     on: socketEvents,
+  });
+
+  // Fetch station items
+  const { data: stationData, isLoading } = useQuery({
+    queryKey: ['station-items'],
+    queryFn: () => deviceApi.getStationItems(),
+    enabled: hasHydrated && status === 'verified' && !!stationId,
+    /* Den Takt geben die Ereignisse vor; die Abfrage ist das Netz
+       darunter. Wie eng es geknuepft sein muss, haengt davon ab, ob die
+       Verbindung steht: solange sie steht, reicht ein seltener Blick.
+       Ist sie weg, ist die Abfrage der einzige Weg — und eine Kueche darf
+       nicht minutenlang blind sein, nur weil das WLAN gezuckt hat. */
+    refetchInterval: isConnected ? 120000 : 15000,
+  });
+
+  const orders: StationOrder[] = stationData?.data || [];
+
+  // Mark item ready mutation
+  const markReady = useMutation({
+    mutationFn: (itemId: string) => deviceApi.markStationItemReady(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['station-items'] });
+    },
   });
 
   // Loading
