@@ -324,6 +324,17 @@ export const authApi = {
   forgotPassword: (email: string) =>
     apiClient.post('/auth/forgot-password', { email }, { skipAuth: true }),
 
+  /** Anmeldelink anfordern. Antwortet immer gleich, auch ohne Konto. */
+  requestMagicLink: (email: string) =>
+    apiClient.post('/auth/magic-link/request', { email }, { skipAuth: true }),
+
+  verifyMagicLink: (token: string) =>
+    apiClient.post<ApiResponse<import('@/types/auth').LoginResponse>>(
+      '/auth/magic-link/verify',
+      { token },
+      { skipAuth: true },
+    ),
+
   resetPassword: (token: string, password: string) =>
     apiClient.post('/auth/reset-password', { token, password }, { skipAuth: true }),
 

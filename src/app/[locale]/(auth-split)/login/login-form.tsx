@@ -22,6 +22,11 @@ export function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  /* Zwei Wege ins Konto. Passwort bleibt der voreingestellte, weil jedes
+     bestehende Konto eines hat — der Link ist das Angebot, nicht die
+     Umstellung. */
+  const [modus, setModus] = useState<'password' | 'link'>('password');
+  const [linkStatus, setLinkStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const {
     setUser,
@@ -49,6 +54,20 @@ export function LoginForm() {
       await authApi.resendVerification(email);
     } finally {
       setResendStatus('sent');
+    }
+  }
+
+  async function onSubmitLink(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLinkStatus('sending');
+    setError(null);
+    try {
+      await authApi.requestMagicLink(email);
+    } finally {
+      /* Auch bei einem Fehler "gesendet" melden: der Server antwortet
+         bewusst gleich, egal ob es das Konto gibt. Eine abweichende
+         Anzeige hier machte die Auskunft wieder auf. */
+      setLinkStatus('sent');
     }
   }
 
@@ -129,6 +148,50 @@ export function LoginForm() {
         </div>
       )}
 
+      {modus === 'link' ? (
+        <form className="auth-form__body" onSubmit={onSubmitLink} noValidate>
+          <label className="auth-field">
+            <span>{t('email')}</span>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              placeholder={t('emailPlaceholder')}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setLinkStatus('idle');
+              }}
+            />
+          </label>
+
+          {linkStatus === 'sent' ? (
+            <p className="auth-hint">{t('magicLink.sent')}</p>
+          ) : (
+            <p className="auth-hint">{t('magicLink.explain')}</p>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn--primary btn--block btn--lg"
+            disabled={linkStatus === 'sending' || !email}
+          >
+            <span>{linkStatus === 'sending' ? '…' : t('magicLink.submit')}</span>
+            <ArrowRight />
+          </button>
+
+          <button
+            type="button"
+            className="auth-form__forgot auth-form__link-btn"
+            onClick={() => {
+              setModus('password');
+              setLinkStatus('idle');
+            }}
+          >
+            {t('magicLink.usePassword')}
+          </button>
+        </form>
+      ) : (
       <form className="auth-form__body" onSubmit={onSubmit} noValidate>
         <label className="auth-field">
           <span>{t('email')}</span>
@@ -176,7 +239,19 @@ export function LoginForm() {
           <span>{isLoading ? '…' : t('submit')}</span>
           <ArrowRight />
         </button>
+
+        <button
+          type="button"
+          className="auth-form__forgot auth-form__link-btn"
+          onClick={() => {
+            setModus('link');
+            setError(null);
+          }}
+        >
+          {t('magicLink.useLink')}
+        </button>
       </form>
+      )}
 
       <p className="auth-form__alt">
         {t('noAccount')}{' '}

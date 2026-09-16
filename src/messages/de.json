@@ -76,6 +76,13 @@
             "copy": "Umsatz, Bestseller und Wartezeiten laufen live im Dashboard zusammen."
           }
         }
+      },
+      "magicLink": {
+        "useLink": "Lieber ohne Passwort? Link per E-Mail anfordern",
+        "usePassword": "Doch mit Passwort anmelden",
+        "submit": "Anmeldelink senden",
+        "explain": "Wir senden Ihnen einen Link, mit dem Sie sich ohne Passwort anmelden.",
+        "sent": "Falls ein Konto mit dieser Adresse besteht, ist der Link unterwegs. Er gilt 15 Minuten."
       }
     },
     "register": {
@@ -182,7 +189,14 @@
       "missingToken": "Es wurde kein Bestätigungs-Token gefunden. Bitte verwenden Sie den Link aus Ihrer E-Mail.",
       "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
     },
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "magicLinkPage": {
+      "loading": "Sie werden angemeldet …",
+      "errorTitle": "Anmeldung fehlgeschlagen",
+      "error": "Dieser Anmeldelink ist ungültig oder abgelaufen.",
+      "missingToken": "Dieser Aufruf enthält keinen Anmeldelink.",
+      "backToLogin": "Zurück zur Anmeldung"
+    }
   },
   "sidebar": {
     "selectOrganization": "Organisation wählen",

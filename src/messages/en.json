@@ -76,6 +76,13 @@
             "copy": "Revenue, bestsellers and waiting times come together live in the dashboard."
           }
         }
+      },
+      "magicLink": {
+        "useLink": "Rather skip the password? Get a link by email",
+        "usePassword": "Use a password instead",
+        "submit": "Send login link",
+        "explain": "We will send you a link that signs you in without a password.",
+        "sent": "If an account exists for this address, the link is on its way. It is valid for 15 minutes."
       }
     },
     "register": {
@@ -182,7 +189,14 @@
       "missingToken": "No verification token was found. Please use the link from your email.",
       "error": "An error occurred. Please try again."
     },
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "magicLinkPage": {
+      "loading": "Signing you in …",
+      "errorTitle": "Sign-in failed",
+      "error": "This login link is invalid or has expired.",
+      "missingToken": "This address contains no login link.",
+      "backToLogin": "Back to sign-in"
+    }
   },
   "sidebar": {
     "selectOrganization": "Select organization",
