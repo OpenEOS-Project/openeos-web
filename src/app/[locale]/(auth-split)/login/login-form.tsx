@@ -23,10 +23,10 @@ export function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
-  /* Zwei Wege ins Konto. Passwort bleibt der voreingestellte, weil jedes
-     bestehende Konto eines hat — der Link ist das Angebot, nicht die
-     Umstellung. */
-  const [modus, setModus] = useState<'password' | 'link'>('password');
+  /* Zwei Wege ins Konto. Der Link steht vorn: er verlangt nichts, was man
+     vergessen haben kann. Das Passwort bleibt einen Klick entfernt, denn
+     jedes bestehende Konto hat eines. */
+  const [modus, setModus] = useState<'password' | 'link'>('link');
   const [linkStatus, setLinkStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const {

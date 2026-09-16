@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Check, CheckCircle } from '@untitledui/icons';
 
 import { Link } from '@/i18n/routing';
 import { authApi } from '@/lib/api-client';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ApiException } from '@/types/api';
 
 type StepKey = 'account' | 'personal' | 'organization' | 'confirm';
@@ -16,6 +17,9 @@ interface FormState {
   email: string;
   password: string;
   passwordConfirm: string;
+  /* Voreingestellt aus: ohne Passwort laeuft das Konto ueber Anmeldelinks,
+     und eines nachzutragen geht jederzeit in den Einstellungen. */
+  mitPasswort: boolean;
   firstName: string;
   lastName: string;
   organizationName: string;
@@ -27,6 +31,7 @@ const initial: FormState = {
   email: '',
   password: '',
   passwordConfirm: '',
+  mitPasswort: false,
   firstName: '',
   lastName: '',
   organizationName: '',
@@ -74,13 +79,15 @@ export function RegisterWizard() {
     if (current === 'account') {
       if (!data.email) next.email = tErr('required');
       else if (!isEmail(data.email)) next.email = tErr('emailInvalid');
-      if (!data.password) next.password = tErr('required');
-      else if (data.password.length < 8) next.password = tErr('passwordShort');
-      else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password))
-        next.password = tErr('passwordWeak');
-      if (!data.passwordConfirm) next.passwordConfirm = tErr('required');
-      else if (data.password !== data.passwordConfirm)
-        next.passwordConfirm = tErr('passwordMismatch');
+      if (data.mitPasswort) {
+        if (!data.password) next.password = tErr('required');
+        else if (data.password.length < 8) next.password = tErr('passwordShort');
+        else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password))
+          next.password = tErr('passwordWeak');
+        if (!data.passwordConfirm) next.passwordConfirm = tErr('required');
+        else if (data.password !== data.passwordConfirm)
+          next.passwordConfirm = tErr('passwordMismatch');
+      }
     } else if (current === 'personal') {
       if (!data.firstName) next.firstName = tErr('required');
       else if (data.firstName.trim().length < 2) next.firstName = tErr('nameShort');
@@ -117,7 +124,9 @@ export function RegisterWizard() {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        password: data.password,
+        // Leer heisst: Konto ohne Passwort, der Server schickt dann
+        // gleich einen Anmeldelink statt der Bestaetigungsmail.
+        password: data.mitPasswort ? data.password : undefined,
         organizationName: data.organizationName,
       });
       setDone(true);
@@ -175,7 +184,9 @@ export function RegisterWizard() {
         </span>
         <h1 className="wizard__title">{t('successTitle')}</h1>
         <p className="wizard__copy">
-          {t('successCopy', { email: data.email })}
+          {data.mitPasswort
+            ? t('successCopy', { email: data.email })
+            : t('successCopyLink', { email: data.email })}
         </p>
 
         {resendStatus === 'sent' ? (
@@ -248,23 +259,34 @@ export function RegisterWizard() {
               value={data.email}
               onChange={(v) => update('email', v)}
             />
-            <Field
-              label={t('steps.account.password')}
-              error={errors.password}
-              type="password"
-              autoComplete="new-password"
-              value={data.password}
-              onChange={(v) => update('password', v)}
-              hint={t('steps.account.passwordHint')}
+            <SettingToggle
+              label={t('steps.account.withPassword')}
+              hint={t('steps.account.withPasswordHint')}
+              checked={data.mitPasswort}
+              onChange={(v) => update('mitPasswort', v)}
             />
-            <Field
-              label={t('steps.account.passwordConfirm')}
-              error={errors.passwordConfirm}
-              type="password"
-              autoComplete="new-password"
-              value={data.passwordConfirm}
-              onChange={(v) => update('passwordConfirm', v)}
-            />
+
+            {data.mitPasswort && (
+              <>
+                <Field
+                  label={t('steps.account.password')}
+                  error={errors.password}
+                  type="password"
+                  autoComplete="new-password"
+                  value={data.password}
+                  onChange={(v) => update('password', v)}
+                  hint={t('steps.account.passwordHint')}
+                />
+                <Field
+                  label={t('steps.account.passwordConfirm')}
+                  error={errors.passwordConfirm}
+                  type="password"
+                  autoComplete="new-password"
+                  value={data.passwordConfirm}
+                  onChange={(v) => update('passwordConfirm', v)}
+                />
+              </>
+            )}
           </div>
         )}
 

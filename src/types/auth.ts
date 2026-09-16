@@ -56,7 +56,8 @@ export interface LoginCredentials {
 
 export interface RegisterData {
   email: string;
-  password: string;
+  /** Leer lassen für ein Konto, das nur Anmeldelinks nutzt. */
+  password?: string;
   firstName: string;
   lastName: string;
   organizationName?: string;

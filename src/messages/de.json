@@ -107,11 +107,13 @@
         "account": {
           "label": "Konto",
           "title": "Dein Konto",
-          "copy": "E-Mail-Adresse und Passwort für deinen OpenEOS-Account.",
+          "copy": "E-Mail-Adresse für Ihren OpenEOS-Zugang.",
           "email": "E-Mail-Adresse",
           "password": "Passwort",
           "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
-          "passwordConfirm": "Passwort bestätigen"
+          "passwordConfirm": "Passwort bestätigen",
+          "withPassword": "Zusätzlich ein Passwort festlegen",
+          "withPasswordHint": "Ohne Passwort melden Sie sich per Link an, den wir Ihnen per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
         },
         "personal": {
           "label": "Du",
@@ -150,7 +152,8 @@
         "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
-      "resendSent": "E-Mail wurde erneut gesendet."
+      "resendSent": "E-Mail wurde erneut gesendet.",
+      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht."
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
