@@ -154,6 +154,8 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
             organizationId: data.organizationId || null,
             organizationName: data.organizationName || get().organizationName,
             deviceClass: data.deviceClass || null,
+            // Nachziehen, wenn das Geraet im Dashboard umbenannt wurde.
+            deviceName: data.name || get().deviceName,
             settings: data.settings || get().settings,
           });
 

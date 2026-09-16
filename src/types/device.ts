@@ -87,6 +87,8 @@ export interface InitDeviceResponse {
 export interface DeviceStatusResponse {
   status: DeviceStatus;
   deviceId: string;
+  /** Aktueller Name — kann sich im Dashboard geändert haben. */
+  name?: string;
   organizationId?: string;
   organizationName?: string;
   deviceClass?: DeviceClass;
