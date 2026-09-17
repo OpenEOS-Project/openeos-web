@@ -20,6 +20,7 @@ const statusBadgeClass: Record<DeviceStatus, string> = {
 
 const classLabels: Partial<Record<DeviceClass, string>> = {
   pos: 'devices.class.pos',
+  display: 'devices.class.display',
   admin: 'devices.class.admin',
   printer_agent: 'devices.class.printer_agent',
 };
@@ -228,6 +229,19 @@ export function DevicesList() {
                     <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
                       {classLabels[device.type] ? t(classLabels[device.type] as string) : '-'}
                     </span>
+                    {/* "Anzeige" allein sagt nicht, was darauf läuft — die
+                        Küchenansicht und der Kundenwarenkorb sind zwei
+                        verschiedene Geräte im selben Gehäuse. */}
+                    {device.type === 'display' && (
+                      <span style={{
+                        display: 'block', fontSize: 11,
+                        color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
+                      }}>
+                        {device.settings?.displayMode === 'station'
+                          ? t('devices.list.displayStation')
+                          : t('devices.list.displayCustomer')}
+                      </span>
+                    )}
                   </td>
                   <td>
                     <span className="mono" style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>

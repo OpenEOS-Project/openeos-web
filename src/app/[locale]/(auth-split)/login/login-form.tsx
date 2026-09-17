@@ -269,13 +269,14 @@ export function LoginForm() {
       </p>
 
       <div className="auth-form__devices">
-        <Link href="/device/register" className="auth-form__device">
+        {/* Beide Wege führen zur Kopplung per Code: das Gerät zeigt eine
+            Zahl, verknüpft wird sie in einem angemeldeten Konto. Der Typ
+            entscheidet nur, wohin es danach geht. */}
+        <Link href="/device/pair?type=pos" className="auth-form__device">
           <Tablet02 />
           <span>{t('deviceMode')}</span>
         </Link>
-        {/* Eigener Einstieg, weil eine Anzeige nichts einzugeben hat:
-            dort wird nur ein Code gezeigt, den jemand anders eintippt. */}
-        <Link href="/device/display" className="auth-form__device">
+        <Link href="/device/pair?type=display" className="auth-form__device">
           <Tv01 />
           <span>{t('displayMode')}</span>
         </Link>

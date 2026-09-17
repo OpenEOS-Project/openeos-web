@@ -1925,7 +1925,8 @@
       "redirecting": "Redirecting to POS...",
       "blockedTitle": "Device Blocked",
       "blockedDescription": "This device has been blocked. Contact an administrator.",
-      "tryAgain": "Try Again"
+      "tryAgain": "Try Again",
+      "useCodeInstead": "No slug to hand? Pair with a code instead"
     },
     "customer": {
       "title": "Customer Display",
@@ -1945,6 +1946,25 @@
       "paidTotal": "{total} paid",
       "orderPlaced": "Your order has been placed",
       "orderNumber": "Order number"
+    },
+    "pair": {
+      "lead": "Open OpenEOS on another device and enter this code — or scan the QR code with your phone.",
+      "codeLabel": "Pairing code",
+      "registering": "Registering device …",
+      "registerFailed": "The device could not register. Check the internet connection.",
+      "blocked": "This device has been blocked.",
+      "restart": "Start over",
+      "autoContinue": "This screen moves on by itself once the device is approved.",
+      "kinds": {
+        "display": {
+          "title": "Connect a display",
+          "suggestedName": "Display"
+        },
+        "pos": {
+          "title": "Connect a till",
+          "suggestedName": "Till"
+        }
+      }
     }
   },
   "devices": {
@@ -2171,6 +2191,10 @@
       },
       "saved": "Settings saved",
       "saveFailed": "Save failed"
+    },
+    "list": {
+      "displayStation": "Kitchen / station view",
+      "displayCustomer": "Customer display"
     }
   },
   "errors": {

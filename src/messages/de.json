@@ -1925,7 +1925,8 @@
       "redirecting": "Weiterleitung zur Kasse...",
       "blockedTitle": "Gerät gesperrt",
       "blockedDescription": "Dieses Gerät wurde gesperrt. Kontaktieren Sie einen Administrator.",
-      "tryAgain": "Erneut versuchen"
+      "tryAgain": "Erneut versuchen",
+      "useCodeInstead": "Kein Kürzel zur Hand? Stattdessen mit Code koppeln"
     },
     "customer": {
       "title": "Kundendisplay",
@@ -1945,6 +1946,25 @@
       "paidTotal": "{total} bezahlt",
       "orderPlaced": "Ihre Bestellung wurde aufgenommen",
       "orderNumber": "Bestellnummer"
+    },
+    "pair": {
+      "lead": "Öffne OpenEOS auf einem anderen Gerät und gib diesen Code ein — oder scanne den QR-Code mit dem Handy.",
+      "codeLabel": "Kopplungscode",
+      "registering": "Gerät wird angemeldet …",
+      "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfe die Internetverbindung.",
+      "blocked": "Dieses Gerät wurde gesperrt.",
+      "restart": "Neu beginnen",
+      "autoContinue": "Die Seite wechselt von selbst, sobald das Gerät freigegeben ist.",
+      "kinds": {
+        "display": {
+          "title": "Anzeige verbinden",
+          "suggestedName": "Anzeige"
+        },
+        "pos": {
+          "title": "Kasse verbinden",
+          "suggestedName": "Kasse"
+        }
+      }
     }
   },
   "devices": {
@@ -2171,6 +2191,10 @@
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
+    },
+    "list": {
+      "displayStation": "Küchen-/Stationsansicht",
+      "displayCustomer": "Kundenanzeige"
     }
   },
   "errors": {

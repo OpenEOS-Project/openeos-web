@@ -114,6 +114,10 @@ export default function DeviceRegisterPage() {
 
   const canSubmit = !isLoading && !!name.trim() && !!organizationSlug.trim();
 
+  /* Der Kürzel-Weg bleibt für Bestandsgeräte, ist aber der umständlichere:
+     er verlangt eine Eingabe auf einem Gerät, das oft keine Tastatur hat. */
+  const einfacherWeg = `/device/pair?type=pos`;
+
   return (
     <div
       className="pos-root"
@@ -246,6 +250,22 @@ export default function DeviceRegisterPage() {
               >
                 {isLoading ? t('register.registering') : t('register.submit')}
               </button>
+
+              {/* Ausweg für alle, die das Kürzel nicht kennen — auf einem
+                  Tablet ohne Tastatur ist das der Regelfall. */}
+              <a
+                href={einfacherWeg}
+                style={{
+                  display: 'block',
+                  marginTop: 6,
+                  textAlign: 'center',
+                  fontSize: 13,
+                  color: 'var(--pos-ink-2)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('register.useCodeInstead')}
+              </a>
             </form>
           </div>
         )}
