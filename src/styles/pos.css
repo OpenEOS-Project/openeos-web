@@ -305,17 +305,43 @@ body:has(.pos-root) {
   line-height: 1.5;
   color: var(--pos-ink-2);
 }
+/* Untereinander statt nebeneinander: der Code ist das, was aus zehn
+   Metern gelesen wird, der QR-Code funktioniert nur aus Armlaenge. Als
+   Paar nebeneinander stritten beide um dieselbe Aufmerksamkeit und der
+   Block stand sichtbar aus der Mitte. */
 .display-pair__body {
+  display: grid;
+  justify-items: center;
+  gap: clamp(20px, 4vmin, 40px);
+}
+.display-pair__alt {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+/* Kleine Beschriftung mit Strichen links und rechts — sie trennt die
+   beiden Wege, ohne eine weitere Linie durchs Bild zu ziehen. */
+.display-pair__alt-label {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: clamp(24px, 5vmin, 64px);
-  flex-wrap: wrap;
+  gap: 12px;
+  font-size: clamp(12px, 1.4vmin, 15px);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pos-ink-2);
+}
+.display-pair__alt-label::before,
+.display-pair__alt-label::after {
+  content: "";
+  width: clamp(28px, 5vmin, 56px);
+  height: 1px;
+  background: currentColor;
+  opacity: .35;
 }
 /* Ziffernbreite fest, sonst wandert der Code bei jedem Wechsel. */
 .display-pair__code {
   font-variant-numeric: tabular-nums;
-  font-size: clamp(56px, 12vmin, 132px);
+  font-size: clamp(60px, 14vmin, 150px);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;

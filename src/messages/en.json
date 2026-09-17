@@ -1948,7 +1948,7 @@
       "orderNumber": "Order number"
     },
     "pair": {
-      "lead": "Open OpenEOS on another device and enter this code — or scan the QR code with your phone.",
+      "lead": "Open OpenEOS on another device and enter this code.",
       "codeLabel": "Pairing code",
       "registering": "Registering device …",
       "registerFailed": "The device could not register. Check the internet connection.",
@@ -1964,7 +1964,8 @@
           "title": "Connect a till",
           "suggestedName": "Till"
         }
-      }
+      },
+      "orScan": "or scan"
     }
   },
   "devices": {

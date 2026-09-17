@@ -173,7 +173,7 @@ export default function DeviceVerifyPage() {
                   onChange={setCode}
                   placeholder="000000"
                   maxLength={6}
-                  className="h-16 text-center text-4xl tracking-[0.4em] font-mono indent-[0.2em]"
+                  className="verify-code-input"
                   autoFocus
                 />
               </div>

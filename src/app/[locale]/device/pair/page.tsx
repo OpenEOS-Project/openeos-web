@@ -99,6 +99,10 @@ export default function DevicePairPage() {
           </div>
         ) : verificationCode ? (
           <div className="display-pair__body">
+            {/* Der Code trägt die Fläche, der QR-Code ist der zweite Weg
+                dorthin. Nebeneinander konkurrierten beide um dieselbe
+                Aufmerksamkeit, obwohl nur einer aus zehn Metern lesbar
+                ist. */}
             <div className="display-pair__code" aria-label={t('codeLabel')}>
               {/* In Zweiergruppen, weil sechs Ziffern am Stück über den
                   Raum hinweg schwer abzulesen sind. */}
@@ -106,8 +110,11 @@ export default function DevicePairPage() {
             </div>
 
             {verknuepfUrl && (
-              <div className="display-pair__qr">
-                <QRCodeSVG value={verknuepfUrl} size={188} level="M" includeMargin />
+              <div className="display-pair__alt">
+                <span className="display-pair__alt-label">{t('orScan')}</span>
+                <div className="display-pair__qr">
+                  <QRCodeSVG value={verknuepfUrl} size={132} level="M" includeMargin />
+                </div>
               </div>
             )}
           </div>

@@ -4633,3 +4633,16 @@ body:has(.landing) {
 .landing .verify-logo--forDark { display: none; }
 .dark-mode .landing .verify-logo--forLight { display: none; }
 .dark-mode .landing .verify-logo--forDark { display: block; }
+
+/* Das Code-Feld hing an Tailwind-Klassen, die hier nicht laden — der Code
+   stand deshalb linksbündig statt mittig. Der Einzug rechts gleicht die
+   Laufweite aus, die sonst hinter der letzten Ziffer als Lücke steht und
+   den Text optisch nach links zieht. */
+.landing .verify-code-input {
+  height: 58px;
+  font-family: var(--oe-f-mono, ui-monospace, monospace);
+  font-size: 30px;
+  letter-spacing: .38em;
+  text-align: center;
+  text-indent: .38em;
+}

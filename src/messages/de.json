@@ -1948,7 +1948,7 @@
       "orderNumber": "Bestellnummer"
     },
     "pair": {
-      "lead": "Öffne OpenEOS auf einem anderen Gerät und gib diesen Code ein — oder scanne den QR-Code mit dem Handy.",
+      "lead": "Öffne OpenEOS auf einem anderen Gerät und gib diesen Code ein.",
       "codeLabel": "Kopplungscode",
       "registering": "Gerät wird angemeldet …",
       "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfe die Internetverbindung.",
@@ -1964,7 +1964,8 @@
           "title": "Kasse verbinden",
           "suggestedName": "Kasse"
         }
-      }
+      },
+      "orScan": "oder scannen"
     }
   },
   "devices": {
