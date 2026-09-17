@@ -2098,7 +2098,10 @@
         "orders": "Bestellungen",
         "payments": "Zahlungen",
         "revenue": "Umsatz",
-        "status": "Status"
+        "status": "Status",
+        "mode": "Anzeigeart",
+        "linkedTo": "Verknüpft mit",
+        "linkedToNone": "nicht zugewiesen"
       },
       "info": {
         "title": "Geräte-Details",

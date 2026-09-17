@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { devicesApi } from '@/lib/api-client';
 import { formatCurrency, formatDateTime } from '@/utils/format';
@@ -17,18 +17,27 @@ const statusBadgeClass: Record<string, string> = {
   blocked: 'badge badge--error',
 };
 
-function formatRelativeTime(dateStr: string | null | undefined): string {
+/**
+ * "vor 3 Minuten" statt "3m ago".
+ *
+ * Die Zeitangabe stand fest auf Englisch, mitten in einer deutschen
+ * Oberflaeche. Intl kennt die Formulierung je Sprache — und die Regeln
+ * dafuer (Einzahl, Mehrzahl, Wortstellung) sind nichts, was man je
+ * Sprache selbst nachbauen sollte.
+ */
+function formatRelativeTime(dateStr: string | null | undefined, locale: string): string {
   if (!dateStr) return '-';
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMinutes < 1) return 'just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${diffDays}d ago`;
+
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const minuten = Math.floor(diffMs / 60000);
+  const stunden = Math.floor(diffMs / 3600000);
+  const tage = Math.floor(diffMs / 86400000);
+
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (minuten < 1) return rtf.format(0, 'minute');
+  if (minuten < 60) return rtf.format(-minuten, 'minute');
+  if (stunden < 24) return rtf.format(-stunden, 'hour');
+  return rtf.format(-tage, 'day');
 }
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
@@ -51,6 +60,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 
 export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) {
   const t = useTranslations();
+  const locale = useLocale();
 
   const { data: statsData } = useQuery({
     queryKey: ['device-stats', organizationId, device.id],
@@ -68,6 +78,20 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
   const stats = statsData?.data;
   const onlineDeviceIds = new Set(onlineIdsData?.data || []);
   const isOnline = onlineDeviceIds.has(device.id);
+
+  /* Woran die Anzeige haengt. Fuer die Kundenanzeige ist das eine Kasse,
+     deren Namen wir nachschlagen — die Geraete-ID allein sagt niemandem
+     etwas. */
+  const { data: geschwisterData } = useQuery({
+    queryKey: ['devices', organizationId],
+    queryFn: () => devicesApi.list(organizationId),
+    enabled: !!organizationId && device.type === 'display',
+  });
+
+  const verknuepftMit =
+    device.settings?.displayMode === 'station'
+      ? null
+      : (geschwisterData?.data ?? []).find((d) => d.id === device.settings?.posDeviceId)?.name ?? null;
 
   const copyDeviceId = async () => {
     try {
@@ -92,13 +116,35 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
-        <StatCard label={t('devices.detail.stats.orders')} value={stats?.ordersCount ?? 0} />
-        <StatCard label={t('devices.detail.stats.payments')} value={stats?.paymentsCount ?? 0} />
-        <StatCard label={t('devices.detail.stats.revenue')} value={formatCurrency(stats?.revenueTotal ?? 0)} />
+        {/* Eine Anzeige verkauft nichts — Bestellungen, Zahlungen und
+            Umsatz stuenden dort auf ewig auf null und sagten nur, dass
+            die Kacheln fuer die Kasse gebaut wurden. */}
+        {device.type === 'display' ? (
+          <>
+            <StatCard
+              label={t('devices.detail.stats.mode')}
+              value={
+                device.settings?.displayMode === 'station'
+                  ? t('devices.list.displayStation')
+                  : t('devices.list.displayCustomer')
+              }
+            />
+            <StatCard
+              label={t('devices.detail.stats.linkedTo')}
+              value={verknuepftMit ?? t('devices.detail.stats.linkedToNone')}
+            />
+          </>
+        ) : (
+          <>
+            <StatCard label={t('devices.detail.stats.orders')} value={stats?.ordersCount ?? 0} />
+            <StatCard label={t('devices.detail.stats.payments')} value={stats?.paymentsCount ?? 0} />
+            <StatCard label={t('devices.detail.stats.revenue')} value={formatCurrency(stats?.revenueTotal ?? 0)} />
+          </>
+        )}
         <StatCard
           label={t('devices.detail.stats.status')}
           value={isOnline ? t('devices.online') : t('devices.offline')}
-          sub={device.lastSeenAt ? formatRelativeTime(device.lastSeenAt) : undefined}
+          sub={device.lastSeenAt ? formatRelativeTime(device.lastSeenAt, locale) : undefined}
         />
       </div>
 
@@ -184,7 +230,7 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
                 {t('devices.detail.info.lastSeen')}
               </dt>
               <dd style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>
-                {device.lastSeenAt ? formatRelativeTime(device.lastSeenAt) : '-'}
+                {device.lastSeenAt ? formatRelativeTime(device.lastSeenAt, locale) : '-'}
               </dd>
             </div>
           </dl>

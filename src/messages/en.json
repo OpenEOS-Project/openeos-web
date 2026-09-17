@@ -2098,7 +2098,10 @@
         "orders": "Orders",
         "payments": "Payments",
         "revenue": "Revenue",
-        "status": "Status"
+        "status": "Status",
+        "mode": "Display kind",
+        "linkedTo": "Linked to",
+        "linkedToNone": "not assigned"
       },
       "info": {
         "title": "Device Details",
