@@ -2042,8 +2042,8 @@
       "link": "Registrierungslink",
       "instructions": "So registrieren Sie ein neues Gerät:",
       "step1": "Öffnen Sie den Link oder scannen Sie den QR-Code auf dem Gerät",
-      "step2": "Geben Sie einen Namen für das Gerät ein und bestätigen Sie",
-      "step3": "Geben Sie den angezeigten Code hier ein, um das Gerät freizugeben"
+      "step2": "Das Gerät zeigt eine sechsstellige Zahl an",
+      "step3": "Diese Zahl über „Anzeige verbinden\" eingeben — fertig"
     },
     "online": "Online",
     "offline": "Offline",

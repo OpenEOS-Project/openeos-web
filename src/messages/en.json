@@ -2042,8 +2042,8 @@
       "link": "Registration Link",
       "instructions": "How to register a new device:",
       "step1": "Open the link or scan the QR code on the device",
-      "step2": "Enter a name for the device and confirm",
-      "step3": "Enter the displayed code here to approve the device"
+      "step2": "The device shows a six-digit number",
+      "step3": "Enter that number under \"Connect a display\" — done"
     },
     "online": "Online",
     "offline": "Offline",

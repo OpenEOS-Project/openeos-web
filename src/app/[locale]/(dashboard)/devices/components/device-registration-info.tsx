@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { QRCodeSVG } from 'qrcode.react';
+
 import { useAuthStore } from '@/stores/auth-store';
 
 export function DeviceRegistrationInfo() {
@@ -12,11 +14,10 @@ export function DeviceRegistrationInfo() {
   const organizationSlug = currentOrganization?.organization?.slug;
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const registrationUrl = organizationSlug
-    ? `${baseUrl}/device/register?org=${organizationSlug}`
-    : `${baseUrl}/device/register`;
-
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(registrationUrl)}`;
+  /* Der Kopplungsweg statt des alten Formulars: das Gerät zeigt nur noch
+     eine Zahl, statt nach dem Kürzel der Organisation zu fragen, das am
+     Tablet ohnehin niemand zur Hand hat. */
+  const registrationUrl = `${baseUrl}/device/pair?type=pos`;
 
   const handleCopy = async () => {
     try {
@@ -40,8 +41,10 @@ export function DeviceRegistrationInfo() {
               borderRadius: 10, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
               background: '#fff', padding: 12, display: 'inline-block',
             }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={qrCodeUrl} alt="QR Code für Geräte-Registrierung" width={160} height={160} />
+              {/* Selbst gezeichnet statt über einen fremden Dienst: der
+                  bekam bisher die Adresse der Organisation zu sehen, und
+                  die Bibliothek dafür liegt ohnehin im Projekt. */}
+              <QRCodeSVG value={registrationUrl} size={160} level="M" />
             </div>
           </div>
 
