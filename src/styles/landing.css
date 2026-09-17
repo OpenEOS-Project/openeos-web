@@ -4609,3 +4609,16 @@ body:has(.landing) {
 .landing .verify-card__row .btn {
   flex: 1;
 }
+
+/* Die Verknüpfungsseite steht ausserhalb der AppShell — sie bringt
+   `.landing` deshalb selbst mit und braucht auch den Seitenrahmen, den
+   sonst die Shell stellt. */
+.landing.verify-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--paper);
+  color: var(--ink);
+}

@@ -112,7 +112,7 @@ export default function DeviceVerifyPage() {
   // If not logged in, show login prompt
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
+      <div className="landing verify-page">
         <div className="app-card verify-card verify-card--center">
           <div className="verify-card__icon">
             <Tv01 />
@@ -130,7 +130,7 @@ export default function DeviceVerifyPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
+    <div className="landing verify-page">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 flex justify-center">
