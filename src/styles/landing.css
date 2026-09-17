@@ -4638,11 +4638,15 @@ body:has(.landing) {
    stand deshalb linksbündig statt mittig. Der Einzug rechts gleicht die
    Laufweite aus, die sonst hinter der letzten Ziffer als Lücke steht und
    den Text optisch nach links zieht. */
-.landing .verify-code-input {
+/* Die Eingabekomponente reicht `className` an ihren Wrapper weiter, nicht
+   an das Feld — die Regeln muessen deshalb eine Ebene tiefer greifen. */
+.landing .verify-code-input input {
   height: 58px;
   font-family: var(--oe-f-mono, ui-monospace, monospace);
   font-size: 30px;
   letter-spacing: .38em;
   text-align: center;
+  /* Gleicht die Laufweite hinter der letzten Ziffer aus, die den Text
+     sonst optisch nach links zieht. */
   text-indent: .38em;
 }
