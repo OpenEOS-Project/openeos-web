@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import { CheckCircle, AlertCircle, Tv01, Loading02 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
 import { Select } from '@/components/ui/select/select';
@@ -114,18 +113,17 @@ export default function DeviceVerifyPage() {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
-        <div className="w-full max-w-md rounded-xl border border-secondary bg-primary p-6 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
-            <Tv01 className="h-8 w-8 text-white" />
+        <div className="app-card verify-card verify-card--center">
+          <div className="verify-card__icon">
+            <Tv01 />
           </div>
           <h1 className="text-2xl font-bold text-primary">{t('verify.title')}</h1>
           <p className="mt-2 text-tertiary">{t('verify.loginRequired')}</p>
-          <Button
-            className="mt-6 w-full"
+          <button type="button" className="btn btn--primary btn--block verify-card__cta"
             onClick={() => router.push(`/login?redirect=/devices/verify${codeFromUrl ? `?code=${codeFromUrl}` : ''}`)}
           >
             {t('verify.login')}
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -154,10 +152,10 @@ export default function DeviceVerifyPage() {
 
         {/* Enter Code Step */}
         {step === 'enter-code' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm">
+          <div className="app-card verify-card">
             <div className="mb-6 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary">
-                <Tv01 className="h-8 w-8 text-white" />
+              <div className="verify-card__icon">
+                <Tv01 />
               </div>
               <h1 className="text-2xl font-bold text-primary">{t('verify.title')}</h1>
               <p className="mt-2 text-tertiary">{t('verify.enterCodeDescription')}</p>
@@ -183,9 +181,7 @@ export default function DeviceVerifyPage() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full"
+              <button type="submit" className="btn btn--primary btn--block verify-card__cta"
                 disabled={code.length !== 6 || lookupMutation.isPending}
               >
                 {lookupMutation.isPending ? (
@@ -193,14 +189,14 @@ export default function DeviceVerifyPage() {
                 ) : (
                   t('verify.lookup')
                 )}
-              </Button>
+              </button>
             </form>
           </div>
         )}
 
         {/* Configure Step */}
         {step === 'configure' && pendingDevice && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm">
+          <div className="app-card verify-card">
             <div className="mb-6 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
                 <CheckCircle className="h-6 w-6 text-success-primary" />
@@ -262,28 +258,25 @@ export default function DeviceVerifyPage() {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
-                <Button
-                  color="secondary"
-                  className="flex-1"
+              <div className="verify-card__row">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
                   onClick={() => {
                     setStep('enter-code');
                     setPendingDevice(null);
                   }}
                 >
                   {tCommon('back')}
-                </Button>
-                <Button
-                  className="flex-1"
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--primary"
                   onClick={handleLink}
                   disabled={linkMutation.isPending || !selectedOrgId}
                 >
-                  {linkMutation.isPending ? (
-                    <Loading02 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    t('verify.link')
-                  )}
-                </Button>
+                  {linkMutation.isPending ? '…' : t('verify.link')}
+                </button>
               </div>
             </div>
           </div>
@@ -291,36 +284,36 @@ export default function DeviceVerifyPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
+          <div className="app-card verify-card verify-card--center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
               <CheckCircle className="h-6 w-6 text-success-primary" />
             </div>
             <h2 className="text-xl font-semibold text-primary">{t('verify.success')}</h2>
             <p className="mt-2 text-tertiary">{t('verify.successDescription')}</p>
-            <Button className="mt-6 w-full" onClick={handleGoToDashboard}>
+            <button type="button" className="btn btn--primary btn--block verify-card__cta" onClick={handleGoToDashboard}>
               {t('verify.goToDashboard')}
-            </Button>
+            </button>
           </div>
         )}
 
         {/* Error Step */}
         {step === 'error' && (
-          <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
+          <div className="app-card verify-card verify-card--center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
               <AlertCircle className="h-6 w-6 text-error-primary" />
             </div>
             <h2 className="text-xl font-semibold text-primary">{t('verify.error')}</h2>
             <p className="mt-2 text-tertiary">{error}</p>
-            <Button
-              color="secondary"
-              className="mt-6 w-full"
+            <button
+              type="button"
+              className="btn btn--ghost btn--block verify-card__cta"
               onClick={() => {
                 setStep('enter-code');
                 setError(null);
               }}
             >
               {t('verify.tryAgain')}
-            </Button>
+            </button>
           </div>
         )}
       </div>

@@ -4573,3 +4573,39 @@ body:has(.landing) {
 .landing .feedback-admin__from:hover {
   color: var(--ink);
 }
+
+/* ===================== GERÄT VERKNÜPFEN =====================
+   Die Seite kam aus der Untitled-UI-Palette und leuchtete in einem Grün,
+   das sonst nirgends vorkommt. Hier steht, was sie stattdessen nimmt. */
+.landing .verify-card {
+  padding: 26px;
+}
+.landing .verify-card--center {
+  text-align: center;
+}
+.landing .verify-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: var(--oe-r-lg);
+  background: var(--oe-green-ink);
+  color: var(--oe-on-accent, #fff);
+}
+.landing .verify-card__icon svg {
+  width: 28px;
+  height: 28px;
+}
+.landing .verify-card__cta {
+  margin-top: 18px;
+}
+.landing .verify-card__row {
+  display: flex;
+  gap: 10px;
+  padding-top: 8px;
+}
+.landing .verify-card__row .btn {
+  flex: 1;
+}
