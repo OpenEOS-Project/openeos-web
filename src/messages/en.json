@@ -2065,8 +2065,8 @@
       "noDevicesOnline": "No devices online"
     },
     "verify": {
-      "title": "Link Device",
-      "enterCodeDescription": "Enter the 6-digit code from the TV",
+      "title": "Link a device",
+      "enterCodeDescription": "Enter the six-digit code shown on the device.",
       "code": "Verification Code",
       "lookup": "Find Device",
       "deviceNotFound": "Device not found or already linked",

@@ -4622,3 +4622,14 @@ body:has(.landing) {
   background: var(--paper);
   color: var(--ink);
 }
+
+/* Logo je nach Farbgebung. Tailwinds dark:-Varianten stehen hier nicht
+   zur Verfügung, weil die Seite ohne Tailwind auskommt. */
+.landing .verify-page__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 26px;
+}
+.landing .verify-logo--forDark { display: none; }
+.dark-mode .landing .verify-logo--forLight { display: none; }
+.dark-mode .landing .verify-logo--forDark { display: block; }

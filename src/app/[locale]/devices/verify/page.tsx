@@ -133,20 +133,23 @@ export default function DeviceVerifyPage() {
     <div className="landing verify-page">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="mb-8 flex justify-center">
+        <div className="verify-page__brand">
+          {/* Umschaltung über eigenes CSS statt Tailwinds dark:-Varianten:
+              auf dieser Seite lädt kein Tailwind, weshalb zuvor beide
+              Logos nebeneinander standen. */}
           <Image
             src="/logo_dark.png"
             alt="OpenEOS"
             width={180}
             height={48}
-            className="dark:hidden"
+            className="verify-logo verify-logo--forLight"
           />
           <Image
             src="/logo_light.png"
             alt="OpenEOS"
             width={180}
             height={48}
-            className="hidden dark:block"
+            className="verify-logo verify-logo--forDark"
           />
         </div>
 

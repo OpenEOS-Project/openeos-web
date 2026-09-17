@@ -2066,7 +2066,7 @@
     },
     "verify": {
       "title": "Gerät verknüpfen",
-      "enterCodeDescription": "Geben Sie den 6-stelligen Code vom TV ein",
+      "enterCodeDescription": "Gib den sechsstelligen Code ein, der auf dem Gerät steht.",
       "code": "Verifizierungscode",
       "lookup": "Gerät suchen",
       "deviceNotFound": "Gerät nicht gefunden oder bereits verknüpft",
