@@ -42,6 +42,7 @@ import { useSidebarStore } from '@/stores/sidebar-store';
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
 import { APP_VERSION } from '@/lib/version';
+import { useReleaseVersion } from '@/hooks/use-release-version';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrator',
@@ -61,6 +62,12 @@ export function AppSidebar() {
     isLoading,
   } = useAuthStore();
   const { isCollapsed, isMobileOpen, toggleCollapsed, setMobileOpen } = useSidebarStore();
+
+  /* Solange die Nummer noch unterwegs ist — oder die API schweigt —
+     steht die Build-Nummer da. Eine Leerstelle waere fuer den Support
+     schlechter als die zweitbeste Angabe. */
+  const releaseVersion = useReleaseVersion();
+  const versionsText = releaseVersion ?? APP_VERSION;
 
   const orgIdForEvent = currentOrganization?.organizationId ?? '';
   const { data: activeEvent } = useActiveEvent(orgIdForEvent);
@@ -534,8 +541,8 @@ export function AppSidebar() {
           {!isCollapsed && (
             /* "v" nur vor einer echten Versionsnummer — lokal steht hier
                "dev", und "vdev" liest sich wie ein Tippfehler. */
-            <p className="app-sidebar__version">
-              {/^\d/.test(APP_VERSION) ? `v${APP_VERSION}` : APP_VERSION}
+            <p className="app-sidebar__version" title={`Build ${APP_VERSION}`}>
+              {/^\d/.test(versionsText) ? `v${versionsText}` : versionsText}
             </p>
           )}
 
