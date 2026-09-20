@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { changelogApi } from '@/lib/api-client';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
+import { useAuthStore } from '@/stores/auth-store';
 import type { ChangelogArt } from '@/types/changelog';
 
 const ART_KLASSE: Record<ChangelogArt, string> = {
@@ -22,8 +23,12 @@ const ART_KLASSE: Record<ChangelogArt, string> = {
  * gekoppelt käme dieses Fenster nach jeder Fehlerkorrektur hoch und hätte
  * nichts zu erzählen.
  *
- * Wer sich zum ersten Mal anmeldet, bekommt es nicht: für ihn ist alles
- * neu und damit nichts eine Neuerung. Sein Stand wird still gesetzt.
+ * Ohne gespeicherten Stand zählt das Anlegedatum des Kontos. Die erste
+ * Fassung hielt jeden ohne Stand für ein neues Konto und setzte ihn
+ * still — womit kein einziges bestehendes Konto je etwas zu sehen bekam,
+ * denn die hatten alle keinen Stand, weil es das Fenster vorher nicht
+ * gab. Ein heute angelegtes Konto sieht damit nichts, eines vom Februar
+ * alles seither.
  */
 export function ChangelogDialog() {
   const t = useTranslations('changelogDialog');
@@ -31,31 +36,41 @@ export function ChangelogDialog() {
   const sprache = locale === 'en' ? 'en' : 'de';
 
   const { data: preferences } = usePreferences();
+  const { user } = useAuthStore();
   const updatePreferences = useUpdatePreferences();
   const [geschlossen, setGeschlossen] = useState(false);
 
   const zuletztGesehen = preferences?.onboarding?.lastSeenChangelog;
+  /* JJJJ-MM-TT, wie die Einträge selbst — so vergleicht die API beides
+     als Zeichenkette. Einträge vom Tag der Registrierung gelten als
+     gesehen; wer sich anmeldet, hat den Stand des Tages vor sich. */
+  const kontoSeit = user?.createdAt?.slice(0, 10);
+  const bezug = zuletztGesehen ?? kontoSeit;
 
   const { data } = useQuery({
-    queryKey: ['changelog', zuletztGesehen ?? 'alle'],
-    queryFn: async () => (await changelogApi.list(zuletztGesehen)).data,
-    // Erst fragen, wenn der gespeicherte Stand bekannt ist.
-    enabled: !!preferences,
+    queryKey: ['changelog', bezug ?? 'alle'],
+    queryFn: async () => (await changelogApi.list(bezug)).data,
+    // Erst fragen, wenn Stand und Konto bekannt sind.
+    enabled: !!preferences && !!bezug,
     staleTime: 5 * 60 * 1000,
   });
 
   const neuerdings = useMemo(() => data?.entries ?? [], [data]);
   const neuesterStand = data?.latest ?? null;
 
-  /* Beim ersten Anmelden nur den Stand merken. Ohne das bekäme jeder neue
-     Zugang sofort die gesamte Historie vorgesetzt. */
+  /* Gibt es seit dem Bezug nichts Neues, den Stand still merken — sonst
+     wird dieselbe Frage bei jedem Seitenaufruf neu gestellt. Gibt es
+     etwas, wird der Stand erst beim Schließen gesetzt: was niemand
+     gesehen hat, ist nicht gesehen. */
   useEffect(() => {
-    if (!preferences || zuletztGesehen || !neuesterStand) return;
-    updatePreferences.mutate({ onboarding: { lastSeenChangelog: neuesterStand } });
+    if (!preferences || zuletztGesehen || !data || !neuesterStand) return;
+    if (neuerdings.length === 0) {
+      updatePreferences.mutate({ onboarding: { lastSeenChangelog: neuesterStand } });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preferences, zuletztGesehen, neuesterStand]);
+  }, [preferences, zuletztGesehen, data, neuesterStand, neuerdings.length]);
 
-  if (geschlossen || !zuletztGesehen || neuerdings.length === 0) return null;
+  if (geschlossen || !data || neuerdings.length === 0) return null;
 
   const schliessen = () => {
     setGeschlossen(true);
