@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/app-shell/app-shell';
 import { AuthGuard } from '@/components/providers/auth-guard';
 import { TourHost } from '@/components/onboarding/tour-host';
+import { ChangelogDialog } from '@/components/onboarding/changelog-dialog';
 
 import '@/styles/landing.css';
 
@@ -19,6 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             Breite, kein Schleier. Wo im Baum sie steht, ist sonst egal:
             sie liegt fest ueber der Seite. */}
         <TourHost />
+        <ChangelogDialog />
         {children}
       </AppShell>
     </AuthGuard>

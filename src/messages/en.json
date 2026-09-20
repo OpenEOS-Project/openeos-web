@@ -2901,5 +2901,15 @@
         }
       }
     }
+  },
+  "changelogDialog": {
+    "title": "What's new",
+    "subtitle": "{count, plural, one {One change since your last visit.} other {# changes since your last visit.}}",
+    "kinds": {
+      "neu": "New",
+      "verbessert": "Improved",
+      "behoben": "Fixed"
+    },
+    "confirm": "Got it"
   }
 }

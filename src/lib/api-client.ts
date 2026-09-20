@@ -862,6 +862,15 @@ export const paymentsApi = {
 };
 
 // Admin API (Super-Admin only)
+export const changelogApi = {
+  /** Ohne `since` alles, sonst nur was neuer ist. */
+  list: (since?: string) =>
+    apiClient.get<ApiResponse<import('@/types/changelog').ChangelogAntwort>>(
+      `/public/changelog${since ? `?since=${encodeURIComponent(since)}` : ''}`,
+      { skipAuth: true },
+    ),
+};
+
 export const adminApi = {
   // Zuschriften von der Website
   listContactRequests: (params?: { type?: string; handled?: boolean }) => {

@@ -39,6 +39,8 @@ export interface OnboardingPreferences {
   tourVersion?: number;
   tourCompletedAt?: string;
   quickStartHidden?: boolean;
+  /** Datum des neuesten gesehenen Changelog-Eintrags (JJJJ-MM-TT). */
+  lastSeenChangelog?: string;
 }
 
 export interface UserPreferences {

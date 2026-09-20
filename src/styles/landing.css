@@ -4650,3 +4650,93 @@ body:has(.landing) {
      sonst optisch nach links zieht. */
   text-indent: .38em;
 }
+
+/* ===================== NEUERUNGEN BEIM ANMELDEN ===================== */
+.landing .changelog-dialog__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: color-mix(in oklab, #000 55%, transparent);
+  backdrop-filter: blur(2px);
+}
+.landing .changelog-dialog {
+  width: 100%;
+  max-width: 520px;
+  /* Nie höher als der Bildschirm: bei vielen Einträgen scrollt der
+     Rumpf, Kopf und Fuß bleiben stehen. */
+  max-height: min(640px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-lg);
+  background: var(--surface);
+  box-shadow: 0 24px 60px -20px color-mix(in oklab, #000 60%, transparent);
+}
+.landing .changelog-dialog__head {
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--oe-line);
+}
+.landing .changelog-dialog__title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+.landing .changelog-dialog__sub {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--mute);
+}
+.landing .changelog-dialog__body {
+  overflow-y: auto;
+  padding: 6px 22px;
+  display: grid;
+}
+.landing .changelog-dialog__entry {
+  display: grid;
+  gap: 5px;
+  padding: 16px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.landing .changelog-dialog__entry:first-child {
+  border-top: 0;
+}
+.landing .changelog-dialog__tag {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: 600 11px var(--oe-f-sans);
+}
+.landing .changelog-dialog__tag--neu {
+  background: color-mix(in oklab, var(--oe-green) 30%, transparent);
+  color: var(--oe-green-ink);
+}
+.landing .changelog-dialog__tag--verbessert {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+.landing .changelog-dialog__tag--behoben {
+  background: color-mix(in oklab, var(--warn) 22%, transparent);
+  color: color-mix(in oklab, var(--warn) 70%, var(--ink));
+}
+.landing .changelog-dialog__entry-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.landing .changelog-dialog__text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--mute);
+}
+.landing .changelog-dialog__foot {
+  padding: 14px 22px 18px;
+  border-top: 1px solid var(--oe-line);
+  display: flex;
+  justify-content: flex-end;
+}
