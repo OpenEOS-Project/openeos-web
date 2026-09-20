@@ -1605,7 +1605,9 @@
       "markHandled": "Erledigt",
       "reopen": "Wieder öffnen",
       "notNotified": "nicht zugestellt",
-      "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen."
+      "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen.",
+      "forbidden": "Für diesen Bereich fehlt Ihrem Konto die Berechtigung. Zuschriften sieht nur die Plattform-Verwaltung.",
+      "error": "Die Zuschriften konnten nicht geladen werden. Bitte später erneut versuchen."
     }
   },
   "pos": {

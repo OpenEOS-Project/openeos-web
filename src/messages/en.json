@@ -904,7 +904,9 @@
       "markHandled": "Done",
       "reopen": "Reopen",
       "notNotified": "not delivered",
-      "notNotifiedHint": "No notification went out — check the recipient address in settings."
+      "notNotifiedHint": "No notification went out — check the recipient address in settings.",
+      "forbidden": "Your account is not permitted to see this. Messages are for platform administrators only.",
+      "error": "The messages could not be loaded. Please try again later."
     }
   },
   "theme": {

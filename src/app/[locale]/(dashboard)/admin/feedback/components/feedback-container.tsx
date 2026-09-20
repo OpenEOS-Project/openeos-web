@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Check, Mail01 } from '@untitledui/icons';
 
 import { adminApi } from '@/lib/api-client';
+import { ApiException } from '@/types/api';
 import type { ContactRequestKind } from '@/types/contact';
 
 /** Reihenfolge der Filter: was am häufigsten gesucht wird, steht vorn. */
@@ -25,13 +26,18 @@ export function FeedbackContainer() {
   const [art, setArt] = useState<(typeof FILTER)[number]>('alle');
   const [nurOffene, setNurOffene] = useState(true);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['admin-contact-requests', art, nurOffene],
     queryFn: () =>
       adminApi.listContactRequests({
         type: art === 'alle' ? undefined : art,
         handled: nurOffene ? false : undefined,
       }),
+    /* Fehlende Berechtigung wird durch Wiederholen nicht besser — ohne
+       diese Ausnahme schickt die Seite viermal dieselbe abgelehnte
+       Anfrage hinterher. */
+    retry: (versuche, fehler) =>
+      !(fehler instanceof ApiException && fehler.status === 403) && versuche < 2,
   });
 
   const abhaken = useMutation({
@@ -42,6 +48,15 @@ export function FeedbackContainer() {
   });
 
   const eintraege = data?.data ?? [];
+  /* Ein Fehlschlag darf nicht als „nichts da" durchgehen: wer keine
+     Berechtigung hat oder eine kaputte Verbindung, las bisher dieselbe
+     beruhigende Meldung wie jemand mit leerem Postfach — und haette echte
+     Zuschriften nie zu Gesicht bekommen. */
+  const fehlertext = !error
+    ? null
+    : error instanceof ApiException && error.status === 403
+      ? t('forbidden')
+      : t('error');
 
   return (
     <div className="app-card app-card--flat">
@@ -69,6 +84,8 @@ export function FeedbackContainer() {
 
       {isLoading ? (
         <p className="widget-state">{t('loading')}</p>
+      ) : fehlertext ? (
+        <p className="widget-state widget-state--error">{fehlertext}</p>
       ) : eintraege.length === 0 ? (
         <p className="widget-state">{t('empty')}</p>
       ) : (

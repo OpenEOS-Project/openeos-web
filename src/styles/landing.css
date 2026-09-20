@@ -4246,6 +4246,14 @@ body:has(.landing) {
   padding: 24px 20px;
   text-align: center;
 }
+/* Ein Fehlschlag muss sich vom leeren Postfach unterscheiden — sonst
+   liest sich „nichts da" wie eine Auskunft, obwohl es ein Ausfall ist.
+   Farbe ueber die Variable, damit sie im dunklen Modus mitgeht. */
+.landing .widget-state--error {
+  color: var(--danger);
+  max-width: 46ch;
+  margin-inline: auto;
+}
 .landing .chart-card__legend {
   display: flex;
   justify-content: flex-end;
