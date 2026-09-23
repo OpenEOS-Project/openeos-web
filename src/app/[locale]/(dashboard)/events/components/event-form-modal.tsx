@@ -7,6 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
+import { useEventPricePreview } from '@/hooks/use-event-price-preview';
+import { formatCurrency } from '@/utils/format';
 import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
 import {
   countEventDays,
@@ -122,6 +124,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   }, [startDate, endDate]);
 
   const days = startDate ? countEventDays(startDate, endDate || startDate) : 0;
+  /* Der Preis gehoert neben den Zeitraum, nicht in den Bezahldialog: dort
+     steht er erst, wenn die Einrichtung schon hinter einem liegt. */
+  const preis = useEventPricePreview(organizationId, startDate || undefined, endDate || undefined);
 
   const updateDay = (date: string, patch: Partial<ShopDayRow>) =>
     setShopDays((previous) =>
@@ -257,6 +262,30 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
               </span>
+
+              {preis && days > 0 && (
+                <div className="event-price-hint">
+                  <strong className="event-price-hint__sum">
+                    {t('form.priceSum', { price: formatCurrency(preis.finalPrice) })}
+                  </strong>
+                  <span className="event-price-hint__calc">
+                    {preis.discountPercent > 0
+                      ? t('form.priceCalcDiscounted', {
+                          days: preis.days,
+                          perDay: formatCurrency(preis.pricePerDay),
+                          gross: formatCurrency(preis.price),
+                          percent: preis.discountPercent,
+                        })
+                      : t('form.priceCalc', {
+                          days: preis.days,
+                          perDay: formatCurrency(preis.pricePerDay),
+                        })}
+                  </span>
+                  <span className="event-price-hint__free">
+                    {t('form.priceTestFree', { max: preis.testEventMaxOrders })}
+                  </span>
+                </div>
+              )}
             </div>
 
             <Controller

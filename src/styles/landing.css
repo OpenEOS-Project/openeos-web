@@ -4748,3 +4748,28 @@ body:has(.landing) {
   display: flex;
   justify-content: flex-end;
 }
+
+/* Preisvorschau beim Anlegen einer Veranstaltung.
+   Kein Rahmen, nur ein ruhig abgesetzter Block: er steht mitten im
+   Formular und soll die Eingabe begleiten, nicht wie eine Warnung
+   dazwischenfahren. */
+.landing .event-price-hint {
+  margin-top: 10px;
+  display: grid;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--ink) 4%, transparent);
+}
+.landing .event-price-hint__sum {
+  font-size: 14px;
+  color: var(--ink);
+}
+.landing .event-price-hint__calc,
+.landing .event-price-hint__free {
+  font-size: 12px;
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
+}
+.landing .event-price-hint__free {
+  color: var(--green-ink);
+}

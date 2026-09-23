@@ -70,3 +70,15 @@ export interface OrganizationInvoice {
   hostedUrl: string | null;
   hasPdf: boolean;
 }
+
+/** Was eine Veranstaltung kosten wird, bevor es sie gibt. */
+export interface EventPricePreview {
+  pricePerDay: number;
+  days: number;
+  price: number;
+  discountPercent: number;
+  discountReason: EventDiscountReason;
+  finalPrice: number;
+  /** Bis zu so vielen Bestellungen laesst sich kostenlos testen. */
+  testEventMaxOrders: number;
+}

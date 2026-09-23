@@ -948,7 +948,11 @@
       "orderingMode": "Checkout mode",
       "orderingModeImmediate": "Pay immediately",
       "orderingModeTab": "Run a tab",
-      "orderingModeHint": "Decides whether the till takes payment right away or books onto a tab."
+      "orderingModeHint": "Decides whether the till takes payment right away or books onto a tab.",
+      "priceSum": "Activating costs {price}",
+      "priceCalc": "{days} days × {perDay} per day",
+      "priceCalcDiscounted": "{days} days × {perDay} = {gross}, less {percent}% first-event discount",
+      "priceTestFree": "Trying it out is free — up to {max} orders in test mode."
     },
     "status": {
       "active": "Active",

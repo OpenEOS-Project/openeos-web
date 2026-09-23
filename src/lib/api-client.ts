@@ -533,6 +533,13 @@ export const eventsApi = {
   setTestMode: (organizationId: string, id: string) =>
     apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}/test`),
 
+  /** Was der Zeitraum kosten wird — schon beim Anlegen, vor dem Bezahldialog. */
+  previewPrice: (organizationId: string, start: string, end?: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').EventPricePreview>>(
+      `/organizations/${organizationId}/event-price-preview?start=${encodeURIComponent(start)}` +
+        (end ? `&end=${encodeURIComponent(end)}` : ''),
+    ),
+
   // Billing (Kauf auf Rechnung)
   billing: (organizationId: string, id: string) =>
     apiClient.get<ApiResponse<import('@/types/billing').EventBilling>>(
