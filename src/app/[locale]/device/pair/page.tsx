@@ -87,13 +87,13 @@ export default function DevicePairPage() {
   return (
     <div className="pos-root display-pair">
       <div className="display-pair__inner">
-        {/* Das Logo statt eines Symbols: Es sagt dasselbe — hier gehört
-            dieser Bildschirm hin — und trägt dabei den Namen. Auf einem
-            Fernseher ist die Höhe knapp; ein zweites Zeichen darüber
-            hätte den QR-Code aus dem Bild geschoben. */}
+        {/* Ein Logo, keine Umschaltung: Der Hintergrund dieser Seite ist
+            immer hell (--pos-bg), ein dunkles Thema gibt es hier nicht.
+            Zwei Fassungen brachten nur die Möglichkeit, die falsche zu
+            zeigen — auf dem Fernseher stand prompt das weiße Logo auf
+            cremefarbenem Grund. */}
         <span className="display-pair__logo">
-          <img src="/logo_dark.png" alt="OpenEOS" className="display-pair__logo--forLight" />
-          <img src="/logo_light.png" alt="OpenEOS" className="display-pair__logo--forDark" />
+          <img src="/logo_dark.png" alt="OpenEOS" />
         </span>
 
         <h1 className="display-pair__title">{t(`kinds.${typ}.title`)}</h1>

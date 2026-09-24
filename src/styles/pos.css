@@ -294,14 +294,6 @@ body:has(.pos-root) {
   height: clamp(26px, 5vh, 52px);
   width: auto;
 }
-/* Welches Logo gilt, haengt am Hintergrund der Seite — und der ist hier
-   immer hell (--pos-bg). Eine Abfrage auf das Systemthema war falsch:
-   Der Fernseher meldete "dunkel", woraufhin das weisse Logo auf cremefarbenem
-   Grund stand und praktisch unsichtbar war. Die Klasse .dark-mode setzt
-   erst die Anzeige selbst, nach der Kopplung. */
-.display-pair__logo--forDark { display: none; }
-.dark-mode .display-pair__logo--forLight { display: none; }
-.dark-mode .display-pair__logo--forDark { display: inline-block; }
 .display-pair__title {
   margin: 0 0 10px;
   font-size: clamp(28px, 4vmin, 44px);
