@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { Wifi, WifiOff } from '@untitledui/icons';
 import { Logo } from '@/components/foundations/logo/logo';
-import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { cx } from '@/utils/cx';
 
 interface StationHeaderProps {
@@ -68,15 +67,14 @@ export function StationHeader({ stationName, stationColor, isConnected, organiza
             </>
           )}
         </div>
-        <div className="h-5 w-px bg-border-secondary" />
-        <LocaleSwitcher />
-        {/* Kein Themenschalter auf der Anzeige.
+        {/* Weder Sprach- noch Themenschalter auf der Anzeige.
             Er lief ueber next-themes und damit an der Geraeteeinstellung
             vorbei: Umgeschaltet wechselten nur ein Teil der Farben, beim
             naechsten Start setzte die Einstellung alles zurueck — und
             dazwischen stand ein halb umgeschalteter Bildschirm. Hell oder
             dunkel gehoert zum Geraet und wird in der Verwaltung gesetzt,
-            wo es auch bleibt. */}
+            wo es auch bleibt. Fuer die Sprache gilt dasselbe: An einem
+            fest montierten Schirm stellt sie niemand im Vorbeigehen um. */}
       </div>
     </header>
   );
