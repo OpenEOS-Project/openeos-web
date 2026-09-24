@@ -284,7 +284,7 @@ body:has(.pos-root) {
    fraesse das Logo dort ein Viertel der Hoehe. */
 .display-pair__logo {
   display: block;
-  margin-bottom: clamp(10px, 2.5vmin, 26px);
+  margin-bottom: clamp(8px, 2vh, 26px);
 }
 .display-pair__logo img {
   height: clamp(26px, 5vmin, 52px);
@@ -319,7 +319,7 @@ body:has(.pos-root) {
 .display-pair__body {
   display: grid;
   justify-items: center;
-  gap: clamp(12px, 3.5vh, 40px);
+  gap: clamp(12px, 3vh, 40px);
 }
 .display-pair__alt {
   display: grid;
@@ -348,7 +348,7 @@ body:has(.pos-root) {
 /* Ziffernbreite fest, sonst wandert der Code bei jedem Wechsel. */
 .display-pair__code {
   font-variant-numeric: tabular-nums;
-  font-size: clamp(44px, 16vh, 150px);
+  font-size: clamp(44px, 14vh, 150px);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -369,7 +369,7 @@ body:has(.pos-root) {
   font-size: clamp(16px, 2vmin, 22px);
 }
 .display-pair__foot {
-  margin-top: clamp(14px, 4vh, 40px);
+  margin-top: clamp(12px, 3vh, 40px);
   font-size: clamp(13px, 1.5vmin, 16px);
 }
 .display-pair__error {
