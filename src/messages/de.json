@@ -2156,7 +2156,9 @@
           "modeStation": "Stationsanzeige (Produktionsstandort)",
           "posDevice": "Kasse",
           "posDeviceNone": "Keine Kasse ausgewählt",
-          "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an."
+          "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an.",
+          "station": "Station",
+          "stationNone": "Keine Station gewählt"
         },
         "appearance": {
           "title": "Aussehen & Inhalt",

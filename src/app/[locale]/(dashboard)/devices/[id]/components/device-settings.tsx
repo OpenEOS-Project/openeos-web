@@ -8,6 +8,8 @@ import { devicesApi, sumupApi } from '@/lib/api-client';
 import { toast } from '@/components/shared/toast';
 import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { useProductionStations } from '@/hooks/use-production-stations';
+import { useActiveEvent } from '@/hooks/use-events';
 
 interface DeviceSettingsProps {
   device: Device;
@@ -52,6 +54,17 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
   const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
   const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'customer');
+  /* Welche Station dieser Bildschirm zeigt. Die Anzeige liest den Wert
+     seit jeher, gesetzt werden konnte er nirgends — der Bildschirm bat
+     um eine Zuweisung, die es in der Oberflaeche nicht gab. */
+  const [stationId, setStationId] = useState<string>(
+    (device.settings?.stationId as string | undefined) || '',
+  );
+
+  /* Stationen gehoeren zur laufenden Veranstaltung — eine Kuechenanzeige
+     ohne aktives Event hat nichts anzuzeigen. */
+  const { data: aktivesEvent } = useActiveEvent(organizationId ?? '');
+  const { data: stationen = [] } = useProductionStations(aktivesEvent?.id ?? '');
   const [posDeviceId, setPosDeviceId] = useState(device.settings?.posDeviceId || '');
   /* Aussehen der Anzeige. Leere Zeichenkette heisst "nichts eigenes
      gesetzt" — dann greift die Vorgabe der Anzeige selbst. */
@@ -116,6 +129,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
           sumupReaderId: type === 'pos' ? (sumupReaderId || undefined) : device.settings?.sumupReaderId,
           displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
+          stationId:
+            type === 'display' && displayMode === 'station'
+              ? stationId || undefined
+              : device.settings?.stationId,
           posDeviceId:
             type === 'display' && displayMode === 'customer'
               ? (posDeviceId || undefined)
@@ -271,6 +288,23 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
                 placeholder={t('devices.detail.settings.appearance.idleTextPlaceholder')}
               />
             </FormRow>
+
+            {displayMode === 'station' && (
+              <FormRow label={t('devices.detail.settings.display.station')}>
+                <select
+                  className="select"
+                  value={stationId}
+                  onChange={(e) => setStationId(e.target.value)}
+                >
+                  <option value="">{t('devices.detail.settings.display.stationNone')}</option>
+                  {stationen.map((station) => (
+                    <option key={station.id} value={station.id}>
+                      {station.name}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            )}
 
             {displayMode === 'station' && (
               <FormRow label={t('devices.detail.settings.appearance.autoClear')}>

@@ -2156,7 +2156,9 @@
           "modeStation": "Station display (production station)",
           "posDevice": "POS device",
           "posDeviceNone": "No POS selected",
-          "posDeviceHint": "The display mirrors the selected POS device's cart in real time."
+          "posDeviceHint": "The display mirrors the selected POS device's cart in real time.",
+          "station": "Station",
+          "stationNone": "No station selected"
         },
         "appearance": {
           "title": "Appearance & content",
