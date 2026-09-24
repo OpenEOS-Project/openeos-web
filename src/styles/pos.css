@@ -283,22 +283,25 @@ body:has(.pos-root) {
    trotz 1920x1080 nur 540 CSS-Pixel hoch ist — bei fester Pixelgroesse
    fraesse das Logo dort ein Viertel der Hoehe. */
 .display-pair__logo {
-  display: block;
+  /* Flex statt text-align: Ein Bild, das per display:block sichtbar
+     gemacht wird, richtet sich sonst am linken Rand aus — genau das war
+     auf dem Fernseher zu sehen. */
+  display: flex;
+  justify-content: center;
   margin-bottom: clamp(8px, 2vh, 26px);
 }
 .display-pair__logo img {
-  height: clamp(26px, 5vmin, 52px);
+  height: clamp(26px, 5vh, 52px);
   width: auto;
 }
-/* Umschaltung ueber CSS statt ueber zwei Komponenten: Auf dieser Seite
-   steht noch nicht fest, welches Thema das Geraet spaeter bekommt. */
+/* Welches Logo gilt, haengt am Hintergrund der Seite — und der ist hier
+   immer hell (--pos-bg). Eine Abfrage auf das Systemthema war falsch:
+   Der Fernseher meldete "dunkel", woraufhin das weisse Logo auf cremefarbenem
+   Grund stand und praktisch unsichtbar war. Die Klasse .dark-mode setzt
+   erst die Anzeige selbst, nach der Kopplung. */
 .display-pair__logo--forDark { display: none; }
-@media (prefers-color-scheme: dark) {
-  .display-pair__logo--forLight { display: none; }
-  .display-pair__logo--forDark { display: block; }
-}
 .dark-mode .display-pair__logo--forLight { display: none; }
-.dark-mode .display-pair__logo--forDark { display: block; }
+.dark-mode .display-pair__logo--forDark { display: inline-block; }
 .display-pair__title {
   margin: 0 0 10px;
   font-size: clamp(28px, 4vmin, 44px);
