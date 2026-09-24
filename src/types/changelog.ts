@@ -6,6 +6,8 @@ export interface ChangelogEintrag {
   art: ChangelogArt;
   titel: { de: string; en: string };
   text: { de: string; en: string };
+  /** Eine Zeile für das Fenster beim Anmelden; sonst der volle Text. */
+  kurz?: { de: string; en: string };
   /** Veröffentlichung, in der dieser Eintrag erschienen ist. */
   version: string | null;
 }

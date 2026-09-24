@@ -4704,11 +4704,20 @@ body:has(.landing) {
   padding: 6px 22px;
   display: grid;
 }
+/* Eng gesetzt: Bei sechs Neuerungen in einer Version wurde die Liste
+   sonst länger als der Bildschirm, und wer scrollen muss, liest nichts
+   mehr. Marke und Titel stehen deshalb nebeneinander statt untereinander. */
 .landing .changelog-dialog__entry {
   display: grid;
-  gap: 5px;
-  padding: 16px 0;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 9px;
+  row-gap: 2px;
+  padding: 11px 0;
   border-top: 1px solid var(--oe-line);
+}
+.landing .changelog-dialog__entry > .changelog-dialog__text {
+  grid-column: 2;
 }
 .landing .changelog-dialog__entry:first-child {
   border-top: 0;
@@ -4733,13 +4742,14 @@ body:has(.landing) {
 }
 .landing .changelog-dialog__entry-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
+  line-height: 1.35;
 }
 .landing .changelog-dialog__text {
   margin: 0;
-  font-size: 13.5px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--mute);
 }
 .landing .changelog-dialog__foot {

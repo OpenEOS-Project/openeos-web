@@ -104,7 +104,12 @@ export function ChangelogDialog() {
             <article key={`${eintrag.datum}-${eintrag.titel.de}`} className="changelog-dialog__entry">
               <span className={ART_KLASSE[eintrag.art]}>{t(`kinds.${eintrag.art}`)}</span>
               <h3 className="changelog-dialog__entry-title">{eintrag.titel[sprache]}</h3>
-              <p className="changelog-dialog__text">{eintrag.text[sprache]}</p>
+              {/* Kurzfassung, wenn es eine gibt: Das Fenster soll einen
+                  Überblick geben. Wer mehr wissen will, findet den vollen
+                  Text auf der Website. */}
+              <p className="changelog-dialog__text">
+                {(eintrag.kurz ?? eintrag.text)[sprache]}
+              </p>
             </article>
           ))}
         </div>
