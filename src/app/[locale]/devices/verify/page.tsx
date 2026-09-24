@@ -15,7 +15,14 @@ import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
 
 type Step = 'enter-code' | 'configure' | 'success' | 'error';
 
-const DEVICE_TYPE_VALUES: DeviceClass[] = ['display', 'pos', 'admin'];
+/* 'admin' steht bewusst nicht mehr zur Wahl.
+   Der Wert wurde nirgends ausgewertet: zielRouteFuerGeraet schickt alles,
+   was keine Anzeige ist, auf die Kasse — ein so eingerichtetes Geraet
+   landete also in derselben Ansicht wie eine Kasse, nur unter falschem
+   Namen. Drei Kunden hatten ihn gewaehlt und etwas anderes erwartet.
+   Der Wert bleibt in der Datenbank gueltig, damit bestehende Geraete
+   weiterlaufen; neu vergeben laesst er sich nicht mehr. */
+const DEVICE_TYPE_VALUES: DeviceClass[] = ['pos', 'display'];
 
 export default function DeviceVerifyPage() {
   const t = useTranslations('devices');

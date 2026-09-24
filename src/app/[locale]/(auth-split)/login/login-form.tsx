@@ -156,8 +156,14 @@ export function LoginForm() {
         </div>
       )}
 
+      {/* Die Schlüssel an den beiden Formularen trennen sie für React.
+          Ohne sie stehen beide an derselben Stelle im Baum, und React
+          verwendet dieselben DOM-Knoten weiter: Beim Umschalten wurde aus
+          dem gerade angeklickten `type="button"` ein `type="submit"`,
+          woraufhin der Browser das Formular mit leeren Feldern abschickte
+          und ein „Unauthorized" erschien. */}
       {modus === 'link' ? (
-        <form className="auth-form__body" onSubmit={onSubmitLink} noValidate>
+        <form key="anmeldung-link" className="auth-form__body" onSubmit={onSubmitLink} noValidate>
           <label className="auth-field">
             <span>{t('email')}</span>
             <input
@@ -200,7 +206,7 @@ export function LoginForm() {
           </button>
         </form>
       ) : (
-      <form className="auth-form__body" onSubmit={onSubmit} noValidate>
+      <form key="anmeldung-passwort" className="auth-form__body" onSubmit={onSubmit} noValidate>
         <label className="auth-field">
           <span>{t('email')}</span>
           <input
