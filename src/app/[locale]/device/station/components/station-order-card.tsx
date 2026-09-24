@@ -68,18 +68,17 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
   const isRush = order.priority === 'rush';
   const isHigh = order.priority === 'high';
 
-  const variantStyles = variant === 'service'
-    ? 'border-l-4 border-l-blue-light-500'
-    : variant === 'pickup'
-    ? 'border-l-4 border-l-success-500'
-    : '';
+  /* Kein farbiger Balken an der linken Kante mehr.
+     Er sollte Bedienung von Abholung unterscheiden — beide Spalten sind
+     aber ohnehin ueberschrieben. Und weil auf dieser Seite kein Tailwind
+     geladen wird, kam von `border-l-4` nur der Standardrahmen des
+     Browsers an: ein dicker dunkler Strich. */
 
   return (
     <div
       className={cx(
         'rounded-xl border bg-primary shadow-sm overflow-hidden transition-all duration-300',
         isRush ? 'border-error-solid border-2' : isHigh ? 'border-warning-solid border-2' : 'border-secondary',
-        variantStyles,
         isNew && 'animate-pulse ring-2 ring-brand-500 ring-offset-2 ring-offset-bg-secondary'
       )}
     >
@@ -140,7 +139,10 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
                 onClick={() => onItemReady(item.id)}
                 isDisabled={isMarkingReady}
               >
-                <CheckCircle className="mr-1.5 h-4 w-4" />
+                {/* Groesse und Abstand ueber pos.css: Die Tailwind-Klassen
+                    h-4 w-4 sind hier wirkungslos, das Symbol erschien in
+                    seiner natuerlichen Groesse neben dem Text. */}
+                <CheckCircle className="station-done__icon" />
                 {t('ready')}
               </Button>
             ) : (
