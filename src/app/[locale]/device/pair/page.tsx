@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
-import { Tablet02, Tv01 } from '@untitledui/icons';
 import { useTranslations } from 'next-intl';
 
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
@@ -88,7 +87,14 @@ export default function DevicePairPage() {
   return (
     <div className="pos-root display-pair">
       <div className="display-pair__inner">
-        <span className="display-pair__icon">{typ === 'pos' ? <Tablet02 /> : <Tv01 />}</span>
+        {/* Das Logo statt eines Symbols: Es sagt dasselbe — hier gehört
+            dieser Bildschirm hin — und trägt dabei den Namen. Auf einem
+            Fernseher ist die Höhe knapp; ein zweites Zeichen darüber
+            hätte den QR-Code aus dem Bild geschoben. */}
+        <span className="display-pair__logo">
+          <img src="/logo_dark.png" alt="OpenEOS" className="display-pair__logo--forLight" />
+          <img src="/logo_light.png" alt="OpenEOS" className="display-pair__logo--forDark" />
+        </span>
 
         <h1 className="display-pair__title">{t(`kinds.${typ}.title`)}</h1>
 
