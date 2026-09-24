@@ -4727,6 +4727,10 @@ body:has(.landing) {
   padding: 2px 8px;
   border-radius: 999px;
   font: 600 11px var(--oe-f-sans);
+  /* Gleiche Breite für alle Marken, sonst beginnen die Titel je nach
+     Wortlänge an unterschiedlichen Stellen und die Liste franst aus. */
+  min-width: 68px;
+  text-align: center;
 }
 .landing .changelog-dialog__tag--neu {
   background: color-mix(in oklab, var(--oe-green) 30%, transparent);
