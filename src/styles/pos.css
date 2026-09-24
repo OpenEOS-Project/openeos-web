@@ -454,6 +454,14 @@ body:has(.pos-root) {
   margin-left: 12px;
   white-space: nowrap;
 }
+/* Der Knopf selbst ist ein Flex-Element, hat aber nur ein einziges Kind:
+   einen Block-Span, in dem Symbol und Text zusammen stecken. Ohne diese
+   Zeile stapeln sie sich darin untereinander. */
+.station-done > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
 .station-done__icon {
   width: 18px;
   height: 18px;
