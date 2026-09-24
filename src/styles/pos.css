@@ -343,7 +343,11 @@ body:has(.pos-root) {
 /* Ziffernbreite fest, sonst wandert der Code bei jedem Wechsel. */
 .display-pair__code {
   font-variant-numeric: tabular-nums;
-  font-size: clamp(44px, 14vh, 150px);
+  /* An beiden Seiten gemessen. Nur an der Hoehe zu haengen ist auf dem
+     Fernseher richtig — auf einem hochkanten Telefon ist die Hoehe die
+     grosse Seite, und der Code wuchs dort auf 118px und brach in drei
+     Zeilen um. Die schmalere Seite entscheidet jetzt mit. */
+  font-size: clamp(40px, min(14vh, 16vw), 150px);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
