@@ -4787,3 +4787,74 @@ body:has(.landing) {
 .landing .event-price-hint__free {
   color: var(--green-ink);
 }
+
+/* Gerät verbinden — Ablauf in Dialog und auf der QR-Seite.
+   Eine Definition für beide, damit die Schritte nicht je nach Weg
+   anders aussehen. */
+.landing .device-link__form {
+  display: grid;
+  gap: 16px;
+}
+.landing .device-link__field {
+  display: grid;
+  gap: 6px;
+}
+.landing .device-link__lead,
+.landing .device-link__found {
+  margin: 0;
+  font-size: 14px;
+  color: var(--mute);
+}
+.landing .device-link__found {
+  color: var(--green-ink);
+  font-weight: 600;
+}
+.landing .device-link__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--danger) 12%, transparent);
+  color: var(--danger);
+  font-size: 13px;
+}
+.landing .device-link__row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.landing .device-link__done {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.landing .device-link__icon--ok {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--green) 26%, transparent);
+  color: var(--green-ink);
+}
+.landing .device-link__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.landing .verify-page__wrap {
+  width: 100%;
+  max-width: 440px;
+}
+.landing .verify-card__title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.landing .verify-card__lead {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--mute);
+}

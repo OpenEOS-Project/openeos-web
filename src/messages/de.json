@@ -2094,7 +2094,8 @@
       "tryAgain": "Erneut versuchen",
       "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
       "login": "Anmelden",
-      "cta": "Anzeige verbinden"
+      "cta": "Gerät verbinden",
+      "namePlaceholder": "z. B. Kasse Theke 1"
     },
     "detail": {
       "tabs": {

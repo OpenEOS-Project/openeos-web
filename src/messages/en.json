@@ -2094,7 +2094,8 @@
       "tryAgain": "Try Again",
       "loginRequired": "Please sign in to continue",
       "login": "Sign In",
-      "cta": "Connect a display"
+      "cta": "Connect device",
+      "namePlaceholder": "e.g. Bar till 1"
     },
     "detail": {
       "tabs": {
