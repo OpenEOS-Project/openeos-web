@@ -144,7 +144,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     },
   });
 
-  const typeOptions: DeviceClass[] = ['pos', 'display', 'admin'];
+  /* 'admin' fehlt hier bewusst — der Wert wurde nirgends ausgewertet und
+     schickte das Geraet in dieselbe Ansicht wie eine Kasse. Aus dem
+     Kopplungsdialog ist er schon draussen; hier stand er noch. */
+  const typeOptions: DeviceClass[] = ['pos', 'display'];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

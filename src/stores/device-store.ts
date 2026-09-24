@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient, devicesApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
+import { zielRouteFuerGeraet } from '@/lib/device-route';
 import type { DeviceInfo, DeviceStatus, DeviceClass } from '@/types/device';
 
 interface DeviceState {
@@ -171,6 +172,28 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
           // If verified, stop polling
           if (data.status === 'verified') {
             get().stopPolling();
+          }
+
+          /* Wechselt in der Verwaltung der Typ oder der Modus, gehoert das
+             Geraet in eine andere Ansicht. Ohne diesen Schritt blieb ein
+             Fernseher, den jemand von "Kasse" auf "Kuechenanzeige"
+             umstellte, in der Kassenansicht stehen — die Einstellung kam
+             an, sichtbar aenderte sich nichts, und vor Ort haelt man das
+             fuer einen Fehler. */
+          if (data.status === 'verified' && typeof window !== 'undefined') {
+            const ziel = zielRouteFuerGeraet(
+              data.deviceClass as DeviceClass | null,
+              data.settings as { displayMode?: string } | null,
+            );
+            const jetzt = window.location.pathname;
+
+            /* Nur zwischen den Geraeteansichten umleiten: Auf der
+               Kopplungsseite entscheidet die Seite selbst, und anderswo
+               hat der Speicher nichts zu suchen. */
+            const inGeraeteansicht = /\/device\/(pos|customer|station)$/.test(jetzt);
+            if (inGeraeteansicht && !jetzt.endsWith(ziel)) {
+              window.location.replace(ziel);
+            }
           }
 
           return data.status;
