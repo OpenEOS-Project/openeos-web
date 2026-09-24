@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient, devicesApi } from '@/lib/api-client';
+import { ApiException } from '@/types/api';
 import type { DeviceInfo, DeviceStatus, DeviceClass } from '@/types/device';
 
 interface DeviceState {
@@ -166,6 +167,22 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
 
           return data.status;
         } catch (error) {
+          /* Kennt der Server den Token nicht mehr, ist dieses Geraet
+             entfernt oder neu angelegt worden. Weiterfragen hilft nie:
+             Zwei Geraete eines Kunden haben auf diese Weise stundenlang
+             mehrfach pro Sekunde angefragt und dabei nur "offline"
+             angezeigt, ohne dass jemand erfuhr, warum. */
+          if (error instanceof ApiException && error.status === 401) {
+            const klasse = get().deviceClass;
+            get().clearDevice();
+
+            if (typeof window !== 'undefined') {
+              const typ = klasse === 'display' ? 'display' : 'pos';
+              window.location.href = `/device/pair?type=${typ}&grund=entfernt`;
+            }
+            return null;
+          }
+
           console.error('Failed to check device status:', error);
           return null;
         }
@@ -208,6 +225,12 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       // Clear device state
       clearDevice: () => {
         get().stopPolling();
+        /* Auch die Ablage im API-Client leeren. Der Token lag an zwei
+           Stellen, und geleert wurde nur eine — beim naechsten
+           Seitenaufbau holte dieser Speicher hier den toten Token
+           zurueck, das Geraet fragte erneut, bekam wieder 401 und drehte
+           sich im Kreis. */
+        apiClient.setDeviceToken(null);
         set({
           deviceId: null,
           deviceToken: null,

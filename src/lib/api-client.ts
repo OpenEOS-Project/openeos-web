@@ -176,7 +176,10 @@ class ApiClient {
           // For device auth, clear device token and redirect to device registration
           this.clearDeviceToken();
           if (typeof window !== 'undefined') {
-            window.location.href = '/device/register';
+            /* Die Kopplung liegt seit der Umstellung auf den Zahlencode
+               unter /device/pair; /device/register war der alte Weg mit
+               dem Kuerzel der Organisation. */
+            window.location.href = '/device/pair?grund=entfernt';
           }
         } else if (!isRetry) {
           // For user auth, try to refresh the token first

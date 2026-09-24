@@ -1971,7 +1971,8 @@
           "suggestedName": "Till"
         }
       },
-      "orScan": "or scan"
+      "orScan": "or scan",
+      "revoked": "This device is no longer linked — it was removed in the admin area. Connect it again using the code below."
     }
   },
   "devices": {

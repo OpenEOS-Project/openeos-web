@@ -379,3 +379,18 @@ body:has(.pos-root) {
   font: inherit;
   cursor: pointer;
 }
+
+/* Hinweis auf der Kopplungsseite, wenn das Geraet entfernt wurde.
+   Warnfarbe statt Fehlerrot: Es ist nichts kaputt, jemand hat das Geraet
+   in der Verwaltung geloescht — das Personal soll es einordnen koennen,
+   nicht erschrecken. */
+.display-pair__notice {
+  margin: 0 auto;
+  max-width: 34ch;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--warn) 16%, transparent);
+  color: color-mix(in oklab, var(--warn) 72%, var(--ink));
+  font-size: 15px;
+  line-height: 1.5;
+}

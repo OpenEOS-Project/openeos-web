@@ -1971,7 +1971,8 @@
           "suggestedName": "Kasse"
         }
       },
-      "orScan": "oder scannen"
+      "orScan": "oder scannen",
+      "revoked": "Dieses Gerät ist nicht mehr verknüpft — es wurde in der Verwaltung entfernt. Verbinden Sie es erneut mit dem Code unten."
     }
   },
   "devices": {

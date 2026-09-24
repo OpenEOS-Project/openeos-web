@@ -31,6 +31,11 @@ export default function DevicePairPage() {
   const hasHydrated = useDeviceHydration();
   const [fehler, setFehler] = useState<string | null>(null);
 
+  /* Kommt das Geraet aus einer abgelehnten Anmeldung, muss dastehen
+     warum — sonst steht das Personal vor einer Kopplungsseite, die
+     gestern noch eine Kasse war, und haelt es fuer einen neuen Fehler. */
+  const entfernt = searchParams.get('grund') === 'entfernt';
+
   const typ = useMemo<DeviceClass>(() => {
     const gewuenscht = searchParams.get('type') as DeviceClass | null;
     return gewuenscht && ERLAUBTE_TYPEN.includes(gewuenscht) ? gewuenscht : 'display';
@@ -86,7 +91,12 @@ export default function DevicePairPage() {
         <span className="display-pair__icon">{typ === 'pos' ? <Tablet02 /> : <Tv01 />}</span>
 
         <h1 className="display-pair__title">{t(`kinds.${typ}.title`)}</h1>
-        <p className="display-pair__lead">{t('lead')}</p>
+
+        {entfernt ? (
+          <p className="display-pair__notice">{t('revoked')}</p>
+        ) : (
+          <p className="display-pair__lead">{t('lead')}</p>
+        )}
 
         {fehler ? (
           <p className="display-pair__error">{fehler}</p>
