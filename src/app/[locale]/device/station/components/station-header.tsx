@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { Wifi, WifiOff } from '@untitledui/icons';
 import { Logo } from '@/components/foundations/logo/logo';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { cx } from '@/utils/cx';
 
@@ -71,7 +70,13 @@ export function StationHeader({ stationName, stationColor, isConnected, organiza
         </div>
         <div className="h-5 w-px bg-border-secondary" />
         <LocaleSwitcher />
-        <ThemeToggle />
+        {/* Kein Themenschalter auf der Anzeige.
+            Er lief ueber next-themes und damit an der Geraeteeinstellung
+            vorbei: Umgeschaltet wechselten nur ein Teil der Farben, beim
+            naechsten Start setzte die Einstellung alles zurueck — und
+            dazwischen stand ein halb umgeschalteter Bildschirm. Hell oder
+            dunkel gehoert zum Geraet und wird in der Verwaltung gesetzt,
+            wo es auch bleibt. */}
       </div>
     </header>
   );
