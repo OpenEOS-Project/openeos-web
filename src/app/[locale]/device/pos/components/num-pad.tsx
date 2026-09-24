@@ -11,22 +11,21 @@ interface NumPadProps {
   className?: string;
 }
 
+/**
+ * Ziffernblock für Tischnummer, Bargeld und PIN.
+ *
+ * Eigene Klassen aus pos.css statt Tailwind: Das Geräte-Layout lädt nur
+ * diese eine Datei. Die Tailwind-Klassen, die hier vorher standen, waren
+ * auf der Kasse wirkungslos — die Knöpfe erschienen in der Voreinstellung
+ * des Browsers, also mit schwarzer Schrift auf hellem Grund, mitten in
+ * einer dunklen Oberfläche.
+ */
 export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }: NumPadProps) {
-  const handlePress = (digit: string) => {
-    if (value.length < maxLength) {
-      onChange(value + digit);
-    }
+  const druecken = (ziffer: string) => {
+    if (value.length < maxLength) onChange(value + ziffer);
   };
 
-  const handleBackspace = () => {
-    onChange(value.slice(0, -1));
-  };
-
-  const handleClear = () => {
-    onChange('');
-  };
-
-  const buttons = [
+  const tasten = [
     ['1', '2', '3'],
     ['4', '5', '6'],
     ['7', '8', '9'],
@@ -34,28 +33,29 @@ export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }:
   ];
 
   return (
-    <div className={cx('grid grid-cols-3 gap-2', className)}>
-      {buttons.flat().map((btn) => {
-        if (btn === 'DEL') {
+    <div className={cx('pos-numpad', className)}>
+      {tasten.flat().map((taste) => {
+        if (taste === 'DEL') {
           return (
             <button
-              key={btn}
+              key={taste}
               type="button"
-              onClick={handleBackspace}
-              className="flex h-14 items-center justify-center rounded-lg border border-secondary bg-secondary text-tertiary transition-colors hover:bg-tertiary-hover active:bg-quaternary"
+              onClick={() => onChange(value.slice(0, -1))}
+              className="pos-numpad__key pos-numpad__key--soft"
+              aria-label="Löschen"
             >
-              <Delete className="h-6 w-6" />
+              <Delete />
             </button>
           );
         }
 
-        if (btn === 'C') {
+        if (taste === 'C') {
           return (
             <button
-              key={btn}
+              key={taste}
               type="button"
-              onClick={handleClear}
-              className="flex h-14 items-center justify-center rounded-lg border border-secondary bg-secondary text-tertiary transition-colors hover:bg-tertiary-hover active:bg-quaternary text-lg font-medium"
+              onClick={() => onChange('')}
+              className="pos-numpad__key pos-numpad__key--soft"
             >
               C
             </button>
@@ -64,12 +64,12 @@ export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }:
 
         return (
           <button
-            key={btn}
+            key={taste}
             type="button"
-            onClick={() => handlePress(btn)}
-            className="flex h-14 items-center justify-center rounded-lg border border-secondary bg-primary text-primary transition-colors hover:bg-secondary active:bg-tertiary text-2xl font-semibold"
+            onClick={() => druecken(taste)}
+            className="pos-numpad__key"
           >
-            {btn}
+            {taste}
           </button>
         );
       })}

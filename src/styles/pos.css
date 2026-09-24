@@ -394,3 +394,41 @@ body:has(.pos-root) {
   font-size: 15px;
   line-height: 1.5;
 }
+
+/* Ziffernblock der Kasse.
+   Hier, weil das Geraete-Layout nur diese Datei laedt — Tailwind steht
+   auf diesen Seiten nicht zur Verfuegung. Grosse Flaechen, weil mit dem
+   Daumen und oft mit nassen Fingern getippt wird. */
+.pos-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pos-numpad__key {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pos-line);
+  border-radius: var(--pos-r-sm);
+  background: var(--pos-surface);
+  color: var(--pos-ink);
+  font-size: 24px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pos-numpad__key:active {
+  background: var(--pos-line);
+}
+.pos-numpad__key--soft {
+  background: transparent;
+  color: var(--pos-ink-3);
+  font-size: 18px;
+}
+.pos-numpad__key--soft svg {
+  width: 22px;
+  height: 22px;
+}

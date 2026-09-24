@@ -34,9 +34,16 @@ const securityHeaders = [
       // In development the API is plain http on another port, which is
       // neither 'self' nor https:, so it has to be allowed explicitly —
       // otherwise the local dashboard silently can't reach the backend.
+      //
+      // `wss:` must be named in its own right. A browser treats it as a
+      // separate scheme, so `https:` does not cover it — which is exactly
+      // what happened: tills and screens could reach the API over HTTP
+      // and looked alive, while every socket was refused before it left
+      // the browser. Nobody noticed because development allows ws: and
+      // therefore worked.
       isDev
-        ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*"
-        : "connect-src 'self' https:",
+        ? "connect-src 'self' https: wss: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*"
+        : "connect-src 'self' https: wss:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "object-src 'none'",
