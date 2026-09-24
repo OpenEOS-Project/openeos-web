@@ -439,12 +439,23 @@ body:has(.pos-root) {
   height: 22px;
 }
 
-/* Symbol im "Fertig"-Knopf der Stationsanzeige.
-   Hier, weil die Stationsansicht nur pos.css laedt — Groessenangaben aus
-   Tailwind greifen auf dieser Seite nicht. */
+/* Der "Fertig"-Knopf der Stationsanzeige.
+   Hier, weil die Stationsansicht nur pos.css laedt — die Tailwind-Klassen
+   am Knopf greifen auf dieser Seite nicht, weshalb das Symbol ueber dem
+   Text stand statt daneben und der Knopf seine Mindestgroesse verlor.
+   Gross genug fuer einen Daumen mit Kuechenhandschuh. */
+.station-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 48px;
+  min-width: 96px;
+  margin-left: 12px;
+  white-space: nowrap;
+}
 .station-done__icon {
   width: 18px;
   height: 18px;
-  margin-right: 7px;
   flex: 0 0 auto;
 }

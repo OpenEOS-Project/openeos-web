@@ -135,7 +135,7 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
               <Button
                 size="sm"
                 color="primary"
-                className="ml-3 min-h-[48px] min-w-[80px]"
+                className="station-done"
                 onClick={() => onItemReady(item.id)}
                 isDisabled={isMarkingReady}
               >
