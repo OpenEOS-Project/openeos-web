@@ -2073,7 +2073,7 @@
       "noDevicesOnline": "Keine Geräte online"
     },
     "verify": {
-      "title": "Gerät verknüpfen",
+      "title": "Gerät verbinden",
       "enterCodeDescription": "Gib den sechsstelligen Code ein, der auf dem Gerät steht.",
       "code": "Verifizierungscode",
       "lookup": "Gerät suchen",
