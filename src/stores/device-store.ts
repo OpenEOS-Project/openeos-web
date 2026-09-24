@@ -11,6 +11,8 @@ interface DeviceState {
   // Device info
   deviceId: string | null;
   deviceToken: string | null;
+  /** Als was dieses Geraet angetreten ist — auch vor der Freigabe bekannt. */
+  gewuenschterTyp: DeviceClass | null;
   verificationCode: string | null;
   organizationId: string | null;
   organizationName: string | null;
@@ -60,6 +62,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       // Initial state
       deviceId: null,
       deviceToken: null,
+      gewuenschterTyp: null,
       verificationCode: null,
       organizationId: null,
       organizationName: null,
@@ -74,7 +77,12 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
 
       // Initialize device (for TV apps - no organization required)
       init: async (suggestedName?: string, deviceType?: DeviceClass) => {
-        set({ isLoading: true, error: null });
+        /* Den gewuenschten Typ merken. Die Statusabfrage liefert
+           `deviceClass` erst fuer freigegebene Geraete; ohne diesen
+           Vermerk faellt ein Bildschirm, dessen Geraet in der Verwaltung
+           geloescht wurde, beim Neuanmelden auf "Kasse" zurueck und
+           taucht in der Freigabe als solche auf. */
+        set({ isLoading: true, error: null, gewuenschterTyp: deviceType ?? null });
 
         try {
           const response = await devicesApi.init({
@@ -173,7 +181,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
              mehrfach pro Sekunde angefragt und dabei nur "offline"
              angezeigt, ohne dass jemand erfuhr, warum. */
           if (error instanceof ApiException && error.status === 401) {
-            const klasse = get().deviceClass;
+            const klasse = get().deviceClass ?? get().gewuenschterTyp;
             get().clearDevice();
 
             if (typeof window !== 'undefined') {
