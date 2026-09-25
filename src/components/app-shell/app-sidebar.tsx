@@ -43,6 +43,7 @@ import type { NavItemDividerType, NavItemType } from '@/components/app-navigatio
 import { cx } from '@/utils/cx';
 import { APP_VERSION } from '@/lib/version';
 import { useReleaseVersion } from '@/hooks/use-release-version';
+import { useDeployment } from '@/components/providers/setup-provider';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrator',
@@ -118,8 +119,11 @@ export function AppSidebar() {
   const isSuperAdmin = user?.isSuperAdmin ?? false;
   const currentRole = currentOrganization?.role;
   const currentPermissions = currentOrganization?.permissions;
+  const deployment = useDeployment();
 
   const canSeeNavItem = (item: NavItemType | NavItemDividerType): boolean => {
+    // Fuehrt eigenstaendig ins Leere: die Endpunkte dahinter antworten mit 404.
+    if (item.saasOnly && !deployment.multiTenant) return false;
     if (item.adminOnly) return currentRole === 'admin';
     if (!item.requiredPermission) return true;
     if (currentRole === 'admin') return true;
@@ -136,10 +140,18 @@ export function AppSidebar() {
       return hasItemBefore && hasItemAfter && !nextIsDivider;
     });
 
-  const navItems = isSuperAdmin
-    ? superAdminNavItems
+  /* Eigenstaendig ist der Administrator zwar technisch Super-Admin — sonst
+     kaeme er an Geraete, Drucker und Protokoll nicht heran — aber es gibt
+     keine Betreiberebene ueber der Organisation. Bekaeme er hier die
+     Super-Admin-Navigation, verschwaende die gesamte normale Verwaltung
+     hinter einer Liste von Seiten, die es in dieser Installation gar nicht
+     gibt. */
+  const zeigeBetreiberNavigation = isSuperAdmin && deployment.multiTenant;
+
+  const navItems = zeigeBetreiberNavigation
+    ? superAdminNavItems.filter(canSeeNavItem)
     : stripOrphanedDividers(dashboardNavItems.filter(canSeeNavItem));
-  const filteredFooterItems = isSuperAdmin
+  const filteredFooterItems = zeigeBetreiberNavigation
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
 
@@ -147,6 +159,15 @@ export function AppSidebar() {
   const orgs = organizations.filter((o) => o?.organization);
   const hasMultiple = orgs.length > 1;
   const orgInitial = currentOrganization?.organization?.name?.[0]?.toUpperCase() ?? 'O';
+
+  /* Das Menue hat nur einen Zweck, wenn es etwas zu waehlen gibt: entweder
+     eine zweite Organisation oder der Punkt "Neue Organisation". Eigenstaendig
+     entfaellt beides, und ein aufklappbares Menue mit genau einem Eintrag, der
+     schon ausgewaehlt ist, waere nur im Weg.
+
+     (`hasMultiple` wurde bisher berechnet und nie verwendet — hier ist die
+     Stelle, an der es gemeint war.) */
+  const orgMenuNutzbar = deployment.multiTenant || hasMultiple;
 
   const sidebarClasses = cx(
     'app-sidebar',
@@ -219,9 +240,13 @@ export function AppSidebar() {
           >
             <button
               type="button"
-              className="app-sidebar__org app-sidebar__org--clickable"
-              onClick={() => setOrgMenuOpen((v) => !v)}
-              aria-expanded={orgMenuOpen}
+              className={cx(
+                'app-sidebar__org',
+                orgMenuNutzbar && 'app-sidebar__org--clickable',
+              )}
+              onClick={orgMenuNutzbar ? () => setOrgMenuOpen((v) => !v) : undefined}
+              aria-expanded={orgMenuNutzbar ? orgMenuOpen : undefined}
+              disabled={!orgMenuNutzbar}
             >
               <div className="app-sidebar__org-avatar">
                 {orgs.length > 0 ? orgInitial : isSuperAdmin ? 'SA' : '?'}
@@ -242,10 +267,10 @@ export function AppSidebar() {
                       : 'Tippe zum Erstellen'}
                 </div>
               </div>
-              <ChevronDown className="app-sidebar__org-chev" />
+              {orgMenuNutzbar && <ChevronDown className="app-sidebar__org-chev" />}
             </button>
 
-            {orgMenuOpen && (
+            {orgMenuNutzbar && orgMenuOpen && (
               <div className="app-sidebar__org-menu" role="menu">
                 {orgs.map((o) => {
                   const initial = o.organization?.name?.[0]?.toUpperCase() ?? 'O';
@@ -290,6 +315,7 @@ export function AppSidebar() {
                     }}
                   />
                 )}
+                {deployment.multiTenant && (
                 <button
                   type="button"
                   role="menuitem"
@@ -312,6 +338,7 @@ export function AppSidebar() {
                   </div>
                   <span style={{ flex: 1 }}>Neue Organisation</span>
                 </button>
+                )}
               </div>
             )}
           </div>

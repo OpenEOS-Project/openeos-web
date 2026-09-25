@@ -4,51 +4,16 @@ import type { NextConfig } from 'next';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
-const isDev = process.env.NODE_ENV === 'development';
-
-// No security headers were set anywhere before this (no CSP, no
-// X-Frame-Options, no HSTS, etc.). This is a pragmatic baseline, not a
-// strict nonce-based CSP — 'unsafe-inline' on script/style is here because
-// Next.js's App Router injects inline bootstrap scripts and styles that a
-// strict CSP would break without wiring per-request nonces through
-// middleware, which is a larger change than this pass covers. Even this
-// still blocks the two things this audit flagged as missing outright:
-// clickjacking (frame-ancestors) and MIME-sniffing (X-Content-Type-Options).
+// Sicherheits-Kopfzeilen, die von nichts abhaengen, was sich zur Laufzeit
+// aendert. Die Content-Security-Policy steht bewusst NICHT hier, sondern in
+// src/lib/security-headers.ts und wird von der Middleware gesetzt: Kopfzeilen
+// aus dieser Datei werden beim Build in das Routen-Manifest geschrieben und
+// koennten die API-Adresse einer eigenstaendigen Installation nicht kennen.
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      // API/shop run on separate subdomains (NEXT_PUBLIC_API_URL /
-      // NEXT_PUBLIC_SHOP_URL) — connect-src needs https: broadly rather
-      // than a fixed origin, since which domain is in play depends on the
-      // build (production vs. staging URLs are baked in as build args).
-      // In development the API is plain http on another port, which is
-      // neither 'self' nor https:, so it has to be allowed explicitly —
-      // otherwise the local dashboard silently can't reach the backend.
-      //
-      // `wss:` must be named in its own right. A browser treats it as a
-      // separate scheme, so `https:` does not cover it — which is exactly
-      // what happened: tills and screens could reach the API over HTTP
-      // and looked alive, while every socket was refused before it left
-      // the browser. Nobody noticed because development allows ws: and
-      // therefore worked.
-      isDev
-        ? "connect-src 'self' https: wss: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*"
-        : "connect-src 'self' https: wss:",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "object-src 'none'",
-    ].join('; '),
-  },
 ];
 
 const nextConfig: NextConfig = {

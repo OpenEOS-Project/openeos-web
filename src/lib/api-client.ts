@@ -1,7 +1,11 @@
 import { ApiException, type ApiError, type ApiResponse } from '@/types/api';
+import { getApiUrl } from '@/lib/runtime-config';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const API_URL = `${API_BASE}/api`;
+/* Frueher zwei Modul-Konstanten aus NEXT_PUBLIC_API_URL. Die wurden beim
+   Build festgeschrieben, womit das veroeffentlichte Image immer auf die
+   gehostete API zeigte. Jetzt eine Funktion, die den zur Laufzeit gesetzten
+   Wert liest — siehe lib/runtime-config.ts. */
+const API_URL = getApiUrl();
 // Device token stays in localStorage: it identifies a paired, already-trusted
 // physical device (kiosk/POS terminal), not a user session, mirroring how
 // the printer-agent and TV apps hold their own device tokens on disk. The

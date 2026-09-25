@@ -33,6 +33,7 @@ export const superAdminNavItems: NavItemType[] = [
   {
     label: 'Organisationen',
     href: '/organizations',
+    saasOnly: true,
     icon: Building07,
   },
   {
@@ -43,6 +44,7 @@ export const superAdminNavItems: NavItemType[] = [
   {
     label: 'Miet-Hardware',
     href: '/admin/rental-hardware',
+    saasOnly: true,
     icon: HardDrive,
   },
   {
@@ -53,6 +55,7 @@ export const superAdminNavItems: NavItemType[] = [
   {
     label: 'Events & Abrechnung',
     href: '/admin/events',
+    saasOnly: true,
     icon: Calendar,
   },
   {
@@ -62,6 +65,7 @@ export const superAdminNavItems: NavItemType[] = [
     // Seitenleiste war nicht unterscheidbar.
     label: 'Support-Anfragen',
     href: '/admin/support',
+    saasOnly: true,
     icon: MessageChatCircle,
   },
   {
@@ -69,6 +73,7 @@ export const superAdminNavItems: NavItemType[] = [
     // niemand auf Antwort wartet — Wünsche liest man in Ruhe durch.
     label: 'Zuschriften',
     href: '/admin/feedback',
+    saasOnly: true,
     icon: Inbox01,
   },
 ];
@@ -160,6 +165,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     // dafuer, und Mitglieder haben darin nichts zu suchen.
     label: 'Rechnungen',
     href: '/invoices',
+    saasOnly: true,
     icon: ReceiptCheck,
     adminOnly: true,
   },
@@ -174,6 +180,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     label: 'Support',
     href: '/support',
+    saasOnly: true,
     icon: MessageChatCircle,
   },
 ];
