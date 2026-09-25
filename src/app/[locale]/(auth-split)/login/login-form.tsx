@@ -11,6 +11,7 @@ import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import { isTwoFactorRequired } from '@/types/auth';
+import { useDeployment } from '@/components/providers/setup-provider';
 
 export function LoginForm() {
   const t = useTranslations('auth.login');
@@ -26,7 +27,13 @@ export function LoginForm() {
   /* Zwei Wege ins Konto. Der Link steht vorn: er verlangt nichts, was man
      vergessen haben kann. Das Passwort bleibt einen Klick entfernt, denn
      jedes bestehende Konto hat eines. */
-  const [modus, setModus] = useState<'password' | 'link'>('link');
+  /* Ohne Mailversand kommt der Anmeldelink nie an, und eigenstaendig ist
+     ein Mailserver nicht vorausgesetzt. Dort startet die Maske deshalb
+     beim Passwort. */
+  const deployment = useDeployment();
+  const [modus, setModus] = useState<'password' | 'link'>(
+    deployment.multiTenant ? 'link' : 'password',
+  );
   const [linkStatus, setLinkStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const {
@@ -267,12 +274,17 @@ export function LoginForm() {
       </form>
       )}
 
-      <p className="auth-form__alt">
-        {t('noAccount')}{' '}
-        <Link href="/register" className="auth-form__alt-link">
-          {t('register')} →
-        </Link>
-      </p>
+      {/* Eigenstaendig ist die Selbstregistrierung abgeschaltet (die API
+          antwortet mit 403) — Konten legt die Mitgliederverwaltung an. Der
+          Hinweis fuehrte sonst auf eine Seite, die nur absagen kann. */}
+      {deployment.multiTenant && (
+        <p className="auth-form__alt">
+          {t('noAccount')}{' '}
+          <Link href="/register" className="auth-form__alt-link">
+            {t('register')} →
+          </Link>
+        </p>
+      )}
 
       <div className="auth-form__devices">
         {/* Beide Wege führen zur Kopplung per Code: das Gerät zeigt eine
