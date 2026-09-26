@@ -20,6 +20,14 @@ export type NavItemType = {
     requiredPermission?: keyof OrganizationPermissions;
     /** If true, only admins can see this nav item. */
     adminOnly?: boolean;
+    /**
+     * Gehoert dieser Eintrag zum gehosteten Angebot?
+     *
+     * In einer eigenstaendigen Installation gibt es die zugehoerigen
+     * Endpunkte nicht (sie antworten mit 404) — der Eintrag waere eine
+     * Sackgasse und wird deshalb ausgeblendet.
+     */
+    saasOnly?: boolean;
 };
 
 export type NavItemDividerType = Omit<NavItemType, "icon" | "label" | "divider"> & {

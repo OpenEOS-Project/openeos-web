@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useDeviceStore } from '@/stores/device-store';
+import { getApiBaseUrl } from '@/lib/runtime-config';
 
 export interface BroadcastMessage {
   id: string;
@@ -41,10 +42,8 @@ export function useDeviceSocket(options: UseDeviceSocketOptions = {}) {
       socketRef.current = null;
     }
 
-    // Get base URL without /api suffix for WebSocket connection
-    let wsUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    // Remove /api or /api/ suffix if present
-    wsUrl = wsUrl.replace(/\/api\/?$/, '');
+    // Basis-URL ohne /api-Suffix — getApiBaseUrl() entfernt es bereits.
+    const wsUrl = getApiBaseUrl();
 
     console.log('Connecting to WebSocket:', wsUrl);
 

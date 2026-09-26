@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { useSetTestMode } from '@/hooks/use-events';
 import { useOnboardingStatus } from '@/hooks/use-onboarding';
+import { useDeployment } from '@/components/providers/setup-provider';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import type { OnboardingStepId } from '@/types/onboarding';
 
@@ -42,6 +43,7 @@ export function QuickStartCard({ organizationId }: Props) {
   const { data: preferences } = usePreferences();
   const updatePreferences = useUpdatePreferences();
   const setTestMode = useSetTestMode();
+  const deployment = useDeployment();
 
   const versteckt = preferences?.onboarding?.quickStartHidden === true;
   const fertig = !!status && status.completed === status.total;
@@ -107,7 +109,11 @@ export function QuickStartCard({ organizationId }: Props) {
               <span className="quick-start__copy">
                 <span className="quick-start__label">{t(`steps.${step.id}.label`)}</span>
                 <span className="quick-start__hint">
-                  {t(`steps.${step.id}.hint`, { max: status.testOrderLimit })}
+                  {/* Ohne Abrechnung gibt es keine Obergrenze, die man nennen
+                      koennte — der Hinweis nennt sonst eine absurde Zahl. */}
+                  {step.id === 'activate' && !deployment.billingEnabled
+                    ? t('steps.activate.hintFree')
+                    : t(`steps.${step.id}.hint`, { max: status.testOrderLimit })}
                 </span>
               </span>
 
@@ -122,10 +128,12 @@ export function QuickStartCard({ organizationId }: Props) {
 
                   {imTest && (
                     <span className="quick-start__done">
-                      {t('testRunning', {
-                        used: status.testOrdersUsed ?? 0,
-                        max: status.testOrderLimit,
-                      })}
+                      {deployment.billingEnabled
+                        ? t('testRunning', {
+                            used: status.testOrdersUsed ?? 0,
+                            max: status.testOrderLimit,
+                          })
+                        : t('testRunningFree', { used: status.testOrdersUsed ?? 0 })}
                     </span>
                   )}
 
@@ -152,7 +160,11 @@ export function QuickStartCard({ organizationId }: Props) {
                       className={`btn btn--sm ${status.eventId ? 'btn--ghost' : 'btn--primary'}`}
                       onClick={() => router.push(ZIELE.activate)}
                     >
-                      {imTest || status.eventId ? t('activateNow') : t('go')}
+                      {!deployment.billingEnabled && (imTest || status.eventId)
+                        ? t('activateFree')
+                        : imTest || status.eventId
+                          ? t('activateNow')
+                          : t('go')}
                     </button>
                   )}
                 </span>

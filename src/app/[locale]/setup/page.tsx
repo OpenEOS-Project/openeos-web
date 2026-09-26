@@ -49,8 +49,22 @@ export default function SetupPage() {
   const router = useRouter();
   const { setupStatus, refetch } = useSetup();
 
+  /* Eigenstaendig gibt es nur den Einzelbetrieb — der Server erzwingt ihn
+     ohnehin. Die Wahl anzubieten hiesse, einen Weg zu zeigen, der
+     anschliessend stillschweigend in den anderen umgebogen wird. */
+    const nurEinzelbetrieb = setupStatus?.deployment
+    ? !setupStatus.deployment.multiTenant
+    : false;
+
   const [step, setStep] = useState<SetupStep>('mode');
   const [mode, setMode] = useState<SetupMode>('single');
+
+  useEffect(() => {
+    if (nurEinzelbetrieb) {
+      setMode('single');
+      setStep((current) => (current === 'mode' ? 'form' : current));
+    }
+  }, [nurEinzelbetrieb]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -349,14 +363,16 @@ export default function SetupPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  type="button"
-                  color="secondary"
-                  onClick={() => setStep('mode')}
-                  className="flex-1"
-                >
-                  {t('form.back')}
-                </Button>
+                {!nurEinzelbetrieb && (
+                  <Button
+                    type="button"
+                    color="secondary"
+                    onClick={() => setStep('mode')}
+                    className="flex-1"
+                  >
+                    {t('form.back')}
+                  </Button>
+                )}
                 <Button type="submit" className="flex-1" isLoading={isSubmitting}>
                   {t('submit')}
                 </Button>
@@ -466,14 +482,16 @@ export default function SetupPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  type="button"
-                  color="secondary"
-                  onClick={() => setStep('mode')}
-                  className="flex-1"
-                >
-                  {t('form.back')}
-                </Button>
+                {!nurEinzelbetrieb && (
+                  <Button
+                    type="button"
+                    color="secondary"
+                    onClick={() => setStep('mode')}
+                    className="flex-1"
+                  >
+                    {t('form.back')}
+                  </Button>
+                )}
                 <Button type="submit" className="flex-1" isLoading={isSubmitting}>
                   {t('submit')}
                 </Button>

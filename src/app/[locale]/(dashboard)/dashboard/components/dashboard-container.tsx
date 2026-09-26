@@ -17,6 +17,7 @@ import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
+import { useDeployment } from '@/components/providers/setup-provider';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('de-DE', {
@@ -45,13 +46,18 @@ export function DashboardContainer() {
   const tOrders = useTranslations('orders');
   const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
+  const deployment = useDeployment();
 
   /* Griffe erscheinen nur hier — sonst verschiebt jeder Scrollversuch
      die Anordnung. */
   const [isEditing, setIsEditing] = useState(false);
   const [rangeKey, setRangeKey] = useState<RangeKey>('today');
 
-  if (user?.isSuperAdmin) {
+  /* Eigenstaendig traegt der Administrator das Super-Admin-Recht nur, um an
+     Geraete, Drucker und Protokoll zu kommen — eine Betreiberebene ueber der
+     Organisation gibt es dort nicht. Das Plattform-Dashboard zaehlte ihm
+     sonst Organisationen und Plattformumsatz vor, statt sein Fest zu zeigen. */
+  if (user?.isSuperAdmin && deployment.multiTenant) {
     return <SuperAdminDashboard />;
   }
 
