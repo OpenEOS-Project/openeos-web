@@ -8,8 +8,10 @@ import { z } from 'zod';
 
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { useEventPricePreview } from '@/hooks/use-event-price-preview';
+import { useDeployment } from '@/components/providers/setup-provider';
 import { formatCurrency } from '@/utils/format';
-import { SHOP_URL, shopUrlForEvent } from '@/lib/shop-url';
+import { shopUrlForEvent } from '@/lib/shop-url';
+import { getShopUrl } from '@/lib/runtime-config';
 import {
   countEventDays,
   fromStoredDays,
@@ -126,7 +128,14 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const days = startDate ? countEventDays(startDate, endDate || startDate) : 0;
   /* Der Preis gehoert neben den Zeitraum, nicht in den Bezahldialog: dort
      steht er erst, wenn die Einrichtung schon hinter einem liegt. */
-  const preis = useEventPricePreview(organizationId, startDate || undefined, endDate || undefined);
+  /* Ohne Abrechnung gibt es keinen Preis — und der Endpunkt dahinter
+     antwortet mit 404. Die Vorschau wird deshalb gar nicht erst geholt. */
+  const deployment = useDeployment();
+  const preis = useEventPricePreview(
+    deployment.billingEnabled ? organizationId : '',
+    startDate || undefined,
+    endDate || undefined,
+  );
 
   const updateDay = (date: string, patch: Partial<ShopDayRow>) =>
     setShopDays((previous) =>
@@ -263,7 +272,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
               </span>
 
-              {preis && days > 0 && (
+              {deployment.billingEnabled && preis && days > 0 && (
                 <div className="event-price-hint">
                   <strong className="event-price-hint__sum">
                     {t('form.priceSum', { price: formatCurrency(preis.finalPrice) })}
@@ -309,7 +318,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               name="shopEnabled"
               control={control}
               render={({ field: { value, onChange } }) => {
-                const shopUrl = event ? shopUrlForEvent(event.id) : SHOP_URL;
+                const shopUrl = event ? shopUrlForEvent(event.id) : getShopUrl();
                 return (
                   <SettingToggle
                     label="Online-Shop aktivieren"

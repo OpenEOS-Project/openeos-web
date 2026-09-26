@@ -1,7 +1,11 @@
-// Public base URL of the customer-facing event shop. Override at build time
-// via NEXT_PUBLIC_SHOP_URL (e.g. http://localhost:3004 in development).
-export const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de';
+import { getShopUrl } from '@/lib/runtime-config';
 
+/**
+ * Oeffentliche Basis-URL des Kunden-Shops.
+ *
+ * Kommt zur Laufzeit aus SHOP_URL (Rueckfall: NEXT_PUBLIC_SHOP_URL aus dem
+ * Build), damit dasselbe Image auch mit eigener Domain laeuft.
+ */
 export function shopUrlForEvent(eventId: string): string {
-  return `${SHOP_URL}/${eventId}`;
+  return `${getShopUrl()}/${eventId}`;
 }

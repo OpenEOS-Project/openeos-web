@@ -13,6 +13,7 @@ import {
   useSyncEventPayment,
 } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
+import { useDeployment } from '@/components/providers/setup-provider';
 import { toast } from '@/components/shared/toast';
 import type { Event } from '@/types';
 import type { EventBilling } from '@/types/billing';
@@ -33,6 +34,7 @@ export function EventsContainer() {
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
+  const deployment = useDeployment();
 
   const deleteEvent = useDeleteEvent();
   const activateEvent = useActivateEvent();
@@ -96,6 +98,23 @@ export function EventsContainer() {
 
   const handleActivateClick = async (event: Event) => {
     if (!organizationId) return;
+
+    /* Ohne Abrechnung gibt es nichts nachzuschlagen — der Endpunkt dahinter
+       existiert dort nicht einmal (404). Ohne diesen Zweig liefe das
+       Aktivieren in den catch unten und meldete einen allgemeinen Fehler,
+       obwohl alles in Ordnung ist. */
+    if (!deployment.billingEnabled) {
+      setCheckingEventId(event.id);
+      try {
+        await activateEvent.mutateAsync({ organizationId, id: event.id });
+      } catch {
+        toast.error(tErrors('generic'));
+      } finally {
+        setCheckingEventId(null);
+      }
+      return;
+    }
+
     setCheckingEventId(event.id);
     try {
       const billing = await billingLookup.mutateAsync({ organizationId, id: event.id });

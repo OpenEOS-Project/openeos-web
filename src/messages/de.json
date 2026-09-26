@@ -2849,7 +2849,8 @@
         },
         "activate": {
           "label": "Verkauf freigeben",
-          "hint": "Zum Ausprobieren genügt der Testmodus: {max} Bestellungen, ohne Kosten."
+          "hint": "Zum Ausprobieren genügt der Testmodus: {max} Bestellungen, ohne Kosten.",
+          "hintFree": "Schalte den Verkauf frei, sobald alles steht — oder teste vorher im Testmodus."
         },
         "categories": {
           "label": "Kategorien anlegen",
@@ -2867,7 +2868,9 @@
       "tryOut": "Testen",
       "testRunning": "Test · {used}/{max}",
       "activated": "freigeschaltet",
-      "activateNow": "Freischalten"
+      "activateNow": "Freischalten",
+      "testRunningFree": "Test · {used} Bestellungen",
+      "activateFree": "Verkauf freigeben"
     },
     "tour": {
       "title": "Rundgang",

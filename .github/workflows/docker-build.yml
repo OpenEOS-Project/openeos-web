@@ -7,9 +7,14 @@ on:
       - dev
     tags:
       - 'v*'
+  # Auch Pull Requests gegen dev pruefen. Veroeffentlicht wird dabei nichts:
+  # der Push ins Registry haengt an `github.event_name != 'pull_request'`,
+  # und die Deploy-Jobs verlangen ohnehin ein `push`-Ereignis. Ein PR baut
+  # das Abbild also nur, um zu zeigen, dass es baut.
   pull_request:
     branches:
       - main
+      - dev
   workflow_dispatch:
     inputs:
       push_image:

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { setupApi } from '@/lib/api-client';
-import type { SetupStatus } from '@/types/setup';
+import type { DeploymentInfo, SetupStatus } from '@/types/setup';
 
 interface SetupContextValue {
   setupStatus: SetupStatus | null;
@@ -18,6 +18,22 @@ const SetupContext = createContext<SetupContextValue>({
 });
 
 export const useSetup = () => useContext(SetupContext);
+
+/* Bis der Server geantwortet hat, wird vom gehosteten Betrieb ausgegangen.
+   Das ist die vorsichtige Richtung: es blendet nichts faelschlich aus. Die
+   Oberflaeche rendert ohnehin erst nach dieser Antwort (siehe Ladezustand
+   weiter unten), der Fall tritt also praktisch nicht ein. */
+const SAAS_DEFAULT: DeploymentInfo = {
+  mode: 'saas',
+  billingEnabled: true,
+  multiTenant: true,
+};
+
+/** Betriebsart dieser Installation — steuert, welche Bereiche sichtbar sind. */
+export function useDeployment(): DeploymentInfo {
+  const { setupStatus } = useSetup();
+  return setupStatus?.deployment ?? SAAS_DEFAULT;
+}
 
 // Routes that don't require setup check (setup pages themselves)
 const SETUP_ROUTES = ['/setup'];

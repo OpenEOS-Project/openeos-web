@@ -2849,7 +2849,8 @@
         },
         "activate": {
           "label": "Enable selling",
-          "hint": "Test mode is enough to try things out: {max} orders, free of charge."
+          "hint": "Test mode is enough to try things out: {max} orders, free of charge.",
+          "hintFree": "Enable selling once everything is ready — or try test mode first."
         },
         "categories": {
           "label": "Create categories",
@@ -2867,7 +2868,9 @@
       "tryOut": "Try it",
       "testRunning": "Test · {used}/{max}",
       "activated": "activated",
-      "activateNow": "Activate"
+      "activateNow": "Activate",
+      "testRunningFree": "Test · {used} orders",
+      "activateFree": "Enable selling"
     },
     "tour": {
       "title": "Tour",

@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
 import { Providers } from '@/components/providers/index';
+import { RuntimeConfigScript } from '@/components/runtime-config-script';
 import { routing } from '@/i18n/routing';
 
 import '@/styles/globals.css';
@@ -34,6 +35,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         className="min-h-screen bg-primary text-primary antialiased"
         style={{ fontFamily: 'var(--f-sans, system-ui, sans-serif)' }}
       >
+        <RuntimeConfigScript />
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
