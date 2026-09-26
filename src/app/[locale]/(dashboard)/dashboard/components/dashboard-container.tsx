@@ -51,10 +51,6 @@ export function DashboardContainer() {
   const [isEditing, setIsEditing] = useState(false);
   const [rangeKey, setRangeKey] = useState<RangeKey>('today');
 
-  if (user?.isSuperAdmin) {
-    return <SuperAdminDashboard />;
-  }
-
   const organizationId = currentOrganization?.organizationId || '';
   /* Fuer die Auswahl "Event": ohne laufende Veranstaltung bleibt der
      Knopf gesperrt. */
@@ -140,6 +136,20 @@ export function DashboardContainer() {
         sizes: next.sizes ?? sizes,
       },
     });
+  }
+
+  /* Stand frueher ganz oben, noch vor einem Dutzend Hooks. Das verstiess
+     gegen die Hook-Regeln: React verlangt, dass in jedem Durchlauf dieselben
+     Hooks in derselben Reihenfolge laufen, und ein Rueckgabewert davor bricht
+     genau das. Bemerkt hat es niemand, weil `isSuperAdmin` sich innerhalb
+     einer Sitzung nie aendert — beim Wechsel waere die Anzeige jedoch mit
+     einem Hook-Reihenfolgefehler stehengeblieben.
+
+     Hier unten ist der Zweig unschaedlich: Alle Hooks sind gelaufen, und die
+     Abfragen darueber haengen an `enabled: !!organizationId`, holen fuer
+     einen Betreiber ohne Organisation also ohnehin nichts. */
+  if (user?.isSuperAdmin) {
+    return <SuperAdminDashboard />;
   }
 
   if (!organizationId) {

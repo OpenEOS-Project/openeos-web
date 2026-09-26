@@ -26,7 +26,7 @@ function shiftBoundsInMinutes(date: string, startTime: string, endTime: string):
   const day = Math.floor(new Date(date).getTime() / 86_400_000);
   const [sh, sm] = startTime.split(':').map(Number);
   const [eh, em] = endTime.split(':').map(Number);
-  let startMins = sh * 60 + sm;
+  const startMins = sh * 60 + sm;
   let endMins = eh * 60 + em;
   if (endMins <= startMins) endMins += 1440;
   return [day * 1440 + startMins, day * 1440 + endMins];

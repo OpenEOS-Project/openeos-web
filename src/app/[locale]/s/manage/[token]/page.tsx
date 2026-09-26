@@ -22,7 +22,7 @@ function bounds(date: string, start: string, end: string): [number, number] {
   const day = Math.floor(new Date(date).getTime() / 86_400_000);
   const [sh, sm] = start.split(':').map(Number);
   const [eh, em] = end.split(':').map(Number);
-  let s = sh * 60 + sm;
+  const s = sh * 60 + sm;
   let e = eh * 60 + em;
   if (e <= s) e += 1440;
   return [day * 1440 + s, day * 1440 + e];
