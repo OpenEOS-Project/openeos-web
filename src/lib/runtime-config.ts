@@ -63,7 +63,7 @@ function initialConfig(): RuntimeConfig {
    mitten im Rendern aus gewoehnlichen Funktionen heraus aufgerufen, und der
    API-Client ist ein Singleton, der schon beim Import existiert. Beide
    koennten einen Hook nicht benutzen. */
-let current: RuntimeConfig = initialConfig();
+const current: RuntimeConfig = initialConfig();
 
 export function getRuntimeConfig(): RuntimeConfig {
   return current;
