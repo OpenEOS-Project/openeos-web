@@ -7,9 +7,14 @@ on:
       - dev
     tags:
       - 'v*'
+  # Auch Pull Requests gegen dev pruefen. Veroeffentlicht wird dabei nichts:
+  # der Push ins Registry haengt an `github.event_name != 'pull_request'`,
+  # und die Deploy-Jobs verlangen ohnehin ein `push`-Ereignis. Ein PR baut
+  # das Abbild also nur, um zu zeigen, dass es baut.
   pull_request:
     branches:
       - main
+      - dev
   workflow_dispatch:
     inputs:
       push_image:
@@ -47,16 +52,19 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      # `pnpm lint` isn't gated here: there is no ESLint config committed to
-      # this repo at all (`next lint` drops into an interactive "how would
-      # you like to configure ESLint?" prompt, which just hangs/fails in
-      # CI) — this needs an actual ESLint setup first, not just a workflow
-      # step. `next build` below still runs its own internal typecheck as
-      # part of the Docker build; this job exists to catch the same failure
-      # in ~30s instead of several minutes into that build.
+      # Bis hierher gab es keine ESLint-Konfiguration im Repo, `next lint`
+      # fiel deshalb in seinen Einrichtungsdialog und war in der CI nicht
+      # verwendbar. Der Regelsatz laeuft jetzt blockierend fuer echte Fehler;
+      # Altlasten stehen als Warnung in eslint.config.mjs.
+      - name: Lint
+        run: pnpm lint
+
+      # `next build` below runs its own typecheck as part of the Docker
+      # build; this job exists to catch the same failure in ~30s instead of
+      # several minutes into that build.
       #
-      # `pnpm test:e2e` (Playwright) isn't gated here either — it needs a
-      # running app + backend, which this workflow doesn't stand up.
+      # `pnpm test:e2e` (Playwright) isn't gated here — it needs a running
+      # app plus a backend, which this workflow doesn't stand up.
 
   build:
     needs: typecheck

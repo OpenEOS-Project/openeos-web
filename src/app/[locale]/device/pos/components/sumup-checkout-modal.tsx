@@ -92,7 +92,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     return () => {
       stopPolling();
     };
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]);  
 
   // Startet den Reader-Checkout über den Gesamtbetrag (Warenkorb + Trinkgeld).
   const startCheckout = async (tipValue: number) => {
