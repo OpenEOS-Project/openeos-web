@@ -1,0 +1,40 @@
+name: CodeQL
+
+# Statische Sicherheitsanalyse von GitHub. Laeuft bei Pull Requests gegen die
+# Integrationszweige und zusaetzlich woechentlich: ein Teil der Regeln kommt
+# erst mit spaeteren Updates dazu, sodass alter Code auch ohne Aenderung noch
+# auffaellig werden kann.
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '17 4 * * 1'
+
+jobs:
+  analyze:
+    name: Analyse (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CodeQL initialisieren
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended findet mehr als der Standardsatz; der Aufwand
+          # bleibt im Rahmen, weil hier kein Kompilat gebaut werden muss.
+          queries: security-extended
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"

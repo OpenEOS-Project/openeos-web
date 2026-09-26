@@ -53,14 +53,6 @@ export function DashboardContainer() {
   const [isEditing, setIsEditing] = useState(false);
   const [rangeKey, setRangeKey] = useState<RangeKey>('today');
 
-  /* Eigenstaendig traegt der Administrator das Super-Admin-Recht nur, um an
-     Geraete, Drucker und Protokoll zu kommen — eine Betreiberebene ueber der
-     Organisation gibt es dort nicht. Das Plattform-Dashboard zaehlte ihm
-     sonst Organisationen und Plattformumsatz vor, statt sein Fest zu zeigen. */
-  if (user?.isSuperAdmin && deployment.multiTenant) {
-    return <SuperAdminDashboard />;
-  }
-
   const organizationId = currentOrganization?.organizationId || '';
   /* Fuer die Auswahl "Event": ohne laufende Veranstaltung bleibt der
      Knopf gesperrt. */
@@ -146,6 +138,26 @@ export function DashboardContainer() {
         sizes: next.sizes ?? sizes,
       },
     });
+  }
+
+  /* Stand frueher ganz oben, noch vor einem Dutzend Hooks. Das verstiess
+     gegen die Hook-Regeln: React verlangt, dass in jedem Durchlauf dieselben
+     Hooks in derselben Reihenfolge laufen, und ein Rueckgabewert davor bricht
+     genau das. Bemerkt hat es niemand, weil `isSuperAdmin` sich innerhalb
+     einer Sitzung nie aendert — beim Wechsel waere die Anzeige jedoch mit
+     einem Hook-Reihenfolgefehler stehengeblieben.
+
+     Hier unten ist der Zweig unschaedlich: Alle Hooks sind gelaufen, und die
+     Abfragen darueber haengen an `enabled: !!organizationId`, holen fuer
+     einen Betreiber ohne Organisation also ohnehin nichts.
+
+     Die Bedingung auf `multiTenant` stammt aus dem Self-Hosting-Zweig:
+     eigenstaendig traegt der Administrator das Super-Admin-Recht nur, um an
+     Geraete, Drucker und Protokoll zu kommen — eine Betreiberebene ueber der
+     Organisation gibt es dort nicht, und das Plattform-Dashboard zaehlte ihm
+     sonst Organisationen und Plattformumsatz vor statt sein Fest. */
+  if (user?.isSuperAdmin && deployment.multiTenant) {
+    return <SuperAdminDashboard />;
   }
 
   if (!organizationId) {

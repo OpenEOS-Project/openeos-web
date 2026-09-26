@@ -1,0 +1,41 @@
+# Haelt Abhaengigkeiten aktuell, ohne dass jemand daran denken muss.
+#
+# Woechentlich und gruppiert: einzelne PRs je Paket erzeugen so viel Rauschen,
+# dass am Ende keiner mehr hinsieht — und genau dann bleiben auch die
+# Sicherheitsupdates liegen. Sicherheitsrelevante Aktualisierungen laufen
+# ausserhalb dieser Gruppen und erscheinen sofort.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    groups:
+      # Patches und Minor-Updates gebuendelt — die brechen selten etwas.
+      routine:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    # Major-Updates kommen einzeln: die will man einzeln lesen.
+    labels: ["dependencies"]
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "docker"]
+
+  # Die Actions selbst altern genauso — und sie laufen mit Schreibrechten.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels: ["dependencies", "ci"]

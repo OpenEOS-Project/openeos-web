@@ -188,7 +188,7 @@ export default function PublicShiftPlanPage() {
       g.shifts.sort((a, b) => a.job.name.localeCompare(b.job.name));
     }
     return groups;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [plan]);
 
   const HANDOVER_TOLERANCE_MINUTES = 45;
