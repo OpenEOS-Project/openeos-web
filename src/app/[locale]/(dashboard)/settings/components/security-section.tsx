@@ -9,6 +9,7 @@ import {
   useSetupEmailOtp,
   useVerifyEmailOtpSetup,
   useDisable2FA,
+  useSendTwoFactorCode,
   useTrustedDevices,
   useRemoveTrustedDevice,
   useSessions,
@@ -28,7 +29,8 @@ export function SecuritySection() {
   const [setupStep, setSetupStep] = useState<SetupStep>('select');
   const [totpSetupData, setTotpSetupData] = useState<TotpSetupResult | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
-  const [disablePassword, setDisablePassword] = useState('');
+  const [disableCode, setDisableCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [codesCopied, setCodesCopied] = useState(false);
 
@@ -41,6 +43,7 @@ export function SecuritySection() {
   const setupEmailOtp = useSetupEmailOtp();
   const verifyEmailOtpSetup = useVerifyEmailOtpSetup();
   const disable2FA = useDisable2FA();
+  const sendTwoFactorCode = useSendTwoFactorCode();
   const removeTrustedDevice = useRemoveTrustedDevice();
   const revokeSession = useRevokeSession();
   const revokeAllOtherSessions = useRevokeAllOtherSessions();
@@ -75,7 +78,7 @@ export function SecuritySection() {
   };
 
   const handleDisable2FA = async () => {
-    try { await disable2FA.mutateAsync(disablePassword); setShowDisableModal(false); setDisablePassword(''); } catch { /* handled */ }
+    try { await disable2FA.mutateAsync(disableCode.trim()); setShowDisableModal(false); setDisableCode(''); setCodeSent(false); } catch { /* handled */ }
   };
 
   const handleCopyRecoveryCodes = () => {
@@ -312,13 +315,36 @@ export function SecuritySection() {
                 <p style={{ fontSize: 13, color: 'var(--warn-ink)' }}>{t('twoFactor.disableConfirmDescription')}</p>
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">{t('twoFactor.enterPassword')}</label>
-                <input type="password" className="input" value={disablePassword} onChange={(e) => setDisablePassword(e.target.value)} />
+                <label className="auth-field__label">{t('twoFactor.disableCodeLabel')}</label>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="one-time-code"
+                  className="input"
+                  value={disableCode}
+                  onChange={(e) => setDisableCode(e.target.value)}
+                />
+                <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                  {twoFactorStatus?.method === 'email' ? t('twoFactor.disableCodeHintEmail') : t('twoFactor.disableCodeHintTotp')}
+                </span>
+                {twoFactorStatus?.method === 'email' && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost btn--sm"
+                    style={{ alignSelf: 'flex-start' }}
+                    disabled={sendTwoFactorCode.isPending}
+                    onClick={async () => {
+                      try { await sendTwoFactorCode.mutateAsync(); setCodeSent(true); } catch { /* handled */ }
+                    }}
+                  >
+                    {codeSent ? t('twoFactor.emailCodeSent') : t('twoFactor.sendEmailCode')}
+                  </button>
+                )}
               </div>
             </div>
             <div className="modal__foot">
               <button className="btn btn--ghost" onClick={() => setShowDisableModal(false)}>{t('twoFactor.back')}</button>
-              <button className="btn btn--primary" style={{ background: 'var(--red, var(--danger))' }} onClick={handleDisable2FA} disabled={!disablePassword || disable2FA.isPending}>
+              <button className="btn btn--primary" style={{ background: 'var(--red, var(--danger))' }} onClick={handleDisable2FA} disabled={disableCode.trim().length < 6 || disable2FA.isPending}>
                 {disable2FA.isPending ? t('twoFactor.disabling') : t('twoFactor.disable')}
               </button>
             </div>

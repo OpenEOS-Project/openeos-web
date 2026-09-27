@@ -499,14 +499,18 @@
         "regenerateCodes": "Generate new codes",
         "disableConfirm": "Disable 2FA?",
         "disableConfirmDescription": "Your account will be less secure without two-factor authentication.",
-        "enterPassword": "Password to confirm",
         "back": "Back",
         "continue": "Continue",
         "confirm": "Confirm",
         "checking": "Checking...",
         "done": "Done",
         "copyCodes": "Copy codes",
-        "disabling": "Disabling..."
+        "disabling": "Disabling...",
+        "disableCodeLabel": "Code to confirm",
+        "disableCodeHintTotp": "Current code from your authenticator app, or a recovery code.",
+        "disableCodeHintEmail": "Request a code by email, or use a recovery code.",
+        "sendEmailCode": "Send code by email",
+        "emailCodeSent": "Code sent – send again"
       },
       "trustedDevices": {
         "title": "Trusted Devices",

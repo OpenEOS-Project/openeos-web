@@ -499,14 +499,18 @@
         "regenerateCodes": "Neue Codes generieren",
         "disableConfirm": "2FA deaktivieren?",
         "disableConfirmDescription": "Ihr Konto wird weniger sicher sein ohne Zwei-Faktor-Authentifizierung.",
-        "enterPassword": "Passwort zur Bestätigung",
         "back": "Zurück",
         "continue": "Weiter",
         "confirm": "Bestätigen",
         "checking": "Prüfen...",
         "done": "Fertig",
         "copyCodes": "Codes kopieren",
-        "disabling": "Deaktivieren..."
+        "disabling": "Deaktivieren...",
+        "disableCodeLabel": "Code zur Bestätigung",
+        "disableCodeHintTotp": "Aktueller Code aus Ihrer Authenticator-App oder ein Wiederherstellungscode.",
+        "disableCodeHintEmail": "Fordern Sie einen Code per E-Mail an oder nutzen Sie einen Wiederherstellungscode.",
+        "sendEmailCode": "Code per E-Mail senden",
+        "emailCodeSent": "Code gesendet – erneut senden"
       },
       "trustedDevices": {
         "title": "Vertrauenswürdige Geräte",

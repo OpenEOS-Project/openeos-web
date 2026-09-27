@@ -214,8 +214,8 @@ export function useDisable2FA() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (password: string) => {
-      await twoFactorApi.disable2FA(password);
+    mutationFn: async (code: string) => {
+      await twoFactorApi.disable2FA(code);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['2fa', 'status'] });
@@ -225,8 +225,8 @@ export function useDisable2FA() {
 
 export function useRegenerateRecoveryCodes() {
   return useMutation<RecoveryCodesResult, Error, string>({
-    mutationFn: async (password: string) => {
-      const response = await twoFactorApi.regenerateRecoveryCodes(password);
+    mutationFn: async (code: string) => {
+      const response = await twoFactorApi.regenerateRecoveryCodes(code);
       return response.data;
     },
   });
@@ -251,6 +251,14 @@ export function useRemoveTrustedDevice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['2fa', 'trusted-devices'] });
+    },
+  });
+}
+
+export function useSendTwoFactorCode() {
+  return useMutation({
+    mutationFn: async () => {
+      await twoFactorApi.sendTwoFactorCode();
     },
   });
 }
