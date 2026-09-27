@@ -63,8 +63,9 @@ jobs:
       # build; this job exists to catch the same failure in ~30s instead of
       # several minutes into that build.
       #
-      # `pnpm test:e2e` (Playwright) isn't gated here — it needs a running
-      # app plus a backend, which this workflow doesn't stand up.
+      # `pnpm test:e2e` (Playwright) laeuft in einem eigenen Workflow
+      # (e2e.yml): er braucht Postgres, Redis und die API und soll dieses
+      # Image nicht aufhalten, wenn nur die Oberflaeche gebaut werden muss.
 
   build:
     needs: typecheck

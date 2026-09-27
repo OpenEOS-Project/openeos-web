@@ -1,0 +1,191 @@
+name: E2E
+
+# Die Playwright-Suite gegen einen echten Stapel: Postgres, Redis, die API
+# als fertiges Image und die Oberflaeche als Produktions-Build. Bis hierher
+# lief sie nie — und Tests, die nie laufen, hoeren auf, Tests zu sein (beim
+# Drucker-Agent waren es am Ende 9 Fehlschlaege und 7 Fehler).
+#
+# Veroeffentlicht wird hier nichts: kein Registry-Login, kein Push, kein
+# Deploy. Das einzige Ergebnis ist der Bericht als Artefakt, wenn etwas
+# fehlschlaegt.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+    inputs:
+      api_image:
+        description: 'API-Image, gegen das getestet wird'
+        required: false
+        default: 'ghcr.io/openeos-project/openeos-api:dev'
+        type: string
+
+permissions:
+  contents: read
+
+# Ein neuer Push auf denselben PR macht den laufenden Durchgang wertlos.
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Gegen den dev-Stand der API: dorthin fliessen die Aenderungen beider
+  # Repos zuerst, und ein PR der Oberflaeche soll gegen das laufen, womit er
+  # als Naechstes zusammen ausgeliefert wird.
+  API_IMAGE: ${{ inputs.api_image || 'ghcr.io/openeos-project/openeos-api:dev' }}
+  # Ports wie in der Entwicklung (Web 3002, API 3001) — dann passen die
+  # Voreinstellungen in playwright.config.ts und e2e/fixtures/test-data.ts.
+  # Bewusst "localhost" und nicht 127.0.0.1: die Anmeldung setzt Cookies,
+  # und nur unter demselben Hostnamen gelten Oberflaeche und API als
+  # dieselbe Site.
+  BASE_URL: http://localhost:3002
+  API_URL: http://localhost:3001
+
+jobs:
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openeos
+          POSTGRES_PASSWORD: e2e_password
+          POSTGRES_DB: openeos
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U openeos"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Die API laeuft per `docker run` und nicht als weiterer Service:
+      # Services starten ohne Reihenfolge, die API braeuchte die Datenbank
+      # aber schon beim Start (sie migriert dabei). Hier laeuft sie erst,
+      # wenn Postgres und Redis gesund sind. Mit --network host erreicht sie
+      # beide ueber die veroeffentlichten Ports.
+      #
+      # Die Schluessel sind Wegwerfwerte fuer diesen einen Durchgang, keine
+      # Geheimnisse. THROTTLE_LIMIT ist hochgesetzt, weil die ganze Suite von
+      # einer einzigen Adresse kommt und das Standardlimit (300/min) sonst
+      # mitten im Lauf zuschluege.
+      - name: Start API (self-hosted mode)
+        run: |
+          docker run -d --name openeos-api --network host \
+            -e PORT=3001 \
+            -e DEPLOYMENT_MODE=selfhosted \
+            -e DATABASE_HOST=127.0.0.1 \
+            -e DATABASE_PORT=5432 \
+            -e DATABASE_USER=openeos \
+            -e DATABASE_PASSWORD=e2e_password \
+            -e DATABASE_NAME=openeos \
+            -e DATABASE_MIGRATIONS_RUN=true \
+            -e DATABASE_LOGGING=false \
+            -e REDIS_HOST=127.0.0.1 \
+            -e REDIS_PORT=6379 \
+            -e JWT_SECRET="e2e-$(openssl rand -hex 24)" \
+            -e TWO_FACTOR_ENCRYPTION_KEY="$(openssl rand -hex 32)" \
+            -e THROTTLE_LIMIT=100000 \
+            -e CORS_ORIGINS="$BASE_URL" \
+            -e APP_URL="$BASE_URL" \
+            "$API_IMAGE"
+          docker inspect --format 'API image: {{.Config.Image}} ({{.Image}})' openeos-api
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.16.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Derselbe Server wie im Image (output: 'standalone'). Die API-Adresse
+      # kommt zur Laufzeit aus API_URL, der Build braucht keine.
+      - name: Build web app
+        run: |
+          pnpm build
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+
+      - name: Resolve Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # Der Browser kommt aus dem Cache, die Systembibliotheken nicht — die
+      # liegen ausserhalb des Home-Verzeichnisses und muessen jedes Mal per
+      # apt nachgezogen werden.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Wait for API
+        run: |
+          for _ in $(seq 1 60); do
+            if curl -sf "$API_URL/api/health" > /dev/null; then
+              echo "API is up."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API did not become healthy within 120s." >&2
+          docker logs openeos-api >&2
+          exit 1
+
+      # Die Ersteinrichtung (POST /api/setup) und das Testkonto legt
+      # e2e/global-setup.ts an — dieselbe Vorbereitung wie lokal, damit beide
+      # Wege nicht auseinanderlaufen. Den Webserver startet Playwright selbst
+      # (webServer in playwright.config.ts).
+      - name: Run Playwright
+        run: pnpm test:e2e
+
+      - name: API logs
+        if: failure()
+        run: docker logs openeos-api
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
