@@ -1,42 +1,43 @@
-import { test as base, Page } from '@playwright/test';
-import { TEST_USER, TEST_ADMIN } from './test-data';
+import { test as base, expect, type Page } from '@playwright/test';
+
+import { LoginPage } from '../pages/login.page';
+import { TEST_ADMIN, TEST_USER } from './test-data';
 
 /**
- * Extended test fixtures with authentication
+ * Seiten mit angemeldetem Konto.
+ *
+ * Angemeldet wird ueber die echte Maske und nicht per gespeichertem
+ * Zustand: das Zugriffstoken lebt nur im Speicher der Seite (siehe
+ * setAccessToken im API-Client), ein storageState truege also nichts
+ * Brauchbares mit. Die Anmeldung selbst ist zudem der Weg, den jede Sitzung
+ * nimmt — kaputt ginge dort zuerst alles.
  */
 type AuthFixtures = {
-  /** Page with logged-in regular user */
-  authenticatedPage: Page;
-  /** Page with logged-in super admin */
+  /** Administrator der Organisation (aus der Ersteinrichtung). */
   adminPage: Page;
+  /** Mitglied ohne Modulrechte. */
+  memberPage: Page;
 };
 
+export async function loginAs(page: Page, user: { email: string; password: string }) {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login(user.email, user.password);
+  await expect(page).toHaveURL(/\/dashboard$/);
+  // Erst wenn die Seitenleiste steht, sind Konto und Organisation geladen —
+  // vorher klickte ein Test mitunter ins Leere.
+  await expect(page.getByRole('complementary').getByRole('navigation')).toBeVisible();
+}
+
 export const test = base.extend<AuthFixtures>({
-  authenticatedPage: async ({ page }, use) => {
-    // Login as regular user
-    await page.goto('/de/login');
-    await page.getByLabel('E-Mail').fill(TEST_USER.email);
-    await page.getByLabel('Passwort').fill(TEST_USER.password);
-    await page.getByRole('button', { name: /anmelden/i }).click();
-
-    // Wait for redirect to dashboard
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-
+  adminPage: async ({ page }, use) => {
+    await loginAs(page, TEST_ADMIN);
     await use(page);
   },
-
-  adminPage: async ({ page }, use) => {
-    // Login as super admin
-    await page.goto('/de/login');
-    await page.getByLabel('E-Mail').fill(TEST_ADMIN.email);
-    await page.getByLabel('Passwort').fill(TEST_ADMIN.password);
-    await page.getByRole('button', { name: /anmelden/i }).click();
-
-    // Wait for redirect to dashboard
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-
+  memberPage: async ({ page }, use) => {
+    await loginAs(page, TEST_USER);
     await use(page);
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect };

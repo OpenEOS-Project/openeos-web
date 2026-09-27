@@ -1,46 +1,34 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 
 /**
- * Page Object for Login Page
+ * Anmeldemaske.
+ *
+ * Eigenstaendig startet sie beim Passwort (ohne Mailserver kaeme ein
+ * Anmeldelink nie an); gehostet beim Anmeldelink. Diese Suite laeuft gegen
+ * eine eigenstaendige Installation.
  */
 export class LoginPage {
   readonly page: Page;
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
   readonly submitButton: Locator;
-  readonly errorMessage: Locator;
   readonly forgotPasswordLink: Locator;
-  readonly registerLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.getByLabel('E-Mail');
-    this.passwordInput = page.getByLabel('Passwort');
-    this.submitButton = page.getByRole('button', { name: /anmelden/i });
-    this.errorMessage = page.locator('[role="alert"]');
-    this.forgotPasswordLink = page.getByRole('link', { name: /passwort vergessen/i });
-    this.registerLink = page.getByRole('link', { name: /registrieren/i });
+    this.emailInput = page.getByLabel('E-Mail-Adresse');
+    this.passwordInput = page.getByLabel('Passwort', { exact: true });
+    this.submitButton = page.getByRole('button', { name: 'Anmelden', exact: true });
+    this.forgotPasswordLink = page.getByRole('link', { name: 'Passwort vergessen?' });
   }
 
-  async goto(locale: string = 'de') {
-    await this.page.goto(`/${locale}/login`);
+  async goto() {
+    await this.page.goto('/login');
   }
 
   async login(email: string, password: string) {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.submitButton.click();
-  }
-
-  async expectError(message?: string) {
-    await expect(this.errorMessage).toBeVisible();
-    if (message) {
-      await expect(this.errorMessage).toContainText(message);
-    }
-  }
-
-  async expectRedirectToDashboard() {
-    await this.page.waitForURL('**/dashboard');
-    await expect(this.page).toHaveURL(/.*dashboard/);
   }
 }

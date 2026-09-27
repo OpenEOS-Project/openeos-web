@@ -1,41 +1,30 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 
 /**
- * Page Object for Dashboard Page
+ * Dashboard mit Seitenleiste (app-shell/app-sidebar.tsx).
  */
 export class DashboardPage {
   readonly page: Page;
   readonly sidebar: Locator;
-  readonly userMenu: Locator;
-  readonly organizationSelector: Locator;
-  readonly creditsDisplay: Locator;
+  readonly navigation: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.sidebar = page.locator('aside');
-    this.userMenu = page.getByRole('button', { name: /profil|benutzer/i });
-    this.organizationSelector = page.locator('[data-testid="org-selector"]');
-    this.creditsDisplay = page.locator('text=/\\d+\\s*credits?/i');
+    this.sidebar = page.getByRole('complementary');
+    this.navigation = this.sidebar.getByRole('navigation');
   }
 
-  async goto(locale: string = 'de') {
-    await this.page.goto(`/${locale}/dashboard`);
+  async goto() {
+    await this.page.goto('/dashboard');
   }
 
-  async navigateTo(menuItem: string) {
-    await this.page.getByRole('link', { name: new RegExp(menuItem, 'i') }).click();
+  navLink(label: string): Locator {
+    return this.navigation.getByRole('link', { name: label, exact: true });
   }
 
-  async logout() {
-    await this.userMenu.click();
-    await this.page.getByRole('menuitem', { name: /abmelden|logout/i }).click();
-  }
-
-  async expectToBeOnDashboard() {
-    await expect(this.page).toHaveURL(/.*dashboard/);
-  }
-
-  async expectCredits(amount: number) {
-    await expect(this.page.getByText(`${amount} Credits`)).toBeVisible();
+  /** Kontomenue unten in der Seitenleiste; der Knopf traegt den Namen. */
+  async openUserMenu(fullName: string) {
+    await this.sidebar.getByRole('button', { name: new RegExp(`${fullName}$`) }).click();
+    return this.page.getByRole('menu');
   }
 }

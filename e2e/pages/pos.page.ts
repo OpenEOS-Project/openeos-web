@@ -1,85 +1,57 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
- * Page Object for POS (Point of Sale) Page
+ * Kasse eines gekoppelten Geraets (/device/pos).
+ *
+ * Die Kasse ist keine Seite im Dashboard: sie laeuft auf einem Tablet,
+ * das per Code gekoppelt wurde, und meldet sich mit einem Geraete-Token an
+ * statt mit einem Benutzerkonto.
  */
 export class POSPage {
   readonly page: Page;
-  readonly categoryTabs: Locator;
-  readonly productGrid: Locator;
+  /** Warenkorb-Spalte rechts (auf breiten Bildschirmen immer sichtbar). */
   readonly cart: Locator;
-  readonly cartItems: Locator;
-  readonly cartTotal: Locator;
-  readonly checkoutButton: Locator;
+  readonly payCashButton: Locator;
   readonly clearCartButton: Locator;
+  readonly cashDialog: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.categoryTabs = page.locator('[data-testid="category-tabs"]');
-    this.productGrid = page.locator('[data-testid="product-grid"]');
-    this.cart = page.locator('[data-testid="cart"]');
-    this.cartItems = page.locator('[data-testid="cart-item"]');
-    this.cartTotal = page.locator('[data-testid="cart-total"]');
-    this.checkoutButton = page.getByRole('button', { name: /bezahlen|checkout/i });
-    this.clearCartButton = page.getByRole('button', { name: /leeren|clear/i });
+    this.cart = page.locator('.pos-cart-col');
+    this.payCashButton = this.cart.getByRole('button', { name: 'Bar', exact: true });
+    this.clearCartButton = this.cart.getByRole('button', { name: 'Warenkorb leeren' });
+    this.cashDialog = page.getByRole('dialog', { name: 'Barzahlung' });
   }
 
-  async goto(locale: string = 'de') {
-    await this.page.goto(`/${locale}/pos`);
+  async goto() {
+    await this.page.goto('/device/pos');
   }
 
-  async selectCategory(categoryName: string) {
-    await this.page.getByRole('tab', { name: categoryName }).click();
+  /** Tischnummer ueber das Ziffernfeld eingeben und die Bestellung beginnen. */
+  async startTable(number: string) {
+    await expect(this.page.getByRole('heading', { name: 'Tischnummer eingeben' })).toBeVisible();
+    for (const digit of number) {
+      await this.page.getByRole('button', { name: digit, exact: true }).click();
+    }
+    await this.page.getByRole('button', { name: 'Bestellung starten' }).click();
+    await expect(this.page.getByRole('button', { name: `Tisch ${number} ▾` })).toBeVisible();
   }
 
-  async addProductToCart(productName: string) {
-    await this.page.getByText(productName).click();
+  product(name: string): Locator {
+    return this.page.getByRole('main').getByRole('button', { name: new RegExp(`^${name} `) });
   }
 
-  async increaseQuantity(productName: string) {
-    const cartItem = this.page.locator('[data-testid="cart-item"]').filter({ hasText: productName });
-    await cartItem.getByRole('button', { name: '+' }).click();
+  async addProduct(name: string) {
+    await this.product(name).click();
   }
 
-  async decreaseQuantity(productName: string) {
-    const cartItem = this.page.locator('[data-testid="cart-item"]').filter({ hasText: productName });
-    await cartItem.getByRole('button', { name: '-' }).click();
+  /** Menge und Name stehen in getrennten Elementen ("2×", "Apfelschorle"). */
+  async expectCartLine(name: string, quantity: number) {
+    await expect(this.cart).toContainText(new RegExp(`(^|\\D)${quantity}×\\s*${name}`));
   }
 
-  async removeFromCart(productName: string) {
-    const cartItem = this.page.locator('[data-testid="cart-item"]').filter({ hasText: productName });
-    await cartItem.getByRole('button', { name: /entfernen|remove/i }).click();
-  }
-
-  async clearCart() {
-    await this.clearCartButton.click();
-  }
-
-  async checkout() {
-    await this.checkoutButton.click();
-  }
-
-  async payWithCash() {
-    await this.page.getByRole('button', { name: /bar|cash/i }).click();
-  }
-
-  async payWithCard() {
-    await this.page.getByRole('button', { name: /karte|card/i }).click();
-  }
-
-  async expectProductInCart(productName: string) {
-    await expect(this.page.locator('[data-testid="cart-item"]').filter({ hasText: productName })).toBeVisible();
-  }
-
-  async expectCartEmpty() {
-    await expect(this.cartItems).toHaveCount(0);
-  }
-
+  /** Betrag wie angezeigt, etwa "9,00" — das Euro-Zeichen steht mit geschuetztem Leerzeichen dahinter. */
   async expectTotal(amount: string) {
-    await expect(this.cartTotal).toContainText(amount);
-  }
-
-  async expectOrderSuccess() {
-    await expect(this.page.getByText(/bestellung.*erfolgreich|order.*success/i)).toBeVisible();
+    await expect(this.cart).toContainText(new RegExp(`Gesamt\\s*${amount}\\s€`));
   }
 }
