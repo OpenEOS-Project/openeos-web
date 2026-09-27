@@ -1,41 +1,30 @@
 /**
- * Test data for E2E tests
- * These credentials should match the seed data in the test database
+ * Testdaten der E2E-Suite.
+ *
+ * Diese Konten legt e2e/global-setup.ts selbst an (Ersteinrichtung ueber
+ * POST /api/setup, danach ein Mitglied). Es gibt keinen externen Seed, auf
+ * den sie passen muessten.
  */
 
-export const TEST_USER = {
-  email: 'lukas@lukic-spitznagel.de',
-  password: 'Muster123!',
-  firstName: 'Test',
-  lastName: 'User',
-};
+/** Basis-URL der API ohne `/api` — dieselbe Angabe wie API_URL der Oberflaeche. */
+export const API_URL = (process.env.API_URL || 'http://localhost:3001').replace(/\/api\/?$/, '');
 
+/** Administrator aus der Ersteinrichtung: Super-Admin und Admin der Organisation. */
 export const TEST_ADMIN = {
   email: 'admin@openeos.local',
   password: 'Admin123!',
-  isSuperAdmin: true,
+  firstName: 'Erika',
+  lastName: 'Admin',
+};
+
+/** Gewoehnliches Mitglied ohne Modulrechte. */
+export const TEST_USER = {
+  email: 'mitglied@openeos.local',
+  password: 'Mitglied123!',
+  firstName: 'Max',
+  lastName: 'Mitglied',
 };
 
 export const TEST_ORG = {
-  name: 'Test Organisation',
-  slug: 'test-org',
-  eventCredits: 100,
-};
-
-export const TEST_EVENT = {
-  name: 'Test Event',
-  description: 'Ein Test-Event für E2E Tests',
-  startDate: '2026-02-01',
-  endDate: '2026-02-03',
-};
-
-export const TEST_CATEGORY = {
-  name: 'Getränke',
-  color: '#3B82F6',
-};
-
-export const TEST_PRODUCT = {
-  name: 'Cola',
-  price: '3.50',
-  description: 'Erfrischungsgetränk',
+  name: 'E2E Verein',
 };

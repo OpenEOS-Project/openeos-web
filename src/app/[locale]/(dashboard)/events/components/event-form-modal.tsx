@@ -214,7 +214,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
-                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
+                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
+                      {/* Die Meldung im Schema steht fest auf Englisch und
+                          erschien so auch in der deutschen Oberflaeche. Das
+                          leere Feld ist der Fall, der tatsaechlich vorkommt. */}
+                      {errors.name.type === 'too_small' ? t('form.nameRequired') : errors.name.message}
+                    </span>
                   )}
                 </label>
               )}

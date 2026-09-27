@@ -1,140 +1,179 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, type BrowserContextOptions } from '@playwright/test';
+
+import { apiLogin, apiPost, newApiContext } from '../fixtures/api';
+import { loginAs } from '../fixtures/auth.fixture';
+import { TEST_ADMIN } from '../fixtures/test-data';
 import { POSPage } from '../pages/pos.page';
 
+/*
+ * Die Kasse von der Kopplung bis zur bezahlten Bestellung.
+ *
+ * Frueher testete diese Datei eine Seite /pos im Dashboard, die es nicht
+ * mehr gibt — die Kasse ist heute ein gekoppeltes Geraet unter
+ * /device/pos. Fast jeder Test stand zudem hinter `if (isVisible())` und
+ * bestand damit auch, wenn nichts davon zu sehen war.
+ *
+ * Seriell: die Tests bauen aufeinander auf (erst koppeln, dann verkaufen).
+ */
+test.describe.configure({ mode: 'serial' });
+
+const stamp = Date.now();
+const EVENT_NAME = `Kassentest ${stamp}`;
+const CATEGORY = 'Getränke';
+const PRODUCTS = { schorle: 'Apfelschorle', wasser: 'Wasser' } as const;
+
+/** Zugangsdaten des gekoppelten Geraets (Geraete-Token im localStorage). */
+let deviceState: BrowserContextOptions['storageState'];
+
+test.beforeAll(async () => {
+  // Stammdaten ueber die API: Veranstaltung, Kategorie und Produkte
+  // anzulegen ist nicht Gegenstand dieser Tests. Die Veranstaltung wird
+  // aktiviert — die Kasse verkauft nur fuer die aktive.
+  const api = await newApiContext();
+  try {
+    const admin = await apiLogin(api, TEST_ADMIN.email, TEST_ADMIN.password);
+    const org = admin.organizationId;
+    const event = await apiPost(api, `organizations/${org}/events`, admin.headers, {
+      name: EVENT_NAME,
+      startDate: '2026-03-01',
+    });
+    await apiPost(api, `organizations/${org}/events/${event.id}/activate`, admin.headers);
+    const category = await apiPost(api, `events/${event.id}/categories`, admin.headers, { name: CATEGORY });
+    await apiPost(api, `events/${event.id}/products`, admin.headers, {
+      categoryId: category.id,
+      name: PRODUCTS.schorle,
+      price: 3.5,
+    });
+    await apiPost(api, `events/${event.id}/products`, admin.headers, {
+      categoryId: category.id,
+      name: PRODUCTS.wasser,
+      price: 2,
+    });
+  } finally {
+    await api.dispose();
+  }
+});
+
 test.describe('POS - Point of Sale', () => {
-  test.describe('Page Access', () => {
-    test('shows POS page for authenticated users', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
-
-      // Should be on POS page
-      await expect(authenticatedPage).toHaveURL(/.*pos/);
-    });
-
-    test('redirects to login for unauthenticated users', async ({ page }) => {
-      await page.goto('/de/pos');
-      await expect(page).toHaveURL(/.*login/);
-    });
+  test('an unpaired device is sent to registration', async ({ page }) => {
+    await page.goto('/device/pos');
+    await expect(page).toHaveURL(/\/device\/register$/);
   });
 
-  test.describe('Product Display', () => {
-    test('shows products from selected event', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
+  test('pairs a POS device with a code confirmed by an admin', async ({ browser }) => {
+    const deviceContext = await browser.newContext();
+    const adminContext = await browser.newContext();
+    try {
+      const device = await deviceContext.newPage();
+      await device.goto('/device/pair?type=pos');
+      await expect(device.getByRole('heading', { name: 'Kasse verbinden' })).toBeVisible();
 
-      // Should show product grid or empty state
-      await expect(
-        authenticatedPage.locator('[data-testid="product-grid"], [data-testid="empty-state"]')
-      ).toBeVisible();
-    });
+      const codeLabel = device.getByLabel('Kopplungscode');
+      await expect(codeLabel).toHaveText(/^\d{2} \d{2} \d{2}$/);
+      const code = (await codeLabel.textContent())!.replace(/\s/g, '');
 
-    test('can filter products by category', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
+      // Der Weg ueber den QR-Code: die Adresse traegt den Code schon.
+      const admin = await adminContext.newPage();
+      await loginAs(admin, TEST_ADMIN);
+      await admin.goto(`/devices/verify?code=${code}`);
+      await expect(admin.getByText('Gerät gefunden')).toBeVisible();
+      await admin.getByRole('button', { name: 'Verknüpfen' }).click();
+      await expect(admin.getByText('Erfolgreich verknüpft!')).toBeVisible();
 
-      // If categories exist, clicking should filter products
-      const categoryTab = authenticatedPage.getByRole('tab').first();
-      if (await categoryTab.isVisible()) {
-        await categoryTab.click();
-        // Products should update based on category
-      }
-    });
+      // Das Geraet fragt alle drei Sekunden nach und wechselt selbst.
+      await expect(device).toHaveURL(/\/device\/pos$/, { timeout: 15_000 });
+      await expect(device.getByText(EVENT_NAME)).toBeVisible();
+
+      deviceState = await deviceContext.storageState();
+    } finally {
+      await adminContext.close();
+      await deviceContext.close();
+    }
   });
 
-  test.describe('Cart Operations', () => {
-    test('can add product to cart', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
+  test.describe('with a paired device', () => {
+    test.use({ storageState: async ({}, use) => use(deviceState) });
 
-      // Find first product and click it
-      const firstProduct = authenticatedPage.locator('[data-testid="product-card"]').first();
-      if (await firstProduct.isVisible()) {
-        const productName = await firstProduct.textContent();
-        await firstProduct.click();
+    test('shows the products of the active event after choosing a table', async ({ page }) => {
+      const pos = new POSPage(page);
+      await pos.goto();
+      await pos.startTable('5');
 
-        // Cart should show the product
-        await expect(authenticatedPage.locator('[data-testid="cart"]')).toContainText(productName || '');
-      }
+      await expect(page.getByRole('complementary').getByRole('button', { name: new RegExp(CATEGORY) })).toBeVisible();
+      await expect(pos.product(PRODUCTS.schorle)).toContainText('3,50');
+      await expect(pos.product(PRODUCTS.wasser)).toContainText('2,00');
+      await expect(pos.cart).toContainText('Noch nichts bestellt.');
+      await expect(pos.payCashButton).toBeDisabled();
     });
 
-    test('can increase product quantity', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
+    test('adds, changes and clears cart items', async ({ page }) => {
+      const pos = new POSPage(page);
+      await pos.goto();
+      await pos.startTable('7');
 
-      // Add product first
-      const firstProduct = authenticatedPage.locator('[data-testid="product-card"]').first();
-      if (await firstProduct.isVisible()) {
-        await firstProduct.click();
-        await firstProduct.click(); // Click again to increase quantity
+      await pos.addProduct(PRODUCTS.schorle);
+      await pos.expectCartLine(PRODUCTS.schorle, 1);
+      await pos.addProduct(PRODUCTS.schorle);
+      await pos.expectCartLine(PRODUCTS.schorle, 2);
+      await pos.expectTotal('7,00');
 
-        // Should show quantity 2
-        await expect(authenticatedPage.locator('[data-testid="cart-item"]').first()).toContainText('2');
-      }
+      await pos.addProduct(PRODUCTS.wasser);
+      await pos.expectTotal('9,00');
+      await expect(pos.cart).toContainText('3 Artikel');
+
+      // Die Mengenknoepfe gehoeren zur jeweiligen Zeile; die erste ist die Schorle.
+      await pos.cart.getByRole('button', { name: '−' }).first().click();
+      await pos.expectCartLine(PRODUCTS.schorle, 1);
+      await pos.expectTotal('5,50');
+      await pos.cart.getByRole('button', { name: '+' }).nth(1).click();
+      await pos.expectCartLine(PRODUCTS.wasser, 2);
+      await pos.expectTotal('7,50');
+
+      await pos.clearCartButton.click();
+      await expect(pos.cart).toContainText('Noch nichts bestellt.');
+      await pos.expectTotal('0,00');
+      await expect(pos.payCashButton).toBeDisabled();
     });
 
-    test('can clear cart', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
+    test('completes a cash sale that shows up in the order list', async ({ page, browser }) => {
+      const pos = new POSPage(page);
+      await pos.goto();
+      await pos.startTable('5');
 
-      // Add product
-      const firstProduct = authenticatedPage.locator('[data-testid="product-card"]').first();
-      if (await firstProduct.isVisible()) {
-        await firstProduct.click();
+      await pos.addProduct(PRODUCTS.schorle);
+      await pos.addProduct(PRODUCTS.schorle);
+      await pos.addProduct(PRODUCTS.wasser);
+      await pos.expectTotal('9,00');
 
-        // Clear cart
-        const clearButton = authenticatedPage.getByRole('button', { name: /leeren|clear|löschen/i });
-        if (await clearButton.isVisible()) {
-          await clearButton.click();
-          await posPage.expectCartEmpty();
-        }
+      await pos.payCashButton.click();
+      await expect(pos.cashDialog).toContainText(/Zu zahlen:\s*9,00\s€/);
+      await pos.cashDialog.getByRole('button', { name: '20,00 €' }).click();
+      await expect(pos.cashDialog).toContainText(/Rückgeld\s*11,00\s€/);
+      await pos.cashDialog.getByRole('button', { name: 'Zahlung bestätigen' }).click();
+
+      await expect(pos.cashDialog).toHaveCount(0);
+      const confirmation = pos.cart.getByText(/Bestellung #\d{8}-\d{4} erstellt/);
+      await expect(confirmation).toBeVisible();
+      const orderNumber = (await confirmation.textContent())!.match(/#(\d{8}-\d{4})/)![1];
+      await expect(pos.cart).toContainText('Noch nichts bestellt.');
+
+      // Gegenprobe in der Verwaltung: bezahlt, mit Tisch und Positionen.
+      const adminContext = await browser.newContext({ storageState: undefined });
+      try {
+        const admin = await adminContext.newPage();
+        await loginAs(admin, TEST_ADMIN);
+        await admin.goto('/orders');
+        const row = admin.getByRole('row').filter({ hasText: orderNumber });
+        await expect(row).toBeVisible();
+        await expect(row).toContainText('Tisch 5');
+        await expect(row).toContainText('2x Apfelschorle');
+        await expect(row).toContainText('1x Wasser');
+        await expect(row).toContainText('Bezahlt');
+        await expect(row).toContainText('Abgeschlossen');
+        await expect(row).toContainText(/9,00\s€/);
+      } finally {
+        await adminContext.close();
       }
-    });
-  });
-
-  test.describe('Checkout', () => {
-    test('checkout button is disabled when cart is empty', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
-
-      const checkoutButton = authenticatedPage.getByRole('button', { name: /bezahlen|checkout/i });
-      if (await checkoutButton.isVisible()) {
-        await expect(checkoutButton).toBeDisabled();
-      }
-    });
-
-    test('can complete cash payment', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
-
-      // Add product
-      const firstProduct = authenticatedPage.locator('[data-testid="product-card"]').first();
-      if (await firstProduct.isVisible()) {
-        await firstProduct.click();
-
-        // Checkout
-        const checkoutButton = authenticatedPage.getByRole('button', { name: /bezahlen|checkout/i });
-        if (await checkoutButton.isVisible() && await checkoutButton.isEnabled()) {
-          await checkoutButton.click();
-
-          // Select cash payment
-          const cashButton = authenticatedPage.getByRole('button', { name: /bar|cash/i });
-          if (await cashButton.isVisible()) {
-            await cashButton.click();
-            // Should complete order
-          }
-        }
-      }
-    });
-  });
-
-  test.describe('Keyboard Shortcuts', () => {
-    test('supports keyboard navigation', async ({ authenticatedPage }) => {
-      const posPage = new POSPage(authenticatedPage);
-      await posPage.goto();
-
-      // Test Tab navigation works
-      await authenticatedPage.keyboard.press('Tab');
-      // Focus should move to first focusable element
     });
   });
 });
