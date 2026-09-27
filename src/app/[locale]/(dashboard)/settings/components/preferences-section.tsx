@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ListLoading } from '@/components/shared/list-states';
@@ -35,9 +35,11 @@ export function PreferencesSection() {
 
   const handleLanguageChange = async (newLocale: string) => {
     await updatePreferences.mutateAsync({ locale: newLocale as 'de' | 'en' });
-    const segments = pathname.split('/');
-    segments[1] = newLocale;
-    router.push(segments.join('/'));
+    /* Ueber den Router von next-intl, wie im Kontomenue der Seitenleiste.
+       Das fruehere Ersetzen des ersten Pfadsegments ging von einem
+       Sprachpraefix aus — das Deutsche hat aber keines ("as-needed"), und
+       aus /settings wurde /en, also das Dashboard. */
+    router.replace(pathname, { locale: newLocale as 'de' | 'en' });
   };
 
   const handleNotificationChange = async (type: 'email' | 'push', enabled: boolean) => {
