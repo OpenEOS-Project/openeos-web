@@ -375,7 +375,7 @@ export const organizationsApi = {
     integrationId: import('@/types/organization').IntegrationId,
     enabled: boolean,
   ) =>
-    apiClient.put<ApiResponse<import('@/types/organization').Organization>>(
+    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
       `/organizations/${id}/integrations/${integrationId}`,
       { enabled },
     ),

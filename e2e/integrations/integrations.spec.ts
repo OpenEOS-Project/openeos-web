@@ -9,7 +9,7 @@ import { DashboardPage } from '../pages/dashboard.page';
  * Integrationen: Katalog mit Infofenster, Schalter, Eintrag in der
  * Seitenleiste und eigene Konfigurationsseite.
  *
- * Der Schalter-Endpunkt (PUT /organizations/:id/integrations/:integrationId)
+ * Der Schalter-Endpunkt (PATCH /organizations/:id/integrations/:integrationId)
  * kommt mit einem eigenen PR in die API. Bis der in dev ist, läuft die CI
  * gegen ein Image ohne ihn — dann werden diese Tests mit Begründung
  * übersprungen statt rot zu werden. Ein 404 mit INTEGRATION_NOT_FOUND wäre
@@ -22,7 +22,7 @@ let organizationId: string;
 let endpointAvailable = true;
 
 async function setSumup(enabled: boolean) {
-  return api.put(`organizations/${organizationId}/integrations/sumup`, {
+  return api.patch(`organizations/${organizationId}/integrations/sumup`, {
     headers,
     data: { enabled },
   });
@@ -53,7 +53,7 @@ test.afterAll(async () => {
 });
 
 const SKIP_REASON =
-  'Die API kennt PUT /organizations/:id/integrations/:integrationId noch nicht (404) — ' +
+  'Die API kennt PATCH /organizations/:id/integrations/:integrationId noch nicht (404) — ' +
   'der Test läuft, sobald der API-PR zur Integrations-Aktivierung in dev ist.';
 
 test.describe('Integrations', () => {
