@@ -529,13 +529,14 @@
       "sessions": {
         "title": "Active Sessions",
         "description": "Manage your active logins",
-        "current": "Current session",
+        "current": "This device",
         "lastActive": "Last active",
         "revoke": "Sign out",
         "revokeAll": "Sign out all other sessions",
         "revokeAllConfirm": "Sign out all other sessions?",
         "revokeAllDescription": "You will be signed out on all other devices.",
-        "unknownDevice": "Unknown device"
+        "unknownDevice": "Unknown device",
+        "deviceLabel": "{browser} on {os}"
       }
     },
     "preferences": {

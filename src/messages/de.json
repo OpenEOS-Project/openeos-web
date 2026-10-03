@@ -529,13 +529,14 @@
       "sessions": {
         "title": "Aktive Sitzungen",
         "description": "Verwalten Sie Ihre aktiven Anmeldungen",
-        "current": "Aktuelle Sitzung",
+        "current": "Dieses Gerät",
         "lastActive": "Zuletzt aktiv",
         "revoke": "Abmelden",
         "revokeAll": "Alle anderen Sitzungen beenden",
         "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
         "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet.",
-        "unknownDevice": "Unbekanntes Gerät"
+        "unknownDevice": "Unbekanntes Gerät",
+        "deviceLabel": "{browser} auf {os}"
       }
     },
     "preferences": {
