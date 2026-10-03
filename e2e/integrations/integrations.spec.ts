@@ -97,7 +97,7 @@ test.describe('Integrations', () => {
     await expect(dashboard.navLink('SumUp')).toHaveCount(0);
   });
 
-  test('member visiting an integration page directly is sent back to the catalog', async ({ page }) => {
+  test('member visiting an integration page directly ends up on the dashboard', async ({ page }) => {
     test.skip(!endpointAvailable, SKIP_REASON);
     // Erst einschalten, dann anmelden: so lädt die Sitzung den aktiven
     // Stand, und die Umleitung kann nur noch an der fehlenden Admin-Rolle
@@ -105,8 +105,10 @@ test.describe('Integrations', () => {
     await ensureOk(await setSumup(true), 'SumUp einschalten');
     await loginAs(page, TEST_USER);
 
+    // Die Konfigurationsseite schickt zurück in den Katalog, und der ist
+    // ebenfalls Admins vorbehalten — am Ende steht das Dashboard.
     await page.goto('/integrations/sumup');
-    await expect(page).toHaveURL(/\/integrations$/);
+    await expect(page).toHaveURL(/\/dashboard$/);
     await expect(new DashboardPage(page).navLink('SumUp')).toHaveCount(0);
   });
 });
