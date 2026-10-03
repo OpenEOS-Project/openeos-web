@@ -28,6 +28,13 @@ const SAMPLE_DATA = {
   subtotal: 17.65,
   tax_rate: '19',
   tax_amount: 3.35,
+  // Beispiel fuer gemischte Steuersaetze (Speisen 7%, Getraenke 19%) — so wie
+  // sie bei gemischten Bestellungen von der API kommen; in dem Fall gibt es
+  // kein einzelnes tax_rate mehr.
+  tax_lines: [
+    { rate: 7, net: 10.0, tax: 0.7, gross: 10.7 },
+    { rate: 19, net: 7.65, tax: 2.65, gross: 10.3 },
+  ],
   total: 21.0,
   payment_method: 'Bar',
   paid_amount: 25.0,
@@ -124,6 +131,11 @@ function renderField(el: TemplateElement, cols: number): PreviewLine[] {
       return [renderAmountLine(label || 'Zwischensumme:', SAMPLE_DATA.subtotal, el, cols)];
 
     case 'tax':
+      if (SAMPLE_DATA.tax_lines.length > 0) {
+        return SAMPLE_DATA.tax_lines.map((taxLine) =>
+          renderAmountLine(`enth. MwSt ${taxLine.rate}%:`, taxLine.tax, el, cols),
+        );
+      }
       return [renderAmountLine(label || `MwSt ${SAMPLE_DATA.tax_rate}%:`, SAMPLE_DATA.tax_amount, el, cols)];
 
     case 'pfand':
