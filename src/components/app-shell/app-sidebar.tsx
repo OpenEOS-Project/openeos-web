@@ -34,7 +34,12 @@ import {
   usePathname as useLocalePathname,
   useRouter as useLocaleRouter,
 } from '@/i18n/routing';
-import { dashboardFooterItems, dashboardNavItems, superAdminNavItems } from '@/config/navigation';
+import {
+  dashboardFooterItems,
+  dashboardNavItems,
+  superAdminNavItems,
+  withIntegrationNavItems,
+} from '@/config/navigation';
 import { useMyInvitations } from '@/hooks/use-members';
 import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
@@ -150,7 +155,12 @@ export function AppSidebar() {
 
   const navItems = zeigeBetreiberNavigation
     ? superAdminNavItems.filter(canSeeNavItem)
-    : stripOrphanedDividers(dashboardNavItems.filter(canSeeNavItem));
+    : stripOrphanedDividers(
+        withIntegrationNavItems(
+          dashboardNavItems,
+          currentOrganization?.organization?.settings,
+        ).filter(canSeeNavItem),
+      );
   const filteredFooterItems = zeigeBetreiberNavigation
     ? dashboardFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
@@ -416,10 +426,22 @@ export function AppSidebar() {
             const Icon = item.icon;
             const subItems = item.items ?? [];
             const isExactActive = activeUrl === item.href;
+            const matches = (href: string) => activeUrl === href || activeUrl.startsWith(href + '/');
+            /* Liegt ein anderer Eintrag genauer auf der Adresse — etwa
+               /integrations/sumup unter /integrations —, gehoert die
+               Hervorhebung ihm allein, sonst leuchteten beide. */
+            const hasMoreSpecificMatch = navItems.some(
+              (other) =>
+                !other.divider &&
+                !!other.href &&
+                other.href.startsWith(item.href + '/') &&
+                matches(other.href),
+            );
             const isActiveBranch =
-              isExactActive ||
-              activeUrl.startsWith(item.href + '/') ||
-              subItems.some((sub) => activeUrl === sub.href || activeUrl.startsWith(sub.href + '/'));
+              !hasMoreSpecificMatch &&
+              (isExactActive ||
+                activeUrl.startsWith(item.href + '/') ||
+                subItems.some((sub) => matches(sub.href)));
 
             return (
               /* Anker fuer die Tour, aus dem Pfad abgeleitet: /events wird
@@ -434,6 +456,7 @@ export function AppSidebar() {
                   href={item.href as never}
                   className={cx(
                     'app-sidebar__item',
+                    item.nested && 'app-sidebar__item--nested',
                     isActiveBranch && 'app-sidebar__item--active',
                   )}
                 >

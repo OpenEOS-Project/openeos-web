@@ -22,6 +22,8 @@ import {
 } from '@untitledui/icons';
 
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
+import { getEnabledIntegrations, integrationHref } from '@/config/integrations';
+import type { OrganizationSettings } from '@/types/organization';
 
 // Super-Admin navigation items (can see everything across all organizations)
 export const superAdminNavItems: NavItemType[] = [
@@ -192,3 +194,31 @@ export const dashboardFooterItems: NavItemType[] = [
     icon: Settings01,
   },
 ];
+
+/**
+ * Fügt für jede aktive Integration einen Eintrag direkt unter
+ * "Integrationen" ein.
+ *
+ * Dynamisch statt fest in der Liste oben: welche Einträge es gibt, hängt
+ * vom Schalter in den Organisationseinstellungen ab. Die Einträge sind wie
+ * "Integrationen" nur für Admins (adminOnly) — canSeeNavItem filtert sie
+ * danach mit denselben Regeln wie alle anderen.
+ */
+export function withIntegrationNavItems(
+  items: (NavItemType | NavItemDividerType)[],
+  settings: Partial<OrganizationSettings> | null | undefined,
+): (NavItemType | NavItemDividerType)[] {
+  const index = items.findIndex((item) => !item.divider && item.href === '/integrations');
+  if (index === -1) return items;
+
+  const integrationItems: NavItemType[] = getEnabledIntegrations(settings).map((integration) => ({
+    label: integration.name,
+    href: integrationHref(integration.id),
+    icon: integration.navIcon,
+    adminOnly: true,
+    nested: true,
+  }));
+  if (integrationItems.length === 0) return items;
+
+  return [...items.slice(0, index + 1), ...integrationItems, ...items.slice(index + 1)];
+}

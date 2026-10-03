@@ -28,6 +28,8 @@ export type NavItemType = {
      * Sackgasse und wird deshalb ausgeblendet.
      */
     saasOnly?: boolean;
+    /** Untereintrag des vorherigen Eintrags (z. B. eine aktive Integration); leicht eingerückt. */
+    nested?: boolean;
 };
 
 export type NavItemDividerType = Omit<NavItemType, "icon" | "label" | "divider"> & {
