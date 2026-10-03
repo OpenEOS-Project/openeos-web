@@ -8,6 +8,7 @@ import { cx } from '@/utils/cx';
 import { Button } from '@/components/ui/buttons/button';
 import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
+import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
@@ -46,17 +47,22 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
 
   const totalRemaining = orders.reduce((sum, order) => sum + getRemainingAmount(order), 0);
 
-  const payAllOrders = async (paymentMethod: PaymentMethod) => {
+  const payAllOrders = async (paymentMethod: PaymentMethod, amountReceived?: number) => {
     setIsProcessing(true);
     try {
-      for (const order of orders) {
-        const remainingAmount = getRemainingAmount(order);
-        if (remainingAmount <= 0) continue;
+      const payable = orders
+        .map((order) => ({ order, amount: getRemainingAmount(order) }))
+        .filter(({ amount }) => amount > 0);
+      const amounts = payable.map(({ amount }) => amount);
 
+      for (const [index, { order, amount }] of payable.entries()) {
+        const received =
+          paymentMethod === 'cash' ? amountReceivedFor(index, amounts, amountReceived) : undefined;
         await deviceApi.createPayment({
           orderId: order.id,
-          amount: remainingAmount,
+          amount,
           paymentMethod,
+          ...(received !== undefined ? { amountReceived: received } : {}),
         });
       }
 
@@ -77,8 +83,8 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
     setShowCashModal(true);
   };
 
-  const handleCashConfirm = () => {
-    payAllOrders('cash');
+  const handleCashConfirm = (amountReceived: number) => {
+    payAllOrders('cash', amountReceived);
   };
 
   const handleCardPayment = () => {

@@ -28,7 +28,7 @@ export function ProfileSection() {
   const uploadAvatar = useUploadAvatar();
   const deleteAvatar = useDeleteAvatar();
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: user?.firstName || '',
@@ -37,7 +37,12 @@ export function ProfileSection() {
   });
 
   const onSubmit = async (data: ProfileFormData) => {
-    try { await updateProfile.mutateAsync(data); } catch { /* handled by mutation */ }
+    try {
+      await updateProfile.mutateAsync(data);
+      // Setzt die als "dirty" erkannten Werte auf die gerade gespeicherten
+      // zurueck, sonst bleibt der Speichern-Button nach Erfolg aktiv.
+      reset(data);
+    } catch { /* handled by mutation */ }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -39,6 +39,9 @@ export function OrganizationGeneralSection() {
         setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      // Setzt das Formular auf die gerade gespeicherten Werte zurueck, sonst
+      // bleibt der Speichern-Button nach Erfolg aktiv (isDirty bleibt true).
+      reset({ name: data.name, description: data.settings?.description || '' });
     },
     // Ohne das blieb ein abgelehntes Speichern voellig stumm.
     onError: (err) => {
@@ -46,7 +49,7 @@ export function OrganizationGeneralSection() {
     },
   });
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<OrgGeneralFormData>({
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<OrgGeneralFormData>({
     resolver: zodResolver(orgGeneralSchema),
     defaultValues: {
       name: currentOrganization?.organization?.name || '',

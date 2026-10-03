@@ -14,6 +14,15 @@ test.describe('Dashboard', () => {
       await page.goto('/dashboard');
       await expect(page).toHaveURL(/\/login\?redirect=/);
     });
+
+    // ModuleGuard (src/components/shared/module-guard.tsx): die Sidebar blendet
+    // Veranstaltungen fuer dieses Mitglied bereits aus, aber eine direkt
+    // eingegebene URL kam bisher trotzdem durch.
+    test('member without events permission visiting /events directly is redirected to dashboard', async ({ memberPage }) => {
+      await memberPage.goto('/events');
+      await expect(memberPage).toHaveURL(/\/dashboard$/);
+      await expect(memberPage.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeVisible();
+    });
   });
 
   test.describe('Navigation', () => {

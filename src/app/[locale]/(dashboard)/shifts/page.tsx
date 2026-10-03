@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
+import { ModuleGuard } from '@/components/shared/module-guard';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
 import { CreateShiftPlanModal } from './components/create-shift-plan-modal';
 
@@ -71,6 +72,7 @@ export default function ShiftsPage() {
   }
 
   return (
+    <ModuleGuard requiredPermission="shiftPlans">
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="app-page-head">
         <div>
@@ -192,5 +194,6 @@ export default function ShiftsPage() {
         }}
       />
     </div>
+    </ModuleGuard>
   );
 }

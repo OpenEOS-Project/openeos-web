@@ -10,7 +10,7 @@ interface CashPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   total: number;
-  onConfirm: () => void;
+  onConfirm: (amountReceived: number) => void;
   isProcessing?: boolean;
 }
 
@@ -350,7 +350,7 @@ export function CashPaymentModal({
         >
           <button
             type="button"
-            onClick={() => canConfirm && onConfirm()}
+            onClick={() => canConfirm && onConfirm(receivedAmount)}
             disabled={!canConfirm}
             style={{
               width: '100%',

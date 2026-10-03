@@ -7,6 +7,7 @@ import { Plus, Minus, BankNote01, CreditCard01 } from '@untitledui/icons';
 import { Button } from '@/components/ui/buttons/button';
 import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
+import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
@@ -185,16 +186,23 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   };
 
   const paySelectedItems = useMutation({
-    mutationFn: async (paymentMethod: PaymentMethod) => {
+    mutationFn: async ({
+      paymentMethod,
+      amountReceived,
+    }: { paymentMethod: PaymentMethod; amountReceived?: number }) => {
       const orderPayments = getSelectedByOrder();
 
       // Create split payment for each order
-      for (const op of orderPayments) {
+      const amounts = orderPayments.map((op) => op.amount);
+      for (const [index, op] of orderPayments.entries()) {
+        const received =
+          paymentMethod === 'cash' ? amountReceivedFor(index, amounts, amountReceived) : undefined;
         await deviceApi.createSplitPayment({
           orderId: op.orderId,
           amount: op.amount,
           paymentMethod,
           items: op.items,
+          ...(received !== undefined ? { amountReceived: received } : {}),
         });
       }
     },
@@ -208,12 +216,12 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     },
   });
 
-  const handlePay = async (paymentMethod: PaymentMethod) => {
+  const handlePay = async (paymentMethod: PaymentMethod, amountReceived?: number) => {
     if (!hasSelection) return;
 
     setIsProcessing(true);
     try {
-      await paySelectedItems.mutateAsync(paymentMethod);
+      await paySelectedItems.mutateAsync({ paymentMethod, amountReceived });
     } catch (error) {
       console.error('Split payment failed:', error);
     } finally {
@@ -226,8 +234,8 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     setShowCashModal(true);
   };
 
-  const handleCashConfirm = () => {
-    handlePay('cash');
+  const handleCashConfirm = (amountReceived: number) => {
+    handlePay('cash', amountReceived);
   };
 
   const renderItemRow = (ui: UnpaidItem) => {

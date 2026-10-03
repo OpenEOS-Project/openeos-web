@@ -18,6 +18,7 @@ import {
 } from '@/hooks/use-user-settings';
 import type { TotpSetupResult } from '@/types/settings';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { parseUserAgent } from '@/utils/parse-user-agent';
 
 type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'recovery-codes';
 
@@ -187,13 +188,20 @@ export function SecuritySection() {
           )}
         </div>
         {sessions?.map((session) => {
-          const deviceLabel = session.deviceInfo || t('sessions.unknownDevice') || 'Unbekanntes Gerät';
+          // deviceInfo ist der rohe User-Agent-String aus der API; daraus wird
+          // hier eine lesbare Browser/OS-Kombination gemacht. Der rohe String
+          // bleibt als Titel/Tooltip erreichbar, falls die Kurzform mal nicht
+          // passt (unbekannter Browser, Bot, o.ae.).
+          const parsedUa = session.deviceInfo ? parseUserAgent(session.deviceInfo) : null;
+          const deviceLabel = parsedUa
+            ? t('sessions.deviceLabel', { browser: parsedUa.browser, os: parsedUa.os })
+            : t('sessions.unknownDevice');
           const metaParts = [session.ipAddress, `${t('sessions.lastActive')}: ${formatDate(session.lastActiveAt)}`].filter((part): part is string => Boolean(part));
           return (
             <div key={session.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                  <span style={{ fontWeight: 600, fontSize: 14 }}>{deviceLabel}</span>
+                  <span style={{ fontWeight: 600, fontSize: 14 }} title={session.deviceInfo || undefined}>{deviceLabel}</span>
                   {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
                 </div>
                 <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>

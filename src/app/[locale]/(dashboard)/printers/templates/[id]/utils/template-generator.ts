@@ -170,14 +170,28 @@ function generateField(el: TemplateElement, cols: number): string | null {
       );
 
     case 'tax': {
-      const taxLbl = label
+      // Bei gemischten Steuersaetzen liefert die API kein einzelnes tax_rate
+      // mehr (waere sonst irrefuehrend) und stattdessen tax_lines, eine Zeile
+      // pro Satz. Ohne tax_lines bleibt die alte einzeilige Darstellung.
+      const fallbackLbl = label
         ? `"${label}"`
         : '"MwSt " ~ tax_rate|default("19") ~ "%:"';
-      return wrapCondition(
-        'tax_amount',
-        generateAmountField(taxLbl, 'tax_amount|currency', el),
-        el.condition ?? 'tax_amount',
+      const fallbackLine = generateAmountField(fallbackLbl, 'tax_amount|currency', el);
+      const perRateLine = generateAmountField(
+        '"enth. MwSt " ~ tax_line.rate ~ "%:"',
+        'tax_line.tax|currency',
+        el,
       );
+      const content = [
+        '{% if tax_lines is defined and tax_lines %}',
+        '{% for tax_line in tax_lines %}',
+        perRateLine,
+        '{% endfor %}',
+        '{% else %}',
+        fallbackLine,
+        '{% endif %}',
+      ].join('\n');
+      return wrapCondition('tax_amount', content, el.condition ?? 'tax_amount');
     }
 
     case 'pfand':

@@ -12,19 +12,24 @@ import type { Organization } from '@/types';
 import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
-const organizationSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  settings: z.object({
-    currency: z.string(),
-    timezone: z.string(),
-    locale: z.string(),
-  }),
-  billingMode: z.enum(['prepaid', 'invoice']),
-  eventPriceOverride: z.string().optional(),
-  prioritySupport: z.boolean(),
-});
+// Schema als Factory, damit die Fehlermeldung ueber next-intl lokalisiert
+// werden kann — die Felder selbst sind ausserhalb der Komponente definiert,
+// bevor t() zur Verfuegung steht.
+function createOrganizationSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('form.nameRequired')).max(100),
+    settings: z.object({
+      currency: z.string(),
+      timezone: z.string(),
+      locale: z.string(),
+    }),
+    billingMode: z.enum(['prepaid', 'invoice']),
+    eventPriceOverride: z.string().optional(),
+    prioritySupport: z.boolean(),
+  });
+}
 
-type OrganizationFormData = z.infer<typeof organizationSchema>;
+type OrganizationFormData = z.infer<ReturnType<typeof createOrganizationSchema>>;
 
 interface OrganizationFormModalProps {
   isOpen: boolean;
@@ -47,7 +52,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     control,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
-    resolver: zodResolver(organizationSchema),
+    resolver: zodResolver(createOrganizationSchema(t)),
     defaultValues: {
       name: '',
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },

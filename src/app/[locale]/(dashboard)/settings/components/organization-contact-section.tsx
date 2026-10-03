@@ -35,15 +35,18 @@ export function OrganizationContactSection() {
       });
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (currentOrganization?.organization) {
         setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      // Setzt das Formular auf die gerade gespeicherten Werte zurueck, sonst
+      // bleibt der Speichern-Button nach Erfolg aktiv (isDirty bleibt true).
+      reset(variables);
     },
   });
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<ContactFormData>({
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       address: settings.contact?.address || '',

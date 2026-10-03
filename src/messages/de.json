@@ -164,7 +164,10 @@
       "backToLogin": "Zurück zur Anmeldung",
       "success": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail",
       "successTitle": "E-Mail gesendet",
-      "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts."
+      "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts.",
+      "errors": {
+        "invalidEmail": "Ungültige E-Mail-Adresse"
+      }
     },
     "resetPassword": {
       "title": "Neues Passwort setzen",
@@ -181,7 +184,11 @@
       "invalidTokenTitle": "Link ungültig",
       "invalidTokenMessage": "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
       "requestNewLink": "Neuen Link anfordern",
-      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "errors": {
+        "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
+        "passwordMismatch": "Passwörter stimmen nicht überein"
+      }
     },
     "verifyEmail": {
       "loading": "Wir bestätigen Ihre E-Mail-Adresse …",
@@ -522,13 +529,14 @@
       "sessions": {
         "title": "Aktive Sitzungen",
         "description": "Verwalten Sie Ihre aktiven Anmeldungen",
-        "current": "Aktuelle Sitzung",
+        "current": "Dieses Gerät",
         "lastActive": "Zuletzt aktiv",
         "revoke": "Abmelden",
         "revokeAll": "Alle anderen Sitzungen beenden",
         "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
         "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet.",
-        "unknownDevice": "Unbekanntes Gerät"
+        "unknownDevice": "Unbekanntes Gerät",
+        "deviceLabel": "{browser} auf {os}"
       }
     },
     "preferences": {
@@ -2425,7 +2433,8 @@
       "description": "Du wirst zur Anmeldung weitergeleitet..."
     },
     "errors": {
-      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut."
+      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut.",
+      "passwordMismatch": "Passwörter stimmen nicht überein"
     }
   },
   "printers": {

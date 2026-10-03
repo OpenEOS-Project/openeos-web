@@ -2,9 +2,6 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
  * Veranstaltungsliste (events/components/events-list.tsx).
- *
- * Die Dialoge tragen keine role="dialog"; sie werden ueber ihr Panel
- * gefunden.
  */
 export class EventsPage {
   readonly page: Page;
@@ -16,7 +13,7 @@ export class EventsPage {
     // In der leeren Liste und im Kopf der Tabelle steht derselbe Knopf;
     // es ist immer genau einer sichtbar.
     this.createButton = page.getByRole('main').getByRole('button', { name: 'Veranstaltung erstellen' });
-    this.modal = page.locator('.modal__panel');
+    this.modal = page.getByRole('dialog');
   }
 
   async goto() {

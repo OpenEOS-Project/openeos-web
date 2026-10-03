@@ -15,6 +15,7 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { toast } from '@/components/shared/toast';
+import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
 import type { EventBilling } from '@/types/billing';
 
@@ -191,9 +192,9 @@ export function EventsContainer() {
 
       {deletingEvent && (
         <div className="modal__overlay" onClick={() => setDeletingEvent(null)}>
-          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
+          <ModalPanel titleId="event-delete-confirm-title" className="modal__panel--sm">
             <div className="modal__head">
-              <h2>{t('deleteConfirm.title')}</h2>
+              <h2 id="event-delete-confirm-title">{t('deleteConfirm.title')}</h2>
             </div>
             <div className="modal__body">
               <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
@@ -218,7 +219,7 @@ export function EventsContainer() {
                 {deleteEvent.isPending ? tCommon('saving') : t('deleteConfirm.confirm')}
               </button>
             </div>
-          </div>
+          </ModalPanel>
         </div>
       )}
     </>
