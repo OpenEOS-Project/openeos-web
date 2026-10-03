@@ -64,7 +64,10 @@ export type ApiErrorCode =
   | 'EVENT_ACTIVATION_BLOCKED'
   | 'PAYMENT_PENDING'
   | 'PURCHASE_FAILED'
-  | 'INVALID_PACKAGE';
+  | 'INVALID_PACKAGE'
+  // Integrations
+  | 'INTEGRATION_NOT_FOUND'
+  | 'INTEGRATION_DISABLED';
 
 export class ApiException extends Error {
   constructor(
