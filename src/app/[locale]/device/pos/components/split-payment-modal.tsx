@@ -185,16 +185,22 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   };
 
   const paySelectedItems = useMutation({
-    mutationFn: async (paymentMethod: PaymentMethod) => {
+    mutationFn: async ({
+      paymentMethod,
+      amountReceived,
+    }: { paymentMethod: PaymentMethod; amountReceived?: number }) => {
       const orderPayments = getSelectedByOrder();
 
-      // Create split payment for each order
+      // Create split payment for each order. Bei einer einzelnen Barzahlung ueber
+      // mehrere Bestellungen hinweg deckt der erhaltene Betrag immer die Summe ab,
+      // also auch jeden einzelnen Teilbetrag — daher auf jedem Aufruf mitgeben.
       for (const op of orderPayments) {
         await deviceApi.createSplitPayment({
           orderId: op.orderId,
           amount: op.amount,
           paymentMethod,
           items: op.items,
+          ...(paymentMethod === 'cash' && amountReceived !== undefined ? { amountReceived } : {}),
         });
       }
     },
@@ -208,12 +214,12 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     },
   });
 
-  const handlePay = async (paymentMethod: PaymentMethod) => {
+  const handlePay = async (paymentMethod: PaymentMethod, amountReceived?: number) => {
     if (!hasSelection) return;
 
     setIsProcessing(true);
     try {
-      await paySelectedItems.mutateAsync(paymentMethod);
+      await paySelectedItems.mutateAsync({ paymentMethod, amountReceived });
     } catch (error) {
       console.error('Split payment failed:', error);
     } finally {
@@ -226,8 +232,8 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     setShowCashModal(true);
   };
 
-  const handleCashConfirm = () => {
-    handlePay('cash');
+  const handleCashConfirm = (amountReceived: number) => {
+    handlePay('cash', amountReceived);
   };
 
   const renderItemRow = (ui: UnpaidItem) => {

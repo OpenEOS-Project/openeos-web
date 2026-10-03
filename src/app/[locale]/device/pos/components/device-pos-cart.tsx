@@ -158,7 +158,11 @@ export function PosCart({
   };
 
   const createOrderWithPayment = useMutation({
-    mutationFn: async ({ paymentMethod, tip = 0 }: { paymentMethod: PaymentMethod; tip?: number }) => {
+    mutationFn: async ({
+      paymentMethod,
+      tip = 0,
+      amountReceived,
+    }: { paymentMethod: PaymentMethod; tip?: number; amountReceived?: number }) => {
       if (!eventId) throw new Error('No event selected');
       const orderResponse = await deviceApi.createOrder({
         eventId,
@@ -178,6 +182,8 @@ export function PosCart({
           orderId: order.id,
           amount: payableTotal + tip,
           paymentMethod,
+          // Nur bei Barzahlung gesetzt; die API speichert es ohnehin nur fuer cash.
+          ...(paymentMethod === 'cash' && amountReceived !== undefined ? { amountReceived } : {}),
         });
       }
       return order;
@@ -215,11 +221,11 @@ export function PosCart({
     },
   });
 
-  const handleCheckout = async (paymentMethod: PaymentMethod, tip = 0) => {
+  const handleCheckout = async (paymentMethod: PaymentMethod, tip = 0, amountReceived?: number) => {
     if (items.length === 0) return;
     setIsProcessing(true);
     try {
-      await createOrderWithPayment.mutateAsync({ paymentMethod, tip });
+      await createOrderWithPayment.mutateAsync({ paymentMethod, tip, amountReceived });
       setShowCashModal(false);
     } catch (error) {
       console.error('Order failed:', error);
@@ -866,7 +872,7 @@ export function PosCart({
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
         total={payableTotal}
-        onConfirm={() => handleCheckout('cash')}
+        onConfirm={(amountReceived) => handleCheckout('cash', 0, amountReceived)}
         isProcessing={isProcessing}
       />
       <SumUpCheckoutModal

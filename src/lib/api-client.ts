@@ -1335,6 +1335,7 @@ export const deviceApi = {
     amount: number;
     paymentMethod: import('@/types/payment').PaymentMethod;
     items: Array<{ orderItemId: string; quantity: number }>;
+    amountReceived?: number;
   }) =>
     apiClient.post<ApiResponse<import('@/types/payment').Payment>>(
       '/device-api/payments/split',

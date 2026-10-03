@@ -32,6 +32,8 @@ export interface CreatePaymentData {
   orderId: string;
   amount: number;
   paymentMethod: PaymentMethod;
+  /** Nur bei Barzahlung relevant; die API speichert es nur, wenn es mindestens dem Zahlbetrag entspricht. */
+  amountReceived?: number;
   providerTransactionId?: string;
   metadata?: Record<string, unknown>;
 }
@@ -46,6 +48,8 @@ export interface SplitPaymentData {
   amount: number;
   paymentMethod: PaymentMethod;
   items: SplitPaymentItemData[];
+  /** Nur bei Barzahlung relevant; die API speichert es nur, wenn es mindestens dem Zahlbetrag entspricht. */
+  amountReceived?: number;
   providerTransactionId?: string;
   metadata?: Record<string, unknown>;
 }

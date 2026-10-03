@@ -46,9 +46,12 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
 
   const totalRemaining = orders.reduce((sum, order) => sum + getRemainingAmount(order), 0);
 
-  const payAllOrders = async (paymentMethod: PaymentMethod) => {
+  const payAllOrders = async (paymentMethod: PaymentMethod, amountReceived?: number) => {
     setIsProcessing(true);
     try {
+      // Eine einzelne Barzahlung kann mehrere offene Bestellungen auf einmal
+      // begleichen; der erhaltene Betrag deckt die Summe ab und damit auch
+      // jeden einzelnen Teilbetrag — daher auf jedem Aufruf mitgeben.
       for (const order of orders) {
         const remainingAmount = getRemainingAmount(order);
         if (remainingAmount <= 0) continue;
@@ -57,6 +60,7 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
           orderId: order.id,
           amount: remainingAmount,
           paymentMethod,
+          ...(paymentMethod === 'cash' && amountReceived !== undefined ? { amountReceived } : {}),
         });
       }
 
@@ -77,8 +81,8 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
     setShowCashModal(true);
   };
 
-  const handleCashConfirm = () => {
-    payAllOrders('cash');
+  const handleCashConfirm = (amountReceived: number) => {
+    payAllOrders('cash', amountReceived);
   };
 
   const handleCardPayment = () => {
