@@ -7,6 +7,7 @@ import { Plus, Minus, BankNote01, CreditCard01 } from '@untitledui/icons';
 import { Button } from '@/components/ui/buttons/button';
 import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
+import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
@@ -191,16 +192,17 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     }: { paymentMethod: PaymentMethod; amountReceived?: number }) => {
       const orderPayments = getSelectedByOrder();
 
-      // Create split payment for each order. Bei einer einzelnen Barzahlung ueber
-      // mehrere Bestellungen hinweg deckt der erhaltene Betrag immer die Summe ab,
-      // also auch jeden einzelnen Teilbetrag — daher auf jedem Aufruf mitgeben.
-      for (const op of orderPayments) {
+      // Create split payment for each order
+      const amounts = orderPayments.map((op) => op.amount);
+      for (const [index, op] of orderPayments.entries()) {
+        const received =
+          paymentMethod === 'cash' ? amountReceivedFor(index, amounts, amountReceived) : undefined;
         await deviceApi.createSplitPayment({
           orderId: op.orderId,
           amount: op.amount,
           paymentMethod,
           items: op.items,
-          ...(paymentMethod === 'cash' && amountReceived !== undefined ? { amountReceived } : {}),
+          ...(received !== undefined ? { amountReceived: received } : {}),
         });
       }
     },
