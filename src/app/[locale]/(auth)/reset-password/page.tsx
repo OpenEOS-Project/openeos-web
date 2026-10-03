@@ -14,17 +14,20 @@ import { FormInput } from '@/components/ui/input/form-input';
 import { authApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
 
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+type ResetPasswordFormData = z.infer<ReturnType<typeof createResetPasswordSchema>>;
 
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+// Schema als Factory, damit die Fehlermeldungen ueber next-intl lokalisiert werden koennen.
+function createResetPasswordSchema(t: (key: string) => string) {
+  return z
+    .object({
+      password: z.string().min(8, t('errors.passwordTooShort')),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('errors.passwordMismatch'),
+      path: ['confirmPassword'],
+    });
+}
 
 export default function ResetPasswordPage() {
   const t = useTranslations('auth.resetPassword');
@@ -41,7 +44,7 @@ export default function ResetPasswordPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(createResetPasswordSchema(t)),
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {

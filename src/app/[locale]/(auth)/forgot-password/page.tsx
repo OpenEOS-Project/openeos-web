@@ -12,11 +12,14 @@ import { Button } from '@/components/ui/buttons/button';
 import { FormInput } from '@/components/ui/input/form-input';
 import { authApi } from '@/lib/api-client';
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email(),
-});
+type ForgotPasswordFormData = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
 
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+// Schema als Factory, damit die Fehlermeldung ueber next-intl lokalisiert werden kann.
+function createForgotPasswordSchema(t: (key: string) => string) {
+  return z.object({
+    email: z.string().email(t('errors.invalidEmail')),
+  });
+}
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword');
@@ -29,7 +32,7 @@ export default function ForgotPasswordPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordFormData>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(createForgotPasswordSchema(t)),
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
