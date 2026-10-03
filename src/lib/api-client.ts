@@ -789,12 +789,19 @@ export const twoFactorApi = {
     apiClient.post<ApiResponse<import('@/types/auth').AuthResponse>>('/auth/2fa/verify', data),
 
   // Disable 2FA
-  disable2FA: (password: string) =>
-    apiClient.post<ApiResponse<void>>('/auth/2fa/disable', { password }),
+  // Abschalten verlangt einen gueltigen Code des zweiten Faktors, kein
+  // Passwort: der beweist den Besitz des Faktors, der abgeschaltet wird, und
+  // funktioniert auch fuer Konten ohne Passwort.
+  disable2FA: (code: string) =>
+    apiClient.post<ApiResponse<void>>('/auth/2fa/disable', { code }),
+
+  // Schickt einen E-Mail-Code, wenn die 2FA per E-Mail eingerichtet ist.
+  sendTwoFactorCode: () =>
+    apiClient.post<ApiResponse<void>>('/auth/2fa/send-login-otp', {}),
 
   // Recovery Codes
-  regenerateRecoveryCodes: (password: string) =>
-    apiClient.post<ApiResponse<import('@/types/settings').RecoveryCodesResult>>('/auth/2fa/recovery/generate', { password }),
+  regenerateRecoveryCodes: (code: string) =>
+    apiClient.post<ApiResponse<import('@/types/settings').RecoveryCodesResult>>('/auth/2fa/recovery/generate', { code }),
 
   // Trusted Devices
   getTrustedDevices: () =>
