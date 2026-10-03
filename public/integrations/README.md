@@ -1,7 +1,7 @@
 # Logos der Integrationen
 
 Eine Datei je Anbieter, benannt nach dessen `id` in
-`integrations-container.tsx`: `sumup.svg`, `stripe.svg`, `fiskaly.svg`.
+`src/config/integrations.ts`: `sumup.svg`, `stripe.svg`, `fiskaly.svg`.
 
 Fehlt eine Datei, zeigt die Karte den Anfangsbuchstaben auf der Hausfarbe
 des Anbieters — die Seite bleibt also auch ohne Logos vollständig.

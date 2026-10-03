@@ -1780,7 +1780,8 @@
         "READER_OFFLINE": "Der Kartenleser ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
         "READER_NOT_FOUND": "Kartenleser nicht gefunden. Bitte prüfen Sie die Konfiguration.",
         "INVALID_AMOUNT": "Ungültiger Betrag.",
-        "CHECKOUT_ALREADY_IN_PROGRESS": "Es läuft bereits eine Zahlung auf diesem Gerät."
+        "CHECKOUT_ALREADY_IN_PROGRESS": "Es läuft bereits eine Zahlung auf diesem Gerät.",
+        "INTEGRATION_DISABLED": "SumUp ist für diese Organisation deaktiviert. Bitte bar kassieren oder SumUp in der Verwaltung aktivieren."
       }
     },
     "pin": {
@@ -2828,23 +2829,77 @@
   },
   "integrations": {
     "title": "Integrationen",
-    "subtitle": "Externe Dienste anbinden und einrichten.",
-    "soon": "Bald",
+    "subtitle": "Externe Dienste ein- und ausschalten. Aktive Integrationen richten Sie auf ihrer eigenen Seite in der Seitenleiste ein.",
     "actions": {
       "configure": "Einrichten",
-      "close": "Schließen"
+      "close": "Schließen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "activating": "Wird aktiviert …",
+      "deactivating": "Wird deaktiviert …"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "comingSoon": "Bald verfügbar"
+    },
+    "info": {
+      "whatItDoes": "Was die Integration leistet",
+      "requirements": "Was Sie benötigen",
+      "docs": "Zur Dokumentation",
+      "settingsKept": "Beim Deaktivieren bleiben Ihre Einstellungen erhalten.",
+      "activateHint": "Nach dem Aktivieren erscheint die Integration in der Seitenleiste; dort richten Sie sie ein.",
+      "comingSoonHint": "Diese Integration ist in Vorbereitung und kann noch nicht aktiviert werden."
+    },
+    "gallery": {
+      "label": "Screenshots",
+      "roleDescription": "Bildstrecke",
+      "previous": "Vorheriges Bild",
+      "next": "Nächstes Bild",
+      "goTo": "Bild {index} von {count}"
+    },
+    "errors": {
+      "disabled": "Diese Integration ist für Ihre Organisation nicht aktiviert. Sie können sie unter „Integrationen“ aktivieren.",
+      "notFound": "Diese Integration ist auf dem Server nicht verfügbar.",
+      "toggleFailed": "Die Integration konnte nicht umgeschaltet werden. Bitte versuchen Sie es erneut.",
+      "generic": "Ein Fehler ist aufgetreten."
+    },
+    "backToCatalog": "Alle Integrationen",
+    "deactivated": "{name} wurde deaktiviert.",
+    "confirmDeactivate": {
+      "title": "{name} deaktivieren?"
     },
     "sumup": {
       "vendor": "Kartenzahlung",
-      "description": "Kartenlesegeräte an der Kasse und Kartenzahlung im Online-Shop."
+      "description": "Kartenlesegeräte an der Kasse und Kartenzahlung im Online-Shop.",
+      "longDescription": "Mit SumUp nehmen Sie an der Kasse Kartenzahlungen an: Die Kasse schickt den Betrag an ein gekoppeltes SumUp-Lesegerät, der Gast zahlt mit Karte oder Smartphone, und die Bestellung wird automatisch als bezahlt verbucht – auf Wunsch mit Trinkgeld.",
+      "requirements": {
+        "account": "Ein SumUp-Händlerkonto",
+        "reader": "Ein SumUp-Lesegerät mit Kassenanbindung, z. B. den SumUp Solo",
+        "apiKey": "Einen API-Schlüssel und Ihren Händlercode aus dem SumUp-Dashboard"
+      },
+      "deactivateEffect": "Solange SumUp deaktiviert ist, bieten die Kassen keine Kartenzahlung an. Barzahlung funktioniert weiter.",
+      "screenshots": {
+        "configuration": "Konfiguration der SumUp-Zugangsdaten",
+        "posCardPayment": "Kartenzahlung an der Kasse",
+        "pairReader": "Lesegerät koppeln"
+      }
     },
     "stripe": {
       "vendor": "Kartenzahlung",
-      "description": "Zahlungen im Online-Shop über Stripe abwickeln."
+      "description": "Zahlungen im Online-Shop über Stripe abwickeln.",
+      "longDescription": "Mit Stripe sollen Gäste im Online-Shop per Karte und mit gängigen Zahlungsarten bezahlen können.",
+      "requirements": {
+        "account": "Ein Stripe-Konto"
+      }
     },
     "fiskaly": {
       "vendor": "Kassensicherung",
-      "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung."
+      "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung.",
+      "longDescription": "fiskaly stellt eine Cloud-TSE bereit, mit der Kassenvorgänge nach der Kassensicherungsverordnung signiert werden.",
+      "requirements": {
+        "account": "Ein fiskaly-Konto"
+      }
     }
   },
   "onboarding": {

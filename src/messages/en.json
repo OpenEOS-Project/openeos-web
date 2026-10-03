@@ -1780,7 +1780,8 @@
         "READER_OFFLINE": "The card reader is not reachable. Please check the connection.",
         "READER_NOT_FOUND": "Card reader not found. Please check the configuration.",
         "INVALID_AMOUNT": "Invalid amount.",
-        "CHECKOUT_ALREADY_IN_PROGRESS": "A payment is already in progress on this device."
+        "CHECKOUT_ALREADY_IN_PROGRESS": "A payment is already in progress on this device.",
+        "INTEGRATION_DISABLED": "SumUp is deactivated for this organization. Please take cash or activate SumUp in the admin area."
       }
     },
     "pin": {
@@ -2828,23 +2829,77 @@
   },
   "integrations": {
     "title": "Integrations",
-    "subtitle": "Connect and configure external services.",
-    "soon": "Soon",
+    "subtitle": "Switch external services on and off. Active integrations are configured on their own page in the sidebar.",
     "actions": {
       "configure": "Set up",
-      "close": "Close"
+      "close": "Close",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "activating": "Activating …",
+      "deactivating": "Deactivating …"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "comingSoon": "Coming soon"
+    },
+    "info": {
+      "whatItDoes": "What it does",
+      "requirements": "What you need",
+      "docs": "Read the documentation",
+      "settingsKept": "Your settings are kept when you deactivate it.",
+      "activateHint": "Once activated, the integration appears in the sidebar, where you set it up.",
+      "comingSoonHint": "This integration is in preparation and cannot be activated yet."
+    },
+    "gallery": {
+      "label": "Screenshots",
+      "roleDescription": "Carousel",
+      "previous": "Previous image",
+      "next": "Next image",
+      "goTo": "Image {index} of {count}"
+    },
+    "errors": {
+      "disabled": "This integration is not activated for your organization. You can activate it under “Integrations”.",
+      "notFound": "This integration is not available on the server.",
+      "toggleFailed": "The integration could not be switched. Please try again.",
+      "generic": "Something went wrong."
+    },
+    "backToCatalog": "All integrations",
+    "deactivated": "{name} has been deactivated.",
+    "confirmDeactivate": {
+      "title": "Deactivate {name}?"
     },
     "sumup": {
       "vendor": "Card payments",
-      "description": "Card readers at the till and card payments in the online shop."
+      "description": "Card readers at the till and card payments in the online shop.",
+      "longDescription": "SumUp lets you accept card payments at the till: the POS sends the amount to a paired SumUp reader, the guest pays by card or phone, and the order is marked as paid automatically – with a tip if you like.",
+      "requirements": {
+        "account": "A SumUp merchant account",
+        "reader": "A SumUp reader that supports POS integration, e.g. the SumUp Solo",
+        "apiKey": "An API key and your merchant code from the SumUp dashboard"
+      },
+      "deactivateEffect": "While SumUp is deactivated, the POS does not offer card payment. Cash payment keeps working.",
+      "screenshots": {
+        "configuration": "Configuring the SumUp credentials",
+        "posCardPayment": "Card payment at the POS",
+        "pairReader": "Pairing a reader"
+      }
     },
     "stripe": {
       "vendor": "Card payments",
-      "description": "Take online shop payments through Stripe."
+      "description": "Take online shop payments through Stripe.",
+      "longDescription": "Stripe will let guests pay in the online shop by card and other common payment methods.",
+      "requirements": {
+        "account": "A Stripe account"
+      }
     },
     "fiskaly": {
       "vendor": "Fiscalisation",
-      "description": "Cloud TSE for the German cash register security regulation."
+      "description": "Cloud TSE for the German cash register security regulation.",
+      "longDescription": "fiskaly provides a cloud TSE that signs POS transactions as required by the German cash register security regulation (KassenSichV).",
+      "requirements": {
+        "account": "A fiskaly account"
+      }
     }
   },
   "onboarding": {

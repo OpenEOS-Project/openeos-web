@@ -1,3 +1,12 @@
+/** Alle Integrationen, die der Katalog kennt (src/config/integrations.ts). */
+export type IntegrationId = 'sumup' | 'stripe' | 'fiskaly';
+
+export interface IntegrationState {
+  enabled: boolean;
+  /** Zeitpunkt der letzten Aktivierung (ISO), setzt die API. */
+  enabledAt?: string;
+}
+
 export interface OrganizationSettings {
   currency: string;
   timezone: string;
@@ -40,6 +49,13 @@ export interface OrganizationSettings {
     requirePayment: boolean;
     maxItemsPerOrder: number;
   };
+  /**
+   * Ein- und ausgeschaltete Integrationen. Aktiv ist eine Integration nur bei
+   * `enabled === true`; die Zugangsdaten (z. B. `sumup`) bleiben beim
+   * Ausschalten stehen, damit ein erneutes Einschalten ohne Neueinrichtung
+   * geht.
+   */
+  integrations?: Partial<Record<IntegrationId, IntegrationState>>;
   sumup?: {
     apiKey: string;
     merchantCode: string;

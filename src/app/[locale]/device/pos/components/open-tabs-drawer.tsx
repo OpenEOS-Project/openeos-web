@@ -13,6 +13,7 @@ import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
+import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
 import type { Order } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
 
@@ -31,6 +32,12 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
   const [isProcessing, setIsProcessing] = useState(false);
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
+  // Der SumUp-Leser wird nur angesprochen, solange die Integration an ist.
+  // Ohne sie bleibt die Kartenzahlung als manuelle Buchung (externes
+  // Terminal) — die gab es hier schon immer, und sie hat mit SumUp nichts
+  // zu tun.
+  const sumupEnabled = useDeviceIntegrationEnabled('sumup');
+  const useSumupReader = hasSumupReader && sumupEnabled;
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['device-open-tabs'],
@@ -88,7 +95,7 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
   };
 
   const handleCardPayment = () => {
-    if (hasSumupReader) {
+    if (useSumupReader) {
       setShowSumupModal(true);
     } else {
       payAllOrders('card');

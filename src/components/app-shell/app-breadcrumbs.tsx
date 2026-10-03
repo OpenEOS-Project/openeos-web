@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { getIntegration } from '@/config/integrations';
 import { Link } from '@/i18n/routing';
 
 /**
@@ -35,6 +36,7 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   'rental-hardware': 'rentalHardware',
   'production-stations': 'productionStations',
   templates: 'templates',
+  integrations: 'integrations',
 };
 
 function humanize(seg: string): string {
@@ -81,7 +83,10 @@ export function AppBreadcrumbs() {
       });
       continue;
     }
-    crumbs.push({ label: labelFor(seg), href: current });
+    // Unter /integrations steht der Markenname aus dem Katalog ("SumUp"),
+    // nicht der aus der Adresse geratene ("Sumup").
+    const integration = current === `/integrations/${seg}` ? getIntegration(seg) : undefined;
+    crumbs.push({ label: integration?.name ?? labelFor(seg), href: current });
   }
 
   // Die letzte Krume ist die aktuelle Seite und deshalb kein Link.

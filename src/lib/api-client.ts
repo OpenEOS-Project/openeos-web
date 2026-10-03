@@ -369,6 +369,17 @@ export const organizationsApi = {
   delete: (id: string) =>
     apiClient.delete(`/organizations/${id}`),
 
+  // Integration ein-/ausschalten; Antwort ist die aktualisierte Organisation.
+  setIntegrationEnabled: (
+    id: string,
+    integrationId: import('@/types/organization').IntegrationId,
+    enabled: boolean,
+  ) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${id}/integrations/${integrationId}`,
+      { enabled },
+    ),
+
   // Members
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),

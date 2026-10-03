@@ -12,6 +12,7 @@ import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
+import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
 import { cx } from '@/utils/cx';
 import type { Order, OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
@@ -43,6 +44,12 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   const [groupBy, setGroupBy] = useState<GroupBy>('order');
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
+  // Der SumUp-Leser wird nur angesprochen, solange die Integration an ist.
+  // Ohne sie bleibt die Kartenzahlung als manuelle Buchung (externes
+  // Terminal) — die gab es hier schon immer, und sie hat mit SumUp nichts
+  // zu tun.
+  const sumupEnabled = useDeviceIntegrationEnabled('sumup');
+  const useSumupReader = hasSumupReader && sumupEnabled;
 
   // Fetch all open orders
   const { data: ordersData, isLoading } = useQuery({
@@ -452,7 +459,7 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
                   <Button
                     size="lg"
                     onClick={() => {
-                      if (hasSumupReader) {
+                      if (useSumupReader) {
                         setShowSumupModal(true);
                       } else {
                         handlePay('card');
