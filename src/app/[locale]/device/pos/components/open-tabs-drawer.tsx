@@ -32,9 +32,12 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
   const [isProcessing, setIsProcessing] = useState(false);
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
-  // Ohne eingeschaltete SumUp-Integration gibt es keine Kartenzahlung —
-  // auch nicht die manuelle ohne Lesegerät. Bar bleibt immer.
-  const cardPaymentEnabled = useDeviceIntegrationEnabled('sumup');
+  // Der SumUp-Leser wird nur angesprochen, solange die Integration an ist.
+  // Ohne sie bleibt die Kartenzahlung als manuelle Buchung (externes
+  // Terminal) — die gab es hier schon immer, und sie hat mit SumUp nichts
+  // zu tun.
+  const sumupEnabled = useDeviceIntegrationEnabled('sumup');
+  const useSumupReader = hasSumupReader && sumupEnabled;
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['device-open-tabs'],
@@ -92,7 +95,7 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
   };
 
   const handleCardPayment = () => {
-    if (hasSumupReader) {
+    if (useSumupReader) {
       setShowSumupModal(true);
     } else {
       payAllOrders('card');
@@ -219,7 +222,7 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
                   </span>
                 </div>
 
-                <div className={cardPaymentEnabled ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-1 gap-3'}>
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     color="secondary"
                     size="lg"
@@ -229,16 +232,14 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
                   >
                     {t('payCash')}
                   </Button>
-                  {cardPaymentEnabled && (
-                    <Button
-                      size="lg"
-                      onClick={handleCardPayment}
-                      disabled={isProcessing}
-                      iconLeading={CreditCard01}
-                    >
-                      {t('payCard')}
-                    </Button>
-                  )}
+                  <Button
+                    size="lg"
+                    onClick={handleCardPayment}
+                    disabled={isProcessing}
+                    iconLeading={CreditCard01}
+                  >
+                    {t('payCard')}
+                  </Button>
                 </div>
 
                 <Button

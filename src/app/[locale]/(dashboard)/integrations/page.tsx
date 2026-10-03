@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
+import { AdminGuard } from '@/components/shared/admin-guard';
+
 import { IntegrationsContainer } from './components/integrations-container';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,15 +14,17 @@ export default async function IntegrationsPage() {
   const t = await getTranslations('integrations');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div className="app-page-head">
-        <div className="app-page-head__copy">
-          <h1 className="app-page-head__title">{t('title')}</h1>
-          <p className="app-page-head__sub">{t('subtitle')}</p>
+    <AdminGuard>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div className="app-page-head">
+          <div className="app-page-head__copy">
+            <h1 className="app-page-head__title">{t('title')}</h1>
+            <p className="app-page-head__sub">{t('subtitle')}</p>
+          </div>
         </div>
-      </div>
 
-      <IntegrationsContainer />
-    </div>
+        <IntegrationsContainer />
+      </div>
+    </AdminGuard>
   );
 }

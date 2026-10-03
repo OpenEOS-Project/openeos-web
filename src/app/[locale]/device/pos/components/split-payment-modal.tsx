@@ -44,9 +44,12 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   const [groupBy, setGroupBy] = useState<GroupBy>('order');
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
-  // Ohne eingeschaltete SumUp-Integration gibt es keine Kartenzahlung —
-  // auch nicht die manuelle ohne Lesegerät. Bar bleibt immer.
-  const cardPaymentEnabled = useDeviceIntegrationEnabled('sumup');
+  // Der SumUp-Leser wird nur angesprochen, solange die Integration an ist.
+  // Ohne sie bleibt die Kartenzahlung als manuelle Buchung (externes
+  // Terminal) — die gab es hier schon immer, und sie hat mit SumUp nichts
+  // zu tun.
+  const sumupEnabled = useDeviceIntegrationEnabled('sumup');
+  const useSumupReader = hasSumupReader && sumupEnabled;
 
   // Fetch all open orders
   const { data: ordersData, isLoading } = useQuery({
@@ -443,7 +446,7 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
 
               {/* Payment Actions */}
               <div className="space-y-3">
-                <div className={cardPaymentEnabled ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-1 gap-3'}>
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     color="secondary"
                     size="lg"
@@ -453,22 +456,20 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
                   >
                     {t('payCash')}
                   </Button>
-                  {cardPaymentEnabled && (
-                    <Button
-                      size="lg"
-                      onClick={() => {
-                        if (hasSumupReader) {
-                          setShowSumupModal(true);
-                        } else {
-                          handlePay('card');
-                        }
-                      }}
-                      disabled={!hasSelection || isProcessing}
-                      iconLeading={CreditCard01}
-                    >
-                      {t('payCard')}
-                    </Button>
-                  )}
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      if (useSumupReader) {
+                        setShowSumupModal(true);
+                      } else {
+                        handlePay('card');
+                      }
+                    }}
+                    disabled={!hasSelection || isProcessing}
+                    iconLeading={CreditCard01}
+                  >
+                    {t('payCard')}
+                  </Button>
                 </div>
               </div>
             </>
