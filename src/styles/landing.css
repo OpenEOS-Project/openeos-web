@@ -3328,7 +3328,8 @@ body:has(.landing) {
    Infofenster oeffnet; eingerichtet wird auf der eigenen Seite. */
 .landing .integration-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* min(): auf schmalen Telefonen waere 320 px breiter als der Platz. */
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 14px;
   /* Kein align-items:start — sonst waere jede Kachel nur so hoch wie ihr
      eigener Text, und eine Zeile aus drei Anbietern haette drei Hoehen.
