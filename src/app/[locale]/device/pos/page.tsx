@@ -306,6 +306,9 @@ export default function DevicePosPage() {
     queryClient.invalidateQueries({ queryKey: ['device-categories'] });
     queryClient.invalidateQueries({ queryKey: ['device-orders'] });
     queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+    // Organisationseinstellungen ebenfalls: daran hängt u. a., ob die
+    // Kartenzahlung angeboten wird (SumUp-Schalter).
+    queryClient.invalidateQueries({ queryKey: ['device-organization'] });
     refreshDeviceStatus();
   }, [queryClient, refreshDeviceStatus]);
 

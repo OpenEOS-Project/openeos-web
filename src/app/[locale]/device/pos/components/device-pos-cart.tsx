@@ -14,6 +14,7 @@ import { CashPaymentModal } from './cash-payment-modal';
 import { DiscountVoucherModal } from './discount-voucher-modal';
 import { PfandReturnModal } from './pfand-return-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
+import { isIntegrationEnabled } from '@/config/integrations';
 import type { PaymentMethod } from '@/types/payment';
 
 interface PosCartProps {
@@ -103,16 +104,24 @@ export function PosCart({
     queryFn: async () => (await deviceApi.getPfandTypes()).data,
   });
 
-  const { data: deviceOrg } = useQuery({
+  // Dieselbe Form wie auf der Kassenseite (ganze Antwort): beide teilen sich
+  // den Schlüssel ['device-organization'], und mit unterschiedlichen
+  // queryFn-Ergebnissen hing es von der Ladereihenfolge ab, ob hier
+  // `settings` überhaupt ankam.
+  const { data: deviceOrgResponse } = useQuery({
     queryKey: ['device-organization'],
-    queryFn: async () => (await deviceApi.getOrganization()).data,
+    queryFn: () => deviceApi.getOrganization(),
   });
+  const deviceOrg = deviceOrgResponse?.data;
 
   // Whether deposits apply for this device's fulfillment type (org policy).
   const chargePfand = resolveChargePfand(
     deviceOrg?.settings?.pfand,
     serviceMode,
   );
+  // Kartenzahlung nur bei eingeschalteter SumUp-Integration — ausgeschaltet
+  // lehnt die API jeden SumUp-Aufruf ab, auch wenn ein Lesegerät hinterlegt ist.
+  const showCardPayment = hasSumupReader && isIntegrationEnabled(deviceOrg?.settings, 'sumup');
 
   const total = getTotal();
   const discount = getDiscount();
@@ -763,7 +772,7 @@ export function PosCart({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: hasSumupReader ? '1fr 1fr' : '1fr',
+              gridTemplateColumns: showCardPayment ? '1fr 1fr' : '1fr',
               gap: 8,
               marginTop: 4,
             }}
@@ -794,7 +803,7 @@ export function PosCart({
               <Coins01 style={{ width: 18, height: 18, color: 'currentColor', flexShrink: 0 }} />
               <span>{t('cart.payCash')}</span>
             </button>
-            {hasSumupReader && (
+            {showCardPayment && (
               <button
                 type="button"
                 onClick={() =>

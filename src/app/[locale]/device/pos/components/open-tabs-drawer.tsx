@@ -13,6 +13,7 @@ import { deviceApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { CashPaymentModal } from './cash-payment-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
+import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
 import type { Order } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
 
@@ -31,6 +32,9 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
   const [isProcessing, setIsProcessing] = useState(false);
   const { settings } = useDeviceStore();
   const hasSumupReader = !!settings?.sumupReaderId;
+  // Ohne eingeschaltete SumUp-Integration gibt es keine Kartenzahlung —
+  // auch nicht die manuelle ohne Lesegerät. Bar bleibt immer.
+  const cardPaymentEnabled = useDeviceIntegrationEnabled('sumup');
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['device-open-tabs'],
@@ -215,7 +219,7 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className={cardPaymentEnabled ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-1 gap-3'}>
                   <Button
                     color="secondary"
                     size="lg"
@@ -225,14 +229,16 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
                   >
                     {t('payCash')}
                   </Button>
-                  <Button
-                    size="lg"
-                    onClick={handleCardPayment}
-                    disabled={isProcessing}
-                    iconLeading={CreditCard01}
-                  >
-                    {t('payCard')}
-                  </Button>
+                  {cardPaymentEnabled && (
+                    <Button
+                      size="lg"
+                      onClick={handleCardPayment}
+                      disabled={isProcessing}
+                      iconLeading={CreditCard01}
+                    >
+                      {t('payCard')}
+                    </Button>
+                  )}
                 </div>
 
                 <Button

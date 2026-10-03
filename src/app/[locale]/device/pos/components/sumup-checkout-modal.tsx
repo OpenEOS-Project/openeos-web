@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
+import { ApiException } from '@/types/api';
 import { formatCurrency } from '@/utils/format';
 
 type CheckoutState = 'tip' | 'initiating' | 'waiting' | 'success' | 'failed' | 'cancelled';
@@ -44,6 +45,11 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   const tipRef = useRef(0);
 
   const getErrorMessage = (err: unknown): string => {
+    // Zwischen Ausschalten in der Verwaltung und dem nächsten Abruf der
+    // Organisation kann die Kasse noch einen Kartenknopf zeigen.
+    if (err instanceof ApiException && err.code === 'INTEGRATION_DISABLED') {
+      return t('errors.INTEGRATION_DISABLED');
+    }
     const message = err instanceof Error ? err.message : '';
     const errorType = KNOWN_ERRORS.find((type) => message.includes(type));
     if (errorType) {
