@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
+import type { UpdateOrganizationData } from '@/types/organization';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
@@ -28,7 +29,7 @@ export function OrganizationGeneralSection() {
   const [isUploading, setIsUploading] = useState(false);
 
   const updateOrg = useMutation({
-    mutationFn: async (data: Partial<OrgGeneralFormData>) => {
+    mutationFn: async (data: UpdateOrganizationData) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, data);
       return response.data;
@@ -38,6 +39,10 @@ export function OrganizationGeneralSection() {
         setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+    },
+    // Ohne das blieb ein abgelehntes Speichern voellig stumm.
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : tCommon('error'));
     },
   });
 
@@ -49,7 +54,13 @@ export function OrganizationGeneralSection() {
     },
   });
 
-  const onSubmit = async (data: OrgGeneralFormData) => { await updateOrg.mutateAsync(data); };
+  /* Die Beschreibung gehoert in `settings`. Oben auf der Organisation gibt
+     es kein Feld dafuer, und die API lehnte das ganze Speichern deshalb ab
+     ("property description should not exist") — auch den Namen. Die API
+     fuehrt `settings` eine Ebene tief zusammen, der Rest bleibt stehen. */
+  const onSubmit = (data: OrgGeneralFormData) => {
+    updateOrg.mutate({ name: data.name, settings: { description: data.description ?? '' } });
+  };
 
   const applyLogoUrl = (logoUrl: string | null) => {
     if (!currentOrganization?.organization) return;
@@ -191,7 +202,7 @@ export function OrganizationGeneralSection() {
             hint={t('vatExempt.hint')}
             checked={currentOrganization.organization?.settings?.vatExempt !== false}
             onChange={(checked) =>
-              updateOrg.mutate({ settings: { vatExempt: checked } } as Partial<OrgGeneralFormData>)
+              updateOrg.mutate({ settings: { vatExempt: checked } })
             }
           />
 

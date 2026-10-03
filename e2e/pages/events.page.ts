@@ -1,66 +1,50 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
- * Page Object for Events Page
+ * Veranstaltungsliste (events/components/events-list.tsx).
+ *
+ * Die Dialoge tragen keine role="dialog"; sie werden ueber ihr Panel
+ * gefunden.
  */
 export class EventsPage {
   readonly page: Page;
   readonly createButton: Locator;
-  readonly eventsList: Locator;
-  readonly emptyState: Locator;
+  readonly modal: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.createButton = page.getByRole('button', { name: /event erstellen|veranstaltung erstellen/i });
-    this.eventsList = page.locator('table tbody');
-    this.emptyState = page.locator('[data-testid="empty-state"]');
+    // In der leeren Liste und im Kopf der Tabelle steht derselbe Knopf;
+    // es ist immer genau einer sichtbar.
+    this.createButton = page.getByRole('main').getByRole('button', { name: 'Veranstaltung erstellen' });
+    this.modal = page.locator('.modal__panel');
   }
 
-  async goto(locale: string = 'de') {
-    await this.page.goto(`/${locale}/events`);
+  async goto() {
+    await this.page.goto('/events');
+    await expect(this.page.getByRole('heading', { name: 'Veranstaltungen', level: 1 })).toBeVisible();
   }
 
-  async createEvent(data: { name: string; description?: string; startDate: string; endDate: string }) {
+  row(eventName: string): Locator {
+    return this.page.getByRole('row').filter({ hasText: eventName });
+  }
+
+  async createEvent(data: { name: string; description?: string; startDate: string; endDate?: string }) {
     await this.createButton.click();
-
-    // Fill form
-    await this.page.getByLabel('Name').fill(data.name);
+    await this.modal.getByRole('textbox', { name: 'Name' }).fill(data.name);
     if (data.description) {
-      await this.page.getByLabel('Beschreibung').fill(data.description);
+      await this.modal.getByRole('textbox', { name: 'Beschreibung' }).fill(data.description);
     }
-    await this.page.getByLabel('Startdatum').fill(data.startDate);
-    await this.page.getByLabel('Enddatum').fill(data.endDate);
-
-    // Submit
-    await this.page.getByRole('button', { name: /erstellen|speichern/i }).click();
+    await this.modal.getByLabel('Startdatum').fill(data.startDate);
+    if (data.endDate) {
+      await this.modal.getByLabel('Enddatum').fill(data.endDate);
+    }
+    await this.modal.getByRole('button', { name: 'Erstellen' }).click();
+    // Der Dialog schliesst erst, wenn die API das Anlegen bestaetigt hat.
+    await expect(this.modal).toHaveCount(0);
+    await expect(this.row(data.name)).toBeVisible();
   }
 
-  async openEventActions(eventName: string) {
-    const row = this.page.locator('tr').filter({ hasText: eventName });
-    await row.getByRole('button', { name: /aktionen|mehr/i }).click();
-  }
-
-  async activateEvent(eventName: string) {
-    await this.openEventActions(eventName);
-    await this.page.getByRole('menuitem', { name: /aktivieren/i }).click();
-  }
-
-  async deleteEvent(eventName: string) {
-    await this.openEventActions(eventName);
-    await this.page.getByRole('menuitem', { name: /löschen/i }).click();
-    await this.page.getByRole('button', { name: /löschen|bestätigen/i }).click();
-  }
-
-  async expectEventInList(eventName: string) {
-    await expect(this.page.getByText(eventName)).toBeVisible();
-  }
-
-  async expectEventStatus(eventName: string, status: string) {
-    const row = this.page.locator('tr').filter({ hasText: eventName });
-    await expect(row.getByText(status)).toBeVisible();
-  }
-
-  async expectInsufficientCreditsModal() {
-    await expect(this.page.getByText(/nicht genügend credits/i)).toBeVisible();
+  async expectStatus(eventName: string, status: 'Aktiv' | 'Inaktiv' | 'Testmodus') {
+    await expect(this.row(eventName).getByRole('cell').nth(1)).toHaveText(status);
   }
 }

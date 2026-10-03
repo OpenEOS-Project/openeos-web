@@ -63,21 +63,22 @@ export function SettingsContainer() {
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
   ];
 
+  /* Super-Admins bekamen frueher statt "Organisation" nur "Plattform". Auf
+     einer eigenstaendigen Installation ist der Super-Admin aus der
+     Ersteinrichtung aber zugleich der einzige Admin des Vereins — Name,
+     Logo und Kontakt liessen sich dort von niemandem mehr aendern. Gehoert
+     er einer Organisation an, sieht er deshalb beide Reiter. */
+  const showOrganizationTab = !isSuperAdmin || !!currentOrganization;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {/* Main tabs: Personal / Organization (or Personal / Platform for super-admins) */}
+      {/* Main tabs: Personal / Organization / Platform (super-admins only) */}
       <TabBar
-        tabs={
-          isSuperAdmin
-            ? [
-                { id: 'personal', label: t('tabs.personal') },
-                { id: 'platform', label: t('tabs.platform') },
-              ]
-            : [
-                { id: 'personal', label: t('tabs.personal') },
-                { id: 'organization', label: t('tabs.organization') },
-              ]
-        }
+        tabs={[
+          { id: 'personal', label: t('tabs.personal') },
+          ...(showOrganizationTab ? [{ id: 'organization', label: t('tabs.organization') }] : []),
+          ...(isSuperAdmin ? [{ id: 'platform', label: t('tabs.platform') }] : []),
+        ]}
         activeId={activeMain}
         onSelect={(id) => setActiveMain(id as 'personal' | 'organization' | 'platform')}
       />
@@ -92,7 +93,7 @@ export function SettingsContainer() {
       )}
 
       {/* Organization settings */}
-      {activeMain === 'organization' && !isSuperAdmin && (
+      {activeMain === 'organization' && showOrganizationTab && (
         <>
           {currentOrganization ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
