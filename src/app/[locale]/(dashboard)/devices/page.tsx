@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { ModuleGuard } from '@/components/shared/module-guard';
+
 import { DevicesList } from './components/devices-list';
 import { LinkDeviceButton } from './components/link-device-button';
 import { DeviceRegistrationInfo } from './components/device-registration-info';
@@ -16,23 +18,25 @@ export default async function DevicesPage() {
   const t = await getTranslations('devices');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div className="app-page-head">
-        <div className="app-page-head__copy">
-          <h1 className="app-page-head__title">{t('title')}</h1>
-          <p className="app-page-head__sub">{t('description')}</p>
+    <ModuleGuard requiredPermission="devices">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div className="app-page-head">
+          <div className="app-page-head__copy">
+            <h1 className="app-page-head__title">{t('title')}</h1>
+            <p className="app-page-head__sub">{t('description')}</p>
+          </div>
+          {/* Die Gegenseite zum Code auf dem Bildschirm. */}
+          <LinkDeviceButton />
         </div>
-        {/* Die Gegenseite zum Code auf dem Bildschirm. */}
-        <LinkDeviceButton />
-      </div>
 
-      {/* Registration Info with QR Code (for POS devices) */}
-      <DeviceRegistrationInfo />
+        {/* Registration Info with QR Code (for POS devices) */}
+        <DeviceRegistrationInfo />
 
-      {/* Devices List */}
-      <div className="app-card app-card--flat">
-        <DevicesList />
+        {/* Devices List */}
+        <div className="app-card app-card--flat">
+          <DevicesList />
+        </div>
       </div>
-    </div>
+    </ModuleGuard>
   );
 }

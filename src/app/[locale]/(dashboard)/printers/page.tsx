@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { ModuleGuard } from '@/components/shared/module-guard';
+
 import { PrintersContainer } from './components/printers-container';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -10,13 +12,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PrintersPage() {
   const t = await getTranslations('navigation');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div className="app-page-head">
-        <div className="app-page-head__copy">
-          <h1 className="app-page-head__title">{t('printers')}</h1>
+    <ModuleGuard requiredPermission="devices">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div className="app-page-head">
+          <div className="app-page-head__copy">
+            <h1 className="app-page-head__title">{t('printers')}</h1>
+          </div>
         </div>
+        <PrintersContainer />
       </div>
-      <PrintersContainer />
-    </div>
+    </ModuleGuard>
   );
 }
