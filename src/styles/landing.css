@@ -3324,8 +3324,8 @@ body:has(.landing) {
 
 /* ---------- Integrationen ----------
    Karten statt Reitern: eine Anbindung soll sich hinzufuegen lassen, ohne
-   dass die Seite umgebaut wird. Die Einstellungen klappen in der Karte
-   auf, damit man beim Einrichten sieht, wovon die Rede ist. */
+   dass die Seite umgebaut wird. Die Karte ist nur noch ein Knopf, der das
+   Infofenster oeffnet; eingerichtet wird auf der eigenen Seite. */
 .landing .integration-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -3342,11 +3342,22 @@ body:has(.landing) {
   background: var(--surface);
   padding: 16px;
 }
-.landing .integration-card.is-open {
-  /* Die aufgeklappte Karte nimmt die ganze Zeile — die Einstellungen
-     brauchen mehr Platz als die Kachelbreite. */
-  grid-column: 1 / -1;
-  border-color: var(--oe-green-ink);
+.landing .integration-card--button {
+  /* Ganze Karte als <button>: Schrift und Ausrichtung des Browsers
+     zuruecksetzen, damit sie aussieht wie die frueheren Kacheln. */
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.landing .integration-card--button:hover {
+  border-color: color-mix(in oklab, var(--oe-green-ink) 45%, var(--oe-line));
+}
+.landing .integration-card--button:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
 }
 .landing .integration-card__head {
   display: flex;
@@ -3389,10 +3400,186 @@ body:has(.landing) {
   line-height: 1.5;
   color: var(--mute);
 }
-.landing .integration-card__panel {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--oe-line);
+.landing .integration-card__name,
+.landing .integration-card__vendor,
+.landing .integration-card__desc { display: block; }
+
+/* Infofenster */
+.landing .integration-info__inner {
+  /* Zwischenschicht fuer den Fokus-Anker; muss das Flex-Layout des
+     Panels weiterreichen, sonst scrollt der Inhalt nicht. */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.landing .integration-info__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+.landing .integration-info__body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.landing .integration-info__heading {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.landing .integration-info__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.landing .integration-info__list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mute);
+  list-style: disc;
+}
+.landing .integration-info__docs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-ink);
+  text-decoration: none;
+}
+.landing .integration-info__docs:hover { text-decoration: underline; }
+.landing .integration-info__docs svg { width: 14px; height: 14px; }
+.landing .integration-info__error {
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--danger);
+}
+.landing .integration-info__foot { flex-wrap: wrap; }
+.landing .integration-info__hint {
+  flex: 1 1 220px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+/* Bildstrecke */
+.landing .integration-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: var(--oe-r);
+}
+.landing .integration-gallery:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 4px;
+}
+.landing .integration-gallery__frame {
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.landing .integration-gallery__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.landing .integration-gallery__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--mute);
+}
+.landing .integration-gallery__placeholder svg { width: 28px; height: 28px; opacity: 0.6; }
+.landing .integration-gallery__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.landing .integration-gallery__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 40 px: auf dem Telefon mit dem Daumen treffbar. */
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--oe-line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.landing .integration-gallery__nav:hover { background: color-mix(in oklab, var(--ink) 5%, var(--surface)); }
+.landing .integration-gallery__nav svg { width: 18px; height: 18px; }
+.landing .integration-gallery__dots { display: flex; gap: 6px; }
+.landing .integration-gallery__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ink) 20%, transparent);
+  cursor: pointer;
+}
+.landing .integration-gallery__dot.is-active { background: var(--green-ink); }
+.landing .integration-gallery__caption {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .integration-gallery__counter { opacity: 0.7; }
+
+/* Konfigurationsseite */
+.landing .integration-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mute);
+  text-decoration: none;
+}
+.landing .integration-page__back:hover { color: var(--ink); }
+.landing .integration-page__back svg { width: 16px; height: 16px; }
+.landing .integration-page__title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Integrationen als Untereintrag unter "Integrationen" in der Seitenleiste.
+   Eingeklappt gibt es keinen Platz fuer Einrueckung — dort stehen die
+   Symbole wie alle anderen mittig. */
+.landing .app-sidebar:not(.app-sidebar--collapsed) .app-sidebar__item--nested {
+  padding-left: 30px;
+  font-size: 13px;
+}
+@media (max-width: 960px) {
+  /* Mobil ist die Leiste immer ausgeklappt, auch wenn sie am Desktop
+     eingeklappt war; die Regel muss die dortige Polsterung uebertrumpfen. */
+  .landing .app-sidebar .app-sidebar__item.app-sidebar__item--nested { padding-left: 30px; }
 }
 
 /* ---------- Willkommens-Tour ----------

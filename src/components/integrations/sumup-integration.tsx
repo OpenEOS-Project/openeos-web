@@ -8,12 +8,17 @@ import { organizationsApi, sumupApi } from '@/lib/api-client';
 import type { SumUpReader } from '@/types/sumup';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
+import { useIntegrationErrorMessage } from '@/hooks/use-integrations';
 
 export function SumUpIntegration() {
   const t = useTranslations('settings.organizationSumup');
   const tCommon = useTranslations('common');
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const queryClient = useQueryClient();
+  // Die SumUp-Endpunkte antworten bei ausgeschalteter Integration mit 403
+  // INTEGRATION_DISABLED — das soll als verständlicher Hinweis ankommen und
+  // nicht als allgemeines "fehlgeschlagen".
+  const integrationError = useIntegrationErrorMessage();
 
   const organizationId = currentOrganization?.organizationId;
   const sumupSettings = currentOrganization?.organization?.settings?.sumup;
@@ -83,8 +88,8 @@ export function SumUpIntegration() {
     onSuccess: () => {
       toast.success(t('credentials.success'));
     },
-    onError: () => {
-      toast.error(t('credentials.testFailed'));
+    onError: (error) => {
+      toast.error(integrationError(error, t('credentials.testFailed')));
     },
   });
 
@@ -258,6 +263,10 @@ export function SumUpIntegration() {
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
               </div>
               <p className="empty-state__sub">{t('readers.notConfigured')}</p>
+            </div>
+          ) : readersQuery.isError ? (
+            <div role="alert" style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
+              {integrationError(readersQuery.error, tCommon('error'))}
             </div>
           ) : readersQuery.isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>

@@ -39,12 +39,14 @@ export function IntegrationLogo({ id, name, color }: IntegrationLogoProps) {
   }
 
   return (
-    <div
+    // <span> statt <div>: das Logo steht auch in der Katalogkarte, und die
+    // ist ein <button>, in dem nur Inline-Inhalt erlaubt ist.
+    <span
       className="integration-card__icon"
       style={{ background: color, color: '#fff' }}
       aria-hidden="true"
     >
       {name.slice(0, 1)}
-    </div>
+    </span>
   );
 }

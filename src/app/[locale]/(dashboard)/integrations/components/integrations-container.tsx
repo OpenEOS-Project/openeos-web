@@ -3,94 +3,55 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { IntegrationLogo } from './integration-logo';
-import { SumUpIntegration } from './sumup-integration';
+import { IntegrationInfoDialog } from '@/components/integrations/integration-info-dialog';
+import { IntegrationLogo } from '@/components/integrations/integration-logo';
+import { IntegrationStatusBadge } from '@/components/integrations/integration-status-badge';
+import { INTEGRATIONS, isIntegrationEnabled, type IntegrationDefinition } from '@/config/integrations';
+import { useAuthStore } from '@/stores/auth-store';
 
 /**
- * Verfügbare Integrationen.
+ * Katalog der Integrationen.
  *
- * Die Liste steht bewusst als Datenstruktur da und nicht als Folge von
- * Abschnitten: eine weitere Anbindung soll ein Eintrag sein, kein Umbau
- * der Seite. `available: false` zeigt sie als angekündigt an, damit
- * erkennbar bleibt, wohin es geht, ohne etwas vorzutäuschen, das noch
- * nicht geht.
+ * Hier wird nur ein- und ausgeschaltet. Die Einrichtung saß früher
+ * aufgeklappt in der Karte; jetzt bekommt jede aktive Integration eine eigene
+ * Seite mit Eintrag in der Seitenleiste — die Karte öffnet nur noch das
+ * Infofenster mit Beschreibung, Bildern und Schalter.
  */
-interface IntegrationEntry {
-  id: string;
-  name: string;
-  vendor: string;
-  description: string;
-  /** Hausfarbe des Anbieters, solange kein Logo hinterlegt ist. */
-  color: string;
-  available: boolean;
-  /** Einstellungen der Anbindung; fehlen sie, gibt es nichts zu öffnen. */
-  panel?: React.ReactNode;
-}
-
 export function IntegrationsContainer() {
   const t = useTranslations('integrations');
-  const [openId, setOpenId] = useState<string | null>(null);
-
-  const entries: IntegrationEntry[] = [
-    {
-      id: 'sumup',
-      name: 'SumUp',
-      vendor: t('sumup.vendor'),
-      description: t('sumup.description'),
-      color: '#1B1B1B',
-      available: true,
-      panel: <SumUpIntegration />,
-    },
-    {
-      id: 'stripe',
-      name: 'Stripe',
-      vendor: t('stripe.vendor'),
-      description: t('stripe.description'),
-      color: '#635BFF',
-      available: false,
-    },
-    {
-      id: 'fiskaly',
-      name: 'fiskaly',
-      vendor: t('fiskaly.vendor'),
-      description: t('fiskaly.description'),
-      color: '#0F766E',
-      available: false,
-    },
-  ];
+  const settings = useAuthStore((state) => state.currentOrganization?.organization?.settings);
+  const [selected, setSelected] = useState<IntegrationDefinition | null>(null);
 
   return (
-    <div className="integration-grid">
-      {entries.map((entry) => {
-        const isOpen = openId === entry.id;
-        return (
-          <div key={entry.id} className={`integration-card${isOpen ? ' is-open' : ''}`}>
-            <div className="integration-card__head">
-              <IntegrationLogo id={entry.id} name={entry.name} color={entry.color} />
-              <div className="integration-card__copy">
-                <div className="integration-card__name">{entry.name}</div>
-                <div className="integration-card__vendor">{entry.vendor}</div>
-              </div>
-              {entry.available ? (
-                <button
-                  type="button"
-                  className="btn btn--ghost btn--sm"
-                  onClick={() => setOpenId(isOpen ? null : entry.id)}
-                  aria-expanded={isOpen}
-                >
-                  {isOpen ? t('actions.close') : t('actions.configure')}
-                </button>
-              ) : (
-                <span className="badge badge--neutral">{t('soon')}</span>
-              )}
-            </div>
+    <>
+      <div className="integration-grid">
+        {INTEGRATIONS.map((integration) => (
+          <button
+            key={integration.id}
+            type="button"
+            className="integration-card integration-card--button"
+            onClick={() => setSelected(integration)}
+            aria-haspopup="dialog"
+          >
+            <span className="integration-card__head">
+              <IntegrationLogo id={integration.id} name={integration.name} color={integration.color} />
+              <span className="integration-card__copy">
+                <span className="integration-card__name">{integration.name}</span>
+                <span className="integration-card__vendor">{t(integration.vendorKey)}</span>
+              </span>
+              <IntegrationStatusBadge
+                available={integration.available}
+                enabled={isIntegrationEnabled(settings, integration.id)}
+              />
+            </span>
+            <span className="integration-card__desc">{t(integration.shortDescriptionKey)}</span>
+          </button>
+        ))}
+      </div>
 
-            <p className="integration-card__desc">{entry.description}</p>
-
-            {isOpen && entry.panel && <div className="integration-card__panel">{entry.panel}</div>}
-          </div>
-        );
-      })}
-    </div>
+      {selected && (
+        <IntegrationInfoDialog integration={selected} onClose={() => setSelected(null)} />
+      )}
+    </>
   );
 }
