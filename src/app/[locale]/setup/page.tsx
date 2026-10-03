@@ -28,21 +28,28 @@ const baseFields = {
 const passwordMatchRefinement = (data: { password: string; passwordConfirm: string }) =>
   data.password === data.passwordConfirm;
 
-const singleModeSchema = z.object({
-  ...baseFields,
-  organizationName: z.string().min(2).max(200),
-}).refine(passwordMatchRefinement, {
-  message: "Passwords don't match",
-  path: ['passwordConfirm'],
-});
+// Schemas als Factory, damit die Fehlermeldung ueber next-intl lokalisiert
+// werden kann — die Felder selbst sind ausserhalb der Komponente definiert,
+// bevor t() zur Verfuegung steht.
+function createSingleModeSchema(t: (key: string) => string) {
+  return z.object({
+    ...baseFields,
+    organizationName: z.string().min(2).max(200),
+  }).refine(passwordMatchRefinement, {
+    message: t('errors.passwordMismatch'),
+    path: ['passwordConfirm'],
+  });
+}
 
-const multiModeSchema = z.object(baseFields).refine(passwordMatchRefinement, {
-  message: "Passwords don't match",
-  path: ['passwordConfirm'],
-});
+function createMultiModeSchema(t: (key: string) => string) {
+  return z.object(baseFields).refine(passwordMatchRefinement, {
+    message: t('errors.passwordMismatch'),
+    path: ['passwordConfirm'],
+  });
+}
 
-type SingleModeFormData = z.infer<typeof singleModeSchema>;
-type MultiModeFormData = z.infer<typeof multiModeSchema>;
+type SingleModeFormData = z.infer<ReturnType<typeof createSingleModeSchema>>;
+type MultiModeFormData = z.infer<ReturnType<typeof createMultiModeSchema>>;
 
 export default function SetupPage() {
   const t = useTranslations('setup');
@@ -76,7 +83,7 @@ export default function SetupPage() {
   }, [setupStatus, router]);
 
   const singleForm = useForm<SingleModeFormData>({
-    resolver: zodResolver(singleModeSchema),
+    resolver: zodResolver(createSingleModeSchema(t)),
     defaultValues: {
       email: '',
       password: '',
@@ -88,7 +95,7 @@ export default function SetupPage() {
   });
 
   const multiForm = useForm<MultiModeFormData>({
-    resolver: zodResolver(multiModeSchema),
+    resolver: zodResolver(createMultiModeSchema(t)),
     defaultValues: {
       email: '',
       password: '',

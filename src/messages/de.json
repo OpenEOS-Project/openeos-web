@@ -2433,7 +2433,8 @@
       "description": "Du wirst zur Anmeldung weitergeleitet..."
     },
     "errors": {
-      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut."
+      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut.",
+      "passwordMismatch": "Passwörter stimmen nicht überein"
     }
   },
   "printers": {

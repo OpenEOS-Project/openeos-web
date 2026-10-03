@@ -2433,7 +2433,8 @@
       "description": "You'll be redirected to login..."
     },
     "errors": {
-      "setupFailed": "Setup failed. Please try again."
+      "setupFailed": "Setup failed. Please try again.",
+      "passwordMismatch": "Passwords don't match"
     }
   },
   "printers": {
