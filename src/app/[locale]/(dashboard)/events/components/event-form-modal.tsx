@@ -25,6 +25,7 @@ import {
 } from '@/lib/event-schedule';
 import { useAuthStore } from '@/stores/auth-store';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
 import { ApiException } from '@/types/api';
 import { SettingToggle } from '@/components/shared/setting-toggle';
@@ -198,9 +199,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
 
   return (
     <div className="modal__overlay" onClick={handleClose}>
-      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
+      <ModalPanel titleId="event-form-modal-title" className="modal__panel--md">
         <div className="modal__head">
-          <h2>{isEditing ? t('actions.edit') : t('create')}</h2>
+          <h2 id="event-form-modal-title">{isEditing ? t('actions.edit') : t('create')}</h2>
           <DialogCloseButton onClick={handleClose} />
         </div>
 
@@ -479,7 +480,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             </button>
           </div>
         </form>
-      </div>
+      </ModalPanel>
     </div>
   );
 }

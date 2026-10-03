@@ -145,7 +145,7 @@ export function LoginForm() {
       </h1>
       <p className="auth-form__sub">{t('subtitle')}</p>
 
-      {error && <div className="auth-form__error">{error}</div>}
+      {error && <div className="auth-form__error" role="alert">{error}</div>}
       {emailNotVerified && (
         <div className="auth-form__resend">
           {resendStatus === 'sent' ? (

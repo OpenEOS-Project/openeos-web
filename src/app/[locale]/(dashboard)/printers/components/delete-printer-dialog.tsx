@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { printersApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Printer } from '@/types/printer';
 
 interface DeletePrinterDialogProps {
@@ -29,9 +30,9 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+      <ModalPanel titleId="delete-printer-dialog-title">
         <div className="modal__head">
-          <h2>{t('deletePrinter')}</h2>
+          <h2 id="delete-printer-dialog-title">{t('deletePrinter')}</h2>
           <DialogCloseButton onClick={onClose} />
         </div>
 
@@ -61,7 +62,7 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
             {deleteMutation.isPending ? tCommon('deleting') : tCommon('delete')}
           </button>
         </div>
-      </div>
+      </ModalPanel>
     </div>
   );
 }

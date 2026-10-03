@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Device } from '@/types/device';
 
 interface DeleteDeviceDialogProps {
@@ -29,9 +30,9 @@ export function DeleteDeviceDialog({ device, onClose }: DeleteDeviceDialogProps)
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+      <ModalPanel titleId="delete-device-dialog-title">
         <div className="modal__head">
-          <h2>{t('deleteDialog.title')}</h2>
+          <h2 id="delete-device-dialog-title">{t('deleteDialog.title')}</h2>
           <DialogCloseButton onClick={onClose} />
         </div>
 
@@ -61,7 +62,7 @@ export function DeleteDeviceDialog({ device, onClose }: DeleteDeviceDialogProps)
             {deleteMutation.isPending ? tCommon('deleting') : tCommon('delete')}
           </button>
         </div>
-      </div>
+      </ModalPanel>
     </div>
   );
 }
