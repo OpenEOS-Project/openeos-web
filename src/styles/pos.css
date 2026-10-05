@@ -24,7 +24,9 @@
   --pos-line-strong: #c6c4be;
   --pos-ink:         #1d1a15;
   --pos-ink-2:       #504d47;
-  --pos-ink-3:       #898681;
+  /* Kleingedrucktes (10-13px) — vorher #898681 mit 3,4-3,6:1. Jetzt
+     >= 4,9:1 auf --pos-bg, --pos-surface und --pos-surface-2. */
+  --pos-ink-3:       #6e6b67;
 
   /* Semantic */
   --pos-danger: #bd413f;
@@ -43,9 +45,13 @@
   --pos-sh-2: 0 4px 12px rgba(20, 18, 12, 0.06), 0 1px 3px rgba(20, 18, 12, 0.05);
   --pos-sh-3: 0 18px 40px rgba(20, 18, 12, 0.10), 0 4px 12px rgba(20, 18, 12, 0.06);
 
-  /* Typography */
-  --pos-ff-ui:   'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --pos-ff-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Typography — dieselben Schriften wie der Rest der App (Geist und
+     JetBrains Mono aus @openeos/ui/fonts, verbunden in globals.css).
+     Hier stand "Inter Tight", das nirgends geladen wurde: jedes Geraet
+     zeigte seine Systemschrift, und die Dialoge (Geist) sahen anders aus
+     als die Kasse dahinter. */
+  --pos-ff-ui:   var(--f-sans, system-ui, sans-serif);
+  --pos-ff-mono: var(--f-mono, ui-monospace, monospace);
 
   /* Base */
   font-family: var(--pos-ff-ui);
@@ -76,7 +82,7 @@
     --pos-line-strong: oklch(0.82 0.008 85);
     --pos-ink:         oklch(0.22 0.01 80);
     --pos-ink-2:       oklch(0.42 0.01 80);
-    --pos-ink-3:       oklch(0.62 0.008 80);
+    --pos-ink-3:       oklch(0.53 0.008 80);
 
     --pos-danger: oklch(0.55 0.16 25);
     --pos-warn:   oklch(0.72 0.14 75);
