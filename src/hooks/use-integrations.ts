@@ -22,6 +22,9 @@ export function useIntegrationErrorMessage() {
       if (error.code === 'INTEGRATION_DISABLED') return t('disabled');
       if (error.code === 'INTEGRATION_NOT_FOUND') return t('notFound');
       if (error.code === 'SUMUP_NOT_CONFIGURED') return t('sumupNotConfigured');
+      // Neuere API-Versionen melden abgelehnte Zugangsdaten (SumUp-401)
+      // mit eigenem Code; aeltere nur als SUMUP_API_ERROR (siehe unten).
+      if (error.code === 'SUMUP_INVALID_CREDENTIALS') return t('sumupUnauthorized');
       // Die API reicht SumUp-Fehler als 400 SUMUP_API_ERROR durch; die
       // Ursache steht nur im Text (Typ/Detail von SumUp bzw. Status der
       // Upstream-Antwort). Abgelehnte Zugangsdaten sind der haeufigste
