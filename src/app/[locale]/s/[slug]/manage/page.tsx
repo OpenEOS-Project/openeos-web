@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Mail01, CheckCircle } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 /**
@@ -15,6 +16,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
  */
 export default function HelperManageRequestPage() {
   const { slug } = useParams() as { slug: string };
+  const apiErrorMessage = useApiErrorMessage();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -32,7 +34,7 @@ export default function HelperManageRequestPage() {
       await shiftsPublicApi.requestHelperMagicLink(slug, email);
       setSent(true);
     } catch (err) {
-      setError((err as Error).message || 'Anfrage fehlgeschlagen.');
+      setError(apiErrorMessage(err, 'Anfrage fehlgeschlagen.'));
     } finally {
       setPending(false);
     }

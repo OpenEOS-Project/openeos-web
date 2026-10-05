@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -34,6 +35,7 @@ const DEFAULT_TEMPLATE =
 
 export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onClose }: SendMessageModalProps) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
@@ -71,7 +73,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
         setResult(data);
       }
     },
-    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
+    onError: (err: Error) => setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten')),
   });
 
   const insertPlaceholder = (token: string) => {

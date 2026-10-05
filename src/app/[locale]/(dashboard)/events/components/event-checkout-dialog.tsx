@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hooks/use-events';
 import { billingApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
@@ -25,6 +26,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const t = useTranslations('events.checkout');
   const tCommon = useTranslations('common');
   const tErrors = useTranslations('errors');
+  const apiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const currencyLocale = locale === 'de' ? 'de-DE' : 'en-US';
 
@@ -118,7 +120,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
       // bei Stripe, nicht in dieser Anwendung.
       window.location.href = checkoutUrl;
     } catch (err) {
-      setError(err instanceof ApiException ? err.message : tErrors('generic'));
+      setError(apiErrorMessage(err, tErrors('generic')));
     }
   };
 
@@ -139,11 +141,11 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
       toast.success(t('success'));
       onClose();
     } catch (err) {
-      if (err instanceof ApiException) {
-        setError(err.code === 'EVENT_NOT_PAID' ? t('errors.notPaid') : err.message);
-      } else {
-        setError(tErrors('generic'));
-      }
+      setError(
+        err instanceof ApiException && err.code === 'EVENT_NOT_PAID'
+          ? t('errors.notPaid')
+          : apiErrorMessage(err, tErrors('generic')),
+      );
     }
   };
 

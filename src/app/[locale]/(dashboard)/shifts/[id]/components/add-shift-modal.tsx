@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -27,6 +28,7 @@ interface AddShiftModalProps {
 
 export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalProps) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -61,7 +63,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
       reset();
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
+    onError: (err: Error) => setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten')),
   });
 
   const onSubmit = (data: FormData) => { if (!jobId) return; setError(null); createMutation.mutate(data); };

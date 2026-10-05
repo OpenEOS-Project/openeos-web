@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { adminApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
@@ -35,6 +36,7 @@ function isRecentlySeen(value: string | null | undefined): boolean {
 }
 
 export function AdminPrintersContainer() {
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const [assignTarget, setAssignTarget] = useState<AdminUnassignedPrinterDevice | null>(null);
 
@@ -66,7 +68,7 @@ export function AdminPrintersContainer() {
         toast.error(result.message ?? 'Test-Druck nicht möglich.');
       }
     },
-    onError: (err: Error) => toast.error(`Test-Druck fehlgeschlagen: ${err.message}`),
+    onError: (err: Error) => toast.error(`Test-Druck fehlgeschlagen: ${apiErrorMessage(err)}`),
   });
 
   const unassignMutation = useMutation({
@@ -75,7 +77,7 @@ export function AdminPrintersContainer() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
       toast.success('Zuordnung wurde aufgehoben.');
     },
-    onError: (err: Error) => toast.error(`Zuordnung aufheben fehlgeschlagen: ${err.message}`),
+    onError: (err: Error) => toast.error(`Zuordnung aufheben fehlgeschlagen: ${apiErrorMessage(err)}`),
   });
 
   const deleteDeviceMutation = useMutation({
@@ -84,7 +86,7 @@ export function AdminPrintersContainer() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
       toast.success('Gerät wurde gelöscht.');
     },
-    onError: (err: Error) => toast.error(`Löschen fehlgeschlagen: ${err.message}`),
+    onError: (err: Error) => toast.error(`Löschen fehlgeschlagen: ${apiErrorMessage(err)}`),
   });
 
   const assigned = printersQuery.data?.assigned ?? [];
@@ -226,7 +228,7 @@ export function AdminPrintersContainer() {
           device={assignTarget}
           organizations={orgsQuery.data ?? []}
           orgsLoading={orgsQuery.isLoading}
-          orgsError={orgsQuery.error instanceof Error ? orgsQuery.error.message : null}
+          orgsError={orgsQuery.error ? apiErrorMessage(orgsQuery.error) : null}
           onClose={() => setAssignTarget(null)}
           onAssigned={() => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
@@ -311,6 +313,7 @@ interface AssignDeviceModalProps {
 
 function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onClose, onAssigned, onError }: AssignDeviceModalProps) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const prev = device.previousConfig ?? null;
   const [organizationId, setOrganizationId] = useState('');
   const [hasCashDrawer, setHasCashDrawer] = useState(prev?.hasCashDrawer ?? false);
@@ -344,7 +347,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
       });
       onAssigned();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Zuordnung fehlgeschlagen';
+      const message = apiErrorMessage(err, 'Zuordnung fehlgeschlagen');
       onError(message);
     } finally {
       setSubmitting(false);

@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { CheckCircle, AlertCircle } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 /**
@@ -19,6 +20,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
  */
 export default function ShiftProposalPage() {
   const { token } = useParams() as { token: string };
+  const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const initialAction = searchParams.get('action') as 'accept' | 'decline' | null;
 
@@ -34,7 +36,7 @@ export default function ShiftProposalPage() {
       setResult({ status: res.data.status, message: res.data.message, planSlug: res.data.planSlug });
       setState('success');
     } catch (err) {
-      setErrorMsg((err as Error).message || 'Vorschlag konnte nicht verarbeitet werden.');
+      setErrorMsg(apiErrorMessage(err, 'Vorschlag konnte nicht verarbeitet werden.'));
       setState('error');
     }
   };

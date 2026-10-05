@@ -22,6 +22,7 @@ import {
   Grid01,
 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 interface ShiftData {
@@ -76,6 +77,7 @@ export default function PublicShiftPlanPage() {
   const params = useParams();
   const slug = params.slug as string;
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
 
   const [step, setStep] = useState<RegistrationStep>('select');
   const [selectedShifts, setSelectedShifts] = useState<Set<string>>(new Set());
@@ -130,7 +132,7 @@ export default function PublicShiftPlanPage() {
       setError(null);
     },
     onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten'));
     },
   });
 

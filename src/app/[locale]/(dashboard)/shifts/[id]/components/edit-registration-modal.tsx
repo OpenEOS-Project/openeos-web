@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
@@ -38,6 +39,7 @@ interface ShiftCard {
 
 export function EditRegistrationModal({ open, plan, registration, allRegistrations, onClose }: Props) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -213,7 +215,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.saveFailed'))),
   });
 
   /** Same modal, but instead of applying the staged shift changes we package
@@ -250,7 +252,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Vorschlag konnte nicht gesendet werden'),
+    onError: (err: Error) => setError(apiErrorMessage(err, 'Vorschlag konnte nicht gesendet werden')),
   });
 
   if (!open || !registration) return null;

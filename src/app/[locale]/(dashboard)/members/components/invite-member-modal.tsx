@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateInvitation } from '@/hooks/use-members';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { OrganizationPermissions } from '@/types/auth';
@@ -37,6 +38,7 @@ type InviteFormData = z.infer<typeof inviteSchema>;
 export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMemberModalProps) {
   const t = useTranslations('members');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [permissions, setPermissions] = useState<OrganizationPermissions>({
@@ -70,7 +72,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
       });
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+      setError(apiErrorMessage(err, tCommon('error')));
     }
   };
 

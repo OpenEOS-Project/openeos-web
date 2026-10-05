@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 const formatDate = (iso: string) =>
@@ -35,6 +36,7 @@ function bounds(date: string, start: string, end: string): [number, number] {
  */
 export default function HelperManagePage() {
   const { token } = useParams() as { token: string };
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export default function HelperManagePage() {
       setToast('Schicht entfernt.');
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(err.message || 'Schicht konnte nicht entfernt werden.'),
+    onError: (err: Error) => setError(apiErrorMessage(err, 'Schicht konnte nicht entfernt werden.')),
   });
 
   const addMutation = useMutation({
@@ -64,7 +66,7 @@ export default function HelperManagePage() {
       setToast('Schicht hinzugefügt.');
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(err.message || 'Schicht konnte nicht hinzugefügt werden.'),
+    onError: (err: Error) => setError(apiErrorMessage(err, 'Schicht konnte nicht hinzugefügt werden.')),
   });
 
   const payload = data?.data;

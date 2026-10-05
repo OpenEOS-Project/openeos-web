@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi, eventsApi } from '@/lib/api-client';
 import { formatDate } from '@/utils/format';
@@ -30,6 +31,7 @@ const STEP_LABELS = ['Event', 'Name & Beschreibung', 'Erstellen'];
 
 export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPlanModalProps) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -98,7 +100,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
       onCreated(response.data);
     },
     onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten'));
     },
   });
 

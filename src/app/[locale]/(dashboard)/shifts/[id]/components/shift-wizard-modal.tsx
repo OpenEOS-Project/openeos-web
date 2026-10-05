@@ -13,6 +13,7 @@ import {
   Check,
 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan } from '@/types/shift';
@@ -41,6 +42,7 @@ const STEP_LABELS = ['Datum', 'Zeit', 'Konfiguration', 'Vorschau'];
 export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardModalProps) {
   const applyToAll = jobIds.length > 1;
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -230,7 +232,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
       handleClose();
     },
     onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten'));
     },
   });
 
