@@ -73,7 +73,7 @@ export function DeviceRegistrationInfo() {
                   {registrationUrl}
                 </code>
                 <button className="btn btn--ghost" style={{ flexShrink: 0, padding: '8px 12px' }} onClick={handleCopy}>
-                  {copied ? '✓' : 'Kopieren'}
+                  {copied ? t('registration.copied') : t('registration.copy')}
                 </button>
               </div>
             </div>
@@ -85,7 +85,7 @@ export function DeviceRegistrationInfo() {
               <h4 style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: '0 0 8px' }}>
                 {t('registration.instructions')}
               </h4>
-              <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, listStyle: 'decimal' }}>
                 <li style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>{t('registration.step1')}</li>
                 <li style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>{t('registration.step2')}</li>
                 <li style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>{t('registration.step3')}</li>

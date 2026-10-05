@@ -425,7 +425,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
 
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
                           Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet
-                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Test-Modus ist der Shop unabhängig
+                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig
                           von den Öffnungszeiten erreichbar.
                         </p>
                     </div>

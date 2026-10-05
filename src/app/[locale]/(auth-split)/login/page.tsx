@@ -1,13 +1,11 @@
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/lib/page-title';
 
 import { LoginComic } from './login-comic';
 import { LoginForm } from './login-form';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('auth.login');
-  return { title: t('title') };
-}
+// Die Ueberschrift ist ein Satz mit Punkt ("Willkommen zurueck.") — im
+// Browser-Tab steht ein schlichter Titel.
+export const generateMetadata = pageTitle('login');
 
 export default async function LoginPage() {
   return (

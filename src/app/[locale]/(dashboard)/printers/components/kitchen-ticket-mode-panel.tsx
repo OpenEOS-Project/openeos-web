@@ -25,9 +25,9 @@ const OPTIONS: { value: KitchenTicketMode; title: string; description: string }[
   },
   {
     value: 'per_station',
-    title: '1 Bon pro Produktionsstation',
+    title: '1 Bon pro Standort',
     description:
-      'Die Bestellung wird nach Produktionsstation gruppiert. Jede Station bekommt nur ihre Produkte. Ist der Station ein eigener Drucker zugewiesen, wird der Bon dort gedruckt — sonst auf dem Standard-Küchendrucker.',
+      'Die Bestellung wird nach Standort gruppiert. Jeder Standort bekommt nur seine Produkte. Ist dem Standort ein eigener Drucker zugewiesen, wird der Bon dort gedruckt — sonst auf dem Standard-Küchendrucker.',
   },
 ];
 

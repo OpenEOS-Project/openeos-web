@@ -1,12 +1,10 @@
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/lib/page-title';
 
 import { RegisterWizard } from './register-wizard';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('auth.register');
-  return { title: t('title') };
-}
+// Die Ueberschrift ist ein Satz mit Punkt ("Willkommen zurueck.") — im
+// Browser-Tab steht ein schlichter Titel.
+export const generateMetadata = pageTitle('register');
 
 export default async function RegisterPage() {
   return (

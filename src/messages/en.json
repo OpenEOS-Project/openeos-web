@@ -207,6 +207,9 @@
       "error": "This login link is invalid or has expired.",
       "missingToken": "This address contains no login link.",
       "backToLogin": "Back to sign-in"
+    },
+    "layout": {
+      "rightsReserved": "All rights reserved."
     }
   },
   "sidebar": {
@@ -1076,7 +1079,7 @@
       "parent": "Parent category",
       "parentPlaceholder": "None (root category)",
       "isActive": "Active",
-      "productionStation": "Production Station",
+      "productionStation": "Station",
       "productionStationNone": "— None —"
     },
     "status": {
@@ -1166,9 +1169,9 @@
       "addOption": "Add option",
       "activeDescription": "Product is shown in the product list",
       "availableDescription": "Product can be ordered. Disable for 'Sold out'",
-      "productionStation": "Production Station",
+      "productionStation": "Station",
       "productionStationNone": "Default (inherit from category)",
-      "productionStationInherit": "When empty, the production station of the category is used.",
+      "productionStationInherit": "When empty, the station of the category is used.",
       "productionStationOverride": "Overrides the category assignment.",
       "productionStationHint": "Overrides the category setting",
       "pfandType": "Deposit type",
@@ -1274,13 +1277,13 @@
     }
   },
   "productionStations": {
-    "title": "Production Stations",
-    "subtitle": "Manage production stations for your event",
+    "title": "Stations",
+    "subtitle": "Manage the stations (kitchen, bar, serving) for your event",
     "create": "Create Station",
     "edit": "Edit Station",
     "delete": "Delete Station",
     "empty": {
-      "title": "No Production Stations",
+      "title": "No stations",
       "description": "Create stations to route orders to kitchen, bar, or serving areas"
     },
     "form": {
@@ -2079,7 +2082,9 @@
       "instructions": "How to register a new device:",
       "step1": "Open the link or scan the QR code on the device",
       "step2": "The device shows a six-digit number",
-      "step3": "Enter that number under \"Connect a display\" — done"
+      "step3": "Enter that number under \"Connect device\" – done",
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "online": "Online",
     "offline": "Offline",
@@ -2173,7 +2178,7 @@
         },
         "station": {
           "event": "Event",
-          "station": "Production Station",
+          "station": "Station",
           "none": "No station selected"
         },
         "display": {
@@ -2181,7 +2186,7 @@
           "description": "Configure what this display shows.",
           "mode": "Display mode",
           "modeCustomer": "Customer display (live cart of a POS)",
-          "modeStation": "Station display (production station)",
+          "modeStation": "Station display",
           "posDevice": "POS device",
           "posDeviceNone": "No POS selected",
           "posDeviceHint": "The display mirrors the selected POS device's cart in real time.",
@@ -2501,7 +2506,8 @@
     "online": "Online",
     "offline": "Offline",
     "noPrinters": "No printers registered yet",
-    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started."
+    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
+    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization."
   },
   "posIconPicker": {
     "title": "Choose icon",
@@ -2565,7 +2571,7 @@
         "daily_number": "Daily Number",
         "table_number": "Table Number",
         "customer_name": "Customer Name",
-        "production_station": "Production station",
+        "production_station": "Station",
         "order_channel": "Order channel/destination",
         "date_time": "Date/Time",
         "items_list": "Items List",
@@ -3056,5 +3062,15 @@
     "amountRequired": "Please enter an amount for a fixed voucher",
     "startRequired": "Please enter a start",
     "endBeforeStart": "The end must not be before the start"
+  },
+  "pageTitles": {
+    "login": "Sign in",
+    "register": "Create account",
+    "forgotPassword": "Forgot password",
+    "resetPassword": "Set new password",
+    "magicLink": "Sign-in link",
+    "verifyEmail": "Verify email",
+    "twoFactor": "Two-factor sign-in",
+    "shifts": "Shift plans"
   }
 }

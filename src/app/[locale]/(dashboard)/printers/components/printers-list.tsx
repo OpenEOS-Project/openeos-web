@@ -25,7 +25,7 @@ export function PrintersList() {
     return (
       <ListEmpty
         title={t('noPrinters')}
-        description="Die Drucker werden vom Plattform-Administrator hinzugefügt und deiner Organisation zugewiesen."
+        description={t('noPrintersAssigned')}
         icon={
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
             <path d="M6 9V2h12v7" />

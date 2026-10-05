@@ -22,17 +22,17 @@
     "yes": "Ja",
     "no": "Nein",
     "refresh": "Aktualisieren",
-    "toEvents": "Zu den Events",
+    "toEvents": "Zu den Veranstaltungen",
     "details": "Details"
   },
   "auth": {
     "login": {
       "title": "Willkommen zurück.",
-      "subtitle": "Melde dich mit deinem OpenEOS-Konto an.",
+      "subtitle": "Melden Sie sich mit Ihrem OpenEOS-Konto an.",
       "email": "E-Mail-Adresse",
       "emailPlaceholder": "name@beispiel.de",
       "password": "Passwort",
-      "passwordPlaceholder": "Dein Passwort",
+      "passwordPlaceholder": "Ihr Passwort",
       "rememberMe": "Eingeloggt bleiben",
       "forgotPassword": "Passwort vergessen?",
       "submit": "Anmelden",
@@ -51,8 +51,8 @@
       },
       "comic": {
         "badge": "Admin",
-        "headline": "Verwalte dein",
-        "headlineAccent": "ganzes Festzelt.",
+        "headline": "Das ganze Festzelt",
+        "headlineAccent": "im Griff.",
         "status": "Alle Systeme normal",
         "panels": {
           "checkout": {
@@ -81,14 +81,14 @@
         "useLink": "Lieber ohne Passwort? Link per E-Mail anfordern",
         "usePassword": "Doch mit Passwort anmelden",
         "submit": "Anmeldelink senden",
-        "explain": "Wir senden dir einen Link, mit dem du dich ohne Passwort anmeldest.",
+        "explain": "Wir senden Ihnen einen Link, mit dem Sie sich ohne Passwort anmelden.",
         "sent": "Falls ein Konto mit dieser Adresse besteht, ist der Link unterwegs. Er gilt 15 Minuten."
       },
       "displayMode": "Als Anzeige verwenden (Monitor)"
     },
     "register": {
       "title": "Konto erstellen.",
-      "subtitle": "Registriere dich für OpenEOS",
+      "subtitle": "Registrieren Sie sich für OpenEOS",
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail-Adresse",
@@ -102,37 +102,37 @@
       "back": "Zurück",
       "next": "Weiter",
       "successTitle": "Fast geschafft!",
-      "successCopy": "Wir haben dir eine Bestätigung an {email} gesendet. Klicke den Link darin, um dein Konto zu aktivieren.",
+      "successCopy": "Wir haben Ihnen eine Bestätigung an {email} gesendet. Klicken Sie auf den Link darin, um Ihr Konto zu aktivieren.",
       "successCta": "Zur Anmeldung",
       "steps": {
         "account": {
           "label": "Konto",
-          "title": "Dein Konto",
-          "copy": "E-Mail-Adresse für deinen OpenEOS-Zugang.",
+          "title": "Ihr Konto",
+          "copy": "E-Mail-Adresse für Ihren OpenEOS-Zugang.",
           "email": "E-Mail-Adresse",
           "password": "Passwort",
           "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
           "passwordConfirm": "Passwort bestätigen",
           "withPassword": "Zusätzlich ein Passwort festlegen",
-          "withPasswordHint": "Ohne Passwort meldest du dich per Link an, den wir dir per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
+          "withPasswordHint": "Ohne Passwort melden Sie sich per Link an, den wir Ihnen per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
         },
         "personal": {
-          "label": "Du",
-          "title": "Über dich",
+          "label": "Person",
+          "title": "Über Sie",
           "copy": "Damit wir wissen, mit wem wir es zu tun haben — für Rechnungen und Support.",
           "firstName": "Vorname",
           "lastName": "Nachname"
         },
         "organization": {
           "label": "Organisation",
-          "title": "Deine Organisation",
-          "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später deine Veranstaltungen, Produkte und Kassen.",
+          "title": "Ihre Organisation",
+          "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später Ihre Veranstaltungen, Produkte und Kassen.",
           "name": "Name der Organisation"
         },
         "confirm": {
           "label": "Bestätigung",
           "title": "Letzter Check",
-          "copy": "Bitte überprüfe deine Angaben und bestätige die Bedingungen.",
+          "copy": "Bitte überprüfen Sie Ihre Angaben und bestätigen Sie die Bedingungen.",
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
@@ -147,14 +147,14 @@
         "passwordShort": "Mindestens 8 Zeichen",
         "passwordWeak": "Mindestens ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl erforderlich",
         "passwordMismatch": "Passwörter stimmen nicht überein",
-        "termsRequired": "Bitte akzeptiere die Bedingungen",
+        "termsRequired": "Bitte akzeptieren Sie die Bedingungen",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "emailTaken": "Diese E-Mail wird bereits verwendet",
-        "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
+        "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
       "resendSent": "E-Mail wurde erneut gesendet.",
-      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchst du nicht."
+      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht."
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
@@ -202,18 +202,21 @@
     },
     "logout": "Abmelden",
     "magicLinkPage": {
-      "loading": "Du wirst angemeldet …",
+      "loading": "Sie werden angemeldet …",
       "errorTitle": "Anmeldung fehlgeschlagen",
       "error": "Dieser Anmeldelink ist ungültig oder abgelaufen.",
       "missingToken": "Dieser Aufruf enthält keinen Anmeldelink.",
       "backToLogin": "Zurück zur Anmeldung"
+    },
+    "layout": {
+      "rightsReserved": "Alle Rechte vorbehalten."
     }
   },
   "sidebar": {
     "selectOrganization": "Organisation wählen",
     "noOrganizations": {
       "title": "Keine Organisation",
-      "description": "Du bist noch keiner Organisation zugeordnet."
+      "description": "Sie sind noch keiner Organisation zugeordnet."
     },
     "pendingInvitations": {
       "title": "Ausstehende Einladungen",
@@ -233,9 +236,9 @@
     "welcome": "Willkommen, {name}!",
     "stats": {
       "revenue": "Umsatz",
-      "activeEvents": "Aktive Events",
+      "activeEvents": "Aktive Veranstaltungen",
       "activeUsers": "Aktive Benutzer",
-      "eventsRunning": "Events laufen",
+      "eventsRunning": "Veranstaltungen laufen",
       "usersOnline": "Benutzer online",
       "orders": "Bestellungen"
     },
@@ -244,7 +247,7 @@
       "subtitle": "Ihre neuesten Bestellungen und Transaktionen",
       "empty": {
         "title": "Keine Aktivitäten",
-        "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie ein Event, um Bestellungen anzunehmen."
+        "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie eine Veranstaltung, um Bestellungen anzunehmen."
       }
     },
     "superAdmin": {
@@ -322,7 +325,7 @@
         "label": "Umsatz"
       },
       "activeEvents": {
-        "label": "Aktive Events"
+        "label": "Aktive Veranstaltungen"
       },
       "activeUsers": {
         "label": "Aktive Benutzer"
@@ -409,7 +412,7 @@
       "label": "Zeitraum",
       "today": "Heute",
       "week": "7 Tage",
-      "event": "Event",
+      "event": "Veranstaltung",
       "period": {
         "today": "heute",
         "week": "letzte 7 Tage",
@@ -694,7 +697,7 @@
     },
     "organizationDefaults": {
       "title": "Standardeinstellungen",
-      "description": "Standardwerte für neue Events",
+      "description": "Standardwerte für neue Veranstaltungen",
       "defaultTaxRate": "Standard-Steuersatz",
       "defaultPrinter": "Standard-Drucker",
       "requirePinForRefunds": "PIN für Stornierungen erforderlich"
@@ -833,9 +836,9 @@
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
-      "title": "Kein aktives Event",
-      "description": "Aktivieren Sie zuerst ein Event, um Kategorien verwalten zu können.",
-      "goToEvents": "Zu den Events"
+      "title": "Keine aktive Veranstaltung",
+      "description": "Aktivieren Sie zuerst eine Veranstaltung, um Kategorien verwalten zu können.",
+      "goToEvents": "Zu den Veranstaltungen"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
@@ -866,7 +869,7 @@
       "parent": "Übergeordnete Kategorie",
       "parentPlaceholder": "Keine (Hauptkategorie)",
       "isActive": "Aktiv",
-      "productionStation": "Produktionsstandort",
+      "productionStation": "Standort",
       "productionStationNone": "— Keine —"
     },
     "status": {
@@ -901,9 +904,9 @@
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
-      "title": "Kein aktives Event",
-      "description": "Aktivieren Sie zuerst ein Event, um Produkte verwalten zu können.",
-      "goToEvents": "Zu den Events"
+      "title": "Keine aktive Veranstaltung",
+      "description": "Aktivieren Sie zuerst eine Veranstaltung, um Produkte verwalten zu können.",
+      "goToEvents": "Zu den Veranstaltungen"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
@@ -956,9 +959,9 @@
       "addOption": "Option hinzufügen",
       "activeDescription": "Produkt wird in der Produktliste angezeigt",
       "availableDescription": "Produkt kann bestellt werden. Deaktivieren für 'Ausverkauft'",
-      "productionStation": "Produktionsstandort",
+      "productionStation": "Standort",
       "productionStationNone": "Standard (von Kategorie übernehmen)",
-      "productionStationInherit": "Bei leerer Auswahl wird die Produktionsstation der Kategorie verwendet.",
+      "productionStationInherit": "Bei leerer Auswahl wird der Standort der Kategorie verwendet.",
       "productionStationOverride": "Übersteuert die Kategorie-Zuweisung.",
       "productionStationHint": "Überschreibt die Kategorie-Einstellung",
       "pfandType": "Pfand-Typ",
@@ -1064,30 +1067,30 @@
     }
   },
   "productionStations": {
-    "title": "Produktionsstandorte",
-    "subtitle": "Verwalten Sie die Produktionsstandorte für Ihr Event",
+    "title": "Standorte",
+    "subtitle": "Verwalten Sie die Standorte (Küche, Bar, Ausgabe) für Ihre Veranstaltung",
     "create": "Standort erstellen",
     "edit": "Standort bearbeiten",
     "delete": "Standort löschen",
     "empty": {
-      "title": "Keine Produktionsstandorte",
-      "description": "Erstellen Sie Standorte um Bestellungen gezielt an Küche, Bar oder Ausgabe zu senden"
+      "title": "Keine Standorte",
+      "description": "Erstellen Sie Standorte, um Bestellungen gezielt an Küche, Bar oder Ausgabe zu senden"
     },
     "form": {
       "name": "Name",
       "namePlaceholder": "z.B. Küche, Getränkestand, Essensausgabe",
       "description": "Beschreibung",
       "color": "Farbe",
-      "handoffStation": "Folge-Station",
-      "handoffStationHint": "Fertige Artikel werden an diese Station weitergeleitet",
-      "noHandoff": "Keine (letzte Station)",
+      "handoffStation": "Folge-Standort",
+      "handoffStationHint": "Fertige Artikel werden an diesen Standort weitergeleitet",
+      "noHandoff": "Keiner (letzter Standort)",
       "printer": "Drucker",
       "noPrinter": "Kein Drucker",
       "active": "Aktiv"
     },
     "table": {
       "name": "Name",
-      "handoffStation": "Folge-Station",
+      "handoffStation": "Folge-Standort",
       "printer": "Drucker",
       "categories": "Kategorien",
       "status": "Status",
@@ -1097,7 +1100,7 @@
       "title": "Standort löschen?",
       "message": "Produkte und Kategorien verlieren ihre Standort-Zuweisung."
     },
-    "selectEvent": "Event auswählen"
+    "selectEvent": "Veranstaltung auswählen"
   },
   "users": {
     "title": "Benutzer",
@@ -1314,7 +1317,7 @@
     "permissions": {
       "title": "Berechtigungen",
       "products": "Produkte",
-      "events": "Events",
+      "events": "Veranstaltungen",
       "devices": "Geräte",
       "members": "Mitglieder",
       "shiftPlans": "Schichtpläne",
@@ -1884,7 +1887,7 @@
       "allStatuses": "Alle Status",
       "allPayments": "Alle Zahlungen",
       "allChannels": "Alle Kanäle",
-      "allEvents": "Alle Events"
+      "allEvents": "Alle Veranstaltungen"
     },
     "columns": {
       "orderNumber": "Bestellung",
@@ -2079,7 +2082,9 @@
       "instructions": "So registrieren Sie ein neues Gerät:",
       "step1": "Öffnen Sie den Link oder scannen Sie den QR-Code auf dem Gerät",
       "step2": "Das Gerät zeigt eine sechsstellige Zahl an",
-      "step3": "Diese Zahl über „Anzeige verbinden\" eingeben — fertig"
+      "step3": "Diese Zahl über „Gerät verbinden“ eingeben – fertig",
+      "copy": "Kopieren",
+      "copied": "Kopiert"
     },
     "online": "Online",
     "offline": "Offline",
@@ -2102,7 +2107,7 @@
     },
     "verify": {
       "title": "Gerät verbinden",
-      "enterCodeDescription": "Gib den sechsstelligen Code ein, der auf dem Gerät steht.",
+      "enterCodeDescription": "Geben Sie den sechsstelligen Code ein, der auf dem Gerät steht.",
       "code": "Verifizierungscode",
       "lookup": "Gerät suchen",
       "deviceNotFound": "Gerät nicht gefunden oder bereits verknüpft",
@@ -2172,8 +2177,8 @@
           "pinManagedPerMember": "PINs werden pro Mitglied unter Mitglieder verwaltet"
         },
         "station": {
-          "event": "Event",
-          "station": "Produktionsstandort",
+          "event": "Veranstaltung",
+          "station": "Standort",
           "none": "Kein Standort ausgewählt"
         },
         "display": {
@@ -2181,12 +2186,12 @@
           "description": "Legen Sie fest, was dieses Display anzeigt.",
           "mode": "Anzeigemodus",
           "modeCustomer": "Kundendisplay (Live-Warenkorb einer Kasse)",
-          "modeStation": "Stationsanzeige (Produktionsstandort)",
+          "modeStation": "Stationsanzeige (Standort)",
           "posDevice": "Kasse",
           "posDeviceNone": "Keine Kasse ausgewählt",
           "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an.",
-          "station": "Station",
-          "stationNone": "Keine Station gewählt"
+          "station": "Standort",
+          "stationNone": "Kein Standort gewählt"
         },
         "appearance": {
           "title": "Aussehen & Inhalt",
@@ -2225,7 +2230,7 @@
         },
         "cashDrawer": {
           "title": "Kassenschublade",
-          "description": "Wähle einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
+          "description": "Wählen Sie einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
@@ -2249,12 +2254,12 @@
   },
   "shifts": {
     "title": "Schichtpläne",
-    "description": "Erstelle und verwalte Schichtpläne für deine Events",
+    "description": "Erstellen und verwalten Sie Schichtpläne für Ihre Veranstaltungen",
     "createPlan": "Neuer Schichtplan",
     "createFirstPlan": "Ersten Schichtplan erstellen",
     "noPlans": "Keine Schichtpläne",
-    "noPlansDescription": "Erstelle deinen ersten Schichtplan, um Helfer für dein Event einzuteilen.",
-    "confirmDelete": "Möchtest du diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
+    "noPlansDescription": "Erstellen Sie Ihren ersten Schichtplan, um Helfer für Ihre Veranstaltung einzuteilen.",
+    "confirmDelete": "Möchten Sie diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
     "jobs": "{count, plural, =0 {keine Arbeiten} =1 {1 Arbeit} other {# Arbeiten}}",
     "createdAt": "Erstellt am {date}",
     "copyLink": "Link kopieren",
@@ -2272,9 +2277,9 @@
       "namePlaceholder": "z.B. Vereinsfest 2024 Schichtplan",
       "description": "Beschreibung",
       "descriptionPlaceholder": "Öffentliche Beschreibung für Helfer...",
-      "event": "Event (optional)",
-      "eventPlaceholder": "Event auswählen...",
-      "eventHint": "Verknüpfe den Schichtplan mit einem Event, um Event-Daten zu nutzen."
+      "event": "Veranstaltung (optional)",
+      "eventPlaceholder": "Veranstaltung auswählen …",
+      "eventHint": "Verknüpfen Sie den Schichtplan mit einer Veranstaltung, um deren Daten zu nutzen."
     },
     "wizard": {
       "title": "Schichten-Assistent",
@@ -2283,11 +2288,11 @@
       "selectDates": "Zeitraum wählen",
       "startDate": "Startdatum",
       "endDate": "Enddatum",
-      "eventDatesHint": "Event \"{name}\" ist verknüpft.",
-      "useEventDates": "Event-Datum übernehmen",
+      "eventDatesHint": "Veranstaltung „{name}“ ist verknüpft.",
+      "useEventDates": "Datum der Veranstaltung übernehmen",
       "daysCount": "{count, plural, =1 {1 Tag} other {# Tage}} ausgewählt",
       "selectTimes": "Zeitfenster festlegen",
-      "timesDescription": "Wähle die tägliche Betriebszeit, in der Schichten stattfinden.",
+      "timesDescription": "Wählen Sie die tägliche Betriebszeit, in der Schichten stattfinden.",
       "startTime": "Beginn",
       "endTime": "Ende",
       "totalHours": "{hours} Stunden pro Tag",
@@ -2330,9 +2335,9 @@
       "publish": "Veröffentlichen",
       "close": "Schließen",
       "noJobs": "Keine Arbeiten definiert",
-      "noJobsDescription": "Füge eine Arbeit hinzu, um Schichten zu erstellen.",
+      "noJobsDescription": "Fügen Sie eine Arbeit hinzu, um Schichten zu erstellen.",
       "noShifts": "Keine Schichten",
-      "noShiftsDescription": "Füge Schichten zu dieser Arbeit hinzu."
+      "noShiftsDescription": "Fügen Sie dieser Arbeit Schichten hinzu."
     },
     "calendar": {
       "title": "Kalender",
@@ -2356,7 +2361,7 @@
       "reject": "Ablehnen",
       "sendMessage": "Nachricht senden",
       "delete": "Löschen",
-      "confirmDelete": "Möchtest du diese Anmeldung wirklich löschen?",
+      "confirmDelete": "Möchten Sie diese Anmeldung wirklich löschen?",
       "rejectReason": "Grund für Ablehnung (optional)",
       "messagePlaceholder": "Nachricht an den Helfer..."
     },
@@ -2410,7 +2415,7 @@
     "title": "Willkommen bei OpenEOS",
     "submit": "Einrichtung abschließen",
     "modeSelect": {
-      "description": "Wähle den Betriebsmodus für deine Installation.",
+      "description": "Wählen Sie den Betriebsmodus für Ihre Installation.",
       "single": {
         "title": "Einzelbetrieb",
         "description": "Für einen einzelnen Verein oder eine Organisation. Unbegrenzte Credits, keine Abrechnung."
@@ -2423,10 +2428,10 @@
     "form": {
       "back": "Zurück",
       "single": {
-        "subtitle": "Erstelle Admin-Account und Organisation"
+        "subtitle": "Admin-Konto und Organisation anlegen"
       },
       "multi": {
-        "subtitle": "Erstelle Super-Admin Account"
+        "subtitle": "Super-Admin-Konto anlegen"
       }
     },
     "admin": {
@@ -2446,10 +2451,10 @@
     },
     "complete": {
       "title": "Einrichtung abgeschlossen!",
-      "description": "Du wirst zur Anmeldung weitergeleitet..."
+      "description": "Sie werden zur Anmeldung weitergeleitet …"
     },
     "errors": {
-      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut.",
+      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "passwordMismatch": "Passwörter stimmen nicht überein"
     }
   },
@@ -2501,7 +2506,8 @@
     "online": "Online",
     "offline": "Offline",
     "noPrinters": "Noch keine Drucker registriert",
-    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen."
+    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen.",
+    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen."
   },
   "posIconPicker": {
     "title": "Icon auswählen",
@@ -2565,7 +2571,7 @@
         "daily_number": "Tagesnummer",
         "table_number": "Tischnummer",
         "customer_name": "Kundenname",
-        "production_station": "Produktionsstandort",
+        "production_station": "Standort",
         "order_channel": "Bestellkanal/Ziel",
         "date_time": "Datum/Uhrzeit",
         "items_list": "Positionsliste",
@@ -2933,7 +2939,7 @@
         "activate": {
           "label": "Verkauf freigeben",
           "hint": "Zum Ausprobieren genügt der Testmodus: {max} Bestellungen, ohne Kosten.",
-          "hintFree": "Schalte den Verkauf frei, sobald alles steht — oder teste vorher im Testmodus."
+          "hintFree": "Schalten Sie den Verkauf frei, sobald alles steht — oder testen Sie vorher im Testmodus."
         },
         "categories": {
           "label": "Kategorien anlegen",
@@ -3000,7 +3006,7 @@
   },
   "changelogDialog": {
     "title": "Das ist neu",
-    "subtitle": "{count, plural, one {Eine Neuerung seit deinem letzten Besuch.} other {# Neuerungen seit deinem letzten Besuch.}}",
+    "subtitle": "{count, plural, one {Eine Neuerung seit Ihrem letzten Besuch.} other {# Neuerungen seit Ihrem letzten Besuch.}}",
     "kinds": {
       "neu": "Neu",
       "verbessert": "Verbessert",
@@ -3056,5 +3062,15 @@
     "amountRequired": "Bitte geben Sie für einen festen Bon einen Betrag an",
     "startRequired": "Bitte geben Sie einen Beginn an",
     "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
+  },
+  "pageTitles": {
+    "login": "Anmelden",
+    "register": "Konto erstellen",
+    "forgotPassword": "Passwort vergessen",
+    "resetPassword": "Neues Passwort setzen",
+    "magicLink": "Anmeldelink",
+    "verifyEmail": "E-Mail bestätigen",
+    "twoFactor": "Zwei-Faktor-Anmeldung",
+    "shifts": "Schichtpläne"
   }
 }

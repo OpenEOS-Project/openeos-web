@@ -1,0 +1,36 @@
+/* ==========================================================
+   (auth)-Seiten: Passwort vergessen/zuruecksetzen, Anmeldelink,
+   E-Mail-Bestaetigung, 2FA.
+
+   Die Seiten nutzen noch die Untitled-Bausteine (Button, FormInput).
+   Statt sie neu zu bauen, werden hier deren Farbtokens auf die
+   OpenEOS-Palette gelegt — wie bei Anmeldung/Registrierung:
+   Papierhintergrund, flache Karte, Primaerknopf in Tinte, der beim
+   Ueberfahren ins Gruen kippt. Gilt nur innerhalb von .auth-classic.
+   ========================================================== */
+.auth-classic {
+  background: var(--oe-paper);
+  color: var(--oe-ink);
+
+  /* Eingabefelder: helle Flaeche auf der Karte */
+  --color-bg-primary: var(--oe-surface);
+
+  /* Primaerknopf: wie .btn--primary im Rest der App */
+  --color-bg-brand-solid: var(--oe-primary);
+  --color-bg-brand-solid_hover: var(--oe-primary-hover);
+  /* "text-white" auf dem Knopf — im Dunkeln ist der Knopf hell, die
+     Schrift muss dann dunkel sein. */
+  --color-white: var(--oe-on-primary);
+}
+
+.auth-classic__card {
+  background: var(--oe-paper-2);
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-lg);
+}
+
+.auth-classic__foot {
+  font: 500 11px/1.4 var(--oe-f-mono);
+  letter-spacing: .06em;
+  color: var(--oe-mute);
+}
