@@ -51,7 +51,7 @@ test.describe('Events', () => {
       await eventsPage.createButton.click();
       await eventsPage.modal.getByLabel('Startdatum').fill('2026-03-01');
       await eventsPage.modal.getByRole('button', { name: 'Erstellen' }).click();
-      await expect(eventsPage.modal.getByText('Bitte geben Sie einen Namen ein')).toBeVisible();
+      await expect(eventsPage.modal.getByText('Bitte gib einen Namen ein')).toBeVisible();
     });
 
     // Eigenstaendig kostet eine Veranstaltung nichts; der Preis-Hinweis

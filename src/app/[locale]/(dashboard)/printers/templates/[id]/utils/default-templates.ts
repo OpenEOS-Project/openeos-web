@@ -50,7 +50,7 @@ function getReceiptDefault(): TemplateElement[] {
     { id: nextId(), type: 'field', field: 'change' },
     { id: nextId(), type: 'separator', char: '-' },
     { id: nextId(), type: 'field', field: 'qr_code', condition: 'qr_url' },
-    { id: nextId(), type: 'text', content: 'Vielen Dank fuer Ihren Einkauf!', align: 'center' },
+    { id: nextId(), type: 'text', content: 'Vielen Dank fuer deinen Einkauf!', align: 'center' },
     { id: nextId(), type: 'feed', lines: 3 },
     { id: nextId(), type: 'cut' },
   ];
