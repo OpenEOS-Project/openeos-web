@@ -1,41 +1,35 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import type { IntegrationId } from '@/types/organization';
 
 /**
- * Übersetzt die Fehler der Integrations-Endpunkte. INTEGRATION_DISABLED
- * kommt von den Endpunkten einer ausgeschalteten Integration (z. B. SumUp),
- * INTEGRATION_NOT_FOUND vom Schalter selbst, wenn die API die Integration
- * (noch) nicht kennt. SUMUP_* kommen von den SumUp-Endpunkten.
+ * Fehlertexte der Integrations-Endpunkte. Übersetzt wird zentral über
+ * apiErrors (INTEGRATION_DISABLED, SUMUP_INVALID_CREDENTIALS, …).
+ *
+ * Ältere API-Versionen meldeten abgelehnte SumUp-Zugangsdaten nur als
+ * SUMUP_API_ERROR mit der Ursache im Text; die bekommen weiterhin den
+ * Hinweis auf die Zugangsdaten.
  */
 const SUMUP_AUTH_FAILURE =
   /\b401\b|\b403\b|unauthori[sz]ed|not[_ ]authori[sz]ed|forbidden|invalid[_ ](access[_ ])?token|invalid[_ ](api[_ ])?key|credentials/i;
 
 export function useIntegrationErrorMessage() {
-  const t = useTranslations('integrations.errors');
+  const t = useTranslations('apiErrors');
+  const apiErrorMessage = useApiErrorMessage();
   return (error: unknown, fallback?: string): string => {
-    if (error instanceof ApiException) {
-      if (error.code === 'INTEGRATION_DISABLED') return t('disabled');
-      if (error.code === 'INTEGRATION_NOT_FOUND') return t('notFound');
-      if (error.code === 'SUMUP_NOT_CONFIGURED') return t('sumupNotConfigured');
-      // Neuere API-Versionen melden abgelehnte Zugangsdaten (SumUp-401)
-      // mit eigenem Code; aeltere nur als SUMUP_API_ERROR (siehe unten).
-      if (error.code === 'SUMUP_INVALID_CREDENTIALS') return t('sumupUnauthorized');
-      // Die API reicht SumUp-Fehler als 400 SUMUP_API_ERROR durch; die
-      // Ursache steht nur im Text (Typ/Detail von SumUp bzw. Status der
-      // Upstream-Antwort). Abgelehnte Zugangsdaten sind der haeufigste
-      // Fall und bekommen einen eigenen, handlungsleitenden Hinweis.
-      if (error.code === 'SUMUP_API_ERROR') {
-        return SUMUP_AUTH_FAILURE.test(error.message)
-          ? t('sumupUnauthorized')
-          : t('sumupApiError');
-      }
+    if (
+      error instanceof ApiException &&
+      error.code === 'SUMUP_API_ERROR' &&
+      SUMUP_AUTH_FAILURE.test(error.message)
+    ) {
+      return t('SUMUP_INVALID_CREDENTIALS');
     }
-    return fallback ?? t('generic');
+    return apiErrorMessage(error, fallback);
   };
 }
 

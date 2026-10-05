@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -37,6 +38,7 @@ interface ShiftCard {
 export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
   const t = useTranslations();
   const tm = useTranslations('shifts.manualAdd');
+  const apiErrorMessage = useApiErrorMessage();
   const { formatDate } = useLocaleFormat();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -147,7 +149,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.saveFailed'))),
   });
 
   const handleClose = () => onClose();

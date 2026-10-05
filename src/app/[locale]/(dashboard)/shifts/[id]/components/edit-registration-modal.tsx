@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -40,6 +41,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
   const t = useTranslations();
   const te = useTranslations('shifts.editRegistration');
   const tm = useTranslations('shifts.manualAdd');
+  const apiErrorMessage = useApiErrorMessage();
   const { formatDate } = useLocaleFormat();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -216,7 +218,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.saveFailed'))),
   });
 
   /** Same modal, but instead of applying the staged shift changes we package
@@ -253,7 +255,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || te('proposalFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, te('proposalFailed'))),
   });
 
   if (!open || !registration) return null;

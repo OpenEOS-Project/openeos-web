@@ -1,4 +1,10 @@
-import { ApiException, type ApiError, type ApiResponse } from '@/types/api';
+import {
+  ApiException,
+  type ApiError,
+  type ApiErrorDetail,
+  type ApiErrorParams,
+  type ApiResponse,
+} from '@/types/api';
 import { getApiUrl } from '@/lib/runtime-config';
 
 /* Frueher zwei Modul-Konstanten aus NEXT_PUBLIC_API_URL. Die wurden beim
@@ -16,6 +22,42 @@ const DEVICE_TOKEN_STORAGE_KEY = 'openeos-device-token';
 interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
   useDeviceAuth?: boolean; // Use device token instead of user token
+}
+
+/**
+ * Builds the ApiException for a failed response. Handles:
+ * 1. { error: { code, reason?, message, params?, details? } } - OpenEOS API
+ * 2. { code, message } - direct format
+ * 3. { statusCode, message, error } - NestJS default format
+ * Also used by the upload/download helpers that call fetch directly.
+ */
+export async function apiExceptionFromResponse(response: Response): Promise<ApiException> {
+  const errorBody = await response.json().catch(() => null);
+
+  let code = 'UNKNOWN_ERROR';
+  let message = 'An unknown error occurred';
+  let details: ApiErrorDetail[] | undefined;
+  let reason: string | undefined;
+  let params: ApiErrorParams | undefined;
+
+  if (errorBody) {
+    if (errorBody.error?.code) {
+      code = errorBody.error.code;
+      message = errorBody.error.message || message;
+      details = errorBody.error.details;
+      reason = errorBody.error.reason;
+      params = errorBody.error.params;
+    } else if (errorBody.code) {
+      code = errorBody.code;
+      message = errorBody.message || message;
+      details = errorBody.details;
+    } else if (errorBody.message) {
+      message = errorBody.message;
+      code = errorBody.error || 'VALIDATION_ERROR';
+    }
+  }
+
+  return new ApiException(code, message, response.status, details, reason, params);
 }
 
 class ApiClient {
@@ -206,35 +248,7 @@ class ApiClient {
         }
       }
 
-      const errorBody = await response.json().catch(() => null);
-
-      // Handle different error response formats:
-      // 1. { error: { code, message } } - wrapped format
-      // 2. { code, message } - direct format
-      // 3. { statusCode, message, error } - NestJS default format
-      let code = 'UNKNOWN_ERROR';
-      let message = 'An unknown error occurred';
-      let details: import('@/types/api').ApiErrorDetail[] | undefined;
-
-      if (errorBody) {
-        if (errorBody.error?.code) {
-          // Wrapped format: { error: { code, message } }
-          code = errorBody.error.code;
-          message = errorBody.error.message || message;
-          details = errorBody.error.details;
-        } else if (errorBody.code) {
-          // Direct format: { code, message }
-          code = errorBody.code;
-          message = errorBody.message || message;
-          details = errorBody.details;
-        } else if (errorBody.message) {
-          // NestJS default format: { statusCode, message, error }
-          message = errorBody.message;
-          code = errorBody.error || 'VALIDATION_ERROR';
-        }
-      }
-
-      throw new ApiException(code, message, response.status, details);
+      throw await apiExceptionFromResponse(response);
     }
 
     // Handle 204 No Content
@@ -431,7 +445,7 @@ export const organizationsApi = {
         body: formData,
       },
     );
-    if (!response.ok) throw new Error('Upload failed');
+    if (!response.ok) throw await apiExceptionFromResponse(response);
     const json = (await response.json()) as ApiResponse<{ url: string; filename: string }>;
     const updated = await apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
       `/organizations/${orgId}`,
@@ -621,7 +635,7 @@ export const billingApi = {
       credentials: 'include',
     });
     if (!res.ok) {
-      throw new Error(`Download fehlgeschlagen (${res.status})`);
+      throw await apiExceptionFromResponse(res);
     }
     return res.blob();
   },
@@ -671,7 +685,7 @@ export const uploadsApi = {
         body: formData,
       },
     );
-    if (!response.ok) throw new Error('Upload failed');
+    if (!response.ok) throw await apiExceptionFromResponse(response);
     return response.json() as Promise<ApiResponse<{ url: string }>>;
   },
 };
@@ -745,7 +759,7 @@ export const userSettingsApi = {
       },
       body: formData,
     });
-    if (!response.ok) throw new Error('Upload failed');
+    if (!response.ok) throw await apiExceptionFromResponse(response);
     return response.json() as Promise<ApiResponse<import('@/types/auth').User>>;
   },
 
@@ -1493,7 +1507,7 @@ export const shiftsApi = {
       credentials: 'include',
     });
     if (!res.ok) {
-      throw new Error(`PDF-Export fehlgeschlagen (${res.status})`);
+      throw await apiExceptionFromResponse(res);
     }
     return res.blob();
   },

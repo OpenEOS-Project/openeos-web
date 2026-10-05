@@ -13,6 +13,7 @@ import {
   Check,
 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan } from '@/types/shift';
@@ -40,6 +41,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   const applyToAll = jobIds.length > 1;
   const t = useTranslations();
   const tw = useTranslations('shifts.wizardExtra');
+  const apiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const STEP_LABELS = [tw('stepDate'), tw('stepTime'), tw('stepConfig'), tw('stepPreview')];
   const queryClient = useQueryClient();
@@ -231,7 +233,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
       handleClose();
     },
     onError: (err: Error) => {
-      setError(err.message || t('common.error'));
+      setError(apiErrorMessage(err, t('common.error')));
     },
   });
 

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -28,6 +29,7 @@ function isRecentlySeen(value: string | null | undefined): boolean {
 export function AdminPrintersContainer() {
   const t = useTranslations('admin.printers');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const { formatDateTime } = useLocaleFormat();
   const queryClient = useQueryClient();
   const [assignTarget, setAssignTarget] = useState<AdminUnassignedPrinterDevice | null>(null);
@@ -60,7 +62,7 @@ export function AdminPrintersContainer() {
         toast.error(result.message ?? t('toast.testPrintNotPossible'));
       }
     },
-    onError: (err: Error) => toast.error(t('toast.testPrintFailed', { message: err.message })),
+    onError: (err: Error) => toast.error(t('toast.testPrintFailed', { message: apiErrorMessage(err) })),
   });
 
   const unassignMutation = useMutation({
@@ -69,7 +71,7 @@ export function AdminPrintersContainer() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
       toast.success(t('toast.unassigned'));
     },
-    onError: (err: Error) => toast.error(t('toast.unassignFailed', { message: err.message })),
+    onError: (err: Error) => toast.error(t('toast.unassignFailed', { message: apiErrorMessage(err) })),
   });
 
   const deleteDeviceMutation = useMutation({
@@ -78,7 +80,7 @@ export function AdminPrintersContainer() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
       toast.success(t('toast.deviceDeleted'));
     },
-    onError: (err: Error) => toast.error(t('toast.deleteFailed', { message: err.message })),
+    onError: (err: Error) => toast.error(t('toast.deleteFailed', { message: apiErrorMessage(err) })),
   });
 
   const assigned = printersQuery.data?.assigned ?? [];
@@ -220,7 +222,7 @@ export function AdminPrintersContainer() {
           device={assignTarget}
           organizations={orgsQuery.data ?? []}
           orgsLoading={orgsQuery.isLoading}
-          orgsError={orgsQuery.error instanceof Error ? orgsQuery.error.message : null}
+          orgsError={orgsQuery.error ? apiErrorMessage(orgsQuery.error) : null}
           onClose={() => setAssignTarget(null)}
           onAssigned={() => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
@@ -309,6 +311,7 @@ interface AssignDeviceModalProps {
 function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onClose, onAssigned, onError }: AssignDeviceModalProps) {
   const t = useTranslations();
   const tp = useTranslations('admin.printers.assignModal');
+  const apiErrorMessage = useApiErrorMessage();
   const prev = device.previousConfig ?? null;
   const [organizationId, setOrganizationId] = useState('');
   const [hasCashDrawer, setHasCashDrawer] = useState(prev?.hasCashDrawer ?? false);
@@ -342,7 +345,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
       });
       onAssigned();
     } catch (err) {
-      const message = err instanceof Error ? err.message : tp('assignFailed');
+      const message = apiErrorMessage(err, tp('assignFailed'));
       onError(message);
     } finally {
       setSubmitting(false);

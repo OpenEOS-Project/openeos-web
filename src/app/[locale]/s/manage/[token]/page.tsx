@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 const formatDateFor = (iso: string, locale: string) =>
@@ -38,6 +39,7 @@ export default function HelperManagePage() {
   const { token } = useParams() as { token: string };
   const t = useTranslations('shifts.helperManage');
   const tCommon = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const formatDate = (iso: string) => formatDateFor(iso, locale);
   const queryClient = useQueryClient();
@@ -59,7 +61,7 @@ export default function HelperManagePage() {
       setToast(t('removed'));
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(err.message || t('removeFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('removeFailed'))),
   });
 
   const addMutation = useMutation({
@@ -69,7 +71,7 @@ export default function HelperManagePage() {
       setToast(t('added'));
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(err.message || t('addFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('addFailed'))),
   });
 
   const payload = data?.data;

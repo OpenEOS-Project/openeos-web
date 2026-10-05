@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { ListLoading } from '@/components/shared/list-states';
@@ -35,6 +36,7 @@ const statusBadge: Record<ShiftPlanStatus, string> = {
 
 export default function ShiftPlanEditorPage() {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -108,7 +110,7 @@ export default function ShiftPlanEditorPage() {
       // Hand the browser a moment to start the download before revoking.
       setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     } catch (err) {
-      alert((err as Error).message || t('shifts.detail.pdfExportFailed'));
+      alert(apiErrorMessage(err, t('shifts.detail.pdfExportFailed')));
     }
   };
 

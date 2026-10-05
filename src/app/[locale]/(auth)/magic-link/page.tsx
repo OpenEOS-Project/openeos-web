@@ -6,10 +6,10 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { RefreshCw01, X } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
 import { apiClient, authApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
-import { ApiException } from '@/types/api';
 import { isTwoFactorRequired } from '@/types/auth';
 
 type Status = 'loading' | 'error';
@@ -22,6 +22,7 @@ type Status = 'loading' | 'error';
  */
 export default function MagicLinkPage() {
   const t = useTranslations('auth.magicLinkPage');
+  const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
@@ -74,11 +75,11 @@ export default function MagicLinkPage() {
         setError(t('error'));
         setStatus('error');
       } catch (err) {
-        setError(err instanceof ApiException ? err.message : t('error'));
+        setError(apiErrorMessage(err, t('error')));
         setStatus('error');
       }
     })();
-  }, [token, t, redirectUrl, setUser, setOrganizations]);
+  }, [token, t, apiErrorMessage, redirectUrl, setUser, setOrganizations]);
 
   if (status === 'loading') {
     return (

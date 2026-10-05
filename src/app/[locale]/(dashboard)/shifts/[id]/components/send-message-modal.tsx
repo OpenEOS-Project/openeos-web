@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -29,6 +30,7 @@ const TOKEN_PLAN = '{{plan}}';
 export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onClose }: SendMessageModalProps) {
   const t = useTranslations();
   const tm = useTranslations('shifts.sendMessage');
+  const apiErrorMessage = useApiErrorMessage();
   const PLACEHOLDERS: Array<{ token: string; label: string }> = [
     { token: TOKEN_NAME, label: tm('placeholderName') },
     { token: TOKEN_SHIFTS, label: tm('placeholderShifts') },
@@ -72,7 +74,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
         setResult(data);
       }
     },
-    onError: (err: Error) => setError(err.message || t('common.error')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.error'))),
   });
 
   const insertPlaceholder = (token: string) => {

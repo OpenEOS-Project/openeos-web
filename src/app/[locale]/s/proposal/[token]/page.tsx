@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { CheckCircle, AlertCircle } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 /**
@@ -21,6 +22,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
 export default function ShiftProposalPage() {
   const { token } = useParams() as { token: string };
   const t = useTranslations('shifts.proposal');
+  const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const initialAction = searchParams.get('action') as 'accept' | 'decline' | null;
 
@@ -36,7 +38,7 @@ export default function ShiftProposalPage() {
       setResult({ status: res.data.status, message: res.data.message, planSlug: res.data.planSlug });
       setState('success');
     } catch (err) {
-      setErrorMsg((err as Error).message || t('processFailed'));
+      setErrorMsg(apiErrorMessage(err, t('processFailed')));
       setState('error');
     }
   };

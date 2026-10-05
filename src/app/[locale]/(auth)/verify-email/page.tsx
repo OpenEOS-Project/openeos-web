@@ -6,14 +6,15 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CheckCircle, RefreshCw01, X } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
 import { authApi } from '@/lib/api-client';
-import { ApiException } from '@/types/api';
 
 type Status = 'loading' | 'success' | 'error';
 
 export default function VerifyEmailPage() {
   const t = useTranslations('auth.verifyEmail');
+  const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -38,11 +39,11 @@ export default function VerifyEmailPage() {
         await authApi.verifyEmail(token);
         setStatus('success');
       } catch (err) {
-        setError(err instanceof ApiException ? err.message : t('error'));
+        setError(apiErrorMessage(err, t('error')));
         setStatus('error');
       }
     })();
-  }, [token, t]);
+  }, [token, t, apiErrorMessage]);
 
   if (status === 'loading') {
     return (

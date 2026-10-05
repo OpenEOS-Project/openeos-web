@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { useEventPricePreview } from '@/hooks/use-event-price-preview';
 import { useDeployment } from '@/components/providers/setup-provider';
@@ -27,7 +28,6 @@ import { useAuthStore } from '@/stores/auth-store';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
-import { ApiException } from '@/types/api';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
@@ -70,6 +70,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const apiErrorMessage = useApiErrorMessage();
   const validationSchema = useMemo(() => createEventSchema(tValidation), [tValidation]);
   const tErrors = useTranslations('errors');
   const locale = useLocale();
@@ -191,11 +192,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
       }
       onClose();
     } catch (err) {
-      if (err instanceof ApiException) {
-        setError(err.message);
-      } else {
-        setError(tErrors('generic'));
-      }
+      setError(apiErrorMessage(err, tErrors('generic')));
     }
   };
 

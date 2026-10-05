@@ -9,10 +9,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowLeft, CheckCircle, Lock01 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
 import { FormInput } from '@/components/ui/input/form-input';
 import { authApi } from '@/lib/api-client';
-import { ApiException } from '@/types/api';
 
 type ResetPasswordFormData = z.infer<ReturnType<typeof createResetPasswordSchema>>;
 
@@ -32,6 +32,7 @@ function createResetPasswordSchema(t: (key: string) => string) {
 export default function ResetPasswordPage() {
   const t = useTranslations('auth.resetPassword');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -58,11 +59,7 @@ export default function ResetPasswordPage() {
       await authApi.resetPassword(token, data.password);
       setIsSubmitted(true);
     } catch (err) {
-      if (err instanceof ApiException) {
-        setError(err.message);
-      } else {
-        setError(t('error'));
-      }
+      setError(apiErrorMessage(err, t('error')));
     }
   };
 

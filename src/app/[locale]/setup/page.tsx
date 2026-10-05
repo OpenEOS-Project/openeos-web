@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle, Building07, User01, Globe01, Home01 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/input/input';
 import { useSetup } from '@/components/providers/setup-provider';
@@ -53,6 +54,7 @@ type MultiModeFormData = z.infer<ReturnType<typeof createMultiModeSchema>>;
 
 export default function SetupPage() {
   const t = useTranslations('setup');
+  const apiErrorMessage = useApiErrorMessage();
   const router = useRouter();
   const { setupStatus, refetch } = useSetup();
 
@@ -144,7 +146,7 @@ export default function SetupPage() {
         router.push('/login');
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.setupFailed'));
+      setError(apiErrorMessage(err, t('errors.setupFailed')));
     } finally {
       setIsSubmitting(false);
     }
