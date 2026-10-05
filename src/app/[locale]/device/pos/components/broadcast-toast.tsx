@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, AlertCircle, AlertTriangle, CheckCircle, InfoCircle } from '@untitledui/icons';
 import { cx } from '@/utils/cx';
 import type { BroadcastMessage } from '@/hooks/use-device-socket';
@@ -70,6 +71,7 @@ interface BroadcastToastItemProps {
 }
 
 function BroadcastToastItem({ message, onDismiss }: BroadcastToastItemProps) {
+  const t = useTranslations('deviceUi.common');
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -116,7 +118,7 @@ function BroadcastToastItem({ message, onDismiss }: BroadcastToastItemProps) {
         </p>
         {message.senderName && (
           <p className="text-xs text-tertiary mt-2">
-            Von: {message.senderName}
+            {t('from', { name: message.senderName })}
           </p>
         )}
       </div>
@@ -124,7 +126,8 @@ function BroadcastToastItem({ message, onDismiss }: BroadcastToastItemProps) {
       <button
         type="button"
         onClick={handleDismiss}
-        className="shrink-0 rounded-lg p-1 text-tertiary hover:bg-black/5 dark:hover:bg-white/5"
+        aria-label={t('dismiss')}
+        className="-m-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-tertiary hover:bg-black/5 dark:hover:bg-white/5"
       >
         <X className="h-4 w-4" />
       </button>

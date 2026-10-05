@@ -500,7 +500,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                           onChange={(ev) => setDayTimes((m) => ({ ...m, [d]: { start: timesFor(d).start, end: ev.target.value } }))}
                           style={{ padding: '6px 10px', fontSize: 13 }}
                         />
-                        <span style={{ fontSize: 11, color: overnight ? '#b45309' : 'var(--ink-faint)' }}>
+                        <span style={{ fontSize: 11, color: overnight ? 'var(--warn-ink)' : 'var(--ink-faint)' }}>
                           {Math.round((durationMinutes(s, e) / 60) * 10) / 10}h{overnight ? ' 🌙' : ''}
                         </span>
                       </div>

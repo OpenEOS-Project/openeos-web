@@ -10,7 +10,7 @@ import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { CashPaymentModal } from './cash-payment-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
@@ -25,6 +25,7 @@ interface OpenTabsDrawerProps {
 
 export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDrawerProps) {
   const t = useTranslations('pos.openTabs');
+  const formatCurrency = useFormatPrice();
   const queryClient = useQueryClient();
 
   const [showCashModal, setShowCashModal] = useState(false);

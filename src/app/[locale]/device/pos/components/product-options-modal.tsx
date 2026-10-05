@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Check } from '@untitledui/icons';
 import { useTranslations } from 'next-intl';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import type { Product, ProductOptionGroup } from '@/types/product';
 
 interface SelectedOption {
@@ -17,13 +18,6 @@ interface ProductOptionsModalProps {
   product: Product;
   onClose: () => void;
   onAdd: (selectedOptions: SelectedOption[]) => void;
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price);
 }
 
 function buildDefaultSelections(groups: ProductOptionGroup[]): SelectedOption[] {
@@ -70,6 +64,7 @@ export function ProductOptionsModal({
   onAdd,
 }: ProductOptionsModalProps) {
   const t = useTranslations('pos');
+  const formatPrice = useFormatPrice();
   const groups = product.options?.groups || [];
 
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>(() =>
@@ -301,9 +296,13 @@ export function ProductOptionsModal({
                 color: 'var(--pos-ink)',
                 letterSpacing: '-0.01em',
                 margin: 0,
+                // Zwei Zeilen: lange Namen waren hier nach einem Drittel weg.
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                overflowWrap: 'break-word',
+                hyphens: 'auto',
               }}
             >
               {product.name}
@@ -320,7 +319,8 @@ export function ProductOptionsModal({
             onClick={handleClose}
             aria-label={t('productOptions.close')}
             style={{
-              padding: 8,
+              width: 44,
+              height: 44,
               borderRadius: 'var(--pos-r-sm)',
               background: 'transparent',
               border: 'none',

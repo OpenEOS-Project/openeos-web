@@ -39,9 +39,9 @@ function actionBadgeStyle(action: ProductImportRow['action']): React.CSSProperti
   };
   switch (action) {
     case 'create':
-      return { ...base, background: 'color-mix(in oklab, #22c55e 15%, transparent)', color: '#16a34a' };
+      return { ...base, background: 'color-mix(in oklab, var(--green-ink) 15%, transparent)', color: 'var(--green-ink)' };
     case 'update':
-      return { ...base, background: 'color-mix(in oklab, #3b82f6 15%, transparent)', color: '#2563eb' };
+      return { ...base, background: 'color-mix(in oklab, var(--oe-info) 15%, transparent)', color: 'var(--info-ink)' };
     case 'skip':
       return { ...base, background: 'color-mix(in oklab, var(--ink) 10%, transparent)', color: 'var(--ink)', opacity: 0.7 };
     case 'error':
@@ -176,9 +176,9 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
 
           {/* Success state */}
           {importDone && importSummary && (
-            <div style={{ background: 'color-mix(in oklab, #22c55e 12%, transparent)', border: '1px solid color-mix(in oklab, #22c55e 30%, transparent)', borderRadius: 8, padding: '12px 16px' }}>
-              <div style={{ fontWeight: 600, color: '#16a34a', marginBottom: 6 }}>{t('success.title')}</div>
-              <div style={{ fontSize: 13, color: '#16a34a' }}>
+            <div style={{ background: 'color-mix(in oklab, var(--green-ink) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--green-ink) 30%, transparent)', borderRadius: 8, padding: '12px 16px' }}>
+              <div style={{ fontWeight: 600, color: 'var(--green-ink)', marginBottom: 6 }}>{t('success.title')}</div>
+              <div style={{ fontSize: 13, color: 'var(--green-ink)' }}>
                 {t('success.message', {
                   create: importSummary.summary.create,
                   update: importSummary.summary.update,
@@ -275,10 +275,10 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {/* Summary chips */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    <span style={chipStyle('#16a34a')}>
+                    <span style={chipStyle('var(--green-ink)')}>
                       +{previewResult.summary.create} {t('summary.create')}
                     </span>
-                    <span style={chipStyle('#2563eb')}>
+                    <span style={chipStyle('var(--info-ink)')}>
                       ~{previewResult.summary.update} {t('summary.update')}
                     </span>
                     <span style={{ ...chipStyle('var(--ink)'), opacity: 0.7 }}>
@@ -297,7 +297,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newCategories')}</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {previewResult.newCategories.map((cat) => (
-                          <span key={cat} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: '#b45309' }}>
+                          <span key={cat} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: 'var(--warn-ink)' }}>
                             {cat}
                           </span>
                         ))}
@@ -311,7 +311,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newPfandTypes')}</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {previewResult.newPfandTypes.map((pt) => (
-                          <span key={pt.name} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: '#b45309' }}>
+                          <span key={pt.name} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: 'var(--warn-ink)' }}>
                             {pt.name} ({formatCurrency(pt.amount)})
                           </span>
                         ))}

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { PosIcon } from '@openeos/pos-icons';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { useCartStore } from '@/stores/cart-store';
 import type { Product } from '@/types/product';
 import { ProductOptionsModal } from './product-options-modal';
@@ -10,14 +12,9 @@ interface PosProductGridProps {
   products: Product[];
 }
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price);
-}
-
 export function PosProductGrid({ products }: PosProductGridProps) {
+  const t = useTranslations('deviceUi.pos');
+  const formatPrice = useFormatPrice();
   const { addItem } = useCartStore();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -155,8 +152,8 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                   </div>
                 )}
                 {product.options?.groups && product.options.groups.length > 0 && (
-                  <div style={{ fontSize: 10, color: 'var(--pos-accent-ink)', fontWeight: 500 }}>
-                    + Optionen
+                  <div style={{ fontSize: 11, color: 'var(--pos-accent-ink)', fontWeight: 600 }}>
+                    {t('withOptions')}
                   </div>
                 )}
               </div>
@@ -215,7 +212,7 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                     fontWeight: 600,
                   }}
                 >
-                  Nicht verfügbar
+                  {t('unavailable')}
                 </span>
               )}
 
@@ -235,7 +232,7 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                     fontWeight: 600,
                   }}
                 >
-                  {product.stockQuantity} übrig
+                  {t('stockLeft', { count: product.stockQuantity })}
                 </span>
               )}
 
@@ -253,7 +250,7 @@ export function PosProductGrid({ products }: PosProductGridProps) {
                   }}
                 >
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--pos-danger)' }}>
-                    Ausverkauft
+                    {t('soldOut')}
                   </span>
                 </div>
               )}

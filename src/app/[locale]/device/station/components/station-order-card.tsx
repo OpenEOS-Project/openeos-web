@@ -54,6 +54,7 @@ function getTimerColor(createdAt: string): string {
 
 export function StationOrderCard({ order, items, onItemReady, isMarkingReady, isNew, variant }: StationOrderCardProps) {
   const t = useTranslations('device.station');
+  const tUi = useTranslations('deviceUi.station');
   const [elapsed, setElapsed] = useState(formatElapsed(order.createdAt));
   const [timerColor, setTimerColor] = useState(getTimerColor(order.createdAt));
 
@@ -88,18 +89,18 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-primary">#{order.dailyNumber}</span>
             {variant === 'pickup' && (
-              <span className="rounded-full bg-success-secondary px-2 py-0.5 text-xs font-semibold text-success-primary">
-                ABHOLUNG
+              <span className="rounded-full bg-success-secondary px-2 py-0.5 text-xs font-semibold uppercase text-success-primary">
+                {tUi('pickup')}
               </span>
             )}
             {isRush && (
-              <span className="rounded-full bg-error-secondary px-2 py-0.5 text-xs font-semibold text-error-primary">
-                RUSH
+              <span className="rounded-full bg-error-secondary px-2 py-0.5 text-xs font-semibold uppercase text-error-primary">
+                {tUi('priorityRush')}
               </span>
             )}
             {isHigh && (
-              <span className="rounded-full bg-warning-secondary px-2 py-0.5 text-xs font-semibold text-warning-primary">
-                HIGH
+              <span className="rounded-full bg-warning-secondary px-2 py-0.5 text-xs font-semibold uppercase text-warning-primary">
+                {tUi('priorityHigh')}
               </span>
             )}
           </div>
@@ -120,9 +121,13 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
         {items.map((item) => (
           <div key={item.id} className="flex items-center justify-between px-4 py-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-primary">{item.quantity}x</span>
-                <span className="text-primary truncate">{item.productName}</span>
+              {/* Bis zu drei Zeilen statt einer: in der Kueche muss der ganze
+                  Name lesbar sein, "Hausgemacht…" hilft dort niemandem. */}
+              <div className="flex items-start gap-2">
+                <span className="shrink-0 font-semibold text-primary">{item.quantity}x</span>
+                <span className="line-clamp-3 break-words text-primary" title={item.productName}>
+                  {item.productName}
+                </span>
               </div>
               {item.notes && (
                 <p className="text-xs text-tertiary mt-0.5">{item.notes}</p>

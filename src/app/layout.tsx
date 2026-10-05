@@ -25,8 +25,9 @@ export const viewport: Viewport = {
   ],
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Kein maximumScale/userScalable hier: Zoomen muss moeglich bleiben
+  // (WCAG 1.4.4). Gesperrt wird nur in den Geraeteansichten, siehe
+  // app/[locale]/device/layout.tsx.
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

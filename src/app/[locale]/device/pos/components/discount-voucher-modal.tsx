@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, X } from '@untitledui/icons';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 import { PosNumpad } from './cash-payment-modal';
@@ -24,6 +24,8 @@ export function DiscountVoucherModal({
   onApply,
 }: DiscountVoucherModalProps) {
   const t = useTranslations('pos.discount');
+  const tUi = useTranslations('deviceUi.common');
+  const formatCurrency = useFormatPrice();
   const [isClosing, setIsClosing] = useState(false);
   // When set, we are entering a manual amount for this voucher.
   const [manualVoucher, setManualVoucher] = useState<DiscountVoucher | null>(null);
@@ -142,10 +144,10 @@ export function DiscountVoucherModal({
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Schließen"
+            aria-label={tUi('close')}
             style={{
-              width: 36,
-              height: 36,
+              width: 44,
+              height: 44,
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',

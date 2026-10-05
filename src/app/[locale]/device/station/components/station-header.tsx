@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { Wifi, WifiOff } from '@untitledui/icons';
-import { Logo } from '@/components/foundations/logo/logo';
 import { cx } from '@/utils/cx';
 
 interface StationHeaderProps {
@@ -12,16 +11,37 @@ interface StationHeaderProps {
   organizationName?: string;
   orderCount?: number;
   itemCount?: number;
+  /** Logo passend zum Thema der Anzeige (useDisplayAppearance().logoUrl). */
+  logoUrl: string;
+  showLogo: boolean;
 }
 
-export function StationHeader({ stationName, stationColor, isConnected, organizationName, orderCount, itemCount }: StationHeaderProps) {
+export function StationHeader({
+  stationName,
+  stationColor,
+  isConnected,
+  organizationName,
+  orderCount,
+  itemCount,
+  logoUrl,
+  showLogo,
+}: StationHeaderProps) {
   const t = useTranslations('device.station');
+  const tUi = useTranslations('deviceUi.station');
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-secondary bg-primary px-4">
       <div className="flex items-center gap-3">
-        <Logo width={100} height={25} />
-        <div className="h-5 w-px bg-border-secondary" />
+        {/* Wie auf dem Kundendisplay: Logo aus den Anzeige-Einstellungen.
+            Das Logo-Bauteil folgte next-themes und stand so als dunkle
+            Schrift auf der dunklen Kopfzeile. */}
+        {showLogo && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoUrl} alt="OpenEOS" className="display-skin__logo" />
+            <div className="h-5 w-px bg-border-secondary" />
+          </>
+        )}
         {stationColor && (
           <div
             className="h-3 w-3 rounded-full ring-2 ring-white/50"
@@ -39,11 +59,11 @@ export function StationHeader({ stationName, stationColor, isConnected, organiza
         {orderCount != null && orderCount > 0 && (
           <div className="flex items-center gap-2 ml-2">
             <span className="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-400">
-              {orderCount} {orderCount === 1 ? 'Bestellung' : 'Bestellungen'}
+              {tUi('orders', { count: orderCount })}
             </span>
             {itemCount != null && itemCount > 0 && (
               <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-tertiary">
-                {itemCount} Artikel
+                {tUi('items', { count: itemCount })}
               </span>
             )}
           </div>

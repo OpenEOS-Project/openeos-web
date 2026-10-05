@@ -1682,7 +1682,7 @@
       "tableLabel": "Tisch {number}",
       "newOrder": "Neue Bestellung",
       "itemCount": "{count, plural, one {# Artikel} other {# Artikel}}",
-      "tabs": "Tabs",
+      "tabs": "Rechnungen",
       "emptyTitle": "Noch nichts bestellt.",
       "emptyHint": "Artikel antippen zum Hinzufügen.",
       "without": "ohne {option}",
@@ -1996,10 +1996,10 @@
       "orderNumber": "Bestellnummer"
     },
     "pair": {
-      "lead": "Öffne OpenEOS auf einem anderen Gerät und gib diesen Code ein.",
+      "lead": "Öffnen Sie OpenEOS auf einem anderen Gerät und geben Sie diesen Code ein.",
       "codeLabel": "Kopplungscode",
       "registering": "Gerät wird angemeldet …",
-      "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfe die Internetverbindung.",
+      "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfen Sie die Internetverbindung.",
       "blocked": "Dieses Gerät wurde gesperrt.",
       "restart": "Neu beginnen",
       "autoContinue": "Die Seite wechselt von selbst, sobald das Gerät freigegeben ist.",
@@ -2015,6 +2015,44 @@
       },
       "orScan": "oder scannen",
       "revoked": "Dieses Gerät ist nicht mehr verknüpft — es wurde in der Verwaltung entfernt. Verbinden Sie es erneut mit dem Code unten."
+    }
+  },
+  "deviceUi": {
+    "common": {
+      "redirecting": "Weiterleitung …",
+      "decrease": "Menge verringern",
+      "increase": "Menge erhöhen",
+      "close": "Schließen",
+      "clear": "Eingabe löschen",
+      "backspace": "Letzte Ziffer löschen",
+      "from": "Von: {name}",
+      "dismiss": "Hinweis schließen"
+    },
+    "pos": {
+      "categories": "Kategorien",
+      "allItems": "Alle Artikel",
+      "testModeShort": "Testmodus",
+      "cartEmpty": "Warenkorb leer",
+      "openCart": "Warenkorb öffnen",
+      "sentToStations": "An Küche & Bar gesendet",
+      "withOptions": "+ Optionen",
+      "unavailable": "Nicht verfügbar",
+      "soldOut": "Ausverkauft",
+      "stockLeft": "{count} übrig"
+    },
+    "station": {
+      "loading": "Wird geladen …",
+      "loadError": "Bestellungen konnten nicht geladen werden",
+      "loadErrorHint": "Die Anzeige versucht es weiter. Prüfen Sie die Netzwerkverbindung, falls es so bleibt.",
+      "retry": "Erneut versuchen",
+      "reconnecting": "Verbindung getrennt – wird wiederhergestellt …",
+      "serviceColumn": "Bedienungen",
+      "pickupColumn": "Abholung",
+      "orders": "{count, plural, one {# Bestellung} other {# Bestellungen}}",
+      "items": "{count, plural, one {# Artikel} other {# Artikel}}",
+      "pickup": "Abholung",
+      "priorityRush": "Eilt",
+      "priorityHigh": "Hoch"
     }
   },
   "devices": {
