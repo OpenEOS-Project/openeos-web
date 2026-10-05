@@ -79,7 +79,7 @@ export function ActivityStreamWidget({ organizationId }: Props) {
               </span>
               <span>
                 {beschriftung(e)}
-                {e.amount !== null ? ` · ${formatCurrency(e.amount)}` : ''}
+                {e.amount !== null ? ` · ${formatCurrency(e.amount, locale)}` : ''}
               </span>
             </div>
           ))}

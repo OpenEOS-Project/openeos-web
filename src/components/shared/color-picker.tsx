@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Farbwahl aus einer Vorgabe, mit dem Systemdialog als Ausweg.
@@ -34,6 +35,7 @@ function normalise(color: string): string {
 }
 
 export function ColorPicker({ value, onChange, onBlur }: ColorPickerProps) {
+  const t = useTranslations('colorPicker');
   const nativeRef = useRef<HTMLInputElement>(null);
   const groupId = useId();
   const current = normalise(value);
@@ -66,8 +68,8 @@ export function ColorPicker({ value, onChange, onBlur }: ColorPickerProps) {
           className={`color-picker__swatch color-picker__swatch--custom${!isPreset && current ? ' is-selected' : ''}`}
           style={{ '--swatch': current || 'transparent' } as React.CSSProperties}
           onClick={() => nativeRef.current?.click()}
-          aria-label="Eigene Farbe wählen"
-          title="Eigene Farbe"
+          aria-label={t('customAria')}
+          title={t('custom')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M12 5v14M5 12h14" />

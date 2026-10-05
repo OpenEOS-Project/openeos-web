@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftPlan, ShiftRegistration } from '@/types/shift';
 
@@ -38,6 +38,9 @@ interface ShiftCard {
 
 export function EditRegistrationModal({ open, plan, registration, allRegistrations, onClose }: Props) {
   const t = useTranslations();
+  const te = useTranslations('shifts.editRegistration');
+  const tm = useTranslations('shifts.manualAdd');
+  const { formatDate } = useLocaleFormat();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -131,7 +134,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
         ),
       }))
       .filter((g) => g.shifts.length > 0);
-  }, [pickerGroups, shiftQuery]);
+  }, [pickerGroups, shiftQuery, formatDate]);
 
   // Shift IDs the helper currently has assigned (post-staged-changes).
   const activeShiftIds = useMemo(() => {
@@ -250,7 +253,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, plan.id] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Vorschlag konnte nicht gesendet werden'),
+    onError: (err: Error) => setError(err.message || te('proposalFailed')),
   });
 
   if (!open || !registration) return null;
@@ -266,7 +269,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box" style={{ maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Anmeldung bearbeiten</div>
+          <div className="modal__title">{t('shifts.registrationsList.editRegistration')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
 
@@ -279,27 +282,27 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
             {/* Helper details */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
-                <label className="auth-field__label">Name *</label>
+                <label className="auth-field__label">{t('shifts.form.name')} *</label>
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">E-Mail *</label>
+                <label className="auth-field__label">{tm('emailOptional')}</label>
                 <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
             </div>
 
             <div className="auth-field">
-              <label className="auth-field__label">Telefon</label>
+              <label className="auth-field__label">{t('shifts.public.phone')}</label>
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
-                <label className="auth-field__label">Anmerkungen (vom Helfer)</label>
+                <label className="auth-field__label">{tm('helperNotes')}</label>
                 <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">Admin-Notizen</label>
+                <label className="auth-field__label">{tm('adminNotes')}</label>
                 <textarea className="textarea" rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
               </div>
             </div>
@@ -307,9 +310,9 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
             {/* Shifts list */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>Eingetragene Schichten</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{te('registeredShifts')}</span>
                 <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                  {groupRegs.length - removedRegIds.size + addedShiftIds.size} aktiv
+                  {te('activeCount', { count: groupRegs.length - removedRegIds.size + addedShiftIds.size })}
                 </span>
               </div>
 
@@ -349,7 +352,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                           })
                         }
                       >
-                        {isRemoved ? 'Wiederherstellen' : 'Entfernen'}
+                        {isRemoved ? te('restore') : te('remove')}
                       </button>
                     </div>
                   );
@@ -369,7 +372,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>{s.jobName}</div>
                       <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                        {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · NEU
+                        {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · {te('new')}
                       </div>
                     </div>
                     <button
@@ -378,7 +381,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                       style={{ fontSize: 12, padding: '4px 10px' }}
                       onClick={() => setAddedShiftIds((set) => { const next = new Set(set); next.delete(s.shiftId); return next; })}
                     >
-                      Entfernen
+                      {te('remove')}
                     </button>
                   </div>
                 ))}
@@ -390,21 +393,21 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                 style={{ fontSize: 12, alignSelf: 'flex-start' }}
                 onClick={() => setShowPicker((v) => !v)}
               >
-                {showPicker ? '× Picker schließen' : '+ Schicht hinzufügen'}
+                {showPicker ? te('closePicker') : te('addShift')}
               </button>
 
               {hasShiftChanges && (
                 <div className="auth-field" style={{ marginTop: 4 }}>
-                  <label className="auth-field__label">Optionale Notiz für den Helfer (nur beim Vorschlag)</label>
+                  <label className="auth-field__label">{te('proposalNote')}</label>
                   <textarea
                     className="textarea"
                     rows={2}
-                    placeholder="z.B. Wir bräuchten dich an einer anderen Stelle — passt das so?"
+                    placeholder={te('proposalNotePlaceholder')}
                     value={proposalMessage}
                     onChange={(e) => setProposalMessage(e.target.value)}
                   />
                   <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
-                    Beim „Vorschlag senden" bekommt der Helfer eine Mail mit „Annehmen"/„Ablehnen"-Buttons. „Direkt speichern" wendet alles sofort an, ohne zu fragen.
+                    {te('proposalHint')}
                   </p>
                 </div>
               )}
@@ -414,7 +417,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                   <input
                     className="input"
                     type="search"
-                    placeholder="Schicht suchen (Arbeit, Datum, Uhrzeit)…"
+                    placeholder={tm('searchPlaceholder')}
                     value={shiftQuery}
                     onChange={(e) => setShiftQuery(e.target.value)}
                     style={{ fontSize: 13 }}
@@ -422,7 +425,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                   <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
                     {filteredGroups.length === 0 ? (
                       <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                        {shiftQuery.trim() ? 'Keine Schicht gefunden.' : 'Keine Schichten im Plan.'}
+                        {shiftQuery.trim() ? tm('noShiftFound') : tm('noShiftsInPlan')}
                       </div>
                     ) : (
                       filteredGroups.map(({ date, shifts }) => (
@@ -463,7 +466,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                                     {formatTime(s.startTime)}–{formatTime(s.endTime)}
                                   </span>
                                   <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: alreadyHas ? 'var(--green-ink)' : s.isFull ? 'var(--warn-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                    {alreadyHas ? '✓ dabei' : s.isFull ? `voll ${s.confirmedCount}/${s.requiredWorkers}` : `${s.confirmedCount}/${s.requiredWorkers}`}
+                                    {alreadyHas ? te('alreadyIn') : s.isFull ? tm('fullCount', { confirmed: s.confirmedCount, required: s.requiredWorkers }) : `${s.confirmedCount}/${s.requiredWorkers}`}
                                   </span>
                                 </button>
                               );
@@ -474,7 +477,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                     )}
                   </div>
                   <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: 0 }}>
-                    Volle Schichten lassen sich trotzdem hinzufügen (z.B. Springer eintragen).
+                    {te('fullAddableHint')}
                   </p>
                 </div>
               )}
@@ -492,10 +495,10 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                 disabled={!canPropose || proposeMutation.isPending || mutation.isPending}
                 onClick={() => { setError(null); proposeMutation.mutate(); }}
                 title={!email.trim()
-                  ? 'Vorschläge benötigen eine E-Mail-Adresse des Helfers'
-                  : 'Helfer bekommt eine E-Mail mit Annehmen / Ablehnen — Änderung erst nach Bestätigung'}
+                  ? te('proposalNeedsEmail')
+                  : te('proposalTitle')}
               >
-                {proposeMutation.isPending ? t('common.saving') : 'Vorschlag senden'}
+                {proposeMutation.isPending ? t('shifts.sendMessage.sending') : te('sendProposal')}
               </button>
             )}
             <button
@@ -504,7 +507,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
               disabled={!canSubmit || mutation.isPending || proposeMutation.isPending}
               onClick={() => { setError(null); mutation.mutate(); }}
             >
-              {mutation.isPending ? t('common.saving') : hasShiftChanges ? 'Direkt speichern' : 'Speichern'}
+              {mutation.isPending ? t('common.saving') : hasShiftChanges ? te('saveDirectly') : t('common.save')}
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useInventoryCount } from '@/hooks/use-inventory';
 import type { InventoryCount } from '@/types/inventory';
@@ -11,9 +11,9 @@ interface InventoryCompletedViewProps {
   onBack: () => void;
 }
 
-function formatDate(iso: string | null) {
+function formatDate(iso: string | null, locale: string) {
   if (!iso) return '–';
-  return new Date(iso).toLocaleDateString('de-DE', {
+  return new Date(iso).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -34,6 +34,7 @@ export function InventoryCompletedView({
 }: InventoryCompletedViewProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
 
   const { data: count } = useInventoryCount(eventId, initialCount.id);
   const resolvedCount = count ?? initialCount;
@@ -86,7 +87,7 @@ export function InventoryCompletedView({
                 <span className="badge badge--success">{t('status.completed')}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 2 }}>
-                {t('completed.completedAt')}: {formatDate(resolvedCount.completedAt)}
+                {t('completed.completedAt')}: {formatDate(resolvedCount.completedAt, locale)}
                 {resolvedCount.completedByUser && (
                   <> &middot; {formatUserName(resolvedCount.completedByUser)}</>
                 )}

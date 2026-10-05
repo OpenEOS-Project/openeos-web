@@ -36,24 +36,23 @@ function normalizePrinterMode(raw: PrinterMode | undefined): 'fixed' | 'dynamic'
   return 'dynamic';
 }
 
-const ROUTING_MODES: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [
-  {
-    value: 'fixed',
-    label: 'Fester Drucker',
-    description:
-      'Bons gehen immer auf den unten ausgewählten Drucker — ohne Rücksicht auf Produkt- oder Kategoriezuordnung. Empfohlen für Geräte, die direkt an einem Drucker hängen.',
-  },
-  {
-    value: 'dynamic',
-    label: 'Dynamisches Routing',
-    description:
-      'Folge der Routing-Kette: Produkt-Station → Kategorie-Station → Standard-Drucker dieses Geräts (Fallback). Empfohlen, wenn mehrere Stationen mit eigenen Druckern existieren.',
-  },
-];
 
 export function DevicePrinterConfig({ device, organizationId }: DevicePrinterConfigProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
+
+  const routingModes: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [
+    {
+      value: 'fixed',
+      label: t('devices.detail.printer.routing.fixed'),
+      description: t('devices.detail.printer.routing.fixedDescription'),
+    },
+    {
+      value: 'dynamic',
+      label: t('devices.detail.printer.routing.dynamic'),
+      description: t('devices.detail.printer.routing.dynamicDescription'),
+    },
+  ];
 
   const [defaultPrinterId, setDefaultPrinterId] = useState((device.settings?.defaultPrinterId as string) || '');
   const [printerMode, setPrinterMode] = useState<'fixed' | 'dynamic'>(
@@ -92,10 +91,10 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
   const testPrintMutation = useMutation({
     mutationFn: () => printersApi.testPrint(organizationId, defaultPrinterId),
     onSuccess: () => {
-      toast.success('Testdruck wurde gesendet');
+      toast.success(t('devices.detail.printer.testPrintSent'));
     },
     onError: () => {
-      toast.error('Fehler beim Senden');
+      toast.error(t('devices.detail.printer.testPrintFailed'));
     },
   });
 
@@ -128,7 +127,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
               onClick={() => testPrintMutation.mutate()}
               style={{ fontSize: 13 }}
             >
-              {testPrintMutation.isPending ? '...' : 'Testdruck'}
+              {testPrintMutation.isPending ? '...' : t('devices.detail.printer.testPrint')}
             </button>
           </div>
         </div>
@@ -139,7 +138,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
         description={t('devices.detail.printer.routing.description')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {ROUTING_MODES.map((mode) => (
+          {routingModes.map((mode) => (
             <label
               key={mode.value}
               style={{

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -57,6 +58,10 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const { formatCurrency } = useLocaleFormat();
+  // Vorgabe fuer neue Produkte in der Sprache der Oberflaeche; gespeichert
+  // wird der Text, den das Feld beim Absenden enthaelt.
+  const defaultStockUnit = t('form.defaultStockUnit');
   const validationSchema = useMemo(() => createProductSchema(tValidation), [tValidation]);
   const isEditing = !!product;
 
@@ -103,7 +108,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       isAvailable: true,
       trackInventory: false,
       stockQuantity: 0,
-      stockUnit: 'Stück',
+      stockUnit: defaultStockUnit,
       sortOrder: 0,
       productionStationId: '',
       pfandTypeId: '',
@@ -126,7 +131,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         isAvailable: product.isAvailable,
         trackInventory: product.trackInventory,
         stockQuantity: product.stockQuantity,
-        stockUnit: product.stockUnit || 'Stück',
+        stockUnit: product.stockUnit || defaultStockUnit,
         sortOrder: product.sortOrder,
         productionStationId: product.productionStationId || '',
         pfandTypeId: product.pfandTypeId || '',
@@ -144,7 +149,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         isAvailable: true,
         trackInventory: false,
         stockQuantity: 0,
-        stockUnit: 'Stück',
+        stockUnit: defaultStockUnit,
         sortOrder: 0,
         productionStationId: '',
         pfandTypeId: '',
@@ -152,7 +157,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       setOptionGroups([]);
       setImageUrl(null);
     }
-  }, [product, reset]);
+  }, [product, reset, defaultStockUnit]);
 
   const handleAddGroup = () => {
     setOptionGroups([...optionGroups, { name: '', type: 'multiple', required: false, options: [] }]);
@@ -466,7 +471,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         <option value="">{t('form.pfandTypeNone')}</option>
                         {pfandTypes?.map((pt) => (
                           <option key={pt.id} value={pt.id}>
-                            {pt.name} (+{new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(pt.amount))})
+                            {pt.name} (+{formatCurrency(Number(pt.amount))})
                           </option>
                         ))}
                       </select>
@@ -631,7 +636,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     render={({ field }) => (
                       <label className="auth-field">
                         <span>{t('form.stockUnit')}</span>
-                        <input type="text" placeholder="Stück" {...field} />
+                        <input type="text" placeholder={defaultStockUnit} {...field} />
                       </label>
                     )}
                   />

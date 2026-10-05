@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-import { Clock, Users01, CheckCircle, AlertCircle, XCircle } from '@untitledui/icons';
-import type { ShiftPlan, ShiftJob, Shift, ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
+import { useLocale, useTranslations } from 'next-intl';
+import { Clock, Users01, CheckCircle, AlertCircle } from '@untitledui/icons';
+import type { ShiftPlan, Shift } from '@/types/shift';
 
 interface ShiftCalendarProps {
   plan: ShiftPlan;
@@ -15,17 +15,10 @@ const formatTime = (time: string): string => {
   return `${parts[0]}:${parts[1]}`;
 };
 
-const statusConfig: Record<ShiftRegistrationStatus, { color: string; bgColor: string }> = {
-  pending_email: { color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-100 dark:bg-gray-800' },
-  pending_approval: { color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-100 dark:bg-orange-900/30' },
-  confirmed: { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100 dark:bg-green-900/30' },
-  rejected: { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30' },
-  cancelled: { color: 'text-gray-500 dark:text-gray-500', bgColor: 'bg-gray-100 dark:bg-gray-800' },
-};
-
 export function ShiftCalendar({ plan }: ShiftCalendarProps) {
   const t = useTranslations();
-  const jobs = plan.jobs || [];
+  const locale = useLocale();
+  const jobs = useMemo(() => plan.jobs || [], [plan.jobs]);
 
   // Get all unique dates from all shifts
   const allDates = useMemo(() => {
@@ -60,17 +53,8 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
   const formatDateHeader = (dateStr: string) => {
     const date = new Date(dateStr);
     return {
-      weekday: date.toLocaleDateString('de-DE', { weekday: 'short' }),
-      day: date.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' }),
-    };
-  };
-
-  const getRegistrationCounts = (shift: Shift) => {
-    const registrations = shift.registrations || [];
-    return {
-      confirmed: registrations.filter(r => r.status === 'confirmed').length,
-      pending: registrations.filter(r => r.status === 'pending_approval' || r.status === 'pending_email').length,
-      total: shift.requiredWorkers,
+      weekday: date.toLocaleDateString(locale, { weekday: 'short' }),
+      day: date.toLocaleDateString(locale, { day: 'numeric', month: 'numeric' }),
     };
   };
 
@@ -135,7 +119,7 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
                       ) : (
                         <div className="space-y-2">
                           {shifts.map((shift) => (
-                            <ShiftCell key={shift.id} shift={shift} job={job} />
+                            <ShiftCell key={shift.id} shift={shift} />
                           ))}
                         </div>
                       )}
@@ -153,10 +137,9 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
 
 interface ShiftCellProps {
   shift: Shift;
-  job: ShiftJob;
 }
 
-function ShiftCell({ shift, job }: ShiftCellProps) {
+function ShiftCell({ shift }: ShiftCellProps) {
   const t = useTranslations();
   const registrations = shift.registrations || [];
   const confirmed = registrations.filter(r => r.status === 'confirmed');

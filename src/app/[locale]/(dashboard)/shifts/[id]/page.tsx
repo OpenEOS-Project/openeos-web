@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { ListLoading } from '@/components/shared/list-states';
-import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
+import type { ShiftPlanStatus } from '@/types/shift';
 import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
@@ -101,14 +101,14 @@ export default function ShiftPlanEditorPage() {
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = objectUrl;
-      a.download = `${plan.publicSlug || 'schichtplan'}.pdf`;
+      a.download = `${plan.publicSlug || t('shifts.detail.pdfFileName')}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       // Hand the browser a moment to start the download before revoking.
       setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     } catch (err) {
-      alert((err as Error).message || 'PDF-Export fehlgeschlagen');
+      alert((err as Error).message || t('shifts.detail.pdfExportFailed'));
     }
   };
 
@@ -142,7 +142,7 @@ export default function ShiftPlanEditorPage() {
                 className="btn btn--ghost"
                 style={{ flexShrink: 0, padding: '8px 10px' }}
                 onClick={() => router.push('/shifts')}
-                aria-label="Zurück"
+                aria-label={t('common.back')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -194,7 +194,7 @@ export default function ShiftPlanEditorPage() {
                     borderColor: linkCopied ? 'var(--green-ink)' : undefined,
                   }}
                   onClick={copyPublicLink}
-                  title={linkCopied ? 'Link kopiert' : t('shifts.copyLink')}
+                  title={linkCopied ? t('shifts.detail.linkCopied') : t('shifts.copyLink')}
                   aria-label={t('shifts.copyLink')}
                 >
                   {linkCopied

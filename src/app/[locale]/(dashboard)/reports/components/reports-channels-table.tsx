@@ -3,26 +3,18 @@
 import { useTranslations } from 'next-intl';
 
 import type { ChannelReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
+import { getChannelLabel } from './report-labels';
 
 interface ReportsChannelsTableProps {
   data: ChannelReport[] | undefined;
   isLoading: boolean;
 }
 
-const CHANNEL_LABELS: Record<string, string> = {
-  pos: 'Kasse',
-  online: 'Online-Shop',
-  qr_order: 'QR-Bestellung',
-};
-
-function getChannelLabel(channel: string): string {
-  return CHANNEL_LABELS[channel] ?? channel;
-}
-
 export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTableProps) {
   const t = useTranslations('reports');
+  const { formatCurrency } = useLocaleFormat();
 
   const handleExport = () => {
     if (!data?.length) return;
@@ -32,8 +24,8 @@ export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTablePr
       t('channels.columns.revenue'),
       t('channels.columns.avgReceipt'),
     ];
-    const rows = data.map((c) => [getChannelLabel(c.channel), c.orders, c.revenue, c.avgReceipt]);
-    downloadCsv('umsatz-nach-kanal.csv', headers, rows);
+    const rows = data.map((c) => [getChannelLabel(c.channel, t), c.orders, c.revenue, c.avgReceipt]);
+    downloadCsv(t('export.filenames.channels'), headers, rows);
   };
 
   return (
@@ -78,7 +70,7 @@ export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTablePr
                 <tr key={c.channel}>
                   <td>
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
-                      {getChannelLabel(c.channel)}
+                      {getChannelLabel(c.channel, t)}
                     </div>
                   </td>
                   <td className="mono text-right">{c.orders}</td>

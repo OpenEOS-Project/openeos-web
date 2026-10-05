@@ -117,7 +117,7 @@ export default function DeviceDetailPage() {
             className="btn btn--ghost"
             style={{ padding: '6px 10px', flexShrink: 0 }}
             onClick={() => router.push('/devices')}
-            aria-label="Back"
+            aria-label={t('common.back')}
           >
             ←
           </button>

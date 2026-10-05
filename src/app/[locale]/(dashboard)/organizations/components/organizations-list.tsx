@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 
 import { useAdminOrganizations } from '@/hooks/use-organizations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { Organization } from '@/types';
 
 interface OrganizationsListProps {
@@ -15,6 +16,7 @@ interface OrganizationsListProps {
 
 export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, onManageMembersClick }: OrganizationsListProps) {
   const t = useTranslations('organizations');
+  const { formatDate } = useLocaleFormat();
   const { data, isLoading, error } = useAdminOrganizations();
   const organizations = data?.data;
 
@@ -44,14 +46,6 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
       />
     );
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
 
   return (
     <>

@@ -1,19 +1,20 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { AdminEventsContainer } from './components/admin-events-container';
 
-export const metadata: Metadata = {
-  title: 'Events & Abrechnung',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('admin.events');
+  return { title: t('title') };
+}
 
-export default function AdminEventsPage() {
+export default async function AdminEventsPage() {
+  const t = await getTranslations('admin.events');
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="app-page-head">
         <div>
-          <h1 className="app-page-head__title">Events & Abrechnung</h1>
-          <p className="app-page-head__sub">
-            Alle Events aller Organisationen mit Bestellungen und Umsatz. Abrechnung verwalten.
-          </p>
+          <h1 className="app-page-head__title">{t('title')}</h1>
+          <p className="app-page-head__sub">{t('description')}</p>
         </div>
       </div>
 

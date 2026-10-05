@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProductsReport } from '@/hooks/use-reports';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 export function TopProductsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
 
   const { data, isLoading } = useProductsReport(organizationId, range.query);

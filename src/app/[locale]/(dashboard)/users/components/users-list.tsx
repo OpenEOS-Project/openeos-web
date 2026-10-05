@@ -5,11 +5,14 @@ import { useTranslations } from 'next-intl';
 
 import { useAdminUsers, useUnlockUser } from '@/hooks/use-admin';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { AdminUser } from '@/types/admin';
 
 export function UsersList() {
   const t = useTranslations('users');
   const tMembers = useTranslations('members');
+  // Datum mit Uhrzeit — "—" fuer fehlende Werte.
+  const { formatDateTime: formatDate } = useLocaleFormat();
   const router = useRouter();
   const { data, isLoading, error } = useAdminUsers();
   const unlockUser = useUnlockUser();
@@ -37,17 +40,6 @@ export function UsersList() {
       />
     );
   }
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const getUserStatus = (user: AdminUser) => {
     if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) return 'locked';

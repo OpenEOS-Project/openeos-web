@@ -6,6 +6,7 @@ import { useRentalHardware, useDeleteRentalHardware } from '@/hooks/use-rentals'
 import { HardwareFormModal } from './hardware-form-modal';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { RentalHardware, RentalHardwareStatus } from '@/types/rental';
 
 const statusBadge: Record<RentalHardwareStatus, string> = {
@@ -15,13 +16,10 @@ const statusBadge: Record<RentalHardwareStatus, string> = {
   retired: 'badge badge--neutral',
 };
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
 export function HardwareList() {
   const t = useTranslations('admin.rental.hardware');
   const tCommon = useTranslations('common');
+  const { formatCurrency } = useLocaleFormat();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editHardware, setEditHardware] = useState<RentalHardware | null>(null);
@@ -62,7 +60,7 @@ export function HardwareList() {
         <div className="app-card__head">
           <div>
             <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-              {hardware.length} {t('title')}
+              {t('count', { count: hardware.length })}
             </span>
           </div>
           <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>

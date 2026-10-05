@@ -9,6 +9,7 @@ import {
 } from '@/hooks/use-rentals';
 import { AssignmentFormModal } from './assignment-form-modal';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { RentalAssignmentStatus } from '@/types/rental';
 
 const statusBadge: Record<RentalAssignmentStatus, string> = {
@@ -19,20 +20,9 @@ const statusBadge: Record<RentalAssignmentStatus, string> = {
   cancelled: 'badge badge--error',
 };
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export function AssignmentsList() {
   const t = useTranslations('admin.rental.assignments');
+  const { formatCurrency, formatDate } = useLocaleFormat();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: assignments, isLoading } = useRentalAssignments();
@@ -70,7 +60,7 @@ export function AssignmentsList() {
       <div className="app-card app-card--flat">
         <div className="app-card__head">
           <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-            {assignments.length} {t('title')}
+            {t('count', { count: assignments.length })}
           </span>
           <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
             {t('add')}
@@ -99,7 +89,7 @@ export function AssignmentsList() {
                       {formatDate(assignment.startDate)} – {formatDate(assignment.endDate)}
                     </div>
                     <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
-                      {assignment.totalDays} {t('days')}
+                      {t('daysCount', { count: assignment.totalDays })}
                     </div>
                   </td>
                   <td className="mono text-right" style={{ fontWeight: 600 }}>

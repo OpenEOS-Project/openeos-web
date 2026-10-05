@@ -10,29 +10,16 @@ import { toast } from '@/components/shared/toast';
 
 type KitchenTicketMode = 'per_order' | 'per_item' | 'per_station';
 
-const OPTIONS: { value: KitchenTicketMode; title: string; description: string }[] = [
-  {
-    value: 'per_order',
-    title: '1 Bon pro Bestellung',
-    description:
-      'Klassisch: alles auf einem Küchenbon. Einfach für kleine Küchen ohne Stationstrennung.',
-  },
-  {
-    value: 'per_item',
-    title: '1 Bon pro Produkt (Barcode)',
-    description:
-      'Jedes Produkt aus der Bestellung bekommt einen eigenen Bon mit einem eindeutigen Barcode — ideal um den Status einzelner Produkte später per Scanner zu verfolgen.',
-  },
-  {
-    value: 'per_station',
-    title: '1 Bon pro Standort',
-    description:
-      'Die Bestellung wird nach Standort gruppiert. Jeder Standort bekommt nur seine Produkte. Ist dem Standort ein eigener Drucker zugewiesen, wird der Bon dort gedruckt — sonst auf dem Standard-Küchendrucker.',
-  },
-];
+const MODES: KitchenTicketMode[] = ['per_order', 'per_item', 'per_station'];
 
 export function KitchenTicketModePanel() {
   const t = useTranslations();
+  const tp = useTranslations('printers.kitchenTicketMode');
+  const options = MODES.map((value) => ({
+    value,
+    title: tp(`modes.${value}.title`),
+    description: tp(`modes.${value}.description`),
+  }));
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const orgId = currentOrganization?.organizationId;
   const initialMode: KitchenTicketMode =
@@ -66,7 +53,7 @@ export function KitchenTicketModePanel() {
       if (currentOrganization) {
         setCurrentOrganization({ ...currentOrganization, organization: org });
       }
-      toast.success('Gespeichert');
+      toast.success(tp('saved'));
     },
     onError: () => {
       toast.error(t('common.saveFailed'));
@@ -88,14 +75,14 @@ export function KitchenTicketModePanel() {
       }}
     >
       <div className="app-card__head" style={{ display: 'block' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>Modus für Küchenbon-Druck</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{tp('title')}</div>
         <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 2 }}>
-          Bestimmt, wie Küchenbons bei einer neuen Bestellung erzeugt werden.
+          {tp('description')}
         </div>
       </div>
 
       <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {OPTIONS.map((opt) => (
+        {options.map((opt) => (
           <label
             key={opt.value}
             style={{
@@ -130,7 +117,7 @@ export function KitchenTicketModePanel() {
         ))}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
-          {saveMode.isPending && <span>Speichert…</span>}
+          {saveMode.isPending && <span>{t('common.saving')}</span>}
         </div>
       </div>
     </section>

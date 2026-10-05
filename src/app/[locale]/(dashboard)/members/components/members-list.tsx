@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useCanCreateMemberAccount, useMembers } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
@@ -24,6 +24,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
 
 export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEditPermissionsClick }: MembersListProps) {
   const t = useTranslations('members');
+  const locale = useLocale();
   const tAdd = useTranslations('memberAdd');
   const { user } = useAuthStore();
   const addLabel = useCanCreateMemberAccount() ? tAdd('openButton') : t('invite');
@@ -57,7 +58,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -121,7 +122,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
                       <span style={{ fontSize: 13, fontWeight: 600 }}>
                         {memberUser?.firstName} {memberUser?.lastName}
                         {isCurrentUser && (
-                          <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--ink-faint)', fontWeight: 400 }}>(Du)</span>
+                          <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--ink-faint)', fontWeight: 400 }}>{t('list.you')}</span>
                         )}
                       </span>
                     </div>

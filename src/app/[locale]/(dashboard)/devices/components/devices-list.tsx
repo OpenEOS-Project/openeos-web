@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { VerifyDeviceDialog } from './verify-device-dialog';
 import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
@@ -40,6 +40,7 @@ function Spinner() {
 
 export function DevicesList() {
   const t = useTranslations();
+  const { formatDate } = useLocaleFormat();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -264,6 +265,7 @@ export function DevicesList() {
                         style={{ padding: '4px 10px', fontSize: 13 }}
                         onClick={(e) => toggleMenu(device.id, e.currentTarget)}
                         aria-haspopup="menu"
+                        aria-label={t('devices.table.actions')}
                         aria-expanded={openMenuId === device.id}
                       >
                         ···

@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
         <FormInput
           label={t('email')}
           type="email"
-          placeholder="name@example.com"
+          placeholder={t('emailPlaceholder')}
           isInvalid={!!errors.email}
           hint={errors.email?.message}
           {...register('email')}

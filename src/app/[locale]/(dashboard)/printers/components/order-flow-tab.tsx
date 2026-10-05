@@ -48,9 +48,10 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 }
 
 function SaveStatus({ isPending }: { isPending: boolean }) {
+  const t = useTranslations('common');
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginTop: 8 }}>
-      {isPending && <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>Speichert…</span>}
+      {isPending && <span style={{ color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('saving')}</span>}
     </div>
   );
 }
@@ -60,6 +61,7 @@ function SaveStatus({ isPending }: { isPending: boolean }) {
 // ---------------------------------------------------------------------------
 export function OrderFlowTab() {
   const t = useTranslations();
+  const tf = useTranslations('printers.orderFlow');
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const orgId = currentOrganization?.organizationId ?? '';
 
@@ -126,7 +128,7 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      toast.success('Gespeichert');
+      toast.success(tf('saved'));
     },
     onError: () => {
       toast.error(t('common.saveFailed'));
@@ -148,7 +150,7 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      toast.success('Gespeichert');
+      toast.success(tf('saved'));
     },
     onError: () => {
       toast.error(t('common.saveFailed'));
@@ -171,7 +173,7 @@ export function OrderFlowTab() {
     },
     onSuccess: (org) => {
       if (currentOrganization) setCurrentOrganization({ ...currentOrganization, organization: org });
-      toast.success('Gespeichert');
+      toast.success(tf('saved'));
     },
     onError: () => {
       toast.error(t('common.saveFailed'));
@@ -187,37 +189,37 @@ export function OrderFlowTab() {
       <section className="app-card">
         <div className="app-card__head">
           <div style={{ flex: 1 }}>
-            <h2 className="app-card__title">Küchenbon</h2>
-            <p className="app-card__sub">Bons, die bei neuen Bestellungen in der Küche gedruckt werden.</p>
+            <h2 className="app-card__title">{tf('kitchen.title')}</h2>
+            <p className="app-card__sub">{tf('kitchen.description')}</p>
           </div>
-          <ToggleSwitch checked={kitchenEnabled} onChange={setKitchenEnabled} aria-label="Küchenbon" />
+          <ToggleSwitch checked={kitchenEnabled} onChange={setKitchenEnabled} aria-label={tf('kitchen.title')} />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!kitchenEnabled && (
-            <WarningBanner text="Diese Bons werden nicht automatisch gedruckt." />
+            <WarningBanner text={tf('notPrintedWarning')} />
           )}
 
           {kitchenEnabled && (
-            <FieldRow label="Modus">
+            <FieldRow label={tf('kitchen.mode')}>
               <select
                 className="select"
                 value={kitchenMode}
                 onChange={(e) => setKitchenMode(e.target.value as KitchenTicketMode)}
               >
-                <option value="per_order">1 Bon pro Bestellung</option>
-                <option value="per_item">1 Bon pro Produkt mit Barcode</option>
-                <option value="per_station">1 Bon pro Standort</option>
+                <option value="per_order">{tf('kitchen.modes.per_order')}</option>
+                <option value="per_item">{tf('kitchen.modes.per_item')}</option>
+                <option value="per_station">{tf('kitchen.modes.per_station')}</option>
               </select>
             </FieldRow>
           )}
 
-          <FieldRow label="Override-Drucker (optional, sonst Routing-Kette)">
+          <FieldRow label={tf('overridePrinter')}>
             <select
               className="select"
               value={kitchenPrinterId}
               onChange={(e) => setKitchenPrinterId(e.target.value)}
             >
-              <option value="">Routing-Kette verwenden (Standard)</option>
+              <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? '● ' : '○ '}{p.name}
@@ -225,17 +227,17 @@ export function OrderFlowTab() {
               ))}
             </select>
             <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '2px 0 0' }}>
-              Falls kein Override-Drucker gesetzt ist, wird die Routing-Kette verwendet: Produkt-Station → Kategorie-Station → Standard-Drucker des Geräts → globaler Override.
+              {tf('routingChainHint')}
             </p>
           </FieldRow>
 
-          <FieldRow label="Standard-Vorlage (leer = eingebaut)">
+          <FieldRow label={tf('defaultTemplate')}>
             <select
               className="select"
               value={kitchenTemplateId}
               onChange={(e) => setKitchenTemplateId(e.target.value)}
             >
-              <option value="">Eingebaute Vorlage verwenden</option>
+              <option value="">{tf('useBuiltInTemplate')}</option>
               {kitchenTemplates.map((tmpl) => (
                 <option key={tmpl.id} value={tmpl.id}>{tmpl.name}</option>
               ))}
@@ -249,7 +251,7 @@ export function OrderFlowTab() {
               onClick={() => kitchenMutation.mutate()}
               disabled={kitchenMutation.isPending}
             >
-              Speichern
+              {t('common.save')}
             </button>
           </div>
         </div>
@@ -261,23 +263,23 @@ export function OrderFlowTab() {
       <section className="app-card">
         <div className="app-card__head">
           <div style={{ flex: 1 }}>
-            <h2 className="app-card__title">Bestellbon</h2>
-            <p className="app-card__sub">Bon für den Ausgabebereich oder zur Bestellbestätigung.</p>
+            <h2 className="app-card__title">{tf('orderTicket.title')}</h2>
+            <p className="app-card__sub">{tf('orderTicket.description')}</p>
           </div>
-          <ToggleSwitch checked={orderEnabled} onChange={setOrderEnabled} aria-label="Bestellbon" />
+          <ToggleSwitch checked={orderEnabled} onChange={setOrderEnabled} aria-label={tf('orderTicket.title')} />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!orderEnabled && (
-            <WarningBanner text="Diese Bons werden nicht automatisch gedruckt." />
+            <WarningBanner text={tf('notPrintedWarning')} />
           )}
 
-          <FieldRow label="Override-Drucker (optional, sonst Routing-Kette)">
+          <FieldRow label={tf('overridePrinter')}>
             <select
               className="select"
               value={orderPrinterId}
               onChange={(e) => setOrderPrinterId(e.target.value)}
             >
-              <option value="">Routing-Kette verwenden (Standard)</option>
+              <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? '● ' : '○ '}{p.name}
@@ -286,13 +288,13 @@ export function OrderFlowTab() {
             </select>
           </FieldRow>
 
-          <FieldRow label="Standard-Vorlage (leer = eingebaut)">
+          <FieldRow label={tf('defaultTemplate')}>
             <select
               className="select"
               value={orderTemplateId}
               onChange={(e) => setOrderTemplateId(e.target.value)}
             >
-              <option value="">Eingebaute Vorlage verwenden</option>
+              <option value="">{tf('useBuiltInTemplate')}</option>
               {orderTemplates.map((tmpl) => (
                 <option key={tmpl.id} value={tmpl.id}>{tmpl.name}</option>
               ))}
@@ -306,7 +308,7 @@ export function OrderFlowTab() {
               onClick={() => orderMutation.mutate()}
               disabled={orderMutation.isPending}
             >
-              Speichern
+              {t('common.save')}
             </button>
           </div>
         </div>
@@ -318,37 +320,37 @@ export function OrderFlowTab() {
       <section className="app-card">
         <div className="app-card__head">
           <div style={{ flex: 1 }}>
-            <h2 className="app-card__title">Kassenbon</h2>
-            <p className="app-card__sub">Bon, der nach einer Zahlung oder einem Bestellungsabschluss gedruckt wird.</p>
+            <h2 className="app-card__title">{tf('receipt.title')}</h2>
+            <p className="app-card__sub">{tf('receipt.description')}</p>
           </div>
-          <ToggleSwitch checked={receiptEnabled} onChange={setReceiptEnabled} aria-label="Kassenbon" />
+          <ToggleSwitch checked={receiptEnabled} onChange={setReceiptEnabled} aria-label={tf('receipt.title')} />
         </div>
         <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!receiptEnabled && (
-            <WarningBanner text="Diese Bons werden nicht automatisch gedruckt." />
+            <WarningBanner text={tf('notPrintedWarning')} />
           )}
 
           {receiptEnabled && (
-            <FieldRow label="Auslöser">
+            <FieldRow label={tf('receipt.trigger')}>
               <select
                 className="select"
                 value={receiptTrigger}
                 onChange={(e) => setReceiptTrigger(e.target.value as ReceiptTrigger)}
               >
-                <option value="payment_received">Bei Zahlung</option>
-                <option value="order_completed">Bei Bestellungsabschluss</option>
-                <option value="manual">Manuell</option>
+                <option value="payment_received">{tf('receipt.triggers.payment_received')}</option>
+                <option value="order_completed">{tf('receipt.triggers.order_completed')}</option>
+                <option value="manual">{tf('receipt.triggers.manual')}</option>
               </select>
             </FieldRow>
           )}
 
-          <FieldRow label="Override-Drucker (optional, sonst Routing-Kette)">
+          <FieldRow label={tf('overridePrinter')}>
             <select
               className="select"
               value={receiptPrinterId}
               onChange={(e) => setReceiptPrinterId(e.target.value)}
             >
-              <option value="">Routing-Kette verwenden (Standard)</option>
+              <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? '● ' : '○ '}{p.name}
@@ -357,13 +359,13 @@ export function OrderFlowTab() {
             </select>
           </FieldRow>
 
-          <FieldRow label="Standard-Vorlage (leer = eingebaut)">
+          <FieldRow label={tf('defaultTemplate')}>
             <select
               className="select"
               value={receiptTemplateId}
               onChange={(e) => setReceiptTemplateId(e.target.value)}
             >
-              <option value="">Eingebaute Vorlage verwenden</option>
+              <option value="">{tf('useBuiltInTemplate')}</option>
               {receiptTemplates.map((tmpl) => (
                 <option key={tmpl.id} value={tmpl.id}>{tmpl.name}</option>
               ))}
@@ -377,7 +379,7 @@ export function OrderFlowTab() {
               onClick={() => receiptMutation.mutate()}
               disabled={receiptMutation.isPending}
             >
-              Speichern
+              {t('common.save')}
             </button>
           </div>
         </div>

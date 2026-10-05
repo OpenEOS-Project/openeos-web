@@ -83,7 +83,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+      setError(err instanceof Error ? err.message : tCommon('error'));
     }
   };
 
@@ -176,7 +176,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                       setHasPinOverride(false);
                       setPinFlash(t('pin.removeSuccess'));
                     } catch (err) {
-                      setPinError(err instanceof Error ? err.message : 'Error');
+                      setPinError(err instanceof Error ? err.message : tCommon('error'));
                     }
                   }}
                   disabled={removeMemberPin.isPending}
@@ -220,7 +220,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                       setHasPinOverride(true);
                       setPinFlash(t('pin.set'));
                     } catch (err) {
-                      setPinError(err instanceof Error ? err.message : 'Error');
+                      setPinError(err instanceof Error ? err.message : tCommon('error'));
                     }
                   }}
                   disabled={setMemberPin.isPending || !pinInput}

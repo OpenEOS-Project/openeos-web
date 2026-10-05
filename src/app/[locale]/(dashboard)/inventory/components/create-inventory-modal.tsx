@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import {
   useCreateInventoryCount,
@@ -19,13 +19,6 @@ interface CreateInventoryModalProps {
   onCreated: (count: InventoryCount) => void;
 }
 
-function getTodayName() {
-  const now = new Date();
-  const dd = String(now.getDate()).padStart(2, '0');
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const yyyy = now.getFullYear();
-  return `Tagesabschluss ${dd}.${mm}.${yyyy}`;
-}
 
 export function CreateInventoryModal({
   isOpen,
@@ -35,8 +28,15 @@ export function CreateInventoryModal({
 }: CreateInventoryModalProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
 
-  const [name, setName] = useState(getTodayName());
+  // Vorschlag fuer den Namen: "Tagesabschluss 06.10.2026" in der UI-Sprache.
+  const getTodayName = () =>
+    t('form.defaultName', {
+      date: new Date().toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    });
+
+  const [name, setName] = useState(getTodayName);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

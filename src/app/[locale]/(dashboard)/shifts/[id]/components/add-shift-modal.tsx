@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,13 +10,15 @@ import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
-const schema = z.object({
-  date: z.string().min(1, 'Datum ist erforderlich'),
-  startTime: z.string().min(1, 'Startzeit ist erforderlich'),
-  endTime: z.string().min(1, 'Endzeit ist erforderlich'),
-});
+function createShiftSchema(t: (key: string) => string) {
+  return z.object({
+    date: z.string().min(1, t('dateRequired')),
+    startTime: z.string().min(1, t('startTimeRequired')),
+    endTime: z.string().min(1, t('endTimeRequired')),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createShiftSchema>>;
 
 interface AddShiftModalProps {
   open: boolean;
@@ -27,6 +29,8 @@ interface AddShiftModalProps {
 
 export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalProps) {
   const t = useTranslations();
+  const tValidation = useTranslations('shifts.validation');
+  const schema = useMemo(() => createShiftSchema(tValidation), [tValidation]);
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -61,7 +65,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
       reset();
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
+    onError: (err: Error) => setError(err.message || t('common.error')),
   });
 
   const onSubmit = (data: FormData) => { if (!jobId) return; setError(null); createMutation.mutate(data); };
@@ -99,7 +103,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
               {isOvernight && (
                 <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>🌙</span>
-                  <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
+                  <span>{t('shifts.shiftForm.overnightHint')}</span>
                 </div>
               )}
 
@@ -129,7 +133,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
               </div>
 
               <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                Die Anzahl der Helfer wird auf Arbeit-Ebene festgelegt — neue Schichten übernehmen diesen Wert automatisch.
+                {t('shifts.shiftForm.workersFromJobHint')}
               </p>
             </div>
           </div>

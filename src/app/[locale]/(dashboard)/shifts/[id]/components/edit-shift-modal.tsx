@@ -68,7 +68,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Schicht bearbeiten</div>
+          <div className="modal__title">{t('shifts.shiftForm.editTitle')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
 
@@ -79,34 +79,34 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
             )}
 
             <div className="auth-field">
-              <label className="auth-field__label">Datum *</label>
+              <label className="auth-field__label">{t('shifts.editor.shiftDate')} *</label>
               <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
 
             {isOvernight && (
               <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>🌙</span>
-                <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
+                <span>{t('shifts.shiftForm.overnightHint')}</span>
               </div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
-                <label className="auth-field__label">Startzeit *</label>
+                <label className="auth-field__label">{t('shifts.shiftForm.startTime')} *</label>
                 <input className="input" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">Endzeit *</label>
+                <label className="auth-field__label">{t('shifts.shiftForm.endTime')} *</label>
                 <input className="input" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
               </div>
             </div>
 
             <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-              Die Anzahl der Helfer wird auf Arbeit-Ebene festgelegt — alle Schichten dieser Arbeit teilen sich diesen Wert.
+              {t('shifts.shiftForm.workersSharedHint')}
             </p>
 
             <div className="auth-field">
-              <label className="auth-field__label">Interne Notizen</label>
+              <label className="auth-field__label">{t('shifts.shiftForm.internalNotes')}</label>
               <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
           </div>
@@ -120,7 +120,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
             disabled={!canSubmit || mutation.isPending}
             onClick={() => { setError(null); mutation.mutate(); }}
           >
-            {mutation.isPending ? t('common.saving') : 'Speichern'}
+            {mutation.isPending ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </div>

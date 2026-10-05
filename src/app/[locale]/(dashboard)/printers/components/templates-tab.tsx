@@ -8,11 +8,7 @@ import type { PrintTemplate, PrintTemplateType } from '@/types/print-template';
 import { InlineTemplateDesigner } from './inline-template-designer';
 import { ListLoading } from '@/components/shared/list-states';
 
-const TEMPLATE_TYPES: { id: PrintTemplateType; defaultName: string }[] = [
-  { id: 'receipt', defaultName: 'Kassenbon' },
-  { id: 'kitchen_ticket', defaultName: 'Küchenbon' },
-  { id: 'order_ticket', defaultName: 'Bestellbon' },
-];
+const TEMPLATE_TYPES: PrintTemplateType[] = ['receipt', 'kitchen_ticket', 'order_ticket'];
 
 export function TemplatesTab() {
   const t = useTranslations('printTemplates');
@@ -38,7 +34,7 @@ export function TemplatesTab() {
     <div>
       {/* Type tab bar */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {TEMPLATE_TYPES.map(({ id }) => (
+        {TEMPLATE_TYPES.map((id) => (
           <button
             key={id}
             type="button"
@@ -56,14 +52,14 @@ export function TemplatesTab() {
         ))}
       </div>
 
-      {TEMPLATE_TYPES.map(({ id, defaultName }) => (
+      {TEMPLATE_TYPES.map((id) => (
         activeType === id && (
           <InlineTemplateDesigner
             key={id}
             organizationId={organizationId}
             templateType={id}
             existingTemplate={templatesByType[id] || null}
-            defaultName={defaultName}
+            defaultName={t(`types.${id}`)}
           />
         )
       ))}

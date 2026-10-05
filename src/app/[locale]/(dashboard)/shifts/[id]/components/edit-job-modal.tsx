@@ -60,7 +60,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Arbeit bearbeiten</div>
+          <div className="modal__title">{t('shifts.jobForm.editTitle')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
 
@@ -71,17 +71,17 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
             )}
 
             <div className="auth-field">
-              <label className="auth-field__label">Name *</label>
+              <label className="auth-field__label">{t('shifts.form.name')} *</label>
               <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
             </div>
 
             <div className="auth-field">
-              <label className="auth-field__label">Beschreibung</label>
+              <label className="auth-field__label">{t('shifts.form.description')}</label>
               <textarea className="textarea" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
 
             <div className="auth-field">
-              <label className="auth-field__label">Helfer pro Schicht *</label>
+              <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} *</label>
               <input
                 className="input"
                 type="number"
@@ -91,7 +91,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
                 onChange={(e) => setRequiredWorkers(parseInt(e.target.value) || 1)}
               />
               <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
-                Wirkt sich auf neu erstellte Schichten aus. Bestehende Schichten behalten ihren Wert — diese können pro Schicht bearbeitet werden.
+                {t('shifts.jobForm.workersEditHint')}
               </p>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
             disabled={!canSubmit || mutation.isPending}
             onClick={() => { setError(null); mutation.mutate(); }}
           >
-            {mutation.isPending ? t('common.saving') : 'Speichern'}
+            {mutation.isPending ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Mail01, CheckCircle } from '@untitledui/icons';
 
@@ -15,6 +16,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
  */
 export default function HelperManageRequestPage() {
   const { slug } = useParams() as { slug: string };
+  const t = useTranslations('shifts.manageRequest');
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -23,7 +25,7 @@ export default function HelperManageRequestPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Bitte gib eine gültige E-Mail-Adresse ein.');
+      setError(t('invalidEmail'));
       return;
     }
     setError(null);
@@ -32,7 +34,7 @@ export default function HelperManageRequestPage() {
       await shiftsPublicApi.requestHelperMagicLink(slug, email);
       setSent(true);
     } catch (err) {
-      setError((err as Error).message || 'Anfrage fehlgeschlagen.');
+      setError((err as Error).message || t('requestFailed'));
     } finally {
       setPending(false);
     }
@@ -47,20 +49,20 @@ export default function HelperManageRequestPage() {
 
         {!sent ? (
           <>
-            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0, textAlign: 'center' }}>Meine Schichten verwalten</h1>
+            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0, textAlign: 'center' }}>{t('title')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
-              Gib die E-Mail-Adresse ein, mit der du dich angemeldet hast. Wir schicken dir einen Link, mit dem du deine Schichten ansehen und anpassen kannst.
+              {t('description')}
             </p>
 
             <form onSubmit={submit} style={{ marginTop: 20 }}>
               <div className="auth-field">
-                <label className="auth-field__label">E-Mail *</label>
+                <label className="auth-field__label">{t('email')} *</label>
                 <input
                   type="email"
                   className="input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="max@example.com"
+                  placeholder={t('emailPlaceholder')}
                   autoFocus
                 />
               </div>
@@ -76,19 +78,19 @@ export default function HelperManageRequestPage() {
                 disabled={pending}
               >
                 <Mail01 style={{ width: 16, height: 16 }} />
-                <span>{pending ? '...' : 'Link senden'}</span>
+                <span>{pending ? '…' : t('sendLink')}</span>
               </button>
             </form>
           </>
         ) : (
           <div style={{ textAlign: 'center' }}>
             <CheckCircle style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
-            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>E-Mail versendet</h1>
+            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('sentTitle')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>
-              Falls es eine Anmeldung mit dieser E-Mail-Adresse gibt, ist der Link unterwegs. Schau auch im Spam-Ordner nach.
+              {t('sentDescription')}
             </p>
             <a href={`/s/${slug}`} className="btn btn--ghost" style={{ marginTop: 20, display: 'inline-block' }}>
-              Zurück zum Schichtplan
+              {t('backToPlan')}
             </a>
           </div>
         )}

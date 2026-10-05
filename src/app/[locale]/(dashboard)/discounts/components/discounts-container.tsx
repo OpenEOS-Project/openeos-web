@@ -41,8 +41,8 @@ export function DiscountsContainer() {
   if (!organizationId) {
     return (
       <ListEmpty
-        title="Keine Organisation ausgewählt"
-        description="Bitte wählen Sie zuerst eine Organisation aus."
+        title={tCommon('noOrganization.title')}
+        description={tCommon('noOrganization.description')}
       />
     );
   }

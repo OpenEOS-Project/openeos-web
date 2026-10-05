@@ -94,7 +94,7 @@ export function CategoriesList({
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{category.name}</div>
                       {category.parentId && (
-                        <div style={{ fontSize: 11, color: 'var(--ink)', opacity: 0.5 }}>Unterkategorie</div>
+                        <div style={{ fontSize: 11, color: 'var(--ink)', opacity: 0.5 }}>{t('list.subcategory')}</div>
                       )}
                       {category.productionStationId && (() => {
                         const station = productionStations?.find((s) => s.id === category.productionStationId);

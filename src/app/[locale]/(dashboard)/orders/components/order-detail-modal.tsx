@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { formatCurrency, formatDateTime } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import {
   getOrderChannel,
@@ -41,6 +41,7 @@ interface OrderDetailModalProps {
 
 export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailModalProps) {
   const t = useTranslations();
+  const { formatCurrency, formatDateTime } = useLocaleFormat();
 
   if (!order) return null;
 
@@ -131,6 +132,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 }
 
 function ItemRow({ item, refillLabel }: { item: OrderItem; refillLabel: string }) {
+  const { formatCurrency } = useLocaleFormat();
   const options = item.options?.selected ?? [];
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 14 }}>

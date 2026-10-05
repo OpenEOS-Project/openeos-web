@@ -9,7 +9,7 @@ import { productKeys } from '@/hooks/use-products';
 import { categoryKeys } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { ProductImportResult, ProductImportRow } from '@/types/product';
 
 interface ProductImportModalProps {
@@ -20,11 +20,11 @@ interface ProductImportModalProps {
 
 const TEMPLATE_BOM = '﻿';
 const TEMPLATE_HEADER = 'category,name,description,price,pfand,icon,ingredients,choices,extras,available';
-const TEMPLATE_ROWS = [
-  'Essen,Pommes Frites,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,',
-  'Getränke,Cola 0.33 L,,2.80,2.00,cola,,Sorte: Normal | Zero,,',
-];
-const TEMPLATE_CSV = TEMPLATE_BOM + TEMPLATE_HEADER + '\r\n' + TEMPLATE_ROWS.join('\r\n') + '\r\n';
+
+/** Spaltennamen bleiben fest (der Import liest sie), die Beispielzeilen folgen der Sprache. */
+function buildTemplateCsv(rows: string[]): string {
+  return TEMPLATE_BOM + TEMPLATE_HEADER + '\r\n' + rows.join('\r\n') + '\r\n';
+}
 
 type ImportMode = 'skip' | 'update' | 'create';
 
@@ -51,6 +51,7 @@ function actionBadgeStyle(action: ProductImportRow['action']): React.CSSProperti
 
 export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportModalProps) {
   const t = useTranslations('products.import');
+  const { formatCurrency } = useLocaleFormat();
   const tCommon = useTranslations('common');
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,11 +116,12 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
   };
 
   const handleDownloadTemplate = () => {
-    const blob = new Blob([TEMPLATE_CSV], { type: 'text/csv;charset=utf-8' });
+    const csv = buildTemplateCsv([t('template.sampleFood'), t('template.sampleDrink')]);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'produkt-vorlage.csv';
+    a.download = t('template.filename');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
