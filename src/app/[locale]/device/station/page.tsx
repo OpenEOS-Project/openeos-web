@@ -7,7 +7,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
 import { useDisplayAppearance } from '@/hooks/use-display-appearance';
-import { CheckCircle as CheckCircleIcon } from '@untitledui/icons';
+import { AlertCircle, CheckCircle as CheckCircleIcon } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
 import { StationHeader } from './components/station-header';
 import { StationOrderCard } from './components/station-order-card';
@@ -41,6 +41,7 @@ interface StationOrder {
 
 export default function DeviceStationPage() {
   const t = useTranslations('device.station');
+  const tUi = useTranslations('deviceUi.station');
   const router = useRouter();
   const queryClient = useQueryClient();
   const hasHydrated = useDeviceHydration();
@@ -106,7 +107,7 @@ export default function DeviceStationPage() {
   });
 
   // Fetch station items
-  const { data: stationData, isLoading } = useQuery({
+  const { data: stationData, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['station-items'],
     queryFn: () => deviceApi.getStationItems(),
     enabled: hasHydrated && status === 'verified' && !!stationId,
@@ -152,6 +153,8 @@ export default function DeviceStationPage() {
         <StationHeader
           stationName={deviceName || t('title')}
           isConnected={isConnected}
+          logoUrl={design.logoUrl}
+          showLogo={design.showLogo}
         />
         <div className="flex flex-1 items-center justify-center p-8">
           <p className="text-center text-lg text-tertiary">{t('noStation')}</p>
@@ -173,6 +176,8 @@ export default function DeviceStationPage() {
         organizationName={orgData?.data?.name}
         orderCount={orders.length}
         itemCount={totalItems}
+        logoUrl={design.logoUrl}
+        showLogo={design.showLogo}
       />
 
       <div className="flex-1 overflow-hidden p-4">
@@ -180,7 +185,30 @@ export default function DeviceStationPage() {
           <div className="flex h-full items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <div className="size-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              <span className="text-sm text-tertiary">Laden...</span>
+              <span className="text-sm text-tertiary">{tUi('loading')}</span>
+            </div>
+          </div>
+        ) : isError && orders.length === 0 ? (
+          /* Ohne diesen Zweig zeigte ein Fehler beim Laden dieselbe Flaeche
+             wie "keine Bestellungen" — samt "Verbunden". Eine Kueche haette
+             dann auf Bons gewartet, die nie erscheinen. */
+          <div className="flex h-full items-center justify-center">
+            <div className="flex max-w-md flex-col items-center gap-4 text-center" role="alert">
+              <div className="flex size-20 items-center justify-center rounded-full bg-error-secondary">
+                <AlertCircle className="size-10 text-error-primary" />
+              </div>
+              <div>
+                <p className="text-xl font-semibold text-primary">{tUi('loadError')}</p>
+                <p className="mt-1 text-sm text-tertiary">{tUi('loadErrorHint')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                disabled={isFetching}
+                className="min-h-11 rounded-lg border border-secondary bg-primary px-4 text-sm font-semibold text-primary disabled:opacity-60"
+              >
+                {isFetching ? tUi('loading') : tUi('retry')}
+              </button>
             </div>
           </div>
         ) : orders.length === 0 ? (
@@ -193,7 +221,10 @@ export default function DeviceStationPage() {
                 <p className="text-xl font-semibold text-primary">
                   {design.idleText || t('noOrders')}
                 </p>
-                <p className="mt-1 text-sm text-tertiary">{t('connected')}</p>
+                {/* Der echte Zustand der Verbindung statt fest "Verbunden". */}
+                <p className={`mt-1 text-sm ${isConnected ? 'text-tertiary' : 'text-error-primary'}`}>
+                  {isConnected ? t('connected') : tUi('reconnecting')}
+                </p>
               </div>
             </div>
           </div>
@@ -202,7 +233,7 @@ export default function DeviceStationPage() {
             {/* Left: Bedienungen (Table Service) */}
             <div className="flex flex-col overflow-hidden rounded-xl border border-secondary bg-primary">
               <div className="flex items-center gap-2 border-b border-secondary bg-blue-light-50 px-4 py-3 dark:bg-blue-light-950">
-                <span className="text-sm font-semibold text-blue-light-700 dark:text-blue-light-400">Bedienungen</span>
+                <span className="text-sm font-semibold text-blue-light-700 dark:text-blue-light-400">{tUi('serviceColumn')}</span>
                 <span className="inline-flex items-center rounded-full bg-blue-light-100 px-2 py-0.5 text-xs font-medium text-blue-light-700 dark:bg-blue-light-900 dark:text-blue-light-400">
                   {serviceOrders.length}
                 </span>
@@ -210,7 +241,7 @@ export default function DeviceStationPage() {
               <div className="flex-1 overflow-auto p-3">
                 {serviceOrders.length === 0 ? (
                   <div className="flex h-full items-center justify-center">
-                    <p className="text-sm text-tertiary">Keine offenen Bestellungen</p>
+                    <p className="text-sm text-tertiary">{t('noOrders')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
@@ -233,7 +264,7 @@ export default function DeviceStationPage() {
             {/* Right: Kunden (Counter Pickup) */}
             <div className="flex flex-col overflow-hidden rounded-xl border border-secondary bg-primary">
               <div className="flex items-center gap-2 border-b border-secondary bg-success-50 px-4 py-3 dark:bg-success-950">
-                <span className="text-sm font-semibold text-success-700 dark:text-success-400">Kunden</span>
+                <span className="text-sm font-semibold text-success-700 dark:text-success-400">{tUi('pickupColumn')}</span>
                 <span className="inline-flex items-center rounded-full bg-success-100 px-2 py-0.5 text-xs font-medium text-success-700 dark:bg-success-900 dark:text-success-400">
                   {pickupOrders.length}
                 </span>
@@ -241,7 +272,7 @@ export default function DeviceStationPage() {
               <div className="flex-1 overflow-auto p-3">
                 {pickupOrders.length === 0 ? (
                   <div className="flex h-full items-center justify-center">
-                    <p className="text-sm text-tertiary">Keine offenen Bestellungen</p>
+                    <p className="text-sm text-tertiary">{t('noOrders')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
