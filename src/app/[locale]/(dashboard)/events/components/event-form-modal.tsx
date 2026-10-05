@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { useEventPricePreview } from '@/hooks/use-event-price-preview';
 import { useDeployment } from '@/components/providers/setup-provider';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { shopUrlForEvent } from '@/lib/shop-url';
 import { getShopUrl } from '@/lib/runtime-config';
 import {
@@ -29,8 +29,6 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
 import { ApiException } from '@/types/api';
 import { SettingToggle } from '@/components/shared/setting-toggle';
-
-const DAY_FORMAT = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
 // ausserhalb der Komponente gibt es noch kein t().
@@ -74,6 +72,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const tValidation = useTranslations('validation');
   const validationSchema = useMemo(() => createEventSchema(tValidation), [tValidation]);
   const tErrors = useTranslations('errors');
+  const locale = useLocale();
+  const { formatCurrency } = useLocaleFormat();
+  const dayFormat = useMemo(
+    () => new Intl.DateTimeFormat(locale, { weekday: 'short', day: '2-digit', month: '2-digit' }),
+    [locale],
+  );
   const isEditing = !!event;
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -328,8 +332,8 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 const shopUrl = event ? shopUrlForEvent(event.id) : getShopUrl();
                 return (
                   <SettingToggle
-                    label="Online-Shop aktivieren"
-                    hint="Kunden können Artikel des Events online bestellen und per Karte bezahlen."
+                    label={t('form.shop.enable')}
+                    hint={t('form.shop.enableHint')}
                     checked={!!value}
                     onChange={onChange}
                   >
@@ -358,19 +362,19 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                             navigator.clipboard?.writeText(shopUrl);
                           }}
                         >
-                          Link kopieren
+                          {t('form.shop.copyLink')}
                         </button>
                       </div>
                     )}
 
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
-                        Öffnungszeiten
+                        {t('form.shop.openingHours')}
                       </div>
 
                         {shopDays.length === 0 ? (
                           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-                            Bitte zuerst den Zeitraum der Veranstaltung eintragen.
+                            {t('form.shop.periodFirst')}
                           </p>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -385,13 +389,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                                 }}
                               >
                                 <span style={{ fontSize: 13, color: 'var(--ink)' }}>
-                                  {DAY_FORMAT.format(parseDayKey(row.date))}
+                                  {dayFormat.format(parseDayKey(row.date))}
                                 </span>
                                 <input
                                   type="checkbox"
                                   checked={row.open}
                                   onChange={(e) => updateDay(row.date, { open: e.target.checked })}
-                                  aria-label={`${DAY_FORMAT.format(parseDayKey(row.date))} geöffnet`}
+                                  aria-label={t('form.shop.dayOpen', { day: dayFormat.format(parseDayKey(row.date)) })}
                                   style={{ width: 16, height: 16, accentColor: 'var(--green-ink)', cursor: 'pointer' }}
                                 />
                                 <input
@@ -414,7 +418,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                                     wie ein Zahlendreher statt wie eine Nacht. */}
                                 <span
                                   style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}
-                                  title="Endet am Folgetag"
+                                  title={t('form.shop.endsNextDay')}
                                 >
                                   {row.open && isOvernight(row) ? '+1' : ''}
                                 </span>
@@ -424,15 +428,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         )}
 
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
-                          Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet
-                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig
-                          von den Öffnungszeiten erreichbar.
+                          {t('form.shop.openingHoursHint')}
                         </p>
                     </div>
 
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>
-                        Servicegebühr
+                        {t('form.shop.serviceFee')}
                       </div>
                         <Controller
                           name="shopServiceFee"
@@ -451,13 +453,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                                 style={{ flex: 1, fontFamily: 'var(--oe-f-mono)' }}
                               />
                               <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                                EUR pro Bestellung
+                                {t('form.shop.serviceFeeUnit')}
                               </span>
                             </div>
                           )}
                         />
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 6, marginBottom: 0 }}>
-                        Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr.
+                        {t('form.shop.serviceFeeHint')}
                       </p>
                     </div>
                   </SettingToggle>

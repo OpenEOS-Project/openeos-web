@@ -7,10 +7,11 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useSendSupportMessage, useSupportThread } from '@/hooks/use-support';
 import { toast } from '@/components/shared/toast';
 import { ListEmpty, ListLoading } from '@/components/shared/list-states';
-import { formatChatTimestamp } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 export function SupportChat() {
   const t = useTranslations('support');
+  const { formatChatTimestamp } = useLocaleFormat();
   const tCommon = useTranslations('common');
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -38,8 +39,8 @@ export function SupportChat() {
   if (!organizationId) {
     return (
       <ListEmpty
-        title="Keine Organisation ausgewählt"
-        description="Bitte wählen Sie zuerst eine Organisation aus."
+        title={tCommon('noOrganization.title')}
+        description={tCommon('noOrganization.description')}
       />
     );
   }

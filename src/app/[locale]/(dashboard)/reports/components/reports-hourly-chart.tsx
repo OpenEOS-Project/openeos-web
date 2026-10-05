@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -13,8 +13,9 @@ import {
 } from 'recharts';
 
 import type { HourlyReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
+import { formatReportDay } from './report-labels';
 
 interface ReportsHourlyChartProps {
   data: HourlyReport[] | undefined;
@@ -34,6 +35,7 @@ interface CustomTooltipProps {
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   const t = useTranslations('reports');
+  const { formatCurrency } = useLocaleFormat();
   if (!active || !payload || !payload.length) return null;
   const entry = payload[0].payload;
   return (
@@ -48,7 +50,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
       }}
     >
-      <div style={{ fontWeight: 700, marginBottom: 6 }}>{`${label}:00 Uhr`}</div>
+      <div style={{ fontWeight: 700, marginBottom: 6 }}>{t('hourly.tooltipHour', { hour: String(label ?? '') })}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span>{t('hourly.tooltipRevenue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
         <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
@@ -57,20 +59,9 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-function formatDayLabel(date: string): string {
-  // date = 'YYYY-MM-DD' (bereits lokale Zeit vom Server) — ohne TZ-Verschiebung parsen
-  const [y, m, d] = date.split('-').map(Number);
-  if (!y || !m || !d) return date;
-  return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps) {
   const t = useTranslations('reports');
+  const locale = useLocale();
 
   // Nach Tag gruppieren; je Tag alle 24 Stunden auffüllen. Bei mehrtägigen
   // Veranstaltungen entsteht so ein eigenes Diagramm pro Tag.
@@ -104,7 +95,7 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
     const rows = days.flatMap((day) =>
       day.rows.map((r) => [day.date, `${r.hour}:00`, r.orders, r.revenue]),
     );
-    downloadCsv('stundenverlauf.csv', headers, rows);
+    downloadCsv(t('export.filenames.hourly'), headers, rows);
   };
 
   const renderChart = (rows: HourlyReport[]) => (
@@ -119,7 +110,11 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
           tickLine={false}
         />
         <YAxis
-          tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v))}
+          tickFormatter={(v: number) =>
+            v >= 1000
+              ? `${(v / 1000).toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}k`
+              : v.toLocaleString(locale)
+          }
           tick={{ fontSize: 11, fill: 'var(--ink)', opacity: 0.5 }}
           axisLine={false}
           tickLine={false}
@@ -161,7 +156,7 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
             <div key={day.date}>
               {isMultiDay && (
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 4 }}>
-                  {formatDayLabel(day.date)}
+                  {formatReportDay(day.date, locale)}
                 </div>
               )}
               {renderChart(day.rows)}

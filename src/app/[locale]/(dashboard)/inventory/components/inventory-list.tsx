@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useInventoryCounts, useDeleteInventoryCount } from '@/hooks/use-inventory';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
@@ -29,8 +29,8 @@ function StatusBadge({ status }: { status: InventoryCountStatus }) {
   );
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('de-DE', {
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -45,6 +45,7 @@ function formatUserName(user?: { firstName?: string; lastName?: string } | null)
 export function InventoryList({ eventId, onCreateClick, onSelectCount }: InventoryListProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
 
   const { data: counts, isLoading, error } = useInventoryCounts(eventId);
   const deleteCount = useDeleteInventoryCount(eventId);
@@ -131,7 +132,7 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
                   <StatusBadge status={count.status} />
                 </td>
                 <td style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
-                  {formatDate(count.createdAt)}
+                  {formatDate(count.createdAt, locale)}
                 </td>
                 <td className="text-right" style={{ fontSize: 13 }}>
                   {count.items ? count.items.length : '–'}

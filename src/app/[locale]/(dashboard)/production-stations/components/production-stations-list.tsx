@@ -108,7 +108,7 @@ export function ProductionStationsList({
                 </td>
                 <td>
                   <span className={station.isActive ? 'badge badge--success' : 'badge badge--neutral'}>
-                    {station.isActive ? t('form.active') : 'Inaktiv'}
+                    {station.isActive ? t('form.active') : t('list.inactive')}
                   </span>
                 </td>
                 <td className="text-right">

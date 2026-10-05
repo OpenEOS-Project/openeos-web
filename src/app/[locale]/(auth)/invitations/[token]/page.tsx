@@ -1,10 +1,8 @@
-import type { Metadata } from 'next';
+import { pageTitle } from '@/lib/page-title';
 
 import { InvitationView } from './invitation-view';
 
-export const metadata: Metadata = {
-  title: 'Einladung',
-};
+export const generateMetadata = pageTitle('invitation');
 
 interface InvitationPageProps {
   params: Promise<{ token: string }>;

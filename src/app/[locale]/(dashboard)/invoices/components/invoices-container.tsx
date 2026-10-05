@@ -26,7 +26,6 @@ export function InvoicesContainer() {
   const t = useTranslations('invoices');
   const tErrors = useTranslations('errors');
   const locale = useLocale();
-  const currencyLocale = locale === 'de' ? 'de-DE' : 'en-US';
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -34,7 +33,7 @@ export function InvoicesContainer() {
   const { data: invoices, isLoading, isError, refetch } = useInvoices(organizationId);
   const [downloading, setDownloading] = useState<string | null>(null);
 
-  const dateFormat = new Intl.DateTimeFormat(currencyLocale, {
+  const dateFormat = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -112,7 +111,7 @@ export function InvoicesContainer() {
                 </td>
                 <td>{invoice.description ?? '–'}</td>
                 <td className="mono" style={{ textAlign: 'right' }}>
-                  {formatCurrency(invoice.total, currencyLocale)}
+                  {formatCurrency(invoice.total, locale)}
                 </td>
                 <td>
                   <span className={STATUS_BADGE[invoice.status] ?? 'badge'}>

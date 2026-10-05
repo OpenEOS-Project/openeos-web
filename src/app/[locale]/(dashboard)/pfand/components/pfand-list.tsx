@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { PfandType } from '@/types/pfand';
@@ -16,6 +17,7 @@ interface PfandListProps {
 
 export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEditClick, onDeleteClick }: PfandListProps) {
   const t = useTranslations('pfand');
+  const { formatCurrency } = useLocaleFormat();
 
   const { data: types, isLoading, error } = usePfandTypes(organizationId);
 
@@ -47,8 +49,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
     );
   }
 
-  const formatAmount = (amount: number) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(amount));
+  const formatAmount = (amount: number) => formatCurrency(Number(amount));
 
   return (
     <div className="app-card app-card--flat">

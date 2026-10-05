@@ -23,7 +23,11 @@
     "no": "No",
     "refresh": "Refresh",
     "toEvents": "Go to Events",
-    "details": "Details"
+    "details": "Details",
+    "noOrganization": {
+      "title": "No organization selected",
+      "description": "Please select an organization first."
+    }
   },
   "auth": {
     "login": {
@@ -127,7 +131,7 @@
           "label": "Organization",
           "title": "Your organization",
           "copy": "Club, promoter or business. Your events, products and tills run under this name.",
-          "name": "Organisation name"
+          "name": "Organization name"
         },
         "confirm": {
           "label": "Confirmation",
@@ -154,7 +158,8 @@
       },
       "resendCta": "Resend confirmation email",
       "resendSent": "Email has been resent.",
-      "successCopyLink": "We sent a login link to {email}. That is all you need — no password required."
+      "successCopyLink": "We sent a login link to {email}. That is all you need — no password required.",
+      "progress": "Progress"
     },
     "forgotPassword": {
       "title": "Forgot password",
@@ -167,7 +172,8 @@
       "successMessage": "If an account exists with this email, you will receive an email shortly with a link to reset your password.",
       "errors": {
         "invalidEmail": "Invalid email address"
-      }
+      },
+      "emailPlaceholder": "name@example.com"
     },
     "resetPassword": {
       "title": "Set new password",
@@ -210,6 +216,35 @@
     },
     "layout": {
       "rightsReserved": "All rights reserved."
+    },
+    "twoFactorVerify": {
+      "codeLength": "Code must be 6 characters",
+      "unknownBrowser": "Unknown browser",
+      "unknownOs": "unknown OS",
+      "deviceInfo": "{browser} on {os}",
+      "errors": {
+        "invalidSession": "Invalid session. Please sign in again.",
+        "invalidRecoveryCode": "Invalid recovery code",
+        "invalidCode": "Invalid verification code",
+        "resendFailed": "Could not resend the code"
+      },
+      "invalidSessionTitle": "Invalid session",
+      "invalidSessionMessage": "Your session has expired or is invalid. Please sign in again.",
+      "toLogin": "Go to login",
+      "title": "Two-factor authentication",
+      "subtitleRecovery": "Enter one of your recovery codes",
+      "subtitleEmail": "We have sent you a verification code by email",
+      "subtitleTotp": "Enter the code from your authenticator app",
+      "recoveryCode": "Recovery code",
+      "verificationCode": "Verification code",
+      "trustDevice": "Trust this device for 30 days",
+      "verifying": "Verifying...",
+      "verify": "Verify",
+      "resendCooldown": "Resend code ({seconds}s)",
+      "resend": "Resend code",
+      "useVerificationCode": "Sign in with verification code",
+      "useRecoveryCode": "Use a recovery code",
+      "backToLogin": "Back to login"
     }
   },
   "sidebar": {
@@ -248,7 +283,8 @@
       "empty": {
         "title": "No activity",
         "description": "No orders have been recorded yet. Start an event to begin accepting orders."
-      }
+      },
+      "itemCount": "{count, plural, one {# item} other {# items}}"
     },
     "superAdmin": {
       "stats": {
@@ -418,6 +454,12 @@
         "week": "last 7 days",
         "event": "event"
       }
+    },
+    "tile": {
+      "move": "Move {label}",
+      "size": "{label}: {width} by {height}",
+      "remove": "Remove {label}",
+      "resize": "Resize {label}"
     }
   },
   "navigation": {
@@ -469,7 +511,14 @@
       "deleteAvatar": "Remove image",
       "saveChanges": "Save changes",
       "saving": "Saving...",
-      "saved": "Profile updated successfully"
+      "saved": "Profile updated successfully",
+      "replaceAvatar": "Replace image",
+      "errors": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "uploadFailed": "Upload failed",
+        "removeFailed": "Could not remove the image"
+      }
     },
     "account": {
       "title": "Account",
@@ -485,7 +534,15 @@
       "confirmPassword": "Confirm password",
       "passwordChanged": "Password changed successfully",
       "sending": "Sending...",
-      "changing": "Changing..."
+      "changing": "Changing...",
+      "errors": {
+        "invalidEmail": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "currentPasswordRequired": "Current password is required",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Password confirmation is required",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "security": {
       "title": "Security",
@@ -529,7 +586,9 @@
         "sendEmailCode": "Send code by email",
         "emailCodeSent": "Code sent – send again",
         "noRecoveryCodes": "No recovery codes available.",
-        "disabledHint": "No second factor is requested at sign-in."
+        "disabledHint": "No second factor is requested at sign-in.",
+        "qrCodeAlt": "QR code for your authenticator app",
+        "codeLabel": "Code"
       },
       "trustedDevices": {
         "title": "Trusted Devices",
@@ -548,7 +607,9 @@
         "revokeAllConfirm": "Sign out all other sessions?",
         "revokeAllDescription": "You will be signed out on all other devices.",
         "unknownDevice": "Unknown device",
-        "deviceLabel": "{browser} on {os}"
+        "deviceLabel": "{browser} on {os}",
+        "unknownBrowser": "Unknown browser",
+        "unknownOs": "unknown OS"
       }
     },
     "preferences": {
@@ -608,7 +669,16 @@
       "phone": "Phone",
       "website": "Website",
       "saving": "Saving...",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "invalidUrl": "Please enter a valid URL (e.g. https://example.com)",
+      "placeholders": {
+        "address": "123 Main Street",
+        "zipCode": "12345",
+        "city": "Springfield",
+        "country": "Germany",
+        "phone": "+49 123 456789",
+        "website": "https://example.com"
+      }
     },
     "organizationBilling": {
       "title": "Billing Address",
@@ -1133,7 +1203,20 @@
       "priceSum": "Activating costs {price}",
       "priceCalc": "{days} days × {perDay} per day",
       "priceCalcDiscounted": "{days} days × {perDay} = {gross}, less {percent}% first-event discount",
-      "priceTestFree": "Trying it out is free — up to {max} orders in test mode."
+      "priceTestFree": "Trying it out is free — up to {max} orders in test mode.",
+      "shop": {
+        "enable": "Enable online shop",
+        "enableHint": "Customers can order the event's items online and pay by card.",
+        "copyLink": "Copy link",
+        "openingHours": "Opening hours",
+        "periodFirst": "Please enter the event period first.",
+        "dayOpen": "{day} open",
+        "endsNextDay": "Ends the next day",
+        "openingHoursHint": "An end time before the start time means the shop stays open past midnight. Days without a checkmark stay closed. In test mode the shop is reachable regardless of the opening hours.",
+        "serviceFee": "Service fee",
+        "serviceFeeUnit": "EUR per order",
+        "serviceFeeHint": "Added as a flat amount per order to the total in the online shop. Leave empty for no fee."
+      }
     },
     "status": {
       "active": "Active",
@@ -1146,7 +1229,8 @@
       "view": "View",
       "activate": "Activate",
       "deactivate": "Deactivate",
-      "testMode": "Test Mode"
+      "testMode": "Test Mode",
+      "openShop": "Open shop"
     },
     "deleteConfirm": {
       "title": "Delete Event",
@@ -1257,6 +1341,9 @@
     "reorder": {
       "handle": "Drag to reorder",
       "hint": "The order decides how categories appear at the till. Drag the handle to change it."
+    },
+    "list": {
+      "subcategory": "Subcategory"
     }
   },
   "products": {
@@ -1342,8 +1429,9 @@
         "standard": "{rate}% (standard)",
         "reduced": "{rate}% (reduced)",
         "zero": "0% (exempt)",
-        "exemptHint": "This organisation does not charge VAT. Change it in the organisation settings."
-      }
+        "exemptHint": "This organization does not charge VAT. Change it in the organization settings."
+      },
+      "defaultStockUnit": "pcs"
     },
     "status": {
       "active": "Active",
@@ -1427,7 +1515,12 @@
         "title": "Import successful",
         "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
       },
-      "networkError": "Import failed — the server could not be reached. Please try again."
+      "networkError": "Import failed — the server could not be reached. Please try again.",
+      "template": {
+        "sampleFood": "Food,French Fries,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
+        "sampleDrink": "Drinks,Cola 0.33 L,,2.80,2.00,cola,,Flavor: Regular | Zero,,",
+        "filename": "product-template.csv"
+      }
     },
     "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}"
   },
@@ -1466,7 +1559,10 @@
       "message": "Products and categories will lose their station assignment."
     },
     "selectEvent": "Select Event",
-    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}"
+    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}",
+    "list": {
+      "inactive": "Inactive"
+    }
   },
   "users": {
     "title": "Users",
@@ -1736,7 +1832,10 @@
       "setSuccess": "PIN set successfully",
       "removeSuccess": "PIN removed successfully"
     },
-    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}"
+    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}",
+    "list": {
+      "you": "(you)"
+    }
   },
   "organizations": {
     "title": "Organizations",
@@ -3162,13 +3261,21 @@
     "subtitle": "Revenue, orders and product analytics at a glance",
     "loading": "Loading…",
     "noOrg": {
-      "title": "No organisation selected",
-      "description": "Please select an organisation first."
+      "title": "No organization selected",
+      "description": "Please select an organization first."
     },
     "export": {
       "csv": "Export CSV",
       "pdf": "Export PDF",
-      "pdfPending": "Generating…"
+      "pdfPending": "Generating…",
+      "filenames": {
+        "products": "top-products.csv",
+        "devices": "revenue-by-device.csv",
+        "channels": "revenue-by-channel.csv",
+        "categories": "top-categories.csv",
+        "hourly": "hourly-breakdown.csv",
+        "payments": "payment-methods.csv"
+      }
     },
     "filter": {
       "event": "Event",
@@ -3257,6 +3364,50 @@
         "hour": "Hour",
         "orders": "Orders",
         "revenue": "Revenue"
+      },
+      "tooltipHour": "{hour}:00"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Card",
+      "sumupTerminal": "SumUp terminal",
+      "sumupOnline": "SumUp Online",
+      "voucher": "Voucher",
+      "online": "Online",
+      "free": "Free"
+    },
+    "channelLabels": {
+      "pos": "Till",
+      "online": "Online shop",
+      "qrOrder": "QR order"
+    },
+    "pdf": {
+      "hourlyTitle": "Hourly revenue",
+      "hourlyEmpty": "No revenue data for the selected period",
+      "kpi": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "avgReceipt": "Avg. receipt",
+        "pfand": "Deposit",
+        "cancellationRate": "Cancellation rate"
+      },
+      "period": {
+        "all": "All time",
+        "today": "Today ({date})",
+        "yesterday": "Yesterday ({date})",
+        "range": "{start} – {end}"
+      },
+      "generatedAt": "Generated on {date} · OpenEOS",
+      "page": "Page {page} / {total}",
+      "filename": {
+        "event": "openeos-report-{slug}.pdf",
+        "fallbackSlug": "report",
+        "today": "openeos-report-today-{date}.pdf",
+        "yesterday": "openeos-report-yesterday-{date}.pdf",
+        "all": "openeos-report-all-time.pdf",
+        "range": "openeos-report-{start}-to-{end}.pdf",
+        "openStart": "start",
+        "openEnd": "end"
       }
     }
   },
@@ -3268,8 +3419,8 @@
     "creating": "Creating…",
     "createError": "Failed to create inventory count. Please try again.",
     "noOrg": {
-      "title": "No organisation selected",
-      "description": "Please select an organisation first."
+      "title": "No organization selected",
+      "description": "Please select an organization first."
     },
     "noEvent": {
       "title": "No active event",
@@ -3308,7 +3459,8 @@
       "namePlaceholder": "e.g. End of day 01/01/2026",
       "notes": "Notes",
       "notesPlaceholder": "Optional notes for this stocktake",
-      "bulkAddHint": "{count} products with inventory tracking will be added automatically."
+      "bulkAddHint": "{count} products with inventory tracking will be added automatically.",
+      "defaultName": "End of day {date}"
     },
     "progress": {
       "of": "of",
@@ -3606,6 +3758,7 @@
     "magicLink": "Sign-in link",
     "verifyEmail": "Verify email",
     "twoFactor": "Two-factor sign-in",
-    "shifts": "Shift plans"
+    "shifts": "Shift plans",
+    "invitation": "Invitation"
   }
 }

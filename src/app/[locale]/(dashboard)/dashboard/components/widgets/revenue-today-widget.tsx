@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { ordersApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 
 export function RevenueTodayWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
 
 

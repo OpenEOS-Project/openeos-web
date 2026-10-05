@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 import type { ProductReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
 
 interface ReportsProductsTableProps {
@@ -14,6 +14,7 @@ interface ReportsProductsTableProps {
 
 export function ReportsProductsTable({ data, isLoading }: ReportsProductsTableProps) {
   const t = useTranslations('reports');
+  const { formatCurrency } = useLocaleFormat();
 
   const sorted = useMemo(() => {
     if (!data) return [];
@@ -36,7 +37,7 @@ export function ReportsProductsTable({ data, isLoading }: ReportsProductsTablePr
       p.revenue,
       p.averagePrice,
     ]);
-    downloadCsv('top-produkte.csv', headers, rows);
+    downloadCsv(t('export.filenames.products'), headers, rows);
   };
 
   return (

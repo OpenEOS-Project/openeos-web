@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,25 +9,33 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useRequestEmailChange, useChangePassword } from '@/hooks/use-user-settings';
 import { toast } from '@/components/shared/toast';
 
-const emailChangeSchema = z.object({
-  newEmail: z.string().email('Ungültige E-Mail-Adresse'),
-  password: z.string().min(1, 'Passwort ist erforderlich'),
-});
+// Factories, damit die Meldungen ueber next-intl uebersetzt werden (t = settings.account.errors).
+function createEmailChangeSchema(t: (key: string) => string) {
+  return z.object({
+    newEmail: z.string().email(t('invalidEmail')),
+    password: z.string().min(1, t('passwordRequired')),
+  });
+}
 
-const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(1, 'Aktuelles Passwort ist erforderlich'),
-  newPassword: z.string().min(8, 'Passwort muss mindestens 8 Zeichen haben'),
-  confirmPassword: z.string().min(1, 'Passwort-Bestätigung ist erforderlich'),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: 'Passwörter stimmen nicht überein',
-  path: ['confirmPassword'],
-});
+function createPasswordChangeSchema(t: (key: string) => string) {
+  return z.object({
+    currentPassword: z.string().min(1, t('currentPasswordRequired')),
+    newPassword: z.string().min(8, t('passwordTooShort')),
+    confirmPassword: z.string().min(1, t('confirmPasswordRequired')),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: t('passwordMismatch'),
+    path: ['confirmPassword'],
+  });
+}
 
-type EmailChangeFormData = z.infer<typeof emailChangeSchema>;
-type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>;
+type EmailChangeFormData = z.infer<ReturnType<typeof createEmailChangeSchema>>;
+type PasswordChangeFormData = z.infer<ReturnType<typeof createPasswordChangeSchema>>;
 
 export function AccountSection() {
   const t = useTranslations('settings.account');
+  const tErrors = useTranslations('settings.account.errors');
+  const emailChangeSchema = useMemo(() => createEmailChangeSchema(tErrors), [tErrors]);
+  const passwordChangeSchema = useMemo(() => createPasswordChangeSchema(tErrors), [tErrors]);
   const { user } = useAuthStore();
 
   const requestEmailChange = useRequestEmailChange();

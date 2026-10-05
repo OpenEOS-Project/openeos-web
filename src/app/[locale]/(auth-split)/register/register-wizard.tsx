@@ -228,7 +228,7 @@ export function RegisterWizard() {
         <p className="wizard__copy">{t(`steps.${step}.copy`)}</p>
       </div>
 
-      <div className="wizard__progress" aria-label="Fortschritt">
+      <div className="wizard__progress" aria-label={t('progress')}>
         {progress.map(({ key, label, idx }) => (
           <div
             key={key}

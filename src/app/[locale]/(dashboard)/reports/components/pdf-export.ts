@@ -12,6 +12,7 @@ import type {
 } from '@/types/report';
 import { formatCurrency, formatPercent } from '@/utils/format';
 import type { ReportsFilter } from './reports-filter-bar';
+import { formatReportDay, getChannelLabel, getMethodLabel, type ReportsT } from './report-labels';
 
 export interface PdfExportInput {
   organizationName?: string;
@@ -26,6 +27,12 @@ export interface PdfExportInput {
   devices?: DeviceReport[];
 }
 
+/** Sprache des Berichts: t = useTranslations('reports') und die UI-Sprache. */
+export interface PdfExportI18n {
+  t: ReportsT;
+  locale: string;
+}
+
 const PAGE_WIDTH = 210;
 const PAGE_HEIGHT = 297;
 const MARGIN = 15;
@@ -37,38 +44,11 @@ const GREEN_INK: [number, number, number] = [27, 94, 32];
 const GREEN_BAR: [number, number, number] = [46, 125, 50];
 const GREEN_ZEBRA: [number, number, number] = [240, 245, 241];
 
-const CHANNEL_LABELS: Record<string, string> = {
-  pos: 'Kasse',
-  online: 'Online-Shop',
-  qr_order: 'QR-Bestellung',
-};
-
-const METHOD_LABELS: Record<string, string> = {
-  cash: 'Bar',
-  card: 'Karte',
-  sumup_terminal: 'SumUp-Terminal',
-  sumup_online: 'SumUp Online',
-  paypal: 'PayPal',
-  google_pay: 'Google Pay',
-  apple_pay: 'Apple Pay',
-  voucher: 'Gutschein',
-  online: 'Online',
-  free: 'Kostenlos',
-};
-
-function getChannelLabel(channel: string): string {
-  return CHANNEL_LABELS[channel] ?? channel;
+function formatShortDate(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 }
 
-function getMethodLabel(method: string): string {
-  return METHOD_LABELS[method] ?? method;
-}
-
-function formatDateDe(date: Date): string {
-  return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-}
-
-function slugify(value: string): string {
+function slugify(value: string, fallback: string): string {
   const combiningDiacritics = new RegExp('[\\u0300-\\u036f]', 'g');
   const slug = value
     .normalize('NFKD')
@@ -76,47 +56,47 @@ function slugify(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-+|-+$)/g, '');
-  return slug || 'auswertung';
+  return slug || fallback;
 }
 
-function buildFilename(input: PdfExportInput): string {
+function buildFilename(input: PdfExportInput, { t }: PdfExportI18n): string {
   if (input.eventName) {
-    return `openeos-auswertung-${slugify(input.eventName)}.pdf`;
+    return t('pdf.filename.event', { slug: slugify(input.eventName, t('pdf.filename.fallbackSlug')) });
   }
   const { timeRange, startDate, endDate } = input.filter;
   if (timeRange === 'today') {
-    return `openeos-auswertung-heute-${new Date().toISOString().split('T')[0]}.pdf`;
+    return t('pdf.filename.today', { date: new Date().toISOString().split('T')[0] });
   }
   if (timeRange === 'yesterday') {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return `openeos-auswertung-gestern-${yesterday.toISOString().split('T')[0]}.pdf`;
+    return t('pdf.filename.yesterday', { date: yesterday.toISOString().split('T')[0] });
   }
   if (timeRange === 'all') {
-    return 'openeos-auswertung-gesamt.pdf';
+    return t('pdf.filename.all');
   }
-  const s = startDate ? startDate.split('T')[0] : 'start';
-  const e = endDate ? endDate.split('T')[0] : 'ende';
-  return `openeos-auswertung-${s}-bis-${e}.pdf`;
+  const s = startDate ? startDate.split('T')[0] : t('pdf.filename.openStart');
+  const e = endDate ? endDate.split('T')[0] : t('pdf.filename.openEnd');
+  return t('pdf.filename.range', { start: s, end: e });
 }
 
-function formatPeriodLabel(input: PdfExportInput): string {
+function formatPeriodLabel(input: PdfExportInput, { t, locale }: PdfExportI18n): string {
   const parts: string[] = [];
   if (input.eventName) parts.push(input.eventName);
 
   const { timeRange, startDate, endDate } = input.filter;
   if (timeRange === 'all') {
-    parts.push('Gesamter Zeitraum');
+    parts.push(t('pdf.period.all'));
   } else if (timeRange === 'today') {
-    parts.push(`Heute (${formatDateDe(new Date())})`);
+    parts.push(t('pdf.period.today', { date: formatShortDate(new Date(), locale) }));
   } else if (timeRange === 'yesterday') {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    parts.push(`Gestern (${formatDateDe(yesterday)})`);
+    parts.push(t('pdf.period.yesterday', { date: formatShortDate(yesterday, locale) }));
   } else if (startDate || endDate) {
-    const s = startDate ? formatDateDe(new Date(startDate)) : '…';
-    const e = endDate ? formatDateDe(new Date(endDate.split('T')[0])) : '…';
-    parts.push(`${s} – ${e}`);
+    const s = startDate ? formatShortDate(new Date(startDate), locale) : '…';
+    const e = endDate ? formatShortDate(new Date(endDate.split('T')[0]), locale) : '…';
+    parts.push(t('pdf.period.range', { start: s, end: e }));
   }
   return parts.join(' · ');
 }
@@ -145,7 +125,7 @@ function ensureSpace(doc: jsPDF, cursorY: number, needed: number): number {
   return cursorY;
 }
 
-async function drawHeader(doc: jsPDF, input: PdfExportInput): Promise<number> {
+async function drawHeader(doc: jsPDF, input: PdfExportInput, i18n: PdfExportI18n): Promise<number> {
   const cursorY = MARGIN;
   const logoDataUrl = await loadImageAsDataUrl('/logo_dark.png');
   const logoWidth = 42;
@@ -164,7 +144,7 @@ async function drawHeader(doc: jsPDF, input: PdfExportInput): Promise<number> {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(20, 20, 20);
-  doc.text('Auswertung', textX, cursorY + 8);
+  doc.text(i18n.t('title'), textX, cursorY + 8);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
@@ -174,7 +154,7 @@ async function drawHeader(doc: jsPDF, input: PdfExportInput): Promise<number> {
   }
 
   doc.setFontSize(9);
-  doc.text(formatPeriodLabel(input), textX, cursorY + 20.5);
+  doc.text(formatPeriodLabel(input, i18n), textX, cursorY + 20.5);
 
   const afterHeaderY = MARGIN + Math.max(logoHeight, 22) + 5;
 
@@ -185,15 +165,20 @@ async function drawHeader(doc: jsPDF, input: PdfExportInput): Promise<number> {
   return afterHeaderY + 8;
 }
 
-function drawKpiBoxes(doc: jsPDF, cursorY: number, sales: SalesReport | undefined): number {
+function drawKpiBoxes(
+  doc: jsPDF,
+  cursorY: number,
+  sales: SalesReport | undefined,
+  { t, locale }: PdfExportI18n,
+): number {
   cursorY = ensureSpace(doc, cursorY, 26);
 
   const boxes: { label: string; value: string }[] = [
-    { label: 'Umsatz', value: sales ? formatCurrency(sales.totalRevenue) : '–' },
-    { label: 'Bestellungen', value: sales ? String(sales.totalOrders) : '–' },
-    { label: 'Ø Bon', value: sales ? formatCurrency(sales.averageOrderValue) : '–' },
-    { label: 'Pfand', value: sales ? formatCurrency(sales.pfandBalance) : '–' },
-    { label: 'Storno-Quote', value: sales ? formatPercent(sales.cancellationRate) : '–' },
+    { label: t('pdf.kpi.revenue'), value: sales ? formatCurrency(sales.totalRevenue, locale) : '–' },
+    { label: t('pdf.kpi.orders'), value: sales ? String(sales.totalOrders) : '–' },
+    { label: t('pdf.kpi.avgReceipt'), value: sales ? formatCurrency(sales.averageOrderValue, locale) : '–' },
+    { label: t('pdf.kpi.pfand'), value: sales ? formatCurrency(sales.pfandBalance, locale) : '–' },
+    { label: t('pdf.kpi.cancellationRate'), value: sales ? formatPercent(sales.cancellationRate, locale) : '–' },
   ];
 
   const gap = 4;
@@ -218,17 +203,6 @@ function drawKpiBoxes(doc: jsPDF, cursorY: number, sales: SalesReport | undefine
   });
 
   return cursorY + boxHeight + 10;
-}
-
-function formatPdfDayLabel(date: string): string {
-  const [y, m, d] = date.split('-').map(Number);
-  if (!y || !m || !d) return date;
-  return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
 }
 
 // Zeichnet ein 24h-Balkendiagramm für genau einen Tag ab cursorY.
@@ -265,13 +239,13 @@ function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[]): 
   return chartBottom + 10;
 }
 
-function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): number {
+function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[], { t, locale }: PdfExportI18n): number {
   cursorY = ensureSpace(doc, cursorY, 58);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(20, 20, 20);
-  doc.text('Stunden-Umsatz', MARGIN, cursorY);
+  doc.text(t('pdf.hourlyTitle'), MARGIN, cursorY);
   cursorY += 6;
 
   const hasData = hourly.length > 0 && hourly.some((h) => h.revenue > 0);
@@ -279,7 +253,7 @@ function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): n
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
-    doc.text('Keine Umsatzdaten für den gewählten Zeitraum', MARGIN, cursorY + 20);
+    doc.text(t('pdf.hourlyEmpty'), MARGIN, cursorY + 20);
     return cursorY + 50;
   }
 
@@ -300,7 +274,7 @@ function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[]): n
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(90, 90, 90);
-      doc.text(formatPdfDayLabel(date), MARGIN, cursorY);
+      doc.text(formatReportDay(date, locale), MARGIN, cursorY);
       cursorY += 5;
     }
     cursorY = drawSingleDayChart(doc, cursorY, byDate.get(date)!);
@@ -356,17 +330,17 @@ function addTableSection(
   return finalY + 10;
 }
 
-function addFooters(doc: jsPDF): void {
+function addFooters(doc: jsPDF, { t, locale }: PdfExportI18n): void {
   const pageCount = doc.getNumberOfPages();
-  const generatedAt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
+  const generatedAt = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
 
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(140, 140, 140);
-    doc.text(`Erstellt am ${generatedAt} · OpenEOS`, MARGIN, PAGE_HEIGHT - 10);
-    doc.text(`Seite ${i} / ${pageCount}`, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 10, { align: 'right' });
+    doc.text(t('pdf.generatedAt', { date: generatedAt }), MARGIN, PAGE_HEIGHT - 10);
+    doc.text(t('pdf.page', { page: i, total: pageCount }), PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 10, { align: 'right' });
   }
 }
 
@@ -375,80 +349,98 @@ function addFooters(doc: jsPDF): void {
  * reports page and triggers a browser download. Safe to call with empty/
  * undefined report data — sections render a "no data" note instead of a table.
  */
-export async function generateReportsPdf(input: PdfExportInput): Promise<void> {
+export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI18n): Promise<void> {
+  const { t, locale } = i18n;
+  const money = (amount: number) => formatCurrency(amount, locale);
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  let cursorY = await drawHeader(doc, input);
-  cursorY = drawKpiBoxes(doc, cursorY, input.sales);
-  cursorY = drawHourlyChart(doc, cursorY, input.hourly ?? []);
+  let cursorY = await drawHeader(doc, input, i18n);
+  cursorY = drawKpiBoxes(doc, cursorY, input.sales, i18n);
+  cursorY = drawHourlyChart(doc, cursorY, input.hourly ?? [], i18n);
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    'Zahlarten',
-    ['Zahlart', 'Anzahl', 'Gesamt', 'Anteil'],
+    t('payments.title'),
+    [
+      t('payments.columns.method'),
+      t('payments.columns.count'),
+      t('payments.columns.total'),
+      t('payments.columns.percentage'),
+    ],
     (input.payments ?? []).map((p) => [
-      getMethodLabel(p.method),
+      getMethodLabel(p.method, t),
       String(p.count),
-      formatCurrency(p.total),
-      formatPercent(p.percentage),
+      money(p.total),
+      formatPercent(p.percentage, locale),
     ]),
-    'Keine Zahlungsdaten vorhanden',
+    t('payments.empty'),
     [1, 2, 3],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    'Top-Produkte',
-    ['Produkt', 'Kategorie', 'Menge', 'Umsatz', 'Ø-Preis'],
+    t('products.title'),
+    [
+      t('products.columns.product'),
+      t('products.columns.category'),
+      t('products.columns.quantity'),
+      t('products.columns.revenue'),
+      t('products.columns.avgPrice'),
+    ],
     (input.products ?? []).map((p) => [
       p.productName,
       p.categoryName,
       String(p.quantitySold),
-      formatCurrency(p.revenue),
-      formatCurrency(p.averagePrice),
+      money(p.revenue),
+      money(p.averagePrice),
     ]),
-    'Keine Produktdaten vorhanden',
+    t('products.empty'),
     [2, 3, 4],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    'Umsatz nach Kanal',
-    ['Kanal', 'Bestellungen', 'Umsatz', 'Ø Bon'],
+    t('channels.title'),
+    [
+      t('channels.columns.channel'),
+      t('channels.columns.orders'),
+      t('channels.columns.revenue'),
+      t('channels.columns.avgReceipt'),
+    ],
     (input.channels ?? []).map((c) => [
-      getChannelLabel(c.channel),
+      getChannelLabel(c.channel, t),
       String(c.orders),
-      formatCurrency(c.revenue),
-      formatCurrency(c.avgReceipt),
+      money(c.revenue),
+      money(c.avgReceipt),
     ]),
-    'Keine Kanaldaten vorhanden',
+    t('channels.empty'),
     [1, 2, 3],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    'Top-Kategorien',
-    ['Kategorie', 'Menge', 'Umsatz'],
-    (input.categories ?? []).map((c) => [c.name, String(c.quantity), formatCurrency(c.revenue)]),
-    'Keine Kategoriedaten vorhanden',
+    t('categories.title'),
+    [t('categories.columns.category'), t('categories.columns.quantity'), t('categories.columns.revenue')],
+    (input.categories ?? []).map((c) => [c.name, String(c.quantity), money(c.revenue)]),
+    t('categories.empty'),
     [1, 2],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    'Umsatz je Kasse',
-    ['Gerät', 'Bestellungen', 'Umsatz'],
-    (input.devices ?? []).map((d) => [d.name, String(d.orders), formatCurrency(d.revenue)]),
-    'Keine Gerätedaten vorhanden',
+    t('devices.title'),
+    [t('devices.columns.device'), t('devices.columns.orders'), t('devices.columns.revenue')],
+    (input.devices ?? []).map((d) => [d.name, String(d.orders), money(d.revenue)]),
+    t('devices.empty'),
     [1, 2],
   );
 
-  addFooters(doc);
+  addFooters(doc, i18n);
 
-  doc.save(buildFilename(input));
+  doc.save(buildFilename(input, i18n));
 }

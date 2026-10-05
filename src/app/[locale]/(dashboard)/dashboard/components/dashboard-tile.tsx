@@ -4,6 +4,7 @@ import { useCallback, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { DotsGrid, X } from '@untitledui/icons';
+import { useTranslations } from 'next-intl';
 
 import { GRID_COLUMNS, MAX_HEIGHT, MIN_WIDTH, clamp } from './widgets/widget-sizing';
 
@@ -42,6 +43,7 @@ export function DashboardTile({
 }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id, disabled: !editing });
+  const t = useTranslations('dashboard.tile');
 
   const tileRef = useRef<HTMLDivElement | null>(null);
 
@@ -110,20 +112,20 @@ export function DashboardTile({
           <button
             type="button"
             className="dash-tile__grip"
-            aria-label={`${label} verschieben`}
+            aria-label={t('move', { label })}
             {...attributes}
             {...listeners}
           >
             <DotsGrid />
           </button>
-          <span className="dash-tile__size" aria-label={`${label}: ${width} mal ${height}`}>
+          <span className="dash-tile__size" aria-label={t('size', { label, width, height })}>
             {width}×{height}
           </span>
           <button
             type="button"
             className="dash-tile__remove"
             onClick={onRemove}
-            aria-label={`${label} entfernen`}
+            aria-label={t('remove', { label })}
           >
             <X />
           </button>
@@ -137,7 +139,7 @@ export function DashboardTile({
           className="dash-tile__resize"
           role="slider"
           tabIndex={0}
-          aria-label={`${label} Größe ändern`}
+          aria-label={t('resize', { label })}
           aria-valuenow={width}
           aria-valuemin={MIN_WIDTH}
           aria-valuemax={GRID_COLUMNS}
