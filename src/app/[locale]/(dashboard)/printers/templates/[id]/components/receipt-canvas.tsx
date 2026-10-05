@@ -197,7 +197,10 @@ export function ReceiptCanvas({
   });
 
   // Group preview lines by element
-  const allPreviewLines = renderPreview(design);
+  const allPreviewLines = renderPreview(design, {
+    feed: (lines) => t('previewMarkers.feed', { lines }),
+    cut: t('previewMarkers.cut'),
+  });
   const elementPreviewMap = new Map<string, typeof allPreviewLines>();
   for (const line of allPreviewLines) {
     const existing = elementPreviewMap.get(line.elementId) || [];

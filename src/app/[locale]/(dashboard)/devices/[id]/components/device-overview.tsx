@@ -1,9 +1,9 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { devicesApi } from '@/lib/api-client';
-import { formatCurrency, formatDateTime } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { Device } from '@/types/device';
 
 interface DeviceOverviewProps {
@@ -60,7 +60,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 
 export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) {
   const t = useTranslations();
-  const locale = useLocale();
+  const { formatCurrency, formatDateTime, locale } = useLocaleFormat();
 
   const { data: statsData } = useQuery({
     queryKey: ['device-stats', organizationId, device.id],
@@ -168,7 +168,8 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
                 <button
                   onClick={copyDeviceId}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}
-                  title="Copy ID"
+                  title={t('devices.detail.info.copyId')}
+                  aria-label={t('devices.detail.info.copyId')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" />

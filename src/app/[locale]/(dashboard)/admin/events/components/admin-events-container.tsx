@@ -2,30 +2,16 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced, useWaiveEvent } from '@/hooks/use-admin-events';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { AdminEventListItem } from '@/types/admin';
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
-function formatDate(date: string | null): string {
-  if (!date) return '—';
-  return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(date));
-}
-
 const statusBadge: Record<string, string> = {
   active: 'badge badge--success',
   inactive: 'badge badge--neutral',
   test: 'badge badge--warning',
-};
-
-const statusLabel: Record<string, string> = {
-  active: 'Aktiv',
-  inactive: 'Inaktiv',
-  test: 'Test',
 };
 
 const billingStatusBadge: Record<string, string> = {
@@ -36,13 +22,25 @@ const billingStatusBadge: Record<string, string> = {
   waived: 'badge badge--neutral',
 };
 
-const billingStatusLabel: Record<string, string> = {
-  none: 'Nicht bestellt',
-  pending: 'Ausstehend',
-  paid: 'Bezahlt',
-  invoice: 'Auf Rechnung',
-  waived: 'Erlassen',
-};
+type Translator = ReturnType<typeof useTranslations>;
+
+function statusLabels(t: Translator): Record<string, string> {
+  return {
+    active: t('admin.events.status.active'),
+    inactive: t('admin.events.status.inactive'),
+    test: t('admin.events.status.test'),
+  };
+}
+
+function billingStatusLabels(t: Translator): Record<string, string> {
+  return {
+    none: t('admin.events.billingStatus.none'),
+    pending: t('admin.events.billingStatus.pending'),
+    paid: t('admin.events.billingStatus.paid'),
+    invoice: t('admin.events.billingStatus.invoice'),
+    waived: t('admin.events.billingStatus.waived'),
+  };
+}
 
 interface MarkInvoicedModalProps {
   event: AdminEventListItem;
@@ -51,6 +49,7 @@ interface MarkInvoicedModalProps {
 
 function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
   const t = useTranslations();
+  const { formatCurrency } = useLocaleFormat();
   const [note, setNote] = useState('');
   const markInvoiced = useMarkEventInvoiced();
 
@@ -66,7 +65,7 @@ function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
       <div className="modal__box" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div>
-            <div className="modal__title">Als abgerechnet markieren</div>
+            <div className="modal__title">{t('admin.events.markInvoiced.title')}</div>
             <div className="modal__sub">{event.name} — {event.organizationName}</div>
           </div>
           <DialogCloseButton onClick={onClose} />
@@ -75,24 +74,24 @@ function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
         <div className="modal__body">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, background: 'color-mix(in oklab, var(--ink) 4%, transparent)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>Bestellungen</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>{t('admin.events.markInvoiced.orders')}</div>
               <div style={{ fontWeight: 600 }}>{event.orderCount}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>Umsatz</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginBottom: 2 }}>{t('admin.events.markInvoiced.revenue')}</div>
               <div style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</div>
             </div>
           </div>
 
           <div className="auth-field">
-            <label className="auth-field__label" htmlFor="invoice-note">Notiz (optional)</label>
+            <label className="auth-field__label" htmlFor="invoice-note">{t('admin.events.markInvoiced.note')}</label>
             <textarea
               id="invoice-note"
               className="textarea"
               rows={3}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="z.B. Rechnung 2024-001 erstellt"
+              placeholder={t('admin.events.markInvoiced.notePlaceholder')}
             />
           </div>
         </div>
@@ -104,7 +103,7 @@ function MarkInvoicedModal({ event, onClose }: MarkInvoicedModalProps) {
             onClick={handleSubmit}
             disabled={markInvoiced.isPending}
           >
-            {markInvoiced.isPending ? t('common.saving') : 'Als abgerechnet markieren'}
+            {markInvoiced.isPending ? t('common.saving') : t('admin.events.markInvoiced.submit')}
           </button>
         </div>
       </div>
@@ -129,13 +128,13 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Abrechnung zurücksetzen</div>
+          <div className="modal__title">{t('admin.events.unmark.title')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
           <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
-            Die Abrechnungsmarkierung wird entfernt. Das Event gilt dann wieder als nicht abgerechnet.
+            {t('admin.events.unmark.description')}
           </p>
           <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
         </div>
@@ -148,7 +147,7 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
             onClick={handleConfirm}
             disabled={unmarkInvoiced.isPending}
           >
-            {unmarkInvoiced.isPending ? t('common.saving') : 'Zurücksetzen'}
+            {unmarkInvoiced.isPending ? t('common.saving') : t('admin.events.unmark.submit')}
           </button>
         </div>
       </div>
@@ -173,13 +172,13 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Abrechnung erlassen</div>
+          <div className="modal__title">{t('admin.events.waive.title')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
 
         <div className="modal__body">
           <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
-            Das Event kann danach ohne Bezahlung oder Rechnung aktiviert werden.
+            {t('admin.events.waive.description')}
           </p>
           <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
         </div>
@@ -191,7 +190,7 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
             onClick={handleConfirm}
             disabled={waiveEvent.isPending}
           >
-            {waiveEvent.isPending ? t('common.saving') : 'Erlassen'}
+            {waiveEvent.isPending ? t('common.saving') : t('admin.events.waive.submit')}
           </button>
         </div>
       </div>
@@ -200,6 +199,11 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
 }
 
 export function AdminEventsContainer() {
+  const t = useTranslations('admin.events');
+  const tRoot = useTranslations();
+  const { formatCurrency, formatDate } = useLocaleFormat();
+  const statusLabel = statusLabels(tRoot);
+  const billingStatusLabel = billingStatusLabels(tRoot);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [invoicedFilter, setInvoicedFilter] = useState('');
@@ -239,7 +243,7 @@ export function AdminEventsContainer() {
           <input
             type="text"
             className="input"
-            placeholder="Event oder Organisation suchen..."
+            placeholder={t('filters.searchPlaceholder')}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             style={{ minWidth: 200, flex: '1 1 200px' }}
@@ -249,19 +253,19 @@ export function AdminEventsContainer() {
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           >
-            <option value="">Alle Status</option>
-            <option value="active">Aktiv</option>
-            <option value="inactive">Inaktiv</option>
-            <option value="test">Test</option>
+            <option value="">{t('filters.allStatuses')}</option>
+            <option value="active">{t('status.active')}</option>
+            <option value="inactive">{t('status.inactive')}</option>
+            <option value="test">{t('status.test')}</option>
           </select>
           <select
             className="select"
             value={invoicedFilter}
             onChange={(e) => { setInvoicedFilter(e.target.value); setPage(1); }}
           >
-            <option value="">Alle (Abrechnung)</option>
-            <option value="yes">Abgerechnet</option>
-            <option value="no">Nicht abgerechnet</option>
+            <option value="">{t('filters.allInvoiced')}</option>
+            <option value="yes">{t('filters.invoiced')}</option>
+            <option value="no">{t('filters.notInvoiced')}</option>
           </select>
           <input
             type="date"
@@ -281,8 +285,8 @@ export function AdminEventsContainer() {
       {/* Table */}
       {events.length === 0 ? (
         <ListEmpty
-          title="Keine Events gefunden"
-          description="Es gibt keine Events, die den Filterkriterien entsprechen."
+          title={t('empty.title')}
+          description={t('empty.description')}
           icon={
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
@@ -295,15 +299,15 @@ export function AdminEventsContainer() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Event</th>
-                  <th>Organisation</th>
-                  <th>Datum</th>
-                  <th>Status</th>
-                  <th className="text-right">Bestellungen</th>
-                  <th className="text-right">Umsatz</th>
-                  <th>Bezahlung</th>
-                  <th>Abgerechnet</th>
-                  <th className="text-right">Aktionen</th>
+                  <th>{t('table.event')}</th>
+                  <th>{t('table.organization')}</th>
+                  <th>{t('table.date')}</th>
+                  <th>{t('table.status')}</th>
+                  <th className="text-right">{t('table.orders')}</th>
+                  <th className="text-right">{t('table.revenue')}</th>
+                  <th>{t('table.payment')}</th>
+                  <th>{t('table.invoiced')}</th>
+                  <th className="text-right">{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -338,23 +342,23 @@ export function AdminEventsContainer() {
                           )}
                         </div>
                       ) : (
-                        <span className="badge badge--neutral">Nein</span>
+                        <span className="badge badge--neutral">{tRoot('common.no')}</span>
                       )}
                     </td>
                     <td className="text-right">
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                         {event.invoicedAt ? (
                           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
-                            Zurücksetzen
+                            {t('actions.reset')}
                           </button>
                         ) : (
                           <button className="btn btn--primary" style={{ fontSize: 12 }} onClick={() => setMarkEvent(event)}>
-                            Abrechnen
+                            {t('actions.invoice')}
                           </button>
                         )}
                         {(event.billingStatus === 'none' || event.billingStatus === 'pending' || !event.billingStatus) && (
                           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setWaiveEventTarget(event)}>
-                            Erlassen
+                            {t('actions.waive')}
                           </button>
                         )}
                       </div>
@@ -371,7 +375,7 @@ export function AdminEventsContainer() {
       {meta && meta.totalPages > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px' }}>
           <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-            {meta.total} Events gesamt
+            {t('pagination.total', { count: meta.total })}
           </span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button
@@ -379,17 +383,17 @@ export function AdminEventsContainer() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={!meta.hasPrev}
             >
-              Zurück
+              {tRoot('common.previous')}
             </button>
             <span style={{ fontSize: 13, padding: '0 8px' }}>
-              Seite {page} von {meta.totalPages}
+              {t('pagination.page', { page, totalPages: meta.totalPages })}
             </span>
             <button
               className="btn btn--ghost"
               onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
               disabled={!meta.hasNext}
             >
-              Weiter
+              {tRoot('common.next')}
             </button>
           </div>
         </div>

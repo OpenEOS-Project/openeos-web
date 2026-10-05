@@ -6,11 +6,12 @@ import { useTranslations } from 'next-intl';
 import { useAdminSendSupportMessage, useAdminSupportMessages, useAdminSupportThreads } from '@/hooks/use-support';
 import { ListError, ListLoading } from '@/components/shared/list-states';
 import { toast } from '@/components/shared/toast';
-import { formatChatTimestamp } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 export function AdminSupportContainer() {
   const t = useTranslations('admin.support');
   const tCommon = useTranslations('common');
+  const { formatChatTimestamp } = useLocaleFormat();
 
   const { data: threads, isLoading, isError, refetch } = useAdminSupportThreads();
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);

@@ -870,7 +870,8 @@
           },
           "notes": "Notes",
           "notesPlaceholder": "Internal notes"
-        }
+        },
+        "count": "{count, plural, =1 {# rental hardware item} other {# rental hardware items}}"
       },
       "assignments": {
         "title": "Assignments",
@@ -904,8 +905,11 @@
           "notes": "Notes",
           "notesPlaceholder": "Optional notes",
           "totalDays": "Total Days",
-          "totalAmount": "Total Amount"
-        }
+          "totalAmount": "Total Amount",
+          "hardwareOption": "{name} ({serial}) — {rate}/day"
+        },
+        "count": "{count, plural, =1 {# assignment} other {# assignments}}",
+        "daysCount": "{count, plural, =1 {# day} other {# days}}"
       }
     },
     "support": {
@@ -942,6 +946,148 @@
       "notNotifiedHint": "No notification went out — check the recipient address in settings.",
       "forbidden": "Your account is not permitted to see this. Messages are for platform administrators only.",
       "error": "The messages could not be loaded. Please try again later."
+    },
+    "events": {
+      "title": "Events & billing",
+      "description": "All events of all organizations with orders and revenue. Manage billing.",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "test": "Test"
+      },
+      "billingStatus": {
+        "none": "Not ordered",
+        "pending": "Pending",
+        "paid": "Paid",
+        "invoice": "On invoice",
+        "waived": "Waived"
+      },
+      "markInvoiced": {
+        "title": "Mark as invoiced",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "note": "Note (optional)",
+        "notePlaceholder": "e.g. Invoice 2024-001 created",
+        "submit": "Mark as invoiced"
+      },
+      "unmark": {
+        "title": "Reset billing",
+        "description": "The invoiced marker will be removed. The event will then count as not invoiced again.",
+        "submit": "Reset"
+      },
+      "waive": {
+        "title": "Waive billing",
+        "description": "The event can then be activated without payment or invoice.",
+        "submit": "Waive"
+      },
+      "filters": {
+        "searchPlaceholder": "Search event or organization...",
+        "allStatuses": "All statuses",
+        "allInvoiced": "All (billing)",
+        "invoiced": "Invoiced",
+        "notInvoiced": "Not invoiced"
+      },
+      "empty": {
+        "title": "No events found",
+        "description": "There are no events matching the filter criteria."
+      },
+      "table": {
+        "event": "Event",
+        "organization": "Organization",
+        "date": "Date",
+        "status": "Status",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "payment": "Payment",
+        "invoiced": "Invoiced",
+        "actions": "Actions"
+      },
+      "actions": {
+        "reset": "Reset",
+        "invoice": "Invoice",
+        "waive": "Waive"
+      },
+      "pagination": {
+        "total": "{count, plural, =1 {# event total} other {# events total}}",
+        "page": "Page {page} of {totalPages}"
+      }
+    },
+    "printers": {
+      "metaTitle": "Printers · Super admin",
+      "title": "Printers",
+      "description": "Overview of all printers and unassigned printer agents across all organizations.",
+      "online": "Online",
+      "offline": "Offline",
+      "types": {
+        "kitchen": "Kitchen",
+        "label": "Labels",
+        "receipt": "Receipt"
+      },
+      "toast": {
+        "testPrintSent": "Test print was sent to the printer.",
+        "testPrintNotPossible": "Test print not possible.",
+        "testPrintFailed": "Test print failed: {message}",
+        "unassigned": "Assignment was removed.",
+        "unassignFailed": "Removing assignment failed: {message}",
+        "deviceDeleted": "Device was deleted.",
+        "deleteFailed": "Deleting failed: {message}",
+        "assigned": "Printer was assigned to the organization."
+      },
+      "unassigned": {
+        "title": "Unassigned printer agents ({count})",
+        "description": "Printers that have registered with the backend but are not yet assigned to an organization.",
+        "empty": "No waiting printer agents. As soon as an RPi agent registers, it will appear here.",
+        "onlineWaiting": "Online · awaiting assignment",
+        "waiting": "Awaiting assignment"
+      },
+      "assigned": {
+        "title": "Assigned printers ({count})",
+        "description": "All printers across all organizations.",
+        "empty": "No printers assigned to an organization yet."
+      },
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "lastSeen": "Last seen",
+        "action": "Action",
+        "organization": "Organization",
+        "printer": "Printer",
+        "type": "Type",
+        "online": "Online",
+        "actions": "Actions"
+      },
+      "actions": {
+        "assign": "Assign",
+        "testPrint": "Test print",
+        "unassign": "Remove assignment"
+      },
+      "confirm": {
+        "deleteDevice": "Permanently delete device “{name}”?",
+        "unassign": "Really remove printer “{name}” from “{organization}”?"
+      },
+      "assignModal": {
+        "title": "Assign printer",
+        "description": "Links the printer agent device to an organization. Hardware values (name, type, connection, USB ID, paper width) are taken from the local agent configuration on the RPi.",
+        "name": "Name",
+        "type": "Type",
+        "connection": "Connection",
+        "paperWidth": "Paper width",
+        "types": {
+          "kitchen": "Kitchen printer",
+          "label": "Labels",
+          "receipt": "Receipt"
+        },
+        "organization": "Organization *",
+        "orgsLoading": "Loading organizations …",
+        "orgsError": "Error while loading",
+        "orgsEmpty": "No organizations available",
+        "orgsPlaceholder": "Please select…",
+        "hasCashDrawer": "A cash drawer is connected to this printer",
+        "submit": "Assign",
+        "organizationRequired": "Please select an organization.",
+        "defaultName": "Printer",
+        "assignFailed": "Assignment failed"
+      }
     }
   },
   "theme": {
@@ -1653,6 +1799,9 @@
       "created": "Organization created successfully",
       "updated": "Organization updated successfully",
       "deleted": "Organization deleted successfully"
+    },
+    "membersModal": {
+      "invitationsTitle": "Pending invitations ({count})"
     }
   },
   "pos": {
@@ -2203,7 +2352,8 @@
         "verifiedAt": "Verified at",
         "userAgent": "User Agent",
         "lastSeen": "Last seen",
-        "notVerified": "Not verified"
+        "notVerified": "Not verified",
+        "copyId": "Copy ID"
       },
       "settings": {
         "basic": {
@@ -2253,13 +2403,14 @@
           "scaleNormal": "Normal",
           "scaleLarge": "Large (for viewing from afar)",
           "headline": "Header",
-          "headlinePlaceholder": "Leave empty for the organisation name",
+          "headlinePlaceholder": "Leave empty for the organization name",
           "idleText": "Idle message",
           "idleTextPlaceholder": "e.g. Welcome!",
           "autoClear": "Clear completed",
           "autoClearOff": "Keep on screen",
           "showLogo": "Show logo",
-          "showLogoHint": "Displays the organisation logo in the header."
+          "showLogoHint": "Displays the organization logo in the header.",
+          "autoClearSeconds": "{seconds, plural, =1 {# second} other {# seconds}}"
         }
       },
       "printer": {
@@ -2275,7 +2426,11 @@
           "category": "Category Printer",
           "categoryDescription": "Receipts are printed via the category's assigned printer (fallback: device printer)",
           "product": "Product Printer",
-          "productDescription": "Receipts are printed via the product's assigned printer (fallback: category → device)"
+          "productDescription": "Receipts are printed via the product's assigned printer (fallback: category → device)",
+          "fixed": "Fixed printer",
+          "fixedDescription": "Tickets always go to the printer selected below — regardless of product or category assignment. Recommended for devices connected directly to a printer.",
+          "dynamic": "Dynamic routing",
+          "dynamicDescription": "Follows the routing chain: product station → category station → this device's default printer (fallback). Recommended when several stations have their own printers."
         },
         "cashDrawer": {
           "title": "Cash drawer",
@@ -2283,7 +2438,10 @@
           "selectPrinter": "Printer with drawer",
           "noPrinter": "No cash drawer",
           "noPrintersAvailable": "No printer with cash drawer configured"
-        }
+        },
+        "testPrint": "Test print",
+        "testPrintSent": "Test print was sent",
+        "testPrintFailed": "Error while sending"
       },
       "saved": "Settings saved",
       "saveFailed": "Save failed"
@@ -2814,7 +2972,60 @@
     "offline": "Offline",
     "noPrinters": "No printers registered yet",
     "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
-    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization."
+    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization.",
+    "printerCount": "{count, plural, =1 {# printer} other {# printers}}",
+    "kitchenTicketMode": {
+      "title": "Kitchen ticket printing mode",
+      "description": "Determines how kitchen tickets are created for a new order.",
+      "saved": "Saved",
+      "modes": {
+        "per_order": {
+          "title": "1 ticket per order",
+          "description": "Classic: everything on one kitchen ticket. Simple for small kitchens without separate stations."
+        },
+        "per_item": {
+          "title": "1 ticket per product (barcode)",
+          "description": "Each product in the order gets its own ticket with a unique barcode — ideal for tracking the status of individual products later with a scanner."
+        },
+        "per_station": {
+          "title": "1 ticket per location",
+          "description": "The order is grouped by location. Each location only gets its own products. If the location has its own printer assigned, the ticket is printed there — otherwise on the default kitchen printer."
+        }
+      }
+    },
+    "orderFlow": {
+      "saved": "Saved",
+      "notPrintedWarning": "These tickets are not printed automatically.",
+      "overridePrinter": "Override printer (optional, otherwise routing chain)",
+      "useRoutingChain": "Use routing chain (default)",
+      "routingChainHint": "If no override printer is set, the routing chain is used: product station → category station → device's default printer → global override.",
+      "defaultTemplate": "Default template (empty = built-in)",
+      "useBuiltInTemplate": "Use built-in template",
+      "kitchen": {
+        "title": "Kitchen ticket",
+        "description": "Tickets printed in the kitchen for new orders.",
+        "mode": "Mode",
+        "modes": {
+          "per_order": "1 ticket per order",
+          "per_item": "1 ticket per product with barcode",
+          "per_station": "1 ticket per location"
+        }
+      },
+      "orderTicket": {
+        "title": "Order ticket",
+        "description": "Ticket for the pickup area or as order confirmation."
+      },
+      "receipt": {
+        "title": "Receipt",
+        "description": "Receipt printed after a payment or after an order is completed.",
+        "trigger": "Trigger",
+        "triggers": {
+          "payment_received": "On payment",
+          "order_completed": "On order completion",
+          "manual": "Manual"
+        }
+      }
+    }
   },
   "colorPicker": {
     "custom": "Custom color",
@@ -2935,7 +3146,15 @@
         "field": "Data field"
       },
       "moveElement": "Move element",
-      "removeElement": "Remove element"
+      "removeElement": "Remove element",
+      "resetConfirm": "Discard the current draft and reset to the default template?",
+      "resetTitle": "Discard the current draft and reset to the default template",
+      "resetToDefault": "Restore default",
+      "dragging": "Moving...",
+      "previewMarkers": {
+        "feed": "[Feed: {lines, plural, =1 {# line} other {# lines}}]",
+        "cut": "--- Cut ---"
+      }
     }
   },
   "reports": {

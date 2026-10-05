@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Check, Mail01 } from '@untitledui/icons';
 
 import { adminApi } from '@/lib/api-client';
@@ -22,6 +22,7 @@ const FILTER: (ContactRequestKind | 'alle')[] = [
 
 export function FeedbackContainer() {
   const t = useTranslations('admin.feedback');
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [art, setArt] = useState<(typeof FILTER)[number]>('alle');
   const [nurOffene, setNurOffene] = useState(true);
@@ -98,7 +99,7 @@ export function FeedbackContainer() {
               <div className="feedback-admin__meta">
                 <span className="feedback-admin__kind">{t(`kinds.${eintrag.type}`)}</span>
                 <time dateTime={eintrag.createdAt}>
-                  {new Date(eintrag.createdAt).toLocaleString('de-DE', {
+                  {new Date(eintrag.createdAt).toLocaleString(locale, {
                     dateStyle: 'medium',
                     timeStyle: 'short',
                   })}

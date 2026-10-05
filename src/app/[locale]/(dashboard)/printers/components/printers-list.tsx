@@ -42,7 +42,7 @@ export function PrintersList() {
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('tabs.printers')}</h2>
-          <p className="app-card__sub">{printers.length} {t('tabs.printers')}</p>
+          <p className="app-card__sub">{t('printerCount', { count: printers.length })}</p>
         </div>
       </div>
 

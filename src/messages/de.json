@@ -1443,6 +1443,9 @@
       "created": "Organisation erfolgreich erstellt",
       "updated": "Organisation erfolgreich aktualisiert",
       "deleted": "Organisation erfolgreich gelöscht"
+    },
+    "membersModal": {
+      "invitationsTitle": "Ausstehende Einladungen ({count})"
     }
   },
   "billing": {
@@ -1581,7 +1584,8 @@
           },
           "notes": "Notizen",
           "notesPlaceholder": "Interne Notizen"
-        }
+        },
+        "count": "{count, plural, =1 {# Hardware-Gerät} other {# Hardware-Geräte}}"
       },
       "assignments": {
         "title": "Zuweisungen",
@@ -1615,8 +1619,11 @@
           "notes": "Notizen",
           "notesPlaceholder": "Optionale Notizen",
           "totalDays": "Gesamttage",
-          "totalAmount": "Gesamtbetrag"
-        }
+          "totalAmount": "Gesamtbetrag",
+          "hardwareOption": "{name} ({serial}) — {rate}/Tag"
+        },
+        "count": "{count, plural, =1 {# Zuweisung} other {# Zuweisungen}}",
+        "daysCount": "{count, plural, =1 {# Tag} other {# Tage}}"
       }
     },
     "support": {
@@ -1653,6 +1660,148 @@
       "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen.",
       "forbidden": "Für diesen Bereich fehlt Ihrem Konto die Berechtigung. Zuschriften sieht nur die Plattform-Verwaltung.",
       "error": "Die Zuschriften konnten nicht geladen werden. Bitte später erneut versuchen."
+    },
+    "events": {
+      "title": "Events & Abrechnung",
+      "description": "Alle Events aller Organisationen mit Bestellungen und Umsatz. Abrechnung verwalten.",
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "test": "Test"
+      },
+      "billingStatus": {
+        "none": "Nicht bestellt",
+        "pending": "Ausstehend",
+        "paid": "Bezahlt",
+        "invoice": "Auf Rechnung",
+        "waived": "Erlassen"
+      },
+      "markInvoiced": {
+        "title": "Als abgerechnet markieren",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "note": "Notiz (optional)",
+        "notePlaceholder": "z.B. Rechnung 2024-001 erstellt",
+        "submit": "Als abgerechnet markieren"
+      },
+      "unmark": {
+        "title": "Abrechnung zurücksetzen",
+        "description": "Die Abrechnungsmarkierung wird entfernt. Das Event gilt dann wieder als nicht abgerechnet.",
+        "submit": "Zurücksetzen"
+      },
+      "waive": {
+        "title": "Abrechnung erlassen",
+        "description": "Das Event kann danach ohne Bezahlung oder Rechnung aktiviert werden.",
+        "submit": "Erlassen"
+      },
+      "filters": {
+        "searchPlaceholder": "Event oder Organisation suchen...",
+        "allStatuses": "Alle Status",
+        "allInvoiced": "Alle (Abrechnung)",
+        "invoiced": "Abgerechnet",
+        "notInvoiced": "Nicht abgerechnet"
+      },
+      "empty": {
+        "title": "Keine Events gefunden",
+        "description": "Es gibt keine Events, die den Filterkriterien entsprechen."
+      },
+      "table": {
+        "event": "Event",
+        "organization": "Organisation",
+        "date": "Datum",
+        "status": "Status",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "payment": "Bezahlung",
+        "invoiced": "Abgerechnet",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "reset": "Zurücksetzen",
+        "invoice": "Abrechnen",
+        "waive": "Erlassen"
+      },
+      "pagination": {
+        "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
+        "page": "Seite {page} von {totalPages}"
+      }
+    },
+    "printers": {
+      "metaTitle": "Drucker · Super-Admin",
+      "title": "Drucker",
+      "description": "Übersicht aller Drucker und nicht zugewiesener Drucker-Agents über alle Organisationen hinweg.",
+      "online": "Online",
+      "offline": "Offline",
+      "types": {
+        "kitchen": "Küche",
+        "label": "Etiketten",
+        "receipt": "Beleg"
+      },
+      "toast": {
+        "testPrintSent": "Test-Druck wurde an den Drucker gesendet.",
+        "testPrintNotPossible": "Test-Druck nicht möglich.",
+        "testPrintFailed": "Test-Druck fehlgeschlagen: {message}",
+        "unassigned": "Zuordnung wurde aufgehoben.",
+        "unassignFailed": "Zuordnung aufheben fehlgeschlagen: {message}",
+        "deviceDeleted": "Gerät wurde gelöscht.",
+        "deleteFailed": "Löschen fehlgeschlagen: {message}",
+        "assigned": "Drucker wurde der Organisation zugewiesen."
+      },
+      "unassigned": {
+        "title": "Nicht zugewiesene Drucker-Agents ({count})",
+        "description": "Drucker, die sich beim Backend registriert haben, aber noch keiner Organisation zugeordnet sind.",
+        "empty": "Keine wartenden Drucker-Agents. Sobald ein RPi-Agent sich registriert, erscheint er hier.",
+        "onlineWaiting": "Online · wartet auf Zuordnung",
+        "waiting": "Wartet auf Zuordnung"
+      },
+      "assigned": {
+        "title": "Zugewiesene Drucker ({count})",
+        "description": "Alle Drucker über alle Organisationen.",
+        "empty": "Noch keine Drucker einer Organisation zugewiesen."
+      },
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "lastSeen": "Zuletzt gesehen",
+        "action": "Aktion",
+        "organization": "Organisation",
+        "printer": "Drucker",
+        "type": "Typ",
+        "online": "Online",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "assign": "Zuordnen",
+        "testPrint": "Test-Druck",
+        "unassign": "Zuordnung aufheben"
+      },
+      "confirm": {
+        "deleteDevice": "Gerät „{name}“ endgültig löschen?",
+        "unassign": "Drucker „{name}“ wirklich aus „{organization}“ entfernen?"
+      },
+      "assignModal": {
+        "title": "Drucker zuordnen",
+        "description": "Verknüpft das Drucker-Agent-Gerät mit einer Organisation. Hardware-Werte (Name, Typ, Anschluss, USB-Kennung, Papierbreite) werden aus der lokalen Agent-Konfiguration auf dem RPi übernommen.",
+        "name": "Name",
+        "type": "Typ",
+        "connection": "Anschluss",
+        "paperWidth": "Papierbreite",
+        "types": {
+          "kitchen": "Küchendrucker",
+          "label": "Etiketten",
+          "receipt": "Beleg"
+        },
+        "organization": "Organisation *",
+        "orgsLoading": "Lädt Organisationen …",
+        "orgsError": "Fehler beim Laden",
+        "orgsEmpty": "Keine Organisationen verfügbar",
+        "orgsPlaceholder": "Bitte auswählen…",
+        "hasCashDrawer": "Kassenlade ist an diesem Drucker angeschlossen",
+        "submit": "Zuordnen",
+        "organizationRequired": "Bitte wählen Sie eine Organisation aus.",
+        "defaultName": "Drucker",
+        "assignFailed": "Zuordnung fehlgeschlagen"
+      }
     }
   },
   "pos": {
@@ -2203,7 +2352,8 @@
         "verifiedAt": "Verifiziert am",
         "userAgent": "User Agent",
         "lastSeen": "Zuletzt aktiv",
-        "notVerified": "Nicht verifiziert"
+        "notVerified": "Nicht verifiziert",
+        "copyId": "ID kopieren"
       },
       "settings": {
         "basic": {
@@ -2259,7 +2409,8 @@
           "autoClear": "Erledigte ausblenden",
           "autoClearOff": "Stehen lassen",
           "showLogo": "Logo anzeigen",
-          "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein."
+          "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein.",
+          "autoClearSeconds": "{seconds, plural, =1 {# Sekunde} other {# Sekunden}}"
         }
       },
       "printer": {
@@ -2275,7 +2426,11 @@
           "category": "Kategorie-Drucker",
           "categoryDescription": "Bons werden über den der Kategorie zugewiesenen Drucker gedruckt (Fallback: Gerätedrucker)",
           "product": "Produkt-Drucker",
-          "productDescription": "Bons werden über den dem Produkt zugewiesenen Drucker gedruckt (Fallback: Kategorie → Gerät)"
+          "productDescription": "Bons werden über den dem Produkt zugewiesenen Drucker gedruckt (Fallback: Kategorie → Gerät)",
+          "fixed": "Fester Drucker",
+          "fixedDescription": "Bons gehen immer auf den unten ausgewählten Drucker — ohne Rücksicht auf Produkt- oder Kategoriezuordnung. Empfohlen für Geräte, die direkt an einem Drucker hängen.",
+          "dynamic": "Dynamisches Routing",
+          "dynamicDescription": "Folgt der Routing-Kette: Produkt-Station → Kategorie-Station → Standard-Drucker dieses Geräts (Fallback). Empfohlen, wenn mehrere Stationen mit eigenen Druckern existieren."
         },
         "cashDrawer": {
           "title": "Kassenschublade",
@@ -2283,7 +2438,10 @@
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
-        }
+        },
+        "testPrint": "Testdruck",
+        "testPrintSent": "Testdruck wurde gesendet",
+        "testPrintFailed": "Fehler beim Senden"
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
@@ -2814,7 +2972,60 @@
     "offline": "Offline",
     "noPrinters": "Noch keine Drucker registriert",
     "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen.",
-    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen."
+    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen.",
+    "printerCount": "{count, plural, =1 {# Drucker} other {# Drucker}}",
+    "kitchenTicketMode": {
+      "title": "Modus für Küchenbon-Druck",
+      "description": "Bestimmt, wie Küchenbons bei einer neuen Bestellung erzeugt werden.",
+      "saved": "Gespeichert",
+      "modes": {
+        "per_order": {
+          "title": "1 Bon pro Bestellung",
+          "description": "Klassisch: alles auf einem Küchenbon. Einfach für kleine Küchen ohne Stationstrennung."
+        },
+        "per_item": {
+          "title": "1 Bon pro Produkt (Barcode)",
+          "description": "Jedes Produkt aus der Bestellung bekommt einen eigenen Bon mit einem eindeutigen Barcode — ideal, um den Status einzelner Produkte später per Scanner zu verfolgen."
+        },
+        "per_station": {
+          "title": "1 Bon pro Standort",
+          "description": "Die Bestellung wird nach Standort gruppiert. Jeder Standort bekommt nur seine Produkte. Ist dem Standort ein eigener Drucker zugewiesen, wird der Bon dort gedruckt — sonst auf dem Standard-Küchendrucker."
+        }
+      }
+    },
+    "orderFlow": {
+      "saved": "Gespeichert",
+      "notPrintedWarning": "Diese Bons werden nicht automatisch gedruckt.",
+      "overridePrinter": "Override-Drucker (optional, sonst Routing-Kette)",
+      "useRoutingChain": "Routing-Kette verwenden (Standard)",
+      "routingChainHint": "Falls kein Override-Drucker gesetzt ist, wird die Routing-Kette verwendet: Produkt-Station → Kategorie-Station → Standard-Drucker des Geräts → globaler Override.",
+      "defaultTemplate": "Standard-Vorlage (leer = eingebaut)",
+      "useBuiltInTemplate": "Eingebaute Vorlage verwenden",
+      "kitchen": {
+        "title": "Küchenbon",
+        "description": "Bons, die bei neuen Bestellungen in der Küche gedruckt werden.",
+        "mode": "Modus",
+        "modes": {
+          "per_order": "1 Bon pro Bestellung",
+          "per_item": "1 Bon pro Produkt mit Barcode",
+          "per_station": "1 Bon pro Standort"
+        }
+      },
+      "orderTicket": {
+        "title": "Bestellbon",
+        "description": "Bon für den Ausgabebereich oder zur Bestellbestätigung."
+      },
+      "receipt": {
+        "title": "Kassenbon",
+        "description": "Bon, der nach einer Zahlung oder einem Bestellungsabschluss gedruckt wird.",
+        "trigger": "Auslöser",
+        "triggers": {
+          "payment_received": "Bei Zahlung",
+          "order_completed": "Bei Bestellungsabschluss",
+          "manual": "Manuell"
+        }
+      }
+    }
   },
   "colorPicker": {
     "custom": "Eigene Farbe",
@@ -2935,7 +3146,15 @@
         "field": "Datenfeld"
       },
       "moveElement": "Element verschieben",
-      "removeElement": "Element entfernen"
+      "removeElement": "Element entfernen",
+      "resetConfirm": "Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen?",
+      "resetTitle": "Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen",
+      "resetToDefault": "Standard wiederherstellen",
+      "dragging": "Verschieben...",
+      "previewMarkers": {
+        "feed": "[Vorschub: {lines, plural, =1 {# Zeile} other {# Zeilen}}]",
+        "cut": "--- Schnitt ---"
+      }
     }
   },
   "reports": {

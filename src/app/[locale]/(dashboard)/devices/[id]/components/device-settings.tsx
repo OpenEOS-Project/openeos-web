@@ -314,9 +314,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
                   onChange={(e) => setAutoClearSeconds(e.target.value)}
                 >
                   <option value="0">{t('devices.detail.settings.appearance.autoClearOff')}</option>
-                  <option value="10">10 Sekunden</option>
-                  <option value="30">30 Sekunden</option>
-                  <option value="60">60 Sekunden</option>
+                  {[10, 30, 60].map((seconds) => (
+                    <option key={seconds} value={String(seconds)}>
+                      {t('devices.detail.settings.appearance.autoClearSeconds', { seconds })}
+                    </option>
+                  ))}
                 </select>
               </FormRow>
             )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-organizations';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types';
-import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
+import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
 // Schema als Factory, damit die Fehlermeldung ueber next-intl lokalisiert
@@ -39,6 +39,7 @@ interface OrganizationFormModalProps {
 
 export function OrganizationFormModal({ isOpen, organization, onClose }: OrganizationFormModalProps) {
   const t = useTranslations('organizations');
+  const uiLocale = useLocale();
   const tCommon = useTranslations('common');
   const isEditing = !!organization;
 
@@ -149,7 +150,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                 <span>{t('form.currency')}</span>
                 <select className="select" {...register('settings.currency')}>
                   {CURRENCIES.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
+                    <option key={o.value} value={o.value}>{currencyLabel(o, uiLocale)}</option>
                   ))}
                 </select>
               </label>

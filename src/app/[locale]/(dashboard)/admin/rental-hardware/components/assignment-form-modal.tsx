@@ -6,19 +6,17 @@ import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api-client';
 import { useRentalHardware, useCreateRentalAssignment } from '@/hooks/use-rentals';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { CreateRentalAssignmentData } from '@/types/rental';
 
 interface AssignmentFormModalProps {
   onClose: () => void;
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
 export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
   const t = useTranslations('admin.rental.assignments');
   const tCommon = useTranslations('common');
+  const { formatCurrency } = useLocaleFormat();
 
   const [hardwareId, setHardwareId] = useState('');
   const [organizationId, setOrganizationId] = useState('');
@@ -77,7 +75,7 @@ export function AssignmentFormModal({ onClose }: AssignmentFormModalProps) {
                 <option value="">{t('form.hardwarePlaceholder')}</option>
                 {availableHardware.map((hw) => (
                   <option key={hw.id} value={hw.id}>
-                    {hw.name} ({hw.serialNumber}) — {formatCurrency(hw.dailyRate)}/Tag
+                    {t('form.hardwareOption', { name: hw.name, serial: hw.serialNumber, rate: formatCurrency(hw.dailyRate) })}
                   </option>
                 ))}
               </select>
