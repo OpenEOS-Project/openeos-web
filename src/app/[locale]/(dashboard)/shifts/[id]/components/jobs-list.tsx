@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftJob, Shift } from '@/types/shift';
 import { AddJobModal } from './add-job-modal';
@@ -43,6 +43,7 @@ interface JobsListProps {
 
 export function JobsList({ plan }: JobsListProps) {
   const t = useTranslations();
+  const { formatDate } = useLocaleFormat();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -111,7 +112,7 @@ export function JobsList({ plan }: JobsListProps) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
-          {t('shifts.editor.addJob').replace('hinzufügen', '').replace('Add ', '')} ({jobs.length})
+          {t('shifts.jobsList.heading', { count: jobs.length })}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button
@@ -119,8 +120,8 @@ export function JobsList({ plan }: JobsListProps) {
             style={iconBtnStyle('ghost')}
             onClick={handleOpenWizardForAll}
             disabled={jobs.length === 0}
-            title="Schicht-Generator für alle Arbeiten"
-            aria-label="Schicht-Generator für alle Arbeiten"
+            title={t('shifts.jobsList.wizardForAll')}
+            aria-label={t('shifts.jobsList.wizardForAll')}
           >
             <Stars01 style={{ width: 18, height: 18 }} />
           </button>
@@ -159,7 +160,7 @@ export function JobsList({ plan }: JobsListProps) {
                       <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{job.description}</div>
                     )}
                     <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>
-                      Standard: {job.requiredWorkers ?? 1} Helfer pro Schicht
+                      {t('shifts.jobsList.defaultWorkers', { count: job.requiredWorkers ?? 1 })}
                     </div>
                   </div>
                 </div>
@@ -168,8 +169,8 @@ export function JobsList({ plan }: JobsListProps) {
                     className="btn btn--ghost"
                     style={iconBtnStyle()}
                     onClick={() => setEditingJob(job)}
-                    title="Arbeit bearbeiten"
-                    aria-label="Arbeit bearbeiten"
+                    title={t('shifts.jobForm.editTitle')}
+                    aria-label={t('shifts.jobForm.editTitle')}
                   >
                     <Edit01 style={{ width: 16, height: 16 }} />
                   </button>
@@ -186,7 +187,7 @@ export function JobsList({ plan }: JobsListProps) {
                     className="btn btn--ghost"
                     style={iconBtnStyle('danger')}
                     onClick={() => {
-                      if (confirm(t('shifts.confirmDelete'))) deleteJobMutation.mutate(job.id);
+                      if (confirm(t('shifts.jobsList.confirmDeleteJob'))) deleteJobMutation.mutate(job.id);
                     }}
                     title={t('common.delete')}
                     aria-label={t('common.delete')}
@@ -236,8 +237,8 @@ export function JobsList({ plan }: JobsListProps) {
                               className="btn btn--ghost"
                               style={iconBtnStyle()}
                               onClick={() => setEditingShift(shift)}
-                              title="Schicht bearbeiten"
-                              aria-label="Schicht bearbeiten"
+                              title={t('shifts.shiftForm.editTitle')}
+                              aria-label={t('shifts.shiftForm.editTitle')}
                             >
                               <Edit01 style={{ width: 16, height: 16 }} />
                             </button>

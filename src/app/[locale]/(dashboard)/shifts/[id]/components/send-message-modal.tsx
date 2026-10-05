@@ -20,20 +20,21 @@ interface SendMessageModalProps {
   onClose: () => void;
 }
 
-const PLACEHOLDERS: Array<{ token: string; label: string }> = [
-  { token: '{{name}}', label: 'Name' },
-  { token: '{{schichten}}', label: 'Schichten' },
-  { token: '{{plan}}', label: 'Plan' },
-];
-
-const DEFAULT_TEMPLATE =
-  'Hallo {{name}},\n\n' +
-  'hier deine eingetragenen Schichten für {{plan}}:\n\n' +
-  '{{schichten}}\n\n' +
-  'Bitte sei pünktlich da. Vielen Dank für deine Hilfe!';
+// Tokens are replaced server-side per helper — they are part of the API
+// contract and therefore stay the same in every UI language.
+const TOKEN_NAME = '{{name}}';
+const TOKEN_SHIFTS = '{{schichten}}';
+const TOKEN_PLAN = '{{plan}}';
 
 export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onClose }: SendMessageModalProps) {
   const t = useTranslations();
+  const tm = useTranslations('shifts.sendMessage');
+  const PLACEHOLDERS: Array<{ token: string; label: string }> = [
+    { token: TOKEN_NAME, label: tm('placeholderName') },
+    { token: TOKEN_SHIFTS, label: tm('placeholderShifts') },
+    { token: TOKEN_PLAN, label: tm('placeholderPlan') },
+  ];
+  const DEFAULT_TEMPLATE = tm('defaultTemplate', { name: TOKEN_NAME, plan: TOKEN_PLAN, shifts: TOKEN_SHIFTS });
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
@@ -52,7 +53,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
     setMessage(DEFAULT_TEMPLATE);
     setError(null);
     setResult(null);
-  }, [open]);
+  }, [open, DEFAULT_TEMPLATE]);
 
   const sendMutation = useMutation({
     mutationFn: () =>
@@ -71,7 +72,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
         setResult(data);
       }
     },
-    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
+    onError: (err: Error) => setError(err.message || t('common.error')),
   });
 
   const insertPlaceholder = (token: string) => {
@@ -102,7 +103,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
       <div className="modal__box modal__panel--md" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <div className="modal__title">
-            {isSingle ? `Nachricht an ${helper?.name}` : 'Nachricht an alle Helfer'}
+            {isSingle ? tm('titleSingle', { name: helper?.name ?? '' }) : tm('titleAll')}
           </div>
           <DialogCloseButton onClick={handleClose} />
         </div>
@@ -115,41 +116,48 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
 
             {result ? (
               <div style={{ padding: 14, borderRadius: 8, background: 'color-mix(in oklab, var(--green-ink) 12%, transparent)', color: 'var(--green-ink)', fontSize: 14, fontWeight: 600 }}>
-                {result.sent} von {result.recipients} {result.recipients === 1 ? 'Helfer' : 'Helfern'} per E-Mail benachrichtigt.
+                {tm('result', { sent: result.sent, recipients: result.recipients })}
               </div>
             ) : (
               <>
                 {/* Recipient summary */}
                 <div style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
                   {isSingle ? (
-                    <>Empfänger: <strong>{helper?.name}</strong> ({helper?.email || 'ohne E-Mail'})</>
+                    tm.rich('recipientSingle', {
+                      name: helper?.name ?? '',
+                      email: helper?.email || tm('noEmail'),
+                      strong: (chunks) => <strong>{chunks}</strong>,
+                    })
                   ) : (
-                    <>Empfänger: <strong>{recipientCount}</strong> {recipientCount === 1 ? 'Helfer' : 'Helfer'} mit E-Mail-Adresse</>
+                    tm.rich('recipientAll', {
+                      count: recipientCount,
+                      strong: (chunks) => <strong>{chunks}</strong>,
+                    })
                   )}
                 </div>
 
                 {recipientCount === 0 && (
                   <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 13 }}>
                     {isSingle
-                      ? 'Dieser Helfer hat keine E-Mail-Adresse — eine Nachricht kann nicht zugestellt werden.'
-                      : 'Kein Helfer hat eine E-Mail-Adresse hinterlegt.'}
+                      ? tm('noEmailSingle')
+                      : tm('noEmailAll')}
                   </div>
                 )}
 
                 {/* Subject */}
                 <div className="auth-field">
-                  <label className="auth-field__label">Betreff (optional)</label>
+                  <label className="auth-field__label">{tm('subject')}</label>
                   <input
                     className="input"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder={`Info zu: ${plan.name}`}
+                    placeholder={tm('subjectPlaceholder', { plan: plan.name })}
                   />
                 </div>
 
                 {/* Message */}
                 <div className="auth-field">
-                  <label className="auth-field__label">Nachricht</label>
+                  <label className="auth-field__label">{tm('message')}</label>
                   <textarea
                     ref={textareaRef}
                     className="textarea"
@@ -161,7 +169,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
 
                 {/* Placeholder helper */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Platzhalter einfügen:</span>
+                  <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tm('insertPlaceholder')}</span>
                   {PLACEHOLDERS.map((p) => (
                     <button
                       key={p.token}
@@ -180,7 +188,10 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
                   ))}
                 </div>
                 <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: 0 }}>
-                  Die Platzhalter werden pro Helfer ersetzt — <code>{'{{schichten}}'}</code> fügt die jeweils eingetragenen Schichten als Liste ein.
+                  {tm.rich('placeholdersHint', {
+                    token: TOKEN_SHIFTS,
+                    code: (chunks) => <code>{chunks}</code>,
+                  })}
                 </p>
               </>
             )}
@@ -199,10 +210,10 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
               onClick={() => { setError(null); sendMutation.mutate(); }}
             >
               {sendMutation.isPending
-                ? t('common.saving')
+                ? tm('sending')
                 : isSingle
-                ? 'Senden'
-                : `An ${recipientCount} Helfer senden`}
+                ? tm('send')
+                : tm('sendToCount', { count: recipientCount })}
             </button>
           )}
         </div>

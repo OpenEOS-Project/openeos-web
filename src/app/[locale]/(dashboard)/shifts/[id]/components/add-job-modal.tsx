@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,20 +10,22 @@ import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 
-const schema = z.object({
-  // Multi-line textarea — one job name per non-empty line.
-  names: z
-    .string()
-    .min(1, 'Mindestens ein Name ist erforderlich')
-    .refine(
-      (v) => v.split('\n').map((s) => s.trim()).filter(Boolean).length > 0,
-      'Mindestens ein Name ist erforderlich',
-    ),
-  description: z.string().optional(),
-  requiredWorkers: z.number().int().min(1).max(50),
-});
+function createJobSchema(t: (key: string) => string) {
+  return z.object({
+    // Multi-line textarea — one job name per non-empty line.
+    names: z
+      .string()
+      .min(1, t('jobNameRequired'))
+      .refine(
+        (v) => v.split('\n').map((s) => s.trim()).filter(Boolean).length > 0,
+        t('jobNameRequired'),
+      ),
+    description: z.string().optional(),
+    requiredWorkers: z.number().int().min(1).max(50),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createJobSchema>>;
 
 interface AddJobModalProps {
   open: boolean;
@@ -33,6 +35,8 @@ interface AddJobModalProps {
 
 export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
   const t = useTranslations();
+  const tValidation = useTranslations('shifts.validation');
+  const schema = useMemo(() => createJobSchema(tValidation), [tValidation]);
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -66,7 +70,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
       reset();
       onClose();
     },
-    onError: (err: Error) => setError(err.message || 'Ein Fehler ist aufgetreten'),
+    onError: (err: Error) => setError(err.message || t('common.error')),
   });
 
   const onSubmit = (data: FormData) => { setError(null); createMutation.mutate(data); };
@@ -98,13 +102,13 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                     <textarea
                       className="textarea"
                       rows={5}
-                      placeholder={`Zapfen${'\n'}Grill${'\n'}Kasse`}
+                      placeholder={t('shifts.jobForm.namesPlaceholder')}
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                     />
                     <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
-                      Pro Zeile eine Arbeit — alle werden gleichzeitig angelegt.
+                      {t('shifts.jobForm.namesHint')}
                     </p>
                     {errors.names && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.names.message}</p>}
                   </div>
@@ -127,7 +131,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                 control={control}
                 render={({ field }) => (
                   <div className="auth-field">
-                    <label className="auth-field__label">Helfer pro Schicht *</label>
+                    <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} *</label>
                     <input
                       className="input"
                       type="number"
@@ -137,7 +141,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                     />
                     <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
-                      Standardwert für alle Schichten in dieser Arbeit. Einzelne Schichten kannst du danach überschreiben.
+                      {t('shifts.jobForm.workersDefaultHint')}
                     </p>
                   </div>
                 )}
@@ -151,7 +155,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
               {createMutation.isPending
                 ? t('common.saving')
                 : namesPreview.length > 1
-                ? `${namesPreview.length} Arbeiten anlegen`
+                ? t('shifts.jobForm.createMany', { count: namesPreview.length })
                 : t('shifts.editor.addJob')}
             </button>
           </div>

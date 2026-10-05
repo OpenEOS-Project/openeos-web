@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   X,
@@ -36,11 +36,12 @@ interface ShiftWizardModalProps {
 
 type WizardStep = 1 | 2 | 3 | 4;
 
-const STEP_LABELS = ['Datum', 'Zeit', 'Konfiguration', 'Vorschau'];
-
 export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardModalProps) {
   const applyToAll = jobIds.length > 1;
   const t = useTranslations();
+  const tw = useTranslations('shifts.wizardExtra');
+  const locale = useLocale();
+  const STEP_LABELS = [tw('stepDate'), tw('stepTime'), tw('stepConfig'), tw('stepPreview')];
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -134,7 +135,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      setError('Bitte wähle gültige Daten aus');
+      setError(tw('invalidDates'));
       return;
     }
 
@@ -145,7 +146,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
       const total = durationMinutes(s, e);
 
       if (total <= 0) {
-        setError(`Endzeit für ${dateStr} muss nach Startzeit liegen`);
+        setError(tw('endBeforeStart', { date: formatDateDisplay(dateStr) }));
         return;
       }
 
@@ -230,7 +231,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
       handleClose();
     },
     onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(err.message || t('common.error'));
     },
   });
 
@@ -251,7 +252,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
   const formatDateDisplay = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', {
+    return date.toLocaleDateString(locale, {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
@@ -301,13 +302,13 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 onClick={() => setStep((s) => (s - 1) as WizardStep)}
                 className="btn btn--ghost"
                 style={{ padding: '6px', minWidth: 'unset' }}
-                aria-label="Zurück"
+                aria-label={t('common.back')}
               >
                 <ArrowLeft className="size-5" />
               </button>
             )}
             <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>
-              {applyToAll ? 'Schichten für alle Arbeiten' : t('shifts.wizard.title')}
+              {applyToAll ? tw('titleAllJobs') : t('shifts.wizard.title')}
             </h2>
           </div>
 
@@ -345,7 +346,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
               onClick={handleClose}
               className="btn btn--ghost"
               style={{ padding: '6px', minWidth: 'unset' }}
-              aria-label="Schließen"
+              aria-label={t('common.close')}
             >
               <X className="size-5" />
             </button>
@@ -361,7 +362,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
               color: 'var(--green-ink)',
               border: '1px solid color-mix(in oklab, var(--green-ink) 25%, transparent)',
             }}>
-              Die generierten Schichten werden für alle {jobIds.length} Arbeiten in diesem Plan angelegt. Du kannst einzelne Schichten danach jederzeit pro Arbeit überschreiben.
+              {tw('applyToAllNotice', { count: jobIds.length })}
             </div>
           )}
           {error && (
@@ -434,15 +435,15 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 {datesInRange.length > 1 && (
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-faint)', cursor: 'pointer' }}>
                     <input type="checkbox" checked={perDay} onChange={(e) => setPerDay(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
-                    <span>Zeiten pro Tag</span>
+                    <span>{tw('perDay')}</span>
                   </label>
                 )}
               </div>
 
               <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
                 {perDay
-                  ? 'Trage für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z.B. 22:00–01:00), sind erlaubt.'
-                  : 'Endzeit vor Startzeit bedeutet, dass die Schicht über Mitternacht in den nächsten Tag läuft.'}
+                  ? tw('perDayHint')
+                  : tw('overnightHint')}
               </p>
 
               {!perDay ? (
@@ -470,10 +471,12 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
                   {canProceedStep2 && (
                     <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
-                      {t('shifts.wizard.totalHours', {
-                        hours: Math.round((durationMinutes(startTime, endTime) / 60) * 10) / 10,
-                      })}
-                      {timeToMinutes(endTime) <= timeToMinutes(startTime) && ' 🌙 über Nacht'}
+                      {t(
+                        timeToMinutes(endTime) <= timeToMinutes(startTime)
+                          ? 'shifts.wizardExtra.totalHoursOvernight'
+                          : 'shifts.wizard.totalHours',
+                        { hours: Math.round((durationMinutes(startTime, endTime) / 60) * 10) / 10 },
+                      )}
                     </p>
                   )}
                 </>
@@ -501,7 +504,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                           style={{ padding: '6px 10px', fontSize: 13 }}
                         />
                         <span style={{ fontSize: 11, color: overnight ? 'var(--warn-ink)' : 'var(--ink-faint)' }}>
-                          {Math.round((durationMinutes(s, e) / 60) * 10) / 10}h{overnight ? ' 🌙' : ''}
+                          {tw('hoursShort', { hours: Math.round((durationMinutes(s, e) / 60) * 10) / 10 })}{overnight ? ' 🌙' : ''}
                         </span>
                       </div>
                     );
@@ -540,7 +543,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
               )}
 
               <p style={{ margin: 0, fontSize: 12, color: 'var(--ink-faint)' }}>
-                Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen — du legst sie dort fest.
+                {tw('workersFromJob')}
               </p>
 
               {/* Overlap selection */}
@@ -560,7 +563,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                       className={overlapMins === mins ? 'btn btn--primary' : 'btn btn--ghost'}
                       style={{ fontSize: 13 }}
                     >
-                      {mins === 0 ? t('shifts.wizard.noOverlap') : `${mins} min`}
+                      {mins === 0 ? t('shifts.wizard.noOverlap') : tw('minutes', { count: mins })}
                     </button>
                   ))}
                 </div>
@@ -603,7 +606,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                   <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.preview')}</h3>
                 </div>
                 <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>
-                  {enabledShiftsCount} / {generatedShifts.length} {t('shifts.wizard.selected')}
+                  {tw('selectedCount', { enabled: enabledShiftsCount, total: generatedShifts.length })}
                 </span>
               </div>
 
@@ -730,7 +733,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 {createMutation.isPending
                   ? t('common.saving')
                   : applyToAll
-                  ? `${enabledShiftsCount * jobIds.length} Schichten für ${jobIds.length} Arbeiten anlegen`
+                  ? tw('createForAllJobs', { shifts: enabledShiftsCount * jobIds.length, jobs: jobIds.length })
                   : t('shifts.wizard.createShifts', { count: enabledShiftsCount })}
               </button>
             )}

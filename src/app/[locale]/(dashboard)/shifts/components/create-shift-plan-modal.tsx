@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,17 +8,19 @@ import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi, eventsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftPlan } from '@/types/shift';
 
-const schema = z.object({
-  eventId: z.string().optional(),
-  name: z.string().min(1, 'Name ist erforderlich').max(255),
-  description: z.string().optional(),
-});
+function createShiftPlanSchema(t: (key: string) => string) {
+  return z.object({
+    eventId: z.string().optional(),
+    name: z.string().min(1, t('nameRequired')).max(255),
+    description: z.string().optional(),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createShiftPlanSchema>>;
 
 interface CreateShiftPlanModalProps {
   open: boolean;
@@ -26,10 +28,13 @@ interface CreateShiftPlanModalProps {
   onCreated: (plan: ShiftPlan) => void;
 }
 
-const STEP_LABELS = ['Event', 'Name & Beschreibung', 'Erstellen'];
-
 export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPlanModalProps) {
   const t = useTranslations();
+  const tm = useTranslations('shifts.createModal');
+  const tValidation = useTranslations('validation');
+  const schema = useMemo(() => createShiftPlanSchema(tValidation), [tValidation]);
+  const { formatDate } = useLocaleFormat();
+  const STEP_LABELS = [tm('stepEvent'), tm('stepName'), tm('stepCreate')];
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -79,7 +84,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
     if (eventId && !currentName) {
       const event = events.find((e) => e.id === eventId);
       if (event) {
-        setValue('name', `${t('shifts.helperPlan')} ${event.name}`);
+        setValue('name', tm('defaultName', { event: event.name }));
       }
     }
   };
@@ -98,7 +103,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
       onCreated(response.data);
     },
     onError: (err: Error) => {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(err.message || t('common.error'));
     },
   });
 
@@ -177,11 +182,11 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
               {step === 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
-                    Wähle (optional) ein Event aus, zu dem dieser Schichtplan gehört. So bekommen die Helfer das Event-Datum direkt angezeigt.
+                    {tm('selectEventHint')}
                   </p>
                   {sortedEvents.length === 0 ? (
                     <div style={{ padding: 14, borderRadius: 8, background: 'color-mix(in oklab, var(--ink) 5%, transparent)', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                      Noch keine Events angelegt — du kannst den Plan auch ohne Event erstellen.
+                      {tm('noEvents')}
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -201,15 +206,15 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                           onChange={() => handleEventSelect('')}
                           style={{ accentColor: 'var(--green-ink)' }}
                         />
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>Kein Event (eigenständiger Plan)</span>
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>{tm('noEventStandalone')}</span>
                       </label>
                       {sortedEvents.map((event) => {
                         const statusBadge =
                           event.status === 'active'
-                            ? { label: 'Aktiv', bg: 'color-mix(in oklab, var(--green-ink) 18%, transparent)', fg: 'var(--green-ink)' }
+                            ? { label: tm('eventStatus.active'), bg: 'color-mix(in oklab, var(--green-ink) 18%, transparent)', fg: 'var(--green-ink)' }
                             : event.status === 'test'
-                            ? { label: 'Test', bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)' }
-                            : { label: 'Inaktiv', bg: 'color-mix(in oklab, var(--ink) 8%, transparent)', fg: 'color-mix(in oklab, var(--ink) 50%, transparent)' };
+                            ? { label: tm('eventStatus.test'), bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)' }
+                            : { label: tm('eventStatus.inactive'), bg: 'color-mix(in oklab, var(--ink) 8%, transparent)', fg: 'color-mix(in oklab, var(--ink) 50%, transparent)' };
                         return (
                           <label
                             key={event.id}
@@ -293,13 +298,13 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
               {step === 2 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
-                    Bitte prüfe deine Eingaben:
+                    {tm('reviewInput')}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, borderRadius: 8, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', background: 'color-mix(in oklab, var(--ink) 3%, transparent)' }}>
                     <div>
-                      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', color: 'color-mix(in oklab, var(--ink) 50%, transparent)', fontFamily: 'var(--f-mono)' }}>Event</div>
+                      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', color: 'color-mix(in oklab, var(--ink) 50%, transparent)', fontFamily: 'var(--f-mono)' }}>{tm('event')}</div>
                       <div style={{ fontSize: 14, marginTop: 2 }}>
-                        {selectedEvent ? selectedEvent.name : <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>Kein Event</span>}
+                        {selectedEvent ? selectedEvent.name : <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{tm('noEvent')}</span>}
                       </div>
                     </div>
                     <div>
@@ -326,7 +331,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
               disabled={step === 0}
               style={{ visibility: step === 0 ? 'hidden' : 'visible' }}
             >
-              Zurück
+              {t('common.back')}
             </button>
             <div style={{ display: 'flex', gap: 8 }}>
               <button type="button" className="btn btn--ghost" onClick={handleClose}>
@@ -334,7 +339,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
               </button>
               {!isLastStep ? (
                 <button type="button" className="btn btn--primary" onClick={handleNext}>
-                  Weiter
+                  {t('common.next')}
                 </button>
               ) : (
                 <button type="submit" className="btn btn--primary" disabled={createMutation.isPending}>

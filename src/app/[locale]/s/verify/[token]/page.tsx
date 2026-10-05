@@ -27,7 +27,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setErrorMessage('Ungültiger Verifizierungslink');
+      setErrorMessage(t('shifts.verify.invalidLink'));
       return;
     }
 
@@ -38,18 +38,18 @@ export default function VerifyEmailPage() {
           setResultData(response.data);
           setStatus('success');
         } else {
-          throw new Error('Unbekannter Fehler');
+          throw new Error(t('shifts.verify.unknownError'));
         }
       } catch (err) {
         setStatus('error');
         setErrorMessage(
-          err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten'
+          err instanceof Error ? err.message : t('common.error')
         );
       }
     };
 
     verifyEmail();
-  }, [token]);
+  }, [token, t]);
 
   const iconBox = (bg: string, children: React.ReactNode) => (
     <div style={{
@@ -146,7 +146,7 @@ export default function VerifyEmailPage() {
       }}>
         <span>© {new Date().getFullYear()} OpenEOS</span>
         <span style={{ opacity: 0.4 }}>·</span>
-        <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Impressum</a>
+        <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
       </footer>
 
       <style>{`

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { ShiftPlan } from '@/types/shift';
 
@@ -36,6 +36,8 @@ interface ShiftCard {
  *  shifts. */
 export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
   const t = useTranslations();
+  const tm = useTranslations('shifts.manualAdd');
+  const { formatDate } = useLocaleFormat();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -102,7 +104,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
         ),
       }))
       .filter((g) => g.shifts.length > 0);
-  }, [pickerGroups, shiftQuery]);
+  }, [pickerGroups, shiftQuery, formatDate]);
 
   const selectedShiftCards = allShifts.filter((s) => selectedShiftIds.has(s.shiftId));
 
@@ -162,7 +164,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
     <div className="modal__backdrop" onClick={handleClose}>
       <div className="modal__box modal__panel--lg" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Helfer manuell eintragen</div>
+          <div className="modal__title">{tm('title')}</div>
           <DialogCloseButton onClick={handleClose} />
         </div>
 
@@ -174,41 +176,41 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
-                <label className="auth-field__label">Name *</label>
-                <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Max Mustermann" />
+                <label className="auth-field__label">{t('shifts.form.name')} *</label>
+                <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder={tm('namePlaceholder')} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">E-Mail (optional)</label>
-                <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="max@example.com" />
+                <label className="auth-field__label">{tm('emailOptional')}</label>
+                <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={tm('emailPlaceholder')} />
                 {!email.trim() && (
                   <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>
-                    Ohne E-Mail erhält der Helfer keine Benachrichtigungen oder Erinnerungen.
+                    {tm('noEmailHint')}
                   </p>
                 )}
               </div>
             </div>
 
             <div className="auth-field">
-              <label className="auth-field__label">Telefon (optional)</label>
+              <label className="auth-field__label">{t('shifts.public.phone')}</label>
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="auth-field">
-                <label className="auth-field__label">Anmerkungen (vom Helfer)</label>
+                <label className="auth-field__label">{tm('helperNotes')}</label>
                 <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">Admin-Notizen</label>
+                <label className="auth-field__label">{tm('adminNotes')}</label>
                 <textarea className="textarea" rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>Schichten auswählen *</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{t('shifts.public.selectShifts')} *</span>
                 <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                  {selectedShiftIds.size} {selectedShiftIds.size === 1 ? 'Schicht' : 'Schichten'} gewählt
+                  {tm('selectedCount', { count: selectedShiftIds.size })}
                 </span>
               </div>
 
@@ -234,6 +236,8 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                         className="btn btn--ghost"
                         style={{ fontSize: 11, padding: '2px 8px' }}
                         onClick={() => setSelectedShiftIds((set) => { const next = new Set(set); next.delete(s.shiftId); return next; })}
+                        aria-label={tm('removeShift')}
+                        title={tm('removeShift')}
                       >
                         ×
                       </button>
@@ -245,7 +249,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
               <input
                 className="input"
                 type="search"
-                placeholder="Schicht suchen (Arbeit, Datum, Uhrzeit)…"
+                placeholder={tm('searchPlaceholder')}
                 value={shiftQuery}
                 onChange={(e) => setShiftQuery(e.target.value)}
                 style={{ fontSize: 13 }}
@@ -254,7 +258,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
               <div style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: 8, maxHeight: 320, overflowY: 'auto' }}>
                 {filteredGroups.length === 0 ? (
                   <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                    {shiftQuery.trim() ? 'Keine Schicht gefunden.' : 'Keine Schichten im Plan.'}
+                    {shiftQuery.trim() ? tm('noShiftFound') : tm('noShiftsInPlan')}
                   </div>
                 ) : (
                   filteredGroups.map(({ date, shifts }) => (
@@ -294,7 +298,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                                 {formatTime(s.startTime)}–{formatTime(s.endTime)}
                               </span>
                               <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: isSelected ? 'var(--green-ink)' : s.isFull ? 'var(--warn-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                {isSelected ? '✓ gewählt' : s.isFull ? `voll ${s.confirmedCount}/${s.requiredWorkers}` : `${s.confirmedCount}/${s.requiredWorkers}`}
+                                {isSelected ? tm('chosen') : s.isFull ? tm('fullCount', { confirmed: s.confirmedCount, required: s.requiredWorkers }) : `${s.confirmedCount}/${s.requiredWorkers}`}
                               </span>
                             </button>
                           );
@@ -305,13 +309,13 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                 )}
               </div>
               <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: 0 }}>
-                Volle Schichten lassen sich trotzdem auswählen (z.B. Springer eintragen).
+                {tm('fullSelectableHint')}
               </p>
             </div>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
               <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} style={{ accentColor: 'var(--green-ink)' }} />
-              <span>Helfer per E-Mail benachrichtigen (eine Sammel-Bestätigung)</span>
+              <span>{tm('notify')}</span>
             </label>
           </div>
         </div>
@@ -327,8 +331,8 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
             {mutation.isPending
               ? t('common.saving')
               : selectedShiftIds.size > 1
-              ? `${selectedShiftIds.size} Schichten eintragen`
-              : 'Eintragen'}
+              ? tm('submitMany', { count: selectedShiftIds.size })
+              : tm('submit')}
           </button>
         </div>
       </div>
