@@ -3043,5 +3043,14 @@
     "confirmIntro": "Please review your details. After creating it, you will be switched to the new organization automatically.",
     "creating": "Creating…",
     "createFailed": "Failed to create the organization"
+  },
+  "validation": {
+    "nameRequired": "Please enter a name",
+    "categoryRequired": "Please select a category",
+    "priceNotNegative": "The price must not be negative",
+    "amountNotNegative": "The amount must not be negative",
+    "amountRequired": "Please enter an amount for a fixed voucher",
+    "startRequired": "Please enter a start",
+    "endBeforeStart": "The end must not be before the start"
   }
 }

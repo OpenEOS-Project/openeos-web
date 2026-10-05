@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,14 +12,18 @@ import type { PfandType } from '@/types/pfand';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { PriceInput } from '@/components/shared/price-input';
 
-const pfandSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(255),
-  amount: z.coerce.number().min(0, 'Amount must be positive'),
-  isActive: z.boolean(),
-  sortOrder: z.coerce.number().min(0).optional(),
-});
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createPfandSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('nameRequired')).max(255),
+    amount: z.coerce.number().min(0, t('amountNotNegative')),
+    isActive: z.boolean(),
+    sortOrder: z.coerce.number().min(0).optional(),
+  });
+}
 
-type PfandFormData = z.infer<typeof pfandSchema>;
+type PfandFormData = z.infer<ReturnType<typeof createPfandSchema>>;
 
 interface PfandFormModalProps {
   isOpen: boolean;
@@ -31,6 +35,8 @@ interface PfandFormModalProps {
 export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: PfandFormModalProps) {
   const t = useTranslations('pfand');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createPfandSchema(tValidation), [tValidation]);
   const isEditing = !!pfandType;
 
   const createType = useCreatePfandType(organizationId);
@@ -42,7 +48,7 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
     reset,
     formState: { errors, isSubmitting },
   } = useForm<PfandFormData>({
-    resolver: zodResolver(pfandSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: { name: '', amount: 0, isActive: true, sortOrder: 0 },
   });
 
@@ -96,7 +102,7 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
                 <label className="auth-field">
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                  {errors.name && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
+                  {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                 </label>
               )}
             />
@@ -113,7 +119,7 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
                     onBlur={field.onBlur}
                     invalid={!!errors.amount}
                   />
-                  {errors.amount && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.amount.message}</span>}
+                  {errors.amount && <span role="alert" className="auth-field__error">{errors.amount.message}</span>}
                 </label>
               )}
             />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,16 +13,20 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ColorPicker } from '@/components/shared/color-picker';
 
-const productionStationSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  description: z.string().optional(),
-  color: z.string().optional(),
-  handoffStationId: z.string().optional(),
-  printerId: z.string().optional(),
-  isActive: z.boolean(),
-});
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createProductionStationSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('nameRequired')).max(200),
+    description: z.string().optional(),
+    color: z.string().optional(),
+    handoffStationId: z.string().optional(),
+    printerId: z.string().optional(),
+    isActive: z.boolean(),
+  });
+}
 
-type ProductionStationFormData = z.infer<typeof productionStationSchema>;
+type ProductionStationFormData = z.infer<ReturnType<typeof createProductionStationSchema>>;
 
 interface ProductionStationFormModalProps {
   isOpen: boolean;
@@ -51,6 +55,8 @@ export function ProductionStationFormModal({
 }: ProductionStationFormModalProps) {
   const t = useTranslations('productionStations');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createProductionStationSchema(tValidation), [tValidation]);
   const isEditing = !!station;
 
   const { data: stations } = useProductionStations(eventId);
@@ -64,7 +70,7 @@ export function ProductionStationFormModal({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ProductionStationFormData>({
-    resolver: zodResolver(productionStationSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       name: '', description: '', color: '', handoffStationId: '',
       printerId: '', isActive: true,

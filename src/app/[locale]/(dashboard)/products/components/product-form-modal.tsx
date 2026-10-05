@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,23 +24,27 @@ import { PriceInput } from '@/components/shared/price-input';
 import { useOrganization } from '@/hooks/use-organizations';
 import { taxRatesFor } from '@/lib/tax-rates';
 
-const productSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  description: z.string().optional(),
-  categoryId: z.string().uuid('Category is required'),
-  price: z.coerce.number().min(0, 'Price must be positive'),
-  taxRate: z.coerce.number().min(0).max(100).optional(),
-  isActive: z.boolean(),
-  isAvailable: z.boolean(),
-  trackInventory: z.boolean(),
-  stockQuantity: z.coerce.number().min(0).optional(),
-  stockUnit: z.string().optional(),
-  sortOrder: z.coerce.number().min(0).optional(),
-  productionStationId: z.string().optional(),
-  pfandTypeId: z.string().optional(),
-});
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createProductSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('nameRequired')).max(200),
+    description: z.string().optional(),
+    categoryId: z.string().uuid(t('categoryRequired')),
+    price: z.coerce.number().min(0, t('priceNotNegative')),
+    taxRate: z.coerce.number().min(0).max(100).optional(),
+    isActive: z.boolean(),
+    isAvailable: z.boolean(),
+    trackInventory: z.boolean(),
+    stockQuantity: z.coerce.number().min(0).optional(),
+    stockUnit: z.string().optional(),
+    sortOrder: z.coerce.number().min(0).optional(),
+    productionStationId: z.string().optional(),
+    pfandTypeId: z.string().optional(),
+  });
+}
 
-type ProductFormData = z.infer<typeof productSchema>;
+type ProductFormData = z.infer<ReturnType<typeof createProductSchema>>;
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -52,6 +56,8 @@ interface ProductFormModalProps {
 export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductFormModalProps) {
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createProductSchema(tValidation), [tValidation]);
   const isEditing = !!product;
 
   const { data: categories } = useCategories(eventId);
@@ -86,7 +92,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -310,7 +316,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                     <label className="auth-field">
                       <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                       <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                      {errors.name && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
+                      {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                     </label>
                   )}
                 />
@@ -381,7 +387,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         onBlur={field.onBlur}
                         invalid={!!errors.price}
                       />
-                      {errors.price && <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.price.message}</span>}
+                      {errors.price && <span role="alert" className="auth-field__error">{errors.price.message}</span>}
                     </label>
                   )}
                 />
@@ -440,7 +446,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                           <option key={station.id} value={station.id}>{station.name}</option>
                         ))}
                       </select>
-                      <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>
+                      <span className="auth-field__hint">
                         {field.value ? t('form.productionStationOverride') : t('form.productionStationInherit')}
                       </span>
                     </label>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,22 +15,26 @@ import type { DiscountVoucher } from '@/types/discount-voucher';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { PriceInput } from '@/components/shared/price-input';
 
-const voucherSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required').max(255),
-    description: z.string().optional(),
-    type: z.enum(['fixed', 'manual']),
-    amount: z.coerce.number().min(0).optional(),
-    isActive: z.boolean(),
-    allowMultiplePerOrder: z.boolean(),
-    sortOrder: z.coerce.number().min(0).optional(),
-  })
-  .refine((data) => data.type !== 'fixed' || (data.amount !== undefined && data.amount > 0), {
-    message: 'Amount is required for fixed vouchers',
-    path: ['amount'],
-  });
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createVoucherSchema(t: (key: string) => string) {
+  return z
+    .object({
+      name: z.string().min(1, t('nameRequired')).max(255),
+      description: z.string().optional(),
+      type: z.enum(['fixed', 'manual']),
+      amount: z.coerce.number().min(0).optional(),
+      isActive: z.boolean(),
+      allowMultiplePerOrder: z.boolean(),
+      sortOrder: z.coerce.number().min(0).optional(),
+    })
+    .refine((data) => data.type !== 'fixed' || (data.amount !== undefined && data.amount > 0), {
+      message: t('amountRequired'),
+      path: ['amount'],
+    });
+}
 
-type VoucherFormData = z.infer<typeof voucherSchema>;
+type VoucherFormData = z.infer<ReturnType<typeof createVoucherSchema>>;
 
 interface DiscountFormModalProps {
   isOpen: boolean;
@@ -42,6 +46,8 @@ interface DiscountFormModalProps {
 export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: DiscountFormModalProps) {
   const t = useTranslations('discounts');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createVoucherSchema(tValidation), [tValidation]);
   const isEditing = !!voucher;
 
   const createVoucher = useCreateDiscountVoucher(organizationId);
@@ -54,7 +60,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
     watch,
     formState: { errors, isSubmitting },
   } = useForm<VoucherFormData>({
-    resolver: zodResolver(voucherSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -132,7 +138,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                 <label className="auth-field">
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
-                  {errors.name && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>}
+                  {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                 </label>
               )}
             />
@@ -160,7 +166,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                     <option value="fixed">{t('types.fixed')}</option>
                     <option value="manual">{t('types.manual')}</option>
                   </select>
-                  <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, marginTop: 4 }}>
+                  <span className="auth-field__hint">
                     {type === 'fixed' ? t('form.typeFixedHint') : t('form.typeManualHint')}
                   </span>
                 </label>
@@ -181,7 +187,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                       onBlur={field.onBlur}
                       invalid={!!errors.amount}
                     />
-                    {errors.amount && <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.amount.message}</span>}
+                    {errors.amount && <span role="alert" className="auth-field__error">{errors.amount.message}</span>}
                   </label>
                 )}
               />

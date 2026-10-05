@@ -3043,5 +3043,14 @@
     "confirmIntro": "Bitte prüfen Sie Ihre Angaben. Nach dem Erstellen wechseln Sie automatisch zur neuen Organisation.",
     "creating": "Wird erstellt…",
     "createFailed": "Fehler beim Erstellen der Organisation"
+  },
+  "validation": {
+    "nameRequired": "Bitte geben Sie einen Namen ein",
+    "categoryRequired": "Bitte wählen Sie eine Kategorie",
+    "priceNotNegative": "Der Preis darf nicht negativ sein",
+    "amountNotNegative": "Der Betrag darf nicht negativ sein",
+    "amountRequired": "Bitte geben Sie für einen festen Bon einen Betrag an",
+    "startRequired": "Bitte geben Sie einen Beginn an",
+    "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
   }
 }

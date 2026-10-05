@@ -1503,7 +1503,11 @@ body:has(.landing) {
   display: flex; flex-direction: column;
   gap: 6px;
 }
-.landing .auth-field > span {
+/* Nur die Beschriftung oben im Feld. Hinweise und Fehlermeldungen unter
+   dem Eingabefeld sind ebenfalls <span>s — ohne :first-child standen sie
+   als Versal-Mono-Ueberschrift da ("BEI LEERER AUSWAHL …"). Sie tragen
+   .auth-field__hint bzw. .auth-field__error. */
+.landing .auth-field > span:first-child {
   font-family: var(--f-mono, "JetBrains Mono", ui-monospace, monospace);
   font-size: 11px;
   text-transform: uppercase;
