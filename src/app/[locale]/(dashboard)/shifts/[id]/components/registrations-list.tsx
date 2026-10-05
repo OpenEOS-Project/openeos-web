@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
 import { SendMessageModal } from './send-message-modal';
@@ -50,20 +50,22 @@ const formatTime = (time: string): string => {
   return `${parts[0]}:${parts[1]}`;
 };
 
-const statusBadge: Record<ShiftRegistrationStatus, string> = {
-  pending_email: 'badge badge--neutral',
-  pending_approval: 'badge badge--warning',
-  confirmed: 'badge badge--success',
-  rejected: 'badge badge--error',
-  cancelled: 'badge badge--neutral',
-};
-
 interface RegistrationsListProps {
   plan: ShiftPlan;
 }
 
 export function RegistrationsList({ plan }: RegistrationsListProps) {
   const t = useTranslations();
+  const tr = useTranslations('shifts.registrationsList');
+  const locale = useLocale();
+  const { formatDate } = useLocaleFormat();
+  const rowStatusLabel: Record<ShiftRegistrationStatus, string> = {
+    confirmed: tr('rowStatus.confirmed'),
+    pending_email: tr('rowStatus.pending_email'),
+    pending_approval: tr('rowStatus.pending_approval'),
+    rejected: tr('rowStatus.rejected'),
+    cancelled: tr('rowStatus.cancelled'),
+  };
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -219,7 +221,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
               onClick={() => setManualAddOpen(true)}
             >
               <UserPlus01 style={{ width: 16, height: 16 }} />
-              <span>Helfer manuell eintragen</span>
+              <span>{t('shifts.manualAdd.title')}</span>
             </button>
           }
         />
@@ -232,15 +234,15 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
-          {t('shifts.registration.title')} ({groups.length}/{allGroups.length})
+          {tr('heading', { shown: groups.length, total: allGroups.length })}
         </span>
         {(() => {
           const pills: Array<{ key: Filter; label: string }> = [
-            { key: 'all', label: 'Alle' },
-            { key: 'unconfirmed', label: 'Nicht bestätigt' },
-            { key: 'pending_email', label: 'E-Mail offen' },
-            { key: 'pending_approval', label: 'Approval offen' },
-            { key: 'confirmed', label: 'Bestätigt' },
+            { key: 'all', label: tr('filter.all') },
+            { key: 'unconfirmed', label: tr('filter.unconfirmed') },
+            { key: 'pending_email', label: tr('filter.pending_email') },
+            { key: 'pending_approval', label: tr('filter.pending_approval') },
+            { key: 'confirmed', label: tr('filter.confirmed') },
           ];
           return (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -273,17 +275,17 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
             onClick={() => { setMessageHelper(null); setMessageModalOpen(true); }}
             disabled={allHelperEmails.length === 0}
-            title="E-Mail an alle Helfer senden"
+            title={tr('sendToAllTitle')}
           >
             <Mail01 style={{ width: 16, height: 16 }} />
-            <span>An alle senden</span>
+            <span>{tr('sendToAll')}</span>
           </button>
           <button
             className="btn btn--primary"
             style={iconBtnStyle()}
             onClick={() => setManualAddOpen(true)}
-            title="Helfer manuell eintragen"
-            aria-label="Helfer manuell eintragen"
+            title={t('shifts.manualAdd.title')}
+            aria-label={t('shifts.manualAdd.title')}
           >
             <UserPlus01 style={{ width: 18, height: 18 }} />
           </button>
@@ -297,7 +299,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
           color: 'color-mix(in oklab, var(--ink) 55%, transparent)',
           fontSize: 13, textAlign: 'center',
         }}>
-          Keine Anmeldungen im aktuellen Filter — wähle einen anderen Filter oder „Alle".
+          {tr('emptyFilter')}
         </div>
       )}
       {groups.map((group) => {
@@ -321,12 +323,12 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
         const hasPendingApproval = (statusCounts.pending_approval ?? 0) > 0;
         const allConfirmed = confirmed === total;
         const summaryBadge = allConfirmed
-          ? { cls: 'badge badge--success', label: 'Alle bestätigt' }
+          ? { cls: 'badge badge--success', label: tr('summary.allConfirmed') }
           : hasPendingEmail
-          ? { cls: 'badge badge--neutral', label: `${confirmed}/${total} bestätigt · E-Mail offen` }
+          ? { cls: 'badge badge--neutral', label: tr('summary.pendingEmail', { confirmed, total }) }
           : hasPendingApproval
-          ? { cls: 'badge badge--warning', label: `${confirmed}/${total} bestätigt · Approval offen` }
-          : { cls: 'badge badge--neutral', label: `${confirmed}/${total} bestätigt` };
+          ? { cls: 'badge badge--warning', label: tr('summary.pendingApproval', { confirmed, total }) }
+          : { cls: 'badge badge--neutral', label: tr('summary.confirmed', { confirmed, total }) };
 
         return (
           <div key={helperKey(firstReg)} className="app-card">
@@ -342,7 +344,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{firstReg.name}</div>
-                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.email || '— ohne E-Mail —'}</div>
+                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.email || tr('noEmail')}</div>
                   {firstReg.phone && (
                     <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{firstReg.phone}</div>
                   )}
@@ -353,7 +355,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
             {/* Shifts */}
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Schichten:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tr('shiftsLabel')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {(() => {
                   // Detect overlapping rows within this helper's signups so
@@ -383,22 +385,23 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                   return group.map((reg) => {
                     const registeredAt = reg.createdAt ? new Date(reg.createdAt) : null;
                     const registeredAtLabel = registeredAt
-                      ? registeredAt.toLocaleString('de-DE', {
+                      ? registeredAt.toLocaleString(locale, {
                           day: '2-digit', month: '2-digit', year: '2-digit',
                           hour: '2-digit', minute: '2-digit',
                         })
                       : null;
                     const overlaps = overlapIds.has(reg.id);
+                    const statusLabel = rowStatusLabel[reg.status] ?? reg.status;
                     const statusBadgeStyle =
                       reg.status === 'confirmed'
-                        ? { bg: 'color-mix(in oklab, var(--green-soft) 70%, transparent)', fg: 'var(--green-ink)', label: 'bestätigt' }
+                        ? { bg: 'color-mix(in oklab, var(--green-soft) 70%, transparent)', fg: 'var(--green-ink)', label: statusLabel }
                         : reg.status === 'pending_email'
-                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'E-Mail offen' }
+                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: statusLabel }
                         : reg.status === 'pending_approval'
-                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'Approval offen' }
+                        ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: statusLabel }
                         : reg.status === 'rejected'
-                        ? { bg: 'color-mix(in oklab, var(--danger) 18%, transparent)', fg: 'var(--danger-ink)', label: 'abgelehnt' }
-                        : { bg: 'color-mix(in oklab, var(--ink) 12%, transparent)', fg: 'color-mix(in oklab, var(--ink) 70%, transparent)', label: reg.status };
+                        ? { bg: 'color-mix(in oklab, var(--danger) 18%, transparent)', fg: 'var(--danger-ink)', label: statusLabel }
+                        : { bg: 'color-mix(in oklab, var(--ink) 12%, transparent)', fg: 'color-mix(in oklab, var(--ink) 70%, transparent)', label: statusLabel };
 
                     return (
                       <div
@@ -431,17 +434,17 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                         {overlaps && (
                           <span
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warn-ink)', fontWeight: 600 }}
-                            title="Diese Schicht überschneidet sich zeitlich mit einer anderen Schicht des Helfers"
+                            title={tr('overlapTitle')}
                           >
                             <AlertCircle style={{ width: 12, height: 12 }} />
-                            Überschneidung
+                            {t('shifts.public.overlap')}
                           </span>
                         )}
                         <span style={{ flex: 1 }} />
                         {registeredAtLabel && (
                           <span
                             style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}
-                            title={`Eingetragen am ${registeredAtLabel}`}
+                            title={tr('registeredAt', { date: registeredAtLabel })}
                           >
                             <Clock style={{ width: 10, height: 10, display: 'inline', verticalAlign: '-1px', marginRight: 2 }} />
                             {registeredAtLabel}
@@ -452,12 +455,12 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                           className="btn btn--ghost"
                           style={{ padding: 2, width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--red, var(--danger))' }}
                           onClick={() => {
-                            if (confirm(`Schicht "${reg.shift?.job?.name}" am ${formatDate(reg.shift?.date || '')} entfernen?`)) {
+                            if (confirm(tr('confirmRemoveShift', { job: reg.shift?.job?.name ?? '', date: formatDate(reg.shift?.date || '') }))) {
                               removeShiftMutation.mutate(reg.id);
                             }
                           }}
-                          title="Diese Schicht entfernen"
-                          aria-label="Diese Schicht entfernen"
+                          title={tr('removeShift')}
+                          aria-label={tr('removeShift')}
                           disabled={removeShiftMutation.isPending}
                         >
                           <Trash01 style={{ width: 12, height: 12 }} />
@@ -471,7 +474,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
 
             {firstReg.notes && (
               <div style={{ marginBottom: 12, padding: '8px 12px', borderRadius: 6, background: 'color-mix(in oklab, var(--ink) 4%, transparent)', fontSize: 13 }}>
-                <strong>Anmerkungen:</strong> {firstReg.notes}
+                <strong>{tr('notesLabel')}</strong> {firstReg.notes}
               </div>
             )}
 
@@ -518,8 +521,8 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     style={{ ...iconBtnStyle(), color: 'var(--green-ink)' }}
                     onClick={() => verifyMutation.mutate(verifyReps)}
                     disabled={verifyMutation.isPending}
-                    title="Als verifiziert markieren (E-Mail-Bestätigung überspringen) — wirkt auf alle ausstehenden Schichten"
-                    aria-label="Als verifiziert markieren"
+                    title={tr('markVerifiedTitle')}
+                    aria-label={tr('markVerified')}
                   >
                     <CheckCircle style={{ width: 16, height: 16 }} />
                   </button>
@@ -529,8 +532,8 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 className="btn btn--ghost"
                 style={iconBtnStyle()}
                 onClick={() => { setSelectedRegistration(firstReg); setEditOpen(true); }}
-                title="Anmeldung bearbeiten"
-                aria-label="Anmeldung bearbeiten"
+                title={tr('editRegistration')}
+                aria-label={tr('editRegistration')}
               >
                 <Edit01 style={{ width: 16, height: 16 }} />
               </button>
@@ -551,7 +554,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                   if (
                     confirm(
                       groupReps.length > 1
-                        ? `${total} Schichten von ${firstReg.name} aus ${groupReps.length} Anmeldungen löschen?`
+                        ? tr('confirmDeleteMany', { shifts: total, name: firstReg.name, registrations: groupReps.length })
                         : t('shifts.registration.confirmDelete'),
                     )
                   ) deleteMutation.mutate(groupRepIds);

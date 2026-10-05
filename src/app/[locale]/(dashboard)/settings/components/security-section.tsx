@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   use2FAStatus,
   useSetupTotp,
@@ -24,6 +24,7 @@ type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'reco
 
 export function SecuritySection() {
   const t = useTranslations('settings.security');
+  const locale = useLocale();
 
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [showDisableModal, setShowDisableModal] = useState(false);
@@ -94,7 +95,7 @@ export function SecuritySection() {
   };
 
   const formatDate = (date: Date | string) =>
-    new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    new Date(date).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -194,7 +195,11 @@ export function SecuritySection() {
           // passt (unbekannter Browser, Bot, o.ae.).
           const parsedUa = session.deviceInfo ? parseUserAgent(session.deviceInfo) : null;
           const deviceLabel = parsedUa
-            ? t('sessions.deviceLabel', { browser: parsedUa.browser, os: parsedUa.os })
+            ? t('sessions.deviceLabel', {
+                // parseUserAgent liefert fuer Unbekanntes das Literal 'Unknown'.
+                browser: parsedUa.browser === 'Unknown' ? t('sessions.unknownBrowser') : parsedUa.browser,
+                os: parsedUa.os === 'Unknown' ? t('sessions.unknownOs') : parsedUa.os,
+              })
             : t('sessions.unknownDevice');
           const metaParts = [session.ipAddress, `${t('sessions.lastActive')}: ${formatDate(session.lastActiveAt)}`].filter((part): part is string => Boolean(part));
           return (
@@ -247,7 +252,7 @@ export function SecuritySection() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.scanQrCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.scanQrCodeDescription')}</p></div>
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <img src={totpSetupData.qrCodeDataUrl} alt="QR Code" style={{ width: 160, height: 160, borderRadius: 8 }} />
+                    <img src={totpSetupData.qrCodeDataUrl} alt={t('twoFactor.qrCodeAlt')} style={{ width: 160, height: 160, borderRadius: 8 }} />
                   </div>
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.manualEntry')}</div>
@@ -262,7 +267,7 @@ export function SecuritySection() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.enterCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.enterCodeDescription')}</p></div>
                   <div className="auth-field">
-                    <label className="auth-field__label">Code</label>
+                    <label className="auth-field__label">{t('twoFactor.codeLabel')}</label>
                     <input className="input" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="000000" maxLength={6} style={{ textAlign: 'center', fontSize: 20, letterSpacing: 6 }} />
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -278,7 +283,7 @@ export function SecuritySection() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div><div style={{ fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.enterCode')}</div><p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.emailSent')}</p></div>
                   <div className="auth-field">
-                    <label className="auth-field__label">Code</label>
+                    <label className="auth-field__label">{t('twoFactor.codeLabel')}</label>
                     <input className="input" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="000000" maxLength={6} style={{ textAlign: 'center', fontSize: 20, letterSpacing: 6 }} />
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>

@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Receipt, BankNote01, CreditCard01, Scissors01 } from '@untitledui/icons';
-import { cx } from '@/utils/cx';
-import { Button } from '@/components/ui/buttons/button';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { CashPaymentModal } from './cash-payment-modal';
+import { PosPortal } from './pos-portal';
+import { PosSheet, usePosSheetClose } from './pos-sheet';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
 import type { Order } from '@/types/order';
@@ -103,6 +102,8 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
     }
   };
 
+  const { closing, close } = usePosSheetClose(isOpen, onClose);
+
   const handleSplit = () => {
     onSplitPayment();
     onClose();
@@ -110,155 +111,130 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
 
   return (
     <>
-      <DialogModal
-        isOpen={isOpen}
-        onClose={onClose}
-        title={t('title')}
-        size="lg"
-      >
-        <div className="flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-          {isLoading ? (
-            <div className="flex h-48 items-center justify-center p-6">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="flex h-48 flex-col items-center justify-center text-center p-6">
-              <Receipt className="h-12 w-12 text-tertiary mb-4" />
-              <p className="text-lg font-medium text-primary">{t('noOpenTabs')}</p>
-              <p className="text-sm text-tertiary">{t('noOpenTabsDescription')}</p>
-            </div>
-          ) : (
-            <>
-              {/* Summary */}
-              <div className="px-6 pt-6 pb-3">
-                <div className="rounded-lg bg-secondary p-3 flex items-center justify-between">
-                  <p className="font-medium text-primary">
-                    {orders.length} {t('orders', { count: orders.length })}
-                  </p>
-                  <div className="text-right">
-                    <p className="text-sm text-tertiary">{t('totalOpen')}</p>
-                    <p className="text-lg font-bold text-primary">
-                      {formatCurrency(totalRemaining)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Scrollable order list */}
-              <div className="flex-1 overflow-auto px-6 pb-3">
-                <div className="space-y-3">
-                  {orders.map((order) => {
-                    const remaining = getRemainingAmount(order);
-
-                    return (
-                      <div
-                        key={order.id}
-                        className="rounded-lg border border-secondary bg-primary p-4"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-primary">
-                              #{order.dailyNumber || order.orderNumber}
-                            </span>
-                            {order.tableNumber && (
-                              <span className="text-sm text-tertiary">
-                                {t('table')} {order.tableNumber}
-                              </span>
-                            )}
-                            {order.customerName && (
-                              <span className="text-sm text-tertiary">- {order.customerName}</span>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-brand-primary">
-                              {formatCurrency(remaining)}
-                            </p>
-                            {Number(order.paidAmount) > 0 && (
-                              <p className="text-xs text-tertiary">
-                                {t('partlyPaid', { amount: formatCurrency(Number(order.paidAmount)) })}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Items inline */}
-                        {order.items && order.items.length > 0 && (
-                          <div className="space-y-0.5">
-                            {order.items
-                              .filter((item) => item.status !== 'cancelled')
-                              .map((item, idx) => {
-                                const isFullyPaid = (item.paidQuantity || 0) >= item.quantity;
-
-                                return (
-                                  <div
-                                    key={idx}
-                                    className={cx(
-                                      'flex justify-between text-sm',
-                                      isFullyPaid && 'line-through opacity-60'
-                                    )}
-                                  >
-                                    <span className={cx(isFullyPaid ? 'text-error-primary' : 'text-tertiary')}>
-                                      {item.quantity}x {item.productName}
-                                    </span>
-                                    <span className={cx(isFullyPaid ? 'text-error-primary' : 'text-primary')}>
-                                      {formatCurrency(Number(item.totalPrice))}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Sticky footer with payment actions */}
-              <div className="border-t border-secondary px-6 py-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-primary">{t('totalOpen')}</span>
-                  <span className="text-2xl font-bold text-brand-primary">
+      {isOpen && (
+        <PosSheet
+          closing={closing}
+          onClose={close}
+          title={t('title')}
+          subtitle={
+            orders.length > 0 ? `${orders.length} ${t('orders', { count: orders.length })}` : undefined
+          }
+          footer={
+            orders.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('totalOpen')}</span>
+                  <span className="pos-mono" style={{ fontSize: 24, fontWeight: 700, color: 'var(--pos-ink)' }}>
                     {formatCurrency(totalRemaining)}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    color="secondary"
-                    size="lg"
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button
+                    type="button"
+                    className="pos-btn pos-btn--secondary"
                     onClick={handleCashPayment}
                     disabled={isProcessing}
-                    iconLeading={BankNote01}
                   >
+                    <BankNote01 />
                     {t('payCash')}
-                  </Button>
-                  <Button
-                    size="lg"
+                  </button>
+                  <button
+                    type="button"
+                    className="pos-btn pos-btn--primary"
                     onClick={handleCardPayment}
                     disabled={isProcessing}
-                    iconLeading={CreditCard01}
                   >
+                    <CreditCard01 />
                     {t('payCard')}
-                  </Button>
+                  </button>
                 </div>
-
-                <Button
-                  color="tertiary"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleSplit}
-                  iconLeading={Scissors01}
-                >
+                <button type="button" className="pos-btn pos-btn--ghost" onClick={handleSplit}>
+                  <Scissors01 />
                   {t('splitBill')}
-                </Button>
+                </button>
               </div>
-            </>
-          )}
-        </div>
-      </DialogModal>
+            ) : undefined
+          }
+        >
+          {isLoading ? (
+            <div className="pos-sheet-empty">
+              <div className="pos-spinner" />
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="pos-sheet-empty">
+              <Receipt />
+              <strong>{t('noOpenTabs')}</strong>
+              <span>{t('noOpenTabsDescription')}</span>
+            </div>
+          ) : (
+            orders.map((order) => {
+              const remaining = getRemainingAmount(order);
+              const items = (order.items ?? []).filter((item) => item.status !== 'cancelled');
 
-      {/* Cash Payment Modal */}
+              return (
+                <div key={order.id} className="pos-card" style={{ padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                    <div style={{ minWidth: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '2px 8px' }}>
+                      <span className="pos-mono" style={{ fontSize: 15, fontWeight: 700, color: 'var(--pos-ink)' }}>
+                        #{order.dailyNumber || order.orderNumber}
+                      </span>
+                      {order.tableNumber && (
+                        <span style={{ fontSize: 13, color: 'var(--pos-ink-2)' }}>
+                          {t('table')} {order.tableNumber}
+                        </span>
+                      )}
+                      {order.customerName && (
+                        <span style={{ fontSize: 13, color: 'var(--pos-ink-2)' }}>{order.customerName}</span>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div className="pos-mono" style={{ fontSize: 16, fontWeight: 700, color: 'var(--pos-accent-ink)' }}>
+                        {formatCurrency(remaining)}
+                      </div>
+                      {Number(order.paidAmount) > 0 && (
+                        <div style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>
+                          {t('partlyPaid', { amount: formatCurrency(Number(order.paidAmount)) })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {items.length > 0 && (
+                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {items.map((item, idx) => {
+                        // Schon bezahlte Positionen bleiben sichtbar, aber durchgestrichen.
+                        const isFullyPaid = (item.paidQuantity || 0) >= item.quantity;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              gap: 12,
+                              fontSize: 13,
+                              color: isFullyPaid ? 'var(--pos-ink-3)' : 'var(--pos-ink-2)',
+                              textDecoration: isFullyPaid ? 'line-through' : undefined,
+                            }}
+                          >
+                            <span style={{ minWidth: 0 }}>
+                              {item.quantity}× {item.productName}
+                            </span>
+                            <span className="pos-mono" style={{ flexShrink: 0 }}>
+                              {formatCurrency(Number(item.totalPrice))}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </PosSheet>
+      )}
+
+      {/* Bar und Karte liegen ueber der Liste */}
       <CashPaymentModal
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
@@ -266,17 +242,17 @@ export function OpenTabsDrawer({ isOpen, onClose, onSplitPayment }: OpenTabsDraw
         onConfirm={handleCashConfirm}
         isProcessing={isProcessing}
       />
-
-      {/* SumUp Checkout Modal */}
-      <SumUpCheckoutModal
-        isOpen={showSumupModal}
-        onClose={() => setShowSumupModal(false)}
-        amount={totalRemaining}
-        onSuccess={() => {
-          setShowSumupModal(false);
-          payAllOrders('sumup_terminal' as PaymentMethod);
-        }}
-      />
+      <PosPortal>
+        <SumUpCheckoutModal
+          isOpen={showSumupModal}
+          onClose={() => setShowSumupModal(false)}
+          amount={totalRemaining}
+          onSuccess={() => {
+            setShowSumupModal(false);
+            payAllOrders('sumup_terminal' as PaymentMethod);
+          }}
+        />
+      </PosPortal>
     </>
   );
 }

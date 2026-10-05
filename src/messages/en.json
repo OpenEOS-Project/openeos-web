@@ -23,7 +23,11 @@
     "no": "No",
     "refresh": "Refresh",
     "toEvents": "Go to Events",
-    "details": "Details"
+    "details": "Details",
+    "noOrganization": {
+      "title": "No organization selected",
+      "description": "Please select an organization first."
+    }
   },
   "auth": {
     "login": {
@@ -127,7 +131,7 @@
           "label": "Organization",
           "title": "Your organization",
           "copy": "Club, promoter or business. Your events, products and tills run under this name.",
-          "name": "Organisation name"
+          "name": "Organization name"
         },
         "confirm": {
           "label": "Confirmation",
@@ -154,7 +158,8 @@
       },
       "resendCta": "Resend confirmation email",
       "resendSent": "Email has been resent.",
-      "successCopyLink": "We sent a login link to {email}. That is all you need — no password required."
+      "successCopyLink": "We sent a login link to {email}. That is all you need — no password required.",
+      "progress": "Progress"
     },
     "forgotPassword": {
       "title": "Forgot password",
@@ -167,7 +172,8 @@
       "successMessage": "If an account exists with this email, you will receive an email shortly with a link to reset your password.",
       "errors": {
         "invalidEmail": "Invalid email address"
-      }
+      },
+      "emailPlaceholder": "name@example.com"
     },
     "resetPassword": {
       "title": "Set new password",
@@ -210,6 +216,35 @@
     },
     "layout": {
       "rightsReserved": "All rights reserved."
+    },
+    "twoFactorVerify": {
+      "codeLength": "Code must be 6 characters",
+      "unknownBrowser": "Unknown browser",
+      "unknownOs": "unknown OS",
+      "deviceInfo": "{browser} on {os}",
+      "errors": {
+        "invalidSession": "Invalid session. Please sign in again.",
+        "invalidRecoveryCode": "Invalid recovery code",
+        "invalidCode": "Invalid verification code",
+        "resendFailed": "Could not resend the code"
+      },
+      "invalidSessionTitle": "Invalid session",
+      "invalidSessionMessage": "Your session has expired or is invalid. Please sign in again.",
+      "toLogin": "Go to login",
+      "title": "Two-factor authentication",
+      "subtitleRecovery": "Enter one of your recovery codes",
+      "subtitleEmail": "We have sent you a verification code by email",
+      "subtitleTotp": "Enter the code from your authenticator app",
+      "recoveryCode": "Recovery code",
+      "verificationCode": "Verification code",
+      "trustDevice": "Trust this device for 30 days",
+      "verifying": "Verifying...",
+      "verify": "Verify",
+      "resendCooldown": "Resend code ({seconds}s)",
+      "resend": "Resend code",
+      "useVerificationCode": "Sign in with verification code",
+      "useRecoveryCode": "Use a recovery code",
+      "backToLogin": "Back to login"
     }
   },
   "sidebar": {
@@ -248,7 +283,8 @@
       "empty": {
         "title": "No activity",
         "description": "No orders have been recorded yet. Start an event to begin accepting orders."
-      }
+      },
+      "itemCount": "{count, plural, one {# item} other {# items}}"
     },
     "superAdmin": {
       "stats": {
@@ -418,6 +454,12 @@
         "week": "last 7 days",
         "event": "event"
       }
+    },
+    "tile": {
+      "move": "Move {label}",
+      "size": "{label}: {width} by {height}",
+      "remove": "Remove {label}",
+      "resize": "Resize {label}"
     }
   },
   "navigation": {
@@ -469,7 +511,14 @@
       "deleteAvatar": "Remove image",
       "saveChanges": "Save changes",
       "saving": "Saving...",
-      "saved": "Profile updated successfully"
+      "saved": "Profile updated successfully",
+      "replaceAvatar": "Replace image",
+      "errors": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "uploadFailed": "Upload failed",
+        "removeFailed": "Could not remove the image"
+      }
     },
     "account": {
       "title": "Account",
@@ -485,7 +534,15 @@
       "confirmPassword": "Confirm password",
       "passwordChanged": "Password changed successfully",
       "sending": "Sending...",
-      "changing": "Changing..."
+      "changing": "Changing...",
+      "errors": {
+        "invalidEmail": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "currentPasswordRequired": "Current password is required",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Password confirmation is required",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "security": {
       "title": "Security",
@@ -529,7 +586,9 @@
         "sendEmailCode": "Send code by email",
         "emailCodeSent": "Code sent – send again",
         "noRecoveryCodes": "No recovery codes available.",
-        "disabledHint": "No second factor is requested at sign-in."
+        "disabledHint": "No second factor is requested at sign-in.",
+        "qrCodeAlt": "QR code for your authenticator app",
+        "codeLabel": "Code"
       },
       "trustedDevices": {
         "title": "Trusted Devices",
@@ -548,7 +607,9 @@
         "revokeAllConfirm": "Sign out all other sessions?",
         "revokeAllDescription": "You will be signed out on all other devices.",
         "unknownDevice": "Unknown device",
-        "deviceLabel": "{browser} on {os}"
+        "deviceLabel": "{browser} on {os}",
+        "unknownBrowser": "Unknown browser",
+        "unknownOs": "unknown OS"
       }
     },
     "preferences": {
@@ -608,7 +669,16 @@
       "phone": "Phone",
       "website": "Website",
       "saving": "Saving...",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "invalidUrl": "Please enter a valid URL (e.g. https://example.com)",
+      "placeholders": {
+        "address": "123 Main Street",
+        "zipCode": "12345",
+        "city": "Springfield",
+        "country": "Germany",
+        "phone": "+49 123 456789",
+        "website": "https://example.com"
+      }
     },
     "organizationBilling": {
       "title": "Billing Address",
@@ -870,7 +940,8 @@
           },
           "notes": "Notes",
           "notesPlaceholder": "Internal notes"
-        }
+        },
+        "count": "{count, plural, =1 {# rental hardware item} other {# rental hardware items}}"
       },
       "assignments": {
         "title": "Assignments",
@@ -904,8 +975,11 @@
           "notes": "Notes",
           "notesPlaceholder": "Optional notes",
           "totalDays": "Total Days",
-          "totalAmount": "Total Amount"
-        }
+          "totalAmount": "Total Amount",
+          "hardwareOption": "{name} ({serial}) — {rate}/day"
+        },
+        "count": "{count, plural, =1 {# assignment} other {# assignments}}",
+        "daysCount": "{count, plural, =1 {# day} other {# days}}"
       }
     },
     "support": {
@@ -942,6 +1016,148 @@
       "notNotifiedHint": "No notification went out — check the recipient address in settings.",
       "forbidden": "Your account is not permitted to see this. Messages are for platform administrators only.",
       "error": "The messages could not be loaded. Please try again later."
+    },
+    "events": {
+      "title": "Events & billing",
+      "description": "All events of all organizations with orders and revenue. Manage billing.",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "test": "Test"
+      },
+      "billingStatus": {
+        "none": "Not ordered",
+        "pending": "Pending",
+        "paid": "Paid",
+        "invoice": "On invoice",
+        "waived": "Waived"
+      },
+      "markInvoiced": {
+        "title": "Mark as invoiced",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "note": "Note (optional)",
+        "notePlaceholder": "e.g. Invoice 2024-001 created",
+        "submit": "Mark as invoiced"
+      },
+      "unmark": {
+        "title": "Reset billing",
+        "description": "The invoiced marker will be removed. The event will then count as not invoiced again.",
+        "submit": "Reset"
+      },
+      "waive": {
+        "title": "Waive billing",
+        "description": "The event can then be activated without payment or invoice.",
+        "submit": "Waive"
+      },
+      "filters": {
+        "searchPlaceholder": "Search event or organization...",
+        "allStatuses": "All statuses",
+        "allInvoiced": "All (billing)",
+        "invoiced": "Invoiced",
+        "notInvoiced": "Not invoiced"
+      },
+      "empty": {
+        "title": "No events found",
+        "description": "There are no events matching the filter criteria."
+      },
+      "table": {
+        "event": "Event",
+        "organization": "Organization",
+        "date": "Date",
+        "status": "Status",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "payment": "Payment",
+        "invoiced": "Invoiced",
+        "actions": "Actions"
+      },
+      "actions": {
+        "reset": "Reset",
+        "invoice": "Invoice",
+        "waive": "Waive"
+      },
+      "pagination": {
+        "total": "{count, plural, =1 {# event total} other {# events total}}",
+        "page": "Page {page} of {totalPages}"
+      }
+    },
+    "printers": {
+      "metaTitle": "Printers · Super admin",
+      "title": "Printers",
+      "description": "Overview of all printers and unassigned printer agents across all organizations.",
+      "online": "Online",
+      "offline": "Offline",
+      "types": {
+        "kitchen": "Kitchen",
+        "label": "Labels",
+        "receipt": "Receipt"
+      },
+      "toast": {
+        "testPrintSent": "Test print was sent to the printer.",
+        "testPrintNotPossible": "Test print not possible.",
+        "testPrintFailed": "Test print failed: {message}",
+        "unassigned": "Assignment was removed.",
+        "unassignFailed": "Removing assignment failed: {message}",
+        "deviceDeleted": "Device was deleted.",
+        "deleteFailed": "Deleting failed: {message}",
+        "assigned": "Printer was assigned to the organization."
+      },
+      "unassigned": {
+        "title": "Unassigned printer agents ({count})",
+        "description": "Printers that have registered with the backend but are not yet assigned to an organization.",
+        "empty": "No waiting printer agents. As soon as an RPi agent registers, it will appear here.",
+        "onlineWaiting": "Online · awaiting assignment",
+        "waiting": "Awaiting assignment"
+      },
+      "assigned": {
+        "title": "Assigned printers ({count})",
+        "description": "All printers across all organizations.",
+        "empty": "No printers assigned to an organization yet."
+      },
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "lastSeen": "Last seen",
+        "action": "Action",
+        "organization": "Organization",
+        "printer": "Printer",
+        "type": "Type",
+        "online": "Online",
+        "actions": "Actions"
+      },
+      "actions": {
+        "assign": "Assign",
+        "testPrint": "Test print",
+        "unassign": "Remove assignment"
+      },
+      "confirm": {
+        "deleteDevice": "Permanently delete device “{name}”?",
+        "unassign": "Really remove printer “{name}” from “{organization}”?"
+      },
+      "assignModal": {
+        "title": "Assign printer",
+        "description": "Links the printer agent device to an organization. Hardware values (name, type, connection, USB ID, paper width) are taken from the local agent configuration on the RPi.",
+        "name": "Name",
+        "type": "Type",
+        "connection": "Connection",
+        "paperWidth": "Paper width",
+        "types": {
+          "kitchen": "Kitchen printer",
+          "label": "Labels",
+          "receipt": "Receipt"
+        },
+        "organization": "Organization *",
+        "orgsLoading": "Loading organizations …",
+        "orgsError": "Error while loading",
+        "orgsEmpty": "No organizations available",
+        "orgsPlaceholder": "Please select…",
+        "hasCashDrawer": "A cash drawer is connected to this printer",
+        "submit": "Assign",
+        "organizationRequired": "Please select an organization.",
+        "defaultName": "Printer",
+        "assignFailed": "Assignment failed"
+      }
     }
   },
   "theme": {
@@ -987,7 +1203,20 @@
       "priceSum": "Activating costs {price}",
       "priceCalc": "{days} days × {perDay} per day",
       "priceCalcDiscounted": "{days} days × {perDay} = {gross}, less {percent}% first-event discount",
-      "priceTestFree": "Trying it out is free — up to {max} orders in test mode."
+      "priceTestFree": "Trying it out is free — up to {max} orders in test mode.",
+      "shop": {
+        "enable": "Enable online shop",
+        "enableHint": "Customers can order the event's items online and pay by card.",
+        "copyLink": "Copy link",
+        "openingHours": "Opening hours",
+        "periodFirst": "Please enter the event period first.",
+        "dayOpen": "{day} open",
+        "endsNextDay": "Ends the next day",
+        "openingHoursHint": "An end time before the start time means the shop stays open past midnight. Days without a checkmark stay closed. In test mode the shop is reachable regardless of the opening hours.",
+        "serviceFee": "Service fee",
+        "serviceFeeUnit": "EUR per order",
+        "serviceFeeHint": "Added as a flat amount per order to the total in the online shop. Leave empty for no fee."
+      }
     },
     "status": {
       "active": "Active",
@@ -1000,7 +1229,8 @@
       "view": "View",
       "activate": "Activate",
       "deactivate": "Deactivate",
-      "testMode": "Test Mode"
+      "testMode": "Test Mode",
+      "openShop": "Open shop"
     },
     "deleteConfirm": {
       "title": "Delete Event",
@@ -1111,6 +1341,9 @@
     "reorder": {
       "handle": "Drag to reorder",
       "hint": "The order decides how categories appear at the till. Drag the handle to change it."
+    },
+    "list": {
+      "subcategory": "Subcategory"
     }
   },
   "products": {
@@ -1196,8 +1429,9 @@
         "standard": "{rate}% (standard)",
         "reduced": "{rate}% (reduced)",
         "zero": "0% (exempt)",
-        "exemptHint": "This organisation does not charge VAT. Change it in the organisation settings."
-      }
+        "exemptHint": "This organization does not charge VAT. Change it in the organization settings."
+      },
+      "defaultStockUnit": "pcs"
     },
     "status": {
       "active": "Active",
@@ -1281,7 +1515,12 @@
         "title": "Import successful",
         "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
       },
-      "networkError": "Import failed — the server could not be reached. Please try again."
+      "networkError": "Import failed — the server could not be reached. Please try again.",
+      "template": {
+        "sampleFood": "Food,French Fries,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
+        "sampleDrink": "Drinks,Cola 0.33 L,,2.80,2.00,cola,,Flavor: Regular | Zero,,",
+        "filename": "product-template.csv"
+      }
     },
     "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}"
   },
@@ -1320,7 +1559,10 @@
       "message": "Products and categories will lose their station assignment."
     },
     "selectEvent": "Select Event",
-    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}"
+    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}",
+    "list": {
+      "inactive": "Inactive"
+    }
   },
   "users": {
     "title": "Users",
@@ -1590,7 +1832,46 @@
       "setSuccess": "PIN set successfully",
       "removeSuccess": "PIN removed successfully"
     },
-    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}"
+    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}",
+    "list": {
+      "you": "(you)"
+    }
+  },
+  "memberAdd": {
+    "title": "Add member",
+    "openButton": "Add member",
+    "modeLabel": "How to add",
+    "modeInvite": "Invite",
+    "modeCreate": "Create account directly",
+    "inviteHint": "The person receives an email with a link to accept the invitation. This requires email delivery to be set up.",
+    "createHint": "Creates the account right away – no email is sent. It can sign in immediately.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "password": "Initial password",
+    "passwordHint": "At least 8 characters, upper- and lowercase, and a number.",
+    "passwordConfirm": "Confirm initial password",
+    "handoverHint": "Hand over the initial password in person. The member can change it after signing in under Settings → Account.",
+    "submitInvite": "Send invitation",
+    "submitCreate": "Create account",
+    "created": "Account created for {name}",
+    "invited": "Invitation sent to {email}",
+    "addExisting": "Add existing account",
+    "addedExisting": "{email} was added",
+    "permissionNotOwned": "You don't have this permission yourself, so you can't grant it.",
+    "errors": {
+      "required": "Required",
+      "nameShort": "At least 2 characters",
+      "emailInvalid": "Invalid email address",
+      "passwordShort": "At least 8 characters",
+      "passwordLong": "At most 72 characters",
+      "passwordWeak": "Must contain an uppercase letter, a lowercase letter and a number",
+      "passwordMismatch": "Passwords don't match",
+      "userExists": "An account already exists for this email address. You can add it without an initial password – its current password stays valid.",
+      "alreadyMember": "This person is already a member of the organization.",
+      "invitationPending": "There is already a pending invitation for this email address.",
+      "forbidden": "You don't have permission to do this.",
+      "generic": "Something went wrong. Please try again."
+    }
   },
   "organizations": {
     "title": "Organizations",
@@ -1653,6 +1934,9 @@
       "created": "Organization created successfully",
       "updated": "Organization updated successfully",
       "deleted": "Organization deleted successfully"
+    },
+    "membersModal": {
+      "invitationsTitle": "Pending invitations ({count})"
     }
   },
   "pos": {
@@ -2203,7 +2487,8 @@
         "verifiedAt": "Verified at",
         "userAgent": "User Agent",
         "lastSeen": "Last seen",
-        "notVerified": "Not verified"
+        "notVerified": "Not verified",
+        "copyId": "Copy ID"
       },
       "settings": {
         "basic": {
@@ -2253,13 +2538,14 @@
           "scaleNormal": "Normal",
           "scaleLarge": "Large (for viewing from afar)",
           "headline": "Header",
-          "headlinePlaceholder": "Leave empty for the organisation name",
+          "headlinePlaceholder": "Leave empty for the organization name",
           "idleText": "Idle message",
           "idleTextPlaceholder": "e.g. Welcome!",
           "autoClear": "Clear completed",
           "autoClearOff": "Keep on screen",
           "showLogo": "Show logo",
-          "showLogoHint": "Displays the organisation logo in the header."
+          "showLogoHint": "Displays the organization logo in the header.",
+          "autoClearSeconds": "{seconds, plural, =1 {# second} other {# seconds}}"
         }
       },
       "printer": {
@@ -2275,7 +2561,11 @@
           "category": "Category Printer",
           "categoryDescription": "Receipts are printed via the category's assigned printer (fallback: device printer)",
           "product": "Product Printer",
-          "productDescription": "Receipts are printed via the product's assigned printer (fallback: category → device)"
+          "productDescription": "Receipts are printed via the product's assigned printer (fallback: category → device)",
+          "fixed": "Fixed printer",
+          "fixedDescription": "Tickets always go to the printer selected below — regardless of product or category assignment. Recommended for devices connected directly to a printer.",
+          "dynamic": "Dynamic routing",
+          "dynamicDescription": "Follows the routing chain: product station → category station → this device's default printer (fallback). Recommended when several stations have their own printers."
         },
         "cashDrawer": {
           "title": "Cash drawer",
@@ -2283,7 +2573,10 @@
           "selectPrinter": "Printer with drawer",
           "noPrinter": "No cash drawer",
           "noPrintersAvailable": "No printer with cash drawer configured"
-        }
+        },
+        "testPrint": "Test print",
+        "testPrintSent": "Test print was sent",
+        "testPrintFailed": "Error while sending"
       },
       "saved": "Settings saved",
       "saveFailed": "Save failed"
@@ -2685,7 +2978,8 @@
       "registerMore": "Register again",
       "yourShifts": "Your shifts",
       "addToGoogleCalendar": "Add to Google Calendar",
-      "downloadICS": "Download all as calendar file"
+      "downloadICS": "Download all as calendar file",
+      "imprint": "Imprint"
     },
     "verify": {
       "loading": "Verifying...",
@@ -2695,7 +2989,264 @@
       "confirmed": "Your shift(s) are confirmed. We look forward to seeing you!",
       "errorTitle": "Verification Failed",
       "errorDescription": "The link is invalid or has expired.",
-      "backToPlan": "Back to Shift Plan"
+      "backToPlan": "Back to Shift Plan",
+      "invalidLink": "Invalid verification link",
+      "unknownError": "Unknown error"
+    },
+    "list": {
+      "copyPublicLink": "Copy public link",
+      "copied": "✓ Copied!"
+    },
+    "detail": {
+      "pdfFileName": "shift-plan",
+      "pdfExportFailed": "PDF export failed",
+      "linkCopied": "Link copied"
+    },
+    "createModal": {
+      "stepEvent": "Event",
+      "stepName": "Name & description",
+      "stepCreate": "Create",
+      "defaultName": "Helper schedule {event}",
+      "selectEventHint": "Optionally select the event this shift plan belongs to. Helpers will then see the event date right away.",
+      "noEvents": "No events created yet – you can also create the plan without an event.",
+      "noEventStandalone": "No event (standalone plan)",
+      "eventStatus": {
+        "active": "Active",
+        "test": "Test",
+        "inactive": "Inactive"
+      },
+      "reviewInput": "Please review your input:",
+      "event": "Event",
+      "noEvent": "No event"
+    },
+    "validation": {
+      "dateRequired": "Date is required",
+      "startTimeRequired": "Start time is required",
+      "endTimeRequired": "End time is required",
+      "jobNameRequired": "At least one name is required",
+      "nameMinLength": "Name must be at least 2 characters",
+      "invalidEmail": "Invalid email address"
+    },
+    "shiftForm": {
+      "overnightHint": "End time is before start time – the shift ends the next day.",
+      "workersFromJobHint": "The number of helpers is set per job – new shifts inherit this value automatically.",
+      "editTitle": "Edit shift",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "workersSharedHint": "The number of helpers is set per job – all shifts of this job share this value.",
+      "internalNotes": "Internal notes"
+    },
+    "jobForm": {
+      "editTitle": "Edit job",
+      "workersPerShift": "Helpers per shift",
+      "workersEditHint": "Applies to newly created shifts. Existing shifts keep their value – they can be edited per shift.",
+      "namesPlaceholder": "Bar\nGrill\nCash desk",
+      "namesHint": "One job per line – all of them are created at once.",
+      "workersDefaultHint": "Default value for all shifts in this job. You can override individual shifts afterwards.",
+      "createMany": "{count, plural, =1 {Create 1 job} other {Create # jobs}}"
+    },
+    "jobsList": {
+      "heading": "Jobs ({count})",
+      "wizardForAll": "Shift generator for all jobs",
+      "defaultWorkers": "Default: {count, plural, =1 {1 helper} other {# helpers}} per shift",
+      "confirmDeleteJob": "Are you sure you want to delete this job and its shifts?"
+    },
+    "wizardExtra": {
+      "stepDate": "Date",
+      "stepTime": "Time",
+      "stepConfig": "Configuration",
+      "stepPreview": "Preview",
+      "invalidDates": "Please select valid dates",
+      "endBeforeStart": "End time for {date} must be after start time",
+      "titleAllJobs": "Shifts for all jobs",
+      "applyToAllNotice": "The generated shifts will be created for all {count} jobs in this plan. You can override individual shifts per job at any time afterwards.",
+      "perDay": "Times per day",
+      "perDayHint": "Enter different times for each day. Shifts that run past midnight (e.g. 22:00–01:00) are allowed.",
+      "overnightHint": "An end time before the start time means the shift runs past midnight into the next day.",
+      "totalHoursOvernight": "{hours} hours per day 🌙 overnight",
+      "hoursShort": "{hours} h",
+      "workersFromJob": "The number of helpers per shift is taken from each job – you set it there.",
+      "minutes": "{count} min",
+      "selectedCount": "{enabled} / {total} selected",
+      "createForAllJobs": "Create {shifts, plural, =1 {1 shift} other {# shifts}} for {jobs, plural, =1 {1 job} other {# jobs}}"
+    },
+    "manualAdd": {
+      "title": "Add helper manually",
+      "namePlaceholder": "Jane Doe",
+      "emailOptional": "Email (optional)",
+      "emailPlaceholder": "jane@example.com",
+      "noEmailHint": "Without an email address, the helper will not receive notifications or reminders.",
+      "helperNotes": "Notes (from helper)",
+      "adminNotes": "Admin notes",
+      "selectedCount": "{count, plural, =1 {1 shift} other {# shifts}} selected",
+      "removeShift": "Remove shift",
+      "searchPlaceholder": "Search shifts (job, date, time)…",
+      "noShiftFound": "No shift found.",
+      "noShiftsInPlan": "No shifts in this plan.",
+      "chosen": "✓ selected",
+      "fullCount": "full {confirmed}/{required}",
+      "fullSelectableHint": "Full shifts can still be selected (e.g. to add stand-ins).",
+      "notify": "Notify helper by email (one combined confirmation)",
+      "submitMany": "{count, plural, =1 {Add 1 shift} other {Add # shifts}}",
+      "submit": "Add"
+    },
+    "registrationsList": {
+      "rowStatus": {
+        "confirmed": "confirmed",
+        "pending_email": "email pending",
+        "pending_approval": "approval pending",
+        "rejected": "rejected",
+        "cancelled": "cancelled"
+      },
+      "heading": "Registrations ({shown}/{total})",
+      "filter": {
+        "all": "All",
+        "unconfirmed": "Not confirmed",
+        "pending_email": "Email pending",
+        "pending_approval": "Approval pending",
+        "confirmed": "Confirmed"
+      },
+      "sendToAllTitle": "Send email to all helpers",
+      "sendToAll": "Send to all",
+      "emptyFilter": "No registrations match the current filter – choose another filter or “All”.",
+      "summary": {
+        "allConfirmed": "All confirmed",
+        "pendingEmail": "{confirmed}/{total} confirmed · email pending",
+        "pendingApproval": "{confirmed}/{total} confirmed · approval pending",
+        "confirmed": "{confirmed}/{total} confirmed"
+      },
+      "noEmail": "– no email –",
+      "shiftsLabel": "Shifts:",
+      "overlapTitle": "This shift overlaps with another shift of this helper",
+      "registeredAt": "Registered on {date}",
+      "confirmRemoveShift": "Remove shift “{job}” on {date}?",
+      "removeShift": "Remove this shift",
+      "notesLabel": "Notes:",
+      "markVerifiedTitle": "Mark as verified (skip email confirmation) – applies to all pending shifts",
+      "markVerified": "Mark as verified",
+      "editRegistration": "Edit registration",
+      "confirmDeleteMany": "Delete {shifts, plural, =1 {1 shift} other {# shifts}} of {name} from {registrations, plural, =1 {1 registration} other {# registrations}}?"
+    },
+    "sendMessage": {
+      "placeholderName": "Name",
+      "placeholderShifts": "Shifts",
+      "placeholderPlan": "Plan",
+      "defaultTemplate": "Hello {name},\n\nhere are the shifts you signed up for at {plan}:\n\n{shifts}\n\nPlease be on time. Thank you very much for your help!",
+      "titleSingle": "Message to {name}",
+      "titleAll": "Message to all helpers",
+      "result": "{sent} of {recipients, plural, =1 {1 helper} other {# helpers}} notified by email.",
+      "recipientSingle": "Recipient: <strong>{name}</strong> ({email})",
+      "recipientAll": "Recipients: <strong>{count}</strong> {count, plural, =1 {helper} other {helpers}} with an email address",
+      "noEmail": "no email",
+      "noEmailSingle": "This helper has no email address – the message cannot be delivered.",
+      "noEmailAll": "None of the helpers has an email address.",
+      "subject": "Subject (optional)",
+      "subjectPlaceholder": "Info about: {plan}",
+      "message": "Message",
+      "insertPlaceholder": "Insert placeholder:",
+      "placeholdersHint": "Placeholders are replaced for each helper – <code>{token}</code> inserts the helper’s shifts as a list.",
+      "sending": "Sending…",
+      "send": "Send",
+      "sendToCount": "Send to {count, plural, =1 {1 helper} other {# helpers}}"
+    },
+    "editRegistration": {
+      "proposalFailed": "The proposal could not be sent",
+      "registeredShifts": "Registered shifts",
+      "activeCount": "{count} active",
+      "restore": "Restore",
+      "remove": "Remove",
+      "new": "NEW",
+      "closePicker": "× Close picker",
+      "addShift": "+ Add shift",
+      "proposalNote": "Optional note for the helper (proposal only)",
+      "proposalNotePlaceholder": "e.g. We would need you somewhere else – does that work for you?",
+      "proposalHint": "With “Send proposal”, the helper receives an email with “Accept”/“Decline” buttons. “Save directly” applies everything immediately without asking.",
+      "alreadyIn": "✓ assigned",
+      "fullAddableHint": "Full shifts can still be added (e.g. to add stand-ins).",
+      "proposalNeedsEmail": "Proposals require the helper’s email address",
+      "proposalTitle": "The helper receives an email to accept or decline – the change only applies after confirmation",
+      "sendProposal": "Send proposal",
+      "saveDirectly": "Save directly"
+    },
+    "planSettings": {
+      "subtitle": "Basic settings for this shift plan",
+      "generalTitle": "General",
+      "generalSubtitle": "Name and description – helpers see these on the public page.",
+      "publicLinkTitle": "Public link",
+      "publicLinkSubtitle": "You can share this link with your helpers.",
+      "registrationTitle": "Registration settings",
+      "registrationSubtitle": "How helpers can sign up.",
+      "verificationReminders": "Verification reminders",
+      "verificationRemindersDescription": "Regularly sends a reminder to helpers who have not yet confirmed their email address.",
+      "intervalHours": "Interval (hours)",
+      "intervalHoursDescription": "How many hours between two reminders. Default: 24.",
+      "maxReminders": "Maximum number of reminders",
+      "maxRemindersDescription": "After this number of reminders, no further reminders are sent. Default: 5.",
+      "unsavedChanges": "You have unsaved changes.",
+      "discard": "Discard",
+      "dangerZone": "Danger zone",
+      "dangerZoneSubtitle": "This action cannot be undone.",
+      "deletePlan": "Delete plan",
+      "deletePlanDescription": "Deletes the shift plan including all jobs, shifts and registrations."
+    },
+    "manageRequest": {
+      "invalidEmail": "Please enter a valid email address.",
+      "requestFailed": "Request failed.",
+      "title": "Manage my shifts",
+      "description": "Enter the email address you used to register. We will send you a link to view and adjust your shifts.",
+      "email": "Email",
+      "emailPlaceholder": "jane@example.com",
+      "sendLink": "Send link",
+      "sentTitle": "Email sent",
+      "sentDescription": "If there is a registration with this email address, the link is on its way. Please also check your spam folder.",
+      "backToPlan": "Back to shift plan"
+    },
+    "proposal": {
+      "processFailed": "The proposal could not be processed.",
+      "title": "Shift proposal",
+      "question": "Should your shift be moved as proposed?",
+      "accept": "✓ Accept",
+      "decline": "✗ Decline",
+      "accepted": "Proposal accepted",
+      "declined": "Proposal declined",
+      "toOverview": "To shift overview",
+      "errorTitle": "Error",
+      "retry": "Try again"
+    },
+    "helperManage": {
+      "removed": "Shift removed.",
+      "removeFailed": "The shift could not be removed.",
+      "added": "Shift added.",
+      "addFailed": "The shift could not be added.",
+      "invalidTitle": "Invalid link",
+      "invalidDescription": "The management link has expired or does not exist. Please request a new link on the shift plan page.",
+      "greeting": "Hello {name} – here are your shifts.",
+      "noShifts": "You currently have no shifts.",
+      "confirmRemove": "Remove shift “{job}” on {date} {time}?",
+      "removeTitle": "Remove this shift",
+      "removeLabel": "Remove shift",
+      "closeList": "Close shift list",
+      "addMore": "Add another shift",
+      "spotsFree": "{available}/{required} free",
+      "signUp": "+ sign up",
+      "linkValidity": "Your management link is valid for 24 hours. After that, you can request a new one on the shift plan page."
+    },
+    "publicPage": {
+      "calendarDescription": "Shift at {organization}",
+      "calendarDescriptionEvent": "Shift at {organization} - {event}",
+      "shiftFallback": "Shift",
+      "icsFileName": "shifts",
+      "selectAtLeastOne": "Please select at least one shift",
+      "contextLabel": "<b>{organization}</b> · Shift plan",
+      "registeredBadge": "REGISTERED",
+      "openRegistration": "OPEN REGISTRATION",
+      "selectedCount": "{count} selected",
+      "cardsView": "Cards",
+      "noShifts": "No shifts available.",
+      "timeRangeNextDay": "{start} – {end} (next day)",
+      "spotsOfFree": "<n>{available}</n><muted>/{required} free</muted>",
+      "spotsFree": "{count} free",
+      "pillLabel": "{count, plural, =1 {shift selected} other {shifts selected}}"
     }
   },
   "setup": {
@@ -2794,7 +3345,64 @@
     "offline": "Offline",
     "noPrinters": "No printers registered yet",
     "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
-    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization."
+    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization.",
+    "printerCount": "{count, plural, =1 {# printer} other {# printers}}",
+    "kitchenTicketMode": {
+      "title": "Kitchen ticket printing mode",
+      "description": "Determines how kitchen tickets are created for a new order.",
+      "saved": "Saved",
+      "modes": {
+        "per_order": {
+          "title": "1 ticket per order",
+          "description": "Classic: everything on one kitchen ticket. Simple for small kitchens without separate stations."
+        },
+        "per_item": {
+          "title": "1 ticket per product (barcode)",
+          "description": "Each product in the order gets its own ticket with a unique barcode — ideal for tracking the status of individual products later with a scanner."
+        },
+        "per_station": {
+          "title": "1 ticket per location",
+          "description": "The order is grouped by location. Each location only gets its own products. If the location has its own printer assigned, the ticket is printed there — otherwise on the default kitchen printer."
+        }
+      }
+    },
+    "orderFlow": {
+      "saved": "Saved",
+      "notPrintedWarning": "These tickets are not printed automatically.",
+      "overridePrinter": "Override printer (optional, otherwise routing chain)",
+      "useRoutingChain": "Use routing chain (default)",
+      "routingChainHint": "If no override printer is set, the routing chain is used: product station → category station → device's default printer → global override.",
+      "defaultTemplate": "Default template (empty = built-in)",
+      "useBuiltInTemplate": "Use built-in template",
+      "kitchen": {
+        "title": "Kitchen ticket",
+        "description": "Tickets printed in the kitchen for new orders.",
+        "mode": "Mode",
+        "modes": {
+          "per_order": "1 ticket per order",
+          "per_item": "1 ticket per product with barcode",
+          "per_station": "1 ticket per location"
+        }
+      },
+      "orderTicket": {
+        "title": "Order ticket",
+        "description": "Ticket for the pickup area or as order confirmation."
+      },
+      "receipt": {
+        "title": "Receipt",
+        "description": "Receipt printed after a payment or after an order is completed.",
+        "trigger": "Trigger",
+        "triggers": {
+          "payment_received": "On payment",
+          "order_completed": "On order completion",
+          "manual": "Manual"
+        }
+      }
+    }
+  },
+  "colorPicker": {
+    "custom": "Custom color",
+    "customAria": "Choose a custom color"
   },
   "posIconPicker": {
     "title": "Choose icon",
@@ -2911,7 +3519,15 @@
         "field": "Data field"
       },
       "moveElement": "Move element",
-      "removeElement": "Remove element"
+      "removeElement": "Remove element",
+      "resetConfirm": "Discard the current draft and reset to the default template?",
+      "resetTitle": "Discard the current draft and reset to the default template",
+      "resetToDefault": "Restore default",
+      "dragging": "Moving...",
+      "previewMarkers": {
+        "feed": "[Feed: {lines, plural, =1 {# line} other {# lines}}]",
+        "cut": "--- Cut ---"
+      }
     }
   },
   "reports": {
@@ -2919,13 +3535,21 @@
     "subtitle": "Revenue, orders and product analytics at a glance",
     "loading": "Loading…",
     "noOrg": {
-      "title": "No organisation selected",
-      "description": "Please select an organisation first."
+      "title": "No organization selected",
+      "description": "Please select an organization first."
     },
     "export": {
       "csv": "Export CSV",
       "pdf": "Export PDF",
-      "pdfPending": "Generating…"
+      "pdfPending": "Generating…",
+      "filenames": {
+        "products": "top-products.csv",
+        "devices": "revenue-by-device.csv",
+        "channels": "revenue-by-channel.csv",
+        "categories": "top-categories.csv",
+        "hourly": "hourly-breakdown.csv",
+        "payments": "payment-methods.csv"
+      }
     },
     "filter": {
       "event": "Event",
@@ -3014,6 +3638,50 @@
         "hour": "Hour",
         "orders": "Orders",
         "revenue": "Revenue"
+      },
+      "tooltipHour": "{hour}:00"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Card",
+      "sumupTerminal": "SumUp terminal",
+      "sumupOnline": "SumUp Online",
+      "voucher": "Voucher",
+      "online": "Online",
+      "free": "Free"
+    },
+    "channelLabels": {
+      "pos": "Till",
+      "online": "Online shop",
+      "qrOrder": "QR order"
+    },
+    "pdf": {
+      "hourlyTitle": "Hourly revenue",
+      "hourlyEmpty": "No revenue data for the selected period",
+      "kpi": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "avgReceipt": "Avg. receipt",
+        "pfand": "Deposit",
+        "cancellationRate": "Cancellation rate"
+      },
+      "period": {
+        "all": "All time",
+        "today": "Today ({date})",
+        "yesterday": "Yesterday ({date})",
+        "range": "{start} – {end}"
+      },
+      "generatedAt": "Generated on {date} · OpenEOS",
+      "page": "Page {page} / {total}",
+      "filename": {
+        "event": "openeos-report-{slug}.pdf",
+        "fallbackSlug": "report",
+        "today": "openeos-report-today-{date}.pdf",
+        "yesterday": "openeos-report-yesterday-{date}.pdf",
+        "all": "openeos-report-all-time.pdf",
+        "range": "openeos-report-{start}-to-{end}.pdf",
+        "openStart": "start",
+        "openEnd": "end"
       }
     }
   },
@@ -3025,8 +3693,8 @@
     "creating": "Creating…",
     "createError": "Failed to create inventory count. Please try again.",
     "noOrg": {
-      "title": "No organisation selected",
-      "description": "Please select an organisation first."
+      "title": "No organization selected",
+      "description": "Please select an organization first."
     },
     "noEvent": {
       "title": "No active event",
@@ -3065,7 +3733,8 @@
       "namePlaceholder": "e.g. End of day 01/01/2026",
       "notes": "Notes",
       "notesPlaceholder": "Optional notes for this stocktake",
-      "bulkAddHint": "{count} products with inventory tracking will be added automatically."
+      "bulkAddHint": "{count} products with inventory tracking will be added automatically.",
+      "defaultName": "End of day {date}"
     },
     "progress": {
       "of": "of",
@@ -3357,6 +4026,7 @@
     "magicLink": "Sign-in link",
     "verifyEmail": "Verify email",
     "twoFactor": "Two-factor sign-in",
-    "shifts": "Shift plans"
+    "shifts": "Shift plans",
+    "invitation": "Invitation"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDiscountVouchers } from '@/hooks/use-discount-vouchers';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { DiscountVoucher } from '@/types/discount-voucher';
@@ -20,6 +21,7 @@ export function DiscountsList({
   onDeleteClick,
 }: DiscountsListProps) {
   const t = useTranslations('discounts');
+  const { formatCurrency } = useLocaleFormat();
 
   const { data: vouchers, isLoading, error } = useDiscountVouchers(organizationId);
 
@@ -55,9 +57,7 @@ export function DiscountsList({
     if (voucher.type === 'manual') {
       return <span style={{ opacity: 0.6 }}>{t('table.manualAmount')}</span>;
     }
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
-      Number(voucher.amount ?? 0),
-    );
+    return formatCurrency(Number(voucher.amount ?? 0));
   };
 
   return (

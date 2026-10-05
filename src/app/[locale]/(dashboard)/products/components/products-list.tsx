@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ProductImage } from '@/components/shared/product-image';
 import { useProducts } from '@/hooks/use-products';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
@@ -27,6 +28,7 @@ export function ProductsList({
   onAdjustStockClick,
 }: ProductsListProps) {
   const t = useTranslations('products');
+  const { formatCurrency } = useLocaleFormat();
 
   const { data: products, isLoading, error } = useProducts(eventId);
 
@@ -57,12 +59,7 @@ export function ProductsList({
     );
   }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(price);
-  };
+  const formatPrice = (price: number) => formatCurrency(price);
 
   const getStatusBadge = (product: Product) => {
     if (!product.isActive) return <span className="badge badge--neutral">{t('status.inactive')}</span>;

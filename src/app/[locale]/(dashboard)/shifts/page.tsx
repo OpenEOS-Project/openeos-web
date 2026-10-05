@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { formatDate } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import { ModuleGuard } from '@/components/shared/module-guard';
 import type { ShiftPlan, ShiftPlanStatus } from '@/types/shift';
@@ -20,6 +20,7 @@ const statusBadge: Record<ShiftPlanStatus, string> = {
 
 export default function ShiftsPage() {
   const t = useTranslations();
+  const { formatDate } = useLocaleFormat();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -152,10 +153,10 @@ export default function ShiftsPage() {
                           color: copiedPlanId === plan.id ? 'var(--green-ink)' : undefined,
                           borderColor: copiedPlanId === plan.id ? 'var(--green-ink)' : undefined,
                         }}
-                        title="Öffentlichen Link kopieren"
+                        title={t('shifts.list.copyPublicLink')}
                         onClick={() => copyPublicLink(plan.id, plan.publicSlug)}
                       >
-                        {copiedPlanId === plan.id ? '✓ Kopiert!' : 'Link kopieren'}
+                        {copiedPlanId === plan.id ? t('shifts.list.copied') : t('shifts.copyLink')}
                       </button>
                     )}
                     <div style={{ flex: 1 }} />

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/stores/auth-store';
@@ -19,31 +20,19 @@ import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
 import { useDeployment } from '@/components/providers/setup-provider';
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(amount);
-}
-
-function formatTime(date: string): string {
-  return new Intl.DateTimeFormat('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(date));
-}
-
-const statusBadge: Record<Order['status'], { cls: string; label: string }> = {
-  open: { cls: 'badge badge--warning', label: 'Offen' },
-  in_progress: { cls: 'badge badge--info', label: 'In Bearbeitung' },
-  ready: { cls: 'badge badge--success', label: 'Bereit' },
-  completed: { cls: 'badge badge--neutral', label: 'Abgeschlossen' },
-  cancelled: { cls: 'badge badge--error', label: 'Storniert' },
+const statusBadgeClass: Record<Order['status'], string> = {
+  open: 'badge badge--warning',
+  in_progress: 'badge badge--info',
+  ready: 'badge badge--success',
+  completed: 'badge badge--neutral',
+  cancelled: 'badge badge--error',
 };
 
 export function DashboardContainer() {
   const t = useTranslations('dashboard');
   const tOrders = useTranslations('orders');
+  const tCommon = useTranslations('common');
+  const { formatCurrency, formatTime } = useLocaleFormat();
   const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const deployment = useDeployment();
@@ -163,8 +152,8 @@ export function DashboardContainer() {
   if (!organizationId) {
     return (
       <ListEmpty
-        title="Keine Organisation ausgewählt"
-        description="Bitte wählen Sie zuerst eine Organisation aus."
+        title={tCommon('noOrganization.title')}
+        description={tCommon('noOrganization.description')}
         icon={
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
             <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
@@ -291,7 +280,7 @@ export function DashboardContainer() {
                 className="md:hidden"
               >
                 {recentOrders.map((order) => {
-                  const badge = statusBadge[order.status] ?? { cls: 'badge badge--neutral', label: order.status };
+                  const badgeClass = statusBadgeClass[order.status] ?? 'badge badge--neutral';
                   return (
                     <div
                       key={order.id}
@@ -306,14 +295,14 @@ export function DashboardContainer() {
                         </div>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                            {formatTime(order.createdAt)} · {order.items?.length ?? 0} Artikel
+                            {formatTime(order.createdAt)} · {t('recentActivity.itemCount', { count: order.items?.length ?? 0 })}
                           </div>
                           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>
                             {formatCurrency(order.total)}
                           </div>
                         </div>
                       </div>
-                      <span className={badge.cls}>{tOrders(`status.${order.status}`)}</span>
+                      <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
                     </div>
                   );
                 })}
@@ -333,15 +322,15 @@ export function DashboardContainer() {
                   </thead>
                   <tbody>
                     {recentOrders.map((order) => {
-                      const badge = statusBadge[order.status] ?? { cls: 'badge badge--neutral', label: order.status };
+                      const badgeClass = statusBadgeClass[order.status] ?? 'badge badge--neutral';
                       return (
                         <tr key={order.id}>
                           <td className="mono">#{order.dailyNumber}</td>
                           <td className="mono">{formatTime(order.createdAt)}</td>
-                          <td>{order.items?.length ?? 0} Artikel</td>
+                          <td>{t('recentActivity.itemCount', { count: order.items?.length ?? 0 })}</td>
                           <td className="mono text-right">{formatCurrency(order.total)}</td>
                           <td>
-                            <span className={badge.cls}>{tOrders(`status.${order.status}`)}</span>
+                            <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
                           </td>
                         </tr>
                       );

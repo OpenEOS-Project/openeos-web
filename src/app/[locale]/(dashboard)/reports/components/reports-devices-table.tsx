@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import type { DeviceReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
 
 interface ReportsDevicesTableProps {
@@ -13,12 +13,13 @@ interface ReportsDevicesTableProps {
 
 export function ReportsDevicesTable({ data, isLoading }: ReportsDevicesTableProps) {
   const t = useTranslations('reports');
+  const { formatCurrency } = useLocaleFormat();
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [t('devices.columns.device'), t('devices.columns.orders'), t('devices.columns.revenue')];
     const rows = data.map((d) => [d.name, d.orders, d.revenue]);
-    downloadCsv('umsatz-je-kasse.csv', headers, rows);
+    downloadCsv(t('export.filenames.devices'), headers, rows);
   };
 
   return (

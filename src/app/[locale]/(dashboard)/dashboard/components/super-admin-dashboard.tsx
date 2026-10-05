@@ -3,26 +3,11 @@
 import { useTranslations } from 'next-intl';
 
 import { useAdminStats, useAdminRevenueStats, useAdminRecentActivity } from '@/hooks/use-admin';
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(amount);
-}
-
-function formatDateTime(date: string): string {
-  return new Intl.DateTimeFormat('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(date));
-}
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 export function SuperAdminDashboard() {
   const t = useTranslations('dashboard.superAdmin');
+  const { formatCurrency, formatDateTime } = useLocaleFormat();
   const { data: stats, isLoading: isLoadingStats } = useAdminStats();
   const { data: revenue, isLoading: isLoadingRevenue } = useAdminRevenueStats();
   const { data: auditLogs, isLoading: isLoadingLogs } = useAdminRecentActivity();

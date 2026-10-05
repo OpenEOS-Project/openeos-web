@@ -160,9 +160,7 @@ export function InlineTemplateDesigner({
   }, []);
 
   const handleResetToDefault = () => {
-    const ok = window.confirm(
-      'Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen?',
-    );
+    const ok = window.confirm(t('resetConfirm'));
     if (!ok) return;
     setDesign((prev) => ({
       ...prev,
@@ -244,9 +242,9 @@ export function InlineTemplateDesigner({
               onClick={handleResetToDefault}
               disabled={saveState === 'saving'}
               style={{ padding: '6px 12px', fontSize: 13 }}
-              title="Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen"
+              title={t('resetTitle')}
             >
-              ↺ Standard wiederherstellen
+              ↺ {t('resetToDefault')}
             </button>
             <button
               className="btn btn--primary"
@@ -313,7 +311,7 @@ export function InlineTemplateDesigner({
             padding: '6px 12px', fontSize: 13, fontWeight: 500,
             color: 'var(--green-ink)', boxShadow: '0 8px 24px rgba(0,0,0,.12)',
           }}>
-            Verschieben...
+            {t('dragging')}
           </div>
         ) : null}
       </DragOverlay>

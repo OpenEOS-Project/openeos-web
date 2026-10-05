@@ -45,19 +45,29 @@ const SAMPLE_DATA = {
   notes: null,
 };
 
-export function renderPreview(design: PrintTemplateDesign): PreviewLine[] {
+/**
+ * Hinweise, die nur im Designer stehen (Papiervorschub, Schnitt) — sie werden
+ * nicht gedruckt und folgen deshalb der Oberflaechensprache. Der Rest der
+ * Vorschau zeigt den gedruckten Bon und bleibt in der Sprache des Bons.
+ */
+export interface PreviewMarkers {
+  feed: (lines: number) => string;
+  cut: string;
+}
+
+export function renderPreview(design: PrintTemplateDesign, markers: PreviewMarkers): PreviewLine[] {
   const cols = design.paperWidth === 80 ? 42 : 32;
   const lines: PreviewLine[] = [];
 
   for (const element of design.elements) {
-    const elementLines = renderElement(element, cols);
+    const elementLines = renderElement(element, cols, markers);
     lines.push(...elementLines);
   }
 
   return lines;
 }
 
-function renderElement(el: TemplateElement, cols: number): PreviewLine[] {
+function renderElement(el: TemplateElement, cols: number, markers: PreviewMarkers): PreviewLine[] {
   switch (el.type) {
     case 'separator':
       return [{ text: (el.char === '-' ? '-' : '=').repeat(cols), elementId: el.id }];
@@ -71,10 +81,10 @@ function renderElement(el: TemplateElement, cols: number): PreviewLine[] {
     }
 
     case 'feed':
-      return [{ text: `[Vorschub: ${el.lines || 3} Zeilen]`, elementId: el.id, isSpecial: true }];
+      return [{ text: markers.feed(el.lines || 3), elementId: el.id, isSpecial: true }];
 
     case 'cut':
-      return [{ text: '--- Schnitt ---', elementId: el.id, isSpecial: true }];
+      return [{ text: markers.cut, elementId: el.id, isSpecial: true }];
 
     case 'field':
       return renderField(el, cols);

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 
 import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMember, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { Organization } from '@/types/organization';
 import type { OrganizationRole, UserOrganization } from '@/types/auth';
 
@@ -15,10 +16,7 @@ interface MembersModalProps {
   onClose: () => void;
 }
 
-const roles: { value: OrganizationRole; label: string }[] = [
-  { value: 'admin', label: 'Administrator' },
-  { value: 'member', label: 'Mitglied' },
-];
+const ROLES: OrganizationRole[] = ['admin', 'member'];
 
 interface Invitation {
   id: string;
@@ -31,6 +29,9 @@ interface Invitation {
 export function MembersModal({ isOpen, organization, onClose }: MembersModalProps) {
   const t = useTranslations('members');
   const tCommon = useTranslations('common');
+  const tOrg = useTranslations('organizations');
+  const { formatDate } = useLocaleFormat();
+  const roles = ROLES.map((value) => ({ value, label: t(`roles.${value}`) }));
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingMember, setEditingMember] = useState<UserOrganization | null>(null);
   const [editingRole, setEditingRole] = useState<OrganizationRole>('member');
@@ -79,7 +80,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
   const handleRemove = async (member: UserOrganization) => {
     if (!confirm(t('removeConfirm.message'))) return;
     try {
-      await removeMember.mutateAsync(member.userId);
+      await removeMember.mutateAsync(member.id);
     } catch {
       // Error handled by mutation
     }
@@ -99,14 +100,6 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
     setEditingMember(null);
     reset();
     onClose();
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
   };
 
   if (!isOpen) return null;
@@ -145,7 +138,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                   />
                 </label>
                 <label className="auth-field" style={{ width: 160 }}>
-                  <span style={{ fontSize: 12 }}>Rolle</span>
+                  <span style={{ fontSize: 12 }}>{t('form.role')}</span>
                   <select className="select" {...register('role')}>
                     {roles.map((role) => (
                       <option key={role.value} value={role.value}>{role.label}</option>
@@ -184,7 +177,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                     </svg>
-                    {t('invitations.title')} ({invitations.length})
+                    {tOrg('membersModal.invitationsTitle', { count: invitations.length })}
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {invitations.map((invitation) => (

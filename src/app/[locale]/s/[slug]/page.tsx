@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,20 +64,26 @@ interface PlanData {
 
 type RegistrationStep = 'select' | 'form' | 'success';
 
-const formSchema = z.object({
-  name: z.string().min(2, 'Name muss mindestens 2 Zeichen haben'),
-  email: z.string().email('Ungültige E-Mail-Adresse'),
-  phone: z.string().optional(),
-  notes: z.string().optional(),
-});
+function createRegistrationSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(2, t('nameMinLength')),
+    email: z.string().email(t('invalidEmail')),
+    phone: z.string().optional(),
+    notes: z.string().optional(),
+  });
+}
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<ReturnType<typeof createRegistrationSchema>>;
 
 export default function PublicShiftPlanPage() {
   const params = useParams();
   const slug = params.slug as string;
   const t = useTranslations();
+  const tp = useTranslations('shifts.publicPage');
+  const tValidation = useTranslations('shifts.validation');
   const apiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
+  const formSchema = useMemo(() => createRegistrationSchema(tValidation), [tValidation]);
 
   const [step, setStep] = useState<RegistrationStep>('select');
   const [selectedShifts, setSelectedShifts] = useState<Set<string>>(new Set());
@@ -132,7 +138,7 @@ export default function PublicShiftPlanPage() {
       setError(null);
     },
     onError: (err: Error) => {
-      setError(apiErrorMessage(err, 'Ein Fehler ist aufgetreten'));
+      setError(apiErrorMessage(err, t('common.error')));
     },
   });
 
@@ -249,16 +255,19 @@ export default function PublicShiftPlanPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+    return date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
   };
+
+  const formatWeekday = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString(locale, { weekday: 'long' });
 
   const formatEventDates = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start.toDateString() === end.toDateString()) {
-      return start.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+      return start.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
     }
-    return `${start.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })} – ${end.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    return `${start.toLocaleDateString(locale, { day: 'numeric', month: 'long' })} – ${end.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}`;
   };
 
   const formatTime = (time: string): string => {
@@ -278,15 +287,20 @@ export default function PublicShiftPlanPage() {
     return `${year}${month}${day}T${hours}${minutes}00`;
   };
 
+  const calendarDescription = (): string => {
+    if (!plan?.organization?.name) return '';
+    return plan.event
+      ? tp('calendarDescriptionEvent', { organization: plan.organization.name, event: plan.event.name })
+      : tp('calendarDescription', { organization: plan.organization.name });
+  };
+
   const generateICSContent = (shifts: Array<{ job: JobData; shift: ShiftData }>): string => {
     const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const events = shifts.map(({ job, shift }) => {
       const dtStart = formatDateTimeForICS(shift.date, shift.startTime);
       const dtEnd = formatDateTimeForICS(shift.date, shift.endTime);
-      const summary = `${job.name} - ${plan?.name || 'Schicht'}`;
-      const description = plan?.organization?.name
-        ? `Schicht bei ${plan.organization.name}${plan.event ? ` - ${plan.event.name}` : ''}`
-        : '';
+      const summary = `${job.name} - ${plan?.name || tp('shiftFallback')}`;
+      const description = calendarDescription();
       return `BEGIN:VEVENT\nUID:${shift.id}@openeos.app\nDTSTAMP:${now}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nEND:VEVENT`;
     });
     return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//OpenEOS//Shift Plan//DE\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n${events.join('\n')}\nEND:VCALENDAR`;
@@ -298,7 +312,7 @@ export default function PublicShiftPlanPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${plan?.name || 'schichten'}.ics`;
+    link.download = `${plan?.name || tp('icsFileName')}.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -309,18 +323,14 @@ export default function PublicShiftPlanPage() {
     const { job, shift } = shiftData;
     const dtStart = formatDateTimeForGoogle(shift.date, shift.startTime);
     const dtEnd = formatDateTimeForGoogle(shift.date, shift.endTime);
-    const title = encodeURIComponent(`${job.name} - ${plan?.name || 'Schicht'}`);
-    const details = encodeURIComponent(
-      plan?.organization?.name
-        ? `Schicht bei ${plan.organization.name}${plan.event ? ` - ${plan.event.name}` : ''}`
-        : ''
-    );
+    const title = encodeURIComponent(`${job.name} - ${plan?.name || tp('shiftFallback')}`);
+    const details = encodeURIComponent(calendarDescription());
     window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}`, '_blank');
   };
 
   const onSubmit = (data: FormData) => {
     if (selectedShifts.size === 0) {
-      setError('Bitte wähle mindestens eine Schicht aus');
+      setError(tp('selectAtLeastOne'));
       return;
     }
     setError(null);
@@ -389,9 +399,9 @@ export default function PublicShiftPlanPage() {
         </div>
         <header className="shifts-public__context">
           <span className="shifts-public__context-label">
-            <b>{plan.organization.name}</b> · Schichtplan
+            {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
           </span>
-          <span className="shifts-public__context-meta mono">REGISTRIERT</span>
+          <span className="shifts-public__context-meta mono">{tp('registeredBadge')}</span>
         </header>
 
         <main className="shifts-public-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 32, paddingBottom: 32 }}>
@@ -435,7 +445,7 @@ export default function PublicShiftPlanPage() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontWeight: 600, color: 'var(--ink)', fontSize: 14, margin: 0 }}>{job.name}</p>
                           <p style={{ color: 'var(--mute)', fontSize: 13, margin: '2px 0 0' }}>
-                            {formatDate(shift.date).split(',')[0]}, {formatTime(shift.startTime)} – {formatTime(shift.endTime)}
+                            {formatWeekday(shift.date)}, {formatTime(shift.startTime)} – {formatTime(shift.endTime)}
                           </p>
                           <button
                             type="button"
@@ -499,10 +509,10 @@ export default function PublicShiftPlanPage() {
       {/* Dark context strip */}
       <header className="shifts-public__context">
         <span className="shifts-public__context-label">
-          <b>{plan.organization.name}</b> · Schichtplan
+          {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
         </span>
         <span className="shifts-public__context-meta mono">
-          {plan.event ? formatEventDates(plan.event.startDate, plan.event.endDate).toUpperCase() : 'OFFENE ANMELDUNG'}
+          {plan.event ? formatEventDates(plan.event.startDate, plan.event.endDate).toLocaleUpperCase(locale) : tp('openRegistration')}
         </span>
       </header>
 
@@ -548,7 +558,7 @@ export default function PublicShiftPlanPage() {
             {/* Toolbar */}
             <div className="shifts-public__toolbar">
               <span className="shifts-public__counter">
-                {selectedShifts.size > 0 ? `${selectedShifts.size} ${t('shifts.public.selected')}` : ''}
+                {selectedShifts.size > 0 ? tp('selectedCount', { count: selectedShifts.size }) : ''}
               </span>
               <div className="shifts-public__view-toggle">
                 {(['mobile', 'list'] as const).map((mode) => (
@@ -559,7 +569,7 @@ export default function PublicShiftPlanPage() {
                     className={viewMode === mode ? 'is-active' : ''}
                   >
                     {mode === 'mobile'
-                      ? <><Grid01 style={{ width: 14, height: 14 }} />Karten</>
+                      ? <><Grid01 style={{ width: 14, height: 14 }} />{tp('cardsView')}</>
                       : <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>}
                   </button>
                 ))}
@@ -573,7 +583,7 @@ export default function PublicShiftPlanPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: '1.25rem' }}>
                 {mobileGroups.length === 0 ? (
                   <div className="shifts-public__card" style={{ padding: 32, textAlign: 'center', color: 'var(--mute)', fontSize: 14 }}>
-                    Keine Schichten vorhanden.
+                    {tp('noShifts')}
                   </div>
                 ) : (
                   mobileGroups.map((group) => {
@@ -590,11 +600,13 @@ export default function PublicShiftPlanPage() {
                           <Calendar style={{ width: 16, height: 16, color: 'var(--green-ink)', flexShrink: 0 }} />
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                              {dateObj.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit' })}
+                              {dateObj.toLocaleDateString(locale, { weekday: 'long', day: '2-digit', month: '2-digit' })}
                             </div>
                             <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
                               <Clock style={{ width: 11, height: 11 }} />
-                              {formatTime(group.startTime)} – {formatTime(group.endTime)}{crossesMidnight ? ' (am Folgetag)' : ''}
+                              {crossesMidnight
+                                ? tp('timeRangeNextDay', { start: formatTime(group.startTime), end: formatTime(group.endTime) })
+                                : `${formatTime(group.startTime)} – ${formatTime(group.endTime)}`}
                             </div>
                           </div>
                         </header>
@@ -667,8 +679,12 @@ export default function PublicShiftPlanPage() {
                                   ) : (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
                                       <Users01 style={{ width: 12, height: 12, color: 'var(--mute)' }} />
-                                      <span>{shift.availableSpots}</span>
-                                      <span style={{ color: 'var(--mute)', fontWeight: 400 }}>/{shift.requiredWorkers} frei</span>
+                                      {tp.rich('spotsOfFree', {
+                                        available: shift.availableSpots,
+                                        required: shift.requiredWorkers,
+                                        n: (chunks) => <span>{chunks}</span>,
+                                        muted: (chunks) => <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{chunks}</span>,
+                                      })}
                                     </span>
                                   )}
                                 </div>
@@ -735,7 +751,7 @@ export default function PublicShiftPlanPage() {
                                   ) : hasOverlap ? (
                                     <span className="badge badge--warning">{t('shifts.public.overlap')}</span>
                                   ) : (
-                                    <span className="badge badge--neutral">{shift.availableSpots} frei</span>
+                                    <span className="badge badge--neutral">{tp('spotsFree', { count: shift.availableSpots })}</span>
                                   )}
                                 </div>
 
@@ -778,7 +794,7 @@ export default function PublicShiftPlanPage() {
               >
                 <span className="shifts-public__continue-pill-count">{selectedShifts.size}</span>
                 <span className="shifts-public__continue-pill-label">
-                  {selectedShifts.size === 1 ? 'Schicht ausgewählt' : 'Schichten ausgewählt'}
+                  {tp('pillLabel', { count: selectedShifts.size })}
                 </span>
                 <button
                   type="button"
@@ -830,7 +846,7 @@ export default function PublicShiftPlanPage() {
                           <span>
                             <strong>{found.job.name}</strong>
                             {' · '}
-                            {formatDate(found.shift.date).split(',')[0]}
+                            {formatWeekday(found.shift.date)}
                             {', '}
                             {formatTime(found.shift.startTime)}–{formatTime(found.shift.endTime)}
                           </span>
@@ -947,12 +963,12 @@ export default function PublicShiftPlanPage() {
             href={`/s/${slug}/manage`}
             style={{ color: 'var(--green-ink)', fontWeight: 600 }}
           >
-            Meine Schichten verwalten
+            {t('shifts.manageRequest.title')}
           </a>
           <span style={{ opacity: 0.4 }}>·</span>
           <span>© {new Date().getFullYear()} OpenEOS</span>
           <span style={{ opacity: 0.4 }}>·</span>
-          <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Impressum</a>
+          <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
         </div>
       </footer>
     </>

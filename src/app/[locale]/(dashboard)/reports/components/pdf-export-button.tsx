@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import type {
   SalesReport,
@@ -30,13 +30,14 @@ interface PdfExportButtonProps {
 
 export function PdfExportButton(props: PdfExportButtonProps) {
   const t = useTranslations('reports');
+  const locale = useLocale();
   const [isPending, setIsPending] = useState(false);
 
   const handleExport = async () => {
     if (isPending) return;
     setIsPending(true);
     try {
-      await generateReportsPdf(props);
+      await generateReportsPdf(props, { t, locale });
     } catch (error) {
       console.error('PDF export failed', error);
     } finally {

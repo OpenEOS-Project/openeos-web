@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { adminApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
@@ -13,16 +14,6 @@ import type {
   AdminUnassignedPrinterDevice,
 } from '@/types/printer';
 import type { Organization } from '@/types/organization';
-
-function formatDateTime(value: string | null | undefined): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString('de-DE', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
 
 /**
  * Drucker gilt als „online", wenn ihn der Backend in den letzten 30 s gesehen hat.
@@ -36,7 +27,10 @@ function isRecentlySeen(value: string | null | undefined): boolean {
 }
 
 export function AdminPrintersContainer() {
+  const t = useTranslations('admin.printers');
+  const tCommon = useTranslations('common');
   const apiErrorMessage = useApiErrorMessage();
+  const { formatDateTime } = useLocaleFormat();
   const queryClient = useQueryClient();
   const [assignTarget, setAssignTarget] = useState<AdminUnassignedPrinterDevice | null>(null);
 
@@ -63,30 +57,30 @@ export function AdminPrintersContainer() {
     onSuccess: (response) => {
       const result = response.data;
       if (result.success) {
-        toast.success(result.message ?? 'Test-Druck wurde an den Drucker gesendet.');
+        toast.success(result.message ?? t('toast.testPrintSent'));
       } else {
-        toast.error(result.message ?? 'Test-Druck nicht möglich.');
+        toast.error(result.message ?? t('toast.testPrintNotPossible'));
       }
     },
-    onError: (err: Error) => toast.error(`Test-Druck fehlgeschlagen: ${apiErrorMessage(err)}`),
+    onError: (err: Error) => toast.error(t('toast.testPrintFailed', { message: apiErrorMessage(err) })),
   });
 
   const unassignMutation = useMutation({
     mutationFn: (printerId: string) => adminApi.unassignPrinter(printerId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
-      toast.success('Zuordnung wurde aufgehoben.');
+      toast.success(t('toast.unassigned'));
     },
-    onError: (err: Error) => toast.error(`Zuordnung aufheben fehlgeschlagen: ${apiErrorMessage(err)}`),
+    onError: (err: Error) => toast.error(t('toast.unassignFailed', { message: apiErrorMessage(err) })),
   });
 
   const deleteDeviceMutation = useMutation({
     mutationFn: (deviceId: string) => adminApi.deleteDevice(deviceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
-      toast.success('Gerät wurde gelöscht.');
+      toast.success(t('toast.deviceDeleted'));
     },
-    onError: (err: Error) => toast.error(`Löschen fehlgeschlagen: ${apiErrorMessage(err)}`),
+    onError: (err: Error) => toast.error(t('toast.deleteFailed', { message: apiErrorMessage(err) })),
   });
 
   const assigned = printersQuery.data?.assigned ?? [];
@@ -98,25 +92,25 @@ export function AdminPrintersContainer() {
       <section className="app-card">
         <div className="app-card__head">
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>Nicht zugewiesene Drucker-Agents ({unassigned.length})</div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>{t('unassigned.title', { count: unassigned.length })}</div>
             <div style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-              Drucker, die sich beim Backend registriert haben, aber noch keiner Organisation zugeordnet sind.
+              {t('unassigned.description')}
             </div>
           </div>
         </div>
         <div className="app-card__body" style={{ padding: 0 }}>
           {unassigned.length === 0 ? (
             <div style={{ padding: 20, fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-              Keine wartenden Drucker-Agents. Sobald ein RPi-Agent sich registriert, erscheint er hier.
+              {t('unassigned.empty')}
             </div>
           ) : (
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th>Zuletzt gesehen</th>
-                  <th className="text-right">Aktion</th>
+                  <th>{t('table.name')}</th>
+                  <th>{t('table.status')}</th>
+                  <th>{t('table.lastSeen')}</th>
+                  <th className="text-right">{t('table.action')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,7 +136,7 @@ export function AdminPrintersContainer() {
                       </td>
                       <td>
                         <span className={online ? 'badge badge--success' : 'badge badge--warning'}>
-                          {online ? 'Online · wartet auf Zuordnung' : d.status === 'pending' ? 'Wartet auf Zuordnung' : d.status}
+                          {online ? t('unassigned.onlineWaiting') : d.status === 'pending' ? t('unassigned.waiting') : d.status}
                         </span>
                       </td>
                       <td style={{ color: 'var(--mute)' }}>
@@ -151,19 +145,19 @@ export function AdminPrintersContainer() {
                       <td className="text-right">
                         <div style={{ display: 'inline-flex', gap: 6 }}>
                           <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setAssignTarget(d)}>
-                            Zuordnen
+                            {t('actions.assign')}
                           </button>
                           <button
                             className="btn btn--ghost"
                             style={{ fontSize: 13, color: 'var(--danger)' }}
                             disabled={deleteDeviceMutation.isPending}
                             onClick={() => {
-                              if (confirm(`Gerät „${d.suggestedName || d.name}" endgültig löschen?`)) {
+                              if (confirm(t('confirm.deleteDevice', { name: d.suggestedName || d.name }))) {
                                 deleteDeviceMutation.mutate(d.id);
                               }
                             }}
                           >
-                            Löschen
+                            {tCommon('delete')}
                           </button>
                         </div>
                       </td>
@@ -180,27 +174,27 @@ export function AdminPrintersContainer() {
       <section className="app-card">
         <div className="app-card__head">
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>Zugewiesene Drucker ({assigned.length})</div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>{t('assigned.title', { count: assigned.length })}</div>
             <div style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-              Alle Drucker über alle Organisationen.
+              {t('assigned.description')}
             </div>
           </div>
         </div>
         <div className="app-card__body" style={{ padding: 0 }}>
           {assigned.length === 0 ? (
             <div style={{ padding: 20, fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-              Noch keine Drucker einer Organisation zugewiesen.
+              {t('assigned.empty')}
             </div>
           ) : (
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Organisation</th>
-                  <th>Drucker</th>
-                  <th>Typ</th>
-                  <th>Online</th>
-                  <th>Zuletzt gesehen</th>
-                  <th className="text-right">Aktionen</th>
+                  <th>{t('table.organization')}</th>
+                  <th>{t('table.printer')}</th>
+                  <th>{t('table.type')}</th>
+                  <th>{t('table.online')}</th>
+                  <th>{t('table.lastSeen')}</th>
+                  <th className="text-right">{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +204,7 @@ export function AdminPrintersContainer() {
                     printer={p}
                     onTestPrint={() => testPrintMutation.mutate(p.id)}
                     onUnassign={() => {
-                      if (confirm(`Drucker „${p.name}" wirklich aus „${p.organization?.name}" entfernen?`)) {
+                      if (confirm(t('confirm.unassign', { name: p.name, organization: p.organization?.name ?? '—' }))) {
                         unassignMutation.mutate(p.id);
                       }
                     }}
@@ -233,7 +227,7 @@ export function AdminPrintersContainer() {
           onAssigned={() => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'printers'] });
             setAssignTarget(null);
-            toast.success('Drucker wurde der Organisation zugewiesen.');
+            toast.success(t('toast.assigned'));
           }}
           onError={(msg) => toast.error(msg)}
         />
@@ -250,7 +244,10 @@ interface PrinterRowProps {
 }
 
 function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProps) {
-  const typeLabel = printer.type === 'kitchen' ? 'Küche' : printer.type === 'label' ? 'Etiketten' : 'Beleg';
+  const t = useTranslations('admin.printers');
+  const { formatDateTime } = useLocaleFormat();
+  const typeLabel =
+    printer.type === 'kitchen' ? t('types.kitchen') : printer.type === 'label' ? t('types.label') : t('types.receipt');
   return (
     <tr>
       <td>
@@ -278,7 +275,7 @@ function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProp
                 }}
               />
               <span className={online ? 'badge badge--success' : 'badge badge--neutral'}>
-                {online ? 'Online' : 'Offline'}
+                {online ? t('online') : t('offline')}
               </span>
             </div>
           );
@@ -290,10 +287,10 @@ function PrinterRow({ printer, onTestPrint, onUnassign, isBusy }: PrinterRowProp
       <td className="text-right">
         <div style={{ display: 'inline-flex', gap: 6 }}>
           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={onTestPrint} disabled={isBusy}>
-            Test-Druck
+            {t('actions.testPrint')}
           </button>
           <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--danger)' }} onClick={onUnassign} disabled={isBusy}>
-            Zuordnung aufheben
+            {t('actions.unassign')}
           </button>
         </div>
       </td>
@@ -313,6 +310,7 @@ interface AssignDeviceModalProps {
 
 function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onClose, onAssigned, onError }: AssignDeviceModalProps) {
   const t = useTranslations();
+  const tp = useTranslations('admin.printers.assignModal');
   const apiErrorMessage = useApiErrorMessage();
   const prev = device.previousConfig ?? null;
   const [organizationId, setOrganizationId] = useState('');
@@ -327,7 +325,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!organizationId) {
-      onError('Bitte eine Organisation auswählen.');
+      onError(tp('organizationRequired'));
       return;
     }
     setSubmitting(true);
@@ -338,7 +336,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
       await adminApi.assignPrinterDevice({
         deviceId: device.id,
         organizationId,
-        name: prev?.name || device.suggestedName || device.name || 'Drucker',
+        name: prev?.name || device.suggestedName || device.name || tp('defaultName'),
         type: prev?.type || 'receipt',
         connectionType: prev?.connectionType || 'usb',
         connectionConfig: (prev?.connectionConfig as Record<string, unknown>) ?? {},
@@ -347,7 +345,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
       });
       onAssigned();
     } catch (err) {
-      const message = apiErrorMessage(err, 'Zuordnung fehlgeschlagen');
+      const message = apiErrorMessage(err, tp('assignFailed'));
       onError(message);
     } finally {
       setSubmitting(false);
@@ -358,32 +356,30 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
     <div className="modal__backdrop" onClick={onClose}>
       <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__head">
-          <div className="modal__title">Drucker zuordnen</div>
+          <div className="modal__title">{tp('title')}</div>
           <DialogCloseButton onClick={onClose} />
         </div>
         <form onSubmit={handleSubmit}>
           <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-              Verknüpft das Drucker-Agent-Gerät mit einer Organisation. Hardware-Werte
-              (Name, Typ, Anschluss, USB-Kennung, Papierbreite) werden aus der lokalen
-              Agent-Konfiguration auf dem RPi übernommen.
+              {tp('description')}
             </p>
 
             {prev && (
               <div style={{ padding: 12, borderRadius: 8, background: 'var(--paper-2)', border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', display: 'grid', gridTemplateColumns: '110px 1fr', gap: '6px 12px', fontSize: 13 }}>
-                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Name</span>
+                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tp('name')}</span>
                 <span><strong>{prev.name}</strong></span>
-                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Typ</span>
-                <span>{prev.type === 'kitchen' ? 'Küchendrucker' : prev.type === 'label' ? 'Etiketten' : 'Beleg'}</span>
-                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Anschluss</span>
+                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tp('type')}</span>
+                <span>{prev.type === 'kitchen' ? tp('types.kitchen') : prev.type === 'label' ? tp('types.label') : tp('types.receipt')}</span>
+                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tp('connection')}</span>
                 <span style={{ textTransform: 'uppercase', fontFamily: 'var(--f-mono)', fontSize: 12 }}>{prev.connectionType}</span>
-                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>Papierbreite</span>
+                <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{tp('paperWidth')}</span>
                 <span>{prev.paperWidth} mm</span>
               </div>
             )}
 
             <label className="auth-field">
-              <span className="auth-field__label">Organisation *</span>
+              <span className="auth-field__label">{tp('organization')}</span>
               <select
                 className="select"
                 value={organizationId}
@@ -393,12 +389,12 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
               >
                 <option value="">
                   {orgsLoading
-                    ? 'Lädt Organisationen …'
+                    ? tp('orgsLoading')
                     : orgsError
-                      ? 'Fehler beim Laden'
+                      ? tp('orgsError')
                       : sortedOrgs.length === 0
-                        ? 'Keine Organisationen verfügbar'
-                        : 'Bitte auswählen…'}
+                        ? tp('orgsEmpty')
+                        : tp('orgsPlaceholder')}
                 </option>
                 {sortedOrgs.map((o) => (
                   <option key={o.id} value={o.id}>{o.name}</option>
@@ -413,7 +409,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
 
             <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <input type="checkbox" checked={hasCashDrawer} onChange={(e) => setHasCashDrawer(e.target.checked)} />
-              <span style={{ fontSize: 13 }}>Kassenlade ist an diesem Drucker angeschlossen</span>
+              <span style={{ fontSize: 13 }}>{tp('hasCashDrawer')}</span>
             </label>
           </div>
           <div className="modal__foot">
@@ -421,7 +417,7 @@ function AssignDeviceModal({ device, organizations, orgsLoading, orgsError, onCl
               {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={submitting || !organizationId}>
-              {submitting ? t('common.saving') : 'Zuordnen'}
+              {submitting ? t('common.saving') : tp('submit')}
             </button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,17 +11,21 @@ import { useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks/use-
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
 
-const profileSchema = z.object({
-  firstName: z.string().min(1, 'Vorname ist erforderlich'),
-  lastName: z.string().min(1, 'Nachname ist erforderlich'),
-});
+function createProfileSchema(t: (key: string) => string) {
+  return z.object({
+    firstName: z.string().min(1, t('firstNameRequired')),
+    lastName: z.string().min(1, t('lastNameRequired')),
+  });
+}
 
-type ProfileFormData = z.infer<typeof profileSchema>;
+type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>;
 
 export function ProfileSection() {
   const t = useTranslations('settings.profile');
   const tCommon = useTranslations('common');
+  const tErrors = useTranslations('settings.profile.errors');
   const apiErrorMessage = useApiErrorMessage();
+  const profileSchema = useMemo(() => createProfileSchema(tErrors), [tErrors]);
   const { user, setUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -56,7 +60,7 @@ export function ProfileSection() {
       const result = await uploadAvatar.mutateAsync(file);
       if (user) setUser({ ...user, avatarUrl: result.avatarUrl });
     } catch (err) {
-      toast.error(apiErrorMessage(err, tCommon('error')));
+      toast.error(apiErrorMessage(err, tErrors('uploadFailed')));
     } finally {
       setIsUploading(false);
     }
@@ -67,7 +71,7 @@ export function ProfileSection() {
       await deleteAvatar.mutateAsync();
       if (user) setUser({ ...user, avatarUrl: null });
     } catch (err) {
-      toast.error(apiErrorMessage(err, tCommon('error')));
+      toast.error(apiErrorMessage(err, tErrors('removeFailed')));
     }
   };
 
@@ -114,7 +118,7 @@ export function ProfileSection() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
                 >
-                  {isUploading ? tCommon('saving') : user?.avatarUrl ? 'Bild ersetzen' : t('uploadAvatar')}
+                  {isUploading ? tCommon('saving') : user?.avatarUrl ? t('replaceAvatar') : t('uploadAvatar')}
                 </button>
                 {user?.avatarUrl && (
                   <button
@@ -124,7 +128,7 @@ export function ProfileSection() {
                     onClick={handleDeleteAvatar}
                     disabled={deleteAvatar.isPending}
                   >
-                    {t('deleteAvatar') ?? 'Entfernen'}
+                    {t('deleteAvatar')}
                   </button>
                 )}
               </div>

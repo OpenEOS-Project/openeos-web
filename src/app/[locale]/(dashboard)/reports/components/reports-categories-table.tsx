@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import type { CategoryReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
 
 interface ReportsCategoriesTableProps {
@@ -13,12 +13,13 @@ interface ReportsCategoriesTableProps {
 
 export function ReportsCategoriesTable({ data, isLoading }: ReportsCategoriesTableProps) {
   const t = useTranslations('reports');
+  const { formatCurrency } = useLocaleFormat();
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [t('categories.columns.category'), t('categories.columns.quantity'), t('categories.columns.revenue')];
     const rows = data.map((c) => [c.name, c.quantity, c.revenue]);
-    downloadCsv('top-kategorien.csv', headers, rows);
+    downloadCsv(t('export.filenames.categories'), headers, rows);
   };
 
   return (

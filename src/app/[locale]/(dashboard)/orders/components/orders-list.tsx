@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
-import { formatDateTime, formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import {
   getOrderChannel,
   type Order,
@@ -47,6 +47,7 @@ const PAGE_LIMIT = 50;
 
 export function OrdersList() {
   const t = useTranslations();
+  const { formatDateTime, formatCurrency } = useLocaleFormat();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 

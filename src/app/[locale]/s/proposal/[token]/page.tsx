@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { CheckCircle, AlertCircle } from '@untitledui/icons';
 
@@ -20,6 +21,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
  */
 export default function ShiftProposalPage() {
   const { token } = useParams() as { token: string };
+  const t = useTranslations('shifts.proposal');
   const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const initialAction = searchParams.get('action') as 'accept' | 'decline' | null;
@@ -36,7 +38,7 @@ export default function ShiftProposalPage() {
       setResult({ status: res.data.status, message: res.data.message, planSlug: res.data.planSlug });
       setState('success');
     } catch (err) {
-      setErrorMsg(apiErrorMessage(err, 'Vorschlag konnte nicht verarbeitet werden.'));
+      setErrorMsg(apiErrorMessage(err, t('processFailed')));
       setState('error');
     }
   };
@@ -57,13 +59,13 @@ export default function ShiftProposalPage() {
 
         {state === 'idle' && (
           <>
-            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0, textAlign: 'center' }}>Schichtvorschlag</h1>
+            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0, textAlign: 'center' }}>{t('title')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
-              Soll deine Schicht wie vorgeschlagen verschoben werden?
+              {t('question')}
             </p>
             <div style={{ display: 'flex', gap: 8, marginTop: 24, justifyContent: 'center' }}>
-              <button className="btn btn--primary" onClick={() => submit('accept')}>✓ Annehmen</button>
-              <button className="btn btn--ghost" onClick={() => submit('decline')}>✗ Ablehnen</button>
+              <button className="btn btn--primary" onClick={() => submit('accept')}>{t('accept')}</button>
+              <button className="btn btn--ghost" onClick={() => submit('decline')}>{t('decline')}</button>
             </div>
           </>
         )}
@@ -79,12 +81,12 @@ export default function ShiftProposalPage() {
           <div style={{ textAlign: 'center' }}>
             <CheckCircle style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
             <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
-              {result.status === 'accepted' ? 'Vorschlag angenommen' : 'Vorschlag abgelehnt'}
+              {result.status === 'accepted' ? t('accepted') : t('declined')}
             </h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>{result.message}</p>
             {result.planSlug && (
               <a href={`/s/${result.planSlug}`} className="btn btn--ghost" style={{ marginTop: 20, display: 'inline-block' }}>
-                Zur Schicht-Übersicht
+                {t('toOverview')}
               </a>
             )}
           </div>
@@ -93,10 +95,10 @@ export default function ShiftProposalPage() {
         {state === 'error' && (
           <div style={{ textAlign: 'center' }}>
             <AlertCircle style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
-            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Fehler</h1>
+            <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('errorTitle')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>{errorMsg}</p>
             <button className="btn btn--ghost" style={{ marginTop: 16 }} onClick={() => setState('idle')}>
-              Erneut versuchen
+              {t('retry')}
             </button>
           </div>
         )}

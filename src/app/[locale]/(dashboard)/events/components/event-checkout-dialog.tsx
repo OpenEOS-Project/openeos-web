@@ -28,7 +28,6 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const tErrors = useTranslations('errors');
   const apiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
-  const currencyLocale = locale === 'de' ? 'de-DE' : 'en-US';
 
   const orderInvoice = useOrderInvoice();
   const activateEvent = useActivateEvent();
@@ -149,7 +148,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     }
   };
 
-  const dateFormat = new Intl.DateTimeFormat(currencyLocale, {
+  const dateFormat = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -199,11 +198,11 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                     color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
                   }}
                 >
-                  {formatCurrency(billing.price, currencyLocale)}
+                  {formatCurrency(billing.price, locale)}
                 </span>
               )}
               <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)' }}>
-                {formatCurrency(billing.finalPrice, currencyLocale)}
+                {formatCurrency(billing.finalPrice, locale)}
               </span>
               {billing.discountPercent > 0 && (
                 <span className="badge badge--success">
@@ -219,7 +218,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
               <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
                 {t('breakdown', {
                   days: billing.days,
-                  pricePerDay: formatCurrency(billing.pricePerDay, currencyLocale),
+                  pricePerDay: formatCurrency(billing.pricePerDay, locale),
                 })}
               </div>
             )}

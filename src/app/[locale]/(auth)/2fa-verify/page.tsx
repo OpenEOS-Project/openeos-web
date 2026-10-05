@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
@@ -17,15 +17,18 @@ import { twoFactorApi, authApi, apiClient } from '@/lib/api-client';
 import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { useAuthStore } from '@/stores/auth-store';
 
-const verifySchema = z.object({
-  code: z.string().length(6, 'Code muss 6 Zeichen haben'),
-  trustDevice: z.boolean().optional(),
-});
+function createVerifySchema(t: (key: string) => string) {
+  return z.object({
+    code: z.string().length(6, t('codeLength')),
+    trustDevice: z.boolean().optional(),
+  });
+}
 
-type VerifyFormData = z.infer<typeof verifySchema>;
+type VerifyFormData = z.infer<ReturnType<typeof createVerifySchema>>;
 
 export default function TwoFactorVerifyPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations('auth.twoFactorVerify');
+  const verifySchema = useMemo(() => createVerifySchema(t), [t]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser, setOrganizations, setLoading } = useAuthStore();
@@ -72,8 +75,8 @@ export default function TwoFactorVerifyPage() {
 
   const getDeviceInfo = () => {
     const ua = navigator.userAgent;
-    let browser = 'Unknown Browser';
-    let os = 'Unknown OS';
+    let browser = t('unknownBrowser');
+    let os = t('unknownOs');
 
     // Detect browser
     if (ua.includes('Firefox')) browser = 'Firefox';
@@ -88,12 +91,12 @@ export default function TwoFactorVerifyPage() {
     else if (ua.includes('Android')) os = 'Android';
     else if (ua.includes('iOS')) os = 'iOS';
 
-    return `${browser} on ${os}`;
+    return t('deviceInfo', { browser, os });
   };
 
   const onSubmit = async (data: VerifyFormData) => {
     if (!twoFactorToken) {
-      setError('Ungültige Sitzung. Bitte melden Sie sich erneut an.');
+      setError(t('errors.invalidSession'));
       return;
     }
 
@@ -126,8 +129,8 @@ export default function TwoFactorVerifyPage() {
     } catch (err) {
       setError(
         isRecoveryMode
-          ? 'Ungültiger Wiederherstellungscode'
-          : 'Ungültiger Verifizierungscode'
+          ? t('errors.invalidRecoveryCode')
+          : t('errors.invalidCode')
       );
       apiClient.clearAccessToken();
     } finally {
@@ -145,7 +148,7 @@ export default function TwoFactorVerifyPage() {
       // For now, we'll just set the cooldown
       setResendCooldown(60);
     } catch {
-      setError('Code konnte nicht erneut gesendet werden');
+      setError(t('errors.resendFailed'));
     }
   };
 
@@ -154,13 +157,13 @@ export default function TwoFactorVerifyPage() {
       <div className="space-y-6 text-center">
         <ShieldTick className="mx-auto h-12 w-12 text-tertiary" />
         <div>
-          <h1 className="text-display-sm font-semibold text-primary">Ungültige Sitzung</h1>
+          <h1 className="text-display-sm font-semibold text-primary">{t('invalidSessionTitle')}</h1>
           <p className="mt-2 text-tertiary">
-            Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an.
+            {t('invalidSessionMessage')}
           </p>
         </div>
         <Link href="/login">
-          <Button className="w-full">Zur Anmeldung</Button>
+          <Button className="w-full">{t('toLogin')}</Button>
         </Link>
       </div>
     );
@@ -178,14 +181,14 @@ export default function TwoFactorVerifyPage() {
           )}
         </div>
         <h1 className="mt-6 text-display-sm font-semibold text-primary">
-          Zwei-Faktor-Authentifizierung
+          {t('title')}
         </h1>
         <p className="mt-2 text-tertiary">
           {isRecoveryMode
-            ? 'Geben Sie einen Ihrer Wiederherstellungscodes ein'
+            ? t('subtitleRecovery')
             : method === 'email'
-            ? 'Wir haben Ihnen einen Verifizierungscode per E-Mail gesendet'
-            : 'Geben Sie den Code aus Ihrer Authenticator-App ein'}
+            ? t('subtitleEmail')
+            : t('subtitleTotp')}
         </p>
       </div>
 
@@ -199,7 +202,7 @@ export default function TwoFactorVerifyPage() {
 
         <InputGroup>
           <Label htmlFor="code">
-            {isRecoveryMode ? 'Wiederherstellungscode' : 'Verifizierungscode'}
+            {isRecoveryMode ? t('recoveryCode') : t('verificationCode')}
           </Label>
           <Controller
             name="code"
@@ -233,7 +236,7 @@ export default function TwoFactorVerifyPage() {
                 id="trustDevice"
                 isSelected={field.value}
                 onChange={field.onChange}
-                label="Diesem Gerät für 30 Tage vertrauen"
+                label={t('trustDevice')}
               />
             )}
           />
@@ -247,10 +250,10 @@ export default function TwoFactorVerifyPage() {
           {isLoading ? (
             <>
               <RefreshCw01 className="mr-2 h-4 w-4 animate-spin" />
-              Verifizieren...
+              {t('verifying')}
             </>
           ) : (
-            'Verifizieren'
+            t('verify')
           )}
         </Button>
 
@@ -264,8 +267,8 @@ export default function TwoFactorVerifyPage() {
               className="text-sm text-brand-primary hover:text-brand-primary_hover disabled:text-tertiary disabled:cursor-not-allowed"
             >
               {resendCooldown > 0
-                ? `Code erneut senden (${resendCooldown}s)`
-                : 'Code erneut senden'}
+                ? t('resendCooldown', { seconds: resendCooldown })
+                : t('resend')}
             </button>
           </div>
         )}
@@ -278,8 +281,8 @@ export default function TwoFactorVerifyPage() {
             className="text-sm text-tertiary hover:text-secondary"
           >
             {isRecoveryMode
-              ? 'Mit Verifizierungscode anmelden'
-              : 'Wiederherstellungscode verwenden'}
+              ? t('useVerificationCode')
+              : t('useRecoveryCode')}
           </button>
         </div>
       </form>
@@ -291,7 +294,7 @@ export default function TwoFactorVerifyPage() {
           className="inline-flex items-center text-sm text-tertiary hover:text-secondary"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zur Anmeldung
+          {t('backToLogin')}
         </Link>
       </div>
     </div>

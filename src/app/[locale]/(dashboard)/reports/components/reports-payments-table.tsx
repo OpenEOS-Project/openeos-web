@@ -5,27 +5,11 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { PaymentReport } from '@/types/report';
 import { formatCurrency, formatPercent } from '@/utils/format';
 import { downloadCsv } from './csv-export';
+import { getMethodLabel } from './report-labels';
 
 interface ReportsPaymentsTableProps {
   data: PaymentReport[] | undefined;
   isLoading: boolean;
-}
-
-const METHOD_LABELS: Record<string, string> = {
-  cash: 'Bar',
-  card: 'Karte',
-  sumup_terminal: 'SumUp-Terminal',
-  sumup_online: 'SumUp Online',
-  paypal: 'PayPal',
-  google_pay: 'Google Pay',
-  apple_pay: 'Apple Pay',
-  voucher: 'Gutschein',
-  online: 'Online',
-  free: 'Kostenlos',
-};
-
-function getMethodLabel(method: string): string {
-  return METHOD_LABELS[method] ?? method;
 }
 
 export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTableProps) {
@@ -41,12 +25,12 @@ export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTablePr
       t('payments.columns.percentage'),
     ];
     const rows = data.map((p) => [
-      getMethodLabel(p.method),
+      getMethodLabel(p.method, t),
       p.count,
       p.total,
       formatPercent(p.percentage, locale),
     ]);
-    downloadCsv('zahlarten.csv', headers, rows);
+    downloadCsv(t('export.filenames.payments'), headers, rows);
   };
 
   return (
@@ -91,11 +75,11 @@ export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTablePr
                 <tr key={p.method}>
                   <td>
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
-                      {getMethodLabel(p.method)}
+                      {getMethodLabel(p.method, t)}
                     </div>
                   </td>
                   <td className="mono text-right">{p.count}</td>
-                  <td className="mono text-right">{formatCurrency(p.total)}</td>
+                  <td className="mono text-right">{formatCurrency(p.total, locale)}</td>
                   <td className="text-right">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
                       <div

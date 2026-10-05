@@ -398,11 +398,16 @@ export const organizationsApi = {
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),
 
-  removeMember: (orgId: string, userId: string) =>
-    apiClient.delete(`/organizations/${orgId}/members/${userId}`),
+  removeMember: (orgId: string, memberId: string) =>
+    apiClient.delete(`/organizations/${orgId}/members/${memberId}`),
 
   updateMember: (orgId: string, userId: string, data: { role?: string; permissions?: import('@/types/auth').OrganizationPermissions }) =>
     apiClient.patch(`/organizations/${orgId}/members/${userId}`, data),
+
+  /* Fuegt ein bestehendes Konto hinzu oder legt es (nur eigenstaendige
+     Installation, nur Admins) mit Startpasswort neu an. */
+  addMember: (orgId: string, data: import('@/types/auth').AddMemberData) =>
+    apiClient.post<ApiResponse<import('@/types/auth').UserOrganization>>(`/organizations/${orgId}/members`, data),
 
   // Invitations
   createInvitation: (orgId: string, data: { email: string; role: string; permissions?: import('@/types/auth').OrganizationPermissions }) =>

@@ -14,7 +14,7 @@ export function ReportsKpiCards({ data, isLoading }: ReportsKpiCardsProps) {
   const t = useTranslations('reports');
   const locale = useLocale();
 
-  const val = (v: number | undefined) => (isLoading || v === undefined ? '—' : formatCurrency(v));
+  const val = (v: number | undefined) => (isLoading || v === undefined ? '—' : formatCurrency(v, locale));
   const numVal = (v: number | undefined) => (isLoading || v === undefined ? '—' : String(v));
 
   return (
@@ -44,8 +44,8 @@ export function ReportsKpiCards({ data, isLoading }: ReportsKpiCardsProps) {
           {isLoading || !data
             ? '—'
             : t('kpi.pfandDetail', {
-                collected: formatCurrency(data.pfandCollected),
-                returned: formatCurrency(data.pfandReturned),
+                collected: formatCurrency(data.pfandCollected, locale),
+                returned: formatCurrency(data.pfandReturned, locale),
               })}
         </div>
       </div>

@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 
 import { useHourlyReport } from '@/hooks/use-reports';
-import { formatCurrency } from '@/utils/format';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -51,6 +51,7 @@ function fortschreibung(werte: number[]): number | null {
 
 export function HourlyRevenueWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
 
   const { data, isLoading } = useHourlyReport(organizationId, range.query);

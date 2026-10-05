@@ -80,6 +80,7 @@ function SectionCard({ title, subtitle, danger, children }: SectionCardProps) {
 
 export function PlanSettings({ plan }: PlanSettingsProps) {
   const t = useTranslations();
+  const ts = useTranslations('shifts.planSettings');
   const queryClient = useQueryClient();
   const router = useRouter();
   const { currentOrganization } = useAuthStore();
@@ -164,11 +165,11 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
       <div>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{t('shifts.settings.title')}</h2>
         <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>
-          Grundeinstellungen für diesen Schichtplan
+          {ts('subtitle')}
         </p>
       </div>
 
-      <SectionCard title="Allgemein" subtitle="Name und Beschreibung — die Helfer sehen das auf der öffentlichen Seite.">
+      <SectionCard title={ts('generalTitle')} subtitle={ts('generalSubtitle')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="auth-field">
             <label className="auth-field__label">{t('shifts.form.name')}</label>
@@ -181,7 +182,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Öffentlicher Link" subtitle="Diesen Link kannst du an die Helfer weitergeben.">
+      <SectionCard title={ts('publicLinkTitle')} subtitle={ts('publicLinkSubtitle')}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <code
             style={{
@@ -211,7 +212,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
             }}
             onClick={copyPublicLink}
           >
-            {linkCopied ? '✓ Kopiert!' : 'Link kopieren'}
+            {linkCopied ? t('shifts.list.copied') : t('shifts.copyLink')}
           </button>
           <button
             type="button"
@@ -219,12 +220,12 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
             style={{ fontSize: 13 }}
             onClick={() => window.open(`/s/${plan.publicSlug}`, '_blank')}
           >
-            Vorschau
+            {t('shifts.preview')}
           </button>
         </div>
       </SectionCard>
 
-      <SectionCard title="Anmeldungs-Einstellungen" subtitle="Wie sich die Helfer eintragen können.">
+      <SectionCard title={ts('registrationTitle')} subtitle={ts('registrationSubtitle')}>
         <Controller
           name="requireApproval"
           control={control}
@@ -295,8 +296,8 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           control={control}
           render={({ field }) => (
             <ToggleRow
-              title="Verifizierungs-Erinnerungen"
-              description="Schickt Helfern, die ihre E-Mail noch nicht bestätigt haben, regelmäßig eine Erinnerung."
+              title={ts('verificationReminders')}
+              description={ts('verificationRemindersDescription')}
               checked={field.value}
               onChange={field.onChange}
             />
@@ -308,8 +309,8 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           control={control}
           render={({ field }) => (
             <div style={{ paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Intervall (Stunden)</div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>Wie viele Stunden zwischen zwei Erinnerungen. Default 24.</div>
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{ts('intervalHours')}</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>{ts('intervalHoursDescription')}</div>
               <input
                 className="input"
                 type="number"
@@ -330,8 +331,8 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           control={control}
           render={({ field }) => (
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Maximale Anzahl Erinnerungen</div>
-              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>Nach dieser Anzahl an Erinnerungen wird nicht weiter nachgehakt. Default 5.</div>
+              <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{ts('maxReminders')}</div>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 8 }}>{ts('maxRemindersDescription')}</div>
               <input
                 className="input"
                 type="number"
@@ -364,7 +365,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
           }}
         >
           <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-            Du hast ungespeicherte Änderungen.
+            {ts('unsavedChanges')}
           </span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
@@ -384,7 +385,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
                 })
               }
             >
-              Verwerfen
+              {ts('discard')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={updateMutation.isPending}>
               {updateMutation.isPending ? t('common.saving') : t('common.save')}
@@ -394,15 +395,15 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
       )}
 
       <SectionCard
-        title="Gefahrenzone"
-        subtitle="Diese Aktion kann nicht rückgängig gemacht werden."
+        title={ts('dangerZone')}
+        subtitle={ts('dangerZoneSubtitle')}
         danger
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0, flex: '1 1 280px' }}>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Plan löschen</div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{ts('deletePlan')}</div>
             <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2 }}>
-              Löscht den Schichtplan einschließlich aller Arbeiten, Schichten und Anmeldungen.
+              {ts('deletePlanDescription')}
             </div>
           </div>
           <button
@@ -416,7 +417,7 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
               }
             }}
           >
-            {deleteMutation.isPending ? t('common.deleting') : 'Plan löschen'}
+            {deleteMutation.isPending ? t('common.deleting') : ts('deletePlan')}
           </button>
         </div>
       </SectionCard>

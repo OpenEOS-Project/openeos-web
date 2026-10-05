@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untitledui/icons';
@@ -9,8 +10,8 @@ import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untit
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+const formatDateFor = (iso: string, locale: string) =>
+  new Date(iso).toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
 const formatTime = (t: string) => t.slice(0, 5);
 
 /** Same tolerance as the public signup page — a shift pair has to overlap
@@ -36,7 +37,11 @@ function bounds(date: string, start: string, end: string): [number, number] {
  */
 export default function HelperManagePage() {
   const { token } = useParams() as { token: string };
+  const t = useTranslations('shifts.helperManage');
+  const tCommon = useTranslations();
   const apiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
+  const formatDate = (iso: string) => formatDateFor(iso, locale);
   const queryClient = useQueryClient();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,26 +58,26 @@ export default function HelperManagePage() {
     mutationFn: (registrationId: string) => shiftsPublicApi.removeShiftViaMagicLink(token, registrationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['helper-manage', token] });
-      setToast('Schicht entfernt.');
+      setToast(t('removed'));
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(apiErrorMessage(err, 'Schicht konnte nicht entfernt werden.')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('removeFailed'))),
   });
 
   const addMutation = useMutation({
     mutationFn: (shiftId: string) => shiftsPublicApi.addShiftViaMagicLink(token, shiftId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['helper-manage', token] });
-      setToast('Schicht hinzugefügt.');
+      setToast(t('added'));
       setTimeout(() => setToast(null), 2500);
     },
-    onError: (err: Error) => setError(apiErrorMessage(err, 'Schicht konnte nicht hinzugefügt werden.')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('addFailed'))),
   });
 
   const payload = data?.data;
   const helper = payload?.helper;
   const plan = payload?.plan;
-  const registrations = payload?.registrations ?? [];
+  const registrations = useMemo(() => payload?.registrations ?? [], [payload]);
 
   // Mark overlapping registrations so the helper sees double-bookings.
   const overlapIds = useMemo(() => {
@@ -114,9 +119,9 @@ export default function HelperManagePage() {
       <main style={pageStyle}>
         <div style={{ ...cardStyle, textAlign: 'center' }}>
           <AlertCircle style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
-          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Link ungültig</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('invalidTitle')}</h1>
           <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>
-            Der Verwaltungs-Link ist abgelaufen oder existiert nicht. Fordere einen neuen Link auf der Plan-Seite an.
+            {t('invalidDescription')}
           </p>
         </div>
       </main>
@@ -132,7 +137,7 @@ export default function HelperManagePage() {
 
         <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0, textAlign: 'center' }}>{plan!.name}</h1>
         <p style={{ color: 'var(--mute, #666)', fontSize: 13, textAlign: 'center', marginTop: 4 }}>
-          Hallo {helper!.name} — hier sind deine Schichten.
+          {t('greeting', { name: helper!.name })}
         </p>
 
         {toast && (
@@ -150,7 +155,7 @@ export default function HelperManagePage() {
         <section style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {registrations.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--mute)', fontSize: 13 }}>
-              Du hast aktuell keine Schichten eingetragen.
+              {t('noShifts')}
             </div>
           ) : (
             registrations.map((reg) => {
@@ -182,7 +187,7 @@ export default function HelperManagePage() {
                       {overlaps && (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#b45309', fontWeight: 600 }}>
                           <AlertCircle style={{ width: 12, height: 12 }} />
-                          Überschneidung
+                          {tCommon('shifts.public.overlap')}
                         </span>
                       )}
                     </div>
@@ -192,13 +197,13 @@ export default function HelperManagePage() {
                     className="btn btn--ghost"
                     style={{ padding: 6, width: 32, height: 32, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}
                     onClick={() => {
-                      if (confirm(`Schicht "${reg.jobName}" am ${formatDate(reg.date)} ${formatTime(reg.startTime)}–${formatTime(reg.endTime)} entfernen?`)) {
+                      if (confirm(t('confirmRemove', { job: reg.jobName, date: formatDate(reg.date), time: `${formatTime(reg.startTime)}–${formatTime(reg.endTime)}` }))) {
                         removeMutation.mutate(reg.id);
                       }
                     }}
                     disabled={removeMutation.isPending}
-                    title="Diese Schicht entfernen"
-                    aria-label="Schicht entfernen"
+                    title={t('removeTitle')}
+                    aria-label={t('removeLabel')}
                   >
                     <Trash01 style={{ width: 16, height: 16 }} />
                   </button>
@@ -215,7 +220,7 @@ export default function HelperManagePage() {
           onClick={() => setPickerOpen((v) => !v)}
         >
           <Plus style={{ width: 16, height: 16 }} />
-          <span>{pickerOpen ? 'Schicht-Liste schließen' : 'Weitere Schicht hinzufügen'}</span>
+          <span>{pickerOpen ? t('closeList') : t('addMore')}</span>
         </button>
 
         {pickerOpen && plan && (
@@ -240,10 +245,10 @@ export default function HelperManagePage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>{job.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--mute)' }}>
-                        {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · {s.availableSpots}/{s.requiredWorkers} frei
+                        {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · {t('spotsFree', { available: s.availableSpots, required: s.requiredWorkers })}
                       </div>
                     </div>
-                    <span style={{ color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>+ eintragen</span>
+                    <span style={{ color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>{t('signUp')}</span>
                   </button>
                 )),
             )}
@@ -251,7 +256,7 @@ export default function HelperManagePage() {
         )}
 
         <p style={{ marginTop: 24, textAlign: 'center', fontSize: 11, color: 'var(--mute-2, #999)' }}>
-          Dein Verwaltungs-Link gilt 24 Stunden. Danach kannst du auf der Plan-Seite einen neuen anfordern.
+          {t('linkValidity')}
         </p>
       </div>
     </main>

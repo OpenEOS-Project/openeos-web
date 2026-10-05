@@ -23,7 +23,11 @@
     "no": "Nein",
     "refresh": "Aktualisieren",
     "toEvents": "Zu den Veranstaltungen",
-    "details": "Details"
+    "details": "Details",
+    "noOrganization": {
+      "title": "Keine Organisation ausgewählt",
+      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+    }
   },
   "auth": {
     "login": {
@@ -154,7 +158,8 @@
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
       "resendSent": "E-Mail wurde erneut gesendet.",
-      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht."
+      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht.",
+      "progress": "Fortschritt"
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
@@ -167,7 +172,8 @@
       "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts.",
       "errors": {
         "invalidEmail": "Ungültige E-Mail-Adresse"
-      }
+      },
+      "emailPlaceholder": "name@beispiel.de"
     },
     "resetPassword": {
       "title": "Neues Passwort setzen",
@@ -210,6 +216,35 @@
     },
     "layout": {
       "rightsReserved": "Alle Rechte vorbehalten."
+    },
+    "twoFactorVerify": {
+      "codeLength": "Code muss 6 Zeichen haben",
+      "unknownBrowser": "Unbekannter Browser",
+      "unknownOs": "unbekanntem Betriebssystem",
+      "deviceInfo": "{browser} auf {os}",
+      "errors": {
+        "invalidSession": "Ungültige Sitzung. Bitte melden Sie sich erneut an.",
+        "invalidRecoveryCode": "Ungültiger Wiederherstellungscode",
+        "invalidCode": "Ungültiger Verifizierungscode",
+        "resendFailed": "Code konnte nicht erneut gesendet werden"
+      },
+      "invalidSessionTitle": "Ungültige Sitzung",
+      "invalidSessionMessage": "Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an.",
+      "toLogin": "Zur Anmeldung",
+      "title": "Zwei-Faktor-Authentifizierung",
+      "subtitleRecovery": "Geben Sie einen Ihrer Wiederherstellungscodes ein",
+      "subtitleEmail": "Wir haben Ihnen einen Verifizierungscode per E-Mail gesendet",
+      "subtitleTotp": "Geben Sie den Code aus Ihrer Authenticator-App ein",
+      "recoveryCode": "Wiederherstellungscode",
+      "verificationCode": "Verifizierungscode",
+      "trustDevice": "Diesem Gerät für 30 Tage vertrauen",
+      "verifying": "Verifizieren...",
+      "verify": "Verifizieren",
+      "resendCooldown": "Code erneut senden ({seconds}s)",
+      "resend": "Code erneut senden",
+      "useVerificationCode": "Mit Verifizierungscode anmelden",
+      "useRecoveryCode": "Wiederherstellungscode verwenden",
+      "backToLogin": "Zurück zur Anmeldung"
     }
   },
   "sidebar": {
@@ -248,7 +283,8 @@
       "empty": {
         "title": "Keine Aktivitäten",
         "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie eine Veranstaltung, um Bestellungen anzunehmen."
-      }
+      },
+      "itemCount": "{count, plural, one {# Artikel} other {# Artikel}}"
     },
     "superAdmin": {
       "stats": {
@@ -418,6 +454,12 @@
         "week": "letzte 7 Tage",
         "event": "Veranstaltung"
       }
+    },
+    "tile": {
+      "move": "{label} verschieben",
+      "size": "{label}: {width} mal {height}",
+      "remove": "{label} entfernen",
+      "resize": "Größe von {label} ändern"
     }
   },
   "navigation": {
@@ -469,7 +511,14 @@
       "deleteAvatar": "Bild entfernen",
       "saveChanges": "Änderungen speichern",
       "saving": "Speichern...",
-      "saved": "Profil erfolgreich aktualisiert"
+      "saved": "Profil erfolgreich aktualisiert",
+      "replaceAvatar": "Bild ersetzen",
+      "errors": {
+        "firstNameRequired": "Vorname ist erforderlich",
+        "lastNameRequired": "Nachname ist erforderlich",
+        "uploadFailed": "Upload fehlgeschlagen",
+        "removeFailed": "Bild konnte nicht entfernt werden"
+      }
     },
     "account": {
       "title": "Konto",
@@ -485,7 +534,15 @@
       "confirmPassword": "Passwort bestätigen",
       "passwordChanged": "Passwort erfolgreich geändert",
       "sending": "Senden...",
-      "changing": "Ändern..."
+      "changing": "Ändern...",
+      "errors": {
+        "invalidEmail": "Ungültige E-Mail-Adresse",
+        "passwordRequired": "Passwort ist erforderlich",
+        "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
+        "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
+        "confirmPasswordRequired": "Passwort-Bestätigung ist erforderlich",
+        "passwordMismatch": "Passwörter stimmen nicht überein"
+      }
     },
     "security": {
       "title": "Sicherheit",
@@ -529,7 +586,9 @@
         "sendEmailCode": "Code per E-Mail senden",
         "emailCodeSent": "Code gesendet – erneut senden",
         "noRecoveryCodes": "Keine Wiederherstellungscodes vorhanden.",
-        "disabledHint": "Bei der Anmeldung wird kein zweiter Faktor abgefragt."
+        "disabledHint": "Bei der Anmeldung wird kein zweiter Faktor abgefragt.",
+        "qrCodeAlt": "QR-Code für Ihre Authenticator-App",
+        "codeLabel": "Code"
       },
       "trustedDevices": {
         "title": "Vertrauenswürdige Geräte",
@@ -548,7 +607,9 @@
         "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
         "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet.",
         "unknownDevice": "Unbekanntes Gerät",
-        "deviceLabel": "{browser} auf {os}"
+        "deviceLabel": "{browser} auf {os}",
+        "unknownBrowser": "Unbekannter Browser",
+        "unknownOs": "unbekanntem Betriebssystem"
       }
     },
     "preferences": {
@@ -608,7 +669,16 @@
       "phone": "Telefon",
       "website": "Website",
       "saving": "Speichern...",
-      "saveChanges": "Änderungen speichern"
+      "saveChanges": "Änderungen speichern",
+      "invalidUrl": "Bitte geben Sie eine gültige URL ein (z. B. https://beispiel.de)",
+      "placeholders": {
+        "address": "Musterstraße 123",
+        "zipCode": "12345",
+        "city": "Musterstadt",
+        "country": "Deutschland",
+        "phone": "+49 123 456789",
+        "website": "https://beispiel.de"
+      }
     },
     "organizationBilling": {
       "title": "Rechnungsadresse",
@@ -777,7 +847,20 @@
       "priceSum": "Freischalten kostet {price}",
       "priceCalc": "{days} Tage × {perDay} je Tag",
       "priceCalcDiscounted": "{days} Tage × {perDay} = {gross}, abzüglich {percent} % Erstveranstalter-Nachlass",
-      "priceTestFree": "Vorher testen ist kostenlos — bis zu {max} Bestellungen im Testmodus."
+      "priceTestFree": "Vorher testen ist kostenlos — bis zu {max} Bestellungen im Testmodus.",
+      "shop": {
+        "enable": "Online-Shop aktivieren",
+        "enableHint": "Kunden können Artikel des Events online bestellen und per Karte bezahlen.",
+        "copyLink": "Link kopieren",
+        "openingHours": "Öffnungszeiten",
+        "periodFirst": "Bitte zuerst den Zeitraum der Veranstaltung eintragen.",
+        "dayOpen": "{day} geöffnet",
+        "endsNextDay": "Endet am Folgetag",
+        "openingHoursHint": "Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig von den Öffnungszeiten erreichbar.",
+        "serviceFee": "Servicegebühr",
+        "serviceFeeUnit": "EUR pro Bestellung",
+        "serviceFeeHint": "Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr."
+      }
     },
     "status": {
       "active": "Aktiv",
@@ -790,7 +873,8 @@
       "view": "Anzeigen",
       "activate": "Aktivieren",
       "deactivate": "Deaktivieren",
-      "testMode": "Testmodus"
+      "testMode": "Testmodus",
+      "openShop": "Shop öffnen"
     },
     "deleteConfirm": {
       "title": "Veranstaltung löschen",
@@ -901,6 +985,9 @@
     "reorder": {
       "handle": "Zum Verschieben ziehen",
       "hint": "Die Reihenfolge bestimmt, wie die Kategorien an der Kasse erscheinen. Zum Ändern am Griff ziehen."
+    },
+    "list": {
+      "subcategory": "Unterkategorie"
     }
   },
   "products": {
@@ -987,7 +1074,8 @@
         "reduced": "{rate} % (ermäßigt)",
         "zero": "0 % (steuerfrei)",
         "exemptHint": "Die Organisation weist keine Umsatzsteuer aus. Umstellbar in den Organisationseinstellungen."
-      }
+      },
+      "defaultStockUnit": "Stück"
     },
     "status": {
       "active": "Aktiv",
@@ -1071,7 +1159,12 @@
         "title": "Import erfolgreich",
         "message": "{create} angelegt, {update} aktualisiert, {skip} übersprungen, {error} Fehler"
       },
-      "networkError": "Import fehlgeschlagen — der Server war nicht erreichbar. Bitte erneut versuchen."
+      "networkError": "Import fehlgeschlagen — der Server war nicht erreichbar. Bitte erneut versuchen.",
+      "template": {
+        "sampleFood": "Essen,Pommes Frites,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
+        "sampleDrink": "Getränke,Cola 0.33 L,,2.80,2.00,cola,,Sorte: Normal | Zero,,",
+        "filename": "produkt-vorlage.csv"
+      }
     },
     "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}"
   },
@@ -1110,7 +1203,10 @@
       "message": "Produkte und Kategorien verlieren ihre Standort-Zuweisung."
     },
     "selectEvent": "Veranstaltung auswählen",
-    "count": "{count, plural, =0 {Keine Standorte} =1 {1 Standort} other {# Standorte}}"
+    "count": "{count, plural, =0 {Keine Standorte} =1 {1 Standort} other {# Standorte}}",
+    "list": {
+      "inactive": "Inaktiv"
+    }
   },
   "users": {
     "title": "Benutzer",
@@ -1380,7 +1476,46 @@
       "setSuccess": "PIN erfolgreich gesetzt",
       "removeSuccess": "PIN erfolgreich entfernt"
     },
-    "count": "{count, plural, =0 {Keine Mitglieder} =1 {1 Mitglied} other {# Mitglieder}}"
+    "count": "{count, plural, =0 {Keine Mitglieder} =1 {1 Mitglied} other {# Mitglieder}}",
+    "list": {
+      "you": "(Sie)"
+    }
+  },
+  "memberAdd": {
+    "title": "Mitglied hinzufügen",
+    "openButton": "Mitglied hinzufügen",
+    "modeLabel": "Art des Hinzufügens",
+    "modeInvite": "Einladen",
+    "modeCreate": "Konto direkt anlegen",
+    "inviteHint": "Die Person erhält eine E-Mail mit einem Link, über den sie die Einladung annimmt. Dafür muss der Mailversand eingerichtet sein.",
+    "createHint": "Legt das Konto sofort an – ohne E-Mail-Versand. Es ist direkt anmeldebereit.",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "password": "Startpasswort",
+    "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
+    "passwordConfirm": "Startpasswort bestätigen",
+    "handoverHint": "Geben Sie das Startpasswort persönlich weiter. Das Mitglied kann es nach der Anmeldung unter Einstellungen → Konto ändern.",
+    "submitInvite": "Einladung senden",
+    "submitCreate": "Konto anlegen",
+    "created": "Konto für {name} angelegt",
+    "invited": "Einladung an {email} gesendet",
+    "addExisting": "Vorhandenes Konto hinzufügen",
+    "addedExisting": "{email} wurde hinzugefügt",
+    "permissionNotOwned": "Diese Berechtigung haben Sie selbst nicht und können sie daher nicht vergeben.",
+    "errors": {
+      "required": "Pflichtfeld",
+      "nameShort": "Mindestens 2 Zeichen",
+      "emailInvalid": "Ungültige E-Mail-Adresse",
+      "passwordShort": "Mindestens 8 Zeichen",
+      "passwordLong": "Höchstens 72 Zeichen",
+      "passwordWeak": "Mindestens ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl erforderlich",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "userExists": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto. Sie können es ohne Startpasswort hinzufügen – das bisherige Passwort bleibt gültig.",
+      "alreadyMember": "Diese Person ist bereits Mitglied der Organisation.",
+      "invitationPending": "Für diese E-Mail-Adresse gibt es bereits eine offene Einladung.",
+      "forbidden": "Dafür fehlt Ihnen die Berechtigung.",
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    }
   },
   "organizations": {
     "title": "Organisationen",
@@ -1443,6 +1578,9 @@
       "created": "Organisation erfolgreich erstellt",
       "updated": "Organisation erfolgreich aktualisiert",
       "deleted": "Organisation erfolgreich gelöscht"
+    },
+    "membersModal": {
+      "invitationsTitle": "Ausstehende Einladungen ({count})"
     }
   },
   "billing": {
@@ -1581,7 +1719,8 @@
           },
           "notes": "Notizen",
           "notesPlaceholder": "Interne Notizen"
-        }
+        },
+        "count": "{count, plural, =1 {# Hardware-Gerät} other {# Hardware-Geräte}}"
       },
       "assignments": {
         "title": "Zuweisungen",
@@ -1615,8 +1754,11 @@
           "notes": "Notizen",
           "notesPlaceholder": "Optionale Notizen",
           "totalDays": "Gesamttage",
-          "totalAmount": "Gesamtbetrag"
-        }
+          "totalAmount": "Gesamtbetrag",
+          "hardwareOption": "{name} ({serial}) — {rate}/Tag"
+        },
+        "count": "{count, plural, =1 {# Zuweisung} other {# Zuweisungen}}",
+        "daysCount": "{count, plural, =1 {# Tag} other {# Tage}}"
       }
     },
     "support": {
@@ -1653,6 +1795,148 @@
       "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen.",
       "forbidden": "Für diesen Bereich fehlt Ihrem Konto die Berechtigung. Zuschriften sieht nur die Plattform-Verwaltung.",
       "error": "Die Zuschriften konnten nicht geladen werden. Bitte später erneut versuchen."
+    },
+    "events": {
+      "title": "Events & Abrechnung",
+      "description": "Alle Events aller Organisationen mit Bestellungen und Umsatz. Abrechnung verwalten.",
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "test": "Test"
+      },
+      "billingStatus": {
+        "none": "Nicht bestellt",
+        "pending": "Ausstehend",
+        "paid": "Bezahlt",
+        "invoice": "Auf Rechnung",
+        "waived": "Erlassen"
+      },
+      "markInvoiced": {
+        "title": "Als abgerechnet markieren",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "note": "Notiz (optional)",
+        "notePlaceholder": "z.B. Rechnung 2024-001 erstellt",
+        "submit": "Als abgerechnet markieren"
+      },
+      "unmark": {
+        "title": "Abrechnung zurücksetzen",
+        "description": "Die Abrechnungsmarkierung wird entfernt. Das Event gilt dann wieder als nicht abgerechnet.",
+        "submit": "Zurücksetzen"
+      },
+      "waive": {
+        "title": "Abrechnung erlassen",
+        "description": "Das Event kann danach ohne Bezahlung oder Rechnung aktiviert werden.",
+        "submit": "Erlassen"
+      },
+      "filters": {
+        "searchPlaceholder": "Event oder Organisation suchen...",
+        "allStatuses": "Alle Status",
+        "allInvoiced": "Alle (Abrechnung)",
+        "invoiced": "Abgerechnet",
+        "notInvoiced": "Nicht abgerechnet"
+      },
+      "empty": {
+        "title": "Keine Events gefunden",
+        "description": "Es gibt keine Events, die den Filterkriterien entsprechen."
+      },
+      "table": {
+        "event": "Event",
+        "organization": "Organisation",
+        "date": "Datum",
+        "status": "Status",
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "payment": "Bezahlung",
+        "invoiced": "Abgerechnet",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "reset": "Zurücksetzen",
+        "invoice": "Abrechnen",
+        "waive": "Erlassen"
+      },
+      "pagination": {
+        "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
+        "page": "Seite {page} von {totalPages}"
+      }
+    },
+    "printers": {
+      "metaTitle": "Drucker · Super-Admin",
+      "title": "Drucker",
+      "description": "Übersicht aller Drucker und nicht zugewiesener Drucker-Agents über alle Organisationen hinweg.",
+      "online": "Online",
+      "offline": "Offline",
+      "types": {
+        "kitchen": "Küche",
+        "label": "Etiketten",
+        "receipt": "Beleg"
+      },
+      "toast": {
+        "testPrintSent": "Test-Druck wurde an den Drucker gesendet.",
+        "testPrintNotPossible": "Test-Druck nicht möglich.",
+        "testPrintFailed": "Test-Druck fehlgeschlagen: {message}",
+        "unassigned": "Zuordnung wurde aufgehoben.",
+        "unassignFailed": "Zuordnung aufheben fehlgeschlagen: {message}",
+        "deviceDeleted": "Gerät wurde gelöscht.",
+        "deleteFailed": "Löschen fehlgeschlagen: {message}",
+        "assigned": "Drucker wurde der Organisation zugewiesen."
+      },
+      "unassigned": {
+        "title": "Nicht zugewiesene Drucker-Agents ({count})",
+        "description": "Drucker, die sich beim Backend registriert haben, aber noch keiner Organisation zugeordnet sind.",
+        "empty": "Keine wartenden Drucker-Agents. Sobald ein RPi-Agent sich registriert, erscheint er hier.",
+        "onlineWaiting": "Online · wartet auf Zuordnung",
+        "waiting": "Wartet auf Zuordnung"
+      },
+      "assigned": {
+        "title": "Zugewiesene Drucker ({count})",
+        "description": "Alle Drucker über alle Organisationen.",
+        "empty": "Noch keine Drucker einer Organisation zugewiesen."
+      },
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "lastSeen": "Zuletzt gesehen",
+        "action": "Aktion",
+        "organization": "Organisation",
+        "printer": "Drucker",
+        "type": "Typ",
+        "online": "Online",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "assign": "Zuordnen",
+        "testPrint": "Test-Druck",
+        "unassign": "Zuordnung aufheben"
+      },
+      "confirm": {
+        "deleteDevice": "Gerät „{name}“ endgültig löschen?",
+        "unassign": "Drucker „{name}“ wirklich aus „{organization}“ entfernen?"
+      },
+      "assignModal": {
+        "title": "Drucker zuordnen",
+        "description": "Verknüpft das Drucker-Agent-Gerät mit einer Organisation. Hardware-Werte (Name, Typ, Anschluss, USB-Kennung, Papierbreite) werden aus der lokalen Agent-Konfiguration auf dem RPi übernommen.",
+        "name": "Name",
+        "type": "Typ",
+        "connection": "Anschluss",
+        "paperWidth": "Papierbreite",
+        "types": {
+          "kitchen": "Küchendrucker",
+          "label": "Etiketten",
+          "receipt": "Beleg"
+        },
+        "organization": "Organisation *",
+        "orgsLoading": "Lädt Organisationen …",
+        "orgsError": "Fehler beim Laden",
+        "orgsEmpty": "Keine Organisationen verfügbar",
+        "orgsPlaceholder": "Bitte auswählen…",
+        "hasCashDrawer": "Kassenlade ist an diesem Drucker angeschlossen",
+        "submit": "Zuordnen",
+        "organizationRequired": "Bitte wählen Sie eine Organisation aus.",
+        "defaultName": "Drucker",
+        "assignFailed": "Zuordnung fehlgeschlagen"
+      }
     }
   },
   "pos": {
@@ -2203,7 +2487,8 @@
         "verifiedAt": "Verifiziert am",
         "userAgent": "User Agent",
         "lastSeen": "Zuletzt aktiv",
-        "notVerified": "Nicht verifiziert"
+        "notVerified": "Nicht verifiziert",
+        "copyId": "ID kopieren"
       },
       "settings": {
         "basic": {
@@ -2259,7 +2544,8 @@
           "autoClear": "Erledigte ausblenden",
           "autoClearOff": "Stehen lassen",
           "showLogo": "Logo anzeigen",
-          "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein."
+          "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein.",
+          "autoClearSeconds": "{seconds, plural, =1 {# Sekunde} other {# Sekunden}}"
         }
       },
       "printer": {
@@ -2275,7 +2561,11 @@
           "category": "Kategorie-Drucker",
           "categoryDescription": "Bons werden über den der Kategorie zugewiesenen Drucker gedruckt (Fallback: Gerätedrucker)",
           "product": "Produkt-Drucker",
-          "productDescription": "Bons werden über den dem Produkt zugewiesenen Drucker gedruckt (Fallback: Kategorie → Gerät)"
+          "productDescription": "Bons werden über den dem Produkt zugewiesenen Drucker gedruckt (Fallback: Kategorie → Gerät)",
+          "fixed": "Fester Drucker",
+          "fixedDescription": "Bons gehen immer auf den unten ausgewählten Drucker — ohne Rücksicht auf Produkt- oder Kategoriezuordnung. Empfohlen für Geräte, die direkt an einem Drucker hängen.",
+          "dynamic": "Dynamisches Routing",
+          "dynamicDescription": "Folgt der Routing-Kette: Produkt-Station → Kategorie-Station → Standard-Drucker dieses Geräts (Fallback). Empfohlen, wenn mehrere Stationen mit eigenen Druckern existieren."
         },
         "cashDrawer": {
           "title": "Kassenschublade",
@@ -2283,7 +2573,10 @@
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
-        }
+        },
+        "testPrint": "Testdruck",
+        "testPrintSent": "Testdruck wurde gesendet",
+        "testPrintFailed": "Fehler beim Senden"
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
@@ -2663,39 +2956,297 @@
       "selectShifts": "Schichten auswählen",
       "overlap": "Überschneidung",
       "overlapsWith": "Überschneidet sich mit {job} ({time})",
-      "selectOne": "Wähle eine Schicht aus, für die du dich anmelden möchtest.",
-      "selectMultiple": "Wähle die Schichten aus, für die du dich anmelden möchtest.",
-      "selectMultipleMax": "Wähle bis zu {max} Schichten aus, für die du dich anmelden möchtest.",
+      "selectOne": "Wählen Sie eine Schicht aus, für die Sie sich anmelden möchten.",
+      "selectMultiple": "Wählen Sie die Schichten aus, für die Sie sich anmelden möchten.",
+      "selectMultipleMax": "Wählen Sie bis zu {max} Schichten aus, für die Sie sich anmelden möchten.",
       "continue": "Weiter",
       "backToSelection": "Zurück zur Auswahl",
-      "yourDetails": "Deine Daten",
+      "yourDetails": "Ihre Daten",
       "selectedShifts": "Ausgewählte Schichten",
       "name": "Name",
-      "namePlaceholder": "Dein vollständiger Name",
+      "namePlaceholder": "Ihr vollständiger Name",
       "email": "E-Mail",
-      "emailPlaceholder": "deine@email.de",
+      "emailPlaceholder": "ihre@email.de",
       "phone": "Telefon (optional)",
       "phonePlaceholder": "+49 123 4567890",
       "notes": "Anmerkungen (optional)",
       "notesPlaceholder": "Besondere Hinweise oder Fragen...",
-      "emailHint": "Du erhältst eine E-Mail zur Bestätigung deiner Anmeldung.",
+      "emailHint": "Sie erhalten eine E-Mail zur Bestätigung Ihrer Anmeldung.",
       "register": "Anmelden",
       "registrationSuccess": "Fast geschafft!",
-      "checkEmail": "Wir haben dir eine E-Mail geschickt. Bitte bestätige deine E-Mail-Adresse, um die Anmeldung abzuschließen.",
+      "checkEmail": "Wir haben Ihnen eine E-Mail geschickt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um die Anmeldung abzuschließen.",
       "registerMore": "Weitere Anmeldung",
-      "yourShifts": "Deine Schichten",
+      "yourShifts": "Ihre Schichten",
       "addToGoogleCalendar": "In Google Kalender eintragen",
-      "downloadICS": "Alle als Kalenderdatei herunterladen"
+      "downloadICS": "Alle als Kalenderdatei herunterladen",
+      "imprint": "Impressum"
     },
     "verify": {
       "loading": "Verifizierung läuft...",
-      "pleaseWait": "Bitte warte einen Moment.",
+      "pleaseWait": "Bitte warten Sie einen Moment.",
       "successTitle": "E-Mail bestätigt!",
-      "pendingApproval": "Deine Anmeldung wird nun geprüft. Du erhältst eine E-Mail, sobald sie bestätigt wurde.",
-      "confirmed": "Deine Schicht(en) sind bestätigt. Wir freuen uns auf dich!",
+      "pendingApproval": "Ihre Anmeldung wird nun geprüft. Sie erhalten eine E-Mail, sobald sie bestätigt wurde.",
+      "confirmed": "Ihre Schicht(en) sind bestätigt. Wir freuen uns auf Sie!",
       "errorTitle": "Verifizierung fehlgeschlagen",
       "errorDescription": "Der Link ist ungültig oder bereits abgelaufen.",
+      "backToPlan": "Zurück zum Schichtplan",
+      "invalidLink": "Ungültiger Verifizierungslink",
+      "unknownError": "Unbekannter Fehler"
+    },
+    "list": {
+      "copyPublicLink": "Öffentlichen Link kopieren",
+      "copied": "✓ Kopiert!"
+    },
+    "detail": {
+      "pdfFileName": "schichtplan",
+      "pdfExportFailed": "PDF-Export fehlgeschlagen",
+      "linkCopied": "Link kopiert"
+    },
+    "createModal": {
+      "stepEvent": "Veranstaltung",
+      "stepName": "Name & Beschreibung",
+      "stepCreate": "Erstellen",
+      "defaultName": "Helferplanung {event}",
+      "selectEventHint": "Wählen Sie (optional) eine Veranstaltung aus, zu der dieser Schichtplan gehört. So bekommen die Helfer das Datum der Veranstaltung direkt angezeigt.",
+      "noEvents": "Noch keine Veranstaltungen angelegt – Sie können den Plan auch ohne Veranstaltung erstellen.",
+      "noEventStandalone": "Keine Veranstaltung (eigenständiger Plan)",
+      "eventStatus": {
+        "active": "Aktiv",
+        "test": "Test",
+        "inactive": "Inaktiv"
+      },
+      "reviewInput": "Bitte prüfen Sie Ihre Eingaben:",
+      "event": "Veranstaltung",
+      "noEvent": "Keine Veranstaltung"
+    },
+    "validation": {
+      "dateRequired": "Datum ist erforderlich",
+      "startTimeRequired": "Startzeit ist erforderlich",
+      "endTimeRequired": "Endzeit ist erforderlich",
+      "jobNameRequired": "Mindestens ein Name ist erforderlich",
+      "nameMinLength": "Name muss mindestens 2 Zeichen haben",
+      "invalidEmail": "Ungültige E-Mail-Adresse"
+    },
+    "shiftForm": {
+      "overnightHint": "Endzeit liegt vor Startzeit – die Schicht endet am Folgetag.",
+      "workersFromJobHint": "Die Anzahl der Helfer wird auf Ebene der Arbeit festgelegt – neue Schichten übernehmen diesen Wert automatisch.",
+      "editTitle": "Schicht bearbeiten",
+      "startTime": "Startzeit",
+      "endTime": "Endzeit",
+      "workersSharedHint": "Die Anzahl der Helfer wird auf Ebene der Arbeit festgelegt – alle Schichten dieser Arbeit teilen sich diesen Wert.",
+      "internalNotes": "Interne Notizen"
+    },
+    "jobForm": {
+      "editTitle": "Arbeit bearbeiten",
+      "workersPerShift": "Helfer pro Schicht",
+      "workersEditHint": "Wirkt sich auf neu erstellte Schichten aus. Bestehende Schichten behalten ihren Wert – diese können pro Schicht bearbeitet werden.",
+      "namesPlaceholder": "Zapfen\nGrill\nKasse",
+      "namesHint": "Pro Zeile eine Arbeit – alle werden gleichzeitig angelegt.",
+      "workersDefaultHint": "Standardwert für alle Schichten in dieser Arbeit. Einzelne Schichten können Sie danach überschreiben.",
+      "createMany": "{count, plural, =1 {1 Arbeit anlegen} other {# Arbeiten anlegen}}"
+    },
+    "jobsList": {
+      "heading": "Arbeiten ({count})",
+      "wizardForAll": "Schicht-Generator für alle Arbeiten",
+      "defaultWorkers": "Standard: {count} Helfer pro Schicht",
+      "confirmDeleteJob": "Möchten Sie diese Arbeit samt ihren Schichten wirklich löschen?"
+    },
+    "wizardExtra": {
+      "stepDate": "Datum",
+      "stepTime": "Zeit",
+      "stepConfig": "Konfiguration",
+      "stepPreview": "Vorschau",
+      "invalidDates": "Bitte wählen Sie gültige Daten aus",
+      "endBeforeStart": "Endzeit für {date} muss nach Startzeit liegen",
+      "titleAllJobs": "Schichten für alle Arbeiten",
+      "applyToAllNotice": "Die generierten Schichten werden für alle {count} Arbeiten in diesem Plan angelegt. Sie können einzelne Schichten danach jederzeit pro Arbeit überschreiben.",
+      "perDay": "Zeiten pro Tag",
+      "perDayHint": "Tragen Sie für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z. B. 22:00–01:00), sind erlaubt.",
+      "overnightHint": "Endzeit vor Startzeit bedeutet, dass die Schicht über Mitternacht in den nächsten Tag läuft.",
+      "totalHoursOvernight": "{hours} Stunden pro Tag 🌙 über Nacht",
+      "hoursShort": "{hours} h",
+      "workersFromJob": "Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen – Sie legen sie dort fest.",
+      "minutes": "{count} min",
+      "selectedCount": "{enabled} / {total} ausgewählt",
+      "createForAllJobs": "{shifts, plural, =1 {1 Schicht} other {# Schichten}} für {jobs, plural, =1 {1 Arbeit} other {# Arbeiten}} anlegen"
+    },
+    "manualAdd": {
+      "title": "Helfer manuell eintragen",
+      "namePlaceholder": "Max Mustermann",
+      "emailOptional": "E-Mail (optional)",
+      "emailPlaceholder": "max@example.com",
+      "noEmailHint": "Ohne E-Mail erhält der Helfer keine Benachrichtigungen oder Erinnerungen.",
+      "helperNotes": "Anmerkungen (vom Helfer)",
+      "adminNotes": "Admin-Notizen",
+      "selectedCount": "{count, plural, =1 {1 Schicht} other {# Schichten}} gewählt",
+      "removeShift": "Schicht entfernen",
+      "searchPlaceholder": "Schicht suchen (Arbeit, Datum, Uhrzeit)…",
+      "noShiftFound": "Keine Schicht gefunden.",
+      "noShiftsInPlan": "Keine Schichten im Plan.",
+      "chosen": "✓ gewählt",
+      "fullCount": "voll {confirmed}/{required}",
+      "fullSelectableHint": "Volle Schichten lassen sich trotzdem auswählen (z. B. um Springer einzutragen).",
+      "notify": "Helfer per E-Mail benachrichtigen (eine Sammel-Bestätigung)",
+      "submitMany": "{count, plural, =1 {1 Schicht eintragen} other {# Schichten eintragen}}",
+      "submit": "Eintragen"
+    },
+    "registrationsList": {
+      "rowStatus": {
+        "confirmed": "bestätigt",
+        "pending_email": "E-Mail offen",
+        "pending_approval": "Freigabe offen",
+        "rejected": "abgelehnt",
+        "cancelled": "storniert"
+      },
+      "heading": "Anmeldungen ({shown}/{total})",
+      "filter": {
+        "all": "Alle",
+        "unconfirmed": "Nicht bestätigt",
+        "pending_email": "E-Mail offen",
+        "pending_approval": "Freigabe offen",
+        "confirmed": "Bestätigt"
+      },
+      "sendToAllTitle": "E-Mail an alle Helfer senden",
+      "sendToAll": "An alle senden",
+      "emptyFilter": "Keine Anmeldungen im aktuellen Filter – wählen Sie einen anderen Filter oder „Alle“.",
+      "summary": {
+        "allConfirmed": "Alle bestätigt",
+        "pendingEmail": "{confirmed}/{total} bestätigt · E-Mail offen",
+        "pendingApproval": "{confirmed}/{total} bestätigt · Freigabe offen",
+        "confirmed": "{confirmed}/{total} bestätigt"
+      },
+      "noEmail": "– ohne E-Mail –",
+      "shiftsLabel": "Schichten:",
+      "overlapTitle": "Diese Schicht überschneidet sich zeitlich mit einer anderen Schicht des Helfers",
+      "registeredAt": "Eingetragen am {date}",
+      "confirmRemoveShift": "Schicht „{job}“ am {date} entfernen?",
+      "removeShift": "Diese Schicht entfernen",
+      "notesLabel": "Anmerkungen:",
+      "markVerifiedTitle": "Als verifiziert markieren (E-Mail-Bestätigung überspringen) – wirkt auf alle ausstehenden Schichten",
+      "markVerified": "Als verifiziert markieren",
+      "editRegistration": "Anmeldung bearbeiten",
+      "confirmDeleteMany": "{shifts, plural, =1 {1 Schicht} other {# Schichten}} von {name} aus {registrations, plural, =1 {1 Anmeldung} other {# Anmeldungen}} löschen?"
+    },
+    "sendMessage": {
+      "placeholderName": "Name",
+      "placeholderShifts": "Schichten",
+      "placeholderPlan": "Plan",
+      "defaultTemplate": "Hallo {name},\n\nhier Ihre eingetragenen Schichten für {plan}:\n\n{shifts}\n\nBitte seien Sie pünktlich da. Vielen Dank für Ihre Hilfe!",
+      "titleSingle": "Nachricht an {name}",
+      "titleAll": "Nachricht an alle Helfer",
+      "result": "{sent} von {recipients, plural, =1 {1 Helfer} other {# Helfern}} per E-Mail benachrichtigt.",
+      "recipientSingle": "Empfänger: <strong>{name}</strong> ({email})",
+      "recipientAll": "Empfänger: <strong>{count}</strong> Helfer mit E-Mail-Adresse",
+      "noEmail": "ohne E-Mail",
+      "noEmailSingle": "Dieser Helfer hat keine E-Mail-Adresse – eine Nachricht kann nicht zugestellt werden.",
+      "noEmailAll": "Kein Helfer hat eine E-Mail-Adresse hinterlegt.",
+      "subject": "Betreff (optional)",
+      "subjectPlaceholder": "Info zu: {plan}",
+      "message": "Nachricht",
+      "insertPlaceholder": "Platzhalter einfügen:",
+      "placeholdersHint": "Die Platzhalter werden pro Helfer ersetzt – <code>{token}</code> fügt die jeweils eingetragenen Schichten als Liste ein.",
+      "sending": "Wird gesendet…",
+      "send": "Senden",
+      "sendToCount": "An {count} Helfer senden"
+    },
+    "editRegistration": {
+      "proposalFailed": "Vorschlag konnte nicht gesendet werden",
+      "registeredShifts": "Eingetragene Schichten",
+      "activeCount": "{count} aktiv",
+      "restore": "Wiederherstellen",
+      "remove": "Entfernen",
+      "new": "NEU",
+      "closePicker": "× Auswahl schließen",
+      "addShift": "+ Schicht hinzufügen",
+      "proposalNote": "Optionale Notiz für den Helfer (nur beim Vorschlag)",
+      "proposalNotePlaceholder": "z. B. Wir bräuchten Sie an einer anderen Stelle – passt das so?",
+      "proposalHint": "Bei „Vorschlag senden“ bekommt der Helfer eine E-Mail mit den Schaltflächen „Annehmen“/„Ablehnen“. „Direkt speichern“ wendet alles sofort an, ohne zu fragen.",
+      "alreadyIn": "✓ dabei",
+      "fullAddableHint": "Volle Schichten lassen sich trotzdem hinzufügen (z. B. um Springer einzutragen).",
+      "proposalNeedsEmail": "Vorschläge benötigen eine E-Mail-Adresse des Helfers",
+      "proposalTitle": "Der Helfer bekommt eine E-Mail mit Annehmen/Ablehnen – die Änderung greift erst nach Bestätigung",
+      "sendProposal": "Vorschlag senden",
+      "saveDirectly": "Direkt speichern"
+    },
+    "planSettings": {
+      "subtitle": "Grundeinstellungen für diesen Schichtplan",
+      "generalTitle": "Allgemein",
+      "generalSubtitle": "Name und Beschreibung – die Helfer sehen das auf der öffentlichen Seite.",
+      "publicLinkTitle": "Öffentlicher Link",
+      "publicLinkSubtitle": "Diesen Link können Sie an die Helfer weitergeben.",
+      "registrationTitle": "Anmeldungs-Einstellungen",
+      "registrationSubtitle": "Wie sich die Helfer eintragen können.",
+      "verificationReminders": "Verifizierungs-Erinnerungen",
+      "verificationRemindersDescription": "Schickt Helfern, die ihre E-Mail noch nicht bestätigt haben, regelmäßig eine Erinnerung.",
+      "intervalHours": "Intervall (Stunden)",
+      "intervalHoursDescription": "Wie viele Stunden zwischen zwei Erinnerungen liegen. Standard: 24.",
+      "maxReminders": "Maximale Anzahl Erinnerungen",
+      "maxRemindersDescription": "Nach dieser Anzahl an Erinnerungen wird nicht weiter nachgehakt. Standard: 5.",
+      "unsavedChanges": "Sie haben ungespeicherte Änderungen.",
+      "discard": "Verwerfen",
+      "dangerZone": "Gefahrenzone",
+      "dangerZoneSubtitle": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deletePlan": "Plan löschen",
+      "deletePlanDescription": "Löscht den Schichtplan einschließlich aller Arbeiten, Schichten und Anmeldungen."
+    },
+    "manageRequest": {
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "requestFailed": "Anfrage fehlgeschlagen.",
+      "title": "Meine Schichten verwalten",
+      "description": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich angemeldet haben. Wir schicken Ihnen einen Link, mit dem Sie Ihre Schichten ansehen und anpassen können.",
+      "email": "E-Mail",
+      "emailPlaceholder": "max@example.com",
+      "sendLink": "Link senden",
+      "sentTitle": "E-Mail versendet",
+      "sentDescription": "Falls es eine Anmeldung mit dieser E-Mail-Adresse gibt, ist der Link unterwegs. Bitte sehen Sie auch im Spam-Ordner nach.",
       "backToPlan": "Zurück zum Schichtplan"
+    },
+    "proposal": {
+      "processFailed": "Der Vorschlag konnte nicht verarbeitet werden.",
+      "title": "Schichtvorschlag",
+      "question": "Soll Ihre Schicht wie vorgeschlagen verschoben werden?",
+      "accept": "✓ Annehmen",
+      "decline": "✗ Ablehnen",
+      "accepted": "Vorschlag angenommen",
+      "declined": "Vorschlag abgelehnt",
+      "toOverview": "Zur Schichtübersicht",
+      "errorTitle": "Fehler",
+      "retry": "Erneut versuchen"
+    },
+    "helperManage": {
+      "removed": "Schicht entfernt.",
+      "removeFailed": "Schicht konnte nicht entfernt werden.",
+      "added": "Schicht hinzugefügt.",
+      "addFailed": "Schicht konnte nicht hinzugefügt werden.",
+      "invalidTitle": "Link ungültig",
+      "invalidDescription": "Der Verwaltungs-Link ist abgelaufen oder existiert nicht. Bitte fordern Sie auf der Seite des Schichtplans einen neuen Link an.",
+      "greeting": "Hallo {name} – hier sind Ihre Schichten.",
+      "noShifts": "Sie haben aktuell keine Schichten eingetragen.",
+      "confirmRemove": "Schicht „{job}“ am {date} {time} entfernen?",
+      "removeTitle": "Diese Schicht entfernen",
+      "removeLabel": "Schicht entfernen",
+      "closeList": "Schichtliste schließen",
+      "addMore": "Weitere Schicht hinzufügen",
+      "spotsFree": "{available}/{required} frei",
+      "signUp": "+ eintragen",
+      "linkValidity": "Ihr Verwaltungs-Link gilt 24 Stunden. Danach können Sie auf der Seite des Schichtplans einen neuen anfordern."
+    },
+    "publicPage": {
+      "calendarDescription": "Schicht bei {organization}",
+      "calendarDescriptionEvent": "Schicht bei {organization} - {event}",
+      "shiftFallback": "Schicht",
+      "icsFileName": "schichten",
+      "selectAtLeastOne": "Bitte wählen Sie mindestens eine Schicht aus",
+      "contextLabel": "<b>{organization}</b> · Schichtplan",
+      "registeredBadge": "REGISTRIERT",
+      "openRegistration": "OFFENE ANMELDUNG",
+      "selectedCount": "{count} ausgewählt",
+      "cardsView": "Karten",
+      "noShifts": "Keine Schichten vorhanden.",
+      "timeRangeNextDay": "{start} – {end} (am Folgetag)",
+      "spotsOfFree": "<n>{available}</n><muted>/{required} frei</muted>",
+      "spotsFree": "{count} frei",
+      "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}"
     }
   },
   "setup": {
@@ -2794,7 +3345,64 @@
     "offline": "Offline",
     "noPrinters": "Noch keine Drucker registriert",
     "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen.",
-    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen."
+    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen.",
+    "printerCount": "{count, plural, =1 {# Drucker} other {# Drucker}}",
+    "kitchenTicketMode": {
+      "title": "Modus für Küchenbon-Druck",
+      "description": "Bestimmt, wie Küchenbons bei einer neuen Bestellung erzeugt werden.",
+      "saved": "Gespeichert",
+      "modes": {
+        "per_order": {
+          "title": "1 Bon pro Bestellung",
+          "description": "Klassisch: alles auf einem Küchenbon. Einfach für kleine Küchen ohne Stationstrennung."
+        },
+        "per_item": {
+          "title": "1 Bon pro Produkt (Barcode)",
+          "description": "Jedes Produkt aus der Bestellung bekommt einen eigenen Bon mit einem eindeutigen Barcode — ideal, um den Status einzelner Produkte später per Scanner zu verfolgen."
+        },
+        "per_station": {
+          "title": "1 Bon pro Standort",
+          "description": "Die Bestellung wird nach Standort gruppiert. Jeder Standort bekommt nur seine Produkte. Ist dem Standort ein eigener Drucker zugewiesen, wird der Bon dort gedruckt — sonst auf dem Standard-Küchendrucker."
+        }
+      }
+    },
+    "orderFlow": {
+      "saved": "Gespeichert",
+      "notPrintedWarning": "Diese Bons werden nicht automatisch gedruckt.",
+      "overridePrinter": "Override-Drucker (optional, sonst Routing-Kette)",
+      "useRoutingChain": "Routing-Kette verwenden (Standard)",
+      "routingChainHint": "Falls kein Override-Drucker gesetzt ist, wird die Routing-Kette verwendet: Produkt-Station → Kategorie-Station → Standard-Drucker des Geräts → globaler Override.",
+      "defaultTemplate": "Standard-Vorlage (leer = eingebaut)",
+      "useBuiltInTemplate": "Eingebaute Vorlage verwenden",
+      "kitchen": {
+        "title": "Küchenbon",
+        "description": "Bons, die bei neuen Bestellungen in der Küche gedruckt werden.",
+        "mode": "Modus",
+        "modes": {
+          "per_order": "1 Bon pro Bestellung",
+          "per_item": "1 Bon pro Produkt mit Barcode",
+          "per_station": "1 Bon pro Standort"
+        }
+      },
+      "orderTicket": {
+        "title": "Bestellbon",
+        "description": "Bon für den Ausgabebereich oder zur Bestellbestätigung."
+      },
+      "receipt": {
+        "title": "Kassenbon",
+        "description": "Bon, der nach einer Zahlung oder einem Bestellungsabschluss gedruckt wird.",
+        "trigger": "Auslöser",
+        "triggers": {
+          "payment_received": "Bei Zahlung",
+          "order_completed": "Bei Bestellungsabschluss",
+          "manual": "Manuell"
+        }
+      }
+    }
+  },
+  "colorPicker": {
+    "custom": "Eigene Farbe",
+    "customAria": "Eigene Farbe wählen"
   },
   "posIconPicker": {
     "title": "Icon auswählen",
@@ -2911,7 +3519,15 @@
         "field": "Datenfeld"
       },
       "moveElement": "Element verschieben",
-      "removeElement": "Element entfernen"
+      "removeElement": "Element entfernen",
+      "resetConfirm": "Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen?",
+      "resetTitle": "Aktuellen Entwurf verwerfen und auf die Standard-Vorlage zurücksetzen",
+      "resetToDefault": "Standard wiederherstellen",
+      "dragging": "Verschieben...",
+      "previewMarkers": {
+        "feed": "[Vorschub: {lines, plural, =1 {# Zeile} other {# Zeilen}}]",
+        "cut": "--- Schnitt ---"
+      }
     }
   },
   "reports": {
@@ -2925,7 +3541,15 @@
     "export": {
       "csv": "CSV exportieren",
       "pdf": "PDF-Export",
-      "pdfPending": "Wird erstellt…"
+      "pdfPending": "Wird erstellt…",
+      "filenames": {
+        "products": "top-produkte.csv",
+        "devices": "umsatz-je-kasse.csv",
+        "channels": "umsatz-nach-kanal.csv",
+        "categories": "top-kategorien.csv",
+        "hourly": "stundenverlauf.csv",
+        "payments": "zahlarten.csv"
+      }
     },
     "filter": {
       "event": "Veranstaltung",
@@ -3014,6 +3638,50 @@
         "hour": "Stunde",
         "orders": "Bestellungen",
         "revenue": "Umsatz"
+      },
+      "tooltipHour": "{hour}:00 Uhr"
+    },
+    "paymentMethods": {
+      "cash": "Bar",
+      "card": "Karte",
+      "sumupTerminal": "SumUp-Terminal",
+      "sumupOnline": "SumUp Online",
+      "voucher": "Gutschein",
+      "online": "Online",
+      "free": "Kostenlos"
+    },
+    "channelLabels": {
+      "pos": "Kasse",
+      "online": "Online-Shop",
+      "qrOrder": "QR-Bestellung"
+    },
+    "pdf": {
+      "hourlyTitle": "Stunden-Umsatz",
+      "hourlyEmpty": "Keine Umsatzdaten für den gewählten Zeitraum",
+      "kpi": {
+        "revenue": "Umsatz",
+        "orders": "Bestellungen",
+        "avgReceipt": "Ø Bon",
+        "pfand": "Pfand",
+        "cancellationRate": "Storno-Quote"
+      },
+      "period": {
+        "all": "Gesamter Zeitraum",
+        "today": "Heute ({date})",
+        "yesterday": "Gestern ({date})",
+        "range": "{start} – {end}"
+      },
+      "generatedAt": "Erstellt am {date} · OpenEOS",
+      "page": "Seite {page} / {total}",
+      "filename": {
+        "event": "openeos-auswertung-{slug}.pdf",
+        "fallbackSlug": "auswertung",
+        "today": "openeos-auswertung-heute-{date}.pdf",
+        "yesterday": "openeos-auswertung-gestern-{date}.pdf",
+        "all": "openeos-auswertung-gesamt.pdf",
+        "range": "openeos-auswertung-{start}-bis-{end}.pdf",
+        "openStart": "start",
+        "openEnd": "ende"
       }
     }
   },
@@ -3065,7 +3733,8 @@
       "namePlaceholder": "z. B. Tagesabschluss 01.01.2026",
       "notes": "Notizen",
       "notesPlaceholder": "Optionale Anmerkungen zur Inventur",
-      "bulkAddHint": "{count} Produkte mit Bestandsverfolgung werden automatisch hinzugefügt."
+      "bulkAddHint": "{count} Produkte mit Bestandsverfolgung werden automatisch hinzugefügt.",
+      "defaultName": "Tagesabschluss {date}"
     },
     "progress": {
       "of": "von",
@@ -3357,6 +4026,7 @@
     "magicLink": "Anmeldelink",
     "verifyEmail": "E-Mail bestätigen",
     "twoFactor": "Zwei-Faktor-Anmeldung",
-    "shifts": "Schichtpläne"
+    "shifts": "Schichtpläne",
+    "invitation": "Einladung"
   }
 }

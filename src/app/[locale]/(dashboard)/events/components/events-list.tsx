@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useEvents } from '@/hooks/use-events';
 import { shopUrlForEvent } from '@/lib/shop-url';
@@ -35,6 +35,8 @@ export function EventsList({
   activatingEventId,
 }: EventsListProps) {
   const t = useTranslations('events');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
 
@@ -43,8 +45,8 @@ export function EventsList({
   if (!organizationId) {
     return (
       <ListEmpty
-        title="Keine Organisation ausgewählt"
-        description="Bitte wählen Sie zuerst eine Organisation aus."
+        title={tCommon('noOrganization.title')}
+        description={tCommon('noOrganization.description')}
         icon={
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
             <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
@@ -85,7 +87,7 @@ export function EventsList({
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -177,8 +179,8 @@ export function EventsList({
                         href={shopUrlForEvent(event.id)}
                         target="_blank"
                         rel="noreferrer noopener"
-                        aria-label="Shop öffnen"
-                        title="Shop öffnen"
+                        aria-label={t('actions.openShop')}
+                        title={t('actions.openShop')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
                       </a>

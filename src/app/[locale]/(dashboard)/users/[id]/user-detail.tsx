@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { useAdminUser, useUnlockUser } from '@/hooks/use-admin';
 import { ListLoading } from '@/components/shared/list-states';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 const ROLE_BADGE: Record<string, string> = {
   admin: 'badge--info',
@@ -20,16 +21,8 @@ export function UserDetail() {
   const { data: user, isLoading, error } = useAdminUser(id);
   const unlockUser = useUnlockUser();
 
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  // Datum mit Uhrzeit — "—" fuer fehlende Werte.
+  const { formatDateTime: formatDate } = useLocaleFormat();
 
   if (isLoading) {
     return <ListLoading />;
@@ -59,7 +52,7 @@ export function UserDetail() {
             className="btn btn--ghost"
             style={{ padding: '6px 10px', minWidth: 0 }}
             onClick={() => router.push('/users')}
-            aria-label="Back"
+            aria-label={t('detail.back')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="15 18 9 12 15 6" />
