@@ -310,28 +310,30 @@
 }
 .landing .btn--outline-light:hover { background: color-mix(in oklab, var(--paper) 10%, transparent); }
 
-/* ============================= TYPO HELPERS ============================= */
+/* ============================= TYPO HELPERS =============================
+   Überschriften in Geist Extra Bold (800) wie .oe-display aus
+   @openeos/ui. Die Akzente übernehmen die Laufweite der Überschrift. */
 .landing .u-stroke {
-  -webkit-text-stroke: 1.5px var(--ink);
-  color: transparent;
+  /* Variable Fonts haben überlappende Konturen; eine reine Kontur
+     zeichnete sie im Inneren nach. Doppelt so breit unter der Füllung
+     gemalt, Füllung in Papierfarbe — sichtbar bleibt die äußere Hälfte.
+     Etwas offener, damit sich benachbarte Konturen nicht berühren. */
+  -webkit-text-stroke: clamp(2px, 0.028em, 3px) var(--ink);
+  paint-order: stroke fill;
+  color: var(--paper);
   font-family: var(--f-display, system-ui, sans-serif);
   font-weight: 800;
-  font-variation-settings: "opsz" 96;
   letter-spacing: -0.02em;
 }
 .landing .u-accent {
   color: var(--green-ink);
   font-family: var(--f-display, system-ui, sans-serif);
   font-weight: 800;
-  font-variation-settings: "opsz" 96;
-  letter-spacing: -0.02em;
 }
 .landing .u-accent-light {
   color: var(--green);
   font-family: var(--f-display, system-ui, sans-serif);
   font-weight: 800;
-  font-variation-settings: "opsz" 96;
-  letter-spacing: -0.02em;
 }
 
 .landing .section-head {
@@ -353,7 +355,7 @@
 .landing .section-title {
   font-size: clamp(40px, 6vw, 84px);
   line-height: 0.98;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
   font-weight: 800;
   margin: 0;
   text-wrap: balance;
@@ -420,7 +422,7 @@
 .landing .hero__title {
   font-size: clamp(44px, 7.5vw, 104px);
   line-height: 0.95;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.045em;
   font-weight: 800;
   margin: 22px 0 0;
   text-wrap: balance;
@@ -1233,7 +1235,7 @@
   padding: clamp(80px, 12vw, 160px) var(--pad) clamp(60px, 9vw, 120px);
   text-align: center;
 }
-.landing .cta-block h2 { font-size: clamp(44px, 7vw, 96px); line-height: 0.95; letter-spacing: -.03em; font-weight: 800; margin: 0; }
+.landing .cta-block h2 { font-size: clamp(44px, 7vw, 96px); line-height: 0.95; letter-spacing: -.045em; font-weight: 800; margin: 0; }
 .landing .cta-block h2 span { display: block; }
 .landing .cta-block p { color: var(--mute); font-size: 18px; margin: 20px 0 32px; }
 .landing .cta-block__row { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
@@ -1476,7 +1478,7 @@ body:has(.landing) {
 .landing .auth-form__title {
   font-size: clamp(36px, 4.5vw, 56px);
   font-weight: 800;
-  letter-spacing: -.02em;
+  letter-spacing: -.035em;
   line-height: 1.0;
   margin: 0;
 }
@@ -1602,7 +1604,7 @@ body:has(.landing) {
 .landing .wizard__title {
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 800;
-  letter-spacing: -.02em;
+  letter-spacing: -.035em;
   line-height: 1.0;
   margin: 0;
 }
