@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Delete } from '@untitledui/icons';
 import { cx } from '@/utils/cx';
 
@@ -21,6 +22,7 @@ interface NumPadProps {
  * einer dunklen Oberfläche.
  */
 export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }: NumPadProps) {
+  const t = useTranslations('deviceUi.common');
   const druecken = (ziffer: string) => {
     if (value.length < maxLength) onChange(value + ziffer);
   };
@@ -42,7 +44,7 @@ export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }:
               type="button"
               onClick={() => onChange(value.slice(0, -1))}
               className="pos-numpad__key pos-numpad__key--soft"
-              aria-label="Löschen"
+              aria-label={t('backspace')}
             >
               <Delete />
             </button>
@@ -56,6 +58,7 @@ export function NumPad({ value, onChange, onSubmit, maxLength = 10, className }:
               type="button"
               onClick={() => onChange('')}
               className="pos-numpad__key pos-numpad__key--soft"
+              aria-label={t('clear')}
             >
               C
             </button>

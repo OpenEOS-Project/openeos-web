@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Receipt, Printer, XCircle, AlertCircle } from '@untitledui/icons';
 import { Button } from '@/components/ui/buttons/button';
 import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { deviceApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import type { Order } from '@/types/order';
 
 type StatusFilter = 'all' | 'open' | 'completed' | 'cancelled';
@@ -70,6 +70,8 @@ function PaymentBadge({ status, t }: { status: string; t: (key: string) => strin
 
 export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps) {
   const t = useTranslations('pos.orderHistory');
+  const formatCurrency = useFormatPrice();
+  const locale = useLocale();
   const queryClient = useQueryClient();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -126,7 +128,7 @@ export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps)
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const filters: { key: StatusFilter; label: string }[] = [

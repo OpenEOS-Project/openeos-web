@@ -1988,6 +1988,44 @@
       "revoked": "This device is no longer linked — it was removed in the admin area. Connect it again using the code below."
     }
   },
+  "deviceUi": {
+    "common": {
+      "redirecting": "Redirecting …",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "close": "Close",
+      "clear": "Clear input",
+      "backspace": "Delete last digit",
+      "from": "From: {name}",
+      "dismiss": "Dismiss message"
+    },
+    "pos": {
+      "categories": "Categories",
+      "allItems": "All items",
+      "testModeShort": "Test mode",
+      "cartEmpty": "Cart empty",
+      "openCart": "Open cart",
+      "sentToStations": "Sent to kitchen & bar",
+      "withOptions": "+ Options",
+      "unavailable": "Unavailable",
+      "soldOut": "Sold out",
+      "stockLeft": "{count} left"
+    },
+    "station": {
+      "loading": "Loading …",
+      "loadError": "Orders could not be loaded",
+      "loadErrorHint": "The display keeps trying. If it stays like this, check the network connection.",
+      "retry": "Try again",
+      "reconnecting": "Disconnected – reconnecting …",
+      "serviceColumn": "Table service",
+      "pickupColumn": "Pickup",
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "items": "{count, plural, one {# item} other {# items}}",
+      "pickup": "Pickup",
+      "priorityRush": "Rush",
+      "priorityHigh": "High"
+    }
+  },
   "devices": {
     "title": "Devices",
     "description": "Manage registered devices for your organization",

@@ -185,11 +185,46 @@ body:has(.pos-root) {
 .pos-cart-col   { display: block; }
 .pos-mobile-bar { display: none; }
 
-/* Tablet 768–1023px: narrow sidebar | products | cart */
+/* Tablet 768–1023px (iPad hochkant): schmale Kategorieleiste | products | cart.
+   In 80px blieb vom Namen nur "G" oder "Sp" uebrig. Die Leiste ist jetzt
+   96px breit und stellt das Symbol ueber den Namen, der auf zwei Zeilen
+   umbrechen darf (mit Silbentrennung). Die Ueberschrift "Kategorien"
+   entfaellt dort — "KATEGOR" war nur abgeschnitten. Die Knoepfe tragen
+   ihre Masse inline, daher !important. */
 @media (max-width: 1023px) {
   .pos-body {
-    grid-template-columns: 80px 1fr 300px;
+    grid-template-columns: 96px 1fr 300px;
   }
+  .pos-cat-rail__head { display: none; }
+  .pos-cat-rail__list { padding: 8px 6px !important; }
+  .pos-cat-rail__item {
+    grid-template-columns: 1fr !important;
+    justify-items: center;
+    gap: 4px !important;
+    min-height: 64px !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  .pos-cat-rail__label {
+    font-size: 12px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+  .pos-cat-rail__desc { display: none; }
+}
+
+/* Warenkorbzeile: Mit 44px-Mengenknoepfen blieb in der 300px-Spalte des
+   Tablets fuer den Namen kaum Platz ("Apfelscho-rle"). Ist der Warenkorb
+   schmal, stehen Mengen und Preis unter dem Namen statt daneben. */
+.pos-cart { container: poscart / inline-size; }
+@container poscart (max-width: 340px) {
+  .pos-cart-line { grid-template-columns: 1fr !important; gap: 4px !important; }
+  .pos-cart-line__controls { justify-content: flex-end; }
 }
 
 /* Visibility helpers — default state */

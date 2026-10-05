@@ -9,7 +9,7 @@ import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { CashPaymentModal } from './cash-payment-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
@@ -35,6 +35,8 @@ type GroupBy = 'order' | 'category';
 
 export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   const t = useTranslations('pos.splitPayment');
+  const tUi = useTranslations('deviceUi.common');
+  const formatCurrency = useFormatPrice();
   const queryClient = useQueryClient();
 
   const [selections, setSelections] = useState<Record<string, number>>({});
@@ -275,7 +277,8 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
               type="button"
               onClick={() => handleQuantityChange(ui.item.id, -1)}
               disabled={selectedQty === 0}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
+              aria-label={tUi('decrease')}
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -286,7 +289,8 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
               type="button"
               onClick={() => handleQuantityChange(ui.item.id, 1)}
               disabled={selectedQty >= ui.unpaidQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
+              aria-label={tUi('increase')}
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
             </button>

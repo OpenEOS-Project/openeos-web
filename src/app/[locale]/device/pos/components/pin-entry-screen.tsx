@@ -69,7 +69,7 @@ export function PinEntryScreen({ deviceName, onSuccess, onLogout }: PinEntryScre
           <div className="h-5 w-px bg-secondary" />
           <span className="text-sm font-medium text-primary">{deviceName}</span>
         </div>
-        <Button color="tertiary" size="sm" onClick={onLogout}>
+        <Button color="tertiary" size="sm" onClick={onLogout} aria-label={t('logout')}>
           <LogOut01 className="h-4 w-4" />
         </Button>
       </header>

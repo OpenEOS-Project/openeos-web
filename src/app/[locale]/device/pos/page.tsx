@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Clock, Coins01, LogOut01, Power01 } from '@untitledui/icons';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceSocket, type BroadcastMessage } from '@/hooks/use-device-socket';
@@ -166,6 +167,12 @@ function TableEntryScreen({
 }
 
 const topBtnStyle: React.CSSProperties = {
+  // 44px: Mindestgroesse fuer Touch-Ziele, die Kopfzeile ist 56px hoch.
+  minHeight: 44,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
   padding: '7px 13px',
   background: 'var(--pos-surface)',
   border: '1px solid var(--pos-line)',
@@ -179,6 +186,8 @@ const topBtnStyle: React.CSSProperties = {
 // ─── Main POS layout ────────────────────────────────────────────────────────
 export default function DevicePosPage() {
   const t = useTranslations('pos');
+  const tUi = useTranslations('deviceUi');
+  const formatPrice = useFormatPrice();
   const router = useRouter();
   const queryClient = useQueryClient();
   const hasHydrated = useDeviceHydration();
@@ -489,7 +498,7 @@ export default function DevicePosPage() {
 
   // ── Loading states ──────────────────────────────────────────────────────
   if (!hasHydrated) return <PosSpinner />;
-  if (!deviceId || status !== 'verified') return <PosSpinner label="Weiterleitung..." />;
+  if (!deviceId || status !== 'verified') return <PosSpinner label={tUi('common.redirecting')} />;
 
   // ── PIN screen ──────────────────────────────────────────────────────────
   const requirePin = !!deviceSettings?.requirePin;
@@ -591,10 +600,12 @@ export default function DevicePosPage() {
           {selectedEvent?.status === 'test' && (
             <div
               title={t('testMode')}
+              role="status"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
+                minWidth: 0,
                 background: '#fff3d0',
                 border: '1px solid #e6ca91',
                 borderRadius: 999,
@@ -609,7 +620,12 @@ export default function DevicePosPage() {
               }}
             >
               <span aria-hidden style={{ flexShrink: 0 }}>⚠</span>
-              <span className="pos-mobile-hide">{t('testMode')}</span>
+              {/* Volltext mit Ellipse statt hart abgeschnitten; auf dem
+                  Telefon reicht das Wort, der Rest steht im title. */}
+              <span className="pos-mobile-hide" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {t('testMode')}
+              </span>
+              <span className="pos-mobile-only">{tUi('pos.testModeShort')}</span>
             </div>
           )}
         </div>
@@ -625,6 +641,7 @@ export default function DevicePosPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
+                minHeight: 44,
                 padding: '6px 12px',
                 border: '1px solid var(--pos-line)',
                 borderRadius: 'var(--pos-r-sm)',
@@ -632,13 +649,13 @@ export default function DevicePosPage() {
                 cursor: 'pointer',
               }}
             >
-              <span style={{ fontSize: 10, color: 'var(--pos-ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
-                Tisch
+              <span style={{ fontSize: 11, color: 'var(--pos-ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+                {t('tableNumber.table')}
               </span>
               <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--pos-ink)' }}>
                 {tableNumber}
               </span>
-              <span style={{ color: 'var(--pos-ink-3)', fontSize: 11 }}>▾</span>
+              <span aria-hidden style={{ color: 'var(--pos-ink-3)', fontSize: 11 }}>▾</span>
             </button>
           )}
           <span className="pos-mobile-hide" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -646,7 +663,8 @@ export default function DevicePosPage() {
           </span>
           {cashDrawerPrinterId && (
             <button type="button" onClick={handleOpenCashDrawer} className="pos-mobile-hide" style={topBtnStyle}>
-              💵 {t('cashDrawer.open')}
+              <Coins01 aria-hidden style={{ width: 16, height: 16, flexShrink: 0 }} />
+              {t('cashDrawer.open')}
             </button>
           )}
           <div className="pos-mobile-hide" style={{ width: 1, height: 24, background: 'var(--pos-line)' }} />
@@ -654,10 +672,11 @@ export default function DevicePosPage() {
             type="button"
             onClick={() => setIsOrderHistoryOpen(true)}
             className="pos-mobile-hide"
-            style={topBtnStyle}
+            style={{ ...topBtnStyle, minWidth: 44, padding: '7px 10px' }}
             title={t('orderHistory.title')}
+            aria-label={t('orderHistory.title')}
           >
-            🕐
+            <Clock aria-hidden style={{ width: 18, height: 18 }} />
           </button>
           {authenticatedUser && (
             <div
@@ -693,7 +712,7 @@ export default function DevicePosPage() {
             type="button"
             className="pos-mobile-only"
             onClick={() => setIsMobileMenuOpen((v) => !v)}
-            style={{ ...topBtnStyle, padding: '6px 12px', fontSize: 18, lineHeight: 1, fontWeight: 700 }}
+            style={{ ...topBtnStyle, minWidth: 44, padding: '6px 12px', fontSize: 18, lineHeight: 1, fontWeight: 700 }}
             aria-label={t('menu.more')}
             aria-expanded={isMobileMenuOpen}
           >
@@ -805,10 +824,10 @@ export default function DevicePosPage() {
           >
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--pos-ink)', letterSpacing: '-0.01em' }}>
-                {activeCategoryObj?.name || 'Alle Artikel'}
+                {activeCategoryObj?.name || tUi('pos.allItems')}
               </div>
               <div style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>
-                {filteredProducts.length} Artikel
+                {t('cart.itemCount', { count: filteredProducts.length })}
               </div>
             </div>
           </div>
@@ -821,10 +840,10 @@ export default function DevicePosPage() {
             {/* Mobile-only inline category header */}
             <div className="pos-mobile-head" style={{ display: 'none', justifyContent: 'space-between', alignItems: 'baseline', padding: '2px 2px 10px' }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--pos-ink)' }}>
-                {activeCategoryObj?.name || 'Alle Artikel'}
+                {activeCategoryObj?.name || tUi('pos.allItems')}
               </span>
               <span style={{ fontSize: 11, color: 'var(--pos-ink-3)' }}>
-                {filteredProducts.length} Artikel
+                {t('cart.itemCount', { count: filteredProducts.length })}
               </span>
             </div>
             {!eventId ? (
@@ -885,11 +904,9 @@ export default function DevicePosPage() {
           >
             {cartItemCount}
           </span>
-          <span>{cartItemCount === 0 ? 'Warenkorb leer' : 'Warenkorb öffnen'}</span>
+          <span>{cartItemCount === 0 ? tUi('pos.cartEmpty') : tUi('pos.openCart')}</span>
           <span className="pos-mono" style={{ fontSize: 15 }}>
-            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
-              items.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-            )}
+            {formatPrice(items.reduce((s, i) => s + i.unitPrice * i.quantity, 0))}
           </span>
         </button>
       </div>
@@ -979,7 +996,7 @@ export default function DevicePosPage() {
             animation: 'pos-slide-up .2s ease',
           }}
         >
-          ✓ An Küche & Bar gesendet
+          ✓ {tUi('pos.sentToStations')}
         </div>
       )}
 

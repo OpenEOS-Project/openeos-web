@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 
 type CheckoutState = 'tip' | 'initiating' | 'waiting' | 'success' | 'failed' | 'cancelled';
 
@@ -29,6 +29,7 @@ const KNOWN_ERRORS = [
 
 export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUpCheckoutModalProps) {
   const t = useTranslations('pos.sumupCheckout');
+  const formatCurrency = useFormatPrice();
   const [state, setState] = useState<CheckoutState>('tip');
   const [error, setError] = useState<string | null>(null);
   // Vom Kassierer gewähltes Trinkgeld; wird vor dem Checkout bestätigt.
