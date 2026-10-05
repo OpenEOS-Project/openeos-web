@@ -1,36 +1,12 @@
-import { Geist, JetBrains_Mono, Archivo_Black } from 'next/font/google';
-
 import '@/styles/landing.css';
 import '@/styles/shifts-public.css';
 
-const geist = Geist({
-  variable: '--f-sans',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--f-mono',
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-});
-
-const archivoBlack = Archivo_Black({
-  variable: '--f-display',
-  subsets: ['latin'],
-  weight: ['400'],
-});
-
+/* Schriften kommen aus dem Locale-Layout (`openEosFonts` aus
+   @openeos/ui, lokal eingebunden) — hier keine eigene Einbindung. */
 export default function ShiftPublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div
-      className={`landing shifts-public ${geist.variable} ${jetbrainsMono.variable} ${archivoBlack.variable}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className="landing shifts-public">{children}</div>;
 }
