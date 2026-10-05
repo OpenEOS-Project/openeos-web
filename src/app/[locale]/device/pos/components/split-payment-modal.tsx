@@ -4,16 +4,15 @@ import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Minus, BankNote01, CreditCard01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { useDeviceStore } from '@/stores/device-store';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import { deviceApi } from '@/lib/api-client';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { CashPaymentModal } from './cash-payment-modal';
+import { PosPortal } from './pos-portal';
+import { PosSheet, usePosSheetClose } from './pos-sheet';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
 import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
-import { cx } from '@/utils/cx';
 import type { Order, OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
 
@@ -36,6 +35,7 @@ type GroupBy = 'order' | 'category';
 export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
   const t = useTranslations('pos.splitPayment');
   const tUi = useTranslations('deviceUi.common');
+  const tTabs = useTranslations('pos.openTabs');
   const formatCurrency = useFormatPrice();
   const queryClient = useQueryClient();
 
@@ -238,6 +238,8 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     }
   };
 
+  const { closing, close } = usePosSheetClose(isOpen, onClose);
+
   const handleCashClick = () => {
     if (!hasSelection) return;
     setShowCashModal(true);
@@ -255,213 +257,146 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
     return (
       <div
         key={ui.item.id}
-        className={cx(
-          'rounded-lg border p-3 transition-colors',
-          isSelected
-            ? 'border-brand-primary bg-brand-primary_alt'
-            : 'border-secondary bg-primary'
-        )}
+        className="pos-card"
+        data-selected={isSelected || undefined}
+        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 8px 8px 14px' }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-primary truncate">
-              {ui.item.productName}
-            </p>
-            <p className="text-sm text-tertiary">
-              {formatCurrency(itemPrice)} × {ui.unpaidQuantity} {t('open')}
-            </p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--pos-ink)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {ui.item.productName}
           </div>
+          <div className="pos-mono" style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
+            {formatCurrency(itemPrice)} × {ui.unpaidQuantity} {t('open')}
+          </div>
+        </div>
 
-          <div className="flex items-center gap-2 ml-4">
-            <button
-              type="button"
-              onClick={() => handleQuantityChange(ui.item.id, -1)}
-              disabled={selectedQty === 0}
-              aria-label={tUi('decrease')}
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="w-8 text-center font-medium text-primary">
-              {selectedQty}
-            </span>
-            <button
-              type="button"
-              onClick={() => handleQuantityChange(ui.item.id, 1)}
-              disabled={selectedQty >= ui.unpaidQuantity}
-              aria-label={tUi('increase')}
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-secondary bg-primary text-tertiary hover:bg-secondary disabled:opacity-50"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <button
+            type="button"
+            className="pos-qty-btn"
+            onClick={() => handleQuantityChange(ui.item.id, -1)}
+            disabled={selectedQty === 0}
+            aria-label={tUi('decrease')}
+          >
+            <Minus />
+          </button>
+          <span
+            className="pos-mono"
+            style={{ minWidth: 28, textAlign: 'center', fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)' }}
+          >
+            {selectedQty}
+          </span>
+          <button
+            type="button"
+            className="pos-qty-btn"
+            onClick={() => handleQuantityChange(ui.item.id, 1)}
+            disabled={selectedQty >= ui.unpaidQuantity}
+            aria-label={tUi('increase')}
+          >
+            <Plus />
+          </button>
         </div>
       </div>
     );
   };
 
+  const groupLabel: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    color: 'var(--pos-ink-3)',
+  };
+
+  const hasItems = !isLoading && unpaidItems.length > 0;
+
   return (
     <>
-      <DialogModal
-        isOpen={isOpen}
-        onClose={onClose}
-        title={t('title')}
-        size="lg"
-      >
-        <div className="p-6">
-          {isLoading ? (
-            <div className="flex h-48 items-center justify-center">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
-            </div>
-          ) : unpaidItems.length === 0 ? (
-            <div className="flex h-48 items-center justify-center">
-              <p className="text-tertiary">{t('remaining')}: {formatCurrency(0)}</p>
-            </div>
-          ) : (
-            <>
-              {/* Total remaining info */}
-              <div className="mb-4 rounded-lg bg-secondary p-3 flex items-center justify-between">
-                <p className="font-medium text-primary">
-                  {orders.length} {orders.length === 1 ? 'Bestellung' : 'Bestellungen'}
-                </p>
-                <div className="text-right">
-                  <p className="text-sm text-tertiary">{t('remaining')}</p>
-                  <p className="text-lg font-bold text-primary">
-                    {formatCurrency(totalRemaining)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Items List header with grouping toggle */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-tertiary">{t('selectItems')}</p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleClearSelection}
-                      className="text-xs text-tertiary hover:text-primary"
-                      disabled={!hasSelection}
-                    >
-                      {t('clearSelection')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSelectAll}
-                      className="text-xs text-brand-primary hover:text-brand-primary/80"
-                    >
-                      {t('selectAll')}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Grouping toggle */}
-                <div className="flex rounded-lg border border-secondary bg-secondary p-0.5 mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setGroupBy('order')}
-                    className={cx(
-                      'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                      groupBy === 'order'
-                        ? 'bg-primary text-primary shadow-sm'
-                        : 'text-tertiary hover:text-primary'
-                    )}
-                  >
+      {isOpen && (
+        <PosSheet
+          closing={closing}
+          onClose={close}
+          title={t('title')}
+          subtitle={
+            hasItems ? (
+              <>
+                {orders.length} {tTabs('orders', { count: orders.length })} · {t('remaining')}{' '}
+                <strong className="pos-mono">{formatCurrency(totalRemaining)}</strong>
+              </>
+            ) : undefined
+          }
+          toolbar={
+            hasItems ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="pos-seg" role="group" aria-label={t('selectItems')}>
+                  <button type="button" aria-pressed={groupBy === 'order'} onClick={() => setGroupBy('order')}>
                     {t('groupByOrder')}
                   </button>
                   <button
                     type="button"
+                    aria-pressed={groupBy === 'category'}
                     onClick={() => setGroupBy('category')}
-                    className={cx(
-                      'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                      groupBy === 'category'
-                        ? 'bg-primary text-primary shadow-sm'
-                        : 'text-tertiary hover:text-primary'
-                    )}
                   >
                     {t('groupByCategory')}
                   </button>
                 </div>
-
-                <div className="space-y-4 max-h-64 overflow-auto">
-                  {groupBy === 'order' ? (
-                    /* Group by order */
-                    groupedByOrder.map(({ order, items }) => (
-                      <div key={order.id}>
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-xs font-medium text-tertiary">
-                            #{order.dailyNumber || order.orderNumber}
-                          </span>
-                          {order.tableNumber && (
-                            <span className="text-xs text-quaternary">
-                              {t('table')} {order.tableNumber}
-                            </span>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          {items.map(renderItemRow)}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    /* Group by category */
-                    groupedByCategory.map(({ categoryName, items }) => (
-                      <div key={categoryName}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-medium text-tertiary">
-                            {categoryName}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleSelectAllCategory(items)}
-                            className="text-xs text-brand-primary hover:text-brand-primary/80"
-                          >
-                            {t('selectAllCategory')}
-                          </button>
-                        </div>
-                        <div className="space-y-2">
-                          {items.map(renderItemRow)}
-                        </div>
-                      </div>
-                    ))
-                  )}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink-2)' }}>{t('selectItems')}</span>
+                  <span style={{ display: 'flex', margin: '-10px -8px' }}>
+                    <button
+                      type="button"
+                      className="pos-link pos-link--muted"
+                      onClick={handleClearSelection}
+                      disabled={!hasSelection}
+                    >
+                      {t('clearSelection')}
+                    </button>
+                    <button type="button" className="pos-link" onClick={handleSelectAll}>
+                      {t('selectAll')}
+                    </button>
+                  </span>
                 </div>
               </div>
-
-              {/* Selected Summary */}
-              <div
-                className={cx(
-                  'rounded-lg p-4 mb-4 transition-colors',
-                  hasSelection ? 'bg-success-secondary dark:text-white' : 'bg-secondary'
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-primary">{t('selectedAmount')}</span>
+            ) : undefined
+          }
+          footer={
+            hasItems ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('selectedAmount')}</span>
                   <span
-                    className={cx(
-                      'text-2xl font-bold',
-                      hasSelection ? 'text-success-primary dark:text-white' : 'text-tertiary'
-                    )}
+                    className="pos-mono"
+                    style={{
+                      fontSize: 24,
+                      fontWeight: 700,
+                      color: hasSelection ? 'var(--pos-accent-ink)' : 'var(--pos-ink-3)',
+                    }}
                   >
                     {formatCurrency(selectedTotal)}
                   </span>
                 </div>
-              </div>
-
-              {/* Payment Actions */}
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    color="secondary"
-                    size="lg"
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button
+                    type="button"
+                    className="pos-btn pos-btn--secondary"
                     onClick={handleCashClick}
                     disabled={!hasSelection || isProcessing}
-                    iconLeading={BankNote01}
                   >
+                    <BankNote01 />
                     {t('payCash')}
-                  </Button>
-                  <Button
-                    size="lg"
+                  </button>
+                  <button
+                    type="button"
+                    className="pos-btn pos-btn--primary"
                     onClick={() => {
                       if (useSumupReader) {
                         setShowSumupModal(true);
@@ -470,18 +405,62 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
                       }
                     }}
                     disabled={!hasSelection || isProcessing}
-                    iconLeading={CreditCard01}
                   >
+                    <CreditCard01 />
                     {t('payCard')}
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </>
+            ) : undefined
+          }
+          bodyStyle={{ gap: 16 }}
+        >
+          {isLoading ? (
+            <div className="pos-sheet-empty">
+              <div className="pos-spinner" />
+            </div>
+          ) : unpaidItems.length === 0 ? (
+            <div className="pos-sheet-empty">
+              {t('remaining')}: {formatCurrency(0)}
+            </div>
+          ) : groupBy === 'order' ? (
+            groupedByOrder.map(({ order, items }) => (
+              <section key={order.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span className="pos-mono" style={groupLabel}>
+                    #{order.dailyNumber || order.orderNumber}
+                  </span>
+                  {order.tableNumber && (
+                    <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
+                      {t('table')} {order.tableNumber}
+                    </span>
+                  )}
+                </div>
+                {items.map(renderItemRow)}
+              </section>
+            ))
+          ) : (
+            groupedByCategory.map(({ categoryName, items }) => (
+              <section key={categoryName} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <span style={groupLabel}>{categoryName}</span>
+                  <button
+                    type="button"
+                    className="pos-link"
+                    style={{ margin: '-10px -8px -10px 0' }}
+                    onClick={() => handleSelectAllCategory(items)}
+                  >
+                    {t('selectAllCategory')}
+                  </button>
+                </div>
+                {items.map(renderItemRow)}
+              </section>
+            ))
           )}
-        </div>
-      </DialogModal>
+        </PosSheet>
+      )}
 
-      {/* Cash Payment Modal */}
+      {/* Bar und Karte liegen ueber der Auswahl */}
       <CashPaymentModal
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
@@ -489,17 +468,18 @@ export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
         onConfirm={handleCashConfirm}
         isProcessing={isProcessing}
       />
-
-      {/* SumUp Checkout Modal */}
-      <SumUpCheckoutModal
-        isOpen={showSumupModal}
-        onClose={() => setShowSumupModal(false)}
-        amount={selectedTotal}
-        onSuccess={() => {
-          setShowSumupModal(false);
-          handlePay('sumup_terminal' as PaymentMethod);
-        }}
-      />
+      <PosPortal>
+        <SumUpCheckoutModal
+          isOpen={showSumupModal}
+          onClose={() => setShowSumupModal(false)}
+          amount={selectedTotal}
+          onSuccess={() => {
+            setShowSumupModal(false);
+            handlePay('sumup_terminal' as PaymentMethod);
+          }}
+        />
+      </PosPortal>
     </>
   );
 }
+
