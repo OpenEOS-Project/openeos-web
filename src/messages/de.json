@@ -2558,6 +2558,10 @@
     "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen.",
     "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen."
   },
+  "colorPicker": {
+    "custom": "Eigene Farbe",
+    "customAria": "Eigene Farbe wählen"
+  },
   "posIconPicker": {
     "title": "Icon auswählen",
     "search": "Icons durchsuchen...",

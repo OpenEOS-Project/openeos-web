@@ -2558,6 +2558,10 @@
     "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
     "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization."
   },
+  "colorPicker": {
+    "custom": "Custom color",
+    "customAria": "Choose a custom color"
+  },
   "posIconPicker": {
     "title": "Choose icon",
     "search": "Search icons...",

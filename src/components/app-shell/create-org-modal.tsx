@@ -2,12 +2,12 @@
 
 import { FormEvent, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X } from '@untitledui/icons';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { UserOrganization } from '@/types/auth';
-import { CURRENCIES, LOCALES, TIMEZONES } from '@/config/org-options';
+import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
 
 interface Props {
   open: boolean;
@@ -19,6 +19,7 @@ const stepOrder: StepKey[] = ['basics', 'settings', 'confirm'];
 
 export function CreateOrgModal({ open, onClose }: Props) {
   const t = useTranslations('createOrganization');
+  const uiLocale = useLocale();
   const tCommon = useTranslations('common');
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -209,7 +210,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                     onChange={(e) => setCurrency(e.target.value)}
                   >
                     {CURRENCIES.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
+                      <option key={o.value} value={o.value}>{currencyLabel(o, uiLocale)}</option>
                     ))}
                   </select>
                 </label>
