@@ -28,6 +28,17 @@ export interface UserOrganization {
   organization?: Organization;
 }
 
+/** Body fuer POST /organizations/:id/members. Die Kontofelder legen in einer
+ *  eigenstaendigen Installation ein neues Konto mit Startpasswort an. */
+export interface AddMemberData {
+  email: string;
+  role: OrganizationRole;
+  permissions?: OrganizationPermissions;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+}
+
 export interface User {
   id: string;
   email: string;
