@@ -158,21 +158,358 @@ body:has(.pos-root) {
   to { transform: rotate(360deg); }
 }
 
-/* Bottom-sheet modals (slide up from the bottom edge).
-   Full-width on phones; centered and width-capped on tablets/desktops so they
-   don't stretch across a large screen. Only adds margin + max-width — the
-   modals keep their own inline position/transform/animation. */
-.pos-sheet {
-  margin-left: auto;
-  margin-right: auto;
+/* ── Dialoge der Kasse (PosSheet) ───────────────────────────────────────
+   Ein Muster fuer alle: auf dem Telefon ein Blatt ueber die ganze Breite,
+   das von unten hereinfaehrt; ab 768px mittig, hoechstens 560px breit und
+   mit 24px Abstand zum unteren Rand. Aufbau in pos-sheet.tsx. */
+.pos-sheet-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
 }
+.pos-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 18, 12, 0.45);
+  animation: pos-fade-in .2s ease;
+  transition: opacity .2s ease;
+}
+.pos-sheet-layer[data-closing] .pos-sheet-backdrop { opacity: 0; }
+
+.pos-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  max-height: 92%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--pos-surface);
+  color: var(--pos-ink);
+  border-radius: var(--pos-r-lg) var(--pos-r-lg) 0 0;
+  box-shadow: var(--pos-sh-3);
+  /* Die Einfahr-Animation bleibt immer gesetzt, sonst liefe sie nach dem
+     Zurueckschnappen beim Wischen erneut. */
+  animation: pos-slide-up-sheet .22s ease;
+  transition: transform .22s ease;
+}
+.pos-sheet:focus { outline: none; }
+.pos-sheet-layer[data-closing] .pos-sheet { transform: translateY(calc(100% + 32px)); }
+.pos-sheet[data-dragging] { transition: none; }
+
 @media (min-width: 768px) {
   .pos-sheet {
     max-width: 560px;
-    border-bottom-left-radius: var(--pos-r-lg);
-    border-bottom-right-radius: var(--pos-r-lg);
-    bottom: 24px !important;
+    max-height: calc(100% - 48px);
+    bottom: 24px;
+    border-radius: var(--pos-r-lg);
   }
+}
+
+.pos-sheet__handle {
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pos-sheet__handle > span {
+  width: 48px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--pos-line-strong);
+}
+.pos-sheet__handle[data-draggable] {
+  height: 36px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.pos-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px 12px 18px;
+  border-bottom: 1px solid var(--pos-line);
+  flex-shrink: 0;
+}
+.pos-sheet__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--pos-ink);
+  /* Zwei Zeilen fuer lange Produktnamen, dann Schluss. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.pos-sheet__sub {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--pos-ink-3);
+}
+.pos-sheet__sub strong { color: var(--pos-ink); }
+.pos-sheet__close {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--pos-r-sm);
+  background: transparent;
+  color: var(--pos-ink-2);
+  cursor: pointer;
+}
+.pos-sheet__close:hover { background: var(--pos-surface-2); color: var(--pos-ink); }
+.pos-sheet__close svg { width: 22px; height: 22px; }
+
+.pos-sheet__toolbar {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--pos-line);
+  flex-shrink: 0;
+}
+.pos-sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pos-sheet__pinned {
+  padding: 0 18px 12px;
+  flex-shrink: 0;
+}
+.pos-sheet__foot {
+  padding: 12px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--pos-line);
+  background: var(--pos-surface);
+  flex-shrink: 0;
+}
+
+/* ── Bausteine in den Dialogen ─────────────────────────────────────────── */
+
+/* Knoepfe: mindestens 48px hoch, im Fuss eines Dialogs die Hauptaktion. */
+.pos-btn {
+  min-height: 48px;
+  padding: 12px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--pos-r-md);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.pos-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+.pos-btn--sm {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--pos-r-sm);
+}
+.pos-btn--sm svg { width: 16px; height: 16px; }
+.pos-btn--primary { background: var(--pos-accent); color: var(--pos-accent-contrast); }
+.pos-btn--secondary {
+  background: var(--pos-surface);
+  color: var(--pos-ink);
+  border-color: var(--pos-line-strong);
+}
+.pos-btn--secondary:hover:not(:disabled) { background: var(--pos-surface-2); }
+.pos-btn--ghost { background: transparent; color: var(--pos-ink-2); }
+.pos-btn--ghost:hover:not(:disabled) { background: var(--pos-surface-2); color: var(--pos-ink); }
+.pos-btn--danger { background: var(--pos-danger); color: #fff; }
+.pos-btn--danger-outline {
+  background: var(--pos-surface);
+  color: var(--pos-danger);
+  border-color: var(--pos-danger);
+}
+.pos-btn:disabled {
+  background: var(--pos-line);
+  color: var(--pos-ink-3);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+.pos-btn--ghost:disabled { background: transparent; }
+
+/* Textknopf (Alle auswaehlen …) — klein geschrieben, aber 44px Trefferflaeche. */
+.pos-link {
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pos-accent-ink);
+  cursor: pointer;
+  border-radius: var(--pos-r-xs);
+}
+.pos-link--muted { color: var(--pos-ink-2); }
+.pos-link:disabled { color: var(--pos-ink-3); cursor: not-allowed; }
+
+/* Filter-Pillen; gewaehlt = aria-pressed. */
+.pos-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+.pos-chip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--pos-line);
+  border-radius: 999px;
+  background: var(--pos-surface-2);
+  color: var(--pos-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.pos-chip[aria-pressed="true"] {
+  background: var(--pos-accent);
+  border-color: var(--pos-accent);
+  color: var(--pos-accent-contrast);
+}
+
+/* Umschalter mit zwei Segmenten. */
+.pos-seg {
+  display: flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--pos-line);
+  border-radius: var(--pos-r-md);
+  background: var(--pos-surface-2);
+}
+.pos-seg > button {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--pos-r-sm);
+  background: transparent;
+  color: var(--pos-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pos-seg > button[aria-pressed="true"] {
+  background: var(--pos-surface);
+  color: var(--pos-ink);
+  box-shadow: var(--pos-sh-2);
+}
+
+/* Karte in Listen (Bestellung, Position). */
+.pos-card {
+  border: 1px solid var(--pos-line);
+  border-radius: var(--pos-r-md);
+  background: var(--pos-surface);
+  transition: border-color .12s, background .12s;
+}
+.pos-card[data-selected] {
+  border-color: var(--pos-accent);
+  box-shadow: inset 0 0 0 1px var(--pos-accent);
+}
+.pos-card--soft { background: var(--pos-surface-2); }
+
+/* Plus/Minus fuer Mengen. */
+.pos-qty-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pos-line);
+  border-radius: var(--pos-r-sm);
+  background: var(--pos-surface-2);
+  color: var(--pos-ink);
+  cursor: pointer;
+}
+.pos-qty-btn svg { width: 16px; height: 16px; }
+.pos-qty-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Kleine Kennzeichnung mit farbigem Punkt — die Farbe traegt nur der
+   Punkt, der Text bleibt dunkel und damit gut lesbar. */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid var(--pos-line);
+  border-radius: 999px;
+  background: var(--pos-surface-2);
+  color: var(--pos-ink-2);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.pos-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--pos-line-strong);
+}
+.pos-badge[data-tone="ok"]::before { background: var(--pos-ok); }
+.pos-badge[data-tone="warn"]::before { background: var(--pos-warn); }
+.pos-badge[data-tone="danger"]::before { background: var(--pos-danger); }
+.pos-badge[data-tone="accent"]::before { background: var(--pos-accent); }
+
+.pos-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--pos-line-strong);
+  border-radius: var(--pos-r-sm);
+  background: var(--pos-surface);
+  color: var(--pos-ink);
+  font: inherit;
+  font-size: 15px;
+}
+.pos-input::placeholder { color: var(--pos-ink-3); }
+.pos-input:focus { border-color: var(--pos-accent); outline: none; box-shadow: 0 0 0 3px var(--pos-accent-soft); }
+
+/* Leerer Zustand / Laden in einem Dialog. */
+.pos-sheet-empty {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--pos-ink-3);
+  font-size: 13px;
+}
+.pos-sheet-empty svg { width: 36px; height: 36px; color: var(--pos-line-strong); margin-bottom: 6px; }
+.pos-sheet-empty strong { color: var(--pos-ink); font-size: 15px; }
+.pos-spinner {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid var(--pos-line);
+  border-top-color: var(--pos-accent);
+  animation: spin .8s linear infinite;
 }
 
 /* ── Responsive layout helpers ───────────────────────────────────────────── */

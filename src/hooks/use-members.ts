@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { authApi, organizationsApi } from '@/lib/api-client';
-import type { OrganizationPermissions } from '@/types/auth';
+import { useDeployment } from '@/components/providers/setup-provider';
+import { useAuthStore } from '@/stores/auth-store';
+import type { AddMemberData, OrganizationPermissions } from '@/types/auth';
 
 export function useMembers(organizationId: string | undefined) {
   return useQuery({
@@ -19,7 +21,8 @@ export function useRemoveMember(organizationId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: string) => organizationsApi.removeMember(organizationId, userId),
+    // Id der Mitgliedschaft (UserOrganization.id), nicht die des Benutzers
+    mutationFn: (memberId: string) => organizationsApi.removeMember(organizationId, memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
     },
@@ -32,6 +35,28 @@ export function useUpdateMember(organizationId: string) {
   return useMutation({
     mutationFn: ({ userId, role, permissions }: { userId: string; role?: string; permissions?: OrganizationPermissions }) =>
       organizationsApi.updateMember(organizationId, userId, { role, permissions }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
+    },
+  });
+}
+
+/**
+ * Darf der angemeldete Benutzer Konten direkt (mit Startpasswort) anlegen?
+ * Die API erlaubt das nur in einer eigenstaendigen Installation und nur Admins.
+ */
+export function useCanCreateMemberAccount(): boolean {
+  const deployment = useDeployment();
+  const { currentOrganization, user } = useAuthStore();
+  const isAdmin = !!user?.isSuperAdmin || currentOrganization?.role === 'admin';
+  return deployment.mode === 'selfhosted' && isAdmin;
+}
+
+export function useAddMember(organizationId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: AddMemberData) => organizationsApi.addMember(organizationId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
     },

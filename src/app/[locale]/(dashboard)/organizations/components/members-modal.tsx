@@ -80,7 +80,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
   const handleRemove = async (member: UserOrganization) => {
     if (!confirm(t('removeConfirm.message'))) return;
     try {
-      await removeMember.mutateAsync(member.userId);
+      await removeMember.mutateAsync(member.id);
     } catch {
       // Error handled by mutation
     }

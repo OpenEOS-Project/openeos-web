@@ -145,6 +145,13 @@ test.describe('POS - Point of Sale', () => {
       await pos.addProduct(PRODUCTS.wasser);
       await pos.expectTotal('9,00');
 
+      // Escape schliesst den Dialog, der Fokus kehrt zum Bar-Knopf zurueck.
+      await pos.payCashButton.click();
+      await expect(pos.cashDialog).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(pos.cashDialog).toHaveCount(0);
+      await expect(pos.payCashButton).toBeFocused();
+
       await pos.payCashButton.click();
       await expect(pos.cashDialog).toContainText(/Zu zahlen:\s*9,00\s€/);
       await pos.cashDialog.getByRole('button', { name: '20,00 €' }).click();
