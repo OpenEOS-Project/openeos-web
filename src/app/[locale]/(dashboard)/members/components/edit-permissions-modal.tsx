@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useUpdateMember, useSetMemberPin, useRemoveMemberPin } from '@/hooks/use-members';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
@@ -30,6 +31,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
 export function EditPermissionsModal({ isOpen, organizationId, member, onClose }: EditPermissionsModalProps) {
   const t = useTranslations('members');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
 
   const [isAdmin, setIsAdmin] = useState(member.role === 'admin');
   const [permissions, setPermissions] = useState<OrganizationPermissions>({
@@ -83,7 +85,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : tCommon('error'));
+      setError(apiErrorMessage(err, tCommon('error')));
     }
   };
 
@@ -176,7 +178,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                       setHasPinOverride(false);
                       setPinFlash(t('pin.removeSuccess'));
                     } catch (err) {
-                      setPinError(err instanceof Error ? err.message : tCommon('error'));
+                      setPinError(apiErrorMessage(err, tCommon('error')));
                     }
                   }}
                   disabled={removeMemberPin.isPending}
@@ -220,7 +222,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                       setHasPinOverride(true);
                       setPinFlash(t('pin.set'));
                     } catch (err) {
-                      setPinError(err instanceof Error ? err.message : tCommon('error'));
+                      setPinError(apiErrorMessage(err, tCommon('error')));
                     }
                   }}
                   disabled={setMemberPin.isPending || !pinInput}

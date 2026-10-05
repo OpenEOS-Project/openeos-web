@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAddMember, useCanCreateMemberAccount, useCreateInvitation } from '@/hooks/use-members';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
@@ -65,6 +66,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   const tAdd = useTranslations('memberAdd');
   const tErr = useTranslations('memberAdd.errors');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization, user } = useAuthStore();
 
   const actorIsAdmin = !!user?.isSuperAdmin || currentOrganization?.role === 'admin';
@@ -139,7 +141,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
         case 'FORBIDDEN':
           return tErr('forbidden');
         default:
-          return err.message || tErr('generic');
+          return apiErrorMessage(err, tErr('generic'));
       }
     }
     return tErr('generic');

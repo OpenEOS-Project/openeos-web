@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { deviceApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
 import { useFormatPrice } from '@/hooks/use-format-price';
@@ -29,6 +30,7 @@ const KNOWN_ERRORS = [
 
 export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUpCheckoutModalProps) {
   const t = useTranslations('pos.sumupCheckout');
+  const apiErrorMessage = useApiErrorMessage();
   const formatCurrency = useFormatPrice();
   const [state, setState] = useState<CheckoutState>('tip');
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
     if (errorType) {
       return t(`errors.${errorType}`);
     }
-    return message || t('failed');
+    return apiErrorMessage(err, t('failed'));
   };
 
   const stopPolling = () => {

@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X } from '@untitledui/icons';
 import { useLocale, useTranslations } from 'next-intl';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { UserOrganization } from '@/types/auth';
@@ -21,6 +22,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
   const t = useTranslations('createOrganization');
   const uiLocale = useLocale();
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('EUR');
@@ -89,7 +91,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
       onClose();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : t('createFailed');
+        apiErrorMessage(err, t('createFailed'));
       setError(message);
     } finally {
       setSubmitting(false);

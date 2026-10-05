@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
@@ -15,6 +16,7 @@ export default function VerifyEmailPage() {
   const params = useParams();
   const token = params.token as string;
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
 
   const [status, setStatus] = useState<VerificationStatus>('loading');
   const [resultData, setResultData] = useState<{
@@ -43,13 +45,13 @@ export default function VerifyEmailPage() {
       } catch (err) {
         setStatus('error');
         setErrorMessage(
-          err instanceof Error ? err.message : t('common.error')
+          apiErrorMessage(err, t('common.error'))
         );
       }
     };
 
     verifyEmail();
-  }, [token, t]);
+  }, [token, t, apiErrorMessage]);
 
   const iconBox = (bg: string, children: React.ReactNode) => (
     <div style={{

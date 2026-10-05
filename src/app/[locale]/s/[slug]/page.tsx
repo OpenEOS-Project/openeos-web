@@ -22,6 +22,7 @@ import {
   Grid01,
 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 interface ShiftData {
@@ -80,6 +81,7 @@ export default function PublicShiftPlanPage() {
   const t = useTranslations();
   const tp = useTranslations('shifts.publicPage');
   const tValidation = useTranslations('shifts.validation');
+  const apiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const formSchema = useMemo(() => createRegistrationSchema(tValidation), [tValidation]);
 
@@ -136,7 +138,7 @@ export default function PublicShiftPlanPage() {
       setError(null);
     },
     onError: (err: Error) => {
-      setError(err.message || t('common.error'));
+      setError(apiErrorMessage(err, t('common.error')));
     },
   });
 

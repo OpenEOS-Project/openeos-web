@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Tablet02, Tv01 } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
 import { apiClient, authApi } from '@/lib/api-client';
 import { getDeviceFingerprint } from '@/lib/device-fingerprint';
@@ -15,6 +16,7 @@ import { useDeployment } from '@/components/providers/setup-provider';
 
 export function LoginForm() {
   const t = useTranslations('auth.login');
+  const apiErrorMessage = useApiErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -124,7 +126,7 @@ export function LoginForm() {
             setEmailNotVerified(true);
             break;
           default:
-            setError(err.message);
+            setError(apiErrorMessage(err, t('errors.invalidCredentials')));
         }
       } else {
         setError(t('errors.invalidCredentials'));

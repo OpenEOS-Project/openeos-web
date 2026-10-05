@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -36,6 +37,7 @@ interface AddJobModalProps {
 export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
   const t = useTranslations();
   const tValidation = useTranslations('shifts.validation');
+  const apiErrorMessage = useApiErrorMessage();
   const schema = useMemo(() => createJobSchema(tValidation), [tValidation]);
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -70,7 +72,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
       reset();
       onClose();
     },
-    onError: (err: Error) => setError(err.message || t('common.error')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.error'))),
   });
 
   const onSubmit = (data: FormData) => { setError(null); createMutation.mutate(data); };

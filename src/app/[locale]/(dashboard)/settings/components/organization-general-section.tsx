@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import type { UpdateOrganizationData } from '@/types/organization';
@@ -26,6 +27,7 @@ export function OrganizationGeneralSection() {
   const t = useTranslations('settings.organizationGeneral');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const apiErrorMessage = useApiErrorMessage();
   const orgGeneralSchema = useMemo(() => createOrgGeneralSchema(tValidation), [tValidation]);
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const queryClient = useQueryClient();
@@ -49,7 +51,7 @@ export function OrganizationGeneralSection() {
     },
     // Ohne das blieb ein abgelehntes Speichern voellig stumm.
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : tCommon('error'));
+      toast.error(apiErrorMessage(err, tCommon('error')));
     },
   });
 
@@ -71,7 +73,7 @@ export function OrganizationGeneralSection() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : tCommon('error'));
+      toast.error(apiErrorMessage(err, tCommon('error')));
     },
   });
 
@@ -113,7 +115,7 @@ export function OrganizationGeneralSection() {
       applyLogoUrl(newLogoUrl);
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('uploadLogoFailed');
+      const message = apiErrorMessage(err, t('uploadLogoFailed'));
       toast.error(message);
     } finally {
       setIsUploading(false);
@@ -131,7 +133,7 @@ export function OrganizationGeneralSection() {
       applyLogoUrl(null);
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('removeLogoFailed');
+      const message = apiErrorMessage(err, t('removeLogoFailed'));
       toast.error(message);
     } finally {
       setIsUploading(false);

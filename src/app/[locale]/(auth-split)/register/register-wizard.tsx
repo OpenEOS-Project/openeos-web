@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, CheckCircle } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
 import { authApi } from '@/lib/api-client';
 import { SettingToggle } from '@/components/shared/setting-toggle';
@@ -46,6 +47,7 @@ function isEmail(value: string) {
 export function RegisterWizard() {
   const t = useTranslations('auth.register');
   const tErr = useTranslations('auth.register.errors');
+  const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const [stepIdx, setStepIdx] = useState(0);
   const [data, setData] = useState<FormState>(() => ({
@@ -138,13 +140,7 @@ export function RegisterWizard() {
             setSubmitError(tErr('emailTaken'));
             break;
           default:
-            // Validation errors carry the concrete reasons in details, the
-            // top-level message is only a generic "Validierung fehlgeschlagen"
-            setSubmitError(
-              err.details?.length
-                ? err.details.map((d) => d.message).join(' · ')
-                : err.message,
-            );
+            setSubmitError(apiErrorMessage(err, tErr('generic')));
         }
       } else {
         setSubmitError(tErr('generic'));

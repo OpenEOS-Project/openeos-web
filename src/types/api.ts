@@ -16,18 +16,26 @@ export interface PaginationMeta {
 
 // Error response format
 export interface ApiError {
+  /** General error class (VALIDATION_ERROR, NOT_FOUND, …). */
   code: string;
+  /** Specific case behind a general code, e.g. SHIFT_NOT_FOUND. */
+  reason?: string;
+  /** German message from the API — fallback only, see useApiErrorMessage. */
   message: string;
+  /** Values contained in the message (names, amounts, limits). */
+  params?: ApiErrorParams;
   details?: ApiErrorDetail[];
   requestId?: string;
   timestamp?: string;
 }
 
 export interface ApiErrorDetail {
-  field: string;
-  code: string;
+  field?: string;
+  code?: string;
   message: string;
 }
+
+export type ApiErrorParams = Record<string, string | number | boolean>;
 
 // Error codes from API documentation
 export type ApiErrorCode =
@@ -74,7 +82,9 @@ export class ApiException extends Error {
     public code: ApiErrorCode | string,
     public override message: string,
     public status: number,
-    public details?: ApiErrorDetail[]
+    public details?: ApiErrorDetail[],
+    public reason?: string,
+    public params?: ApiErrorParams
   ) {
     super(message);
     this.name = 'ApiException';

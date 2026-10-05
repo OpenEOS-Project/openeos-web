@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Mail01, CheckCircle } from '@untitledui/icons';
 
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
 
 /**
@@ -17,6 +18,7 @@ import { shiftsPublicApi } from '@/lib/api-client';
 export default function HelperManageRequestPage() {
   const { slug } = useParams() as { slug: string };
   const t = useTranslations('shifts.manageRequest');
+  const apiErrorMessage = useApiErrorMessage();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -34,7 +36,7 @@ export default function HelperManageRequestPage() {
       await shiftsPublicApi.requestHelperMagicLink(slug, email);
       setSent(true);
     } catch (err) {
-      setError((err as Error).message || t('requestFailed'));
+      setError(apiErrorMessage(err, t('requestFailed')));
     } finally {
       setPending(false);
     }

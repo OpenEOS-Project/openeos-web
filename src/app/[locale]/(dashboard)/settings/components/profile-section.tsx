@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks/use-user-settings';
 import { resolveUploadUrl } from '@/utils/upload-url';
@@ -23,6 +24,7 @@ export function ProfileSection() {
   const t = useTranslations('settings.profile');
   const tCommon = useTranslations('common');
   const tErrors = useTranslations('settings.profile.errors');
+  const apiErrorMessage = useApiErrorMessage();
   const profileSchema = useMemo(() => createProfileSchema(tErrors), [tErrors]);
   const { user, setUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +60,7 @@ export function ProfileSection() {
       const result = await uploadAvatar.mutateAsync(file);
       if (user) setUser({ ...user, avatarUrl: result.avatarUrl });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : tErrors('uploadFailed'));
+      toast.error(apiErrorMessage(err, tErrors('uploadFailed')));
     } finally {
       setIsUploading(false);
     }
@@ -69,7 +71,7 @@ export function ProfileSection() {
       await deleteAvatar.mutateAsync();
       if (user) setUser({ ...user, avatarUrl: null });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : tErrors('removeFailed'));
+      toast.error(apiErrorMessage(err, tErrors('removeFailed')));
     }
   };
 

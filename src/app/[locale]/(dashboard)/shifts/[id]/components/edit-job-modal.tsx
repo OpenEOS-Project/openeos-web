@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -21,6 +22,7 @@ interface Props {
  *  created shifts pick up the new default. */
 export function EditJobModal({ open, job, planId, onClose }: Props) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
@@ -49,7 +51,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['shift-plan', organizationId, planId] });
       onClose();
     },
-    onError: (err: Error) => setError(err.message || t('common.saveFailed')),
+    onError: (err: Error) => setError(apiErrorMessage(err, t('common.saveFailed'))),
   });
 
   if (!open || !job) return null;
