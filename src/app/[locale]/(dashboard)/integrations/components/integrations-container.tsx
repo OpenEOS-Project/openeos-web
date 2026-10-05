@@ -34,7 +34,7 @@ export function IntegrationsContainer() {
             aria-haspopup="dialog"
           >
             <span className="integration-card__head">
-              <IntegrationLogo id={integration.id} name={integration.name} color={integration.color} />
+              <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
               <span className="integration-card__copy">
                 <span className="integration-card__name">{integration.name}</span>
                 <span className="integration-card__vendor">{t(integration.vendorKey)}</span>
