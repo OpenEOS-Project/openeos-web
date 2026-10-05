@@ -50,14 +50,19 @@ import { APP_VERSION } from '@/lib/version';
 import { useReleaseVersion } from '@/hooks/use-release-version';
 import { useDeployment } from '@/components/providers/setup-provider';
 
-const roleLabels: Record<string, string> = {
-  admin: 'Administrator',
-  member: 'Mitglied',
-};
-
 export function AppSidebar() {
   const pathname = usePathname();
-  useTranslations('sidebar');
+  const t = useTranslations('shell');
+  const tNav = useTranslations('navigation');
+  const tRoles = useTranslations('members.roles');
+  const tTheme = useTranslations('theme');
+  const tAuth = useTranslations('auth');
+  /* Feste Eintraege tragen einen Schluessel, Integrationen ihren
+     Markennamen — der bleibt in jeder Sprache gleich. */
+  const navLabel = (item: NavItemType) =>
+    item.labelKey ? tNav(item.labelKey) : (item.label ?? '');
+  const roleLabel = (role: string) =>
+    role === 'admin' || role === 'member' ? tRoles(role) : role;
   const {
     user,
     organizations,
@@ -233,8 +238,8 @@ export function AppSidebar() {
             type="button"
             onClick={toggleCollapsed}
             className="app-sidebar__collapse"
-            aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
-            title={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+            aria-label={isCollapsed ? t('expandSidebar') : t('collapseSidebar')}
+            title={isCollapsed ? t('expandSidebar') : t('collapseSidebar')}
             aria-expanded={!isCollapsed}
           >
             <ChevronLeft />
@@ -264,17 +269,17 @@ export function AppSidebar() {
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div className="app-sidebar__org-name">
                   {orgs.length > 0
-                    ? (currentOrganization?.organization?.name ?? '— Organisation wählen —')
+                    ? (currentOrganization?.organization?.name ?? t('chooseOrganization'))
                     : isSuperAdmin
-                      ? 'Super-Admin'
-                      : 'Keine Organisation'}
+                      ? t('superAdmin')
+                      : t('noOrganization')}
                 </div>
                 <div className="app-sidebar__org-role">
                   {orgs.length > 0
-                    ? (currentRole ? (roleLabels[currentRole] ?? currentRole) : '')
+                    ? (currentRole ? roleLabel(currentRole) : '')
                     : isSuperAdmin
-                      ? 'Plattform-Verwaltung'
-                      : 'Tippe zum Erstellen'}
+                      ? t('platformAdministration')
+                      : t('createOrganizationHint')}
                 </div>
               </div>
               {orgMenuNutzbar && <ChevronDown className="app-sidebar__org-chev" />}
@@ -346,7 +351,7 @@ export function AppSidebar() {
                   >
                     <Plus style={{ width: 14, height: 14 }} />
                   </div>
-                  <span style={{ flex: 1 }}>Neue Organisation</span>
+                  <span style={{ flex: 1 }}>{t('newOrganization')}</span>
                 </button>
                 )}
               </div>
@@ -366,14 +371,14 @@ export function AppSidebar() {
             <Calendar className="app-sidebar__active-event-icon" />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="app-sidebar__active-event-label">
-                {activeEvent ? activeEvent.name : 'Keine aktive Veranstaltung'}
+                {activeEvent ? activeEvent.name : t('activeEvent.none')}
               </div>
               <div className="app-sidebar__active-event-status">
                 {activeEvent?.status === 'active'
-                  ? 'Aktiv'
+                  ? t('activeEvent.active')
                   : activeEvent?.status === 'test'
-                    ? 'Test-Modus'
-                    : 'Tippe zum Aktivieren'}
+                    ? t('activeEvent.test')
+                    : t('activeEvent.activateHint')}
               </div>
             </div>
             {activeEvent?.status === 'test' && (
@@ -400,7 +405,7 @@ export function AppSidebar() {
           >
             <Mail01 style={{ width: 15, height: 15, color: 'var(--warn-ink)', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: 'var(--warn-ink)', fontWeight: 600 }}>
-              {pendingInvitations.length} Einladung{pendingInvitations.length !== 1 ? 'en' : ''} ausstehend
+              {t('pendingInvitations', { count: pendingInvitations.length })}
             </span>
           </div>
         )}
@@ -461,7 +466,7 @@ export function AppSidebar() {
                   )}
                 >
                   {Icon && <Icon className="" />}
-                  <span className="app-sidebar__item-label">{item.label}</span>
+                  <span className="app-sidebar__item-label">{navLabel(item)}</span>
                   {item.badge && !isCollapsed && (
                     <span className="app-sidebar__item-badge">{item.badge}</span>
                   )}
@@ -525,13 +530,13 @@ export function AppSidebar() {
                       selected={activeUrl === item.href}
                       icon={item.icon ? <item.icon /> : undefined}
                     >
-                      {item.label}
+                      {navLabel(item)}
                     </DropdownLink>
                   ) : null,
                 )}
 
                 <DropdownSeparator />
-                <DropdownCaption>Sprache</DropdownCaption>
+                <DropdownCaption>{t('language')}</DropdownCaption>
                 {[
                   { code: 'de', label: 'Deutsch' },
                   { code: 'en', label: 'English' },
@@ -551,25 +556,27 @@ export function AppSidebar() {
                 ))}
 
                 <DropdownSeparator />
-                <DropdownCaption>Erscheinungsbild</DropdownCaption>
-                {[
-                  { wert: 'light', label: 'Hell', Symbol: Sun },
-                  { wert: 'dark', label: 'Dunkel', Symbol: Moon01 },
-                  { wert: 'system', label: 'System', Symbol: Monitor01 },
-                ].map(({ wert, label, Symbol }) => (
+                <DropdownCaption>{t('appearance')}</DropdownCaption>
+                {(
+                  [
+                    { wert: 'light', Symbol: Sun },
+                    { wert: 'dark', Symbol: Moon01 },
+                    { wert: 'system', Symbol: Monitor01 },
+                  ] as const
+                ).map(({ wert, Symbol }) => (
                   <DropdownOption
                     key={wert}
                     selected={themeBereit && theme === wert}
                     icon={<Symbol />}
                     onClick={() => setTheme(wert)}
                   >
-                    {label}
+                    {tTheme(wert)}
                   </DropdownOption>
                 ))}
 
                 <DropdownSeparator />
                 <DropdownOption danger icon={<LogOut01 />} onClick={logout}>
-                  Abmelden
+                  {tAuth('logout')}
                 </DropdownOption>
               </Dropdown>
 
@@ -580,8 +587,8 @@ export function AppSidebar() {
                 type="button"
                 onClick={logout}
                 className="app-sidebar__logout"
-                aria-label="Abmelden"
-                title="Abmelden"
+                aria-label={tAuth('logout')}
+                title={tAuth('logout')}
               >
                 <LogOut01 />
               </button>
@@ -608,8 +615,8 @@ export function AppSidebar() {
                     'app-sidebar__item',
                     activeUrl === item.href && 'app-sidebar__item--active',
                   )}
-                  aria-label={item.label}
-                  title={item.label}
+                  aria-label={navLabel(item)}
+                  title={navLabel(item)}
                 >
                   {item.icon ? <item.icon /> : null}
                 </Link>
@@ -619,8 +626,8 @@ export function AppSidebar() {
             <button
               onClick={logout}
               className="app-sidebar__item"
-              aria-label="Abmelden"
-              title="Abmelden"
+              aria-label={tAuth('logout')}
+              title={tAuth('logout')}
             >
               <LogOut01 style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
             </button>

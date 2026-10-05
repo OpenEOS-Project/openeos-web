@@ -10,7 +10,7 @@ import type {
   CategoryReport,
   DeviceReport,
 } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatPercent } from '@/utils/format';
 import type { ReportsFilter } from './reports-filter-bar';
 
 export interface PdfExportInput {
@@ -193,7 +193,7 @@ function drawKpiBoxes(doc: jsPDF, cursorY: number, sales: SalesReport | undefine
     { label: 'Bestellungen', value: sales ? String(sales.totalOrders) : '–' },
     { label: 'Ø Bon', value: sales ? formatCurrency(sales.averageOrderValue) : '–' },
     { label: 'Pfand', value: sales ? formatCurrency(sales.pfandBalance) : '–' },
-    { label: 'Storno-Quote', value: sales ? `${sales.cancellationRate.toFixed(1)}%` : '–' },
+    { label: 'Storno-Quote', value: sales ? formatPercent(sales.cancellationRate) : '–' },
   ];
 
   const gap = 4;
@@ -391,7 +391,7 @@ export async function generateReportsPdf(input: PdfExportInput): Promise<void> {
       getMethodLabel(p.method),
       String(p.count),
       formatCurrency(p.total),
-      `${p.percentage.toFixed(1)}%`,
+      formatPercent(p.percentage),
     ]),
     'Keine Zahlungsdaten vorhanden',
     [1, 2, 3],

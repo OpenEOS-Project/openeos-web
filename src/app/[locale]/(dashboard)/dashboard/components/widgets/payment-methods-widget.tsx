@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { usePaymentsReport } from '@/hooks/use-reports';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatPercent } from '@/utils/format';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -25,6 +25,7 @@ const METHOD_KEYS: Record<string, string> = {
 
 export function PaymentMethodsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
+  const locale = useLocale();
   const range = useDashboardRange();
 
   const methodLabel = (method: string): string => {
@@ -69,7 +70,7 @@ export function PaymentMethodsWidget({ organizationId }: Props) {
               >
                 <i style={{ width: `${row.percentage}%` }} />
               </span>
-              <span className="pay-row__value">{row.percentage.toFixed(1)} %</span>
+              <span className="pay-row__value">{formatPercent(row.percentage, locale)}</span>
             </div>
           ))}
         </div>

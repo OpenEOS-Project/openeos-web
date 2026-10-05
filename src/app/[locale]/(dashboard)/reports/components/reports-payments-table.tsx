@@ -1,9 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import type { PaymentReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatPercent } from '@/utils/format';
 import { downloadCsv } from './csv-export';
 
 interface ReportsPaymentsTableProps {
@@ -30,6 +30,7 @@ function getMethodLabel(method: string): string {
 
 export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTableProps) {
   const t = useTranslations('reports');
+  const locale = useLocale();
 
   const handleExport = () => {
     if (!data?.length) return;
@@ -43,7 +44,7 @@ export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTablePr
       getMethodLabel(p.method),
       p.count,
       p.total,
-      `${p.percentage.toFixed(1)}%`,
+      formatPercent(p.percentage, locale),
     ]);
     downloadCsv('zahlarten.csv', headers, rows);
   };
@@ -116,7 +117,7 @@ export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTablePr
                         />
                       </div>
                       <span className="mono" style={{ fontSize: 13, minWidth: 40, textAlign: 'right' }}>
-                        {p.percentage.toFixed(1)}%
+                        {formatPercent(p.percentage, locale)}
                       </span>
                     </div>
                   </td>

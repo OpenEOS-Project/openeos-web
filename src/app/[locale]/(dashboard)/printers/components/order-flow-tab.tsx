@@ -206,7 +206,7 @@ export function OrderFlowTab() {
               >
                 <option value="per_order">1 Bon pro Bestellung</option>
                 <option value="per_item">1 Bon pro Produkt mit Barcode</option>
-                <option value="per_station">1 Bon pro Produktionsstation</option>
+                <option value="per_station">1 Bon pro Standort</option>
               </select>
             </FieldRow>
           )}

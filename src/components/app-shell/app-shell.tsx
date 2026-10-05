@@ -1,6 +1,7 @@
 'use client';
 
 import { Menu02 } from '@untitledui/icons';
+import { useTranslations } from 'next-intl';
 
 import { ToastViewport } from '@/components/shared/toast';
 import { useSidebarStore } from '@/stores/sidebar-store';
@@ -22,6 +23,7 @@ interface AppShellProps {
  */
 export function AppShell({ children }: AppShellProps) {
   const { isCollapsed, isFullscreen, setMobileOpen } = useSidebarStore();
+  const t = useTranslations('shell');
 
   const sidebarWidth = isCollapsed ? 72 : 260;
 
@@ -47,7 +49,7 @@ export function AppShell({ children }: AppShellProps) {
           type="button"
           className="app-shell__menu-btn"
           onClick={() => setMobileOpen(true)}
-          aria-label="Navigation öffnen"
+          aria-label={t('openNavigation')}
         >
           <Menu02 />
         </button>

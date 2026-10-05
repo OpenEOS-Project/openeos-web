@@ -60,6 +60,20 @@ export function formatNumber(num: number, locale = 'de-DE'): string {
 /**
  * Compact timestamp for chat-style messages: "dd.MM. HH:mm" (no year).
  */
+/**
+ * Prozentwert, der bereits in Prozent vorliegt (12.5 → "12,5 %").
+ * Intl setzt Dezimaltrenner und Abstand vor dem Zeichen je Sprache richtig
+ * ("12,5 %" im Deutschen, "12.5%" im Englischen) — `toFixed(1) + '%'`
+ * ergab ueberall "12.5%".
+ */
+export function formatPercent(value: number, locale = 'de-DE', fractionDigits = 1): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'percent',
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(value / 100);
+}
+
 export function formatChatTimestamp(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return '—';

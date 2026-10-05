@@ -59,6 +59,7 @@ function SortableCanvasElement({
   onRemove: () => void;
   cols: number;
 }) {
+  const t = useTranslations('printTemplates.designer');
   const {
     attributes,
     listeners,
@@ -104,6 +105,8 @@ function SortableCanvasElement({
             className="cursor-grab rounded p-0.5 text-quaternary hover:text-tertiary active:cursor-grabbing"
             {...attributes}
             {...listeners}
+            aria-label={t('moveElement')}
+            title={t('moveElement')}
           >
             <DotsVertical className="h-3.5 w-3.5" />
           </button>
@@ -111,6 +114,8 @@ function SortableCanvasElement({
             type="button"
             onClick={(e) => { e.stopPropagation(); onRemove(); }}
             className="rounded p-0.5 text-quaternary hover:text-error-primary"
+            aria-label={t('removeElement')}
+            title={t('removeElement')}
           >
             <X className="h-3 w-3" />
           </button>

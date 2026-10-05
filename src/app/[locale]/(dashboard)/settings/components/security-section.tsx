@@ -135,7 +135,7 @@ export function SecuritySection() {
               </div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.disabled')}</div>
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.description')}</div>
+                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.disabledHint')}</div>
               </div>
             </div>
             <button className="btn btn--primary" style={{ fontSize: 13 }} onClick={() => setShowSetupModal(true)}>

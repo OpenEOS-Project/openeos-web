@@ -17,8 +17,14 @@ export interface IntegrationDefinition {
   name: string;
   /** Übersetzungsschlüssel für die Art des Dienstes, z. B. "Kartenzahlung". */
   vendorKey: string;
-  /** Hausfarbe des Anbieters, solange kein Logo unter public/integrations liegt. */
+  /** Hausfarbe des Anbieters für die Ersatzkachel, solange kein `logo` eingetragen ist. */
   color: string;
+  /**
+   * Offizielles Logo unter /public, z. B. '/integrations/sumup.svg'. Nur
+   * eintragen, wenn die Datei wirklich abgelegt ist — ohne Eintrag wird
+   * gar nicht erst nachgefragt (keine 404 bei jedem Aufruf).
+   */
+  logo?: string;
   /**
    * Lässt die API das Einschalten zu? `false` zeigt die Integration als
    * angekündigt: das Infofenster geht auf, aber ohne Schalter.

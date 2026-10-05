@@ -174,7 +174,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                     try {
                       await removeMemberPin.mutateAsync(member.userId);
                       setHasPinOverride(false);
-                      setPinFlash(t('pin.removed'));
+                      setPinFlash(t('pin.removeSuccess'));
                     } catch (err) {
                       setPinError(err instanceof Error ? err.message : 'Error');
                     }

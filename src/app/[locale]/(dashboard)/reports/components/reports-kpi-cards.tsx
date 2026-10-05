@@ -1,9 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import type { SalesReport } from '@/types/report';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatPercent } from '@/utils/format';
 
 interface ReportsKpiCardsProps {
   data: SalesReport | undefined;
@@ -12,6 +12,7 @@ interface ReportsKpiCardsProps {
 
 export function ReportsKpiCards({ data, isLoading }: ReportsKpiCardsProps) {
   const t = useTranslations('reports');
+  const locale = useLocale();
 
   const val = (v: number | undefined) => (isLoading || v === undefined ? '—' : formatCurrency(v));
   const numVal = (v: number | undefined) => (isLoading || v === undefined ? '—' : String(v));
@@ -52,7 +53,7 @@ export function ReportsKpiCards({ data, isLoading }: ReportsKpiCardsProps) {
       <div className="stat-card">
         <div className="stat-card__label">{t('kpi.cancellationRate')}</div>
         <div className="stat-card__value">
-          {isLoading || data?.cancellationRate === undefined ? '—' : `${data.cancellationRate.toFixed(1)}%`}
+          {isLoading || data?.cancellationRate === undefined ? '—' : formatPercent(data.cancellationRate, locale)}
         </div>
         <div className="stat-card__sub">
           {isLoading || !data ? '—' : t('kpi.cancellationRateSub', { count: data.cancelledOrders })}

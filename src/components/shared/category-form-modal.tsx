@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,16 +24,20 @@ import { SettingToggle } from '@/components/shared/setting-toggle';
  * der beiden Seiten: keine von beiden ist die Heimat.
  */
 
-const categorySchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  description: z.string().optional(),
-  color: z.string().optional(),
-  parentId: z.string().optional(),
-  isActive: z.boolean(),
-  productionStationId: z.string().optional(),
-});
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createCategorySchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('nameRequired')).max(200),
+    description: z.string().optional(),
+    color: z.string().optional(),
+    parentId: z.string().optional(),
+    isActive: z.boolean(),
+    productionStationId: z.string().optional(),
+  });
+}
 
-type CategoryFormData = z.infer<typeof categorySchema>;
+type CategoryFormData = z.infer<ReturnType<typeof createCategorySchema>>;
 
 interface CategoryFormModalProps {
   isOpen: boolean;
@@ -52,6 +56,8 @@ export function CategoryFormModal({
 }: CategoryFormModalProps) {
   const t = useTranslations('categories');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createCategorySchema(tValidation), [tValidation]);
   const isEditing = !!category;
 
   const { data: categories } = useCategories(eventId);
@@ -66,7 +72,7 @@ export function CategoryFormModal({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -166,7 +172,7 @@ export function CategoryFormModal({
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
-                    <span role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</span>
+                    <span role="alert" className="auth-field__error">{errors.name.message}</span>
                   )}
                 </label>
               )}

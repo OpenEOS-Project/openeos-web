@@ -207,6 +207,9 @@
       "error": "This login link is invalid or has expired.",
       "missingToken": "This address contains no login link.",
       "backToLogin": "Back to sign-in"
+    },
+    "layout": {
+      "rightsReserved": "All rights reserved."
     }
   },
   "sidebar": {
@@ -437,7 +440,14 @@
     "productionStations": "Stations",
     "templates": "Templates",
     "invoices": "Invoices",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "inventory": "Inventory",
+    "discounts": "Discount vouchers",
+    "pfand": "Deposits",
+    "support": "Support",
+    "adminEvents": "Events & billing",
+    "adminSupport": "Support requests",
+    "adminFeedback": "Feedback"
   },
   "settings": {
     "title": "Settings",
@@ -517,7 +527,9 @@
         "disableCodeHintTotp": "Current code from your authenticator app, or a recovery code.",
         "disableCodeHintEmail": "Request a code by email, or use a recovery code.",
         "sendEmailCode": "Send code by email",
-        "emailCodeSent": "Code sent – send again"
+        "emailCodeSent": "Code sent – send again",
+        "noRecoveryCodes": "No recovery codes available.",
+        "disabledHint": "No second factor is requested at sign-in."
       },
       "trustedDevices": {
         "title": "Trusted Devices",
@@ -580,7 +592,11 @@
       "vatExempt": {
         "label": "No VAT",
         "hint": "For associations and small businesses. When on, products carry 0% and no rate can be chosen."
-      }
+      },
+      "logoHint": "PNG, JPG or WEBP – max. 5 MB. Shown on the public shift plan page and in the shop.",
+      "replaceLogo": "Replace logo",
+      "removeLogoFailed": "Could not remove the logo",
+      "uploadLogoFailed": "Upload failed"
     },
     "organizationContact": {
       "title": "Contact",
@@ -662,7 +678,13 @@
           "processing": "Pairing",
           "expired": "Expired",
           "unknown": "Unknown"
-        }
+        },
+        "renameFailed": "The card reader could not be renamed.",
+        "deleteFailed": "The card reader could not be deleted.",
+        "deleteConfirmTitle": "Delete card reader?",
+        "deleteConfirmMessage": "\"{name}\" will be unpaired from SumUp and can no longer take payments. To use it again, it has to be paired anew.",
+        "renameReader": "Rename card reader \"{name}\"",
+        "deleteReader": "Delete card reader \"{name}\""
       }
     },
     "organizationNotifications": {
@@ -709,7 +731,8 @@
       },
       "saved": "Settings saved",
       "saveFailed": "Failed to save settings"
-    }
+    },
+    "subtitle": "Manage your personal and organization settings"
   },
   "billing": {
     "title": "Billing",
@@ -1019,7 +1042,9 @@
       "redirecting": "Redirecting …",
       "paymentCancelled": "Payment cancelled — the event was not activated.",
       "paymentPending": "The payment is still being processed. Please check again in a moment."
-    }
+    },
+    "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
+    "editTitle": "Edit event"
   },
   "categories": {
     "title": "Categories",
@@ -1062,7 +1087,7 @@
       "parent": "Parent category",
       "parentPlaceholder": "None (root category)",
       "isActive": "Active",
-      "productionStation": "Production Station",
+      "productionStation": "Station",
       "productionStationNone": "— None —"
     },
     "status": {
@@ -1152,9 +1177,9 @@
       "addOption": "Add option",
       "activeDescription": "Product is shown in the product list",
       "availableDescription": "Product can be ordered. Disable for 'Sold out'",
-      "productionStation": "Production Station",
+      "productionStation": "Station",
       "productionStationNone": "Default (inherit from category)",
-      "productionStationInherit": "When empty, the production station of the category is used.",
+      "productionStationInherit": "When empty, the station of the category is used.",
       "productionStationOverride": "Overrides the category assignment.",
       "productionStationHint": "Overrides the category setting",
       "pfandType": "Deposit type",
@@ -1257,16 +1282,17 @@
         "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
       },
       "networkError": "Import failed — the server could not be reached. Please try again."
-    }
+    },
+    "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}"
   },
   "productionStations": {
-    "title": "Production Stations",
-    "subtitle": "Manage production stations for your event",
+    "title": "Stations",
+    "subtitle": "Manage the stations (kitchen, bar, serving) for your event",
     "create": "Create Station",
     "edit": "Edit Station",
     "delete": "Delete Station",
     "empty": {
-      "title": "No Production Stations",
+      "title": "No stations",
       "description": "Create stations to route orders to kitchen, bar, or serving areas"
     },
     "form": {
@@ -1293,7 +1319,8 @@
       "title": "Delete Station?",
       "message": "Products and categories will lose their station assignment."
     },
-    "selectEvent": "Select Event"
+    "selectEvent": "Select Event",
+    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}"
   },
   "users": {
     "title": "Users",
@@ -1532,7 +1559,8 @@
       "editPermissions": "Edit Permissions",
       "remove": "Remove",
       "cancelInvitation": "Cancel Invitation",
-      "resendInvitation": "Resend"
+      "resendInvitation": "Resend",
+      "changeRole": "Change role"
     },
     "invitations": {
       "title": "Pending Invitations",
@@ -1561,7 +1589,8 @@
       "invalid": "PIN must contain 4-6 digits",
       "setSuccess": "PIN set successfully",
       "removeSuccess": "PIN removed successfully"
-    }
+    },
+    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}"
   },
   "organizations": {
     "title": "Organizations",
@@ -2102,7 +2131,9 @@
       "instructions": "How to register a new device:",
       "step1": "Open the link or scan the QR code on the device",
       "step2": "The device shows a six-digit number",
-      "step3": "Enter that number under \"Connect a display\" — done"
+      "step3": "Enter that number under \"Connect device\" – done",
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "online": "Online",
     "offline": "Offline",
@@ -2196,7 +2227,7 @@
         },
         "station": {
           "event": "Event",
-          "station": "Production Station",
+          "station": "Station",
           "none": "No station selected"
         },
         "display": {
@@ -2204,7 +2235,7 @@
           "description": "Configure what this display shows.",
           "mode": "Display mode",
           "modeCustomer": "Customer display (live cart of a POS)",
-          "modeStation": "Station display (production station)",
+          "modeStation": "Station display",
           "posDevice": "POS device",
           "posDeviceNone": "No POS selected",
           "posDeviceHint": "The display mirrors the selected POS device's cart in real time.",
@@ -2524,7 +2555,8 @@
     "online": "Online",
     "offline": "Offline",
     "noPrinters": "No printers registered yet",
-    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started."
+    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
+    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization."
   },
   "posIconPicker": {
     "title": "Choose icon",
@@ -2588,7 +2620,7 @@
         "daily_number": "Daily Number",
         "table_number": "Table Number",
         "customer_name": "Customer Name",
-        "production_station": "Production station",
+        "production_station": "Station",
         "order_channel": "Order channel/destination",
         "date_time": "Date/Time",
         "items_list": "Items List",
@@ -2639,7 +2671,9 @@
         "showOptions": "Show options",
         "showPrice": "Show prices",
         "field": "Data field"
-      }
+      },
+      "moveElement": "Move element",
+      "removeElement": "Remove element"
     }
   },
   "reports": {
@@ -2900,7 +2934,10 @@
       "disabled": "This integration is not activated for your organization. You can activate it under “Integrations”.",
       "notFound": "This integration is not available on the server.",
       "toggleFailed": "The integration could not be switched. Please try again.",
-      "generic": "Something went wrong."
+      "generic": "Something went wrong.",
+      "sumupNotConfigured": "SumUp is not set up yet. Please enter the API key and merchant code first.",
+      "sumupUnauthorized": "SumUp rejected the credentials. Please check the API key and merchant code.",
+      "sumupApiError": "SumUp rejected the request. Please try again later or check the credentials."
     },
     "backToCatalog": "All integrations",
     "deactivated": "{name} has been deactivated.",
@@ -3030,5 +3067,64 @@
       "behoben": "Fixed"
     },
     "confirm": "Got it"
+  },
+  "shell": {
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openNavigation": "Open navigation",
+    "chooseOrganization": "— Select organization —",
+    "superAdmin": "Super admin",
+    "noOrganization": "No organization",
+    "platformAdministration": "Platform administration",
+    "createOrganizationHint": "Create an organization",
+    "newOrganization": "New organization",
+    "activeEvent": {
+      "none": "No active event",
+      "active": "Active",
+      "test": "Test mode",
+      "activateHint": "Click to activate"
+    },
+    "pendingInvitations": "{count, plural, one {# pending invitation} other {# pending invitations}}",
+    "language": "Language",
+    "appearance": "Appearance",
+    "breadcrumb": "Breadcrumb"
+  },
+  "createOrganization": {
+    "steps": {
+      "basics": "Basics",
+      "settings": "Settings",
+      "confirm": "Confirmation"
+    },
+    "stepOf": "Step {step} of {total}",
+    "basicsIntro": "What is the organization called? You can adjust all other details later in the settings.",
+    "name": "Organization name",
+    "namePlaceholder": "My Club Inc.",
+    "nameTooShort": "The name must be at least 2 characters long",
+    "settingsIntro": "Default settings for receipts, invoices and display.",
+    "currency": "Currency",
+    "language": "Language",
+    "timezone": "Time zone",
+    "confirmIntro": "Please review your details. After creating it, you will be switched to the new organization automatically.",
+    "creating": "Creating…",
+    "createFailed": "Failed to create the organization"
+  },
+  "validation": {
+    "nameRequired": "Please enter a name",
+    "categoryRequired": "Please select a category",
+    "priceNotNegative": "The price must not be negative",
+    "amountNotNegative": "The amount must not be negative",
+    "amountRequired": "Please enter an amount for a fixed voucher",
+    "startRequired": "Please enter a start",
+    "endBeforeStart": "The end must not be before the start"
+  },
+  "pageTitles": {
+    "login": "Sign in",
+    "register": "Create account",
+    "forgotPassword": "Forgot password",
+    "resetPassword": "Set new password",
+    "magicLink": "Sign-in link",
+    "verifyEmail": "Verify email",
+    "twoFactor": "Two-factor sign-in",
+    "shifts": "Shift plans"
   }
 }

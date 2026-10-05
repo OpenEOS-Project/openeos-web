@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,22 +32,26 @@ import { SettingToggle } from '@/components/shared/setting-toggle';
 
 const DAY_FORMAT = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 
-const eventSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required').max(200),
-    description: z.string().optional(),
-    startDate: z.string().min(1, 'Beginn ist erforderlich'),
-    orderingMode: z.enum(['immediate', 'tab']).optional(),
-    endDate: z.string().optional(),
-    shopEnabled: z.boolean().optional(),
-    shopServiceFee: z.string().optional(),
-  })
-  .refine((data) => !data.endDate || data.endDate >= data.startDate, {
-    path: ['endDate'],
-    message: 'Das Ende darf nicht vor dem Beginn liegen',
-  });
+// Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
+// ausserhalb der Komponente gibt es noch kein t().
+function createEventSchema(t: (key: string) => string) {
+  return z
+    .object({
+      name: z.string().min(1, t('nameRequired')).max(200),
+      description: z.string().optional(),
+      startDate: z.string().min(1, t('startRequired')),
+      orderingMode: z.enum(['immediate', 'tab']).optional(),
+      endDate: z.string().optional(),
+      shopEnabled: z.boolean().optional(),
+      shopServiceFee: z.string().optional(),
+    })
+    .refine((data) => !data.endDate || data.endDate >= data.startDate, {
+      path: ['endDate'],
+      message: t('endBeforeStart'),
+    });
+}
 
-type EventFormData = z.infer<typeof eventSchema>;
+type EventFormData = z.infer<ReturnType<typeof createEventSchema>>;
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -67,6 +71,8 @@ const EMPTY_FORM: EventFormData = {
 export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) {
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const validationSchema = useMemo(() => createEventSchema(tValidation), [tValidation]);
   const tErrors = useTranslations('errors');
   const isEditing = !!event;
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
@@ -89,7 +95,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     watch,
     formState: { errors, isSubmitting },
   } = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: EMPTY_FORM,
   });
 
@@ -201,7 +207,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     <div className="modal__overlay" onClick={handleClose}>
       <ModalPanel titleId="event-form-modal-title" className="modal__panel--md">
         <div className="modal__head">
-          <h2 id="event-form-modal-title">{isEditing ? t('actions.edit') : t('create')}</h2>
+          <h2 id="event-form-modal-title">{isEditing ? t('editTitle') : t('create')}</h2>
           <DialogCloseButton onClick={handleClose} />
         </div>
 
@@ -215,12 +221,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                   <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
-                    <span style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
-                      {/* Die Meldung im Schema steht fest auf Englisch und
-                          erschien so auch in der deutschen Oberflaeche. Das
-                          leere Feld ist der Fall, der tatsaechlich vorkommt. */}
-                      {errors.name.type === 'too_small' ? t('form.nameRequired') : errors.name.message}
-                    </span>
+                    <span role="alert" className="auth-field__error">{errors.name.message}</span>
                   )}
                 </label>
               )}
@@ -269,10 +270,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 />
               </div>
               {errors.startDate && (
-                <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.startRequired')}</span>
+                <span role="alert" className="auth-field__error">{t('form.startRequired')}</span>
               )}
               {errors.endDate && (
-                <span style={{ fontSize: 12, color: 'var(--danger)' }}>{t('form.endBeforeStart')}</span>
+                <span role="alert" className="auth-field__error">{t('form.endBeforeStart')}</span>
               )}
               <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
@@ -313,7 +314,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                     <option value="immediate">{t('form.orderingModeImmediate')}</option>
                     <option value="tab">{t('form.orderingModeTab')}</option>
                   </select>
-                  <span style={{ fontSize: 12, color: 'var(--mute)', marginTop: 4 }}>
+                  <span className="auth-field__hint">
                     {t('form.orderingModeHint')}
                   </span>
                 </label>
@@ -424,7 +425,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
 
                         <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
                           Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet
-                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Test-Modus ist der Shop unabhängig
+                          bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig
                           von den Öffnungszeiten erreichbar.
                         </p>
                     </div>

@@ -72,7 +72,7 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
         <div ref={panelRef} className="integration-info__inner">
           <div className="modal__head">
             <div className="integration-info__title">
-              <IntegrationLogo id={integration.id} name={integration.name} color={integration.color} />
+              <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
               <div style={{ minWidth: 0 }}>
                 <h2 id={titleId}>{integration.name}</h2>
                 <div className="integration-card__vendor">{t(integration.vendorKey)}</div>

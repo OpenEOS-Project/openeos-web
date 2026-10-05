@@ -28,34 +28,34 @@ import type { OrganizationSettings } from '@/types/organization';
 // Super-Admin navigation items (can see everything across all organizations)
 export const superAdminNavItems: NavItemType[] = [
   {
-    label: 'Dashboard',
+    labelKey: 'dashboard',
     href: '/dashboard',
     icon: BarChartSquare02,
   },
   {
-    label: 'Organisationen',
+    labelKey: 'organizations',
     href: '/organizations',
     saasOnly: true,
     icon: Building07,
   },
   {
-    label: 'Benutzer',
+    labelKey: 'users',
     href: '/users',
     icon: Users01,
   },
   {
-    label: 'Miet-Hardware',
+    labelKey: 'rentalHardware',
     href: '/admin/rental-hardware',
     saasOnly: true,
     icon: HardDrive,
   },
   {
-    label: 'Drucker',
+    labelKey: 'printers',
     href: '/admin/printers',
     icon: Printer,
   },
   {
-    label: 'Events & Abrechnung',
+    labelKey: 'adminEvents',
     href: '/admin/events',
     saasOnly: true,
     icon: Calendar,
@@ -65,7 +65,7 @@ export const superAdminNavItems: NavItemType[] = [
     // fuehrt zum eigenen Chat mit dem Support. Hier geht es um den
     // Posteingang aller Organisationen — beides nebeneinander in der
     // Seitenleiste war nicht unterscheidbar.
-    label: 'Support-Anfragen',
+    labelKey: 'adminSupport',
     href: '/admin/support',
     saasOnly: true,
     icon: MessageChatCircle,
@@ -73,7 +73,7 @@ export const superAdminNavItems: NavItemType[] = [
   {
     // Was über die Website hereinkommt. Getrennt vom Support, weil hier
     // niemand auf Antwort wartet — Wünsche liest man in Ruhe durch.
-    label: 'Zuschriften',
+    labelKey: 'adminFeedback',
     href: '/admin/feedback',
     saasOnly: true,
     icon: Inbox01,
@@ -84,80 +84,80 @@ export const superAdminNavItems: NavItemType[] = [
 // laufender Betrieb → Sortiment → Hardware/Standorte → Organisation & Auswertung
 export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
-    label: 'Dashboard',
+    labelKey: 'dashboard',
     href: '/dashboard',
     icon: BarChartSquare02,
   },
   {
-    label: 'Bestellungen',
+    labelKey: 'orders',
     href: '/orders',
     icon: Receipt,
   },
   { divider: true },
   {
-    label: 'Produkte',
+    labelKey: 'products',
     href: '/products',
     icon: ShoppingBag01,
     requiredPermission: 'products',
   },
   {
-    label: 'Inventur',
+    labelKey: 'inventory',
     href: '/inventory',
     icon: PackageSearch,
     requiredPermission: 'inventory',
   },
   {
-    label: 'Rabatt-Bons',
+    labelKey: 'discounts',
     href: '/discounts',
     icon: Tag01,
     requiredPermission: 'discounts',
   },
   {
-    label: 'Pfand',
+    labelKey: 'pfand',
     href: '/pfand',
     icon: Coins01,
     requiredPermission: 'pfand',
   },
   { divider: true },
   {
-    label: 'Geräte',
+    labelKey: 'devices',
     href: '/devices',
     icon: Tablet02,
     requiredPermission: 'devices',
   },
   {
-    label: 'Drucker',
+    labelKey: 'printers',
     href: '/printers',
     icon: Printer,
     requiredPermission: 'devices',
   },
   {
-    label: 'Standorte',
+    labelKey: 'productionStations',
     href: '/production-stations',
     icon: MarkerPin01,
     requiredPermission: 'products',
   },
   { divider: true },
   {
-    label: 'Mitglieder',
+    labelKey: 'members',
     href: '/members',
     icon: Users01,
     requiredPermission: 'members',
   },
   {
-    label: 'Schichtpläne',
+    labelKey: 'shifts',
     href: '/shifts',
     icon: ClipboardCheck,
     requiredPermission: 'shiftPlans',
   },
   {
-    label: 'Veranstaltungen',
+    labelKey: 'events',
     href: '/events',
     icon: Calendar,
     requiredPermission: 'events',
   },
   {
-    label: 'Auswertung',
+    labelKey: 'reports',
     href: '/reports',
     icon: LineChartUp01,
     requiredPermission: 'reports',
@@ -165,7 +165,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     // Abrechnungsdaten der Organisation — es gibt kein Berechtigungsmodul
     // dafuer, und Mitglieder haben darin nichts zu suchen.
-    label: 'Rechnungen',
+    labelKey: 'invoices',
     href: '/invoices',
     saasOnly: true,
     icon: ReceiptCheck,
@@ -173,14 +173,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   },
   {
     // Zugangsdaten zu fremden Diensten; dasselbe Argument wie oben.
-    label: 'Integrationen',
+    labelKey: 'integrations',
     href: '/integrations',
     icon: PuzzlePiece01,
     adminOnly: true,
   },
   { divider: true },
   {
-    label: 'Support',
+    labelKey: 'support',
     href: '/support',
     saasOnly: true,
     icon: MessageChatCircle,
@@ -189,7 +189,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
 
 export const dashboardFooterItems: NavItemType[] = [
   {
-    label: 'Einstellungen',
+    labelKey: 'settings',
     href: '/settings',
     icon: Settings01,
   },

@@ -18,7 +18,7 @@ const STATUS_BADGE: Record<string, string> = {
   paid: 'badge badge--success',
   open: 'badge badge--warning',
   draft: 'badge',
-  uncollectible: 'badge badge--danger',
+  uncollectible: 'badge badge--error',
   void: 'badge',
 };
 

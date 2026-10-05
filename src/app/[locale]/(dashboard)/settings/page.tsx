@@ -18,7 +18,7 @@ export default async function SettingsPage() {
       <div className="app-page-head">
         <div>
           <h1 className="app-page-head__title">{t('title')}</h1>
-          <p className="app-page-head__sub">Verwalten Sie Ihre persönlichen und Organisationseinstellungen</p>
+          <p className="app-page-head__sub">{t('subtitle')}</p>
         </div>
       </div>
 

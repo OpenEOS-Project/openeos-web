@@ -104,8 +104,9 @@ export function EventsList({
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div>
-          <h2 className="app-card__title">{t('title')}</h2>
-          <p className="app-card__sub">{t('subtitle')}</p>
+          {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
+              steht wie bei den Geraeten nur die Anzahl. */}
+          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: events.length })}</p>
         </div>
         <button className="btn btn--primary" onClick={onCreateClick}>
           {t('create')}

@@ -146,8 +146,10 @@ export function PreferencesSection() {
       </div>
 
       {/* Der Rundgang verspricht in seinem letzten Schritt, dass man ihn
-          hier erneut starten kann — dieser Knopf loest das ein. */}
-      <div className="app-card">
+          hier erneut starten kann — dieser Knopf loest das ein. Die Polsterung
+          sitzt am inneren Block; die der Karte selbst wird abgeschaltet, sonst
+          stand der Inhalt doppelt eingerueckt. */}
+      <div className="app-card" style={{ padding: 0 }}>
         <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('tour.title')}</h3>

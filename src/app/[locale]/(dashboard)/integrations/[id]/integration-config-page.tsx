@@ -69,7 +69,7 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
 
       <div className="app-page-head" style={{ marginBottom: 0 }}>
         <div className="integration-page__title">
-          <IntegrationLogo id={integration.id} name={integration.name} color={integration.color} />
+          <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
           <div className="app-page-head__copy">
             <h1 className="app-page-head__title">{integration.name}</h1>
             <p className="app-page-head__sub">{t(integration.shortDescriptionKey)}</p>
