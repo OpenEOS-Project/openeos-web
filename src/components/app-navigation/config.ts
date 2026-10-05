@@ -2,8 +2,17 @@ import type { FC, ReactNode } from "react";
 import type { OrganizationPermissions, OrganizationRole } from "@/types/auth";
 
 export type NavItemType = {
-    /** Label text for the nav item. */
-    label: string;
+    /**
+     * Übersetzungsschlüssel unter `navigation.*`. Feste Einträge nutzen
+     * ihn, damit die Seitenleiste in jeder Sprache stimmt.
+     */
+    labelKey?: string;
+    /**
+     * Fester Text — nur für Einträge, die nicht übersetzt werden, etwa
+     * Markennamen von Integrationen ("SumUp"). Wird ignoriert, wenn
+     * `labelKey` gesetzt ist.
+     */
+    label?: string;
     /** URL to navigate to when the nav item is clicked. */
     href?: string;
     /** Icon component to display. */

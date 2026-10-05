@@ -426,7 +426,7 @@
     "orders": "Bestellungen",
     "devices": "Geräte",
     "printers": "Drucker",
-    "reports": "Berichte",
+    "reports": "Auswertung",
     "settings": "Einstellungen",
     "pos": "Kasse",
     "members": "Mitglieder",
@@ -437,7 +437,14 @@
     "productionStations": "Standorte",
     "templates": "Vorlagen",
     "invoices": "Rechnungen",
-    "integrations": "Integrationen"
+    "integrations": "Integrationen",
+    "inventory": "Inventur",
+    "discounts": "Rabatt-Bons",
+    "pfand": "Pfand",
+    "support": "Support",
+    "adminEvents": "Events & Abrechnung",
+    "adminSupport": "Support-Anfragen",
+    "adminFeedback": "Zuschriften"
   },
   "settings": {
     "title": "Einstellungen",
@@ -709,7 +716,8 @@
       },
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
-    }
+    },
+    "subtitle": "Verwalten Sie Ihre persönlichen und Organisationseinstellungen"
   },
   "theme": {
     "light": "Hell",
@@ -2992,5 +3000,45 @@
       "behoben": "Behoben"
     },
     "confirm": "Alles klar"
+  },
+  "shell": {
+    "collapseSidebar": "Seitenleiste einklappen",
+    "expandSidebar": "Seitenleiste ausklappen",
+    "openNavigation": "Navigation öffnen",
+    "chooseOrganization": "— Organisation wählen —",
+    "superAdmin": "Super-Admin",
+    "noOrganization": "Keine Organisation",
+    "platformAdministration": "Plattform-Verwaltung",
+    "createOrganizationHint": "Organisation erstellen",
+    "newOrganization": "Neue Organisation",
+    "activeEvent": {
+      "none": "Keine aktive Veranstaltung",
+      "active": "Aktiv",
+      "test": "Testmodus",
+      "activateHint": "Zum Aktivieren klicken"
+    },
+    "pendingInvitations": "{count, plural, one {# Einladung ausstehend} other {# Einladungen ausstehend}}",
+    "language": "Sprache",
+    "appearance": "Erscheinungsbild",
+    "breadcrumb": "Seitenpfad"
+  },
+  "createOrganization": {
+    "steps": {
+      "basics": "Basisdaten",
+      "settings": "Einstellungen",
+      "confirm": "Bestätigung"
+    },
+    "stepOf": "Schritt {step} von {total}",
+    "basicsIntro": "Wie heißt die Organisation? Alle weiteren Details können Sie später in den Einstellungen anpassen.",
+    "name": "Name der Organisation",
+    "namePlaceholder": "Mein Verein e.V.",
+    "nameTooShort": "Der Name muss mindestens 2 Zeichen lang sein",
+    "settingsIntro": "Standard-Einstellungen für Bons, Rechnungen und Anzeige.",
+    "currency": "Währung",
+    "language": "Sprache",
+    "timezone": "Zeitzone",
+    "confirmIntro": "Bitte prüfen Sie Ihre Angaben. Nach dem Erstellen wechseln Sie automatisch zur neuen Organisation.",
+    "creating": "Wird erstellt…",
+    "createFailed": "Fehler beim Erstellen der Organisation"
   }
 }

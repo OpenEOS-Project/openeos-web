@@ -437,7 +437,14 @@
     "productionStations": "Stations",
     "templates": "Templates",
     "invoices": "Invoices",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "inventory": "Inventory",
+    "discounts": "Discount vouchers",
+    "pfand": "Deposits",
+    "support": "Support",
+    "adminEvents": "Events & billing",
+    "adminSupport": "Support requests",
+    "adminFeedback": "Feedback"
   },
   "settings": {
     "title": "Settings",
@@ -709,7 +716,8 @@
       },
       "saved": "Settings saved",
       "saveFailed": "Failed to save settings"
-    }
+    },
+    "subtitle": "Manage your personal and organization settings"
   },
   "billing": {
     "title": "Billing",
@@ -2992,5 +3000,45 @@
       "behoben": "Fixed"
     },
     "confirm": "Got it"
+  },
+  "shell": {
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openNavigation": "Open navigation",
+    "chooseOrganization": "— Select organization —",
+    "superAdmin": "Super admin",
+    "noOrganization": "No organization",
+    "platformAdministration": "Platform administration",
+    "createOrganizationHint": "Create an organization",
+    "newOrganization": "New organization",
+    "activeEvent": {
+      "none": "No active event",
+      "active": "Active",
+      "test": "Test mode",
+      "activateHint": "Click to activate"
+    },
+    "pendingInvitations": "{count, plural, one {# pending invitation} other {# pending invitations}}",
+    "language": "Language",
+    "appearance": "Appearance",
+    "breadcrumb": "Breadcrumb"
+  },
+  "createOrganization": {
+    "steps": {
+      "basics": "Basics",
+      "settings": "Settings",
+      "confirm": "Confirmation"
+    },
+    "stepOf": "Step {step} of {total}",
+    "basicsIntro": "What is the organization called? You can adjust all other details later in the settings.",
+    "name": "Organization name",
+    "namePlaceholder": "My Club Inc.",
+    "nameTooShort": "The name must be at least 2 characters long",
+    "settingsIntro": "Default settings for receipts, invoices and display.",
+    "currency": "Currency",
+    "language": "Language",
+    "timezone": "Time zone",
+    "confirmIntro": "Please review your details. After creating it, you will be switched to the new organization automatically.",
+    "creating": "Creating…",
+    "createFailed": "Failed to create the organization"
   }
 }

@@ -37,6 +37,21 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   'production-stations': 'productionStations',
   templates: 'templates',
   integrations: 'integrations',
+  inventory: 'inventory',
+  discounts: 'discounts',
+  pfand: 'pfand',
+  reports: 'reports',
+  invoices: 'invoices',
+  support: 'support',
+};
+
+// Unter /admin heissen manche Seiten anders als ihr Gegenstueck in der
+// Organisation ("Support-Anfragen" statt "Support") — dort zaehlt der
+// ganze Pfad, damit die Krume zum Eintrag in der Seitenleiste passt.
+const PATH_TO_NAV_KEY: Record<string, string> = {
+  '/admin/events': 'adminEvents',
+  '/admin/support': 'adminSupport',
+  '/admin/feedback': 'adminFeedback',
 };
 
 function humanize(seg: string): string {
@@ -47,9 +62,10 @@ export function AppBreadcrumbs() {
   const pathname = usePathname();
   const tNav = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const tShell = useTranslations('shell');
 
-  const labelFor = (seg: string): string => {
-    const key = SEG_TO_NAV_KEY[seg];
+  const labelFor = (seg: string, path: string): string => {
+    const key = PATH_TO_NAV_KEY[path] ?? SEG_TO_NAV_KEY[seg];
     if (!key) return humanize(seg);
     try {
       return tNav(key);
@@ -86,7 +102,7 @@ export function AppBreadcrumbs() {
     // Unter /integrations steht der Markenname aus dem Katalog ("SumUp"),
     // nicht der aus der Adresse geratene ("Sumup").
     const integration = current === `/integrations/${seg}` ? getIntegration(seg) : undefined;
-    crumbs.push({ label: integration?.name ?? labelFor(seg), href: current });
+    crumbs.push({ label: integration?.name ?? labelFor(seg, current), href: current });
   }
 
   // Die letzte Krume ist die aktuelle Seite und deshalb kein Link.
@@ -94,7 +110,7 @@ export function AppBreadcrumbs() {
   if (last) last.href = undefined;
 
   return (
-    <nav className="oe-crumbs" aria-label="Breadcrumb">
+    <nav className="oe-crumbs" aria-label={tShell('breadcrumb')}>
       {crumbs.map((crumb, i) => (
         <span key={i} style={{ display: 'contents' }}>
           {i > 0 && <span aria-hidden>/</span>}

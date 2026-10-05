@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X } from '@untitledui/icons';
+import { useTranslations } from 'next-intl';
 
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
@@ -17,6 +18,8 @@ type StepKey = 'basics' | 'settings' | 'confirm';
 const stepOrder: StepKey[] = ['basics', 'settings', 'confirm'];
 
 export function CreateOrgModal({ open, onClose }: Props) {
+  const t = useTranslations('createOrganization');
+  const tCommon = useTranslations('common');
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('EUR');
@@ -48,7 +51,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
   const goNext = () => {
     setError(null);
     if (currentStep === 'basics' && name.trim().length < 2) {
-      setError('Name muss mindestens 2 Zeichen lang sein');
+      setError(t('nameTooShort'));
       return;
     }
     if (step < total - 1) setStep(step + 1);
@@ -85,7 +88,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
       onClose();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Fehler beim Erstellen der Organisation';
+        err instanceof Error ? err.message : t('createFailed');
       setError(message);
     } finally {
       setSubmitting(false);
@@ -94,7 +97,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
 
   if (!open) return null;
 
-  const stepLabel = ['Basisdaten', 'Einstellungen', 'Bestätigung'];
+  const stepLabel = [t('steps.basics'), t('steps.settings'), t('steps.confirm')];
 
   return (
     <div className="modal__overlay" onClick={close}>
@@ -115,7 +118,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                 fontWeight: 600,
               }}
             >
-              Schritt {step + 1} von {total}
+              {t('stepOf', { step: step + 1, total })}
             </div>
             <h2
               style={{
@@ -131,7 +134,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
           <button
             type="button"
             onClick={close}
-            aria-label="Schließen"
+            aria-label={tCommon('close')}
             style={{
               background: 'transparent',
               border: 0,
@@ -177,17 +180,16 @@ export function CreateOrgModal({ open, onClose }: Props) {
             {currentStep === 'basics' && (
               <>
                 <p style={{ margin: 0, color: 'var(--mute)', fontSize: 14 }}>
-                  Wie heißt die Organisation? Du kannst alle weiteren Details später in den
-                  Einstellungen anpassen.
+                  {t('basicsIntro')}
                 </p>
                 <label className="auth-field">
-                  <span>Name der Organisation</span>
+                  <span>{t('name')}</span>
                   <input
                     type="text"
                     className="input"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Mein Verein e.V."
+                    placeholder={t('namePlaceholder')}
                     autoFocus
                   />
                 </label>
@@ -197,10 +199,10 @@ export function CreateOrgModal({ open, onClose }: Props) {
             {currentStep === 'settings' && (
               <>
                 <p style={{ margin: 0, color: 'var(--mute)', fontSize: 14 }}>
-                  Standard-Einstellungen für Bons, Rechnungen und Anzeige.
+                  {t('settingsIntro')}
                 </p>
                 <label className="auth-field">
-                  <span>Währung</span>
+                  <span>{t('currency')}</span>
                   <select
                     className="select"
                     value={currency}
@@ -212,7 +214,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                   </select>
                 </label>
                 <label className="auth-field">
-                  <span>Sprache</span>
+                  <span>{t('language')}</span>
                   <select
                     className="select"
                     value={locale}
@@ -224,7 +226,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                   </select>
                 </label>
                 <label className="auth-field">
-                  <span>Zeitzone</span>
+                  <span>{t('timezone')}</span>
                   <select
                     className="select"
                     value={timezone}
@@ -241,8 +243,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
             {currentStep === 'confirm' && (
               <>
                 <p style={{ margin: 0, color: 'var(--mute)', fontSize: 14 }}>
-                  Überprüfe deine Angaben. Du wirst nach dem Erstellen automatisch zur neuen
-                  Organisation gewechselt.
+                  {t('confirmIntro')}
                 </p>
                 <div
                   style={{
@@ -300,11 +301,11 @@ export function CreateOrgModal({ open, onClose }: Props) {
               disabled={step === 0 || submitting}
             >
               <ArrowLeft style={{ width: 16, height: 16 }} />
-              <span>Zurück</span>
+              <span>{tCommon('back')}</span>
             </button>
             {step < total - 1 ? (
               <button type="button" className="btn btn--primary" onClick={goNext}>
-                <span>Weiter</span>
+                <span>{tCommon('next')}</span>
                 <ArrowRight style={{ width: 16, height: 16 }} />
               </button>
             ) : (
@@ -314,10 +315,10 @@ export function CreateOrgModal({ open, onClose }: Props) {
                 disabled={submitting || name.trim().length < 2}
               >
                 {submitting ? (
-                  <span>Erstelle…</span>
+                  <span>{t('creating')}</span>
                 ) : (
                   <>
-                    <span>Erstellen</span>
+                    <span>{tCommon('create')}</span>
                     <Check style={{ width: 16, height: 16 }} />
                   </>
                 )}
