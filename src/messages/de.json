@@ -832,7 +832,9 @@
       "redirecting": "Weiterleitung …",
       "paymentCancelled": "Zahlung abgebrochen — die Veranstaltung wurde nicht freigeschaltet.",
       "paymentPending": "Die Zahlung wird noch verarbeitet. Bitte in einem Moment erneut nachsehen."
-    }
+    },
+    "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
+    "editTitle": "Veranstaltung bearbeiten"
   },
   "categories": {
     "title": "Kategorien",
@@ -1070,7 +1072,8 @@
         "message": "{create} angelegt, {update} aktualisiert, {skip} übersprungen, {error} Fehler"
       },
       "networkError": "Import fehlgeschlagen — der Server war nicht erreichbar. Bitte erneut versuchen."
-    }
+    },
+    "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}"
   },
   "productionStations": {
     "title": "Standorte",
@@ -1106,7 +1109,8 @@
       "title": "Standort löschen?",
       "message": "Produkte und Kategorien verlieren ihre Standort-Zuweisung."
     },
-    "selectEvent": "Veranstaltung auswählen"
+    "selectEvent": "Veranstaltung auswählen",
+    "count": "{count, plural, =0 {Keine Standorte} =1 {1 Standort} other {# Standorte}}"
   },
   "users": {
     "title": "Benutzer",
@@ -1375,7 +1379,8 @@
       "invalid": "PIN muss 4-6 Ziffern enthalten",
       "setSuccess": "PIN erfolgreich gesetzt",
       "removeSuccess": "PIN erfolgreich entfernt"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Mitglieder} =1 {1 Mitglied} other {# Mitglieder}}"
   },
   "organizations": {
     "title": "Organisationen",
@@ -2628,7 +2633,9 @@
         "showOptions": "Optionen anzeigen",
         "showPrice": "Preise anzeigen",
         "field": "Datenfeld"
-      }
+      },
+      "moveElement": "Element verschieben",
+      "removeElement": "Element entfernen"
     }
   },
   "reports": {

@@ -207,7 +207,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     <div className="modal__overlay" onClick={handleClose}>
       <ModalPanel titleId="event-form-modal-title" className="modal__panel--md">
         <div className="modal__head">
-          <h2 id="event-form-modal-title">{isEditing ? t('actions.edit') : t('create')}</h2>
+          <h2 id="event-form-modal-title">{isEditing ? t('editTitle') : t('create')}</h2>
           <DialogCloseButton onClick={handleClose} />
         </div>
 

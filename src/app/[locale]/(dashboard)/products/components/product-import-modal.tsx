@@ -219,19 +219,15 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                     {t('downloadTemplate')}
                   </button>
                 </div>
+                {/* .textarea bringt Rahmen und Fokusring mit; vorher stand hier
+                    outline: none ohne Ersatz — wer per Tastatur kam, sah
+                    nicht, dass das Feld aktiv war. */}
                 <textarea
+                  className="textarea"
                   style={{
-                    width: '100%',
                     minHeight: 100,
-                    padding: '8px 12px',
-                    borderRadius: 8,
                     fontSize: 12,
-                    fontFamily: 'monospace',
-                    border: '1px solid color-mix(in oklab, var(--ink) 14%, transparent)',
-                    background: 'var(--paper)',
-                    color: 'var(--ink)',
-                    resize: 'vertical',
-                    outline: 'none',
+                    fontFamily: 'var(--oe-f-mono, monospace)',
                     boxSizing: 'border-box',
                   }}
                   placeholder={t('pastePlaceholder')}

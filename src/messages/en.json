@@ -1042,7 +1042,9 @@
       "redirecting": "Redirecting …",
       "paymentCancelled": "Payment cancelled — the event was not activated.",
       "paymentPending": "The payment is still being processed. Please check again in a moment."
-    }
+    },
+    "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
+    "editTitle": "Edit event"
   },
   "categories": {
     "title": "Categories",
@@ -1280,7 +1282,8 @@
         "message": "{create} created, {update} updated, {skip} skipped, {error} errors"
       },
       "networkError": "Import failed — the server could not be reached. Please try again."
-    }
+    },
+    "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}"
   },
   "productionStations": {
     "title": "Stations",
@@ -1316,7 +1319,8 @@
       "title": "Delete Station?",
       "message": "Products and categories will lose their station assignment."
     },
-    "selectEvent": "Select Event"
+    "selectEvent": "Select Event",
+    "count": "{count, plural, =0 {No stations} =1 {1 station} other {# stations}}"
   },
   "users": {
     "title": "Users",
@@ -1585,7 +1589,8 @@
       "invalid": "PIN must contain 4-6 digits",
       "setSuccess": "PIN set successfully",
       "removeSuccess": "PIN removed successfully"
-    }
+    },
+    "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}"
   },
   "organizations": {
     "title": "Organizations",
@@ -2628,7 +2633,9 @@
         "showOptions": "Show options",
         "showPrice": "Show prices",
         "field": "Data field"
-      }
+      },
+      "moveElement": "Move element",
+      "removeElement": "Remove element"
     }
   },
   "reports": {

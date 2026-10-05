@@ -51,6 +51,8 @@ export function PosIconPicker({ isOpen, onClose, onSelect }: PosIconPickerProps)
                   type="button"
                   onClick={handleClose}
                   className="rounded-lg p-2 text-fg-quaternary transition hover:bg-secondary hover:text-fg-quaternary_hover"
+                  aria-label={t('close')}
+                  title={t('close')}
                 >
                   <X className="size-5" />
                 </button>
