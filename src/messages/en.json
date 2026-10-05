@@ -524,7 +524,9 @@
         "disableCodeHintTotp": "Current code from your authenticator app, or a recovery code.",
         "disableCodeHintEmail": "Request a code by email, or use a recovery code.",
         "sendEmailCode": "Send code by email",
-        "emailCodeSent": "Code sent – send again"
+        "emailCodeSent": "Code sent – send again",
+        "noRecoveryCodes": "No recovery codes available.",
+        "disabledHint": "No second factor is requested at sign-in."
       },
       "trustedDevices": {
         "title": "Trusted Devices",
@@ -1540,7 +1542,8 @@
       "editPermissions": "Edit Permissions",
       "remove": "Remove",
       "cancelInvitation": "Cancel Invitation",
-      "resendInvitation": "Resend"
+      "resendInvitation": "Resend",
+      "changeRole": "Change role"
     },
     "invitations": {
       "title": "Pending Invitations",

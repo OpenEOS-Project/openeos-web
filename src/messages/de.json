@@ -524,7 +524,9 @@
         "disableCodeHintTotp": "Aktueller Code aus Ihrer Authenticator-App oder ein Wiederherstellungscode.",
         "disableCodeHintEmail": "Fordern Sie einen Code per E-Mail an oder nutzen Sie einen Wiederherstellungscode.",
         "sendEmailCode": "Code per E-Mail senden",
-        "emailCodeSent": "Code gesendet – erneut senden"
+        "emailCodeSent": "Code gesendet – erneut senden",
+        "noRecoveryCodes": "Keine Wiederherstellungscodes vorhanden.",
+        "disabledHint": "Bei der Anmeldung wird kein zweiter Faktor abgefragt."
       },
       "trustedDevices": {
         "title": "Vertrauenswürdige Geräte",
@@ -1330,7 +1332,8 @@
       "editPermissions": "Berechtigungen bearbeiten",
       "remove": "Entfernen",
       "cancelInvitation": "Einladung zurückziehen",
-      "resendInvitation": "Erneut senden"
+      "resendInvitation": "Erneut senden",
+      "changeRole": "Rolle ändern"
     },
     "invitations": {
       "title": "Ausstehende Einladungen",
