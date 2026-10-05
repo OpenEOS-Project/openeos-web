@@ -108,6 +108,8 @@
   font-weight: 500;
 }
 .shifts-public__hero h1 {
+  font-family: var(--f-display);
+  font-variation-settings: "opsz" 96;
   font-size: clamp(32px, 5vw, 64px);
   line-height: 1;
   letter-spacing: -0.03em;
