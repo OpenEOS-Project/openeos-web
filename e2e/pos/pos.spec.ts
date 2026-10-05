@@ -122,10 +122,10 @@ test.describe('POS - Point of Sale', () => {
       await expect(pos.cart).toContainText('3 Artikel');
 
       // Die Mengenknoepfe gehoeren zur jeweiligen Zeile; die erste ist die Schorle.
-      await pos.cart.getByRole('button', { name: '−' }).first().click();
+      await pos.cart.getByRole('button', { name: 'Menge verringern' }).first().click();
       await pos.expectCartLine(PRODUCTS.schorle, 1);
       await pos.expectTotal('5,50');
-      await pos.cart.getByRole('button', { name: '+' }).nth(1).click();
+      await pos.cart.getByRole('button', { name: 'Menge erhöhen' }).nth(1).click();
       await pos.expectCartLine(PRODUCTS.wasser, 2);
       await pos.expectTotal('7,50');
 

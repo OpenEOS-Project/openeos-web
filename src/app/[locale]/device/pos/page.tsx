@@ -655,7 +655,7 @@ export default function DevicePosPage() {
               <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--pos-ink)' }}>
                 {tableNumber}
               </span>
-              <span aria-hidden style={{ color: 'var(--pos-ink-3)', fontSize: 11 }}>▾</span>
+              <span style={{ color: 'var(--pos-ink-3)', fontSize: 11 }}>▾</span>
             </button>
           )}
           <span className="pos-mobile-hide" style={{ display: 'inline-flex', alignItems: 'center' }}>
