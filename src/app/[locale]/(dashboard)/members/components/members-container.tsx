@@ -40,7 +40,8 @@ export function MembersContainer() {
     if (!removingMember) return;
 
     try {
-      await removeMember.mutateAsync(removingMember.userId);
+      // Der Endpunkt erwartet die Id der Mitgliedschaft, nicht die des Benutzers.
+      await removeMember.mutateAsync(removingMember.id);
       setRemovingMember(null);
     } catch {
       // Error is handled by the mutation
