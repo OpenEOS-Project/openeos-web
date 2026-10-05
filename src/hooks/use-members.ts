@@ -19,7 +19,8 @@ export function useRemoveMember(organizationId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: string) => organizationsApi.removeMember(organizationId, userId),
+    // Id der Mitgliedschaft (UserOrganization.id), nicht die des Benutzers
+    mutationFn: (memberId: string) => organizationsApi.removeMember(organizationId, memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
     },
