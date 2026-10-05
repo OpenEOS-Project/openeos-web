@@ -373,8 +373,8 @@ export const organizationsApi = {
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),
 
-  removeMember: (orgId: string, userId: string) =>
-    apiClient.delete(`/organizations/${orgId}/members/${userId}`),
+  removeMember: (orgId: string, memberId: string) =>
+    apiClient.delete(`/organizations/${orgId}/members/${memberId}`),
 
   updateMember: (orgId: string, userId: string, data: { role?: string; permissions?: import('@/types/auth').OrganizationPermissions }) =>
     apiClient.patch(`/organizations/${orgId}/members/${userId}`, data),
