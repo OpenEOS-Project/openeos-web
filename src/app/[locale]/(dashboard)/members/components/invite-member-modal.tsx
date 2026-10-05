@@ -76,6 +76,10 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  /* Konto zur Adresse existiert schon: dann laesst es sich ohne Startpasswort
+     hinzufuegen. Ohne Mailversand ist das der einzige Weg, denn eine
+     Einladung nimmt man nur ueber den Link aus der E-Mail an. */
+  const [existingAccount, setExistingAccount] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [permissions, setPermissions] = useState<OrganizationPermissions>(NO_PERMISSIONS);
 
@@ -87,6 +91,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
 
   const update = (key: keyof FormState, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
+    if (key === 'email') setExistingAccount(false);
     if (errors[key]) {
       setErrors((e) => {
         const next = { ...e };
@@ -145,6 +150,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     setForm(EMPTY_FORM);
     setErrors({});
     setSubmitError(null);
+    setExistingAccount(false);
     setIsAdmin(false);
     setPermissions(NO_PERMISSIONS);
     onClose();
@@ -154,6 +160,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     event.preventDefault();
     if (!validate()) return;
     setSubmitError(null);
+    setExistingAccount(false);
 
     const email = form.email.trim();
     const role = isAdmin ? 'admin' : 'member';
@@ -178,6 +185,24 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
       }
       handleClose();
     } catch (err) {
+      setExistingAccount(err instanceof ApiException && err.code === 'USER_EXISTS');
+      setSubmitError(describeError(err));
+    }
+  };
+
+  const addExistingAccount = async () => {
+    const email = form.email.trim();
+    setSubmitError(null);
+    setExistingAccount(false);
+    try {
+      await addMember.mutateAsync({
+        email,
+        role: isAdmin ? 'admin' : 'member',
+        permissions: isAdmin ? undefined : permissions,
+      });
+      toast.success(tAdd('addedExisting', { email }));
+      handleClose();
+    } catch (err) {
       setSubmitError(describeError(err));
     }
   };
@@ -186,6 +211,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
     setMode(next);
     setErrors({});
     setSubmitError(null);
+    setExistingAccount(false);
   };
 
   const togglePermission = (key: keyof OrganizationPermissions) => {
@@ -240,6 +266,18 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
                 border: '1px solid color-mix(in oklab, var(--red, var(--danger)) 25%, transparent)',
               }}>
                 {submitError}
+                {existingAccount && activeMode === 'create' && (
+                  <div style={{ marginTop: 10 }}>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={addExistingAccount}
+                      disabled={isPending}
+                    >
+                      {tAdd('addExisting')}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
