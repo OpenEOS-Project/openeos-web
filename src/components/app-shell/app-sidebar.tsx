@@ -391,15 +391,15 @@ export function AppSidebar() {
               margin: '8px 10px 0',
               padding: '10px 12px',
               borderRadius: 'var(--r)',
-              background: 'color-mix(in oklab, #f5b544 12%, var(--paper-2))',
-              border: '1px solid color-mix(in oklab, #f5b544 25%, transparent)',
+              background: 'color-mix(in oklab, var(--warn) 12%, var(--paper-2))',
+              border: '1px solid color-mix(in oklab, var(--warn) 25%, transparent)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <Mail01 style={{ width: 15, height: 15, color: '#8a5e10', flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: '#8a5e10', fontWeight: 600 }}>
+            <Mail01 style={{ width: 15, height: 15, color: 'var(--warn-ink)', flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: 'var(--warn-ink)', fontWeight: 600 }}>
               {pendingInvitations.length} Einladung{pendingInvitations.length !== 1 ? 'en' : ''} ausstehend
             </span>
           </div>

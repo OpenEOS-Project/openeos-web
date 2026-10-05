@@ -30,12 +30,22 @@
 
   --mute: var(--oe-mute);
   --mute-2: var(--oe-mute-2);
+  /* Wurde an ~50 Stellen benutzt, aber nie definiert — die Texte fielen
+     auf die geerbte Farbe zurueck. Gleich --mute, weil alles darunter
+     (--mute-2) fuer Text zu schwach ist (~2:1). */
+  --ink-faint: var(--oe-mute);
 
   /* Statusfarben — nie Hex in Komponenten, immer diese hier. */
   --danger: var(--oe-danger);
   --danger-soft: var(--oe-danger-soft);
   --warn: var(--oe-warn);
-  --warn-ink: var(--oe-warn);
+  /* *-ink: Statusfarbe als Text auf hellem wie dunklem Grund. Die reine
+     Statusfarbe (--oe-warn #c8871a) kommt im Hellen auf ~2,5:1; mit Tinte
+     gemischt wird sie im Hellen dunkler und im Dunkeln heller, beide
+     Varianten liegen ueber 5:1 auf --surface und den weichen Badge-Flaechen. */
+  --warn-ink: color-mix(in oklab, var(--oe-warn) 60%, var(--oe-ink));
+  --danger-ink: color-mix(in oklab, var(--oe-danger) 75%, var(--oe-ink));
+  --info-ink: color-mix(in oklab, var(--oe-info) 75%, var(--oe-ink));
 
   /* Kontrastflaechen fuer invertierte Bloecke. */
   --contrast: var(--oe-contrast);
@@ -2665,18 +2675,19 @@ body:has(.landing) {
 }
 
 .landing .badge--warning {
-  background: color-mix(in oklab, #f5b544 18%, transparent);
-  color: #8a5e10;
+  background: color-mix(in oklab, var(--warn) 18%, transparent);
+  color: var(--warn-ink);
 }
 
-.landing .badge--error {
+.landing .badge--error,
+.landing .badge--danger {
   background: color-mix(in oklab, var(--danger) 12%, transparent);
-  color: #8a1f1f;
+  color: var(--danger-ink);
 }
 
 .landing .badge--info {
-  background: color-mix(in oklab, #4a90d9 12%, transparent);
-  color: #1a4a7a;
+  background: color-mix(in oklab, var(--oe-info) 12%, transparent);
+  color: var(--info-ink);
 }
 
 /* ============================= MODAL ============================= */

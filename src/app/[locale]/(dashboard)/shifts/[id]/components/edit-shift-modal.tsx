@@ -84,7 +84,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
             </div>
 
             {isOvernight && (
-              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: '#b45309', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>🌙</span>
                 <span>Endzeit liegt vor Startzeit — die Schicht endet am Folgetag.</span>
               </div>

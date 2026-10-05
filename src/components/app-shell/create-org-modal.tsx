@@ -280,7 +280,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
               <div
                 style={{
                   background: 'color-mix(in oklab, var(--danger) 14%, var(--paper))',
-                  color: '#8a1f1f',
+                  color: 'var(--danger-ink)',
                   padding: '10px 12px',
                   borderRadius: 'var(--r)',
                   fontSize: 13,
