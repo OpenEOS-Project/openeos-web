@@ -6,7 +6,7 @@ test.describe('Forgot Password', () => {
   });
 
   test('shows forgot password form', async ({ page }) => {
-    await expect(page.getByText('Passwort vergessen')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Passwort vergessen' })).toBeVisible();
     await expect(page.getByLabel('E-Mail')).toBeVisible();
     await expect(page.getByRole('button', { name: /link senden/i })).toBeVisible();
   });
@@ -38,7 +38,7 @@ test.describe('Forgot Password', () => {
 
   test('supports English locale', async ({ page }) => {
     await page.goto('/en/forgot-password');
-    await expect(page.getByText('Forgot password')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Forgot password' })).toBeVisible();
     await expect(page.getByRole('button', { name: /send link/i })).toBeVisible();
   });
 });
@@ -51,7 +51,7 @@ test.describe('Reset Password', () => {
 
   test('shows reset form when token is provided', async ({ page }) => {
     await page.goto('/de/reset-password?token=test-token');
-    await expect(page.getByText('Neues Passwort setzen')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Neues Passwort setzen' })).toBeVisible();
     await expect(page.getByLabel('Neues Passwort')).toBeVisible();
     await expect(page.getByLabel('Passwort bestätigen')).toBeVisible();
   });
