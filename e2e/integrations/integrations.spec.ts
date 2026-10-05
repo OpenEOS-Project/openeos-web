@@ -77,7 +77,7 @@ test.describe('Integrations', () => {
     await expect(dialog.getByRole('button', { name: 'Nächstes Bild' })).toBeVisible();
 
     await dialog.getByRole('button', { name: 'Aktivieren', exact: true }).click();
-    await expect(dialog.getByText('Beim Deaktivieren bleiben Ihre Einstellungen erhalten.')).toBeVisible();
+    await expect(dialog.getByText('Beim Deaktivieren bleiben deine Einstellungen erhalten.')).toBeVisible();
     await expect(dashboard.navLink('SumUp')).toBeVisible();
 
     // Escape schließt das Fenster.

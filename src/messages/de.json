@@ -26,17 +26,17 @@
     "details": "Details",
     "noOrganization": {
       "title": "Keine Organisation ausgewählt",
-      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+      "description": "Bitte wähle zuerst eine Organisation aus."
     }
   },
   "auth": {
     "login": {
       "title": "Willkommen zurück.",
-      "subtitle": "Melden Sie sich mit Ihrem OpenEOS-Konto an.",
+      "subtitle": "Melde dich mit deinem OpenEOS-Konto an.",
       "email": "E-Mail-Adresse",
       "emailPlaceholder": "name@beispiel.de",
       "password": "Passwort",
-      "passwordPlaceholder": "Ihr Passwort",
+      "passwordPlaceholder": "Dein Passwort",
       "rememberMe": "Eingeloggt bleiben",
       "forgotPassword": "Passwort vergessen?",
       "submit": "Anmelden",
@@ -47,11 +47,11 @@
       "resendVerificationSent": "Bestätigungs-E-Mail wurde erneut gesendet.",
       "errors": {
         "invalidCredentials": "Ungültige E-Mail oder Passwort",
-        "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
+        "accountLocked": "Dein Konto wurde gesperrt. Bitte versuche es später erneut.",
         "emailRequired": "E-Mail ist erforderlich",
         "passwordRequired": "Passwort ist erforderlich",
         "invalidEmail": "Ungültige E-Mail-Adresse",
-        "emailNotVerified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse."
+        "emailNotVerified": "Bitte bestätige zuerst deine E-Mail-Adresse."
       },
       "comic": {
         "badge": "Admin",
@@ -85,14 +85,14 @@
         "useLink": "Lieber ohne Passwort? Link per E-Mail anfordern",
         "usePassword": "Doch mit Passwort anmelden",
         "submit": "Anmeldelink senden",
-        "explain": "Wir senden Ihnen einen Link, mit dem Sie sich ohne Passwort anmelden.",
+        "explain": "Wir senden dir einen Link, mit dem du dich ohne Passwort anmeldest.",
         "sent": "Falls ein Konto mit dieser Adresse besteht, ist der Link unterwegs. Er gilt 15 Minuten."
       },
       "displayMode": "Als Anzeige verwenden (Monitor)"
     },
     "register": {
       "title": "Konto erstellen.",
-      "subtitle": "Registrieren Sie sich für OpenEOS",
+      "subtitle": "Registriere dich für OpenEOS",
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail-Adresse",
@@ -106,37 +106,37 @@
       "back": "Zurück",
       "next": "Weiter",
       "successTitle": "Fast geschafft!",
-      "successCopy": "Wir haben Ihnen eine Bestätigung an {email} gesendet. Klicken Sie auf den Link darin, um Ihr Konto zu aktivieren.",
+      "successCopy": "Wir haben dir eine Bestätigung an {email} gesendet. Klicke auf den Link darin, um dein Konto zu aktivieren.",
       "successCta": "Zur Anmeldung",
       "steps": {
         "account": {
           "label": "Konto",
-          "title": "Ihr Konto",
-          "copy": "E-Mail-Adresse für Ihren OpenEOS-Zugang.",
+          "title": "Dein Konto",
+          "copy": "E-Mail-Adresse für deinen OpenEOS-Zugang.",
           "email": "E-Mail-Adresse",
           "password": "Passwort",
           "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
           "passwordConfirm": "Passwort bestätigen",
           "withPassword": "Zusätzlich ein Passwort festlegen",
-          "withPasswordHint": "Ohne Passwort melden Sie sich per Link an, den wir Ihnen per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
+          "withPasswordHint": "Ohne Passwort meldest du dich per Link an, den wir dir per E-Mail schicken. Ein Passwort lässt sich jederzeit nachtragen."
         },
         "personal": {
           "label": "Person",
-          "title": "Über Sie",
+          "title": "Über dich",
           "copy": "Damit wir wissen, mit wem wir es zu tun haben — für Rechnungen und Support.",
           "firstName": "Vorname",
           "lastName": "Nachname"
         },
         "organization": {
           "label": "Organisation",
-          "title": "Ihre Organisation",
-          "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später Ihre Veranstaltungen, Produkte und Kassen.",
+          "title": "Deine Organisation",
+          "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später deine Veranstaltungen, Produkte und Kassen.",
           "name": "Name der Organisation"
         },
         "confirm": {
           "label": "Bestätigung",
           "title": "Letzter Check",
-          "copy": "Bitte überprüfen Sie Ihre Angaben und bestätigen Sie die Bedingungen.",
+          "copy": "Bitte überprüfe deine Angaben und bestätige die Bedingungen.",
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
@@ -151,25 +151,25 @@
         "passwordShort": "Mindestens 8 Zeichen",
         "passwordWeak": "Mindestens ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl erforderlich",
         "passwordMismatch": "Passwörter stimmen nicht überein",
-        "termsRequired": "Bitte akzeptieren Sie die Bedingungen",
+        "termsRequired": "Bitte akzeptiere die Bedingungen",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "emailTaken": "Diese E-Mail wird bereits verwendet",
-        "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+        "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
       "resendSent": "E-Mail wurde erneut gesendet.",
-      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchen Sie nicht.",
+      "successCopyLink": "Wir haben einen Anmeldelink an {email} geschickt. Damit geht es direkt los — ein Passwort brauchst du nicht.",
       "progress": "Fortschritt"
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
-      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
+      "subtitle": "Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen",
       "email": "E-Mail-Adresse",
       "submit": "Link senden",
       "backToLogin": "Zurück zur Anmeldung",
-      "success": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail",
+      "success": "Falls ein Konto mit dieser E-Mail existiert, erhältst du in Kürze eine E-Mail",
       "successTitle": "E-Mail gesendet",
-      "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts.",
+      "successMessage": "Falls ein Konto mit dieser E-Mail existiert, erhältst du in Kürze eine E-Mail mit einem Link zum Zurücksetzen deines Passworts.",
       "errors": {
         "invalidEmail": "Ungültige E-Mail-Adresse"
       },
@@ -177,38 +177,38 @@
     },
     "resetPassword": {
       "title": "Neues Passwort setzen",
-      "subtitle": "Geben Sie Ihr neues Passwort ein",
+      "subtitle": "Gib dein neues Passwort ein",
       "password": "Neues Passwort",
       "confirmPassword": "Passwort bestätigen",
       "passwordHint": "Mindestens 8 Zeichen",
       "submit": "Passwort ändern",
-      "success": "Ihr Passwort wurde erfolgreich geändert",
+      "success": "Dein Passwort wurde erfolgreich geändert",
       "successTitle": "Passwort geändert",
-      "successMessage": "Ihr Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
+      "successMessage": "Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt anmelden.",
       "backToLogin": "Zur Anmeldung",
       "invalidToken": "Ungültiger oder abgelaufener Link",
       "invalidTokenTitle": "Link ungültig",
-      "invalidTokenMessage": "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
+      "invalidTokenMessage": "Dieser Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.",
       "requestNewLink": "Neuen Link anfordern",
-      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "error": "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
       "errors": {
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "passwordMismatch": "Passwörter stimmen nicht überein"
       }
     },
     "verifyEmail": {
-      "loading": "Wir bestätigen Ihre E-Mail-Adresse …",
+      "loading": "Wir bestätigen deine E-Mail-Adresse …",
       "successTitle": "E-Mail bestätigt",
-      "successMessage": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Sie können sich jetzt anmelden.",
+      "successMessage": "Deine E-Mail-Adresse wurde erfolgreich bestätigt. Du kannst dich jetzt anmelden.",
       "backToLogin": "Zur Anmeldung",
       "errorTitle": "Bestätigung fehlgeschlagen",
-      "errorHint": "Der Link ist ungültig oder abgelaufen. Sie können sich über die Anmeldeseite einen neuen Bestätigungslink senden lassen.",
-      "missingToken": "Es wurde kein Bestätigungs-Token gefunden. Bitte verwenden Sie den Link aus Ihrer E-Mail.",
-      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      "errorHint": "Der Link ist ungültig oder abgelaufen. Du kannst dir über die Anmeldeseite einen neuen Bestätigungslink senden lassen.",
+      "missingToken": "Es wurde kein Bestätigungs-Token gefunden. Bitte verwende den Link aus deiner E-Mail.",
+      "error": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
     },
     "logout": "Abmelden",
     "magicLinkPage": {
-      "loading": "Sie werden angemeldet …",
+      "loading": "Du wirst angemeldet …",
       "errorTitle": "Anmeldung fehlgeschlagen",
       "error": "Dieser Anmeldelink ist ungültig oder abgelaufen.",
       "missingToken": "Dieser Aufruf enthält keinen Anmeldelink.",
@@ -223,18 +223,18 @@
       "unknownOs": "unbekanntem Betriebssystem",
       "deviceInfo": "{browser} auf {os}",
       "errors": {
-        "invalidSession": "Ungültige Sitzung. Bitte melden Sie sich erneut an.",
+        "invalidSession": "Ungültige Sitzung. Bitte melde dich erneut an.",
         "invalidRecoveryCode": "Ungültiger Wiederherstellungscode",
         "invalidCode": "Ungültiger Verifizierungscode",
         "resendFailed": "Code konnte nicht erneut gesendet werden"
       },
       "invalidSessionTitle": "Ungültige Sitzung",
-      "invalidSessionMessage": "Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an.",
+      "invalidSessionMessage": "Deine Sitzung ist abgelaufen oder ungültig. Bitte melde dich erneut an.",
       "toLogin": "Zur Anmeldung",
       "title": "Zwei-Faktor-Authentifizierung",
-      "subtitleRecovery": "Geben Sie einen Ihrer Wiederherstellungscodes ein",
-      "subtitleEmail": "Wir haben Ihnen einen Verifizierungscode per E-Mail gesendet",
-      "subtitleTotp": "Geben Sie den Code aus Ihrer Authenticator-App ein",
+      "subtitleRecovery": "Gib einen deiner Wiederherstellungscodes ein",
+      "subtitleEmail": "Wir haben dir einen Verifizierungscode per E-Mail gesendet",
+      "subtitleTotp": "Gib den Code aus deiner Authenticator-App ein",
       "recoveryCode": "Wiederherstellungscode",
       "verificationCode": "Verifizierungscode",
       "trustDevice": "Diesem Gerät für 30 Tage vertrauen",
@@ -251,7 +251,7 @@
     "selectOrganization": "Organisation wählen",
     "noOrganizations": {
       "title": "Keine Organisation",
-      "description": "Sie sind noch keiner Organisation zugeordnet."
+      "description": "Du bist noch keiner Organisation zugeordnet."
     },
     "pendingInvitations": {
       "title": "Ausstehende Einladungen",
@@ -267,7 +267,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Übersicht über Ihre aktuelle Geschäftstätigkeit",
+    "subtitle": "Übersicht über deine aktuelle Geschäftstätigkeit",
     "welcome": "Willkommen, {name}!",
     "stats": {
       "revenue": "Umsatz",
@@ -279,10 +279,10 @@
     },
     "recentActivity": {
       "title": "Letzte Aktivitäten",
-      "subtitle": "Ihre neuesten Bestellungen und Transaktionen",
+      "subtitle": "Deine neuesten Bestellungen und Transaktionen",
       "empty": {
         "title": "Keine Aktivitäten",
-        "description": "Es wurden noch keine Bestellungen erfasst. Starten Sie eine Veranstaltung, um Bestellungen anzunehmen."
+        "description": "Es wurden noch keine Bestellungen erfasst. Starte eine Veranstaltung, um Bestellungen anzunehmen."
       },
       "itemCount": "{count, plural, one {# Artikel} other {# Artikel}}"
     },
@@ -339,7 +339,7 @@
     "customize": {
       "button": "Anpassen",
       "title": "Dashboard anpassen",
-      "description": "Wählen Sie die Widgets aus, die auf Ihrem Dashboard angezeigt werden sollen, und legen Sie deren Reihenfolge fest.",
+      "description": "Wähle die Widgets aus, die auf deinem Dashboard angezeigt werden sollen, und lege deren Reihenfolge fest.",
       "enabled": "Aktiv",
       "disabled": "Inaktiv",
       "moveUp": "Nach oben",
@@ -500,12 +500,12 @@
     },
     "profile": {
       "title": "Profil",
-      "description": "Verwalten Sie Ihre persönlichen Informationen",
+      "description": "Verwalte deine persönlichen Informationen",
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail-Adresse",
       "avatar": "Profilbild",
-      "avatarDescription": "Laden Sie ein Profilbild hoch",
+      "avatarDescription": "Lade ein Profilbild hoch",
       "uploadAvatar": "Bild hochladen",
       "removeAvatar": "Bild entfernen",
       "deleteAvatar": "Bild entfernen",
@@ -524,12 +524,12 @@
       "title": "Konto",
       "description": "E-Mail und Passwort verwalten",
       "changeEmail": "E-Mail ändern",
-      "changeEmailDescription": "Ihre aktuelle E-Mail-Adresse ist {email}",
+      "changeEmailDescription": "Deine aktuelle E-Mail-Adresse ist {email}",
       "newEmail": "Neue E-Mail-Adresse",
       "currentPassword": "Aktuelles Passwort",
       "emailChangeRequested": "Bestätigungslink wurde an die neue E-Mail-Adresse gesendet",
       "changePassword": "Passwort ändern",
-      "changePasswordDescription": "Aktualisieren Sie Ihr Passwort regelmäßig für mehr Sicherheit.",
+      "changePasswordDescription": "Aktualisiere dein Passwort regelmäßig für mehr Sicherheit.",
       "newPassword": "Neues Passwort",
       "confirmPassword": "Passwort bestätigen",
       "passwordChanged": "Passwort erfolgreich geändert",
@@ -549,7 +549,7 @@
       "description": "Zwei-Faktor-Authentifizierung und Sitzungen verwalten",
       "twoFactor": {
         "title": "Zwei-Faktor-Authentifizierung",
-        "description": "Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu",
+        "description": "Füge eine zusätzliche Sicherheitsebene zu deinem Konto hinzu",
         "enabled": "2FA ist aktiviert",
         "disabled": "2FA ist deaktiviert",
         "enable": "2FA aktivieren",
@@ -561,18 +561,18 @@
         "setupTotp": "Authenticator App einrichten",
         "setupEmail": "E-Mail-Codes einrichten",
         "scanQrCode": "QR-Code scannen",
-        "scanQrCodeDescription": "Scannen Sie diesen QR-Code mit Ihrer Authenticator App",
+        "scanQrCodeDescription": "Scanne diesen QR-Code mit deiner Authenticator App",
         "manualEntry": "Manuelle Eingabe",
-        "manualEntryDescription": "Oder geben Sie diesen Code manuell ein:",
+        "manualEntryDescription": "Oder gib diesen Code manuell ein:",
         "enterCode": "Code eingeben",
-        "enterCodeDescription": "Geben Sie den 6-stelligen Code aus Ihrer App ein",
-        "emailSent": "Bestätigungscode wurde an Ihre E-Mail gesendet",
+        "enterCodeDescription": "Gib den 6-stelligen Code aus deiner App ein",
+        "emailSent": "Bestätigungscode wurde an deine E-Mail gesendet",
         "recoveryCodes": "Wiederherstellungscodes",
-        "recoveryCodesDescription": "Speichern Sie diese Codes sicher. Sie können verwendet werden, um auf Ihr Konto zuzugreifen, wenn Sie keinen Zugang zu Ihrer 2FA-Methode haben.",
+        "recoveryCodesDescription": "Speichere diese Codes sicher. Mit ihnen kannst du auf dein Konto zugreifen, wenn du keinen Zugang zu deiner 2FA-Methode hast.",
         "recoveryCodesCopied": "Wiederherstellungscodes kopiert",
         "regenerateCodes": "Neue Codes generieren",
         "disableConfirm": "2FA deaktivieren?",
-        "disableConfirmDescription": "Ihr Konto wird weniger sicher sein ohne Zwei-Faktor-Authentifizierung.",
+        "disableConfirmDescription": "Dein Konto wird weniger sicher sein ohne Zwei-Faktor-Authentifizierung.",
         "back": "Zurück",
         "continue": "Weiter",
         "confirm": "Bestätigen",
@@ -581,13 +581,13 @@
         "copyCodes": "Codes kopieren",
         "disabling": "Deaktivieren...",
         "disableCodeLabel": "Code zur Bestätigung",
-        "disableCodeHintTotp": "Aktueller Code aus Ihrer Authenticator-App oder ein Wiederherstellungscode.",
-        "disableCodeHintEmail": "Fordern Sie einen Code per E-Mail an oder nutzen Sie einen Wiederherstellungscode.",
+        "disableCodeHintTotp": "Aktueller Code aus deiner Authenticator-App oder ein Wiederherstellungscode.",
+        "disableCodeHintEmail": "Fordere einen Code per E-Mail an oder nutze einen Wiederherstellungscode.",
         "sendEmailCode": "Code per E-Mail senden",
         "emailCodeSent": "Code gesendet – erneut senden",
         "noRecoveryCodes": "Keine Wiederherstellungscodes vorhanden.",
         "disabledHint": "Bei der Anmeldung wird kein zweiter Faktor abgefragt.",
-        "qrCodeAlt": "QR-Code für Ihre Authenticator-App",
+        "qrCodeAlt": "QR-Code für deine Authenticator-App",
         "codeLabel": "Code"
       },
       "trustedDevices": {
@@ -599,13 +599,13 @@
       },
       "sessions": {
         "title": "Aktive Sitzungen",
-        "description": "Verwalten Sie Ihre aktiven Anmeldungen",
+        "description": "Verwalte deine aktiven Anmeldungen",
         "current": "Dieses Gerät",
         "lastActive": "Zuletzt aktiv",
         "revoke": "Abmelden",
         "revokeAll": "Alle anderen Sitzungen beenden",
         "revokeAllConfirm": "Alle anderen Sitzungen beenden?",
-        "revokeAllDescription": "Sie werden auf allen anderen Geräten abgemeldet.",
+        "revokeAllDescription": "Du wirst auf allen anderen Geräten abgemeldet.",
         "unknownDevice": "Unbekanntes Gerät",
         "deviceLabel": "{browser} auf {os}",
         "unknownBrowser": "Unbekannter Browser",
@@ -614,7 +614,7 @@
     },
     "preferences": {
       "title": "Einstellungen",
-      "description": "Passen Sie Ihre App-Erfahrung an",
+      "description": "Passe deine App-Erfahrung an",
       "theme": {
         "title": "Erscheinungsbild",
         "light": "Hell",
@@ -642,7 +642,7 @@
     },
     "organizationGeneral": {
       "title": "Allgemein",
-      "description": "Grundlegende Informationen Ihrer Organisation",
+      "description": "Grundlegende Informationen deiner Organisation",
       "name": "Name",
       "description_field": "Beschreibung",
       "logo": "Logo",
@@ -661,7 +661,7 @@
     },
     "organizationContact": {
       "title": "Kontakt",
-      "description": "Kontaktinformationen Ihrer Organisation",
+      "description": "Kontaktinformationen deiner Organisation",
       "address": "Adresse",
       "city": "Stadt",
       "zipCode": "PLZ",
@@ -670,7 +670,7 @@
       "website": "Website",
       "saving": "Speichern...",
       "saveChanges": "Änderungen speichern",
-      "invalidUrl": "Bitte geben Sie eine gültige URL ein (z. B. https://beispiel.de)",
+      "invalidUrl": "Bitte gib eine gültige URL ein (z. B. https://beispiel.de)",
       "placeholders": {
         "address": "Musterstraße 123",
         "zipCode": "12345",
@@ -692,7 +692,7 @@
       "title": "Kasse (POS)",
       "orderingMode": {
         "title": "Zahlungsmodus",
-        "description": "Wählen Sie, wie Bestellungen bezahlt werden",
+        "description": "Wähle, wie Bestellungen bezahlt werden",
         "immediate": "Sofort bezahlen",
         "immediateDescription": "Bestellungen werden direkt beim Kassieren bezahlt",
         "tab": "Sammelrechnung",
@@ -723,16 +723,16 @@
         "appId": "App ID",
         "appIdPlaceholder": "SumUp App ID",
         "testConnection": "Verbindung testen",
-        "testFailed": "Verbindungstest fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.",
+        "testFailed": "Verbindungstest fehlgeschlagen. Bitte überprüfe deine Zugangsdaten.",
         "saveFailed": "Speichern fehlgeschlagen",
         "success": "Verbindung erfolgreich"
       },
       "readers": {
         "title": "Kartenleser",
-        "empty": "Keine Kartenleser vorhanden. Koppeln Sie einen neuen Leser.",
-        "notConfigured": "Bitte konfigurieren Sie zuerst die SumUp-Zugangsdaten.",
+        "empty": "Keine Kartenleser vorhanden. Kopple einen neuen Leser.",
+        "notConfigured": "Bitte konfiguriere zuerst die SumUp-Zugangsdaten.",
         "pairReader": "Leser koppeln",
-        "pairDescription": "Geben Sie den Pairing-Code des Kartenlesers ein",
+        "pairDescription": "Gib den Pairing-Code des Kartenlesers ein",
         "pairingCode": "Pairing-Code",
         "pairingCodePlaceholder": "Code eingeben",
         "pair": "Koppeln",
@@ -759,7 +759,7 @@
     },
     "organizationNotifications": {
       "title": "Benachrichtigungen",
-      "description": "E-Mail-Benachrichtigungen für Ihre Organisation",
+      "description": "E-Mail-Benachrichtigungen für deine Organisation",
       "orderConfirmation": "Bestellbestätigungen",
       "dailySummary": "Tägliche Zusammenfassung",
       "newOrders": "Neue Bestellungen (Push)"
@@ -778,12 +778,12 @@
       "defaultPrinter": "Standard-Drucker",
       "requirePinForRefunds": "PIN für Stornierungen erforderlich"
     },
-    "noOrganization": "Bitte wählen Sie zuerst eine Organisation aus.",
+    "noOrganization": "Bitte wähle zuerst eine Organisation aus.",
     "saving": "Speichern...",
     "saveChanges": "Änderungen speichern",
     "platform": {
       "title": "Benachrichtigungen",
-      "description": "Konfigurieren Sie, an welche E-Mail-Adresse Plattform-Benachrichtigungen gesendet werden.",
+      "description": "Konfiguriere, an welche E-Mail-Adresse Plattform-Benachrichtigungen gesendet werden.",
       "email": "Benachrichtigungs-E-Mail",
       "emailPlaceholder": "admin@openeos.de",
       "emailDescription": "Leer lassen, um auf die Server-Konfiguration zurückzufallen.",
@@ -802,7 +802,7 @@
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
     },
-    "subtitle": "Verwalten Sie Ihre persönlichen und Organisationseinstellungen"
+    "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen"
   },
   "theme": {
     "light": "Hell",
@@ -811,11 +811,11 @@
   },
   "events": {
     "title": "Veranstaltungen",
-    "subtitle": "Verwalten Sie Ihre Veranstaltungen",
+    "subtitle": "Verwalte deine Veranstaltungen",
     "create": "Veranstaltung erstellen",
     "empty": {
       "title": "Keine Veranstaltungen",
-      "description": "Erstellen Sie Ihre erste Veranstaltung, um loszulegen."
+      "description": "Erstelle deine erste Veranstaltung, um loszulegen."
     },
     "table": {
       "name": "Name",
@@ -878,7 +878,7 @@
     },
     "deleteConfirm": {
       "title": "Veranstaltung löschen",
-      "message": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "message": "Bist du sicher, dass du diese Veranstaltung löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
       "confirm": "Löschen"
     },
     "notifications": {
@@ -893,8 +893,8 @@
       "success": "Veranstaltung aktiviert",
       "discount": "inkl. {percent} % Rabatt",
       "noVat": "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.",
-      "invoiceNotice": "Sie erhalten eine Rechnung per E-Mail.",
-      "prepaidNotice": "Online-Zahlung folgt in Kürze — bitte kontaktieren Sie uns.",
+      "invoiceNotice": "Du erhältst eine Rechnung per E-Mail.",
+      "prepaidNotice": "Online-Zahlung folgt in Kürze — bitte kontaktiere uns.",
       "companySearchHint": "Vereine (e.V.) sind meist nicht im Handelsregister gelistet — bitte in diesem Fall die Angaben manuell eintragen.",
       "submit": "Zahlungspflichtig bestellen",
       "errors": {
@@ -910,8 +910,8 @@
       },
       "breakdown": "{days} × {pricePerDay} pro Veranstaltungstag",
       "discountFirstEvent": "{percent} % auf die erste Veranstaltung",
-      "onlineNotice": "Sie werden zur gesicherten Zahlungsseite weitergeleitet. Die Rechnung erhalten Sie anschließend per E-Mail.",
-      "unavailableNotice": "Online-Zahlung ist derzeit nicht verfügbar — bitte kontaktieren Sie uns.",
+      "onlineNotice": "Du wirst zur gesicherten Zahlungsseite weitergeleitet. Die Rechnung erhältst du anschließend per E-Mail.",
+      "unavailableNotice": "Online-Zahlung ist derzeit nicht verfügbar — bitte kontaktiere uns.",
       "payOnline": "Zahlungspflichtig bestellen",
       "redirecting": "Weiterleitung …",
       "paymentCancelled": "Zahlung abgebrochen — die Veranstaltung wurde nicht freigeschaltet.",
@@ -922,23 +922,23 @@
   },
   "categories": {
     "title": "Kategorien",
-    "subtitle": "Verwalten Sie Ihre Produktkategorien",
+    "subtitle": "Verwalte deine Produktkategorien",
     "create": "Kategorie erstellen",
     "edit": "Kategorie bearbeiten",
     "selectEvent": "Veranstaltung",
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
       "title": "Keine aktive Veranstaltung",
-      "description": "Aktivieren Sie zuerst eine Veranstaltung, um Kategorien verwalten zu können.",
+      "description": "Aktiviere zuerst eine Veranstaltung, um Kategorien verwalten zu können.",
       "goToEvents": "Zu den Veranstaltungen"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
-      "description": "Bitte wählen Sie zuerst eine Veranstaltung aus, um die Kategorien zu sehen."
+      "description": "Bitte wähle zuerst eine Veranstaltung aus, um die Kategorien zu sehen."
     },
     "empty": {
       "title": "Keine Kategorien",
-      "description": "Erstellen Sie Ihre erste Kategorie, um Produkte zu organisieren."
+      "description": "Erstelle deine erste Kategorie, um Produkte zu organisieren."
     },
     "table": {
       "name": "Name",
@@ -955,7 +955,7 @@
       "description": "Beschreibung",
       "descriptionPlaceholder": "Beschreibung der Kategorie",
       "color": "Farbe",
-      "colorPlaceholder": "Wählen Sie eine Farbe",
+      "colorPlaceholder": "Wähle eine Farbe",
       "icon": "Symbol",
       "iconPlaceholder": "Symbol auswählen",
       "parent": "Übergeordnete Kategorie",
@@ -974,7 +974,7 @@
     },
     "deleteConfirm": {
       "title": "Kategorie löschen",
-      "message": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten? Alle zugehörigen Produkte werden der Standardkategorie zugeordnet.",
+      "message": "Bist du sicher, dass du diese Kategorie löschen möchtest? Alle zugehörigen Produkte werden der Standardkategorie zugeordnet.",
       "confirm": "Löschen"
     },
     "notifications": {
@@ -992,7 +992,7 @@
   },
   "products": {
     "title": "Produkte",
-    "subtitle": "Verwalten Sie Ihre Produkte und Preise",
+    "subtitle": "Verwalte deine Produkte und Preise",
     "create": "Produkt erstellen",
     "edit": "Produkt bearbeiten",
     "manageCategories": "Kategorien bearbeiten",
@@ -1000,16 +1000,16 @@
     "selectEventPlaceholder": "Veranstaltung auswählen...",
     "noEvents": {
       "title": "Keine aktive Veranstaltung",
-      "description": "Aktivieren Sie zuerst eine Veranstaltung, um Produkte verwalten zu können.",
+      "description": "Aktiviere zuerst eine Veranstaltung, um Produkte verwalten zu können.",
       "goToEvents": "Zu den Veranstaltungen"
     },
     "selectEventFirst": {
       "title": "Veranstaltung auswählen",
-      "description": "Bitte wählen Sie zuerst eine Veranstaltung aus, um die Produkte zu sehen."
+      "description": "Bitte wähle zuerst eine Veranstaltung aus, um die Produkte zu sehen."
     },
     "empty": {
       "title": "Keine Produkte",
-      "description": "Erstellen Sie Ihr erstes Produkt, um es in der Kasse anzubieten."
+      "description": "Erstelle dein erstes Produkt, um es in der Kasse anzubieten."
     },
     "table": {
       "name": "Name",
@@ -1103,7 +1103,7 @@
     },
     "deleteConfirm": {
       "title": "Produkt löschen",
-      "message": "Sind Sie sicher, dass Sie dieses Produkt löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "message": "Bist du sicher, dass du dieses Produkt löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
       "confirm": "Löschen"
     },
     "notifications": {
@@ -1170,13 +1170,13 @@
   },
   "productionStations": {
     "title": "Standorte",
-    "subtitle": "Verwalten Sie die Standorte (Küche, Bar, Ausgabe) für Ihre Veranstaltung",
+    "subtitle": "Verwalte die Standorte (Küche, Bar, Ausgabe) für deine Veranstaltung",
     "create": "Standort erstellen",
     "edit": "Standort bearbeiten",
     "delete": "Standort löschen",
     "empty": {
       "title": "Keine Standorte",
-      "description": "Erstellen Sie Standorte, um Bestellungen gezielt an Küche, Bar oder Ausgabe zu senden"
+      "description": "Erstelle Standorte, um Bestellungen gezielt an Küche, Bar oder Ausgabe zu senden"
     },
     "form": {
       "name": "Name",
@@ -1210,7 +1210,7 @@
   },
   "users": {
     "title": "Benutzer",
-    "subtitle": "Verwalten Sie alle Benutzer im System",
+    "subtitle": "Verwalte alle Benutzer im System",
     "empty": {
       "title": "Keine Benutzer",
       "description": "Es wurden noch keine Benutzer registriert."
@@ -1257,19 +1257,19 @@
   },
   "invitation": {
     "title": "Einladung",
-    "subtitle": "Sie wurden zu einer Organisation eingeladen",
+    "subtitle": "Du wurdest zu einer Organisation eingeladen",
     "loading": "Einladung wird geladen...",
     "roleLabel": "Rolle",
     "accept": "Annehmen",
     "decline": "Ablehnen",
     "loginAndAccept": "Anmelden & Annehmen",
-    "loginRequired": "Sie müssen angemeldet sein, um die Einladung anzunehmen.",
-    "loginToAccept": "Melden Sie sich an oder erstellen Sie ein Konto, um die Einladung anzunehmen.",
+    "loginRequired": "Du musst angemeldet sein, um die Einladung anzunehmen.",
+    "loginToAccept": "Melde dich an oder erstelle ein Konto, um die Einladung anzunehmen.",
     "login": "Anmelden",
     "register": "Konto erstellen",
     "successTitle": "Einladung angenommen!",
-    "successMessage": "Sie sind jetzt Mitglied von {organization}.",
-    "redirecting": "Sie werden weitergeleitet...",
+    "successMessage": "Du bist jetzt Mitglied von {organization}.",
+    "redirecting": "Du wirst weitergeleitet...",
     "errorTitle": "Einladung ungültig",
     "backHome": "Zur Startseite",
     "roles": {
@@ -1280,7 +1280,7 @@
       "notFound": "Diese Einladung existiert nicht oder wurde zurückgezogen.",
       "expired": "Diese Einladung ist abgelaufen.",
       "alreadyAccepted": "Diese Einladung wurde bereits angenommen.",
-      "alreadyMember": "Sie sind bereits Mitglied dieser Organisation.",
+      "alreadyMember": "Du bist bereits Mitglied dieser Organisation.",
       "wrongEmail": "Diese Einladung ist für eine andere E-Mail-Adresse.",
       "acceptFailed": "Einladung konnte nicht angenommen werden.",
       "declineFailed": "Einladung konnte nicht abgelehnt werden."
@@ -1288,12 +1288,12 @@
   },
   "discounts": {
     "title": "Rabatt-Bons",
-    "subtitle": "Konfigurieren Sie Rabatt-Bons, die an der Kasse ausgewählt werden können",
+    "subtitle": "Konfiguriere Rabatt-Bons, die an der Kasse ausgewählt werden können",
     "create": "Rabatt-Bon erstellen",
     "edit": "Rabatt-Bon bearbeiten",
     "empty": {
       "title": "Keine Rabatt-Bons",
-      "description": "Erstellen Sie Rabatt-Bons, die an der Kasse eingelöst werden können."
+      "description": "Erstelle Rabatt-Bons, die an der Kasse eingelöst werden können."
     },
     "types": {
       "fixed": "Fester Betrag",
@@ -1331,18 +1331,18 @@
     },
     "deleteConfirm": {
       "title": "Rabatt-Bon löschen",
-      "message": "Möchten Sie den Rabatt-Bon \"{name}\" wirklich löschen?",
+      "message": "Möchtest du den Rabatt-Bon \"{name}\" wirklich löschen?",
       "confirm": "Löschen"
     }
   },
   "pfand": {
     "title": "Pfand",
-    "subtitle": "Konfigurieren Sie Pfand-Typen (z. B. Becher, Flasche), die Produkten zugewiesen werden",
+    "subtitle": "Konfiguriere Pfand-Typen (z. B. Becher, Flasche), die Produkten zugewiesen werden",
     "create": "Pfand-Typ erstellen",
     "edit": "Pfand-Typ bearbeiten",
     "empty": {
       "title": "Keine Pfand-Typen",
-      "description": "Legen Sie Pfand-Typen an, die Sie Getränken zuweisen können."
+      "description": "Lege Pfand-Typen an, die du Getränken zuweisen kannst."
     },
     "table": {
       "name": "Name",
@@ -1367,12 +1367,12 @@
     },
     "deleteConfirm": {
       "title": "Pfand-Typ löschen",
-      "message": "Möchten Sie den Pfand-Typ \"{name}\" wirklich löschen?",
+      "message": "Möchtest du den Pfand-Typ \"{name}\" wirklich löschen?",
       "confirm": "Löschen"
     },
     "settings": {
       "title": "Wann wird Pfand berechnet?",
-      "description": "Legen Sie fest, für welche Verkaufsart Pfand erhoben wird.",
+      "description": "Lege fest, für welche Verkaufsart Pfand erhoben wird.",
       "tableService": {
         "label": "Pfand bei Tischbedienung",
         "description": "Gäste, die am Tisch bedient werden, zahlen Pfand."
@@ -1386,13 +1386,13 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Chatten Sie direkt mit unserem Support-Team.",
+    "subtitle": "Chatte direkt mit unserem Support-Team.",
     "priorityBadge": "🚀 Priority-Support",
-    "priorityHint": "Ihre Anfragen werden bevorzugt behandelt.",
+    "priorityHint": "Deine Anfragen werden bevorzugt behandelt.",
     "standardHint": "Antwort in der Regel innerhalb von 1–2 Werktagen.",
     "empty": {
       "title": "Wie können wir helfen?",
-      "description": "Schreiben Sie uns einfach."
+      "description": "Schreib uns einfach."
     },
     "input": {
       "placeholder": "Nachricht schreiben…",
@@ -1401,11 +1401,11 @@
   },
   "members": {
     "title": "Mitglieder",
-    "subtitle": "Verwalten Sie die Mitglieder Ihrer Organisation",
+    "subtitle": "Verwalte die Mitglieder deiner Organisation",
     "invite": "Mitglied einladen",
     "empty": {
       "title": "Keine Mitglieder",
-      "description": "Laden Sie Mitglieder zu Ihrer Organisation ein."
+      "description": "Lade Mitglieder zu deiner Organisation ein."
     },
     "table": {
       "name": "Name",
@@ -1456,7 +1456,7 @@
     },
     "removeConfirm": {
       "title": "Mitglied entfernen",
-      "message": "Sind Sie sicher, dass Sie dieses Mitglied aus der Organisation entfernen möchten?",
+      "message": "Bist du sicher, dass du dieses Mitglied aus der Organisation entfernen möchtest?",
       "confirm": "Entfernen"
     },
     "notifications": {
@@ -1478,7 +1478,7 @@
     },
     "count": "{count, plural, =0 {Keine Mitglieder} =1 {1 Mitglied} other {# Mitglieder}}",
     "list": {
-      "you": "(Sie)"
+      "you": "(du)"
     }
   },
   "memberAdd": {
@@ -1494,14 +1494,14 @@
     "password": "Startpasswort",
     "passwordHint": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben sowie eine Zahl.",
     "passwordConfirm": "Startpasswort bestätigen",
-    "handoverHint": "Geben Sie das Startpasswort persönlich weiter. Das Mitglied kann es nach der Anmeldung unter Einstellungen → Konto ändern.",
+    "handoverHint": "Gib das Startpasswort persönlich weiter. Das Mitglied kann es nach der Anmeldung unter Einstellungen → Konto ändern.",
     "submitInvite": "Einladung senden",
     "submitCreate": "Konto anlegen",
     "created": "Konto für {name} angelegt",
     "invited": "Einladung an {email} gesendet",
     "addExisting": "Vorhandenes Konto hinzufügen",
     "addedExisting": "{email} wurde hinzugefügt",
-    "permissionNotOwned": "Diese Berechtigung haben Sie selbst nicht und können sie daher nicht vergeben.",
+    "permissionNotOwned": "Diese Berechtigung hast du selbst nicht und kannst sie daher nicht vergeben.",
     "errors": {
       "required": "Pflichtfeld",
       "nameShort": "Mindestens 2 Zeichen",
@@ -1510,20 +1510,20 @@
       "passwordLong": "Höchstens 72 Zeichen",
       "passwordWeak": "Mindestens ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl erforderlich",
       "passwordMismatch": "Passwörter stimmen nicht überein",
-      "userExists": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto. Sie können es ohne Startpasswort hinzufügen – das bisherige Passwort bleibt gültig.",
+      "userExists": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto. Du kannst es ohne Startpasswort hinzufügen – das bisherige Passwort bleibt gültig.",
       "alreadyMember": "Diese Person ist bereits Mitglied der Organisation.",
       "invitationPending": "Für diese E-Mail-Adresse gibt es bereits eine offene Einladung.",
-      "forbidden": "Dafür fehlt Ihnen die Berechtigung.",
-      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      "forbidden": "Dafür fehlt dir die Berechtigung.",
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
     }
   },
   "organizations": {
     "title": "Organisationen",
-    "subtitle": "Verwalten Sie Ihre Organisationen und deren Einstellungen",
+    "subtitle": "Verwalte deine Organisationen und deren Einstellungen",
     "create": "Organisation erstellen",
     "empty": {
       "title": "Keine Organisationen",
-      "description": "Erstellen Sie Ihre erste Organisation, um loszulegen."
+      "description": "Erstelle deine erste Organisation, um loszulegen."
     },
     "table": {
       "name": "Name",
@@ -1571,7 +1571,7 @@
     },
     "deleteConfirm": {
       "title": "Organisation löschen",
-      "message": "Sind Sie sicher, dass Sie diese Organisation löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "message": "Bist du sicher, dass du diese Organisation löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
       "confirm": "Löschen"
     },
     "notifications": {
@@ -1585,7 +1585,7 @@
   },
   "billing": {
     "title": "Abrechnung",
-    "description": "Verwalten Sie Ihr Abonnement und kaufen Sie Credits",
+    "description": "Verwalte dein Abonnement und kaufe Credits",
     "subscription": {
       "title": "Abonnement",
       "price": "Monatlicher Preis",
@@ -1593,7 +1593,7 @@
       "nextBilling": "Nächste Abrechnung",
       "manageSubscription": "Abonnement verwalten",
       "subscribe": "Abonnement starten",
-      "noSubscription": "Sie haben noch kein aktives Abonnement",
+      "noSubscription": "Du hast noch kein aktives Abonnement",
       "status": {
         "active": "Aktiv",
         "pastDue": "Überfällig",
@@ -1609,7 +1609,7 @@
     },
     "packages": {
       "title": "Credit-Pakete",
-      "description": "Kaufen Sie zusätzliche Credits für Ihre Veranstaltungen",
+      "description": "Kaufe zusätzliche Credits für deine Veranstaltungen",
       "buy": "Kaufen",
       "empty": "Keine Credit-Pakete verfügbar"
     },
@@ -1661,11 +1661,11 @@
     "rental": {
       "hardware": {
         "title": "Miet-Hardware",
-        "description": "Verwalten Sie den Hardware-Pool für Vermietungen.",
+        "description": "Verwalte den Hardware-Pool für Vermietungen.",
         "add": "Hardware hinzufügen",
         "edit": "Hardware bearbeiten",
         "delete": "Hardware löschen",
-        "deleteConfirm": "Möchten Sie die Hardware \"{name}\" wirklich löschen?",
+        "deleteConfirm": "Möchtest du die Hardware \"{name}\" wirklich löschen?",
         "table": {
           "name": "Name",
           "type": "Typ",
@@ -1767,7 +1767,7 @@
       "threadListEmpty": "Keine Support-Anfragen",
       "unreadBadge": "{count} ungelesen",
       "priorityBadge": "🚀 Priority",
-      "noThreadSelected": "Wählen Sie eine Organisation aus, um den Chat zu öffnen.",
+      "noThreadSelected": "Wähle eine Organisation aus, um den Chat zu öffnen.",
       "input": {
         "placeholder": "Antwort schreiben…",
         "send": "Senden"
@@ -1792,8 +1792,8 @@
       "markHandled": "Erledigt",
       "reopen": "Wieder öffnen",
       "notNotified": "nicht zugestellt",
-      "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfen Sie die Empfängeradresse in den Einstellungen.",
-      "forbidden": "Für diesen Bereich fehlt Ihrem Konto die Berechtigung. Zuschriften sieht nur die Plattform-Verwaltung.",
+      "notNotifiedHint": "Es ging keine Benachrichtigung raus — prüfe die Empfängeradresse in den Einstellungen.",
+      "forbidden": "Für diesen Bereich fehlt deinem Konto die Berechtigung. Zuschriften sieht nur die Plattform-Verwaltung.",
       "error": "Die Zuschriften konnten nicht geladen werden. Bitte später erneut versuchen."
     },
     "events": {
@@ -1933,7 +1933,7 @@
         "orgsPlaceholder": "Bitte auswählen…",
         "hasCashDrawer": "Kassenlade ist an diesem Drucker angeschlossen",
         "submit": "Zuordnen",
-        "organizationRequired": "Bitte wählen Sie eine Organisation aus.",
+        "organizationRequired": "Bitte wähle eine Organisation aus.",
         "defaultName": "Drucker",
         "assignFailed": "Zuordnung fehlgeschlagen"
       }
@@ -1941,7 +1941,7 @@
   },
   "pos": {
     "title": "Kasse",
-    "noOrganization": "Bitte wählen Sie zuerst eine Organisation aus.",
+    "noOrganization": "Bitte wähle zuerst eine Organisation aus.",
     "backToDashboard": "Zurück zum Dashboard",
     "selectEventFirst": "Bitte zuerst ein Event aktivieren",
     "noActiveEvents": "Keine aktiven Veranstaltungen",
@@ -1974,7 +1974,7 @@
     },
     "tableNumber": {
       "title": "Tischnummer eingeben",
-      "description": "Geben Sie die Tischnummer ein, um mit der Bestellung zu beginnen.",
+      "description": "Gib die Tischnummer ein, um mit der Bestellung zu beginnen.",
       "placeholder": "z.B. 5 oder A1",
       "start": "Bestellung starten",
       "table": "Tisch",
@@ -2034,7 +2034,7 @@
       "quantity": "Menge",
       "total": "Gesamt",
       "addToCart": "In den Warenkorb",
-      "selectRequiredOptions": "Bitte wählen Sie alle Pflichtoptionen aus",
+      "selectRequiredOptions": "Bitte wähle alle Pflichtoptionen aus",
       "customNote": "Bemerkung",
       "customNotePlaceholder": "z.B. ohne Zwiebeln, extra scharf..."
     },
@@ -2089,9 +2089,9 @@
       "payTotal": "{total} bezahlen",
       "noReader": "Kein Kartenleser konfiguriert. Bitte in den Geräteeinstellungen einen Leser verknüpfen.",
       "errors": {
-        "READER_BUSY": "Der Kartenleser ist noch beschäftigt. Bitte warten Sie einen Moment.",
-        "READER_OFFLINE": "Der Kartenleser ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
-        "READER_NOT_FOUND": "Kartenleser nicht gefunden. Bitte prüfen Sie die Konfiguration.",
+        "READER_BUSY": "Der Kartenleser ist noch beschäftigt. Bitte warte einen Moment.",
+        "READER_OFFLINE": "Der Kartenleser ist nicht erreichbar. Bitte prüfe die Verbindung.",
+        "READER_NOT_FOUND": "Kartenleser nicht gefunden. Bitte prüfe die Konfiguration.",
         "INVALID_AMOUNT": "Ungültiger Betrag.",
         "CHECKOUT_ALREADY_IN_PROGRESS": "Es läuft bereits eine Zahlung auf diesem Gerät.",
         "INTEGRATION_DISABLED": "SumUp ist für diese Organisation deaktiviert. Bitte bar kassieren oder SumUp in der Verwaltung aktivieren."
@@ -2099,8 +2099,8 @@
     },
     "pin": {
       "title": "PIN eingeben",
-      "description": "Geben Sie Ihre persönliche PIN ein, um sich zu identifizieren.",
-      "error": "Ungültige PIN. Bitte versuchen Sie es erneut.",
+      "description": "Gib deine persönliche PIN ein, um dich zu identifizieren.",
+      "error": "Ungültige PIN. Bitte versuche es erneut.",
       "verifying": "Wird überprüft..."
     },
     "productOptions": {
@@ -2137,7 +2137,7 @@
       "reprintTickets": "Bons nachdrucken",
       "reprintReceipt": "Quittung nachdrucken",
       "cancelOrder": "Stornieren",
-      "cancelConfirm": "Möchten Sie diese Bestellung wirklich stornieren?",
+      "cancelConfirm": "Möchtest du diese Bestellung wirklich stornieren?",
       "cancelReason": "Stornierungsgrund (optional)",
       "confirmCancel": "Stornierung bestätigen",
       "cancelSuccess": "Bestellung wurde storniert",
@@ -2154,7 +2154,7 @@
   },
   "orders": {
     "title": "Bestellungen",
-    "description": "Alle Bestellungen Ihrer Organisation im Überblick",
+    "description": "Alle Bestellungen deiner Organisation im Überblick",
     "empty": "Keine Bestellungen",
     "noOrders": "Keine Bestellungen",
     "noOrdersDescription": "Es wurden noch keine Bestellungen aufgegeben",
@@ -2234,29 +2234,29 @@
       "counter": "Theke",
       "connected": "Verbunden",
       "disconnected": "Getrennt",
-      "noStation": "Keine Station konfiguriert. Bitte weisen Sie diesem Gerät eine Station zu."
+      "noStation": "Keine Station konfiguriert. Bitte weise diesem Gerät eine Station zu."
     },
     "register": {
       "title": "Gerät registrieren",
-      "subtitle": "Verbinden Sie dieses Gerät mit Ihrer Organisation",
+      "subtitle": "Verbinde dieses Gerät mit deiner Organisation",
       "organizationSlug": "Organisations-Code",
       "organizationSlugPlaceholder": "z.B. mein-verein",
-      "organizationSlugHint": "Der Code Ihrer Organisation (aus der URL)",
+      "organizationSlugHint": "Der Code deiner Organisation (aus der URL)",
       "deviceName": "Gerätename",
       "deviceNamePlaceholder": "z.B. Kasse 1, Theke, Bar",
       "submit": "Gerät registrieren",
       "registering": "Registriere...",
       "pendingTitle": "Warte auf Freigabe",
-      "pendingDescription": "Bitten Sie einen Administrator, dieses Gerät freizugeben.",
+      "pendingDescription": "Bitte einen Administrator darum, dieses Gerät freizugeben.",
       "organization": "Organisation",
       "verificationCode": "Verifizierungscode",
-      "pendingHint": "Geben Sie diesen Code im Admin-Bereich ein, um das Gerät freizugeben.",
+      "pendingHint": "Gib diesen Code im Admin-Bereich ein, um das Gerät freizugeben.",
       "cancel": "Registrierung abbrechen",
       "verifiedTitle": "Gerät freigegeben",
       "verifiedDescription": "Das Gerät wurde erfolgreich verifiziert.",
       "redirecting": "Weiterleitung zur Kasse...",
       "blockedTitle": "Gerät gesperrt",
-      "blockedDescription": "Dieses Gerät wurde gesperrt. Kontaktieren Sie einen Administrator.",
+      "blockedDescription": "Dieses Gerät wurde gesperrt. Kontaktiere einen Administrator.",
       "tryAgain": "Erneut versuchen",
       "useCodeInstead": "Kein Kürzel zur Hand? Stattdessen mit Code koppeln"
     },
@@ -2265,10 +2265,10 @@
       "connected": "Verbunden",
       "disconnected": "Getrennt",
       "noPos": "Keine Kasse zugewiesen",
-      "noPosHint": "Weisen Sie diesem Display im Dashboard unter „Geräte\" eine Kasse zu.",
+      "noPosHint": "Weise diesem Display im Dashboard unter „Geräte\" eine Kasse zu.",
       "welcome": "Willkommen!",
-      "welcomeSubtitle": "Wir freuen uns auf Ihre Bestellung",
-      "yourOrder": "Ihre Bestellung",
+      "welcomeSubtitle": "Wir freuen uns auf deine Bestellung",
+      "yourOrder": "Deine Bestellung",
       "refill": "Nachfüllung",
       "pfand": "Pfand",
       "subtotal": "Zwischensumme",
@@ -2276,14 +2276,14 @@
       "total": "Gesamt",
       "thankYou": "Vielen Dank!",
       "paidTotal": "{total} bezahlt",
-      "orderPlaced": "Ihre Bestellung wurde aufgenommen",
+      "orderPlaced": "Deine Bestellung wurde aufgenommen",
       "orderNumber": "Bestellnummer"
     },
     "pair": {
-      "lead": "Öffnen Sie OpenEOS auf einem anderen Gerät und geben Sie diesen Code ein.",
+      "lead": "Öffne OpenEOS auf einem anderen Gerät und gib diesen Code ein.",
       "codeLabel": "Kopplungscode",
       "registering": "Gerät wird angemeldet …",
-      "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfen Sie die Internetverbindung.",
+      "registerFailed": "Das Gerät konnte sich nicht anmelden. Prüfe die Internetverbindung.",
       "blocked": "Dieses Gerät wurde gesperrt.",
       "restart": "Neu beginnen",
       "autoContinue": "Die Seite wechselt von selbst, sobald das Gerät freigegeben ist.",
@@ -2298,7 +2298,7 @@
         }
       },
       "orScan": "oder scannen",
-      "revoked": "Dieses Gerät ist nicht mehr verknüpft — es wurde in der Verwaltung entfernt. Verbinden Sie es erneut mit dem Code unten."
+      "revoked": "Dieses Gerät ist nicht mehr verknüpft — es wurde in der Verwaltung entfernt. Verbinde es erneut mit dem Code unten."
     }
   },
   "deviceUi": {
@@ -2327,7 +2327,7 @@
     "station": {
       "loading": "Wird geladen …",
       "loadError": "Bestellungen konnten nicht geladen werden",
-      "loadErrorHint": "Die Anzeige versucht es weiter. Prüfen Sie die Netzwerkverbindung, falls es so bleibt.",
+      "loadErrorHint": "Die Anzeige versucht es weiter. Prüfe die Netzwerkverbindung, falls es so bleibt.",
       "retry": "Erneut versuchen",
       "reconnecting": "Verbindung getrennt – wird wiederhergestellt …",
       "serviceColumn": "Bedienungen",
@@ -2341,11 +2341,11 @@
   },
   "devices": {
     "title": "Geräte",
-    "description": "Verwalten Sie registrierte Geräte für Ihre Organisation",
+    "description": "Verwalte registrierte Geräte für deine Organisation",
     "addDevice": "Gerät hinzufügen",
     "linkDevice": "Gerät verknüpfen",
     "noDevices": "Keine Geräte registriert",
-    "noDevicesDescription": "Registrieren Sie Geräte unter /device/register",
+    "noDevicesDescription": "Registriere Geräte unter /device/register",
     "deviceCount": "{count, plural, =0 {Keine Geräte} =1 {1 Gerät} other {# Geräte}}",
     "status": {
       "pending": "Ausstehend",
@@ -2383,7 +2383,7 @@
     },
     "verifyDialog": {
       "title": "Gerät freigeben",
-      "description": "Geben Sie den 6-stelligen Code ein, der auf dem Gerät angezeigt wird.",
+      "description": "Gib den 6-stelligen Code ein, der auf dem Gerät angezeigt wird.",
       "type": "Gerätetyp",
       "typeHint": "Wird direkt bei der Freigabe gespeichert – Kassen starten im Modus „Bedienung“ und können später in den Geräte-Einstellungen angepasst werden.",
       "code": "Verifizierungscode",
@@ -2393,7 +2393,7 @@
     },
     "deleteDialog": {
       "title": "Gerät löschen",
-      "description": "Sind Sie sicher, dass Sie dieses Gerät löschen möchten? Das Gerät muss erneut registriert werden."
+      "description": "Bist du sicher, dass du dieses Gerät löschen möchtest? Das Gerät muss erneut registriert werden."
     },
     "edit": {
       "title": "Gerät bearbeiten",
@@ -2402,7 +2402,7 @@
       "namePlaceholder": "z.B. Küchen-Display 1",
       "type": "Gerätetyp",
       "typeChangeWarning": "Das Gerät muss sich nach der Typ-Änderung neu verbinden.",
-      "nameRequired": "Bitte geben Sie einen Namen ein",
+      "nameRequired": "Bitte gib einen Namen ein",
       "failed": "Aktualisierung fehlgeschlagen",
       "sumupReader": "SumUp-Kartenleser",
       "sumupReaderNone": "Kein Kartenleser",
@@ -2410,10 +2410,10 @@
     },
     "registration": {
       "title": "Neues Gerät registrieren",
-      "description": "Scannen Sie den QR-Code mit dem Gerät oder öffnen Sie den Link im Browser des Geräts.",
+      "description": "Scanne den QR-Code mit dem Gerät oder öffne den Link im Browser des Geräts.",
       "link": "Registrierungslink",
-      "instructions": "So registrieren Sie ein neues Gerät:",
-      "step1": "Öffnen Sie den Link oder scannen Sie den QR-Code auf dem Gerät",
+      "instructions": "So registrierst du ein neues Gerät:",
+      "step1": "Öffne den Link oder scanne den QR-Code auf dem Gerät",
       "step2": "Das Gerät zeigt eine sechsstellige Zahl an",
       "step3": "Diese Zahl über „Gerät verbinden“ eingeben – fertig",
       "copy": "Kopieren",
@@ -2423,7 +2423,7 @@
     "offline": "Offline",
     "broadcast": {
       "title": "Nachricht senden",
-      "description": "Senden Sie eine Nachricht an alle verbundenen Geräte",
+      "description": "Sende eine Nachricht an alle verbundenen Geräte",
       "message": "Nachricht",
       "messagePlaceholder": "Nachricht eingeben...",
       "messageType": "Typ",
@@ -2440,7 +2440,7 @@
     },
     "verify": {
       "title": "Gerät verbinden",
-      "enterCodeDescription": "Geben Sie den sechsstelligen Code ein, der auf dem Gerät steht.",
+      "enterCodeDescription": "Gib den sechsstelligen Code ein, der auf dem Gerät steht.",
       "code": "Verifizierungscode",
       "lookup": "Gerät suchen",
       "deviceNotFound": "Gerät nicht gefunden oder bereits verknüpft",
@@ -2451,14 +2451,14 @@
       "deviceType": "Gerätetyp",
       "link": "Verknüpfen",
       "linkFailed": "Verknüpfung fehlgeschlagen",
-      "invalidCode": "Bitte geben Sie einen 6-stelligen Code ein",
-      "enterName": "Bitte geben Sie einen Namen ein",
+      "invalidCode": "Bitte gib einen 6-stelligen Code ein",
+      "enterName": "Bitte gib einen Namen ein",
       "success": "Erfolgreich verknüpft!",
-      "successDescription": "Das Gerät wurde erfolgreich mit Ihrer Organisation verknüpft.",
+      "successDescription": "Das Gerät wurde erfolgreich mit deiner Organisation verknüpft.",
       "goToDashboard": "Zur Geräteübersicht",
       "error": "Fehler",
       "tryAgain": "Erneut versuchen",
-      "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
+      "loginRequired": "Bitte melde dich an, um fortzufahren",
       "login": "Anmelden",
       "cta": "Gerät verbinden",
       "namePlaceholder": "z. B. Kasse Theke 1"
@@ -2497,7 +2497,7 @@
         },
         "serviceMode": {
           "title": "Betriebsmodus",
-          "description": "Legen Sie fest, wie das Gerät im Kassenbetrieb verwendet wird",
+          "description": "Lege fest, wie das Gerät im Kassenbetrieb verwendet wird",
           "table": "Bedienung",
           "tableDescription": "Tischnummer wird vor jeder Bestellung abgefragt",
           "counter": "Feste Kasse",
@@ -2517,7 +2517,7 @@
         },
         "display": {
           "title": "Display-Einstellungen",
-          "description": "Legen Sie fest, was dieses Display anzeigt.",
+          "description": "Lege fest, was dieses Display anzeigt.",
           "mode": "Anzeigemodus",
           "modeCustomer": "Kundendisplay (Live-Warenkorb einer Kasse)",
           "modeStation": "Stationsanzeige (Standort)",
@@ -2555,7 +2555,7 @@
         },
         "routing": {
           "title": "Druck-Routing",
-          "description": "Legen Sie fest, wie Druckaufträge verteilt werden",
+          "description": "Lege fest, wie Druckaufträge verteilt werden",
           "device": "Gerätedrucker",
           "deviceDescription": "Alle Bons werden über den Standarddrucker des Geräts gedruckt",
           "category": "Kategorie-Drucker",
@@ -2569,7 +2569,7 @@
         },
         "cashDrawer": {
           "title": "Kassenschublade",
-          "description": "Wählen Sie einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
+          "description": "Wähle einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
@@ -2834,12 +2834,12 @@
   },
   "shifts": {
     "title": "Schichtpläne",
-    "description": "Erstellen und verwalten Sie Schichtpläne für Ihre Veranstaltungen",
+    "description": "Erstelle und verwalte Schichtpläne für deine Veranstaltungen",
     "createPlan": "Neuer Schichtplan",
     "createFirstPlan": "Ersten Schichtplan erstellen",
     "noPlans": "Keine Schichtpläne",
-    "noPlansDescription": "Erstellen Sie Ihren ersten Schichtplan, um Helfer für Ihre Veranstaltung einzuteilen.",
-    "confirmDelete": "Möchten Sie diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
+    "noPlansDescription": "Erstelle deinen ersten Schichtplan, um Helfer für deine Veranstaltung einzuteilen.",
+    "confirmDelete": "Möchtest du diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
     "jobs": "{count, plural, =0 {keine Arbeiten} =1 {1 Arbeit} other {# Arbeiten}}",
     "createdAt": "Erstellt am {date}",
     "copyLink": "Link kopieren",
@@ -2859,7 +2859,7 @@
       "descriptionPlaceholder": "Öffentliche Beschreibung für Helfer...",
       "event": "Veranstaltung (optional)",
       "eventPlaceholder": "Veranstaltung auswählen …",
-      "eventHint": "Verknüpfen Sie den Schichtplan mit einer Veranstaltung, um deren Daten zu nutzen."
+      "eventHint": "Verknüpfe den Schichtplan mit einer Veranstaltung, um deren Daten zu nutzen."
     },
     "wizard": {
       "title": "Schichten-Assistent",
@@ -2872,7 +2872,7 @@
       "useEventDates": "Datum der Veranstaltung übernehmen",
       "daysCount": "{count, plural, =1 {1 Tag} other {# Tage}} ausgewählt",
       "selectTimes": "Zeitfenster festlegen",
-      "timesDescription": "Wählen Sie die tägliche Betriebszeit, in der Schichten stattfinden.",
+      "timesDescription": "Wähle die tägliche Betriebszeit, in der Schichten stattfinden.",
       "startTime": "Beginn",
       "endTime": "Ende",
       "totalHours": "{hours} Stunden pro Tag",
@@ -2915,9 +2915,9 @@
       "publish": "Veröffentlichen",
       "close": "Schließen",
       "noJobs": "Keine Arbeiten definiert",
-      "noJobsDescription": "Fügen Sie eine Arbeit hinzu, um Schichten zu erstellen.",
+      "noJobsDescription": "Füge eine Arbeit hinzu, um Schichten zu erstellen.",
       "noShifts": "Keine Schichten",
-      "noShiftsDescription": "Fügen Sie dieser Arbeit Schichten hinzu."
+      "noShiftsDescription": "Füge dieser Arbeit Schichten hinzu."
     },
     "calendar": {
       "title": "Kalender",
@@ -2941,7 +2941,7 @@
       "reject": "Ablehnen",
       "sendMessage": "Nachricht senden",
       "delete": "Löschen",
-      "confirmDelete": "Möchten Sie diese Anmeldung wirklich löschen?",
+      "confirmDelete": "Möchtest du diese Anmeldung wirklich löschen?",
       "rejectReason": "Grund für Ablehnung (optional)",
       "messagePlaceholder": "Nachricht an den Helfer..."
     },
@@ -2956,37 +2956,37 @@
       "selectShifts": "Schichten auswählen",
       "overlap": "Überschneidung",
       "overlapsWith": "Überschneidet sich mit {job} ({time})",
-      "selectOne": "Wählen Sie eine Schicht aus, für die Sie sich anmelden möchten.",
-      "selectMultiple": "Wählen Sie die Schichten aus, für die Sie sich anmelden möchten.",
-      "selectMultipleMax": "Wählen Sie bis zu {max} Schichten aus, für die Sie sich anmelden möchten.",
+      "selectOne": "Wähle eine Schicht aus, für die du dich anmelden möchtest.",
+      "selectMultiple": "Wähle die Schichten aus, für die du dich anmelden möchtest.",
+      "selectMultipleMax": "Wähle bis zu {max} Schichten aus, für die du dich anmelden möchtest.",
       "continue": "Weiter",
       "backToSelection": "Zurück zur Auswahl",
-      "yourDetails": "Ihre Daten",
+      "yourDetails": "Deine Daten",
       "selectedShifts": "Ausgewählte Schichten",
       "name": "Name",
-      "namePlaceholder": "Ihr vollständiger Name",
+      "namePlaceholder": "Dein vollständiger Name",
       "email": "E-Mail",
       "emailPlaceholder": "ihre@email.de",
       "phone": "Telefon (optional)",
       "phonePlaceholder": "+49 123 4567890",
       "notes": "Anmerkungen (optional)",
       "notesPlaceholder": "Besondere Hinweise oder Fragen...",
-      "emailHint": "Sie erhalten eine E-Mail zur Bestätigung Ihrer Anmeldung.",
+      "emailHint": "Du erhältst eine E-Mail zur Bestätigung deiner Anmeldung.",
       "register": "Anmelden",
       "registrationSuccess": "Fast geschafft!",
-      "checkEmail": "Wir haben Ihnen eine E-Mail geschickt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um die Anmeldung abzuschließen.",
+      "checkEmail": "Wir haben dir eine E-Mail geschickt. Bitte bestätige deine E-Mail-Adresse, um die Anmeldung abzuschließen.",
       "registerMore": "Weitere Anmeldung",
-      "yourShifts": "Ihre Schichten",
+      "yourShifts": "Deine Schichten",
       "addToGoogleCalendar": "In Google Kalender eintragen",
       "downloadICS": "Alle als Kalenderdatei herunterladen",
       "imprint": "Impressum"
     },
     "verify": {
       "loading": "Verifizierung läuft...",
-      "pleaseWait": "Bitte warten Sie einen Moment.",
+      "pleaseWait": "Bitte warte einen Moment.",
       "successTitle": "E-Mail bestätigt!",
-      "pendingApproval": "Ihre Anmeldung wird nun geprüft. Sie erhalten eine E-Mail, sobald sie bestätigt wurde.",
-      "confirmed": "Ihre Schicht(en) sind bestätigt. Wir freuen uns auf Sie!",
+      "pendingApproval": "Deine Anmeldung wird nun geprüft. Du erhältst eine E-Mail, sobald sie bestätigt wurde.",
+      "confirmed": "Deine Schicht(en) sind bestätigt. Wir freuen uns auf dich!",
       "errorTitle": "Verifizierung fehlgeschlagen",
       "errorDescription": "Der Link ist ungültig oder bereits abgelaufen.",
       "backToPlan": "Zurück zum Schichtplan",
@@ -3007,15 +3007,15 @@
       "stepName": "Name & Beschreibung",
       "stepCreate": "Erstellen",
       "defaultName": "Helferplanung {event}",
-      "selectEventHint": "Wählen Sie (optional) eine Veranstaltung aus, zu der dieser Schichtplan gehört. So bekommen die Helfer das Datum der Veranstaltung direkt angezeigt.",
-      "noEvents": "Noch keine Veranstaltungen angelegt – Sie können den Plan auch ohne Veranstaltung erstellen.",
+      "selectEventHint": "Wähle (optional) eine Veranstaltung aus, zu der dieser Schichtplan gehört. So bekommen die Helfer das Datum der Veranstaltung direkt angezeigt.",
+      "noEvents": "Noch keine Veranstaltungen angelegt – du kannst den Plan auch ohne Veranstaltung erstellen.",
       "noEventStandalone": "Keine Veranstaltung (eigenständiger Plan)",
       "eventStatus": {
         "active": "Aktiv",
         "test": "Test",
         "inactive": "Inaktiv"
       },
-      "reviewInput": "Bitte prüfen Sie Ihre Eingaben:",
+      "reviewInput": "Bitte prüfe deine Eingaben:",
       "event": "Veranstaltung",
       "noEvent": "Keine Veranstaltung"
     },
@@ -3042,30 +3042,30 @@
       "workersEditHint": "Wirkt sich auf neu erstellte Schichten aus. Bestehende Schichten behalten ihren Wert – diese können pro Schicht bearbeitet werden.",
       "namesPlaceholder": "Zapfen\nGrill\nKasse",
       "namesHint": "Pro Zeile eine Arbeit – alle werden gleichzeitig angelegt.",
-      "workersDefaultHint": "Standardwert für alle Schichten in dieser Arbeit. Einzelne Schichten können Sie danach überschreiben.",
+      "workersDefaultHint": "Standardwert für alle Schichten in dieser Arbeit. Einzelne Schichten kannst du danach überschreiben.",
       "createMany": "{count, plural, =1 {1 Arbeit anlegen} other {# Arbeiten anlegen}}"
     },
     "jobsList": {
       "heading": "Arbeiten ({count})",
       "wizardForAll": "Schicht-Generator für alle Arbeiten",
       "defaultWorkers": "Standard: {count} Helfer pro Schicht",
-      "confirmDeleteJob": "Möchten Sie diese Arbeit samt ihren Schichten wirklich löschen?"
+      "confirmDeleteJob": "Möchtest du diese Arbeit samt ihren Schichten wirklich löschen?"
     },
     "wizardExtra": {
       "stepDate": "Datum",
       "stepTime": "Zeit",
       "stepConfig": "Konfiguration",
       "stepPreview": "Vorschau",
-      "invalidDates": "Bitte wählen Sie gültige Daten aus",
+      "invalidDates": "Bitte wähle gültige Daten aus",
       "endBeforeStart": "Endzeit für {date} muss nach Startzeit liegen",
       "titleAllJobs": "Schichten für alle Arbeiten",
-      "applyToAllNotice": "Die generierten Schichten werden für alle {count} Arbeiten in diesem Plan angelegt. Sie können einzelne Schichten danach jederzeit pro Arbeit überschreiben.",
+      "applyToAllNotice": "Die generierten Schichten werden für alle {count} Arbeiten in diesem Plan angelegt. Du kannst einzelne Schichten danach jederzeit pro Arbeit überschreiben.",
       "perDay": "Zeiten pro Tag",
-      "perDayHint": "Tragen Sie für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z. B. 22:00–01:00), sind erlaubt.",
+      "perDayHint": "Trage für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z. B. 22:00–01:00), sind erlaubt.",
       "overnightHint": "Endzeit vor Startzeit bedeutet, dass die Schicht über Mitternacht in den nächsten Tag läuft.",
       "totalHoursOvernight": "{hours} Stunden pro Tag 🌙 über Nacht",
       "hoursShort": "{hours} h",
-      "workersFromJob": "Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen – Sie legen sie dort fest.",
+      "workersFromJob": "Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen – du legst sie dort fest.",
       "minutes": "{count} min",
       "selectedCount": "{enabled} / {total} ausgewählt",
       "createForAllJobs": "{shifts, plural, =1 {1 Schicht} other {# Schichten}} für {jobs, plural, =1 {1 Arbeit} other {# Arbeiten}} anlegen"
@@ -3108,7 +3108,7 @@
       },
       "sendToAllTitle": "E-Mail an alle Helfer senden",
       "sendToAll": "An alle senden",
-      "emptyFilter": "Keine Anmeldungen im aktuellen Filter – wählen Sie einen anderen Filter oder „Alle“.",
+      "emptyFilter": "Keine Anmeldungen im aktuellen Filter – wähle einen anderen Filter oder „Alle“.",
       "summary": {
         "allConfirmed": "Alle bestätigt",
         "pendingEmail": "{confirmed}/{total} bestätigt · E-Mail offen",
@@ -3131,7 +3131,7 @@
       "placeholderName": "Name",
       "placeholderShifts": "Schichten",
       "placeholderPlan": "Plan",
-      "defaultTemplate": "Hallo {name},\n\nhier Ihre eingetragenen Schichten für {plan}:\n\n{shifts}\n\nBitte seien Sie pünktlich da. Vielen Dank für Ihre Hilfe!",
+      "defaultTemplate": "Hallo {name},\n\nhier deine eingetragenen Schichten für {plan}:\n\n{shifts}\n\nBitte sei pünktlich da. Vielen Dank für deine Hilfe!",
       "titleSingle": "Nachricht an {name}",
       "titleAll": "Nachricht an alle Helfer",
       "result": "{sent} von {recipients, plural, =1 {1 Helfer} other {# Helfern}} per E-Mail benachrichtigt.",
@@ -3159,7 +3159,7 @@
       "closePicker": "× Auswahl schließen",
       "addShift": "+ Schicht hinzufügen",
       "proposalNote": "Optionale Notiz für den Helfer (nur beim Vorschlag)",
-      "proposalNotePlaceholder": "z. B. Wir bräuchten Sie an einer anderen Stelle – passt das so?",
+      "proposalNotePlaceholder": "z. B. Wir bräuchten dich an einer anderen Stelle – passt das so?",
       "proposalHint": "Bei „Vorschlag senden“ bekommt der Helfer eine E-Mail mit den Schaltflächen „Annehmen“/„Ablehnen“. „Direkt speichern“ wendet alles sofort an, ohne zu fragen.",
       "alreadyIn": "✓ dabei",
       "fullAddableHint": "Volle Schichten lassen sich trotzdem hinzufügen (z. B. um Springer einzutragen).",
@@ -3173,7 +3173,7 @@
       "generalTitle": "Allgemein",
       "generalSubtitle": "Name und Beschreibung – die Helfer sehen das auf der öffentlichen Seite.",
       "publicLinkTitle": "Öffentlicher Link",
-      "publicLinkSubtitle": "Diesen Link können Sie an die Helfer weitergeben.",
+      "publicLinkSubtitle": "Diesen Link kannst du an die Helfer weitergeben.",
       "registrationTitle": "Anmeldungs-Einstellungen",
       "registrationSubtitle": "Wie sich die Helfer eintragen können.",
       "verificationReminders": "Verifizierungs-Erinnerungen",
@@ -3182,7 +3182,7 @@
       "intervalHoursDescription": "Wie viele Stunden zwischen zwei Erinnerungen liegen. Standard: 24.",
       "maxReminders": "Maximale Anzahl Erinnerungen",
       "maxRemindersDescription": "Nach dieser Anzahl an Erinnerungen wird nicht weiter nachgehakt. Standard: 5.",
-      "unsavedChanges": "Sie haben ungespeicherte Änderungen.",
+      "unsavedChanges": "Du hast ungespeicherte Änderungen.",
       "discard": "Verwerfen",
       "dangerZone": "Gefahrenzone",
       "dangerZoneSubtitle": "Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -3190,21 +3190,21 @@
       "deletePlanDescription": "Löscht den Schichtplan einschließlich aller Arbeiten, Schichten und Anmeldungen."
     },
     "manageRequest": {
-      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "requestFailed": "Anfrage fehlgeschlagen.",
       "title": "Meine Schichten verwalten",
-      "description": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich angemeldet haben. Wir schicken Ihnen einen Link, mit dem Sie Ihre Schichten ansehen und anpassen können.",
+      "description": "Gib die E-Mail-Adresse ein, mit der du dich angemeldet hast. Wir schicken dir einen Link, mit dem du deine Schichten ansehen und anpassen kannst.",
       "email": "E-Mail",
       "emailPlaceholder": "max@example.com",
       "sendLink": "Link senden",
       "sentTitle": "E-Mail versendet",
-      "sentDescription": "Falls es eine Anmeldung mit dieser E-Mail-Adresse gibt, ist der Link unterwegs. Bitte sehen Sie auch im Spam-Ordner nach.",
+      "sentDescription": "Falls es eine Anmeldung mit dieser E-Mail-Adresse gibt, ist der Link unterwegs. Bitte sieh auch im Spam-Ordner nach.",
       "backToPlan": "Zurück zum Schichtplan"
     },
     "proposal": {
       "processFailed": "Der Vorschlag konnte nicht verarbeitet werden.",
       "title": "Schichtvorschlag",
-      "question": "Soll Ihre Schicht wie vorgeschlagen verschoben werden?",
+      "question": "Soll deine Schicht wie vorgeschlagen verschoben werden?",
       "accept": "✓ Annehmen",
       "decline": "✗ Ablehnen",
       "accepted": "Vorschlag angenommen",
@@ -3219,9 +3219,9 @@
       "added": "Schicht hinzugefügt.",
       "addFailed": "Schicht konnte nicht hinzugefügt werden.",
       "invalidTitle": "Link ungültig",
-      "invalidDescription": "Der Verwaltungs-Link ist abgelaufen oder existiert nicht. Bitte fordern Sie auf der Seite des Schichtplans einen neuen Link an.",
-      "greeting": "Hallo {name} – hier sind Ihre Schichten.",
-      "noShifts": "Sie haben aktuell keine Schichten eingetragen.",
+      "invalidDescription": "Der Verwaltungs-Link ist abgelaufen oder existiert nicht. Bitte fordere auf der Seite des Schichtplans einen neuen Link an.",
+      "greeting": "Hallo {name} – hier sind deine Schichten.",
+      "noShifts": "Du hast aktuell keine Schichten eingetragen.",
       "confirmRemove": "Schicht „{job}“ am {date} {time} entfernen?",
       "removeTitle": "Diese Schicht entfernen",
       "removeLabel": "Schicht entfernen",
@@ -3229,14 +3229,14 @@
       "addMore": "Weitere Schicht hinzufügen",
       "spotsFree": "{available}/{required} frei",
       "signUp": "+ eintragen",
-      "linkValidity": "Ihr Verwaltungs-Link gilt 24 Stunden. Danach können Sie auf der Seite des Schichtplans einen neuen anfordern."
+      "linkValidity": "Dein Verwaltungs-Link gilt 24 Stunden. Danach kannst du auf der Seite des Schichtplans einen neuen anfordern."
     },
     "publicPage": {
       "calendarDescription": "Schicht bei {organization}",
       "calendarDescriptionEvent": "Schicht bei {organization} - {event}",
       "shiftFallback": "Schicht",
       "icsFileName": "schichten",
-      "selectAtLeastOne": "Bitte wählen Sie mindestens eine Schicht aus",
+      "selectAtLeastOne": "Bitte wähle mindestens eine Schicht aus",
       "contextLabel": "<b>{organization}</b> · Schichtplan",
       "registeredBadge": "REGISTRIERT",
       "openRegistration": "OFFENE ANMELDUNG",
@@ -3253,7 +3253,7 @@
     "title": "Willkommen bei OpenEOS",
     "submit": "Einrichtung abschließen",
     "modeSelect": {
-      "description": "Wählen Sie den Betriebsmodus für Ihre Installation.",
+      "description": "Wähle den Betriebsmodus für deine Installation.",
       "single": {
         "title": "Einzelbetrieb",
         "description": "Für einen einzelnen Verein oder eine Organisation. Unbegrenzte Credits, keine Abrechnung."
@@ -3289,10 +3289,10 @@
     },
     "complete": {
       "title": "Einrichtung abgeschlossen!",
-      "description": "Sie werden zur Anmeldung weitergeleitet …"
+      "description": "Du wirst zur Anmeldung weitergeleitet …"
     },
     "errors": {
-      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "setupFailed": "Einrichtung fehlgeschlagen. Bitte versuche es erneut.",
       "passwordMismatch": "Passwörter stimmen nicht überein"
     }
   },
@@ -3305,7 +3305,7 @@
     "addPrinter": "Drucker hinzufügen",
     "editPrinter": "Drucker bearbeiten",
     "deletePrinter": "Drucker löschen",
-    "deleteConfirm": "Möchten Sie den Drucker \"{name}\" wirklich löschen?",
+    "deleteConfirm": "Möchtest du den Drucker \"{name}\" wirklich löschen?",
     "testPrint": "Testdruck",
     "testPrintSuccess": "Testdruck gesendet",
     "table": {
@@ -3344,8 +3344,8 @@
     "online": "Online",
     "offline": "Offline",
     "noPrinters": "Noch keine Drucker registriert",
-    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinden Sie einen Drucker-Agenten, um zu beginnen.",
-    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und Ihrer Organisation zugewiesen.",
+    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinde einen Drucker-Agenten, um zu beginnen.",
+    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und deiner Organisation zugewiesen.",
     "printerCount": "{count, plural, =1 {# Drucker} other {# Drucker}}",
     "kitchenTicketMode": {
       "title": "Modus für Küchenbon-Druck",
@@ -3412,18 +3412,18 @@
   },
   "printTemplates": {
     "title": "Druckvorlagen",
-    "description": "Verwalten Sie Ihre Bon- und Küchendruckvorlagen.",
+    "description": "Verwalte deine Bon- und Küchendruckvorlagen.",
     "create": "Vorlage erstellen",
     "edit": "Vorlage bearbeiten",
     "delete": "Vorlage löschen",
-    "deleteConfirm": "Möchten Sie diese Druckvorlage wirklich löschen?",
+    "deleteConfirm": "Möchtest du diese Druckvorlage wirklich löschen?",
     "name": "Name",
     "namePlaceholder": "z.B. Standard-Kassenbon",
     "type": "Typ",
     "default": "Standard",
     "setAsDefault": "Als Standard festlegen",
     "noTemplates": "Noch keine Druckvorlagen",
-    "noTemplatesDescription": "Erstellen Sie Ihre erste Druckvorlage, um loszulegen.",
+    "noTemplatesDescription": "Erstelle deine erste Druckvorlage, um loszulegen.",
     "types": {
       "receipt": "Kassenbon",
       "kitchen_ticket": "Küchenbon",
@@ -3536,7 +3536,7 @@
     "loading": "Wird geladen…",
     "noOrg": {
       "title": "Keine Organisation ausgewählt",
-      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+      "description": "Bitte wähle zuerst eine Organisation aus."
     },
     "export": {
       "csv": "CSV exportieren",
@@ -3687,22 +3687,22 @@
   },
   "inventory": {
     "title": "Inventur",
-    "subtitle": "Bestandserfassung und Lagerkontrolle für Ihre Veranstaltung",
+    "subtitle": "Bestandserfassung und Lagerkontrolle für deine Veranstaltung",
     "create": "Neue Inventur",
     "createAndStart": "Erstellen & Starten",
     "creating": "Wird erstellt…",
     "createError": "Fehler beim Erstellen der Inventur. Bitte erneut versuchen.",
     "noOrg": {
       "title": "Keine Organisation ausgewählt",
-      "description": "Bitte wählen Sie zuerst eine Organisation aus."
+      "description": "Bitte wähle zuerst eine Organisation aus."
     },
     "noEvent": {
       "title": "Keine aktive Veranstaltung",
-      "description": "Bitte aktivieren Sie zuerst eine Veranstaltung, um eine Inventur durchzuführen."
+      "description": "Bitte aktiviere zuerst eine Veranstaltung, um eine Inventur durchzuführen."
     },
     "empty": {
       "title": "Keine Inventuren vorhanden",
-      "description": "Erstellen Sie Ihre erste Inventur, um den Bestand zu erfassen.",
+      "description": "Erstelle deine erste Inventur, um den Bestand zu erfassen.",
       "noItems": "Keine Artikel in dieser Inventur."
     },
     "status": {
@@ -3808,7 +3808,7 @@
   },
   "integrations": {
     "title": "Integrationen",
-    "subtitle": "Externe Dienste ein- und ausschalten. Aktive Integrationen richten Sie auf ihrer eigenen Seite in der Seitenleiste ein.",
+    "subtitle": "Externe Dienste ein- und ausschalten. Aktive Integrationen richtest du auf ihrer eigenen Seite in der Seitenleiste ein.",
     "actions": {
       "configure": "Einrichten",
       "close": "Schließen",
@@ -3824,10 +3824,10 @@
     },
     "info": {
       "whatItDoes": "Was die Integration leistet",
-      "requirements": "Was Sie benötigen",
+      "requirements": "Was du benötigst",
       "docs": "Zur Dokumentation",
-      "settingsKept": "Beim Deaktivieren bleiben Ihre Einstellungen erhalten.",
-      "activateHint": "Nach dem Aktivieren erscheint die Integration in der Seitenleiste; dort richten Sie sie ein.",
+      "settingsKept": "Beim Deaktivieren bleiben deine Einstellungen erhalten.",
+      "activateHint": "Nach dem Aktivieren erscheint die Integration in der Seitenleiste; dort richtest du sie ein.",
       "comingSoonHint": "Diese Integration ist in Vorbereitung und kann noch nicht aktiviert werden."
     },
     "gallery": {
@@ -3838,7 +3838,7 @@
       "goTo": "Bild {index} von {count}"
     },
     "errors": {
-      "toggleFailed": "Die Integration konnte nicht umgeschaltet werden. Bitte versuchen Sie es erneut."
+      "toggleFailed": "Die Integration konnte nicht umgeschaltet werden. Bitte versuche es erneut."
     },
     "backToCatalog": "Alle Integrationen",
     "deactivated": "{name} wurde deaktiviert.",
@@ -3848,11 +3848,11 @@
     "sumup": {
       "vendor": "Kartenzahlung",
       "description": "Kartenlesegeräte an der Kasse und Kartenzahlung im Online-Shop.",
-      "longDescription": "Mit SumUp nehmen Sie an der Kasse Kartenzahlungen an: Die Kasse schickt den Betrag an ein gekoppeltes SumUp-Lesegerät, der Gast zahlt mit Karte oder Smartphone, und die Bestellung wird automatisch als bezahlt verbucht – auf Wunsch mit Trinkgeld.",
+      "longDescription": "Mit SumUp nimmst du an der Kasse Kartenzahlungen an: Die Kasse schickt den Betrag an ein gekoppeltes SumUp-Lesegerät, der Gast zahlt mit Karte oder Smartphone, und die Bestellung wird automatisch als bezahlt verbucht – auf Wunsch mit Trinkgeld.",
       "requirements": {
         "account": "Ein SumUp-Händlerkonto",
         "reader": "Ein SumUp-Lesegerät mit Kassenanbindung, z. B. den SumUp Solo",
-        "apiKey": "Einen API-Schlüssel und Ihren Händlercode aus dem SumUp-Dashboard"
+        "apiKey": "Einen API-Schlüssel und deinen Händlercode aus dem SumUp-Dashboard"
       },
       "deactivateEffect": "Solange SumUp deaktiviert ist, bieten die Kassen keine Kartenzahlung an. Barzahlung funktioniert weiter.",
       "screenshots": {
@@ -3881,7 +3881,7 @@
   "onboarding": {
     "quickStart": {
       "title": "Erste Schritte",
-      "subtitle": "So wird Ihre Veranstaltung verkaufsbereit.",
+      "subtitle": "So wird deine Veranstaltung verkaufsbereit.",
       "hide": "Ausblenden",
       "progress": "{done} von {total}",
       "go": "Los",
@@ -3894,11 +3894,11 @@
         "activate": {
           "label": "Verkauf freigeben",
           "hint": "Zum Ausprobieren genügt der Testmodus: {max} Bestellungen, ohne Kosten.",
-          "hintFree": "Schalten Sie den Verkauf frei, sobald alles steht — oder testen Sie vorher im Testmodus."
+          "hintFree": "Schalte den Verkauf frei, sobald alles steht — oder teste vorher im Testmodus."
         },
         "categories": {
           "label": "Kategorien anlegen",
-          "hint": "Getränke, Speisen — die Gliederung Ihrer Karte."
+          "hint": "Getränke, Speisen — die Gliederung deiner Karte."
         },
         "products": {
           "label": "Produkte anlegen",
@@ -3926,27 +3926,27 @@
       "steps": {
         "welcome": {
           "title": "Willkommen bei OpenEOS",
-          "text": "Ein kurzer Rundgang zeigt Ihnen, wo Sie was finden. Dauert keine Minute — und Sie können jederzeit abbrechen."
+          "text": "Ein kurzer Rundgang zeigt dir, wo du was findest. Dauert keine Minute — und du kannst jederzeit abbrechen."
         },
         "nav": {
           "title": "Die Navigation",
-          "text": "Links erreichen Sie alle Bereiche. Was Sie hier sehen, hängt von Ihren Berechtigungen ab — Mitglieder sehen weniger als Administratoren."
+          "text": "Links erreichst du alle Bereiche. Was du hier siehst, hängt von deinen Berechtigungen ab — Mitglieder sehen weniger als Administratoren."
         },
         "events": {
           "title": "Veranstaltungen",
-          "text": "Jedes Fest ist eine eigene Veranstaltung mit eigenen Produkten und Zahlen. Hier legen Sie sie an — zum Ausprobieren genügt der Testmodus."
+          "text": "Jedes Fest ist eine eigene Veranstaltung mit eigenen Produkten und Zahlen. Hier legst du sie an — zum Ausprobieren genügt der Testmodus."
         },
         "products": {
           "title": "Produkte",
-          "text": "Ihre Karte: Kategorien und Produkte mit Preis und Mehrwertsteuer. Die Reihenfolge der Kategorien bestimmt, wie sie an der Kasse erscheinen."
+          "text": "Deine Karte: Kategorien und Produkte mit Preis und Mehrwertsteuer. Die Reihenfolge der Kategorien bestimmt, wie sie an der Kasse erscheinen."
         },
         "devices": {
           "title": "Geräte",
-          "text": "Tablets und Kassen melden sich hier an und warten auf Ihre Freigabe. Erst danach können sie verkaufen."
+          "text": "Tablets und Kassen melden sich hier an und warten auf deine Freigabe. Erst danach können sie verkaufen."
         },
         "quickStart": {
           "title": "Erste Schritte",
-          "text": "Diese Liste führt Sie durch die Einrichtung und hakt ab, was schon steht. Sie verschwindet von selbst, sobald alles erledigt ist."
+          "text": "Diese Liste führt dich durch die Einrichtung und hakt ab, was schon steht. Sie verschwindet von selbst, sobald alles erledigt ist."
         },
         "range": {
           "title": "Zeitraum",
@@ -3954,14 +3954,14 @@
         },
         "help": {
           "title": "Wenn etwas klemmt",
-          "text": "Über den Support erreichen Sie uns direkt. Den Rundgang können Sie in den Einstellungen jederzeit erneut starten."
+          "text": "Über den Support erreichst du uns direkt. Den Rundgang kannst du in den Einstellungen jederzeit erneut starten."
         }
       }
     }
   },
   "changelogDialog": {
     "title": "Das ist neu",
-    "subtitle": "{count, plural, one {Eine Neuerung seit Ihrem letzten Besuch.} other {# Neuerungen seit Ihrem letzten Besuch.}}",
+    "subtitle": "{count, plural, one {Eine Neuerung seit deinem letzten Besuch.} other {# Neuerungen seit deinem letzten Besuch.}}",
     "kinds": {
       "neu": "Neu",
       "verbessert": "Verbessert",
@@ -3997,7 +3997,7 @@
       "confirm": "Bestätigung"
     },
     "stepOf": "Schritt {step} von {total}",
-    "basicsIntro": "Wie heißt die Organisation? Alle weiteren Details können Sie später in den Einstellungen anpassen.",
+    "basicsIntro": "Wie heißt die Organisation? Alle weiteren Details kannst du später in den Einstellungen anpassen.",
     "name": "Name der Organisation",
     "namePlaceholder": "Mein Verein e.V.",
     "nameTooShort": "Der Name muss mindestens 2 Zeichen lang sein",
@@ -4005,17 +4005,17 @@
     "currency": "Währung",
     "language": "Sprache",
     "timezone": "Zeitzone",
-    "confirmIntro": "Bitte prüfen Sie Ihre Angaben. Nach dem Erstellen wechseln Sie automatisch zur neuen Organisation.",
+    "confirmIntro": "Bitte prüfe deine Angaben. Nach dem Erstellen wechselst du automatisch zur neuen Organisation.",
     "creating": "Wird erstellt…",
     "createFailed": "Fehler beim Erstellen der Organisation"
   },
   "validation": {
-    "nameRequired": "Bitte geben Sie einen Namen ein",
-    "categoryRequired": "Bitte wählen Sie eine Kategorie",
+    "nameRequired": "Bitte gib einen Namen ein",
+    "categoryRequired": "Bitte wähle eine Kategorie",
     "priceNotNegative": "Der Preis darf nicht negativ sein",
     "amountNotNegative": "Der Betrag darf nicht negativ sein",
-    "amountRequired": "Bitte geben Sie für einen festen Bon einen Betrag an",
-    "startRequired": "Bitte geben Sie einen Beginn an",
+    "amountRequired": "Bitte gib für einen festen Bon einen Betrag an",
+    "startRequired": "Bitte gib einen Beginn an",
     "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
   },
   "pageTitles": {
