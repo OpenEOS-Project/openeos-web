@@ -2486,11 +2486,24 @@ body:has(.landing) {
 
 .landing .app-card__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 18px 20px;
   border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
+/* Reicht die Breite nicht, rutschen die Aktionen unter den Titel statt
+   rechts aus der Karte (overflow:hidden) zu laufen. Der Titelblock
+   waechst, damit er nicht Wort fuer Wort umbricht; die Aktionsgruppe
+   darf selbst ebenfalls umbrechen. */
+.landing .app-card__head > :first-child:not(:last-child) {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.landing .app-card__head > :last-child:not(:first-child) {
+  flex-wrap: wrap;
 }
 
 .landing .app-card__title {
@@ -2927,7 +2940,13 @@ body:has(.landing) {
      darunter laeuft. */
   .landing .app-content {
     padding-top: 16px;
-    padding-right: 64px;
+  }
+  /* Platz nur dort, wo der schwebende Menueknopf (oben rechts, 40px)
+     tatsaechlich sitzt: Brotkrumen und Seitenkopf. Darunter nutzt der
+     Inhalt die volle Breite. */
+  .landing .app-content > .oe-crumbs,
+  .landing .app-content .app-page-head {
+    padding-right: 48px;
   }
 }
 
