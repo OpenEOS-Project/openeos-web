@@ -388,11 +388,15 @@ body:has(.pos-root) {
      Fernseher richtig — auf einem hochkanten Telefon ist die Hoehe die
      grosse Seite, und der Code wuchs dort auf 118px und brach in drei
      Zeilen um. Die schmalere Seite entscheidet jetzt mit. */
-  font-size: clamp(40px, min(14vh, 16vw), 150px);
+  font-size: clamp(40px, min(14vh, 14vw), 150px);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
   color: var(--pos-accent);
+  /* Der Code ist eine Einheit — umgebrochen las man "12 34" und darunter
+     "56" als zwei Zahlen. 14vw haelt ihn auf einem 360px-Telefon in einer
+     Zeile. */
+  white-space: nowrap;
 }
 .display-pair__qr {
   padding: 14px;
