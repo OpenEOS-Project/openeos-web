@@ -80,7 +80,8 @@ input[type="search"]::-webkit-search-cancel-button {
    --f-*-Namen — hier verbunden, damit nur eine Quelle existiert. */
 :root {
     --f-sans: var(--font-oe-sans), system-ui, sans-serif;
-    --f-display: var(--font-oe-display), var(--f-sans);
+    /* Überschriften: Geist 800 (@openeos/ui 0.3.3), dieselbe Datei. */
+    --f-display: var(--f-sans);
     --f-mono: var(--font-oe-mono), ui-monospace, monospace;
 }
 

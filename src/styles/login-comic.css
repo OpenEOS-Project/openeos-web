@@ -125,8 +125,8 @@
 .login-comic__title {
   font-family: var(--oe-f-display);
   font-size: clamp(34px, 4.2vw, 56px);
-  font-weight: 700;
-  letter-spacing: -0.035em;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   line-height: 0.98;
   margin: 0;
   text-wrap: balance;
