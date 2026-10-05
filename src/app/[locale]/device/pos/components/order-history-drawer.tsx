@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Receipt, Printer, XCircle, AlertCircle } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { DialogModal } from '@/components/ui/modal/dialog-modal';
 import { deviceApi } from '@/lib/api-client';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import type { Order } from '@/types/order';
+import { PosSheet, usePosSheetClose } from './pos-sheet';
 
 type StatusFilter = 'all' | 'open' | 'completed' | 'cancelled';
 
@@ -24,14 +23,21 @@ const statusToQuery: Record<StatusFilter, string | undefined> = {
   cancelled: 'cancelled',
 };
 
-function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
-  const colors: Record<string, string> = {
-    open: 'bg-warning-secondary text-warning-primary dark:text-white',
-    in_progress: 'bg-brand-secondary text-brand-primary dark:text-white',
-    completed: 'bg-success-secondary text-success-primary dark:text-white',
-    cancelled: 'bg-error-secondary text-error-primary dark:text-white',
-  };
+const statusTone: Record<string, string> = {
+  open: 'warn',
+  in_progress: 'accent',
+  completed: 'ok',
+  cancelled: 'danger',
+};
 
+const paymentTone: Record<string, string> = {
+  unpaid: 'neutral',
+  partly_paid: 'warn',
+  paid: 'ok',
+  refunded: 'danger',
+};
+
+function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   const labels: Record<string, string> = {
     open: t('statusOpen'),
     in_progress: t('statusInProgress'),
@@ -40,20 +46,13 @@ function StatusBadge({ status, t }: { status: string; t: (key: string) => string
   };
 
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || 'bg-secondary text-tertiary'}`}>
+    <span className="pos-badge" data-tone={statusTone[status]}>
       {labels[status] || status}
     </span>
   );
 }
 
 function PaymentBadge({ status, t }: { status: string; t: (key: string) => string }) {
-  const colors: Record<string, string> = {
-    unpaid: 'bg-secondary text-tertiary',
-    partly_paid: 'bg-warning-secondary text-warning-primary dark:text-white',
-    paid: 'bg-success-secondary text-success-primary dark:text-white',
-    refunded: 'bg-error-secondary text-error-primary dark:text-white',
-  };
-
   const labels: Record<string, string> = {
     unpaid: t('paymentUnpaid'),
     partly_paid: t('paymentPartlyPaid'),
@@ -62,7 +61,7 @@ function PaymentBadge({ status, t }: { status: string; t: (key: string) => strin
   };
 
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || 'bg-secondary text-tertiary'}`}>
+    <span className="pos-badge" data-tone={paymentTone[status]}>
       {labels[status] || status}
     </span>
   );
@@ -70,6 +69,8 @@ function PaymentBadge({ status, t }: { status: string; t: (key: string) => strin
 
 export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps) {
   const t = useTranslations('pos.orderHistory');
+  // "Abbrechen" — der Text steht schon beim Kartenzahlungs-Dialog.
+  const tCancel = useTranslations('pos.sumupCheckout');
   const formatCurrency = useFormatPrice();
   const locale = useLocale();
   const queryClient = useQueryClient();
@@ -110,6 +111,8 @@ export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps)
     },
   });
 
+  const { closing, close } = usePosSheetClose(isOpen, onClose);
+
   const handleCancel = () => {
     if (!selectedOrder) return;
     cancelMutation.mutate({
@@ -138,195 +141,217 @@ export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps)
     { key: 'cancelled', label: t('filterCancelled') },
   ];
 
+  if (!isOpen) return null;
+
   return (
-    <DialogModal
-      isOpen={isOpen}
-      onClose={onClose}
+    <PosSheet
+      closing={closing}
+      onClose={close}
       title={t('title')}
-      size="lg"
-    >
-      <div className="p-6">
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-4">
+      toolbar={
+        <div className="pos-chips pos-scroll">
           {filters.map((f) => (
             <button
               key={f.key}
               type="button"
+              className="pos-chip"
+              aria-pressed={statusFilter === f.key}
               onClick={() => {
                 setStatusFilter(f.key);
                 setSelectedOrder(null);
                 setShowCancelConfirm(false);
               }}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                statusFilter === f.key
-                  ? 'bg-brand-solid text-white'
-                  : 'bg-secondary text-tertiary hover:text-primary'
-              }`}
             >
               {f.label}
             </button>
           ))}
         </div>
+      }
+      bodyStyle={{ gap: 8 }}
+    >
+      {isLoading ? (
+        <div className="pos-sheet-empty">
+          <div className="pos-spinner" />
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="pos-sheet-empty">
+          <Receipt />
+          <strong>{t('noOrders')}</strong>
+          <span>{t('noOrdersDescription')}</span>
+        </div>
+      ) : (
+        orders.map((order) => {
+          const isSelected = selectedOrder?.id === order.id;
 
-        {/* Order List */}
-        {isLoading ? (
-          <div className="flex h-48 items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="flex h-48 flex-col items-center justify-center text-center">
-            <Receipt className="h-12 w-12 text-tertiary mb-4" />
-            <p className="text-lg font-medium text-primary">{t('noOrders')}</p>
-            <p className="text-sm text-tertiary">{t('noOrdersDescription')}</p>
-          </div>
-        ) : (
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-            {orders.map((order) => {
-              const isSelected = selectedOrder?.id === order.id;
-
-              return (
-                <button
-                  key={order.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedOrder(isSelected ? null : order);
-                    setShowCancelConfirm(false);
-                    setCancelReason('');
-                  }}
-                  className={`w-full rounded-lg border p-4 text-left transition-colors ${
-                    isSelected
-                      ? 'border-brand-primary bg-brand-primary_alt'
-                      : 'border-secondary bg-primary hover:bg-secondary'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-primary">
-                        #{order.dailyNumber || order.orderNumber}
-                      </p>
-                      <StatusBadge status={order.status} t={t} />
-                      <PaymentBadge status={order.paymentStatus} t={t} />
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-primary">
-                        {formatCurrency(Number(order.total))}
-                      </p>
-                      <p className="text-xs text-tertiary">
-                        {formatTime(order.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-
+          return (
+            <div key={order.id} className="pos-card" data-selected={isSelected || undefined}>
+              {/* Kopf der Karte klappt die Details auf. Die Aktionen liegen
+                  daneben, nicht darin — Knoepfe in Knoepfen gehen nicht. */}
+              <button
+                type="button"
+                aria-expanded={isSelected}
+                onClick={() => {
+                  setSelectedOrder(isSelected ? null : order);
+                  setShowCancelConfirm(false);
+                  setCancelReason('');
+                }}
+                style={{
+                  width: '100%',
+                  minHeight: 56,
+                  padding: '12px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--pos-r-md)',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  color: 'var(--pos-ink)',
+                }}
+              >
+                <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+                    <span className="pos-mono" style={{ fontSize: 15, fontWeight: 700, marginRight: 2 }}>
+                      #{order.dailyNumber || order.orderNumber}
+                    </span>
+                    <StatusBadge status={order.status} t={t} />
+                    <PaymentBadge status={order.paymentStatus} t={t} />
+                  </span>
                   {order.tableNumber && (
-                    <p className="text-xs text-tertiary mt-1">
+                    <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
                       {t('table')} {order.tableNumber}
-                    </p>
+                    </span>
                   )}
+                </span>
+                <span style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <span className="pos-mono" style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>
+                    {formatCurrency(Number(order.total))}
+                  </span>
+                  <span className="pos-mono" style={{ display: 'block', fontSize: 12, color: 'var(--pos-ink-3)' }}>
+                    {formatTime(order.createdAt)}
+                  </span>
+                </span>
+              </button>
 
-                  {/* Selected: Show items and actions */}
-                  {isSelected && (
-                    <div className="mt-3 pt-3 border-t border-secondary" onClick={(e) => e.stopPropagation()}>
-                      {/* Items */}
-                      {order.items && order.items.length > 0 && (
-                        <div className="space-y-1 mb-3">
-                          {order.items.slice(0, 8).map((item, idx) => (
-                            <div key={idx} className="flex justify-between text-sm">
-                              <span className={`${item.status === 'cancelled' ? 'text-tertiary line-through' : 'text-tertiary'}`}>
-                                {item.quantity}x {item.productName}
-                              </span>
-                              <span className="text-primary">
-                                {formatCurrency(Number(item.totalPrice))}
-                              </span>
-                            </div>
-                          ))}
-                          {order.items.length > 8 && (
-                            <p className="text-xs text-tertiary">
-                              +{order.items.length - 8} {t('moreItems')}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Cancel Confirmation */}
-                      {showCancelConfirm ? (
-                        <div className="space-y-3 p-3 rounded-lg bg-error-secondary/50 border border-error-secondary">
-                          <div className="flex items-start gap-2">
-                            <AlertCircle className="h-5 w-5 text-error-primary dark:text-white shrink-0 mt-0.5" />
-                            <p className="text-sm font-medium text-error-primary dark:text-white">
-                              {t('cancelConfirm')}
-                            </p>
-                          </div>
-                          <input
-                            type="text"
-                            value={cancelReason}
-                            onChange={(e) => setCancelReason(e.target.value)}
-                            placeholder={t('cancelReason')}
-                            className="w-full rounded-lg border border-secondary bg-primary px-3 py-2 text-sm text-primary placeholder:text-quaternary focus:border-brand-primary focus:outline-none"
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              color="primary-destructive"
-                              size="sm"
-                              className="flex-1"
-                              onClick={handleCancel}
-                              disabled={cancelMutation.isPending}
-                            >
-                              {cancelMutation.isPending ? '...' : t('confirmCancel')}
-                            </Button>
-                            <Button
-                              color="tertiary"
-                              size="sm"
-                              onClick={() => {
-                                setShowCancelConfirm(false);
-                                setCancelReason('');
-                              }}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        /* Action Buttons */
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            color="secondary"
-                            size="sm"
-                            iconLeading={Printer}
-                            onClick={() => handleReprint('tickets')}
-                            disabled={reprintMutation.isPending}
+              {isSelected && (
+                <div style={{ margin: '0 14px', padding: '12px 0 14px', borderTop: '1px solid var(--pos-line)' }}>
+                  {order.items && order.items.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
+                      {order.items.slice(0, 8).map((item, idx) => (
+                        <div
+                          key={idx}
+                          style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}
+                        >
+                          <span
+                            style={{
+                              minWidth: 0,
+                              color: item.status === 'cancelled' ? 'var(--pos-ink-3)' : 'var(--pos-ink-2)',
+                              textDecoration: item.status === 'cancelled' ? 'line-through' : undefined,
+                            }}
                           >
-                            {t('reprintTickets')}
-                          </Button>
-                          {order.paymentStatus === 'paid' && (
-                            <Button
-                              color="secondary"
-                              size="sm"
-                              iconLeading={Receipt}
-                              onClick={() => handleReprint('receipt')}
-                              disabled={reprintMutation.isPending}
-                            >
-                              {t('reprintReceipt')}
-                            </Button>
-                          )}
-                          {canCancel(order) && (
-                            <Button
-                              color="primary-destructive"
-                              size="sm"
-                              onClick={() => setShowCancelConfirm(true)}
-                            >
-                              {t('cancelOrder')}
-                            </Button>
-                          )}
+                            {item.quantity}× {item.productName}
+                          </span>
+                          <span className="pos-mono" style={{ flexShrink: 0, color: 'var(--pos-ink)' }}>
+                            {formatCurrency(Number(item.totalPrice))}
+                          </span>
                         </div>
+                      ))}
+                      {order.items.length > 8 && (
+                        <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
+                          +{order.items.length - 8} {t('moreItems')}
+                        </span>
                       )}
                     </div>
                   )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </DialogModal>
+
+                  {showCancelConfirm ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
+                        padding: 12,
+                        borderRadius: 'var(--pos-r-sm)',
+                        border: '1px solid var(--pos-danger)',
+                        background: 'var(--pos-surface-2)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, fontWeight: 600 }}>
+                        <AlertCircle style={{ width: 20, height: 20, flexShrink: 0, color: 'var(--pos-danger)' }} />
+                        {t('cancelConfirm')}
+                      </div>
+                      <input
+                        type="text"
+                        className="pos-input"
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        placeholder={t('cancelReason')}
+                        aria-label={t('cancelReason')}
+                      />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="pos-btn pos-btn--sm pos-btn--danger"
+                          style={{ flex: 1 }}
+                          onClick={handleCancel}
+                          disabled={cancelMutation.isPending}
+                        >
+                          {cancelMutation.isPending ? '…' : t('confirmCancel')}
+                        </button>
+                        <button
+                          type="button"
+                          className="pos-btn pos-btn--sm pos-btn--secondary"
+                          onClick={() => {
+                            setShowCancelConfirm(false);
+                            setCancelReason('');
+                          }}
+                        >
+                          {tCancel('cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      <button
+                        type="button"
+                        className="pos-btn pos-btn--sm pos-btn--secondary"
+                        onClick={() => handleReprint('tickets')}
+                        disabled={reprintMutation.isPending}
+                      >
+                        <Printer />
+                        {t('reprintTickets')}
+                      </button>
+                      {order.paymentStatus === 'paid' && (
+                        <button
+                          type="button"
+                          className="pos-btn pos-btn--sm pos-btn--secondary"
+                          onClick={() => handleReprint('receipt')}
+                          disabled={reprintMutation.isPending}
+                        >
+                          <Receipt />
+                          {t('reprintReceipt')}
+                        </button>
+                      )}
+                      {canCancel(order) && (
+                        <button
+                          type="button"
+                          className="pos-btn pos-btn--sm pos-btn--danger-outline"
+                          onClick={() => setShowCancelConfirm(true)}
+                        >
+                          <XCircle />
+                          {t('cancelOrder')}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
+    </PosSheet>
   );
 }
