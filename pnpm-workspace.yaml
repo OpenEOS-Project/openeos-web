@@ -2,4 +2,4 @@
 # (Lieferketten-Schutz). Der Eintrag kann entfallen, sobald die Version
 # alt genug ist.
 minimumReleaseAgeExclude:
-  - '@openeos/ui@0.3.1'
+  - '@openeos/ui@0.3.2'
