@@ -10,14 +10,27 @@ import type { IntegrationId } from '@/types/organization';
  * Übersetzt die Fehler der Integrations-Endpunkte. INTEGRATION_DISABLED
  * kommt von den Endpunkten einer ausgeschalteten Integration (z. B. SumUp),
  * INTEGRATION_NOT_FOUND vom Schalter selbst, wenn die API die Integration
- * (noch) nicht kennt.
+ * (noch) nicht kennt. SUMUP_* kommen von den SumUp-Endpunkten.
  */
+const SUMUP_AUTH_FAILURE =
+  /\b401\b|\b403\b|unauthori[sz]ed|not[_ ]authori[sz]ed|forbidden|invalid[_ ](access[_ ])?token|invalid[_ ](api[_ ])?key|credentials/i;
+
 export function useIntegrationErrorMessage() {
   const t = useTranslations('integrations.errors');
   return (error: unknown, fallback?: string): string => {
     if (error instanceof ApiException) {
       if (error.code === 'INTEGRATION_DISABLED') return t('disabled');
       if (error.code === 'INTEGRATION_NOT_FOUND') return t('notFound');
+      if (error.code === 'SUMUP_NOT_CONFIGURED') return t('sumupNotConfigured');
+      // Die API reicht SumUp-Fehler als 400 SUMUP_API_ERROR durch; die
+      // Ursache steht nur im Text (Typ/Detail von SumUp bzw. Status der
+      // Upstream-Antwort). Abgelehnte Zugangsdaten sind der haeufigste
+      // Fall und bekommen einen eigenen, handlungsleitenden Hinweis.
+      if (error.code === 'SUMUP_API_ERROR') {
+        return SUMUP_AUTH_FAILURE.test(error.message)
+          ? t('sumupUnauthorized')
+          : t('sumupApiError');
+      }
     }
     return fallback ?? t('generic');
   };

@@ -678,7 +678,13 @@
           "processing": "Pairing",
           "expired": "Expired",
           "unknown": "Unknown"
-        }
+        },
+        "renameFailed": "The card reader could not be renamed.",
+        "deleteFailed": "The card reader could not be deleted.",
+        "deleteConfirmTitle": "Delete card reader?",
+        "deleteConfirmMessage": "\"{name}\" will be unpaired from SumUp and can no longer take payments. To use it again, it has to be paired anew.",
+        "renameReader": "Rename card reader \"{name}\"",
+        "deleteReader": "Delete card reader \"{name}\""
       }
     },
     "organizationNotifications": {
@@ -2883,7 +2889,10 @@
       "disabled": "This integration is not activated for your organization. You can activate it under “Integrations”.",
       "notFound": "This integration is not available on the server.",
       "toggleFailed": "The integration could not be switched. Please try again.",
-      "generic": "Something went wrong."
+      "generic": "Something went wrong.",
+      "sumupNotConfigured": "SumUp is not set up yet. Please enter the API key and merchant code first.",
+      "sumupUnauthorized": "SumUp rejected the credentials. Please check the API key and merchant code.",
+      "sumupApiError": "SumUp rejected the request. Please try again later or check the credentials."
     },
     "backToCatalog": "All integrations",
     "deactivated": "{name} has been deactivated.",

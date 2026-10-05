@@ -678,7 +678,13 @@
           "processing": "Wird gekoppelt",
           "expired": "Abgelaufen",
           "unknown": "Unbekannt"
-        }
+        },
+        "renameFailed": "Der Kartenleser konnte nicht umbenannt werden.",
+        "deleteFailed": "Der Kartenleser konnte nicht gelöscht werden.",
+        "deleteConfirmTitle": "Kartenleser löschen?",
+        "deleteConfirmMessage": "„{name}“ wird von SumUp entkoppelt und kann danach keine Zahlungen mehr annehmen. Zum erneuten Verwenden muss er neu gekoppelt werden.",
+        "renameReader": "Kartenleser „{name}“ umbenennen",
+        "deleteReader": "Kartenleser „{name}“ löschen"
       }
     },
     "organizationNotifications": {
@@ -2883,7 +2889,10 @@
       "disabled": "Diese Integration ist für Ihre Organisation nicht aktiviert. Sie können sie unter „Integrationen“ aktivieren.",
       "notFound": "Diese Integration ist auf dem Server nicht verfügbar.",
       "toggleFailed": "Die Integration konnte nicht umgeschaltet werden. Bitte versuchen Sie es erneut.",
-      "generic": "Ein Fehler ist aufgetreten."
+      "generic": "Ein Fehler ist aufgetreten.",
+      "sumupNotConfigured": "SumUp ist noch nicht eingerichtet. Bitte hinterlegen Sie zuerst API-Key und Merchant Code.",
+      "sumupUnauthorized": "SumUp hat die Zugangsdaten abgelehnt. Bitte prüfen Sie API-Key und Merchant Code.",
+      "sumupApiError": "SumUp hat die Anfrage abgelehnt. Bitte versuchen Sie es später erneut oder prüfen Sie die Zugangsdaten."
     },
     "backToCatalog": "Alle Integrationen",
     "deactivated": "{name} wurde deaktiviert.",
