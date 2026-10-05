@@ -589,7 +589,11 @@
       "vatExempt": {
         "label": "No VAT",
         "hint": "For associations and small businesses. When on, products carry 0% and no rate can be chosen."
-      }
+      },
+      "logoHint": "PNG, JPG or WEBP – max. 5 MB. Shown on the public shift plan page and in the shop.",
+      "replaceLogo": "Replace logo",
+      "removeLogoFailed": "Could not remove the logo",
+      "uploadLogoFailed": "Upload failed"
     },
     "organizationContact": {
       "title": "Contact",

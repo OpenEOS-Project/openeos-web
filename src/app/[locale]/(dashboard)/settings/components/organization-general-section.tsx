@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,16 +13,20 @@ import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 
-const orgGeneralSchema = z.object({
-  name: z.string().min(1, 'Name ist erforderlich'),
-  description: z.string().optional(),
-});
+function createOrgGeneralSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(1, t('nameRequired')),
+    description: z.string().optional(),
+  });
+}
 
-type OrgGeneralFormData = z.infer<typeof orgGeneralSchema>;
+type OrgGeneralFormData = z.infer<ReturnType<typeof createOrgGeneralSchema>>;
 
 export function OrganizationGeneralSection() {
   const t = useTranslations('settings.organizationGeneral');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
+  const orgGeneralSchema = useMemo(() => createOrgGeneralSchema(tValidation), [tValidation]);
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +48,28 @@ export function OrganizationGeneralSection() {
       reset({ name: data.name, description: data.settings?.description || '' });
     },
     // Ohne das blieb ein abgelehntes Speichern voellig stumm.
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : tCommon('error'));
+    },
+  });
+
+  /* Der Steuer-Schalter speichert sofort und unabhaengig vom Formular.
+     Eigene Mutation, damit sein Erfolg nicht ueber reset() noch nicht
+     gespeicherte Eingaben in Name/Beschreibung verwirft. */
+  const updateVatExempt = useMutation({
+    mutationFn: async (vatExempt: boolean) => {
+      if (!currentOrganization) throw new Error('No organization');
+      const response = await organizationsApi.update(currentOrganization.organizationId, {
+        settings: { vatExempt },
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (currentOrganization?.organization) {
+        setCurrentOrganization({ ...currentOrganization, organization: data });
+      }
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+    },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : tCommon('error'));
     },
@@ -87,7 +113,7 @@ export function OrganizationGeneralSection() {
       applyLogoUrl(newLogoUrl);
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Upload fehlgeschlagen';
+      const message = err instanceof Error ? err.message : t('uploadLogoFailed');
       toast.error(message);
     } finally {
       setIsUploading(false);
@@ -105,7 +131,7 @@ export function OrganizationGeneralSection() {
       applyLogoUrl(null);
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Logo konnte nicht entfernt werden';
+      const message = err instanceof Error ? err.message : t('removeLogoFailed');
       toast.error(message);
     } finally {
       setIsUploading(false);
@@ -148,7 +174,7 @@ export function OrganizationGeneralSection() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0, flex: '1 1 200px' }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>{t('logo')}</span>
               <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                PNG, JPG oder WEBP — max 5 MB. Wird auf der öffentlichen Helferplan-Seite und im Shop angezeigt.
+                {t('logoHint')}
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
                 <button
@@ -158,7 +184,7 @@ export function OrganizationGeneralSection() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
                 >
-                  {isUploading ? tCommon('saving') : logoUrl ? 'Logo ersetzen' : t('uploadLogo')}
+                  {isUploading ? tCommon('saving') : logoUrl ? t('replaceLogo') : t('uploadLogo')}
                 </button>
                 {logoUrl && (
                   <button
@@ -168,7 +194,7 @@ export function OrganizationGeneralSection() {
                     onClick={handleLogoDelete}
                     disabled={isUploading}
                   >
-                    Logo entfernen
+                    {t('removeLogo')}
                   </button>
                 )}
               </div>
@@ -179,13 +205,26 @@ export function OrganizationGeneralSection() {
           <div className="auth-field">
             <label className="auth-field__label" htmlFor="org-name">{t('name')}</label>
             <input id="org-name" className="input" {...register('name')} />
-            {errors.name && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</p>}
+            {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
           </div>
 
           <div className="auth-field">
             <label className="auth-field__label" htmlFor="org-description">{t('description_field')}</label>
             <textarea id="org-description" className="textarea" rows={3} {...register('description')} />
           </div>
+
+          {/* Steuerpflicht. Bewusst hier und nicht bei den Produkten: sie
+              gilt fuer die ganze Organisation, und aus ihr folgt, welche
+              Saetze ein Produkt ueberhaupt tragen darf. Frueher stand der
+              Schalter in der Fusszeile neben "Speichern" — er speichert
+              aber sofort und gehoert deshalb zu den Feldern. */}
+          <SettingToggle
+            label={t('vatExempt.label')}
+            hint={t('vatExempt.hint')}
+            checked={currentOrganization.organization?.settings?.vatExempt !== false}
+            disabled={updateVatExempt.isPending}
+            onChange={(checked) => updateVatExempt.mutate(checked)}
+          />
         </div>
 
         <div style={{
@@ -197,18 +236,6 @@ export function OrganizationGeneralSection() {
           <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
             {updateOrg.isPending ? t('saving') : t('saveChanges')}
           </button>
-          {/* Steuerpflicht. Bewusst hier und nicht bei den Produkten: sie
-              gilt fuer die ganze Organisation, und aus ihr folgt, welche
-              Saetze ein Produkt ueberhaupt tragen darf. */}
-          <SettingToggle
-            label={t('vatExempt.label')}
-            hint={t('vatExempt.hint')}
-            checked={currentOrganization.organization?.settings?.vatExempt !== false}
-            onChange={(checked) =>
-              updateOrg.mutate({ settings: { vatExempt: checked } })
-            }
-          />
-
         </div>
       </form>
     </div>

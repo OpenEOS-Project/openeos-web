@@ -589,7 +589,11 @@
       "vatExempt": {
         "label": "Keine Umsatzsteuer",
         "hint": "Für Vereine und Kleinunternehmer nach § 19 UStG. Ist das an, tragen Produkte 0 % und es gibt keine Auswahl."
-      }
+      },
+      "logoHint": "PNG, JPG oder WEBP – max. 5 MB. Wird auf der öffentlichen Helferplan-Seite und im Shop angezeigt.",
+      "replaceLogo": "Logo ersetzen",
+      "removeLogoFailed": "Logo konnte nicht entfernt werden",
+      "uploadLogoFailed": "Upload fehlgeschlagen"
     },
     "organizationContact": {
       "title": "Kontakt",
