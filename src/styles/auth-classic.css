@@ -12,12 +12,12 @@
   background: var(--oe-paper);
   color: var(--oe-ink);
 
-  /* Eingabefelder: helle Flaeche auf der Karte */
-  --color-bg-primary: var(--oe-surface);
-
-  /* Primaerknopf: wie .btn--primary im Rest der App */
-  --color-bg-brand-solid: var(--oe-primary);
-  --color-bg-brand-solid_hover: var(--oe-primary-hover);
+  /* Primaerknopf: wie .btn--primary im Rest der App. Die Utility
+     bg-brand-solid liest --background-color-brand-solid (theme.css), nicht
+     --color-bg-brand-solid — die Variable muss deshalb hier ueberschrieben
+     werden, die Ableitung in :root ist schon aufgeloest. */
+  --background-color-brand-solid: var(--oe-primary);
+  --background-color-brand-solid_hover: var(--oe-primary-hover);
   /* "text-white" auf dem Knopf — im Dunkeln ist der Knopf hell, die
      Schrift muss dann dunkel sein. */
   --color-white: var(--oe-on-primary);
