@@ -332,9 +332,12 @@ export default function DeviceRegisterPage() {
                   color: 'var(--pos-accent)',
                   letterSpacing: '0.08em',
                   lineHeight: 1.1,
+                  whiteSpace: 'nowrap',
                 }}
               >
-                {verificationCode}
+                {/* In Zweiergruppen wie auf /device/pair — dieselbe Zahl
+                    soll an beiden Stellen gleich aussehen. */}
+                {verificationCode?.replace(/(\d{2})(?=\d)/g, '$1 ')}
               </div>
             </div>
 

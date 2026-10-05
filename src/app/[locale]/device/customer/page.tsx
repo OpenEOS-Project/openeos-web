@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
 import { useDisplayAppearance } from '@/hooks/use-display-appearance';
 import { deviceApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import type { CustomerCartPayload } from '@/hooks/use-customer-display-broadcast';
 
 interface PosCartUpdatedEvent extends CustomerCartPayload {
@@ -20,6 +20,8 @@ const THANK_YOU_DURATION_MS = 6000;
 
 export default function DeviceCustomerDisplayPage() {
   const t = useTranslations('device.customer');
+  const formatCurrency = useFormatPrice();
+  const itemsScrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const hasHydrated = useDeviceHydration();
 
@@ -109,6 +111,16 @@ export default function DeviceCustomerDisplayPage() {
     return () => clearTimeout(timer);
   }, [cart?.status, cart?.updatedAt]);
 
+  /* Neue Positionen landen unten. Ab etwa acht Zeilen lagen sie hinter
+     der Summe, und der Gast sah nicht, was gerade dazukam — deshalb bei
+     jeder Aenderung des Warenkorbs ans Listenende. */
+  const itemsSignature = cart?.items.map((i) => `${i.id}:${i.quantity}`).join('|') ?? '';
+  useEffect(() => {
+    const el = itemsScrollRef.current;
+    if (!el || !itemsSignature) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  }, [itemsSignature]);
+
   if (!hasHydrated || !deviceId || status !== 'verified') {
     return (
       <div className="flex h-screen items-center justify-center bg-secondary">
@@ -195,7 +207,7 @@ export default function DeviceCustomerDisplayPage() {
           </div>
 
           {/* Items */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div ref={itemsScrollRef} className="flex-1 overflow-y-auto px-6 py-4">
             <div className="flex flex-col gap-3">
               {cart.items.map((item) => (
                 <div

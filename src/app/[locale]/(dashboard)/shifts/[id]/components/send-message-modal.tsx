@@ -129,7 +129,7 @@ export function SendMessageModal({ open, plan, helper, allHelperEmails = [], onC
                 </div>
 
                 {recipientCount === 0 && (
-                  <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #d97706 12%, transparent)', color: '#b45309', fontSize: 13 }}>
+                  <div style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 13 }}>
                     {isSingle
                       ? 'Dieser Helfer hat keine E-Mail-Adresse — eine Nachricht kann nicht zugestellt werden.'
                       : 'Kein Helfer hat eine E-Mail-Adresse hinterlegt.'}

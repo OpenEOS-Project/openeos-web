@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { CreditCard01, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
 import { deviceApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 
 type CheckoutState = 'tip' | 'initiating' | 'waiting' | 'success' | 'failed' | 'cancelled';
 
@@ -29,6 +29,7 @@ const KNOWN_ERRORS = [
 
 export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUpCheckoutModalProps) {
   const t = useTranslations('pos.sumupCheckout');
+  const formatCurrency = useFormatPrice();
   const [state, setState] = useState<CheckoutState>('tip');
   const [error, setError] = useState<string | null>(null);
   // Vom Kassierer gewähltes Trinkgeld; wird vor dem Checkout bestätigt.
@@ -43,6 +44,12 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   // Bestätigtes Trinkgeld zum Zeitpunkt des Checkout-Starts — wird an
   // onSuccess zurückgegeben, damit Order + Zahlung den Betrag erfassen.
   const tipRef = useRef(0);
+  // Ob der Dialog im letzten Durchlauf offen war und ob dabei ein Checkout
+  // am Lesegeraet gestartet wurde. Der Dialog ist dauerhaft eingehaengt
+  // (isOpen=false); ohne diese Merker ging bei jedem Laden der Kasse ein
+  // terminate an SumUp raus, das mit 400 endete.
+  const wasOpenRef = useRef(false);
+  const checkoutStartedRef = useRef(false);
 
   const getErrorMessage = (err: unknown): string => {
     // Zwischen Ausschalten in der Verwaltung und dem nächsten Abruf der
@@ -76,9 +83,13 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   useEffect(() => {
     if (!isOpen) {
       stopPolling();
-      if (!cancelledRef.current) {
+      // Nur beim Uebergang offen -> geschlossen, und nur wenn wirklich ein
+      // Checkout lief. Ein Abbruch ueber handleCancel hat selbst beendet.
+      if (wasOpenRef.current && checkoutStartedRef.current && !cancelledRef.current) {
         terminateReader();
       }
+      wasOpenRef.current = false;
+      checkoutStartedRef.current = false;
       cancelledRef.current = false;
       setState('tip');
       setTip(0);
@@ -89,6 +100,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
 
     // Beim Öffnen wird die Zahlung NICHT sofort gestartet — zuerst wählt der
     // Kassierer das Trinkgeld, danach wird der Checkout über confirmTip() initiiert.
+    wasOpenRef.current = true;
     cancelledRef.current = false;
     setState('tip');
     setTip(0);
@@ -103,6 +115,7 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
   // Startet den Reader-Checkout über den Gesamtbetrag (Warenkorb + Trinkgeld).
   const startCheckout = async (tipValue: number) => {
     cancelledRef.current = false;
+    checkoutStartedRef.current = true;
     tipRef.current = tipValue;
     setState('initiating');
     setError(null);
@@ -144,6 +157,8 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
 
         if (checkoutStatus === 'SUCCESSFUL' || checkoutStatus === 'successful') {
           stopPolling();
+          // Abgeschlossen — am Lesegeraet gibt es nichts mehr zu beenden.
+          checkoutStartedRef.current = false;
           setState('success');
           setTimeout(() => {
             onSuccess(tipRef.current);
@@ -395,7 +410,6 @@ export function SumUpCheckoutModal({ isOpen, onClose, amount, onSuccess }: SumUp
                     fontSize: 15,
                     fontWeight: 700,
                     textAlign: 'center',
-                    outline: 'none',
                   }}
                 />
               </div>

@@ -391,13 +391,13 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     const overlaps = overlapIds.has(reg.id);
                     const statusBadgeStyle =
                       reg.status === 'confirmed'
-                        ? { bg: 'color-mix(in oklab, #10b981 18%, transparent)', fg: '#065f46', label: 'bestätigt' }
+                        ? { bg: 'color-mix(in oklab, var(--green-soft) 70%, transparent)', fg: 'var(--green-ink)', label: 'bestätigt' }
                         : reg.status === 'pending_email'
                         ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'E-Mail offen' }
                         : reg.status === 'pending_approval'
                         ? { bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)', label: 'Approval offen' }
                         : reg.status === 'rejected'
-                        ? { bg: 'color-mix(in oklab, var(--danger) 18%, transparent)', fg: '#991b1b', label: 'abgelehnt' }
+                        ? { bg: 'color-mix(in oklab, var(--danger) 18%, transparent)', fg: 'var(--danger-ink)', label: 'abgelehnt' }
                         : { bg: 'color-mix(in oklab, var(--ink) 12%, transparent)', fg: 'color-mix(in oklab, var(--ink) 70%, transparent)', label: reg.status };
 
                     return (

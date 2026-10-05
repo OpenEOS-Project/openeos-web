@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { apiClient, authApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
@@ -9,10 +10,26 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+/** Kasse, Station und Anzeigen (/device/*, mit oder ohne Sprachpraefix).
+ *  Nicht /devices/* — dort gibt ein angemeldeter Benutzer Geraete frei. */
+const DEVICE_ROUTE = /^(?:\/[a-z]{2})?\/device(?:\/|$)/;
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const { setUser, setOrganizations, setLoading } = useAuthStore();
+  const pathname = usePathname();
+  const isDeviceRoute = DEVICE_ROUTE.test(pathname ?? '');
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    /* Geraeteansichten arbeiten mit dem Geraete-Token, nie mit einer
+       Benutzersitzung. Die Abfrage lief dort trotzdem bei jedem Laden und
+       endete in einem 401 (plus Refresh-Versuch) in der Konsole. Sie wird
+       nur uebersprungen, nicht als "abgemeldet" verbucht: isLoading bleibt
+       true, und wechselt die Seite doch in die Verwaltung, holt dieser
+       Effekt die Pruefung nach, bevor der AuthGuard entscheidet. */
+    if (isDeviceRoute || initializedRef.current) return;
+    initializedRef.current = true;
+
     // Der Access-Token liegt seit der Umstellung auf httpOnly-Cookies nicht
     // mehr im localStorage und ist nach einem Reload für JS unsichtbar. Ein
     // "kein Token da -> nicht eingeloggt" wie früher würde die Sitzung
@@ -56,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     initializeAuth();
-  }, [setUser, setOrganizations, setLoading]);
+  }, [isDeviceRoute, setUser, setOrganizations, setLoading]);
 
   return <>{children}</>;
 }

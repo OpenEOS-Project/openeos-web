@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { PosIcon } from '@openeos/pos-icons';
 import type { Category } from '@/types/category';
 
@@ -30,6 +31,7 @@ export function PosCategoryRail({
   onSelectCategory,
   orientation = 'vertical',
 }: PosCategoryRailProps) {
+  const t = useTranslations('deviceUi.pos');
   const active = categories
     .filter((c) => c.isActive)
     .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -66,7 +68,8 @@ export function PosCategoryRail({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '8px 12px',
+                minHeight: 44,
+                padding: '8px 14px',
                 background: on ? 'var(--pos-accent)' : 'var(--pos-surface)',
                 color: on ? 'var(--pos-accent-contrast)' : 'var(--pos-ink)',
                 border: `1px solid ${on ? 'var(--pos-accent)' : 'var(--pos-line)'}`,
@@ -92,8 +95,13 @@ export function PosCategoryRail({
   }
 
   // Vertical sidebar
+  /* Klassen fuer die schmale Tablet-Variante in pos.css (768-1023px):
+     dort steht das Symbol ueber dem Namen, sonst blieb von "Getraenke"
+     in 80px nur "G" uebrig. */
   return (
     <aside
+      className="pos-cat-rail"
+      aria-label={t('categories')}
       style={{
         background: 'var(--pos-surface-2)',
         borderRight: '1px solid var(--pos-line)',
@@ -104,6 +112,7 @@ export function PosCategoryRail({
       }}
     >
       <div
+        className="pos-cat-rail__head"
         style={{
           padding: '14px 16px 8px',
           fontSize: 11,
@@ -113,10 +122,10 @@ export function PosCategoryRail({
           letterSpacing: '0.08em',
         }}
       >
-        Kategorien
+        {t('categories')}
       </div>
       <div
-        className="pos-scroll"
+        className="pos-scroll pos-cat-rail__list"
         style={{ flex: 1, overflowY: 'auto', padding: '0 10px 10px' }}
       >
         {active.map((c) => {
@@ -126,12 +135,16 @@ export function PosCategoryRail({
               key={c.id}
               type="button"
               onClick={() => onSelectCategory(c.id)}
+              className="pos-cat-rail__item"
+              aria-pressed={on}
+              title={c.name}
               style={{
                 display: 'grid',
                 gridTemplateColumns: '28px 1fr',
                 alignItems: 'center',
                 gap: 10,
                 width: '100%',
+                minHeight: 48,
                 padding: '10px 12px',
                 marginBottom: 3,
                 border: 'none',
@@ -154,10 +167,11 @@ export function PosCategoryRail({
               <span style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', lineHeight: 1 }}>
                 <CategoryIcon icon={c.icon} size={20} />
               </span>
-              <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                <span>{c.name}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2, minWidth: 0 }}>
+                <span className="pos-cat-rail__label">{c.name}</span>
                 {c.description && (
                   <span
+                    className="pos-cat-rail__desc"
                     style={{
                       fontSize: 11,
                       fontWeight: 400,

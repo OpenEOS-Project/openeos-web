@@ -8,12 +8,13 @@ import { useCartStore, useCartHydration } from '@/stores/cart-store';
 import { notifyCustomerDisplayOrderCompleted } from '@/hooks/use-customer-display-broadcast';
 import { useDeviceStore } from '@/stores/device-store';
 import { deviceApi } from '@/lib/api-client';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { resolveChargePfand } from '@/utils/pfand';
 import { CashPaymentModal } from './cash-payment-modal';
 import { DiscountVoucherModal } from './discount-voucher-modal';
 import { PfandReturnModal } from './pfand-return-modal';
 import { SumUpCheckoutModal } from './sumup-checkout-modal';
+import { PosPortal } from './pos-portal';
 import { isIntegrationEnabled } from '@/config/integrations';
 import type { PaymentMethod } from '@/types/payment';
 
@@ -24,12 +25,32 @@ interface PosCartProps {
   onOpenTabs?: () => void;
 }
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price);
-}
+/* Mengenknoepfe einer Warenkorbzeile: 44px, die Mindestgroesse fuer
+   Touch-Ziele. Vorher 28px — auf dem Tablet oft daneben getippt. */
+const qtyBtn: CSSProperties = {
+  width: 44,
+  height: 44,
+  border: 'none',
+  background: 'transparent',
+  cursor: 'pointer',
+  color: 'var(--pos-ink-2)',
+  fontSize: 18,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+/* Kopf-Knoepfe des Warenkorbs (Pfand-Rueckgabe, offene Rechnungen). */
+const headBtn: CSSProperties = {
+  minHeight: 44,
+  padding: '6px 12px',
+  background: 'var(--pos-surface)',
+  border: '1px solid var(--pos-line)',
+  borderRadius: 'var(--pos-r-sm)',
+  fontSize: 12,
+  color: 'var(--pos-ink-2)',
+  cursor: 'pointer',
+};
 
 const miniStepBtn = (disabled: boolean): CSSProperties => ({
   width: 22,
@@ -55,6 +76,8 @@ export function PosCart({
   onOpenTabs,
 }: PosCartProps) {
   const t = useTranslations('pos');
+  const tUi = useTranslations('deviceUi');
+  const formatPrice = useFormatPrice();
   const queryClient = useQueryClient();
   const cartHydrated = useCartHydration();
   const {
@@ -257,6 +280,7 @@ export function PosCart({
 
   return (
     <div
+      className="pos-cart"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -286,7 +310,11 @@ export function PosCart({
               fontWeight: 600,
             }}
           >
-            {tableNumber ? t('cart.tableLabel', { number: tableNumber }) : t('cart.newOrder')}
+            {/* Im Thekenbetrieb traegt tableNumber nur den Geraetenamen
+                ("Tisch Testkasse" war irrefuehrend). */}
+            {tableNumber && serviceMode === 'table'
+              ? t('cart.tableLabel', { number: tableNumber })
+              : t('cart.newOrder')}
           </span>
           <span
             style={{ fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)', lineHeight: 1.2 }}
@@ -299,16 +327,7 @@ export function PosCart({
             <button
               type="button"
               onClick={() => setShowPfandReturnModal(true)}
-              style={{
-                padding: '6px 10px',
-                background: 'var(--pos-surface)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-sm)',
-                fontSize: 12,
-                fontWeight: 600,
-                color: 'var(--pos-ink-2)',
-                cursor: 'pointer',
-              }}
+              style={{ ...headBtn, fontWeight: 600 }}
             >
               ↩ {t('pfand.returnButton')}
             </button>
@@ -332,16 +351,7 @@ export function PosCart({
             <button
               type="button"
               onClick={onOpenTabs}
-              style={{
-                padding: '6px 10px',
-                background: 'var(--pos-surface)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-sm)',
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--pos-ink-2)',
-                cursor: 'pointer',
-              }}
+              style={{ ...headBtn, fontWeight: 500 }}
             >
               {t('cart.tabs')}
             </button>
@@ -413,6 +423,7 @@ export function PosCart({
           items.map((item) => (
             <div
               key={item.id}
+              className="pos-cart-line"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
@@ -441,10 +452,16 @@ export function PosCart({
                       fontWeight: 600,
                       color: 'var(--pos-ink)',
                       lineHeight: 1.25,
+                      // Zwei Zeilen statt einer: "Bratwurst im Weck mit
+                      // Senf" war sonst nach "Bratwurst im…" am Ende.
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      overflowWrap: 'break-word',
+                      hyphens: 'auto',
                     }}
+                    title={item.product.name}
                   >
                     {item.product.name}
                   </span>
@@ -518,7 +535,7 @@ export function PosCart({
               </div>
 
               {/* Right: qty controls + price */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
+              <div className="pos-cart-line__controls" style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
                 <div
                   style={{
                     display: 'flex',
@@ -536,36 +553,16 @@ export function PosCart({
                         ? removeItem(item.id)
                         : updateItemQuantity(item.id, item.quantity - 1)
                     }
-                    style={{
-                      width: 28,
-                      height: 28,
-                      border: 'none',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      color: 'var(--pos-ink-2)',
-                      fontSize: 16,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    aria-label={tUi('common.decrease')}
+                    style={qtyBtn}
                   >
                     −
                   </button>
                   <button
                     type="button"
                     onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
-                    style={{
-                      width: 28,
-                      height: 28,
-                      border: 'none',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      color: 'var(--pos-ink-2)',
-                      fontSize: 16,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    aria-label={tUi('common.increase')}
+                    style={qtyBtn}
                   >
                     +
                   </button>
@@ -578,7 +575,7 @@ export function PosCart({
                     minWidth: 62,
                     textAlign: 'right',
                     color: 'var(--pos-ink)',
-                    paddingTop: 5,
+                    paddingTop: 13,
                   }}
                 >
                   {formatPrice(item.unitPrice * item.quantity)}
@@ -613,7 +610,7 @@ export function PosCart({
         </div>
 
         {/* Discount / voucher section */}
-        {items.length > 0 && (
+        {items.length > 0 && (appliedVouchers.length > 0 || discountVouchers.length > 0) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {appliedVouchers.map((v) => (
               <div
@@ -653,6 +650,9 @@ export function PosCart({
               </div>
             ))}
 
+            {/* Nur anbieten, wenn es ueberhaupt Bons gibt — sonst oeffnete
+                der Knopf einen leeren Dialog. */}
+            {discountVouchers.length > 0 && (
             <button
               type="button"
               onClick={() => setShowVoucherModal(true)}
@@ -674,6 +674,7 @@ export function PosCart({
               <Tag01 style={{ width: 14, height: 14 }} />
               {t('discount.addVoucher')}
             </button>
+            )}
           </div>
         )}
 
@@ -739,7 +740,7 @@ export function PosCart({
             className="pos-mono"
             style={{ fontSize: 26, fontWeight: 700, color: 'var(--pos-ink)', letterSpacing: '-0.02em' }}
           >
-            {formatCurrency(payableTotal)}
+            {formatPrice(payableTotal)}
           </span>
         </div>
 
@@ -866,6 +867,9 @@ export function PosCart({
               fontSize: 12,
               color: 'var(--pos-ink-3)',
               cursor: 'pointer',
+              // 44px Trefferflaeche ohne sichtbar mehr Abstand
+              minHeight: 44,
+              margin: '-8px 0 -10px',
               padding: '2px 0',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--pos-danger)'; }}
@@ -876,7 +880,8 @@ export function PosCart({
         )}
       </div>
 
-      {/* Modals */}
+      {/* Modals — ueber ein Portal an .pos-root, siehe PosPortal */}
+      <PosPortal>
       <CashPaymentModal
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
@@ -909,6 +914,7 @@ export function PosCart({
         initialCounts={Object.fromEntries(pfandReturns.map((l) => [l.pfandTypeId, l.quantity]))}
         onOffset={(lines) => { setPfandReturns(lines); setShowPfandReturnModal(false); }}
       />
+      </PosPortal>
     </div>
   );
 }

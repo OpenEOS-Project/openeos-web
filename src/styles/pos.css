@@ -24,7 +24,9 @@
   --pos-line-strong: #c6c4be;
   --pos-ink:         #1d1a15;
   --pos-ink-2:       #504d47;
-  --pos-ink-3:       #898681;
+  /* Kleingedrucktes (10-13px) — vorher #898681 mit 3,4-3,6:1. Jetzt
+     >= 4,9:1 auf --pos-bg, --pos-surface und --pos-surface-2. */
+  --pos-ink-3:       #6e6b67;
 
   /* Semantic */
   --pos-danger: #bd413f;
@@ -43,9 +45,13 @@
   --pos-sh-2: 0 4px 12px rgba(20, 18, 12, 0.06), 0 1px 3px rgba(20, 18, 12, 0.05);
   --pos-sh-3: 0 18px 40px rgba(20, 18, 12, 0.10), 0 4px 12px rgba(20, 18, 12, 0.06);
 
-  /* Typography */
-  --pos-ff-ui:   'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --pos-ff-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Typography — dieselben Schriften wie der Rest der App (Geist und
+     JetBrains Mono aus @openeos/ui/fonts, verbunden in globals.css).
+     Hier stand "Inter Tight", das nirgends geladen wurde: jedes Geraet
+     zeigte seine Systemschrift, und die Dialoge (Geist) sahen anders aus
+     als die Kasse dahinter. */
+  --pos-ff-ui:   var(--f-sans, system-ui, sans-serif);
+  --pos-ff-mono: var(--f-mono, ui-monospace, monospace);
 
   /* Base */
   font-family: var(--pos-ff-ui);
@@ -76,7 +82,7 @@
     --pos-line-strong: oklch(0.82 0.008 85);
     --pos-ink:         oklch(0.22 0.01 80);
     --pos-ink-2:       oklch(0.42 0.01 80);
-    --pos-ink-3:       oklch(0.62 0.008 80);
+    --pos-ink-3:       oklch(0.53 0.008 80);
 
     --pos-danger: oklch(0.55 0.16 25);
     --pos-warn:   oklch(0.72 0.14 75);
@@ -179,11 +185,46 @@ body:has(.pos-root) {
 .pos-cart-col   { display: block; }
 .pos-mobile-bar { display: none; }
 
-/* Tablet 768–1023px: narrow sidebar | products | cart */
+/* Tablet 768–1023px (iPad hochkant): schmale Kategorieleiste | products | cart.
+   In 80px blieb vom Namen nur "G" oder "Sp" uebrig. Die Leiste ist jetzt
+   96px breit und stellt das Symbol ueber den Namen, der auf zwei Zeilen
+   umbrechen darf (mit Silbentrennung). Die Ueberschrift "Kategorien"
+   entfaellt dort — "KATEGOR" war nur abgeschnitten. Die Knoepfe tragen
+   ihre Masse inline, daher !important. */
 @media (max-width: 1023px) {
   .pos-body {
-    grid-template-columns: 80px 1fr 300px;
+    grid-template-columns: 96px 1fr 300px;
   }
+  .pos-cat-rail__head { display: none; }
+  .pos-cat-rail__list { padding: 8px 6px !important; }
+  .pos-cat-rail__item {
+    grid-template-columns: 1fr !important;
+    justify-items: center;
+    gap: 4px !important;
+    min-height: 64px !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  .pos-cat-rail__label {
+    font-size: 12px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+  .pos-cat-rail__desc { display: none; }
+}
+
+/* Warenkorbzeile: Mit 44px-Mengenknoepfen blieb in der 300px-Spalte des
+   Tablets fuer den Namen kaum Platz ("Apfelscho-rle"). Ist der Warenkorb
+   schmal, stehen Mengen und Preis unter dem Namen statt daneben. */
+.pos-cart { container: poscart / inline-size; }
+@container poscart (max-width: 340px) {
+  .pos-cart-line { grid-template-columns: 1fr !important; gap: 4px !important; }
+  .pos-cart-line__controls { justify-content: flex-end; }
 }
 
 /* Visibility helpers — default state */
@@ -347,11 +388,15 @@ body:has(.pos-root) {
      Fernseher richtig — auf einem hochkanten Telefon ist die Hoehe die
      grosse Seite, und der Code wuchs dort auf 118px und brach in drei
      Zeilen um. Die schmalere Seite entscheidet jetzt mit. */
-  font-size: clamp(40px, min(14vh, 16vw), 150px);
+  font-size: clamp(40px, min(14vh, 14vw), 150px);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
   color: var(--pos-accent);
+  /* Der Code ist eine Einheit — umgebrochen las man "12 34" und darunter
+     "56" als zwei Zahlen. 14vw haelt ihn auf einem 360px-Telefon in einer
+     Zeile. */
+  white-space: nowrap;
 }
 .display-pair__qr {
   padding: 14px;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Minus, Plus, X } from '@untitledui/icons';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import type { PfandType } from '@/types/pfand';
 import type { CartPfandReturnLine } from '@/stores/cart-store';
@@ -34,6 +34,7 @@ export function PfandReturnModal({
   onOffset,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
+  const formatCurrency = useFormatPrice();
   const tCommon = useTranslations('common');
   const [isClosing, setIsClosing] = useState(false);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -96,8 +97,8 @@ export function PfandReturnModal({
   if (!isOpen) return null;
 
   const counterBtn: React.CSSProperties = {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -172,8 +173,8 @@ export function PfandReturnModal({
             onClick={handleClose}
             aria-label={tCommon('close')}
             style={{
-              width: 36,
-              height: 36,
+              width: 44,
+              height: 44,
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',

@@ -25,7 +25,12 @@ export function PosActiveEventBadge({ event }: PosActiveEventBadgeProps) {
       <Calendar className="h-4 w-4 text-tertiary" />
       <span>{event.name}</span>
       {event.status === 'test' && (
-        <span className="rounded-full bg-warning-secondary px-2 py-0.5 text-xs font-medium text-warning-primary dark:text-white">
+        /* Feste Farben wie der Testmodus-Hinweis in der Kopfzeile: die
+           Kasse ist immer hell, die Theme-Klassen ergaben hier 2,7:1. */
+        <span
+          className="rounded-full px-2 py-0.5 text-xs font-semibold"
+          style={{ background: '#fff3d0', color: '#754b00', border: '1px solid #e6ca91' }}
+        >
           {t('testBadge')}
         </span>
       )}

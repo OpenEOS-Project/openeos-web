@@ -30,12 +30,22 @@
 
   --mute: var(--oe-mute);
   --mute-2: var(--oe-mute-2);
+  /* Wurde an ~50 Stellen benutzt, aber nie definiert — die Texte fielen
+     auf die geerbte Farbe zurueck. Gleich --mute, weil alles darunter
+     (--mute-2) fuer Text zu schwach ist (~2:1). */
+  --ink-faint: var(--oe-mute);
 
   /* Statusfarben — nie Hex in Komponenten, immer diese hier. */
   --danger: var(--oe-danger);
   --danger-soft: var(--oe-danger-soft);
   --warn: var(--oe-warn);
-  --warn-ink: var(--oe-warn);
+  /* *-ink: Statusfarbe als Text auf hellem wie dunklem Grund. Die reine
+     Statusfarbe (--oe-warn #c8871a) kommt im Hellen auf ~2,5:1; mit Tinte
+     gemischt wird sie im Hellen dunkler und im Dunkeln heller, beide
+     Varianten liegen ueber 5:1 auf --surface und den weichen Badge-Flaechen. */
+  --warn-ink: color-mix(in oklab, var(--oe-warn) 60%, var(--oe-ink));
+  --danger-ink: color-mix(in oklab, var(--oe-danger) 75%, var(--oe-ink));
+  --info-ink: color-mix(in oklab, var(--oe-info) 75%, var(--oe-ink));
 
   /* Kontrastflaechen fuer invertierte Bloecke. */
   --contrast: var(--oe-contrast);
@@ -2486,11 +2496,24 @@ body:has(.landing) {
 
 .landing .app-card__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 18px 20px;
   border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
+/* Reicht die Breite nicht, rutschen die Aktionen unter den Titel statt
+   rechts aus der Karte (overflow:hidden) zu laufen. Der Titelblock
+   waechst, damit er nicht Wort fuer Wort umbricht; die Aktionsgruppe
+   darf selbst ebenfalls umbrechen. */
+.landing .app-card__head > :first-child:not(:last-child) {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.landing .app-card__head > :last-child:not(:first-child) {
+  flex-wrap: wrap;
 }
 
 .landing .app-card__title {
@@ -2652,18 +2675,19 @@ body:has(.landing) {
 }
 
 .landing .badge--warning {
-  background: color-mix(in oklab, #f5b544 18%, transparent);
-  color: #8a5e10;
+  background: color-mix(in oklab, var(--warn) 18%, transparent);
+  color: var(--warn-ink);
 }
 
-.landing .badge--error {
+.landing .badge--error,
+.landing .badge--danger {
   background: color-mix(in oklab, var(--danger) 12%, transparent);
-  color: #8a1f1f;
+  color: var(--danger-ink);
 }
 
 .landing .badge--info {
-  background: color-mix(in oklab, #4a90d9 12%, transparent);
-  color: #1a4a7a;
+  background: color-mix(in oklab, var(--oe-info) 12%, transparent);
+  color: var(--info-ink);
 }
 
 /* ============================= MODAL ============================= */
@@ -2927,7 +2951,13 @@ body:has(.landing) {
      darunter laeuft. */
   .landing .app-content {
     padding-top: 16px;
-    padding-right: 64px;
+  }
+  /* Platz nur dort, wo der schwebende Menueknopf (oben rechts, 40px)
+     tatsaechlich sitzt: Brotkrumen und Seitenkopf. Darunter nutzt der
+     Inhalt die volle Breite. */
+  .landing .app-content > .oe-crumbs,
+  .landing .app-content .app-page-head {
+    padding-right: 48px;
   }
 }
 
@@ -2959,180 +2989,13 @@ body:has(.landing) {
   height: 22px;
 }
 
-/* ==========================================================
-   POS — Design tokens for device/pos route
-   Scoped to .pos-root so they never bleed into dashboard.
-   Mirror the prototype's pos/tokens.css variables.
-   ========================================================== */
-
-.pos-root {
-  /* sRGB hex by default; modern browsers upgrade to oklch in the @supports
-     block after this rule. Mirrors pos.css. (Inline oklch fallbacks don't work
-     for custom properties — the last declaration wins even when invalid.) */
-
-  /* Accent — deep green (matches landing brand) */
-  --pos-accent:          #225a39;
-  --pos-accent-contrast: #f6f9f7;
-  --pos-accent-soft:     #dff0e4;
-  --pos-accent-ink:      #153c25;
-
-  /* Neutrals — warm paper */
-  --pos-bg:         #fbfaf7;
-  --pos-surface:    #ffffff;
-  --pos-surface-2:  #f8f7f3;
-  --pos-line:       #e0deda;
-  --pos-line-strong:#c6c4be;
-  --pos-ink:        #1d1a15;
-  --pos-ink-2:      #504d47;
-  --pos-ink-3:      #898681;
-
-  /* Semantic */
-  --pos-danger: #bd413f;
-  --pos-warn:   #d79628;
-  --pos-ok:     #429c5a;
-
-  /* Radii */
-  --pos-r-xs: 6px;
-  --pos-r-sm: 10px;
-  --pos-r-md: 14px;
-  --pos-r-lg: 20px;
-  --pos-r-xl: 28px;
-
-  /* Shadows */
-  --pos-sh-1: 0 1px 0 rgba(20, 18, 12, 0.04), 0 1px 2px rgba(20, 18, 12, 0.04);
-  --pos-sh-2: 0 4px 12px rgba(20, 18, 12, 0.06), 0 1px 3px rgba(20, 18, 12, 0.05);
-  --pos-sh-3: 0 18px 40px rgba(20, 18, 12, 0.10), 0 4px 12px rgba(20, 18, 12, 0.06);
-
-  /* Typography */
-  --pos-ff-ui:  'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --pos-ff-mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-
-  /* Base resets */
-  font-family: var(--pos-ff-ui);
-  color: var(--pos-ink);
-  background: var(--pos-bg);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  letter-spacing: -0.005em;
-}
-
-/* Upgrade to oklch on capable browsers (Chrome/Edge 111+); older browsers keep
-   the hex values above. */
-@supports (color: oklch(0 0 0)) {
-  .pos-root {
-    --pos-accent:          oklch(0.42 0.08 155);
-    --pos-accent-contrast: oklch(0.98 0.005 155);
-    --pos-accent-soft:     oklch(0.94 0.025 155);
-    --pos-accent-ink:      oklch(0.32 0.06 155);
-
-    --pos-bg:         oklch(0.985 0.004 85);
-    --pos-surface:    oklch(1 0 0);
-    --pos-surface-2:  oklch(0.975 0.005 85);
-    --pos-line:       oklch(0.9 0.006 85);
-    --pos-line-strong:oklch(0.82 0.008 85);
-    --pos-ink:        oklch(0.22 0.01 80);
-    --pos-ink-2:      oklch(0.42 0.01 80);
-    --pos-ink-3:      oklch(0.62 0.008 80);
-
-    --pos-danger: oklch(0.55 0.16 25);
-    --pos-warn:   oklch(0.72 0.14 75);
-    --pos-ok:     oklch(0.62 0.13 150);
-  }
-}
-
-.pos-root *,
-.pos-root *::before,
-.pos-root *::after {
-  box-sizing: border-box;
-}
-
-.pos-root button {
-  font-family: inherit;
-}
-
-.pos-mono {
-  font-family: var(--pos-ff-mono);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-/* Thin scrollbars inside POS regions */
-.pos-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: var(--pos-line-strong) transparent;
-}
-.pos-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.pos-scroll::-webkit-scrollbar-thumb {
-  background: var(--pos-line-strong);
-  border-radius: 6px;
-}
-.pos-scroll::-webkit-scrollbar-track { background: transparent; }
-
-/* Focus ring */
-.pos-root :focus-visible {
-  outline: 2px solid var(--pos-accent);
-  outline-offset: 2px;
-}
-
-/* Animations */
-@keyframes pos-pop {
-  0%   { transform: scale(0.6); opacity: 0; }
-  60%  { transform: scale(1.15); }
-  100% { transform: scale(1);   opacity: 1; }
-}
-@keyframes pos-slide-up {
-  from { transform: translateY(12px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-@keyframes pos-slide-up-sheet {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
+/* Die Kassen-Tokens und -Layoutregeln standen hier als zweite Kopie von
+   pos.css — samt eigener, abweichender Tablet-Spalte und der nie
+   geladenen Schrift "Inter Tight". Die Geraeteansichten laden nur
+   pos.css; die Kopie ist entfallen. Geblieben ist die Drehung, die auch
+   Ladeanzeigen der Verwaltung per animation: spin benutzen. */
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-/* ── POS responsive layout ─────────────────────────────────────────────── */
-
-/* Desktop ≥1024px: sidebar(200px) | products | cart(380px) */
-.pos-body {
-  grid-template-columns: 200px 1fr 380px;
-}
-/* Horizontal pills row — hidden on desktop, shown on tablet */
-.pos-pills-row { display: none; }
-/* Cart column — always visible on desktop */
-.pos-cart-col { display: block; }
-/* Mobile bottom bar — hidden on desktop */
-.pos-mobile-bar { display: none; }
-
-/* Tablet 768–1023px: compact icon rail(72px) | products | cart(300px) */
-@media (max-width: 1023px) {
-  .pos-body {
-    grid-template-columns: 72px 1fr 300px;
-  }
-  /* On tablet the vertical sidebar shows icon-only; label hidden via width */
-}
-
-/* Mobile <768px: full width products, cart as bottom sheet */
-@media (max-width: 767px) {
-  .pos-body {
-    grid-template-columns: 1fr;
-  }
-  /* Hide sidebar and cart column (inline display on aside requires !important) */
-  .pos-body > aside:first-child,
-  .pos-cart-col {
-    display: none !important;
-  }
-  /* Show horizontal pills */
-  .pos-pills-row { display: block; }
-  /* Show bottom bar */
-  .pos-mobile-bar {
-    display: flex;
-    background: var(--pos-surface);
-    border-top: 1px solid var(--pos-line);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    flex-shrink: 0;
-  }
 }
 
 /* ============================= SHARED UI PRIMITIVES =============================

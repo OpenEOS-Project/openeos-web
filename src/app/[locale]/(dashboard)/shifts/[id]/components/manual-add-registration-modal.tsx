@@ -293,7 +293,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
                               <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', fontFamily: 'var(--f-mono)', flexShrink: 0 }}>
                                 {formatTime(s.startTime)}–{formatTime(s.endTime)}
                               </span>
-                              <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: isSelected ? 'var(--green-ink)' : s.isFull ? '#b45309' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                              <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: isSelected ? 'var(--green-ink)' : s.isFull ? 'var(--warn-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
                                 {isSelected ? '✓ gewählt' : s.isFull ? `voll ${s.confirmedCount}/${s.requiredWorkers}` : `${s.confirmedCount}/${s.requiredWorkers}`}
                               </span>
                             </button>

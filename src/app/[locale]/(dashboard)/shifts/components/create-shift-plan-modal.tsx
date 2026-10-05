@@ -208,7 +208,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                           event.status === 'active'
                             ? { label: 'Aktiv', bg: 'color-mix(in oklab, var(--green-ink) 18%, transparent)', fg: 'var(--green-ink)' }
                             : event.status === 'test'
-                            ? { label: 'Test', bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: '#b45309' }
+                            ? { label: 'Test', bg: 'color-mix(in oklab, var(--warn) 18%, transparent)', fg: 'var(--warn-ink)' }
                             : { label: 'Inaktiv', bg: 'color-mix(in oklab, var(--ink) 8%, transparent)', fg: 'color-mix(in oklab, var(--ink) 50%, transparent)' };
                         return (
                           <label

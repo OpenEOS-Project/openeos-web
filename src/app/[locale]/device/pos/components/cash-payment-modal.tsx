@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Delete, X } from '@untitledui/icons';
-import { formatCurrency } from '@/utils/format';
+import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 
 interface CashPaymentModalProps {
@@ -24,6 +24,7 @@ export function PosNumpad({
   onChange: (next: string) => void;
   maxLength?: number;
 }) {
+  const tUi = useTranslations('deviceUi.common');
   const press = (digit: string) => {
     if (value.length < maxLength) onChange(value + digit);
   };
@@ -31,7 +32,9 @@ export function PosNumpad({
   const clear = () => onChange('');
 
   const keyStyle: React.CSSProperties = {
-    height: 52,
+    // Auf kleinen Telefonen etwas flacher, damit der ganze Block samt
+    // Bestaetigen-Knopf ohne Scrollen sichtbar bleibt; nie unter 44px.
+    height: 'clamp(44px, 6.5dvh, 52px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -70,11 +73,11 @@ export function PosNumpad({
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
       {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(renderDigit)}
-      <button type="button" onClick={clear} style={auxStyle} aria-label="Löschen">
+      <button type="button" onClick={clear} style={auxStyle} aria-label={tUi('clear')}>
         C
       </button>
       {renderDigit('0')}
-      <button type="button" onClick={back} style={auxStyle} aria-label="Zurück">
+      <button type="button" onClick={back} style={auxStyle} aria-label={tUi('backspace')}>
         <Delete style={{ width: 20, height: 20 }} />
       </button>
     </div>
@@ -89,6 +92,8 @@ export function CashPaymentModal({
   isProcessing = false,
 }: CashPaymentModalProps) {
   const t = useTranslations('pos.cashPayment');
+  const tUi = useTranslations('deviceUi.common');
+  const formatCurrency = useFormatPrice();
   const [received, setReceived] = useState('');
   const [isClosing, setIsClosing] = useState(false);
 
@@ -219,10 +224,10 @@ export function CashPaymentModal({
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Schließen"
+            aria-label={tUi('close')}
             style={{
-              width: 36,
-              height: 36,
+              width: 44,
+              height: 44,
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -243,14 +248,16 @@ export function CashPaymentModal({
           style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '16px 18px 12px',
+            padding: '14px 18px 10px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 14,
+            gap: 12,
+            minHeight: 0,
           }}
         >
-          {/* Quick amount pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {/* Quick amount pills — eine Zeile, seitlich wischbar, damit sie
+              auf dem Telefon nicht zwei Zeilen Hoehe kosten. */}
+          <div className="pos-scroll" style={{ display: 'flex', gap: 6, overflowX: 'auto', flexShrink: 0 }}>
             {quickAmounts.map((amount) => {
               const on = receivedAmount === amount;
               return (
@@ -259,6 +266,8 @@ export function CashPaymentModal({
                   type="button"
                   onClick={() => setReceived(Math.round(amount * 100).toString())}
                   style={{
+                    flex: '0 0 auto',
+                    minHeight: 40,
                     padding: '8px 14px',
                     fontSize: 13,
                     fontWeight: 600,
@@ -335,7 +344,11 @@ export function CashPaymentModal({
             </div>
           </div>
 
-          {/* Numpad */}
+        </div>
+
+        {/* Numpad — ausserhalb des scrollbaren Bereichs, damit die untere
+            Reihe (C / 0 / Loeschen) nie hinter dem Fuss verschwindet. */}
+        <div style={{ padding: '0 18px 12px', flexShrink: 0 }}>
           <PosNumpad value={received} onChange={setReceived} maxLength={7} />
         </div>
 
