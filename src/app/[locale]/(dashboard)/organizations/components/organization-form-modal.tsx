@@ -51,13 +51,13 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(createOrganizationSchema(t)),
     defaultValues: {
       name: '',
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
-      billingMode: 'invoice',
+      billingMode: 'prepaid',
       eventPriceOverride: '',
       prioritySupport: false,
     },
@@ -72,7 +72,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
           timezone: organization.settings?.timezone || 'Europe/Berlin',
           locale: organization.settings?.locale || 'de-DE',
         },
-        billingMode: organization.billingMode ?? 'invoice',
+        billingMode: organization.billingMode ?? 'prepaid',
         eventPriceOverride:
           typeof organization.eventPriceOverride === 'number' ? String(organization.eventPriceOverride) : '',
         prioritySupport: organization.prioritySupport ?? false,
@@ -81,7 +81,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
       reset({
         name: '',
         settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
-        billingMode: 'invoice',
+        billingMode: 'prepaid',
         eventPriceOverride: '',
         prioritySupport: false,
       });
@@ -99,7 +99,10 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
           data: {
             name: data.name,
             settings: data.settings,
-            billingMode: data.billingMode,
+            // Nur senden, wenn der Wert bekannt war oder bewusst geaendert
+            // wurde — ein fehlender Wert soll nicht unbemerkt mit der
+            // Vorauswahl des Formulars ueberschrieben werden.
+            ...(organization.billingMode || dirtyFields.billingMode ? { billingMode: data.billingMode } : {}),
             eventPriceOverride,
             prioritySupport: data.prioritySupport,
           },
