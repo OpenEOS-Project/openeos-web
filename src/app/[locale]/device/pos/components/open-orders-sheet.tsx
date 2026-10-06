@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, EmptyState, Icon, Spinner } from '@openeos/ui';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
-import { deviceApi } from '@/lib/api-client';
-import { amountReceivedFor } from '@/utils/cash-tender';
-import type { Order } from '@/types/order';
+import { deviceTablesApi } from '@/lib/device-tables-api';
 import type { PaymentMethod } from '@/types/payment';
+import { errorReason } from '../hooks/use-pos-checkout';
+import { useOpenOrders } from '../hooks/use-open-orders';
+import { remainingOf } from '../utils/tables';
 import type { DoneInfo } from './done-sheet';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
@@ -25,36 +26,21 @@ interface OpenOrdersSheetProps {
   onPaid: (info: DoneInfo) => void;
 }
 
-const remainingOf = (order: Order) => Number(order.total) - Number(order.paidAmount || 0);
-
-/** Offene (unbezahlte) Bestellungen laden — geteilt mit dem Zähler im Warenkorb. */
-export function useOpenOrders(eventId: string | null, enabled: boolean, poll: boolean) {
-  const query = useQuery({
-    queryKey: ['device-open-tabs'],
-    queryFn: () => deviceApi.getOpenOrders(),
-    enabled,
-    refetchInterval: poll ? 10000 : false,
-  });
-  const orders = useMemo(
-    () => (query.data?.data || []).filter((o) => !eventId || !o.eventId || o.eventId === eventId),
-    [query.data, eventId],
-  );
-  return { orders, isLoading: query.isLoading };
-}
-
 /**
- * Offene Bestellungen (Modus „Offene Rechnungen“): Auswahl einer oder
- * mehrerer Bestellungen und gemeinsam kassieren, oder Rechnung teilen.
+ * Offene Bestellungen ohne Tisch (Theke/To-go, Modus „Offene Rechnungen“):
+ * Auswahl einer oder mehrerer Bestellungen und gemeinsam in einer
+ * Sammelzahlung kassieren, oder Rechnung teilen.
  */
 export function OpenOrdersSheet({ isOpen, onClose, eventId, card, disabled, onSplit, onPaid }: OpenOrdersSheetProps) {
   const t = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
+  const tTables = useTranslations('pos.tables');
   const formatPrice = useFormatPrice();
   const locale = useLocale();
   const queryClient = useQueryClient();
   const toast = usePosToast();
   const apiErrorMessage = useApiErrorMessage();
-  const { orders, isLoading } = useOpenOrders(eventId, isOpen, isOpen);
+  const { orders, isLoading } = useOpenOrders(eventId, { kind: 'counter' }, isOpen);
 
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [paying, setPaying] = useState(false);
@@ -74,35 +60,31 @@ export function OpenOrdersSheet({ isOpen, onClose, eventId, card, disabled, onSp
       return next;
     });
 
+  const invalidate = () => {
+    for (const key of ['device-open-orders', 'device-table-status', 'device-order-history']) {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  };
+
   const pay = async (result: PayResult) => {
     const method: PaymentMethod =
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
-    const amounts = selected.map(remainingOf);
-    const paidIds: string[] = [];
+    const paidIds = selected.map((o) => o.id);
     try {
-      for (const [index, order] of selected.entries()) {
-        const received = method === 'cash' ? amountReceivedFor(index, amounts, result.amountReceived) : undefined;
-        // Wie bisher: gebucht wird der offene Betrag je Bestellung.
-        await deviceApi.createPayment({
-          orderId: order.id,
-          amount: amounts[index],
-          paymentMethod: method,
-          ...(received !== undefined ? { amountReceived: received } : {}),
-        });
-        paidIds.push(order.id);
-      }
+      // Alles oder nichts: eine Sammelzahlung statt einer Schleife je Bestellung.
+      await deviceTablesApi.payBatch({
+        orderIds: paidIds,
+        paymentMethod: method,
+        ...(method === 'cash' && result.amountReceived !== undefined ? { amountReceived: result.amountReceived } : {}),
+        ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
+        ...(result.method === 'sumup' && result.transactionId ? { providerTransactionId: result.transactionId } : {}),
+      });
     } catch (error) {
-      toast(
-        paidIds.length > 0
-          ? tPay('partiallyPaid', { count: paidIds.length, total: selected.length })
-          : apiErrorMessage(error),
-        'danger',
-      );
-      queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+      toast(errorReason(error) === 'ORDER_ALREADY_PAID' ? tTables('alreadyPaidOrders') : apiErrorMessage(error), 'danger');
+      invalidate();
       throw error;
     }
-    queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
-    queryClient.invalidateQueries({ queryKey: ['device-order-history'] });
+    invalidate();
     setPaying(false);
     onClose();
     onPaid({

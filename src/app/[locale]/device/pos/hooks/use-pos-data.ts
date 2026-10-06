@@ -15,7 +15,10 @@ export function usePosData(eventId: string | null, inOrderView: boolean) {
     queryKey: ['device-organization'],
     queryFn: () => deviceApi.getOrganization(),
   });
-  const { data: eventsData } = useQuery({ queryKey: ['device-events'], queryFn: () => deviceApi.getEvents() });
+  const { data: eventsData, isLoading: eventsLoading } = useQuery({
+    queryKey: ['device-events'],
+    queryFn: () => deviceApi.getEvents(),
+  });
   // Die Geräte-API liefert höchstens eine Veranstaltung (aktiv oder Test).
   const activeEvent: Event | null =
     (eventsData?.data || []).find((e: Event) => e.status === 'active' || e.status === 'test') ?? null;
@@ -43,6 +46,7 @@ export function usePosData(eventId: string | null, inOrderView: boolean) {
     orgName: orgData?.data?.name ?? null,
     orgSettings: orgData?.data?.settings,
     activeEvent,
+    eventsLoading,
     categories: categoriesData?.data || [],
     products: (productsData?.data || []) as PosProduct[],
     productsLoading,

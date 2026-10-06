@@ -10,6 +10,8 @@ export interface DoneInfo {
   /** Bestellung(en), auf die sich der Bon bezieht. */
   orderIds: string[];
   orderNumber: string | null;
+  /** Kopf bei mehreren Bestellungen, z. B. „Tisch A05 · 3 Bestellungen“. */
+  heading?: string | null;
   amount: number;
   method: 'cash' | 'card' | 'sumup' | 'free';
   change: number;
@@ -91,7 +93,7 @@ export function DoneSheet({
         <Receipt
           className="pos-done__receipt"
           title={title}
-          meta={info.orderNumber ? `#${info.orderNumber}` : undefined}
+          meta={info.orderNumber ? `#${info.orderNumber}` : (info.heading ?? undefined)}
           info={t('info', { event: eventName ?? '', device: deviceName, time: info.time })}
           lines={lines}
           sumLabel={t('sum')}

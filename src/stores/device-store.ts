@@ -7,6 +7,7 @@ import { apiClient, devicesApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
 import { zielRouteFuerGeraet } from '@/lib/device-route';
 import type { DeviceInfo, DeviceStatus, DeviceClass } from '@/types/device';
+import { toTableKey, type PosTableContext } from '@/types/table';
 
 export interface PosSessionUser {
   userId: string;
@@ -30,8 +31,12 @@ interface DeviceState {
   status: DeviceStatus | null;
   settings: Record<string, unknown> | null;
 
-  // Session state (not persisted)
-  tableNumber: string | null;
+  // Session state
+  /**
+   * Wofür die Kasse gerade bucht (Tisch, Theke, To-go); `null` = Startansicht.
+   * Gespeichert: Neuladen öffnet den letzten Tisch wieder.
+   */
+  table: PosTableContext | null;
   /** Angemeldete Person an der Kasse (PIN). Nicht gespeichert: Neuladen verlangt die PIN erneut. */
   session: PosSessionUser | null;
   /** Zuletzt gewählte Ansicht der Startseite (Tischwahl), je Gerät gemerkt. */
@@ -62,7 +67,8 @@ interface DeviceActions {
   clearDevice: () => void;
 
   // Session
-  setTableNumber: (tableNumber: string | null) => void;
+  setTable: (table: PosTableContext | null) => void;
+  /** Zurück zur Startansicht (kein Tisch offen). */
   clearSession: () => void;
   setSession: (session: PosSessionUser | null) => void;
   setStartView: (view: PosStartView) => void;
@@ -88,7 +94,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       deviceClass: null,
       status: null,
       settings: null,
-      tableNumber: null,
+      table: null,
       session: null,
       startView: 'number',
       lastCategory: {},
@@ -292,15 +298,15 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
           deviceClass: null,
           status: null,
           settings: null,
-          tableNumber: null,
+          table: null,
           session: null,
           error: null,
         });
       },
 
       // Session management
-      setTableNumber: (tableNumber) => set({ tableNumber }),
-      clearSession: () => set({ tableNumber: null }),
+      setTable: (table) => set({ table }),
+      clearSession: () => set({ table: null }),
       setSession: (session) => set({ session }),
       setStartView: (startView) => set({ startView }),
       setLastCategory: (eventId, categoryId) =>
@@ -310,6 +316,23 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
     }),
     {
       name: 'openeos-device',
+      version: 1,
+      // v0 speicherte die Tischnummer als Text (`tableNumber`). Daraus wird
+      // der Kontext; Kassen im Thekenbetrieb hatten dort ihren Gerätenamen.
+      migrate: (persisted: unknown, version: number) => {
+        const state = (persisted ?? {}) as Record<string, unknown>;
+        if (version < 1) {
+          const legacy = typeof state.tableNumber === 'string' ? state.tableNumber.trim() : '';
+          delete state.tableNumber;
+          const counter = (state.settings as { serviceMode?: string } | null)?.serviceMode === 'counter';
+          state.table = !legacy
+            ? null
+            : counter
+              ? { kind: 'counter' }
+              : { kind: 'table', key: toTableKey(legacy), label: legacy };
+        }
+        return state as unknown as DeviceState & DeviceActions;
+      },
       partialize: (state) => ({
         deviceId: state.deviceId,
         deviceToken: state.deviceToken,
@@ -321,7 +344,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
         status: state.status,
         settings: state.settings,
         // Persist session state for device POS
-        tableNumber: state.tableNumber,
+        table: state.table,
         startView: state.startView,
         lastCategory: state.lastCategory,
       }),

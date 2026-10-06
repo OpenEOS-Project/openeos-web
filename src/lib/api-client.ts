@@ -1339,13 +1339,6 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
-  // Get open orders (unpaid/partly paid)
-  getOpenOrders: () =>
-    apiClient.get<ApiResponse<import('@/types/order').Order[]>>(
-      '/device-api/orders/open',
-      { useDeviceAuth: true }
-    ),
-
   // Create order
   createOrder: (data: import('@/types/order').CreateOrderData) =>
     apiClient.post<ApiResponse<import('@/types/order').Order>>(
