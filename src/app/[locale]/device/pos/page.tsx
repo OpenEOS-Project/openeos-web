@@ -38,7 +38,7 @@ import { useOpenOrders, type OpenOrdersScope } from './hooks/use-open-orders';
 import { checkoutTotals, usePosCheckout } from './hooks/use-pos-checkout';
 import { usePosData } from './hooks/use-pos-data';
 import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents } from './hooks/use-pos-live';
-import { effectiveTableMode, mergeOpenTables, sameContext, sortAreas } from './utils/tables';
+import { defaultStartView, effectiveTableMode, mergeOpenTables, sameContext, sortAreas } from './utils/tables';
 
 type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'logout' | 'table' | null;
 
@@ -152,6 +152,8 @@ function PosApp() {
   const isTab = orderingMode === 'tab';
 
   const areas = useMemo(() => sortAreas(tablesQuery.data?.areas ?? [], deviceAreaId), [tablesQuery.data, deviceAreaId]);
+  // Startansicht: gemerkte Wahl, sonst Karte, wenn der Standardbereich einen Tischplan hat (F7).
+  const startViewNow = startView ?? defaultStartView(areas, deviceAreaId);
   // Kopf „Kasse 03 · Zelt A“: Standardbereich des Geräts, wenn freigegeben.
   const deviceAreaName = tablesEnabled ? (areas.find((a) => a.id === deviceAreaId)?.name ?? null) : null;
   const tableStatus = useTableStatus(eventId, { enabled: tablesEnabled, live: isConnected });
@@ -340,7 +342,7 @@ function PosApp() {
       <PosStartView
         mode={startMode}
         areas={areas}
-        view={startView}
+        view={startViewNow}
         onViewChange={setStartView}
         openTables={openTables}
         openTablesLoading={tableStatus.isLoading}
@@ -399,6 +401,7 @@ function PosApp() {
             carryDefault={carryDefault}
             onSelect={(next, carry) => openContext(next, carry)}
             onStart={() => openContext(null)}
+            preferMap={startViewNow === 'map'}
           />
         )}
         <PaySheet

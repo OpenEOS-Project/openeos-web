@@ -32,6 +32,7 @@ function useNow(intervalMs = 30_000) {
  */
 export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: OpenTablesAsideProps) {
   const t = useTranslations('pos.tables');
+  const tFloor = useTranslations('pos.floor');
   const locale = useLocale();
   const formatPrice = useFormatPrice();
   const now = useNow();
@@ -46,6 +47,9 @@ export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: Open
   const meta = (entry: OpenTableEntry) => {
     const parts: string[] = [];
     if (entry.state === 'wait') {
+      // Grund zuerst: bei schmaler Leiste wird hinten gekürzt.
+      if (entry.waitReason === 'guest') parts.push(tFloor('reasonGuest'));
+      else if (entry.waitReason === 'ready') parts.push(tFloor('reasonReady'));
       const since = entry.waitingSince ? Date.parse(entry.waitingSince) : NaN;
       const minutes = Number.isFinite(since) ? Math.max(0, Math.floor((now - since) / 60_000)) : null;
       parts.push(

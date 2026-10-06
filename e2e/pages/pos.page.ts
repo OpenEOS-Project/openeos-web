@@ -94,6 +94,20 @@ export class POSPage {
     return this.page.locator('.pos-tablelist').getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
   }
 
+  /** Tisch auf der Karte — zugaenglicher Name „Tisch A03, frei“. */
+  floorTable(label: string, scope: Locator | Page = this.page): Locator {
+    return scope.locator('.pos-floor').getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
+  }
+
+  /** Startansicht „Karte“: Tisch auf dem Tischplan antippen. */
+  async openTableOnMap(label: string) {
+    await expect(this.startView).toBeVisible();
+    const segment = this.page.getByRole('button', { name: 'Karte', exact: true });
+    if ((await segment.getAttribute('aria-pressed')) !== 'true') await segment.click();
+    await this.floorTable(label).click();
+    await expect(this.pill(label)).toBeVisible();
+  }
+
   /** „Ohne Tisch“ auf der Startansicht: Theke oder To-go. */
   async withoutTable(kind: 'Theke' | 'To-go') {
     await expect(this.startView).toBeVisible();
