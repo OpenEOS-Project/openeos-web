@@ -1,6 +1,7 @@
 import {
   BarChartSquare02,
   Inbox01,
+  LayoutGrid01,
   Building07,
   Calendar,
   ClipboardCheck,
@@ -136,6 +137,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     href: '/production-stations',
     icon: MarkerPin01,
     requiredPermission: 'products',
+  },
+  {
+    // Bereiche, Tische und Tischplan der Organisation. Recht wie die API:
+    // wer Veranstaltungen verwaltet, verwaltet auch deren Tische.
+    labelKey: 'tables',
+    href: '/tables',
+    icon: LayoutGrid01,
+    requiredPermission: 'events',
   },
   { divider: true },
   {
