@@ -2,355 +2,262 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Receipt, Printer, XCircle, AlertCircle } from '@untitledui/icons';
-import { deviceApi } from '@/lib/api-client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Badge, Button, EmptyState, Icon, Segment, Spinner, type BadgeTone } from '@openeos/ui';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { deviceApi } from '@/lib/api-client';
 import type { Order } from '@/types/order';
-import { PosSheet, usePosSheetClose } from './pos-sheet';
+import { PosSheet } from './pos-sheet';
+import { usePosToast } from './pos-toast';
 
 type StatusFilter = 'all' | 'open' | 'completed' | 'cancelled';
 
 interface OrderHistoryDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  eventId: string | null;
 }
 
-const statusToQuery: Record<StatusFilter, string | undefined> = {
-  all: undefined,
-  open: 'open',
-  completed: 'completed',
-  cancelled: 'cancelled',
-};
-
-const statusTone: Record<string, string> = {
+const STATUS_TONE: Record<string, BadgeTone | undefined> = {
   open: 'warn',
-  in_progress: 'accent',
-  completed: 'ok',
+  in_progress: 'info',
+  completed: 'success',
   cancelled: 'danger',
 };
 
-const paymentTone: Record<string, string> = {
-  unpaid: 'neutral',
+const PAYMENT_TONE: Record<string, BadgeTone | undefined> = {
+  unpaid: 'outline',
   partly_paid: 'warn',
-  paid: 'ok',
+  paid: 'success',
   refunded: 'danger',
 };
 
-function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
-  const labels: Record<string, string> = {
-    open: t('statusOpen'),
-    in_progress: t('statusInProgress'),
-    completed: t('statusCompleted'),
-    cancelled: t('statusCancelled'),
-  };
+const STATUS_KEY: Record<string, string> = {
+  open: 'statusOpen',
+  in_progress: 'statusInProgress',
+  completed: 'statusCompleted',
+  cancelled: 'statusCancelled',
+};
 
-  return (
-    <span className="pos-badge" data-tone={statusTone[status]}>
-      {labels[status] || status}
-    </span>
-  );
-}
+const PAYMENT_KEY: Record<string, string> = {
+  unpaid: 'paymentUnpaid',
+  partly_paid: 'paymentPartlyPaid',
+  paid: 'paymentPaid',
+  refunded: 'paymentRefunded',
+};
 
-function PaymentBadge({ status, t }: { status: string; t: (key: string) => string }) {
-  const labels: Record<string, string> = {
-    unpaid: t('paymentUnpaid'),
-    partly_paid: t('paymentPartlyPaid'),
-    paid: t('paymentPaid'),
-    refunded: t('paymentRefunded'),
-  };
-
-  return (
-    <span className="pos-badge" data-tone={paymentTone[status]}>
-      {labels[status] || status}
-    </span>
-  );
-}
-
-export function OrderHistoryDrawer({ isOpen, onClose }: OrderHistoryDrawerProps) {
+/**
+ * Bestellverlauf der aktiven Veranstaltung: Filter, Nachdruck von Küchen-
+ * und Kassenbon, Storno mit Grund. Jede Aktion meldet sich mit einem Hinweis.
+ */
+export function OrderHistoryDrawer({ isOpen, onClose, eventId }: OrderHistoryDrawerProps) {
   const t = useTranslations('pos.orderHistory');
-  // "Abbrechen" — der Text steht schon beim Kartenzahlungs-Dialog.
   const tCancel = useTranslations('pos.sumupCheckout');
-  const formatCurrency = useFormatPrice();
+  const formatPrice = useFormatPrice();
   const locale = useLocale();
   const queryClient = useQueryClient();
+  const toast = usePosToast();
+  const apiErrorMessage = useApiErrorMessage();
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
+  const [filter, setFilter] = useState<StatusFilter>('all');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [reason, setReason] = useState('');
 
-  const { data: ordersData, isLoading } = useQuery({
-    queryKey: ['device-order-history', statusFilter],
-    queryFn: () => deviceApi.getAllOrders({
-      status: statusToQuery[statusFilter],
-      limit: 50,
-    }),
+  const { data, isLoading } = useQuery({
+    queryKey: ['device-order-history', eventId, filter],
+    queryFn: () =>
+      deviceApi.getAllOrders({
+        status: filter === 'all' ? undefined : filter,
+        eventId: eventId ?? undefined,
+        limit: 50,
+      }),
     enabled: isOpen,
-    refetchInterval: 15000,
+    refetchInterval: isOpen ? 15000 : false,
   });
-
-  const orders = ordersData?.data || [];
+  const orders: Order[] = data?.data || [];
 
   const cancelMutation = useMutation({
-    mutationFn: async ({ orderId, reason }: { orderId: string; reason?: string }) => {
-      return deviceApi.cancelOrder(orderId, reason);
-    },
+    mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+      deviceApi.cancelOrder(orderId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['device-order-history'] });
       queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
-      setSelectedOrder(null);
-      setShowCancelConfirm(false);
-      setCancelReason('');
+      setConfirmCancel(false);
+      setReason('');
+      toast(t('cancelSuccess'));
     },
+    onError: (error) => toast(apiErrorMessage(error), 'danger'),
   });
 
   const reprintMutation = useMutation({
-    mutationFn: async ({ orderId, type }: { orderId: string; type: 'tickets' | 'receipt' }) => {
-      return deviceApi.reprintOrder(orderId, type);
-    },
+    mutationFn: ({ orderId, type }: { orderId: string; type: 'tickets' | 'receipt' }) =>
+      deviceApi.reprintOrder(orderId, type),
+    onSuccess: () => toast(t('reprintSuccess')),
+    onError: (error) => toast(apiErrorMessage(error), 'danger'),
   });
 
-  const { closing, close } = usePosSheetClose(isOpen, onClose);
+  const time = (value: string) =>
+    new Date(value).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
-  const handleCancel = () => {
-    if (!selectedOrder) return;
-    cancelMutation.mutate({
-      orderId: selectedOrder.id,
-      reason: cancelReason || undefined,
-    });
+  const select = (id: string | null) => {
+    setSelectedId(id);
+    setConfirmCancel(false);
+    setReason('');
   };
-
-  const handleReprint = (type: 'tickets' | 'receipt') => {
-    if (!selectedOrder) return;
-    reprintMutation.mutate({ orderId: selectedOrder.id, type });
-  };
-
-  const canCancel = (order: Order) =>
-    order.status !== 'completed' && order.status !== 'cancelled';
-
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const filters: { key: StatusFilter; label: string }[] = [
-    { key: 'all', label: t('filterAll') },
-    { key: 'open', label: t('filterOpen') },
-    { key: 'completed', label: t('filterCompleted') },
-    { key: 'cancelled', label: t('filterCancelled') },
-  ];
-
-  if (!isOpen) return null;
 
   return (
     <PosSheet
-      closing={closing}
-      onClose={close}
+      open={isOpen}
+      onClose={onClose}
+      size="wide"
+      icon="clock"
       title={t('title')}
       toolbar={
-        <div className="pos-chips pos-scroll">
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              className="pos-chip"
-              aria-pressed={statusFilter === f.key}
-              onClick={() => {
-                setStatusFilter(f.key);
-                setSelectedOrder(null);
-                setShowCancelConfirm(false);
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <Segment<StatusFilter>
+          aria-label={t('title')}
+          size="lg"
+          value={filter}
+          onChange={(id) => {
+            setFilter(id);
+            select(null);
+          }}
+          options={[
+            { id: 'all', label: t('filterAll') },
+            { id: 'open', label: t('filterOpen') },
+            { id: 'completed', label: t('filterCompleted') },
+            { id: 'cancelled', label: t('filterCancelled') },
+          ]}
+        />
       }
-      bodyStyle={{ gap: 8 }}
     >
       {isLoading ? (
-        <div className="pos-sheet-empty">
-          <div className="pos-spinner" />
+        <div className="pos-center">
+          <Spinner />
         </div>
       ) : orders.length === 0 ? (
-        <div className="pos-sheet-empty">
-          <Receipt />
-          <strong>{t('noOrders')}</strong>
-          <span>{t('noOrdersDescription')}</span>
-        </div>
+        <EmptyState icon={<Icon name="receipt" />} title={t('noOrders')} description={t('noOrdersDescription')} />
       ) : (
-        orders.map((order) => {
-          const isSelected = selectedOrder?.id === order.id;
-
-          return (
-            <div key={order.id} className="pos-card" data-selected={isSelected || undefined}>
-              {/* Kopf der Karte klappt die Details auf. Die Aktionen liegen
-                  daneben, nicht darin — Knoepfe in Knoepfen gehen nicht. */}
-              <button
-                type="button"
-                aria-expanded={isSelected}
-                onClick={() => {
-                  setSelectedOrder(isSelected ? null : order);
-                  setShowCancelConfirm(false);
-                  setCancelReason('');
-                }}
-                style={{
-                  width: '100%',
-                  minHeight: 56,
-                  padding: '12px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: 'var(--pos-r-md)',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  color: 'var(--pos-ink)',
-                }}
-              >
-                <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-                    <span className="pos-mono" style={{ fontSize: 15, fontWeight: 700, marginRight: 2 }}>
-                      #{order.dailyNumber || order.orderNumber}
+        <ul className="pos-list">
+          {orders.map((order) => {
+            const open = selectedId === order.id;
+            const canCancel = order.status !== 'completed' && order.status !== 'cancelled';
+            return (
+              <li key={order.id} className={open ? 'pos-hist is-open' : 'pos-hist'}>
+                <button
+                  type="button"
+                  className="pos-hist__hd"
+                  aria-expanded={open}
+                  onClick={() => select(open ? null : order.id)}
+                >
+                  <span className="pos-hist__main">
+                    <span className="pos-hist__badges">
+                      <b>#{order.dailyNumber || order.orderNumber}</b>
+                      <Badge tone={STATUS_TONE[order.status]}>
+                        {STATUS_KEY[order.status] ? t(STATUS_KEY[order.status]) : order.status}
+                      </Badge>
+                      <Badge tone={PAYMENT_TONE[order.paymentStatus]}>
+                        {PAYMENT_KEY[order.paymentStatus] ? t(PAYMENT_KEY[order.paymentStatus]) : order.paymentStatus}
+                      </Badge>
                     </span>
-                    <StatusBadge status={order.status} t={t} />
-                    <PaymentBadge status={order.paymentStatus} t={t} />
+                    {order.tableNumber && (
+                      <small>
+                        {t('table')} {order.tableNumber}
+                      </small>
+                    )}
                   </span>
-                  {order.tableNumber && (
-                    <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
-                      {t('table')} {order.tableNumber}
-                    </span>
-                  )}
-                </span>
-                <span style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <span className="pos-mono" style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>
-                    {formatCurrency(Number(order.total))}
+                  <span className="pos-hist__sum">
+                    <b>{formatPrice(Number(order.total))}</b>
+                    <small>{time(order.createdAt)}</small>
                   </span>
-                  <span className="pos-mono" style={{ display: 'block', fontSize: 12, color: 'var(--pos-ink-3)' }}>
-                    {formatTime(order.createdAt)}
-                  </span>
-                </span>
-              </button>
+                  <Icon name={open ? 'chevron-up' : 'chevron-down'} />
+                </button>
 
-              {isSelected && (
-                <div style={{ margin: '0 14px', padding: '12px 0 14px', borderTop: '1px solid var(--pos-line)' }}>
-                  {order.items && order.items.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
-                      {order.items.slice(0, 8).map((item, idx) => (
-                        <div
-                          key={idx}
-                          style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}
-                        >
-                          <span
-                            style={{
-                              minWidth: 0,
-                              color: item.status === 'cancelled' ? 'var(--pos-ink-3)' : 'var(--pos-ink-2)',
-                              textDecoration: item.status === 'cancelled' ? 'line-through' : undefined,
-                            }}
+                {open && (
+                  <div className="pos-hist__body">
+                    {order.items?.length > 0 && (
+                      <ul className="pos-hist__items">
+                        {order.items.slice(0, 8).map((item, index) => (
+                          <li key={index} className={item.status === 'cancelled' ? 'is-cancelled' : undefined}>
+                            <span>
+                              {item.quantity}x {item.productName}
+                            </span>
+                            <span>{formatPrice(Number(item.totalPrice))}</span>
+                          </li>
+                        ))}
+                        {order.items.length > 8 && (
+                          <li className="is-more">
+                            +{order.items.length - 8} {t('moreItems')}
+                          </li>
+                        )}
+                      </ul>
+                    )}
+
+                    {confirmCancel ? (
+                      <div className="pos-confirm">
+                        <p>
+                          <Icon name="alert" />
+                          {t('cancelConfirm')}
+                        </p>
+                        <input
+                          className="oe-input"
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                          placeholder={t('cancelReason')}
+                          aria-label={t('cancelReason')}
+                        />
+                        <div className="pos-row">
+                          <Button variant="ghost" onClick={() => setConfirmCancel(false)}>
+                            {tCancel('cancel')}
+                          </Button>
+                          <Button
+                            variant="danger"
+                            className="oe-grow"
+                            loading={cancelMutation.isPending}
+                            onClick={() =>
+                              cancelMutation.mutate({ orderId: order.id, reason: reason || undefined })
+                            }
                           >
-                            {item.quantity}× {item.productName}
-                          </span>
-                          <span className="pos-mono" style={{ flexShrink: 0, color: 'var(--pos-ink)' }}>
-                            {formatCurrency(Number(item.totalPrice))}
-                          </span>
+                            {!cancelMutation.isPending && <Icon name="undo" />}
+                            {t('confirmCancel')}
+                          </Button>
                         </div>
-                      ))}
-                      {order.items.length > 8 && (
-                        <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
-                          +{order.items.length - 8} {t('moreItems')}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {showCancelConfirm ? (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 10,
-                        padding: 12,
-                        borderRadius: 'var(--pos-r-sm)',
-                        border: '1px solid var(--pos-danger)',
-                        background: 'var(--pos-surface-2)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, fontWeight: 600 }}>
-                        <AlertCircle style={{ width: 20, height: 20, flexShrink: 0, color: 'var(--pos-danger)' }} />
-                        {t('cancelConfirm')}
                       </div>
-                      <input
-                        type="text"
-                        className="pos-input"
-                        value={cancelReason}
-                        onChange={(e) => setCancelReason(e.target.value)}
-                        placeholder={t('cancelReason')}
-                        aria-label={t('cancelReason')}
-                      />
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button
-                          type="button"
-                          className="pos-btn pos-btn--sm pos-btn--danger"
-                          style={{ flex: 1 }}
-                          onClick={handleCancel}
-                          disabled={cancelMutation.isPending}
-                        >
-                          {cancelMutation.isPending ? '…' : t('confirmCancel')}
-                        </button>
-                        <button
-                          type="button"
-                          className="pos-btn pos-btn--sm pos-btn--secondary"
-                          onClick={() => {
-                            setShowCancelConfirm(false);
-                            setCancelReason('');
-                          }}
-                        >
-                          {tCancel('cancel')}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      <button
-                        type="button"
-                        className="pos-btn pos-btn--sm pos-btn--secondary"
-                        onClick={() => handleReprint('tickets')}
-                        disabled={reprintMutation.isPending}
-                      >
-                        <Printer />
-                        {t('reprintTickets')}
-                      </button>
-                      {order.paymentStatus === 'paid' && (
-                        <button
-                          type="button"
-                          className="pos-btn pos-btn--sm pos-btn--secondary"
-                          onClick={() => handleReprint('receipt')}
+                    ) : (
+                      <div className="pos-row pos-row--wrap">
+                        <Button
+                          variant="secondary"
                           disabled={reprintMutation.isPending}
+                          onClick={() => reprintMutation.mutate({ orderId: order.id, type: 'tickets' })}
                         >
-                          <Receipt />
-                          {t('reprintReceipt')}
-                        </button>
-                      )}
-                      {canCancel(order) && (
-                        <button
-                          type="button"
-                          className="pos-btn pos-btn--sm pos-btn--danger-outline"
-                          onClick={() => setShowCancelConfirm(true)}
-                        >
-                          <XCircle />
-                          {t('cancelOrder')}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })
+                          <Icon name="printer" />
+                          {t('reprintTickets')}
+                        </Button>
+                        {order.paymentStatus === 'paid' && (
+                          <Button
+                            variant="secondary"
+                            disabled={reprintMutation.isPending}
+                            onClick={() => reprintMutation.mutate({ orderId: order.id, type: 'receipt' })}
+                          >
+                            <Icon name="receipt" />
+                            {t('reprintReceipt')}
+                          </Button>
+                        )}
+                        {canCancel && (
+                          <Button variant="danger-quiet" onClick={() => setConfirmCancel(true)}>
+                            <Icon name="undo" />
+                            {t('cancelOrder')}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       )}
     </PosSheet>
   );

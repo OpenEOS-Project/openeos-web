@@ -39,12 +39,25 @@ export default defineConfig({
 
   // Nur Chromium. Firefox, WebKit und die Mobilprofile standen hier frueher
   // auch, liefen aber nie — und die Kassen laufen in der Praxis auf
-  // Chromium-basierten Tablets. Das schmale Layout pruefen die Tests selbst
-  // ueber die Fenstergroesse.
+  // Chromium-basierten Tablets. Fuer die Kasse kommen Tablet- und
+  // Telefongroesse als eigene Projekte dazu.
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    // Kasse auf Tablet (hochkant) und Telefon — beide noch Chromium, die
+    // Kassen-Tablets laufen damit. Nur die Kassen-Tests (Breakpoints
+    // kompakt ≤ 820 px).
+    {
+      name: 'pos-tablet',
+      testMatch: 'pos/**',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 820, height: 1180 }, hasTouch: true },
+    },
+    {
+      name: 'pos-phone',
+      testMatch: 'pos/**',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
     },
   ],
 

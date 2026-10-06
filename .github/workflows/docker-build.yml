@@ -59,6 +59,11 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Kasse, Station und Anzeigen: keine Emojis und keine Unicode-Symbole
+      # als Icon-Ersatz (Regel des Designsystems @openeos/ui).
+      - name: Check device views for symbols
+        run: node scripts/check-pos-symbols.mjs
+
       # `next build` below runs its own typecheck as part of the Docker
       # build; this job exists to catch the same failure in ~30s instead of
       # several minutes into that build.

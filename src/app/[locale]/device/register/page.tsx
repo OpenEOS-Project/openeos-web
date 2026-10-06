@@ -12,11 +12,11 @@ type RegistrationStep = 'form' | 'pending' | 'verified' | 'blocked';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '11px 13px',
-  background: 'var(--pos-surface)',
-  border: '1px solid var(--pos-line)',
-  borderRadius: 'var(--pos-r-sm)',
+  background: 'var(--oe-surface)',
+  border: '1px solid var(--oe-line)',
+  borderRadius: 'var(--oe-r-sm)',
   fontSize: 14,
-  color: 'var(--pos-ink)',
+  color: 'var(--oe-ink)',
   fontFamily: 'inherit',
   outline: 'none',
   transition: 'border-color .12s, box-shadow .12s',
@@ -26,17 +26,17 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 12,
   fontWeight: 600,
-  color: 'var(--pos-ink-2)',
+  color: 'var(--oe-mute)',
   marginBottom: 6,
   letterSpacing: '0.01em',
 };
 
 const cardStyle: React.CSSProperties = {
   width: '100%',
-  background: 'var(--pos-surface)',
-  border: '1px solid var(--pos-line)',
-  borderRadius: 'var(--pos-r-lg)',
-  boxShadow: 'var(--pos-sh-2)',
+  background: 'var(--oe-surface)',
+  border: '1px solid var(--oe-line)',
+  borderRadius: 'var(--oe-r-lg)',
+  boxShadow: 'var(--oe-sh-2)',
   padding: 28,
 };
 
@@ -120,14 +120,14 @@ export default function DeviceRegisterPage() {
 
   return (
     <div
-      className="pos-root"
+      className="pos-root oe-root"
       style={{
         minHeight: '100dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 16,
-        background: 'var(--pos-bg)',
+        background: 'var(--oe-paper)',
       }}
     >
       <div style={{ width: '100%', maxWidth: 440 }}>
@@ -137,29 +137,29 @@ export default function DeviceRegisterPage() {
             style={{
               width: 64,
               height: 64,
-              borderRadius: 'var(--pos-r-lg)',
-              background: 'var(--pos-accent)',
+              borderRadius: 'var(--oe-r-lg)',
+              background: 'var(--oe-green-ink)',
               margin: '0 auto 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: 'var(--pos-sh-2)',
+              boxShadow: 'var(--oe-sh-2)',
             }}
           >
-            <Tablet02 style={{ width: 32, height: 32, color: 'var(--pos-accent-contrast)' }} />
+            <Tablet02 style={{ width: 32, height: 32, color: 'var(--oe-on-accent)' }} />
           </div>
           <h1
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: 'var(--pos-ink)',
+              color: 'var(--oe-ink)',
               margin: 0,
               letterSpacing: '-0.01em',
             }}
           >
             {t('register.title')}
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--pos-ink-3)', margin: '6px 0 0' }}>
+          <p style={{ fontSize: 14, color: 'var(--oe-mute)', margin: '6px 0 0' }}>
             {t('register.subtitle')}
           </p>
         </div>
@@ -181,15 +181,15 @@ export default function DeviceRegisterPage() {
                   autoComplete="off"
                   style={inputStyle}
                   onFocus={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--pos-accent)';
+                    e.currentTarget.style.borderColor = 'var(--oe-green-ink)';
                     e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 90, 57, 0.25)';
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--pos-line)';
+                    e.currentTarget.style.borderColor = 'var(--oe-line)';
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 />
-                <p style={{ fontSize: 11, color: 'var(--pos-ink-3)', margin: '6px 0 0' }}>
+                <p style={{ fontSize: 11, color: 'var(--oe-mute)', margin: '6px 0 0' }}>
                   {t('register.organizationSlugHint')}
                 </p>
               </div>
@@ -207,11 +207,11 @@ export default function DeviceRegisterPage() {
                   autoComplete="off"
                   style={inputStyle}
                   onFocus={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--pos-accent)';
+                    e.currentTarget.style.borderColor = 'var(--oe-green-ink)';
                     e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 90, 57, 0.25)';
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--pos-line)';
+                    e.currentTarget.style.borderColor = 'var(--oe-line)';
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 />
@@ -223,9 +223,9 @@ export default function DeviceRegisterPage() {
                     padding: '11px 14px',
                     background: 'rgba(189, 65, 63, 0.12)',
                     border: '1px solid rgba(189, 65, 63, 0.30)',
-                    borderRadius: 'var(--pos-r-sm)',
+                    borderRadius: 'var(--oe-r-sm)',
                     fontSize: 13,
-                    color: 'var(--pos-danger)',
+                    color: 'var(--oe-danger)',
                   }}
                 >
                   {error}
@@ -238,10 +238,10 @@ export default function DeviceRegisterPage() {
                 style={{
                   width: '100%',
                   padding: '13px',
-                  background: canSubmit ? 'var(--pos-accent)' : 'var(--pos-line)',
-                  color: canSubmit ? 'var(--pos-accent-contrast)' : 'var(--pos-ink-3)',
+                  background: canSubmit ? 'var(--oe-green-ink)' : 'var(--oe-line)',
+                  color: canSubmit ? 'var(--oe-on-accent)' : 'var(--oe-mute)',
                   border: 'none',
-                  borderRadius: 'var(--pos-r-sm)',
+                  borderRadius: 'var(--oe-r-sm)',
                   fontSize: 15,
                   fontWeight: 700,
                   cursor: canSubmit ? 'pointer' : 'not-allowed',
@@ -260,7 +260,7 @@ export default function DeviceRegisterPage() {
                   marginTop: 6,
                   textAlign: 'center',
                   fontSize: 13,
-                  color: 'var(--pos-ink-2)',
+                  color: 'var(--oe-mute)',
                   textDecoration: 'none',
                 }}
               >
@@ -286,29 +286,29 @@ export default function DeviceRegisterPage() {
               }}
             >
               <Loading02
-                style={{ width: 28, height: 28, color: 'var(--pos-warn)', animation: 'spin 1s linear infinite' }}
+                style={{ width: 28, height: 28, color: 'var(--oe-warn)', animation: 'spin 1s linear infinite' }}
               />
             </div>
-            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--oe-ink)', margin: 0 }}>
               {t('register.pendingTitle')}
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 18px' }}>
+            <p style={{ fontSize: 13, color: 'var(--oe-mute)', margin: '6px 0 18px' }}>
               {t('register.pendingDescription')}
             </p>
 
             {organizationName && (
-              <p style={{ fontSize: 13, color: 'var(--pos-ink-2)', margin: '0 0 16px' }}>
+              <p style={{ fontSize: 13, color: 'var(--oe-mute)', margin: '0 0 16px' }}>
                 {t('register.organization')}:{' '}
-                <strong style={{ color: 'var(--pos-ink)' }}>{organizationName}</strong>
+                <strong style={{ color: 'var(--oe-ink)' }}>{organizationName}</strong>
               </p>
             )}
 
             <div
               style={{
                 padding: '20px 16px',
-                background: 'var(--pos-surface-2)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-md)',
+                background: 'var(--oe-paper-2)',
+                border: '1px solid var(--oe-line)',
+                borderRadius: 'var(--oe-r)',
                 marginBottom: 18,
               }}
             >
@@ -316,7 +316,7 @@ export default function DeviceRegisterPage() {
                 style={{
                   fontSize: 11,
                   fontWeight: 600,
-                  color: 'var(--pos-ink-3)',
+                  color: 'var(--oe-mute)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   margin: '0 0 8px',
@@ -329,7 +329,7 @@ export default function DeviceRegisterPage() {
                 style={{
                   fontSize: 44,
                   fontWeight: 700,
-                  color: 'var(--pos-accent)',
+                  color: 'var(--oe-green-ink)',
                   letterSpacing: '0.08em',
                   lineHeight: 1.1,
                   whiteSpace: 'nowrap',
@@ -341,7 +341,7 @@ export default function DeviceRegisterPage() {
               </div>
             </div>
 
-            <p style={{ fontSize: 12, color: 'var(--pos-ink-3)', margin: '0 0 18px' }}>
+            <p style={{ fontSize: 12, color: 'var(--oe-mute)', margin: '0 0 18px' }}>
               {t('register.pendingHint')}
             </p>
 
@@ -351,10 +351,10 @@ export default function DeviceRegisterPage() {
               style={{
                 width: '100%',
                 padding: '11px',
-                background: 'var(--pos-surface)',
-                color: 'var(--pos-ink)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-sm)',
+                background: 'var(--oe-surface)',
+                color: 'var(--oe-ink)',
+                border: '1px solid var(--oe-line)',
+                borderRadius: 'var(--oe-r-sm)',
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -380,15 +380,15 @@ export default function DeviceRegisterPage() {
                 justifyContent: 'center',
               }}
             >
-              <CheckCircle style={{ width: 28, height: 28, color: 'var(--pos-ok)' }} />
+              <CheckCircle style={{ width: 28, height: 28, color: 'var(--oe-green-2)' }} />
             </div>
-            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--oe-ink)', margin: 0 }}>
               {t('register.verifiedTitle')}
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 12px' }}>
+            <p style={{ fontSize: 13, color: 'var(--oe-mute)', margin: '6px 0 12px' }}>
               {t('register.verifiedDescription')}
             </p>
-            <p style={{ fontSize: 12, color: 'var(--pos-ink-2)', margin: 0 }}>
+            <p style={{ fontSize: 12, color: 'var(--oe-mute)', margin: 0 }}>
               {t('register.redirecting')}
             </p>
           </div>
@@ -409,12 +409,12 @@ export default function DeviceRegisterPage() {
                 justifyContent: 'center',
               }}
             >
-              <XCircle style={{ width: 28, height: 28, color: 'var(--pos-danger)' }} />
+              <XCircle style={{ width: 28, height: 28, color: 'var(--oe-danger)' }} />
             </div>
-            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--pos-ink)', margin: 0 }}>
+            <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--oe-ink)', margin: 0 }}>
               {t('register.blockedTitle')}
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--pos-ink-3)', margin: '6px 0 18px' }}>
+            <p style={{ fontSize: 13, color: 'var(--oe-mute)', margin: '6px 0 18px' }}>
               {t('register.blockedDescription')}
             </p>
 
@@ -424,10 +424,10 @@ export default function DeviceRegisterPage() {
               style={{
                 width: '100%',
                 padding: '11px',
-                background: 'var(--pos-surface)',
-                color: 'var(--pos-ink)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-sm)',
+                background: 'var(--oe-surface)',
+                color: 'var(--oe-ink)',
+                border: '1px solid var(--oe-line)',
+                borderRadius: 'var(--oe-r-sm)',
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',

@@ -8,6 +8,14 @@ import { ApiException } from '@/types/api';
 import { zielRouteFuerGeraet } from '@/lib/device-route';
 import type { DeviceInfo, DeviceStatus, DeviceClass } from '@/types/device';
 
+export interface PosSessionUser {
+  userId: string;
+  firstName: string;
+  lastName: string;
+}
+
+export type PosStartView = 'number' | 'list' | 'map';
+
 interface DeviceState {
   // Device info
   deviceId: string | null;
@@ -24,6 +32,12 @@ interface DeviceState {
 
   // Session state (not persisted)
   tableNumber: string | null;
+  /** Angemeldete Person an der Kasse (PIN). Nicht gespeichert: Neuladen verlangt die PIN erneut. */
+  session: PosSessionUser | null;
+  /** Zuletzt gewählte Ansicht der Startseite (Tischwahl), je Gerät gemerkt. */
+  startView: PosStartView;
+  /** Zuletzt gewählte Kategorie je Veranstaltung (`fav` = Favoriten). */
+  lastCategory: Record<string, string>;
 
   // UI state
   isLoading: boolean;
@@ -50,6 +64,9 @@ interface DeviceActions {
   // Session
   setTableNumber: (tableNumber: string | null) => void;
   clearSession: () => void;
+  setSession: (session: PosSessionUser | null) => void;
+  setStartView: (view: PosStartView) => void;
+  setLastCategory: (eventId: string, categoryId: string) => void;
 
   // Setters
   setError: (error: string | null) => void;
@@ -72,6 +89,9 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       status: null,
       settings: null,
       tableNumber: null,
+      session: null,
+      startView: 'number',
+      lastCategory: {},
       isLoading: false,
       isPolling: false,
       error: null,
@@ -273,6 +293,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
           status: null,
           settings: null,
           tableNumber: null,
+          session: null,
           error: null,
         });
       },
@@ -280,6 +301,10 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       // Session management
       setTableNumber: (tableNumber) => set({ tableNumber }),
       clearSession: () => set({ tableNumber: null }),
+      setSession: (session) => set({ session }),
+      setStartView: (startView) => set({ startView }),
+      setLastCategory: (eventId, categoryId) =>
+        set({ lastCategory: { ...get().lastCategory, [eventId]: categoryId } }),
 
       setError: (error) => set({ error }),
     }),
@@ -297,6 +322,8 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
         settings: state.settings,
         // Persist session state for device POS
         tableNumber: state.tableNumber,
+        startView: state.startView,
+        lastCategory: state.lastCategory,
       }),
       onRehydrateStorage: () => (state) => {
         // Restore device token to API client after rehydration

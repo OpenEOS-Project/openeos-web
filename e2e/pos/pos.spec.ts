@@ -82,7 +82,10 @@ test.describe('POS - Point of Sale', () => {
 
       // Das Geraet fragt alle drei Sekunden nach und wechselt selbst.
       await expect(device).toHaveURL(/\/device\/pos$/, { timeout: 15_000 });
-      await expect(device.getByText(EVENT_NAME)).toBeVisible();
+      // Auf schmalen Geraeten steht die Veranstaltung nicht im Kopf (Entwurf):
+      // dort genuegt, dass sie geladen ist und die Startansicht erscheint.
+      await expect(device.getByText(EVENT_NAME)).toBeAttached();
+      await expect(device.getByRole('heading', { name: 'Tisch öffnen' })).toBeVisible();
 
       deviceState = await deviceContext.storageState();
     } finally {
@@ -97,72 +100,103 @@ test.describe('POS - Point of Sale', () => {
     test('shows the products of the active event after choosing a table', async ({ page }) => {
       const pos = new POSPage(page);
       await pos.goto();
-      await pos.startTable('5');
+      await pos.openTableByNumber('5');
 
-      await expect(page.getByRole('complementary').getByRole('button', { name: new RegExp(CATEGORY) })).toBeVisible();
+      await expect(page.getByRole('navigation', { name: 'Kategorien' }).getByRole('button', { name: new RegExp(CATEGORY) })).toBeVisible();
       await expect(pos.product(PRODUCTS.schorle)).toContainText('3,50');
       await expect(pos.product(PRODUCTS.wasser)).toContainText('2,00');
-      await expect(pos.cart).toContainText('Noch nichts bestellt.');
-      await expect(pos.payCashButton).toBeDisabled();
+      await pos.openCart();
+      await expect(pos.cart).toContainText('Warenkorb ist leer');
+      await expect(pos.checkoutButton).toBeDisabled();
     });
 
     test('adds, changes and clears cart items', async ({ page }) => {
       const pos = new POSPage(page);
       await pos.goto();
-      await pos.startTable('7');
+      await pos.openTableByNumber('7');
 
       await pos.addProduct(PRODUCTS.schorle);
       await pos.expectCartLine(PRODUCTS.schorle, 1);
+      await pos.closeCart();
       await pos.addProduct(PRODUCTS.schorle);
       await pos.expectCartLine(PRODUCTS.schorle, 2);
       await pos.expectTotal('7,00');
+      await pos.closeCart();
 
       await pos.addProduct(PRODUCTS.wasser);
       await pos.expectTotal('9,00');
-      await expect(pos.cart).toContainText('3 Artikel');
+      await expect(pos.cart).toContainText('Tisch 7 · 3 Artikel');
 
-      // Die Mengenknoepfe gehoeren zur jeweiligen Zeile; die erste ist die Schorle.
-      await pos.cart.getByRole('button', { name: 'Menge verringern' }).first().click();
+      await pos.cartLine(PRODUCTS.schorle).getByRole('button', { name: 'Weniger' }).click();
       await pos.expectCartLine(PRODUCTS.schorle, 1);
       await pos.expectTotal('5,50');
-      await pos.cart.getByRole('button', { name: 'Menge erhöhen' }).nth(1).click();
+      await pos.cartLine(PRODUCTS.wasser).getByRole('button', { name: 'Mehr' }).click();
       await pos.expectCartLine(PRODUCTS.wasser, 2);
       await pos.expectTotal('7,50');
 
       await pos.clearCartButton.click();
-      await expect(pos.cart).toContainText('Noch nichts bestellt.');
+      await expect(pos.cart).toContainText('Warenkorb ist leer');
       await pos.expectTotal('0,00');
-      await expect(pos.payCashButton).toBeDisabled();
+      await expect(pos.checkoutButton).toBeDisabled();
+    });
+
+    test('meets the touch and layout rules on narrow devices', async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name === 'chromium', 'Nur Tablet und Telefon');
+      const pos = new POSPage(page);
+      await pos.goto();
+      await pos.openTableByNumber('9');
+
+      // Warenkorb-Leiste unten, Blatt oeffnet und schliesst
+      await expect(pos.cartBar).toBeVisible();
+      await pos.addProduct(PRODUCTS.wasser);
+      await pos.openCart();
+      const stepper = pos.cartLine(PRODUCTS.wasser).getByRole('button', { name: 'Mehr' });
+      const box = await stepper.boundingBox();
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(40);
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+
+      // Die untere Ziffernreihe im Kassieren-Blatt bleibt sichtbar
+      await pos.checkout();
+      await expect(pos.paySheet.getByRole('button', { name: '00', exact: true })).toBeInViewport();
+      await expect(pos.paySheet.getByRole('button', { name: 'Löschen' })).toBeInViewport();
+      await page.keyboard.press('Escape');
+      await expect(pos.paySheet).toHaveCount(0);
+      // Kassieren hat das Warenkorb-Blatt geschlossen.
+      await pos.openCart();
+      await pos.clearCartButton.click();
     });
 
     test('completes a cash sale that shows up in the order list', async ({ page, browser }) => {
       const pos = new POSPage(page);
       await pos.goto();
-      await pos.startTable('5');
+      await pos.openTableByNumber('5');
 
       await pos.addProduct(PRODUCTS.schorle);
       await pos.addProduct(PRODUCTS.schorle);
       await pos.addProduct(PRODUCTS.wasser);
       await pos.expectTotal('9,00');
 
-      // Escape schliesst den Dialog, der Fokus kehrt zum Bar-Knopf zurueck.
-      await pos.payCashButton.click();
-      await expect(pos.cashDialog).toBeFocused();
+      // Escape schliesst das Blatt, der Fokus kehrt zum Knopf zurueck.
+      await pos.checkout();
+      await expect(pos.paySheet).toBeFocused();
       await page.keyboard.press('Escape');
-      await expect(pos.cashDialog).toHaveCount(0);
-      await expect(pos.payCashButton).toBeFocused();
+      await expect(pos.paySheet).toHaveCount(0);
+      if (!pos.isCompact) await expect(pos.checkoutButton).toBeFocused();
 
-      await pos.payCashButton.click();
-      await expect(pos.cashDialog).toContainText(/Zu zahlen:\s*9,00\s€/);
-      await pos.cashDialog.getByRole('button', { name: '20,00 €' }).click();
-      await expect(pos.cashDialog).toContainText(/Rückgeld\s*11,00\s€/);
-      await pos.cashDialog.getByRole('button', { name: 'Zahlung bestätigen' }).click();
+      await pos.checkout();
+      await expect(pos.paySheet).toContainText(/Zu zahlen\s*9,00\s€/);
+      await pos.payCash('20,00 €');
+      await expect(pos.paySheet).toContainText(/Rückgeld 11,00\s€/);
+      await pos.completePayment();
 
-      await expect(pos.cashDialog).toHaveCount(0);
-      const confirmation = pos.cart.getByText(/Bestellung #\d{8}-\d{4} erstellt/);
-      await expect(confirmation).toBeVisible();
-      const orderNumber = (await confirmation.textContent())!.match(/#(\d{8}-\d{4})/)![1];
-      await expect(pos.cart).toContainText('Noch nichts bestellt.');
+      await expect(pos.doneSheet).toContainText(/Rückgeld 11,00\s€/);
+      const receiptNumber = pos.doneSheet.getByText(/#\d{8}-\d{4}/);
+      await expect(receiptNumber).toBeVisible();
+      const orderNumber = (await receiptNumber.textContent())!.match(/#(\d{8}-\d{4})/)![1];
+
+      // Mit Rueckgeld bleibt das Blatt offen; „Naechster Bon“ fuehrt zur Tischwahl.
+      await pos.nextReceipt();
+      await expect(pos.startView).toBeVisible();
 
       // Gegenprobe in der Verwaltung: bezahlt, mit Tisch und Positionen.
       const adminContext = await browser.newContext({ storageState: undefined });
@@ -181,6 +215,17 @@ test.describe('POS - Point of Sale', () => {
       } finally {
         await adminContext.close();
       }
+    });
+
+    test('order history is reachable from the menu', async ({ page }) => {
+      const pos = new POSPage(page);
+      await pos.goto();
+      await pos.openMenu('Bestellverlauf');
+      const history = page.getByRole('dialog', { name: 'Bestellverlauf' });
+      await expect(history).toBeVisible();
+      await expect(history.getByRole('button', { name: 'Abgeschlossen', exact: true })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(history).toHaveCount(0);
     });
   });
 });

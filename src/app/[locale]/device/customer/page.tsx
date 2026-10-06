@@ -216,7 +216,7 @@ export default function DeviceCustomerDisplayPage() {
                 >
                   <div className="flex items-start gap-4">
                     <span className="min-w-10 text-2xl font-bold tabular-nums text-brand-600 dark:text-brand-400">
-                      {item.quantity}×
+                      {item.quantity}x
                     </span>
                     <div>
                       <p className="text-2xl font-medium text-primary">{item.name}</p>
@@ -256,7 +256,7 @@ export default function DeviceCustomerDisplayPage() {
                     {t('discount')}
                     {cart.vouchers.length > 0 && ` (${cart.vouchers.map((v) => v.name).join(', ')})`}
                   </span>
-                  <span className="tabular-nums">−{formatCurrency(cart.totals.discount)}</span>
+                  <span className="tabular-nums">-{formatCurrency(cart.totals.discount)}</span>
                 </div>
               )}
               {cart.totals.pfand > 0 && (

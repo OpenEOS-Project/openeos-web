@@ -1,137 +1,114 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Lock01, LogOut01 } from '@untitledui/icons';
-import { Button } from '@/components/ui/buttons/button';
-import { Logo } from '@/components/foundations/logo/logo';
-import { NumPad } from './num-pad';
+import { Button, Icon, IconBox, Keypad } from '@openeos/ui';
 import { deviceApi } from '@/lib/api-client';
-import { cx } from '@/utils/cx';
+import type { PosSessionUser } from '@/stores/device-store';
 
 interface PinEntryScreenProps {
   deviceName: string;
-  onSuccess: (user: { userId: string; firstName: string; lastName: string }) => void;
+  onSuccess: (user: PosSessionUser) => void;
   onLogout: () => void;
 }
 
 const MAX_PIN_LENGTH = 6;
 const MIN_PIN_LENGTH = 4;
 
+/** PIN-Bildschirm: erscheint bei `requirePin` und nach dem Sperren. */
 export function PinEntryScreen({ deviceName, onSuccess, onLogout }: PinEntryScreenProps) {
   const t = useTranslations('pos');
   const tCommon = useTranslations('common');
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const handleVerify = useCallback(async (pinValue: string) => {
-    if (pinValue.length < MIN_PIN_LENGTH || isVerifying) return;
+  const verify = useCallback(
+    async (value: string) => {
+      if (value.length < MIN_PIN_LENGTH || verifying) return;
+      setVerifying(true);
+      setError(null);
+      try {
+        const response = await deviceApi.verifyPin(value);
+        const { userId, firstName, lastName } = response.data;
+        onSuccess({ userId, firstName, lastName });
+      } catch {
+        setError(t('pin.error'));
+        setShake(true);
+        window.setTimeout(() => setShake(false), 500);
+        setPin('');
+      } finally {
+        setVerifying(false);
+      }
+    },
+    [verifying, onSuccess, t],
+  );
 
-    setIsVerifying(true);
-    setError(null);
-
-    try {
-      const response = await deviceApi.verifyPin(pinValue);
-      const { userId, firstName, lastName } = response.data;
-      onSuccess({ userId, firstName, lastName });
-    } catch {
-      setError(t('pin.error'));
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      setPin('');
-    } finally {
-      setIsVerifying(false);
+  const press = (key: string) => {
+    if (key === 'backspace') {
+      setPin((p) => p.slice(0, -1));
+      return;
     }
-  }, [isVerifying, onSuccess, t]);
-
-  const handlePinChange = useCallback((value: string) => {
-    setPin(value);
-    setError(null);
-
-    // Auto-submit when max length reached
-    if (value.length === MAX_PIN_LENGTH) {
-      handleVerify(value);
+    if (key === 'enter') {
+      void verify(pin);
+      return;
     }
-  }, [handleVerify]);
-
-  const handleSubmit = useCallback(() => {
-    handleVerify(pin);
-  }, [handleVerify, pin]);
+    if (!/^[0-9]$/.test(key) || pin.length >= MAX_PIN_LENGTH) return;
+    const next = pin + key;
+    setPin(next);
+    setError(null);
+    if (next.length === MAX_PIN_LENGTH) void verify(next);
+  };
 
   return (
-    <div className="flex h-screen flex-col bg-secondary bg-grid">
-      {/* Header */}
-      <header className="flex h-14 items-center justify-between border-b border-secondary bg-primary px-4">
-        <div className="flex items-center gap-3">
-          <Logo width={100} height={25} />
-          <div className="h-5 w-px bg-secondary" />
-          <span className="text-sm font-medium text-primary">{deviceName}</span>
+    <div className="pos-app oe-root pos-pin">
+      <header className="pos-head">
+        <span className="pos-head__brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="pos-logo pos-logo--dark" src="/logo_dark.png" alt="OpenEOS" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="pos-logo pos-logo--light" src="/logo_light.png" alt="" aria-hidden />
+        </span>
+        <span className="pos-head__sep" aria-hidden />
+        <div className="pos-head__ctx">
+          <b>{deviceName}</b>
         </div>
-        <Button color="tertiary" size="sm" onClick={onLogout} aria-label={t('logout')}>
-          <LogOut01 className="h-4 w-4" />
+        <span className="pos-head__grow" />
+        <Button variant="quiet" iconOnly aria-label={t('logout')} title={t('logout')} onClick={onLogout}>
+          <Icon name="logout" />
         </Button>
       </header>
 
-      {/* PIN Entry */}
-      <div className="flex flex-1 items-start justify-center p-4 pt-8 sm:pt-16">
-        <div className="w-full max-w-sm">
-          <div className="rounded-xl border border-secondary bg-primary p-6 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-secondary">
-              <Lock01 className="h-7 w-7 text-brand-primary" />
-            </div>
-            <h2 className="mb-1 text-lg font-semibold text-primary">
-              {t('pin.title')}
-            </h2>
-            <p className="mb-4 text-sm text-tertiary">
-              {t('pin.description')}
-            </p>
-
-            {/* PIN Dots */}
-            <div
-              className={cx(
-                'mb-4 flex items-center justify-center gap-3 rounded-lg border border-secondary bg-secondary py-4',
-                shake && 'animate-shake'
-              )}
-            >
-              {Array.from({ length: MAX_PIN_LENGTH }).map((_, i) => (
-                <div
-                  key={i}
-                  className={cx(
-                    'h-3.5 w-3.5 rounded-full transition-colors',
-                    i < pin.length ? 'bg-brand-primary' : 'bg-quaternary'
-                  )}
-                />
-              ))}
-            </div>
-
-            {/* NumPad */}
-            <NumPad
-              value={pin}
-              onChange={handlePinChange}
-              maxLength={MAX_PIN_LENGTH}
-              className="mb-4"
-            />
-
-            {/* Submit Button */}
-            <Button
-              onClick={handleSubmit}
-              className="w-full"
-              size="lg"
-              disabled={pin.length < MIN_PIN_LENGTH || isVerifying}
-              isLoading={isVerifying}
-            >
-              {isVerifying ? t('pin.verifying') : tCommon('confirm')}
-            </Button>
-
-            {/* Error */}
-            {error && (
-              <p className="mt-3 text-sm text-error-primary">{error}</p>
-            )}
+      <main className="pos-pin__main">
+        <div className="oe-card pos-pin__card">
+          <IconBox icon="lock" tone="accent" size="lg" />
+          <h1>{t('pin.title')}</h1>
+          <p>{t('pin.description')}</p>
+          <div className={shake ? 'pos-pin__dots is-shake' : 'pos-pin__dots'} aria-hidden>
+            {Array.from({ length: MAX_PIN_LENGTH }).map((_, i) => (
+              <i key={i} className={i < pin.length ? 'is-on' : undefined} />
+            ))}
           </div>
+          <span className="oe-sr-only" aria-live="polite">
+            {pin.length} / {MAX_PIN_LENGTH}
+          </span>
+          <Keypad
+            size="lg"
+            onKey={press}
+            captureKeyboard
+            disabledKeys={verifying ? ['enter', 'backspace'] : pin.length < MIN_PIN_LENGTH ? ['enter'] : []}
+            labels={{ backspace: t('order.keypadBackspace'), enter: tCommon('confirm') }}
+            aria-label={t('pin.title')}
+          />
+          {error && (
+            <p className="pos-pin__error" role="alert">
+              <Icon name="alert" />
+              {error}
+            </p>
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

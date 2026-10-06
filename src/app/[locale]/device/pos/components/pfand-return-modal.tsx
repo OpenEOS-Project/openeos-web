@@ -2,180 +2,145 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Minus, Plus } from '@untitledui/icons';
+import { Button, EmptyState, Icon, Stepper } from '@openeos/ui';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import type { PfandType } from '@/types/pfand';
 import type { CartPfandReturnLine } from '@/stores/cart-store';
-import { PosSheet, usePosSheetClose } from './pos-sheet';
+import { PosSheet } from './pos-sheet';
+import { usePosToast } from './pos-toast';
 
 interface PfandReturnModalProps {
   isOpen: boolean;
   onClose: () => void;
   pfandTypes: PfandType[];
   eventId?: string;
-  onSubmitted?: (totalAmount: number) => void;
-  /** When true, an active sale exists, so the return can be offset against the
-   *  bill ("Verrechnen") instead of paid out in cash. */
+  /** Es gibt einen offenen Verkauf: „Verrechnen“ zieht die Rückgabe davon ab. */
   allowOffset?: boolean;
-  /** Pre-fill the counters from an already-staged offset. */
+  /** Bereits verrechnete Rückgabe vorbelegen. */
   initialCounts?: Record<string, number>;
-  /** Called when the user offsets the return against the current sale. */
   onOffset?: (lines: CartPfandReturnLine[]) => void;
+  /** Offline: Auszahlen gesperrt (Verrechnen bleibt lokal möglich). */
+  payoutDisabled?: boolean;
 }
 
+/**
+ * Pfand-Rückgabe: Zählung je Pfandart, dann „Auszahlen“ (Bargeld, öffnet
+ * die Kassenlade) oder „Verrechnen“ gegen den aktuellen Warenkorb.
+ */
 export function PfandReturnModal({
   isOpen,
   onClose,
   pfandTypes,
   eventId,
-  onSubmitted,
   allowOffset = false,
   initialCounts,
   onOffset,
+  payoutDisabled = false,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
-  const formatCurrency = useFormatPrice();
+  const tCart = useTranslations('pos.cartV2');
+  const formatPrice = useFormatPrice();
+  const toast = usePosToast();
+  const apiErrorMessage = useApiErrorMessage();
   const [counts, setCounts] = useState<Record<string, number>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setCounts(initialCounts ?? {});
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
-  }, [isOpen, initialCounts]);
+    // Nur beim Öffnen vorbelegen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
-  const setQty = (id: string, qty: number) => {
-    setCounts((prev) => ({ ...prev, [id]: Math.max(0, qty) }));
-  };
+  const setQty = (id: string, qty: number) => setCounts((prev) => ({ ...prev, [id]: Math.max(0, qty) }));
+  const total = pfandTypes.reduce((sum, pt) => sum + Number(pt.amount) * (counts[pt.id] || 0), 0);
 
-  const total = pfandTypes.reduce(
-    (sum, pt) => sum + Number(pt.amount) * (counts[pt.id] || 0),
-    0,
-  );
-
-  const { closing, close: handleClose } = usePosSheetClose(isOpen, onClose);
-
-  const handlePayout = async () => {
+  const payout = async () => {
     const lines = pfandTypes
       .filter((pt) => (counts[pt.id] || 0) > 0)
       .map((pt) => ({ pfandTypeId: pt.id, quantity: counts[pt.id] }));
     if (lines.length === 0) return;
-    setIsSubmitting(true);
+    setSubmitting(true);
     try {
       await deviceApi.createPfandReturn({ ...(eventId ? { eventId } : {}), lines });
-      onSubmitted?.(total);
-      handleClose();
+      toast(tCart('pfandPaidOut', { amount: formatPrice(total) }));
+      onClose();
     } catch (error) {
-      console.error('Pfand return failed:', error);
-      setIsSubmitting(false);
+      toast(apiErrorMessage(error), 'danger');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Offset the counted return against the current sale instead of paying cash.
-  const handleOffset = () => {
-    const lines: CartPfandReturnLine[] = pfandTypes
-      .filter((pt) => (counts[pt.id] || 0) > 0)
-      .map((pt) => ({
-        pfandTypeId: pt.id,
-        name: pt.name,
-        unitAmount: Number(pt.amount),
-        quantity: counts[pt.id],
-      }));
-    onOffset?.(lines);
+  const offset = () => {
+    onOffset?.(
+      pfandTypes
+        .filter((pt) => (counts[pt.id] || 0) > 0)
+        .map((pt) => ({
+          pfandTypeId: pt.id,
+          name: pt.name,
+          unitAmount: Number(pt.amount),
+          quantity: counts[pt.id],
+        })),
+    );
   };
-
-  if (!isOpen) return null;
 
   return (
     <PosSheet
-      closing={closing}
-      onClose={handleClose}
+      open={isOpen}
+      onClose={onClose}
+      icon="deposit"
       title={t('returnTitle')}
-      bodyStyle={{ gap: 10 }}
+      subtitle={`${t('returnSum')}: ${formatPrice(total)}`}
       footer={
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('returnSum')}</span>
-            <span className="pos-mono" style={{ fontSize: 24, fontWeight: 700, color: 'var(--pos-ink)' }}>
-              {formatCurrency(total)}
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {allowOffset && (
-              <button
-                type="button"
-                className="pos-btn pos-btn--primary"
-                style={{ flex: 1 }}
-                onClick={handleOffset}
-                disabled={total <= 0}
-              >
-                <Check />
-                {t('offsetButton')}
-              </button>
-            )}
-            {/* Mit offenem Verkauf ist Verrechnen die Hauptaktion, Auszahlen
-                tritt zurueck. */}
-            <button
-              type="button"
-              className={`pos-btn ${allowOffset ? 'pos-btn--secondary' : 'pos-btn--primary'}`}
-              style={{ flex: 1 }}
-              onClick={handlePayout}
-              disabled={total <= 0 || isSubmitting}
-            >
-              {!allowOffset && <Check />}
-              {isSubmitting ? '…' : t('payoutButton')}
-            </button>
-          </div>
+          <Button
+            variant={allowOffset ? 'secondary' : 'primary'}
+            className={allowOffset ? undefined : 'oe-grow'}
+            disabled={total <= 0 || submitting || payoutDisabled}
+            loading={submitting}
+            onClick={payout}
+          >
+            {!submitting && <Icon name="cash" />}
+            {t('payoutButton')}
+          </Button>
           {allowOffset && (
-            <p style={{ margin: '8px 2px 0', fontSize: 11, color: 'var(--pos-ink-3)', textAlign: 'center' }}>
-              {t('offsetHint')}
-            </p>
+            <Button variant="primary" className="oe-grow" disabled={total <= 0} onClick={offset}>
+              <Icon name="check" />
+              {t('offsetButton')}
+            </Button>
           )}
         </>
       }
     >
       {pfandTypes.length === 0 ? (
-        <div className="pos-sheet-empty">{t('empty')}</div>
+        <EmptyState icon={<Icon name="deposit" />} title={t('empty')} />
       ) : (
-        pfandTypes.map((pt) => {
-          const qty = counts[pt.id] || 0;
-          return (
-            <div
-              key={pt.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-                padding: '8px 12px',
-                background: 'var(--pos-surface)',
-                border: '1px solid var(--pos-line)',
-                borderRadius: 'var(--pos-r-md)',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--pos-ink)' }}>{pt.name}</span>
-                <span className="pos-mono" style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
-                  {formatCurrency(Number(pt.amount))}
+        <ul className="pos-list">
+          {pfandTypes.map((pt) => {
+            const qty = counts[pt.id] || 0;
+            return (
+              <li key={pt.id} className="pos-list__row">
+                <span className="pos-list__main">
+                  <b>{pt.name}</b>
+                  <small>{formatPrice(Number(pt.amount))}</small>
                 </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button type="button" className="pos-qty-btn" onClick={() => setQty(pt.id, qty - 1)} aria-label={t('decrease')}>
-                  <Minus />
-                </button>
-                <span className="pos-mono" style={{ minWidth: 28, textAlign: 'center', fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)' }}>
-                  {qty}
-                </span>
-                <button type="button" className="pos-qty-btn" onClick={() => setQty(pt.id, qty + 1)} aria-label={t('increase')}>
-                  <Plus />
-                </button>
-              </div>
-            </div>
-          );
-        })
+                <Stepper
+                  value={qty}
+                  onDecrement={() => setQty(pt.id, qty - 1)}
+                  onIncrement={() => setQty(pt.id, qty + 1)}
+                  labels={{ decrease: t('decrease'), increase: t('increase') }}
+                />
+              </li>
+            );
+          })}
+        </ul>
       )}
+      {allowOffset && <p className="pos-hint">{t('offsetHint')}</p>}
     </PosSheet>
   );
 }

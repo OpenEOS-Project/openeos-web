@@ -1,485 +1,268 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Minus, BankNote01, CreditCard01 } from '@untitledui/icons';
-import { useDeviceStore } from '@/stores/device-store';
-import { amountReceivedFor } from '@/utils/cash-tender';
-import { deviceApi } from '@/lib/api-client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, EmptyState, Icon, Segment, Spinner, Stepper } from '@openeos/ui';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
-import { CashPaymentModal } from './cash-payment-modal';
-import { PosPortal } from './pos-portal';
-import { PosSheet, usePosSheetClose } from './pos-sheet';
-import { SumUpCheckoutModal } from './sumup-checkout-modal';
-import { useDeviceIntegrationEnabled } from '@/hooks/use-device-integration';
+import { deviceApi } from '@/lib/api-client';
+import { amountReceivedFor } from '@/utils/cash-tender';
 import type { Order, OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
+import { PaySheet, type PayResult } from './pay-sheet';
+import { PosSheet } from './pos-sheet';
+import { usePosToast } from './pos-toast';
 
 interface SplitPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  eventId: string | null;
+  /** Karte: Lesegerät, Buchung ohne Gerät oder gar nicht. */
+  card: 'sumup' | 'manual' | null;
+  disabled?: boolean;
 }
 
 interface UnpaidItem {
   orderId: string;
-  orderNumber: string;
-  dailyNumber?: number;
-  tableNumber?: string | null;
   item: OrderItem;
-  unpaidQuantity: number;
+  unpaid: number;
+  unitPrice: number;
 }
 
 type GroupBy = 'order' | 'category';
 
-export function SplitPaymentModal({ isOpen, onClose }: SplitPaymentModalProps) {
+/**
+ * Rechnung teilen: Positionen offener Bestellungen auswählen und einzeln
+ * kassieren (`/payments/split` je Bestellung). Nach jeder Teilzahlung
+ * lädt die Liste neu; ist alles bezahlt, schließt das Blatt.
+ */
+export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: SplitPaymentModalProps) {
   const t = useTranslations('pos.splitPayment');
-  const tUi = useTranslations('deviceUi.common');
   const tTabs = useTranslations('pos.openTabs');
-  const formatCurrency = useFormatPrice();
+  const tPay = useTranslations('pos.pay');
+  const tCart = useTranslations('pos.cartV2');
+  const formatPrice = useFormatPrice();
   const queryClient = useQueryClient();
+  const toast = usePosToast();
+  const apiErrorMessage = useApiErrorMessage();
 
-  const [selections, setSelections] = useState<Record<string, number>>({});
-  const [showCashModal, setShowCashModal] = useState(false);
-  const [showSumupModal, setShowSumupModal] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [selection, setSelection] = useState<Record<string, number>>({});
   const [groupBy, setGroupBy] = useState<GroupBy>('order');
-  const { settings } = useDeviceStore();
-  const hasSumupReader = !!settings?.sumupReaderId;
-  // Der SumUp-Leser wird nur angesprochen, solange die Integration an ist.
-  // Ohne sie bleibt die Kartenzahlung als manuelle Buchung (externes
-  // Terminal) — die gab es hier schon immer, und sie hat mit SumUp nichts
-  // zu tun.
-  const sumupEnabled = useDeviceIntegrationEnabled('sumup');
-  const useSumupReader = hasSumupReader && sumupEnabled;
+  const [paying, setPaying] = useState(false);
 
-  // Fetch all open orders
-  const { data: ordersData, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['device-open-tabs'],
     queryFn: () => deviceApi.getOpenOrders(),
     enabled: isOpen,
   });
+  const orders: Order[] = useMemo(
+    () => (data?.data || []).filter((o) => !eventId || !o.eventId || o.eventId === eventId),
+    [data, eventId],
+  );
 
-  const orders = ordersData?.data || [];
+  const unpaidItems: UnpaidItem[] = useMemo(
+    () =>
+      orders.flatMap((order) =>
+        (order.items ?? [])
+          .filter((item) => item.status !== 'cancelled' && item.quantity - (item.paidQuantity || 0) > 0)
+          .map((item) => ({
+            orderId: order.id,
+            item,
+            unpaid: item.quantity - (item.paidQuantity || 0),
+            unitPrice: Number(item.unitPrice) + Number(item.optionsPrice || 0),
+          })),
+      ),
+    [orders],
+  );
 
-  // Build flat list of unpaid items from all orders
-  const unpaidItems: UnpaidItem[] = useMemo(() => {
-    const result: UnpaidItem[] = [];
-
-    for (const order of orders) {
-      if (!order.items) continue;
-
-      for (const item of order.items) {
-        const unpaidQty = item.quantity - (item.paidQuantity || 0);
-        if (unpaidQty <= 0) continue;
-        if (item.status === 'cancelled') continue;
-
-        result.push({
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          dailyNumber: order.dailyNumber,
-          tableNumber: order.tableNumber,
-          item,
-          unpaidQuantity: unpaidQty,
-        });
-      }
+  const groups = useMemo(() => {
+    const map = new Map<string, { title: string; items: UnpaidItem[] }>();
+    for (const entry of unpaidItems) {
+      const order = orders.find((o) => o.id === entry.orderId);
+      const key = groupBy === 'order' ? entry.orderId : entry.item.categoryName || t('uncategorized');
+      const title =
+        groupBy === 'order'
+          ? `#${order?.dailyNumber || order?.orderNumber}${order?.tableNumber ? ` · ${t('table')} ${order.tableNumber}` : ''}`
+          : key;
+      if (!map.has(key)) map.set(key, { title, items: [] });
+      map.get(key)!.items.push(entry);
     }
+    return [...map.values()];
+  }, [unpaidItems, orders, groupBy, t]);
 
-    return result;
-  }, [orders]);
+  const selectedTotal = unpaidItems.reduce(
+    (sum, entry) => sum + entry.unitPrice * (selection[entry.item.id] || 0),
+    0,
+  );
+  const remaining = orders.reduce((sum, o) => sum + Number(o.total) - Number(o.paidAmount || 0), 0);
 
-  // Group unpaid items by order for display
-  const groupedByOrder = useMemo(() => {
-    const groups: Record<string, { order: Order; items: UnpaidItem[] }> = {};
-    for (const ui of unpaidItems) {
-      if (!groups[ui.orderId]) {
-        const order = orders.find((o) => o.id === ui.orderId)!;
-        groups[ui.orderId] = { order, items: [] };
-      }
-      groups[ui.orderId].items.push(ui);
-    }
-    return Object.values(groups);
-  }, [unpaidItems, orders]);
-
-  // Group unpaid items by category for display
-  const groupedByCategory = useMemo(() => {
-    const groups: Record<string, { categoryName: string; items: UnpaidItem[] }> = {};
-    for (const ui of unpaidItems) {
-      const catName = ui.item.categoryName || t('uncategorized');
-      if (!groups[catName]) {
-        groups[catName] = { categoryName: catName, items: [] };
-      }
-      groups[catName].items.push(ui);
-    }
-    return Object.values(groups).sort((a, b) => a.categoryName.localeCompare(b.categoryName));
-  }, [unpaidItems, t]);
-
-  // Calculate selected total
-  const selectedTotal = useMemo(() => {
-    return unpaidItems.reduce((total, ui) => {
-      const selectedQty = selections[ui.item.id] || 0;
-      const itemPrice = Number(ui.item.unitPrice) + Number(ui.item.optionsPrice || 0);
-      return total + itemPrice * selectedQty;
-    }, 0);
-  }, [unpaidItems, selections]);
-
-  // Calculate total remaining across all orders
-  const totalRemaining = useMemo(() => {
-    return orders.reduce((total, order) => {
-      return total + (Number(order.total) - Number(order.paidAmount || 0));
-    }, 0);
-  }, [orders]);
-
-  const hasSelection = selectedTotal > 0;
-
-  const handleQuantityChange = (itemId: string, delta: number) => {
-    setSelections((prev) => {
-      const ui = unpaidItems.find((u) => u.item.id === itemId);
-      if (!ui) return prev;
-
-      const current = prev[itemId] || 0;
-      const newQty = Math.max(0, Math.min(ui.unpaidQuantity, current + delta));
-
-      if (newQty === 0) {
-        const { [itemId]: _, ...rest } = prev;
-        return rest;
-      }
-
-      return { ...prev, [itemId]: newQty };
+  const change = (entry: UnpaidItem, delta: number) =>
+    setSelection((prev) => {
+      const next = Math.max(0, Math.min(entry.unpaid, (prev[entry.item.id] || 0) + delta));
+      const { [entry.item.id]: _removed, ...rest } = prev;
+      void _removed;
+      return next > 0 ? { ...rest, [entry.item.id]: next } : rest;
     });
-  };
 
-  const handleSelectAll = () => {
-    const allSelections: Record<string, number> = {};
-    unpaidItems.forEach((ui) => {
-      allSelections[ui.item.id] = ui.unpaidQuantity;
-    });
-    setSelections(allSelections);
-  };
+  const selectAll = (entries: UnpaidItem[]) =>
+    setSelection((prev) => ({
+      ...prev,
+      ...Object.fromEntries(entries.map((e) => [e.item.id, e.unpaid])),
+    }));
 
-  const handleSelectAllCategory = (categoryItems: UnpaidItem[]) => {
-    setSelections((prev) => {
-      const next = { ...prev };
-      for (const ui of categoryItems) {
-        next[ui.item.id] = ui.unpaidQuantity;
-      }
-      return next;
-    });
-  };
-
-  const handleClearSelection = () => {
-    setSelections({});
-  };
-
-  // Group selected items by orderId for payment
-  const getSelectedByOrder = () => {
-    const byOrder: Record<string, { orderId: string; items: { orderItemId: string; quantity: number }[]; amount: number }> = {};
-
-    for (const ui of unpaidItems) {
-      const selectedQty = selections[ui.item.id] || 0;
-      if (selectedQty <= 0) continue;
-
-      if (!byOrder[ui.orderId]) {
-        byOrder[ui.orderId] = { orderId: ui.orderId, items: [], amount: 0 };
-      }
-
-      const itemPrice = Number(ui.item.unitPrice) + Number(ui.item.optionsPrice || 0);
-      byOrder[ui.orderId].items.push({
-        orderItemId: ui.item.id,
-        quantity: selectedQty,
-      });
-      byOrder[ui.orderId].amount += itemPrice * selectedQty;
+  const pay = async (result: PayResult) => {
+    const byOrder = new Map<string, { items: { orderItemId: string; quantity: number }[]; amount: number }>();
+    for (const entry of unpaidItems) {
+      const qty = selection[entry.item.id] || 0;
+      if (qty <= 0) continue;
+      const bucket = byOrder.get(entry.orderId) ?? { items: [], amount: 0 };
+      bucket.items.push({ orderItemId: entry.item.id, quantity: qty });
+      bucket.amount += entry.unitPrice * qty;
+      byOrder.set(entry.orderId, bucket);
     }
-
-    return Object.values(byOrder);
-  };
-
-  const paySelectedItems = useMutation({
-    mutationFn: async ({
-      paymentMethod,
-      amountReceived,
-    }: { paymentMethod: PaymentMethod; amountReceived?: number }) => {
-      const orderPayments = getSelectedByOrder();
-
-      // Create split payment for each order
-      const amounts = orderPayments.map((op) => op.amount);
-      for (const [index, op] of orderPayments.entries()) {
-        const received =
-          paymentMethod === 'cash' ? amountReceivedFor(index, amounts, amountReceived) : undefined;
+    const payments = [...byOrder.entries()];
+    const amounts = payments.map(([, p]) => p.amount);
+    const method: PaymentMethod = result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
+    try {
+      for (const [index, [orderId, p]] of payments.entries()) {
+        const received = method === 'cash' ? amountReceivedFor(index, amounts, result.amountReceived) : undefined;
         await deviceApi.createSplitPayment({
-          orderId: op.orderId,
-          amount: op.amount,
-          paymentMethod,
-          items: op.items,
+          orderId,
+          amount: p.amount,
+          paymentMethod: method,
+          items: p.items,
           ...(received !== undefined ? { amountReceived: received } : {}),
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
-      queryClient.invalidateQueries({ queryKey: ['device-orders'] });
-      queryClient.invalidateQueries({ queryKey: ['device-order-history'] });
-      setSelections({});
-      setShowCashModal(false);
-      onClose();
-    },
-  });
-
-  const handlePay = async (paymentMethod: PaymentMethod, amountReceived?: number) => {
-    if (!hasSelection) return;
-
-    setIsProcessing(true);
-    try {
-      await paySelectedItems.mutateAsync({ paymentMethod, amountReceived });
     } catch (error) {
-      console.error('Split payment failed:', error);
-    } finally {
-      setIsProcessing(false);
+      toast(apiErrorMessage(error), 'danger');
+      queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+      throw error;
     }
-  };
-
-  const { closing, close } = usePosSheetClose(isOpen, onClose);
-
-  const handleCashClick = () => {
-    if (!hasSelection) return;
-    setShowCashModal(true);
-  };
-
-  const handleCashConfirm = (amountReceived: number) => {
-    handlePay('cash', amountReceived);
-  };
-
-  const renderItemRow = (ui: UnpaidItem) => {
-    const selectedQty = selections[ui.item.id] || 0;
-    const isSelected = selectedQty > 0;
-    const itemPrice = Number(ui.item.unitPrice) + Number(ui.item.optionsPrice || 0);
-
-    return (
-      <div
-        key={ui.item.id}
-        className="pos-card"
-        data-selected={isSelected || undefined}
-        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 8px 8px 14px' }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: 'var(--pos-ink)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {ui.item.productName}
-          </div>
-          <div className="pos-mono" style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
-            {formatCurrency(itemPrice)} × {ui.unpaidQuantity} {t('open')}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <button
-            type="button"
-            className="pos-qty-btn"
-            onClick={() => handleQuantityChange(ui.item.id, -1)}
-            disabled={selectedQty === 0}
-            aria-label={tUi('decrease')}
-          >
-            <Minus />
-          </button>
-          <span
-            className="pos-mono"
-            style={{ minWidth: 28, textAlign: 'center', fontSize: 16, fontWeight: 700, color: 'var(--pos-ink)' }}
-          >
-            {selectedQty}
-          </span>
-          <button
-            type="button"
-            className="pos-qty-btn"
-            onClick={() => handleQuantityChange(ui.item.id, 1)}
-            disabled={selectedQty >= ui.unpaidQuantity}
-            aria-label={tUi('increase')}
-          >
-            <Plus />
-          </button>
-        </div>
-      </div>
+    const changeAmount = result.amountReceived ? result.amountReceived - selectedTotal : 0;
+    toast(
+      changeAmount > 0.0001
+        ? tPay('splitPaidChange', { amount: formatPrice(selectedTotal), change: formatPrice(changeAmount) })
+        : tPay('splitPaid', { amount: formatPrice(selectedTotal) }),
     );
-  };
-
-  const groupLabel: React.CSSProperties = {
-    fontSize: 11,
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-    color: 'var(--pos-ink-3)',
+    setSelection({});
+    setPaying(false);
+    await queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+    queryClient.invalidateQueries({ queryKey: ['device-order-history'] });
+    if (remaining - selectedTotal <= 0.0001) onClose();
   };
 
   const hasItems = !isLoading && unpaidItems.length > 0;
 
   return (
     <>
-      {isOpen && (
-        <PosSheet
-          closing={closing}
-          onClose={close}
-          title={t('title')}
-          subtitle={
-            hasItems ? (
-              <>
-                {orders.length} {tTabs('orders', { count: orders.length })} · {t('remaining')}{' '}
-                <strong className="pos-mono">{formatCurrency(totalRemaining)}</strong>
-              </>
-            ) : undefined
-          }
-          toolbar={
-            hasItems ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div className="pos-seg" role="group" aria-label={t('selectItems')}>
-                  <button type="button" aria-pressed={groupBy === 'order'} onClick={() => setGroupBy('order')}>
-                    {t('groupByOrder')}
-                  </button>
-                  <button
-                    type="button"
-                    aria-pressed={groupBy === 'category'}
-                    onClick={() => setGroupBy('category')}
-                  >
-                    {t('groupByCategory')}
-                  </button>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink-2)' }}>{t('selectItems')}</span>
-                  <span style={{ display: 'flex', margin: '-10px -8px' }}>
-                    <button
-                      type="button"
-                      className="pos-link pos-link--muted"
-                      onClick={handleClearSelection}
-                      disabled={!hasSelection}
-                    >
-                      {t('clearSelection')}
-                    </button>
-                    <button type="button" className="pos-link" onClick={handleSelectAll}>
-                      {t('selectAll')}
-                    </button>
-                  </span>
-                </div>
+      <PosSheet
+        open={isOpen}
+        onClose={onClose}
+        size="wide"
+        icon="split"
+        title={t('title')}
+        subtitle={
+          hasItems
+            ? `${orders.length} ${tTabs('orders', { count: orders.length })} · ${t('remaining')} ${formatPrice(remaining)}`
+            : undefined
+        }
+        toolbar={
+          hasItems ? (
+            <>
+              <Segment<GroupBy>
+                size="lg"
+                aria-label={t('selectItems')}
+                value={groupBy}
+                onChange={setGroupBy}
+                options={[
+                  { id: 'order', label: t('groupByOrder'), icon: 'receipt' },
+                  { id: 'category', label: t('groupByCategory'), icon: 'grid' },
+                ]}
+              />
+              <span className="pos-grow" />
+              <Button variant="ghost" size="sm" disabled={selectedTotal <= 0} onClick={() => setSelection({})}>
+                {t('clearSelection')}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => selectAll(unpaidItems)}>
+                {t('selectAll')}
+              </Button>
+            </>
+          ) : undefined
+        }
+        footer={
+          hasItems ? (
+            <>
+              <span className="pos-ft-sum">
+                <small>{t('selectedAmount')}</small>
+                <b>{formatPrice(selectedTotal)}</b>
+              </span>
+              <Button
+                variant="primary"
+                size="lg"
+                className="oe-grow"
+                disabled={selectedTotal <= 0 || disabled}
+                onClick={() => setPaying(true)}
+              >
+                <Icon name="receipt" />
+                {tPay('checkoutAmount', { amount: formatPrice(selectedTotal) })}
+              </Button>
+            </>
+          ) : undefined
+        }
+      >
+        {isLoading ? (
+          <div className="pos-center">
+            <Spinner />
+          </div>
+        ) : unpaidItems.length === 0 ? (
+          <EmptyState icon={<Icon name="receipt" />} title={tTabs('noOpenTabs')} description={tTabs('noOpenTabsDescription')} />
+        ) : (
+          groups.map((group) => (
+            <section key={group.title} className="pos-group">
+              <div className="pos-group__hd">
+                <span className="oe-label">{group.title}</span>
+                <Button variant="ghost" size="sm" onClick={() => selectAll(group.items)}>
+                  {t('selectAllCategory')}
+                </Button>
               </div>
-            ) : undefined
-          }
-          footer={
-            hasItems ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-ink)' }}>{t('selectedAmount')}</span>
-                  <span
-                    className="pos-mono"
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color: hasSelection ? 'var(--pos-accent-ink)' : 'var(--pos-ink-3)',
-                    }}
-                  >
-                    {formatCurrency(selectedTotal)}
-                  </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <button
-                    type="button"
-                    className="pos-btn pos-btn--secondary"
-                    onClick={handleCashClick}
-                    disabled={!hasSelection || isProcessing}
-                  >
-                    <BankNote01 />
-                    {t('payCash')}
-                  </button>
-                  <button
-                    type="button"
-                    className="pos-btn pos-btn--primary"
-                    onClick={() => {
-                      if (useSumupReader) {
-                        setShowSumupModal(true);
-                      } else {
-                        handlePay('card');
-                      }
-                    }}
-                    disabled={!hasSelection || isProcessing}
-                  >
-                    <CreditCard01 />
-                    {t('payCard')}
-                  </button>
-                </div>
-              </div>
-            ) : undefined
-          }
-          bodyStyle={{ gap: 16 }}
-        >
-          {isLoading ? (
-            <div className="pos-sheet-empty">
-              <div className="pos-spinner" />
-            </div>
-          ) : unpaidItems.length === 0 ? (
-            <div className="pos-sheet-empty">
-              {t('remaining')}: {formatCurrency(0)}
-            </div>
-          ) : groupBy === 'order' ? (
-            groupedByOrder.map(({ order, items }) => (
-              <section key={order.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span className="pos-mono" style={groupLabel}>
-                    #{order.dailyNumber || order.orderNumber}
-                  </span>
-                  {order.tableNumber && (
-                    <span style={{ fontSize: 12, color: 'var(--pos-ink-3)' }}>
-                      {t('table')} {order.tableNumber}
-                    </span>
-                  )}
-                </div>
-                {items.map(renderItemRow)}
-              </section>
-            ))
-          ) : (
-            groupedByCategory.map(({ categoryName, items }) => (
-              <section key={categoryName} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <span style={groupLabel}>{categoryName}</span>
-                  <button
-                    type="button"
-                    className="pos-link"
-                    style={{ margin: '-10px -8px -10px 0' }}
-                    onClick={() => handleSelectAllCategory(items)}
-                  >
-                    {t('selectAllCategory')}
-                  </button>
-                </div>
-                {items.map(renderItemRow)}
-              </section>
-            ))
-          )}
-        </PosSheet>
-      )}
+              <ul className="pos-list">
+                {group.items.map((entry) => {
+                  const qty = selection[entry.item.id] || 0;
+                  return (
+                    <li key={entry.item.id} className={qty > 0 ? 'pos-list__row is-selected' : 'pos-list__row'}>
+                      <span className="pos-list__main">
+                        <b>{entry.item.productName}</b>
+                        <small>
+                          {formatPrice(entry.unitPrice)} · {entry.unpaid} {t('open')}
+                        </small>
+                      </span>
+                      <Stepper
+                        value={qty}
+                        max={entry.unpaid}
+                        onDecrement={() => change(entry, -1)}
+                        onIncrement={() => change(entry, 1)}
+                        labels={{ decrease: tCart('qtyDecrease'), increase: tCart('qtyIncrease') }}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))
+        )}
+      </PosSheet>
 
-      {/* Bar und Karte liegen ueber der Auswahl */}
-      <CashPaymentModal
-        isOpen={showCashModal}
-        onClose={() => setShowCashModal(false)}
-        total={selectedTotal}
-        onConfirm={handleCashConfirm}
-        isProcessing={isProcessing}
+      <PaySheet
+        open={paying}
+        onClose={() => setPaying(false)}
+        title={t('title')}
+        amount={selectedTotal}
+        card={card}
+        onPay={pay}
+        disabled={disabled}
       />
-      <PosPortal>
-        <SumUpCheckoutModal
-          isOpen={showSumupModal}
-          onClose={() => setShowSumupModal(false)}
-          amount={selectedTotal}
-          onSuccess={() => {
-            setShowSumupModal(false);
-            handlePay('sumup_terminal' as PaymentMethod);
-          }}
-        />
-      </PosPortal>
     </>
   );
 }
-
