@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { Button, Icon } from '@openeos/ui';
 
 import { ProductImage } from '@/components/shared/product-image';
-import { OeIconPicker } from '@/components/shared/oe-icon-picker';
+import { PosIconPicker } from '@/components/shared/pos-icon-picker';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
@@ -61,7 +61,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
-  const tIcon = useTranslations('oeIconPicker');
+  const tIcon = useTranslations('posIconPicker');
   const { formatCurrency } = useLocaleFormat();
   // Vorgabe fuer neue Produkte in der Sprache der Oberflaeche; gespeichert
   // wird der Text, den das Feld beim Absenden enthaelt.
@@ -88,7 +88,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroup[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  /* Eigenes Icon (`oe:<name>`) — hat an der Kasse Vorrang vor dem Bild. */
+  /* Produkt-Icon (`pos-icon:<id>`) — hat an der Kasse Vorrang vor dem Foto. */
   const [icon, setIcon] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
@@ -302,8 +302,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-              {/* Icon und Bild: das Icon gewinnt, ohne beides zeigt die
-                  Kasse das Icon der Kategorie (utils/product-icon.ts). */}
+              {/* Produkt-Icon und Foto: das Icon gewinnt, ohne beides zeigt
+                  die Kasse das Icon der Kategorie (utils/product-icon.ts). */}
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 8 }}>
                   {t('form.image.title')}
@@ -709,13 +709,13 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         onCreated={handleCategoryCreated}
       />
 
-      <OeIconPicker
+      <PosIconPicker
         isOpen={isIconPickerOpen}
-        value={icon}
+        value={icon ?? (imageUrl?.startsWith('pos-icon:') ? imageUrl : null)}
         onClose={() => setIsIconPickerOpen(false)}
         onSelect={(value) => {
           setIcon(value);
-          // Altes PNG-Icon im Bildfeld ablösen; ein Foto bleibt stehen.
+          // Altes POS-Icon im Bildfeld ablösen; ein Foto bleibt stehen.
           if (imageUrl?.startsWith('pos-icon:')) setImageUrl(null);
         }}
       />

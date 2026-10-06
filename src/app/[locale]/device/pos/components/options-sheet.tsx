@@ -8,7 +8,7 @@ import type { CartItem } from '@/stores/cart-store';
 import type { SelectedOption } from '@/types/order';
 import type { ProductOptionGroup } from '@/types/product';
 import { PosSheet } from './pos-sheet';
-import { iconNameOf, productIconSource, type PosProduct } from './product-visual';
+import { sheetIconOf, type PosProduct } from './product-visual';
 
 export interface OptionsResult {
   selectedOptions: SelectedOption[];
@@ -158,7 +158,7 @@ export function OptionsSheet({ target, chargePfand, onClose, onConfirm }: Option
     <PosSheet
       open={!!target}
       onClose={onClose}
-      icon={iconNameOf(productIconSource(product))}
+      icon={sheetIconOf(product)}
       title={product.name}
       subtitle={[sub, formatPrice(product.price)].filter(Boolean).join(' · ')}
       footer={

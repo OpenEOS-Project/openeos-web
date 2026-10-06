@@ -1,8 +1,8 @@
 'use client';
 
-import { PosIcon } from '@openeos/pos-icons';
 import { IconBox } from '@openeos/ui';
 
+import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import {
   resolveProductIcon,
@@ -12,11 +12,10 @@ import {
 } from '@/utils/product-icon';
 
 const BOX = { sm: 'sm', md: 'md', lg: 'lg' } as const;
-const PNG_SIZE = { sm: 24, md: 28, lg: 36 } as const;
 
 interface IconVisualProps {
   source: IconSource;
-  /** Alternativtext für Fotos; Icons sind dekorativ. */
+  /** Alternativtext für Bilder; Linien-Icons sind dekorativ. */
   alt: string;
   size?: keyof typeof BOX;
   className?: string;
@@ -24,8 +23,8 @@ interface IconVisualProps {
 
 /**
  * Zeigt eine aufgelöste Bildquelle (siehe utils/product-icon.ts) in der
- * Icon-Box des Designsystems: OpenEOS-Icon, Foto oder — für Altdaten
- * ohne passendes Icon — das PNG aus @openeos/pos-icons.
+ * Icon-Box des Designsystems: POS-Icon (Produktbild), Foto oder
+ * Linien-Icon (Kategorie, Rückfall).
  */
 export function IconVisual({ source, alt, size = 'md', className }: IconVisualProps) {
   if (source.kind === 'photo') {
@@ -40,7 +39,7 @@ export function IconVisual({ source, alt, size = 'md', className }: IconVisualPr
   if (source.kind === 'pos-icon') {
     return (
       <IconBox size={BOX[size]} className={className}>
-        <PosIcon id={source.id} size={PNG_SIZE[size]} />
+        <PosIconImage id={source.id} alt={alt} />
       </IconBox>
     );
   }
@@ -56,7 +55,7 @@ interface ProductImageProps {
   className?: string;
 }
 
-/** Bild eines Produkts: eigenes Icon → Foto → Icon der Kategorie → `utensils`. */
+/** Bild eines Produkts: POS-Icon → Foto → Icon der Kategorie → `utensils`. */
 export function ProductImage({ product, category, productName, size = 'md', className }: ProductImageProps) {
   return (
     <IconVisual source={resolveProductIcon(product, category)} alt={productName} size={size} className={className} />
