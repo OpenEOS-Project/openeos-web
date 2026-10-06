@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Product } from '@/types/product';
 import type { SelectedOption } from '@/types/order';
+import type { PosTableContext } from '@/types/table';
 
 export interface CartItemPfandType {
   id: string;
@@ -44,6 +45,85 @@ export interface AppliedVoucher {
   allowMultiple?: boolean; // Whether this voucher may be applied more than once per order
 }
 
+/** Was zu einem Warenkorb gehört (ohne Veranstaltung/Tisch). */
+export interface CartContents {
+  items: CartItem[];
+  appliedVouchers: AppliedVoucher[];
+  pfandReturns: CartPfandReturnLine[];
+}
+
+/**
+ * Geparkter Warenkorb eines Tisches (bzw. Theke/To-go): noch nicht
+ * gesendete Positionen bleiben auf diesem Gerät (Spezifikation §2.6, F4).
+ */
+export interface ParkedCart extends CartContents {
+  context: PosTableContext;
+  updatedAt: number;
+}
+
+/** Schlüssel eines Parkplatzes: `eventId:table:A03`, `eventId:counter`, `eventId:togo`. */
+export function parkKey(eventId: string, context: PosTableContext): string {
+  return `${eventId}:${context.kind === 'table' ? `table:${context.key}` : context.kind}`;
+}
+
+/** Summe der Positionen (ohne Pfand und Rabatt). */
+export function cartItemsTotal(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+}
+
+/** Pfand auf neue (nicht nachgefüllte) Einheiten, vor Verrechnung. */
+export function cartPfandTotal(items: CartItem[]): number {
+  return items.reduce((sum, item) => {
+    if (!item.pfandType) return sum;
+    return sum + item.pfandType.amount * Math.max(item.quantity - item.refillCount, 0);
+  }, 0);
+}
+
+/**
+ * Verrechnung zurückgegebenen Pfands gegen neue Pfand-Einheiten: ganze
+ * Einheiten werden zu „Nachfüllen“. Liefert den gutgeschriebenen Betrag und
+ * je Position die umgewandelten Einheiten — beim Kassieren wird dieselbe
+ * Umwandlung wiederholt, damit Anzeige und Bestellsumme centgenau gleich sind.
+ */
+export function cartPfandOffset(
+  items: CartItem[],
+  pfandReturns: CartPfandReturnLine[],
+): { convertedSum: number; byItem: Record<string, number> } {
+  const byItem: Record<string, number> = {};
+  let remaining = pfandReturns.reduce((sum, l) => sum + l.unitAmount * l.quantity, 0);
+  let convertedSum = 0;
+  if (remaining <= 0) return { convertedSum, byItem };
+  for (const item of items) {
+    if (!item.pfandType) continue;
+    const amount = item.pfandType.amount;
+    let units = Math.max(item.quantity - item.refillCount, 0);
+    while (units > 0 && remaining >= amount - 1e-9) {
+      remaining -= amount;
+      convertedSum += amount;
+      byItem[item.id] = (byItem[item.id] || 0) + 1;
+      units--;
+    }
+  }
+  return { convertedSum, byItem };
+}
+
+/** Zu zahlen für einen Warenkorb: Positionen − Rabatt (≥ 0) + Netto-Pfand. */
+export function cartPayable(cart: CartContents, chargePfand: boolean): number {
+  const total = cartItemsTotal(cart.items);
+  const requested = cart.appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
+  const net = Math.max(total - requested, 0);
+  if (!chargePfand) return net;
+  const pfand = Math.max(
+    cartPfandTotal(cart.items) - cartPfandOffset(cart.items, cart.pfandReturns).convertedSum,
+    0,
+  );
+  return net + pfand;
+}
+
+export function cartItemCount(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.quantity, 0);
+}
+
 interface CartState {
   items: CartItem[];
   eventId: string | null;
@@ -54,6 +134,8 @@ interface CartState {
   // Deposit returns offset against this sale (entered via the Pfand-Rückgabe
   // modal → "Verrechnen"). Reduce the net deposit charged + the token count.
   pfandReturns: CartPfandReturnLine[];
+  /** Geparkte Warenkörbe je `parkKey` (nur Tisch-Geräte). */
+  parked: Record<string, ParkedCart>;
 }
 
 interface CartActions {
@@ -78,6 +160,17 @@ interface CartActions {
   setItemRefillCount: (cartItemId: string, refillCount: number) => void;
   removeItem: (cartItemId: string) => void;
   clearCart: () => void;
+  /**
+   * Kontextwechsel: Der Warenkorb von `from` wird geparkt (leer = Parkplatz
+   * frei), der von `to` geladen. `carry` nimmt die ungesendeten Positionen
+   * mit zu `to` („Warenkorb mitnehmen“). `to = null` = Startansicht.
+   */
+  switchContext: (
+    eventId: string | null,
+    from: PosTableContext | null,
+    to: PosTableContext | null,
+    carry?: boolean,
+  ) => void;
   setEventId: (eventId: string | null) => void;
   setTableNumber: (tableNumber: string) => void;
   setCustomerName: (customerName: string) => void;
@@ -129,6 +222,7 @@ export const useCartStore = create<CartState & CartActions>()(
       notes: '',
       appliedVouchers: [],
       pfandReturns: [],
+      parked: {},
 
       // Actions
       addItem: (product, quantity = 1, selectedOptions = [], kitchenNotes = '') => {
@@ -246,11 +340,54 @@ export const useCartStore = create<CartState & CartActions>()(
         });
       },
 
+      switchContext: (eventId, from, to, carry = false) => {
+        const state = get();
+        const current: CartContents = {
+          items: state.items,
+          appliedVouchers: state.appliedVouchers,
+          pfandReturns: state.pfandReturns,
+        };
+        if (!eventId) {
+          if (!carry) set({ items: [], appliedVouchers: [], pfandReturns: [] });
+          return;
+        }
+        const fromKey = from ? parkKey(eventId, from) : null;
+        const toKey = to ? parkKey(eventId, to) : null;
+        if (fromKey && fromKey === toKey) return;
+
+        const parked = { ...state.parked };
+        if (fromKey) {
+          if (!carry && current.items.length > 0) {
+            parked[fromKey] = { ...current, context: from!, updatedAt: Date.now() };
+          } else {
+            delete parked[fromKey];
+          }
+        }
+        const target = toKey ? parked[toKey] : undefined;
+        if (toKey) delete parked[toKey];
+
+        const next: CartContents = carry
+          ? {
+              items: [...(target?.items ?? []), ...current.items],
+              appliedVouchers: [...(target?.appliedVouchers ?? []), ...current.appliedVouchers],
+              pfandReturns: current.pfandReturns.length ? current.pfandReturns : (target?.pfandReturns ?? []),
+            }
+          : {
+              items: target?.items ?? [],
+              appliedVouchers: target?.appliedVouchers ?? [],
+              pfandReturns: target?.pfandReturns ?? [],
+            };
+        set({ parked, ...next });
+      },
+
       setEventId: (eventId) => {
-        // Clear cart when event changes
+        // Clear cart when event changes; parked carts of other events go too.
         const currentEventId = get().eventId;
         if (currentEventId !== eventId) {
-          set({ eventId, items: [], appliedVouchers: [], pfandReturns: [] });
+          const parked = Object.fromEntries(
+            Object.entries(get().parked).filter(([key]) => !!eventId && key.startsWith(`${eventId}:`)),
+          );
+          set({ eventId, items: [], appliedVouchers: [], pfandReturns: [], parked });
         } else {
           set({ eventId });
         }
@@ -280,12 +417,7 @@ export const useCartStore = create<CartState & CartActions>()(
 
       clearPfandReturns: () => set({ pfandReturns: [] }),
 
-      getTotal: () => {
-        return get().items.reduce(
-          (sum, item) => sum + item.unitPrice * item.quantity,
-          0
-        );
-      },
+      getTotal: () => cartItemsTotal(get().items),
 
       getDiscount: () => {
         const total = get().items.reduce(
@@ -306,15 +438,9 @@ export const useCartStore = create<CartState & CartActions>()(
         return Math.max(total - requested, 0);
       },
 
-      getPfandTotal: () => {
-        // Deposit on new units only — refilled units (guest's own container)
-        // carry no deposit. depositUnits = quantity − refillCount.
-        return get().items.reduce((sum, item) => {
-          if (!item.pfandType) return sum;
-          const depositUnits = Math.max(item.quantity - item.refillCount, 0);
-          return sum + item.pfandType.amount * depositUnits;
-        }, 0);
-      },
+      // Deposit on new units only — refilled units (guest's own container)
+      // carry no deposit. depositUnits = quantity − refillCount.
+      getPfandTotal: () => cartPfandTotal(get().items),
 
       getNewPfandUnits: () => {
         return get().items.reduce((sum, item) => {
@@ -331,30 +457,9 @@ export const useCartStore = create<CartState & CartActions>()(
         return get().pfandReturns.reduce((sum, l) => sum + l.quantity, 0);
       },
 
-          // Offset returned deposit against the cart's NEW deposit units by
-      // converting whole units to "refills". Returns the value actually
-      // credited (convertedSum) and which units per cart item were converted —
-      // the SAME conversion is replayed at checkout so the displayed payable
-      // and the backend order total always match to the cent.
-      getPfandOffset: () => {
-        const target = get().getReturnedPfandTotal();
-        const byItem: Record<string, number> = {};
-        let remaining = target;
-        let convertedSum = 0;
-        if (remaining <= 0) return { convertedSum, byItem };
-        for (const item of get().items) {
-          if (!item.pfandType) continue;
-          const amount = item.pfandType.amount;
-          let units = Math.max(item.quantity - item.refillCount, 0);
-          while (units > 0 && remaining >= amount - 1e-9) {
-            remaining -= amount;
-            convertedSum += amount;
-            byItem[item.id] = (byItem[item.id] || 0) + 1;
-            units--;
-          }
-        }
-        return { convertedSum, byItem };
-      },
+      // Offset returned deposit against the cart's NEW deposit units (see
+      // cartPfandOffset) — replayed at checkout so payable == order total.
+      getPfandOffset: () => cartPfandOffset(get().items, get().pfandReturns),
 
       getNetPfandTotal: () => {
         return Math.max(get().getPfandTotal() - get().getPfandOffset().convertedSum, 0);
@@ -364,26 +469,18 @@ export const useCartStore = create<CartState & CartActions>()(
         return get().getNewPfandUnits() - get().getReturnedPfandUnits();
       },
 
-      getPayableTotal: () => {
-        const total = get().items.reduce(
-          (sum, item) => sum + item.unitPrice * item.quantity,
-          0
-        );
-        const requested = get().appliedVouchers.reduce((sum, v) => sum + v.amount, 0);
-        // Products minus discount (floored at 0), plus the NET deposit after
-        // offsetting any returned deposit ("verrechnet") against new deposits.
-        return Math.max(total - requested, 0) + get().getNetPfandTotal();
-      },
+      // Products minus discount (floored at 0), plus the NET deposit after
+      // offsetting any returned deposit ("verrechnet") against new deposits.
+      getPayableTotal: () => cartPayable(get(), true),
 
-      getItemCount: () => {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0);
-      },
+      getItemCount: () => cartItemCount(get().items),
     }),
     {
       name: 'openeos-cart',
-      version: 1,
+      version: 2,
       // v0 carts had a boolean `isRefill` per item and no `pfandReturns`.
       // Map the boolean onto the new per-unit `refillCount` (true ⇒ whole line).
+      // v2 adds the parked carts per table.
       migrate: (persisted: unknown, version: number) => {
         const state = (persisted ?? {}) as Record<string, unknown>;
         if (version < 1) {
@@ -396,6 +493,9 @@ export const useCartStore = create<CartState & CartActions>()(
           }));
           state.pfandReturns = (state.pfandReturns as unknown[]) ?? [];
         }
+        if (version < 2) {
+          state.parked = (state.parked as Record<string, unknown>) ?? {};
+        }
         return state as unknown as CartState;
       },
       partialize: (state) => ({
@@ -406,6 +506,7 @@ export const useCartStore = create<CartState & CartActions>()(
         notes: state.notes,
         appliedVouchers: state.appliedVouchers,
         pfandReturns: state.pfandReturns,
+        parked: state.parked,
       }),
     }
   )
