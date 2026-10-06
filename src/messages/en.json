@@ -1970,38 +1970,6 @@
     "loading": "Loading products...",
     "noProducts": "No products available",
     "allCategories": "All",
-    "cart": {
-      "title": "Cart",
-      "empty": "Cart is empty",
-      "tableNumber": "Table No.",
-      "tableNumberPlaceholder": "e.g. T5",
-      "customerName": "Customer name",
-      "customerNamePlaceholder": "Optional",
-      "total": "Total",
-      "payCash": "Cash",
-      "payCard": "Card",
-      "placeOrder": "Place Order",
-      "openTabs": "Open Tabs",
-      "clear": "Clear cart",
-      "orderCreated": "Order #{number} created",
-      "tableLabel": "Table {number}",
-      "newOrder": "New Order",
-      "itemCount": "{count, plural, one {# item} other {# items}}",
-      "tabs": "Tabs",
-      "emptyTitle": "Nothing ordered yet.",
-      "emptyHint": "Tap an item to add it.",
-      "without": "without {option}",
-      "subtotal": "Subtotal"
-    },
-    "tableNumber": {
-      "title": "Enter Table Number",
-      "description": "Enter the table number to start taking orders.",
-      "placeholder": "e.g. 5 or A1",
-      "start": "Start Order",
-      "table": "Table",
-      "endSession": "Close Table",
-      "changeTable": "Change Table"
-    },
     "logout": "Logout",
     "openTabs": {
       "title": "Open Tabs",
@@ -2036,29 +2004,6 @@
       "payCard": "Card",
       "uncategorized": "Uncategorized"
     },
-    "checkout": {
-      "title": "Checkout",
-      "paymentMethod": "Payment Method",
-      "cash": "Cash Payment",
-      "card": "Card Payment",
-      "amountDue": "Amount Due",
-      "amountReceived": "Amount Received",
-      "change": "Change",
-      "confirm": "Confirm Payment",
-      "processing": "Processing payment..."
-    },
-    "options": {
-      "basePrice": "Base Price",
-      "required": "Required",
-      "selectOne": "(Select one)",
-      "selectMultiple": "(Select multiple)",
-      "quantity": "Quantity",
-      "total": "Total",
-      "addToCart": "Add to Cart",
-      "selectRequiredOptions": "Please select all required options",
-      "customNote": "Note",
-      "customNotePlaceholder": "e.g. no onions, extra spicy..."
-    },
     "discount": {
       "title": "Select discount voucher",
       "label": "Discount",
@@ -2085,13 +2030,6 @@
       "returnSum": "Return total",
       "offsetButton": "Offset",
       "offsetHint": "\"Offset\" deducts the amount from the bill. \"Pay out\" returns cash."
-    },
-    "cashPayment": {
-      "title": "Cash Payment",
-      "amountDue": "Amount Due",
-      "received": "Received",
-      "change": "Change",
-      "confirm": "Confirm Payment"
     },
     "sumupCheckout": {
       "title": "Card Payment",
@@ -2123,14 +2061,6 @@
       "description": "Enter your personal PIN to identify yourself.",
       "error": "Invalid PIN. Please try again.",
       "verifying": "Verifying..."
-    },
-    "productOptions": {
-      "singleHint": "Choose one option",
-      "multipleHint": "Multiple selections possible",
-      "ingredientsHint": "Deselect what you don't want",
-      "total": "Total",
-      "add": "Add",
-      "close": "Close"
     },
     "cashDrawer": {
       "open": "Open drawer",
@@ -2579,18 +2509,6 @@
       "backspace": "Delete last digit",
       "from": "From: {name}",
       "dismiss": "Dismiss message"
-    },
-    "pos": {
-      "categories": "Categories",
-      "allItems": "All items",
-      "testModeShort": "Test mode",
-      "cartEmpty": "Cart empty",
-      "openCart": "Open cart",
-      "sentToStations": "Sent to kitchen & bar",
-      "withOptions": "+ Options",
-      "unavailable": "Unavailable",
-      "soldOut": "Sold out",
-      "stockLeft": "{count} left"
     },
     "station": {
       "loading": "Loading …",
