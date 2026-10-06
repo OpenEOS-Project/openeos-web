@@ -25,6 +25,10 @@ export class POSPage {
   readonly paySheet: Locator;
   readonly doneSheet: Locator;
   readonly moreButton: Locator;
+  /** Seitenleiste „Offene Tische“ der Startansicht. */
+  readonly openTablesAside: Locator;
+  /** Blatt „Tisch wählen“ (Tisch-Pille). */
+  readonly tableSheet: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -38,6 +42,8 @@ export class POSPage {
     this.paySheet = page.getByRole('dialog', { name: /^Kassieren/ });
     this.doneSheet = page.getByRole('dialog', { name: 'Bezahlt' });
     this.moreButton = page.getByRole('button', { name: 'Weitere Aktionen' });
+    this.openTablesAside = page.getByRole('complementary', { name: 'Offene Tische' });
+    this.tableSheet = page.getByRole('dialog', { name: 'Tisch wählen' });
   }
 
   get isCompact(): boolean {
@@ -48,20 +54,85 @@ export class POSPage {
     await this.page.goto('/device/pos');
   }
 
-  /** Tischnummer ueber den Ziffernblock der Startansicht eingeben und oeffnen. */
-  async openTableByNumber(number: string) {
+  /** Tisch-Pille eines geoeffneten Tisches. */
+  pill(label: string): Locator {
+    return this.page.getByRole('button', { name: `Tisch ${label} – Tisch wechseln` });
+  }
+
+  /** Ziffern ueber den Ziffernblock der Startansicht tippen. */
+  async typeNumber(number: string) {
     await expect(this.startView).toBeVisible();
     for (const key of number) {
       await this.page.getByRole('button', { name: key, exact: true }).click();
     }
-    await this.page.getByRole('button', { name: `Tisch ${number} öffnen` }).click();
-    await expect(this.page.getByRole('button', { name: `Tisch ${number} – Tisch wechseln` })).toBeVisible();
   }
 
-  /** Zurueck zur Startansicht ueber die Tisch-Pille. */
-  async switchTable() {
-    await this.tablePill.click();
+  /**
+   * Tischnummer eingeben und oeffnen. Bei vordefinierten Tischen kann die
+   * Bezeichnung von der Eingabe abweichen („3“ oeffnet „A03“).
+   */
+  async openTableByNumber(number: string, label: string = number) {
+    await this.typeNumber(number);
+    await this.page.getByRole('button', { name: `Tisch ${label} öffnen` }).click();
+    await expect(this.pill(label)).toBeVisible();
+  }
+
+  /** Startansicht „Tische“: Tisch in der Liste antippen. */
+  async openTableFromList(label: string) {
     await expect(this.startView).toBeVisible();
+    const segment = this.page.getByRole('button', { name: 'Tische', exact: true });
+    if ((await segment.getAttribute('aria-pressed')) !== 'true') await segment.click();
+    await this.tableChip(label).click();
+    await expect(this.pill(label)).toBeVisible();
+  }
+
+  /** Tisch-Chip (Liste, Blatt) — zugaenglicher Name „Tisch A03, frei“. */
+  tableChip(label: string): Locator {
+    return this.page.getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
+  }
+
+  /** „Ohne Tisch“ auf der Startansicht: Theke oder To-go. */
+  async withoutTable(kind: 'Theke' | 'To-go') {
+    await expect(this.startView).toBeVisible();
+    await this.page.getByRole('button', { name: kind, exact: true }).click();
+    await expect(this.page.getByRole('button', { name: `${kind} – Tisch wählen` })).toBeVisible();
+  }
+
+  /** Blatt „Tisch wählen“ ueber die Pille oeffnen. */
+  async openTableSheet() {
+    await this.page.getByRole('button', { name: /– Tisch (wechseln|wählen)$/ }).click();
+    await expect(this.tableSheet).toBeVisible();
+  }
+
+  /**
+   * Tisch wechseln ueber die Pille: vordefiniert per Chip, frei per
+   * Ziffernblock im Blatt. Der Warenkorb wird geparkt.
+   */
+  async switchTable(label: string, { byNumber = false }: { byNumber?: boolean } = {}) {
+    await this.openTableSheet();
+    if (byNumber) {
+      for (const key of label) await this.tableSheet.getByRole('button', { name: key, exact: true }).click();
+      await this.tableSheet.getByRole('button', { name: `Tisch ${label} öffnen` }).click();
+    } else {
+      await this.tableSheet.getByRole('button', { name: new RegExp(`^Tisch ${label}, `) }).click();
+    }
+    await expect(this.pill(label)).toBeVisible();
+  }
+
+  /** Zurueck zur Startansicht (Blatt „Tisch wählen“ → „Zur Tischübersicht“). */
+  async backToStart() {
+    await this.openTableSheet();
+    await this.tableSheet.getByRole('button', { name: 'Zur Tischübersicht' }).click();
+    await expect(this.startView).toBeVisible();
+  }
+
+  openTableRow(title: string): Locator {
+    return this.openTablesAside.getByRole('button', { name: new RegExp(`^${title},`) });
+  }
+
+  /** „Offene Tische“ zeigt den Tisch mit Betrag, etwa "3,50". */
+  async expectOpenTable(label: string, amount: string) {
+    await expect(this.openTableRow(`Tisch ${label}`)).toContainText(new RegExp(`${amount}\s€`));
   }
 
   product(name: string): Locator {
@@ -113,6 +184,7 @@ export class POSPage {
   async send() {
     await this.openCart();
     await this.sendButton.click();
+    await expect(this.page.getByText(/an Küche & Theke gesendet/)).toBeVisible();
   }
 
   /** „Kassieren“ oeffnet das Kassieren-Blatt. */
