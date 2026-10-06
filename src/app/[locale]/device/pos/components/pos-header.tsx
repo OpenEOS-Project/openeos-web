@@ -152,8 +152,8 @@ export function PosHeader({
           triggerVariant="quiet"
           trigger={
             <>
-              <Icon name="more" />
-              <span className="oe-sr-only">{t('menu.moreActions')}</span>
+              <Icon name="menu" />
+              <span className="oe-sr-only">{t('menu.label')}</span>
             </>
           }
         >
