@@ -73,16 +73,23 @@ export class POSPage {
   }
 
   /** Auf schmalen Geraeten das Warenkorb-Blatt oeffnen. */
+  /** Offen heisst: Klasse is-open — die Sichtbarkeit haengt beim Schliessen
+   *  noch die Dauer der Animation nach. */
+  private async isCartOpen() {
+    return /\bis-open\b/.test((await this.cart.getAttribute('class')) ?? '');
+  }
+
   async openCart() {
     if (!this.isCompact) return;
-    if (await this.cart.isVisible()) return;
+    if (await this.isCartOpen()) return;
     await this.cartBar.click();
+    await expect(this.cart).toHaveClass(/\bis-open\b/);
     await expect(this.cart).toBeVisible();
   }
 
   async closeCart() {
     if (!this.isCompact) return;
-    if (!(await this.cart.isVisible())) return;
+    if (!(await this.isCartOpen())) return;
     await this.cart.getByRole('button', { name: 'Warenkorb schließen' }).click();
     await expect(this.cart).toBeHidden();
   }
