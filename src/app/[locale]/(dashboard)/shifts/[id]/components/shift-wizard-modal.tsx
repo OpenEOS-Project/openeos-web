@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   X,
@@ -14,9 +14,12 @@ import {
 } from '@untitledui/icons';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useIntlLocale } from '@/hooks/use-locale-format';
+import { durationMinutes, eventDayRange, generateShifts, timeToMinutes } from '@/lib/shift-generator';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import type { ShiftPlan } from '@/types/shift';
+import { daysBetween, listDays, parseDayKey } from '@/utils/calendar-date';
 
 interface GeneratedShift {
   id: string;
@@ -42,7 +45,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   const t = useTranslations();
   const tw = useTranslations('shifts.wizardExtra');
   const apiErrorMessage = useApiErrorMessage();
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const STEP_LABELS = [tw('stepDate'), tw('stepTime'), tw('stepConfig'), tw('stepPreview')];
   const queryClient = useQueryClient();
   const { currentOrganization } = useAuthStore();
@@ -73,13 +76,12 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   // Step 4: Generated shifts
   const [generatedShifts, setGeneratedShifts] = useState<GeneratedShift[]>([]);
 
-  // Get event dates if available for pre-filling
-  const eventStartDate = plan.event?.startDate
-    ? new Date(plan.event.startDate).toISOString().split('T')[0]
-    : '';
-  const eventEndDate = plan.event?.endDate
-    ? new Date(plan.event.endDate).toISOString().split('T')[0]
-    : '';
+  // Get event dates if available for pre-filling. The API stores the event
+  // start as local midnight (2026-09-11T22:00Z for 12.09. in Berlin), so the
+  // calendar day must be read in local time, never via toISOString().
+  const eventRange = eventDayRange(plan.event);
+  const eventStartDate = eventRange?.startDate ?? '';
+  const eventEndDate = eventRange?.endDate ?? '';
 
   // Auto-fill event dates when modal opens
   useEffect(() => {
@@ -91,28 +93,6 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
-
-  // Time conversion helpers
-  const timeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const minutesToTime = (minutes: number): string => {
-    // Wrap into 0..1440 so an overnight value like 25:00 becomes 01:00.
-    const wrapped = ((minutes % 1440) + 1440) % 1440;
-    const hours = Math.floor(wrapped / 60);
-    const mins = wrapped % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-  };
-
-  // Returns the shift length in minutes, treating end < start as "next day"
-  // so overnight ranges like 22:00–01:00 yield 180 (3 h) instead of -1260.
-  const durationMinutes = (start: string, end: string): number => {
-    const s = timeToMinutes(start);
-    const e = timeToMinutes(end);
-    return e <= s ? 1440 - s + e : e - s;
-  };
 
   // Resolves the effective {start,end} for a given date, falling back to the
   // wizard's default if no per-day override is set.
@@ -127,49 +107,29 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
     const totalMinutes = durationMinutes(startTime, endTime);
     if (totalMinutes <= 0 || shiftsPerDayNum <= 0) return 0;
     return Math.floor(totalMinutes / shiftsPerDayNum);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTime, shiftsPerDayNum]);
 
   // Generate shifts for preview — respects per-day overrides and overnight ranges.
   const generateShiftsPreview = () => {
-    const shifts: GeneratedShift[] = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const result = generateShifts({
+      startDate,
+      endDate,
+      defaultTimes: { start: startTime, end: endTime },
+      dayTimes: perDay ? dayTimes : undefined,
+      shiftsPerDay: shiftsPerDayNum,
+      overlapMinutes: overlapMins,
+    });
 
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      setError(tw('invalidDates'));
+    if (!result.ok) {
+      setError(
+        result.reason === 'endBeforeStart'
+          ? tw('endBeforeStart', { date: formatDateDisplay(result.date) })
+          : tw('invalidDates'),
+      );
       return;
     }
 
-    for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-      const dateStr = date.toISOString().split('T')[0];
-      const { start: s, end: e } = timesFor(dateStr);
-      const startMins = timeToMinutes(s);
-      const total = durationMinutes(s, e);
-
-      if (total <= 0) {
-        setError(tw('endBeforeStart', { date: formatDateDisplay(dateStr) }));
-        return;
-      }
-
-      const shiftDuration = Math.floor(total / shiftsPerDayNum);
-
-      for (let i = 0; i < shiftsPerDayNum; i++) {
-        const shiftStartMins = startMins + i * shiftDuration;
-        const isLastShift = i === shiftsPerDayNum - 1;
-        const shiftEndMins = shiftStartMins + shiftDuration + (isLastShift ? 0 : overlapMins);
-
-        shifts.push({
-          id: generateId(),
-          date: dateStr,
-          startTime: minutesToTime(shiftStartMins),
-          endTime: minutesToTime(shiftEndMins),
-          enabled: true,
-        });
-      }
-    }
-
-    setGeneratedShifts(shifts);
+    setGeneratedShifts(result.shifts.map((shift) => ({ ...shift, id: generateId(), enabled: true })));
     setError(null);
     setStep(4);
   };
@@ -253,7 +213,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   };
 
   const formatDateDisplay = (dateStr: string) => {
-    const date = new Date(dateStr);
+    const date = parseDayKey(dateStr);
     return date.toLocaleDateString(locale, {
       weekday: 'short',
       day: 'numeric',
@@ -262,19 +222,10 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
   };
 
   // Enumerate dates in the chosen range so per-day editing can render rows.
-  const datesInRange = useMemo(() => {
-    if (!startDate || !endDate) return [] as string[];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return [];
-    const out: string[] = [];
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      out.push(d.toISOString().split('T')[0]);
-    }
-    return out;
-  }, [startDate, endDate]);
+  const datesInRange = useMemo(() => listDays(startDate, endDate), [startDate, endDate]);
+  const dayCount = datesInRange.length;
 
-  const canProceedStep1 = startDate && endDate && new Date(startDate) <= new Date(endDate);
+  const canProceedStep1 = startDate && endDate && (daysBetween(startDate, endDate) ?? -1) >= 0;
   // Allow overnight ranges in the default OR any per-day override; only block
   // exact equality (zero-length shifts have no meaning).
   const canProceedStep2 = perDay
@@ -415,12 +366,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
               {startDate && endDate && (
                 <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
-                  {t('shifts.wizard.daysCount', {
-                    count: Math.ceil(
-                      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    ) + 1,
-                  })}
+                  {t('shifts.wizard.daysCount', { count: dayCount })}
                 </p>
               )}
             </div>
@@ -583,16 +529,9 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 </p>
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--ink-faint)' }}>
                   {t('shifts.wizard.summaryText', {
-                    days: Math.ceil(
-                      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    ) + 1,
+                    days: dayCount,
                     shiftsPerDay: shiftsPerDayNum,
-                    totalShifts:
-                      (Math.ceil(
-                        (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      ) + 1) * shiftsPerDayNum,
+                    totalShifts: dayCount * shiftsPerDayNum,
                   })}
                 </p>
               </div>

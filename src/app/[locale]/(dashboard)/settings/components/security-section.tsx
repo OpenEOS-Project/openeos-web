@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import {
   use2FAStatus,
   useSetupTotp,
@@ -24,7 +25,7 @@ type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'reco
 
 export function SecuritySection() {
   const t = useTranslations('settings.security');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [showDisableModal, setShowDisableModal] = useState(false);

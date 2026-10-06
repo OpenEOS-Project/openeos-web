@@ -1,9 +1,35 @@
+import { toLocalDate } from '@/utils/calendar-date';
+
+/**
+ * Zeitzone, in der die Oberflaeche Zeitpunkte deutet, solange keine
+ * Organisationszeitzone vorliegt (next-intl, Server-Rendering).
+ */
+export const DEFAULT_TIME_ZONE = 'Europe/Berlin';
+
+/**
+ * Sprache der Oberflaeche -> Locale fuer Intl.
+ *
+ * Intl liest ein nacktes 'en' als amerikanisches Englisch: 09/12/2026,
+ * 2:05 PM. Die englische Oberflaeche richtet sich an Vereine in Europa
+ * und nutzt deshalb das britische Format (12/09/2026, 14:05). Alle
+ * Formatierer laufen hier durch, damit das nicht an jeder Stelle einzeln
+ * entschieden wird. Bereits vollstaendige Tags ('de-AT') bleiben.
+ */
+const INTL_LOCALES: Record<string, string> = {
+  de: 'de-DE',
+  en: 'en-GB',
+};
+
+export function toIntlLocale(locale: string): string {
+  return INTL_LOCALES[locale] ?? locale;
+}
+
 /**
  * Format a number as currency (EUR)
  */
 export function formatCurrency(amount: number | string, locale: string): string {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(toIntlLocale(locale), {
     style: 'currency',
     currency: 'EUR',
   }).format(numAmount);
@@ -14,9 +40,11 @@ export function formatCurrency(amount: number | string, locale: string): string 
  */
 export function formatDate(date: string | Date | null | undefined, locale: string): string {
   if (date === null || date === undefined || date === '') return '—';
-  const d = typeof date === 'string' ? new Date(date) : date;
+  // Reiner Kalendertag ('2026-09-12') als lokale Mitternacht, nicht als
+  // Mitternacht UTC — sonst zeigt ein Browser westlich von Greenwich den Vortag.
+  const d = toLocalDate(date);
   if (Number.isNaN(d.getTime())) return '—';
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -28,9 +56,11 @@ export function formatDate(date: string | Date | null | undefined, locale: strin
  */
 export function formatDateTime(date: string | Date | null | undefined, locale: string): string {
   if (date === null || date === undefined || date === '') return '—';
-  const d = typeof date === 'string' ? new Date(date) : date;
+  // Reiner Kalendertag ('2026-09-12') als lokale Mitternacht, nicht als
+  // Mitternacht UTC — sonst zeigt ein Browser westlich von Greenwich den Vortag.
+  const d = toLocalDate(date);
   if (Number.isNaN(d.getTime())) return '—';
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -43,8 +73,10 @@ export function formatDateTime(date: string | Date | null | undefined, locale: s
  * Format a time string
  */
 export function formatTime(date: string | Date, locale: string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat(locale, {
+  // Reiner Kalendertag ('2026-09-12') als lokale Mitternacht, nicht als
+  // Mitternacht UTC — sonst zeigt ein Browser westlich von Greenwich den Vortag.
+  const d = toLocalDate(date);
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
     hour: '2-digit',
     minute: '2-digit',
   }).format(d);
@@ -54,7 +86,7 @@ export function formatTime(date: string | Date, locale: string): string {
  * Format a number with locale-specific formatting
  */
 export function formatNumber(num: number, locale: string): string {
-  return new Intl.NumberFormat(locale).format(num);
+  return new Intl.NumberFormat(toIntlLocale(locale)).format(num);
 }
 
 /**
@@ -64,7 +96,7 @@ export function formatNumber(num: number, locale: string): string {
  * ergab ueberall "12.5%".
  */
 export function formatPercent(value: number, locale: string, fractionDigits = 1): string {
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(toIntlLocale(locale), {
     style: 'percent',
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
@@ -73,12 +105,14 @@ export function formatPercent(value: number, locale: string, fractionDigits = 1)
 
 /**
  * Compact timestamp for chat-style messages: day, month and time without the
- * year ("06.10., 14:05" in German, "10/06, 2:05 PM" in English).
+ * year ("06.10., 14:05" in German, "06/10, 14:05" in English).
  */
 export function formatChatTimestamp(date: string | Date, locale: string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  // Reiner Kalendertag ('2026-09-12') als lokale Mitternacht, nicht als
+  // Mitternacht UTC — sonst zeigt ein Browser westlich von Greenwich den Vortag.
+  const d = toLocalDate(date);
   if (Number.isNaN(d.getTime())) return '—';
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',

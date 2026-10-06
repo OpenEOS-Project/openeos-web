@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useActivityStream } from '@/hooks/use-reports';
 import { formatCurrency } from '@/utils/format';
@@ -20,7 +21,7 @@ interface Props {
  */
 export function ActivityStreamWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard.widgets.activity');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const { data, isLoading } = useActivityStream(organizationId);
 
   const uhrzeit = (iso: string) =>

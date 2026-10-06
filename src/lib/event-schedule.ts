@@ -13,6 +13,8 @@
  * Aendert sich die Regel dort, muss sie hier mitgehen.
  */
 
+import { isDayKey, listDays, parseDayKey, toDayKey } from '@/utils/calendar-date';
+
 /** Ein Oeffnungstag, wie ihn das Formular fuehrt. */
 export interface ShopDaySetting {
   /** 'YYYY-MM-DD' */
@@ -31,27 +33,11 @@ export interface ShopDayRow extends ShopDaySetting {
 export const DEFAULT_DAY_START = '10:00';
 export const DEFAULT_DAY_END = '22:00';
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-function dayNumber(dateKey: string): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
-  if (!match) return null;
-  return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) / MS_PER_DAY;
-}
-
-function dayKey(day: number): string {
-  const date = new Date(day * MS_PER_DAY);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
-}
-
 /** Die Kalendertage des Zeitraums, der Reihe nach. Beide Enden zaehlen mit. */
 export function listEventDays(startDate: string, endDate: string): string[] {
-  const first = dayNumber(startDate);
-  if (first === null) return [];
-  const last = dayNumber(endDate || startDate);
-  if (last === null || last < first) return [dayKey(first)];
-  return Array.from({ length: last - first + 1 }, (_, offset) => dayKey(first + offset));
+  if (!isDayKey(startDate)) return [];
+  const days = listDays(startDate, endDate || startDate);
+  return days.length > 0 ? days : [startDate];
 }
 
 /** Abgerechnete Veranstaltungstage. */
@@ -116,20 +102,10 @@ export function isOvernight(row: ShopDaySetting): boolean {
   return toMinutes(row.end) <= toMinutes(row.start);
 }
 
-/** 'YYYY-MM-DD' als Datum fuer die Anzeige. */
-export function parseDayKey(dateKey: string): Date {
-  const [year, month, day] = dateKey.split('-').map(Number);
-  return new Date(year, month - 1, day);
-}
-
 /** Zeitraum als lokale Mitternacht — so wird er an die API geschickt. */
 export function toIsoAtMidnight(dateKey: string): string {
   return parseDayKey(dateKey).toISOString();
 }
 
-/** Der Kalendertag eines ISO-Zeitpunkts, in der Zone des Browsers. */
-export function toDayKey(iso: string): string {
-  const date = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
+// Frueher hier definiert, jetzt allgemein in utils/calendar-date.
+export { parseDayKey, toDayKey };

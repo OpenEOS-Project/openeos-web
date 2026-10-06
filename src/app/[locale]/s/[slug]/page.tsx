@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,6 +25,7 @@ import {
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { toLocalDate } from '@/utils/calendar-date';
 
 interface ShiftData {
   id: string;
@@ -82,7 +84,7 @@ export default function PublicShiftPlanPage() {
   const tp = useTranslations('shifts.publicPage');
   const tValidation = useTranslations('shifts.validation');
   const apiErrorMessage = useApiErrorMessage();
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const formSchema = useMemo(() => createRegistrationSchema(tValidation), [tValidation]);
 
   const [step, setStep] = useState<RegistrationStep>('select');
@@ -254,16 +256,16 @@ export default function PublicShiftPlanPage() {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    const date = toLocalDate(dateStr);
     return date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
   const formatWeekday = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString(locale, { weekday: 'long' });
+    toLocalDate(dateStr).toLocaleDateString(locale, { weekday: 'long' });
 
   const formatEventDates = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = toLocalDate(startDate);
+    const end = toLocalDate(endDate);
     if (start.toDateString() === end.toDateString()) {
       return start.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
     }
@@ -587,7 +589,7 @@ export default function PublicShiftPlanPage() {
                   </div>
                 ) : (
                   mobileGroups.map((group) => {
-                    const dateObj = new Date(group.date);
+                    const dateObj = toLocalDate(group.date);
                     const crossesMidnight = timeToMinutes(group.endTime) <= timeToMinutes(group.startTime);
                     return (
                       <section key={group.key} className="shifts-public__card" style={{ padding: 0, overflow: 'hidden' }}>

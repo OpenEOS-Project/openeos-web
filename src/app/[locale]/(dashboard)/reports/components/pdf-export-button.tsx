@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import type {
   SalesReport,
@@ -30,7 +31,7 @@ interface PdfExportButtonProps {
 
 export function PdfExportButton(props: PdfExportButtonProps) {
   const t = useTranslations('reports');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const [isPending, setIsPending] = useState(false);
 
   const handleExport = async () => {

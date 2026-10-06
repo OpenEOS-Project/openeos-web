@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import {
   useCreateInventoryCount,
@@ -28,7 +29,7 @@ export function CreateInventoryModal({
 }: CreateInventoryModalProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   // Vorschlag fuer den Namen: "Tagesabschluss 06.10.2026" in der UI-Sprache.
   const getTodayName = () =>

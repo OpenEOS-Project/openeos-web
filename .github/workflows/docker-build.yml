@@ -64,6 +64,11 @@ jobs:
       - name: Check device views for symbols
         run: node scripts/check-pos-symbols.mjs
 
+      # Reine Funktionen (Kalendertage, Formatierung) ohne Browser. Die
+      # Datumstests schalten selbst zwischen mehreren Zeitzonen um.
+      - name: Unit tests
+        run: pnpm test:unit
+
       # `next build` below runs its own typecheck as part of the Docker
       # build; this job exists to catch the same failure in ~30s instead of
       # several minutes into that build.

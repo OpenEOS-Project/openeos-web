@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 
 import type { Event } from '@/types/event';
+import { addDays, todayKey } from '@/utils/calendar-date';
 
 export type TimeRange = 'today' | 'yesterday' | 'all' | 'custom';
 
@@ -26,12 +27,10 @@ export function ReportsFilterBar({ filter, events, eventsLoading, onChange, acti
   const t = useTranslations('reports');
 
   const setTimeRange = (range: TimeRange) => {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // Lokale Kalendertage — toISOString() lieferte zwischen Mitternacht und
+    // 2 Uhr (Sommerzeit) noch den Vortag.
+    const todayStr = todayKey();
+    const yesterdayStr = addDays(todayStr, -1);
 
     if (range === 'today') {
       onChange({

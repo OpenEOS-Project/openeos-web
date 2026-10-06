@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInventoryCounts, useDeleteInventoryCount } from '@/hooks/use-inventory';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
@@ -45,7 +46,7 @@ function formatUserName(user?: { firstName?: string; lastName?: string } | null)
 export function InventoryList({ eventId, onCreateClick, onSelectCount }: InventoryListProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   const { data: counts, isLoading, error } = useInventoryCounts(eventId);
   const deleteCount = useDeleteInventoryCount(eventId);

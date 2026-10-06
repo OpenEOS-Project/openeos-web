@@ -1,9 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import { Clock, Users01, CheckCircle, AlertCircle } from '@untitledui/icons';
 import type { ShiftPlan, Shift } from '@/types/shift';
+import { toLocalDate } from '@/utils/calendar-date';
 
 interface ShiftCalendarProps {
   plan: ShiftPlan;
@@ -17,7 +19,7 @@ const formatTime = (time: string): string => {
 
 export function ShiftCalendar({ plan }: ShiftCalendarProps) {
   const t = useTranslations();
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const jobs = useMemo(() => plan.jobs || [], [plan.jobs]);
 
   // Get all unique dates from all shifts
@@ -51,7 +53,7 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
   }, [jobs]);
 
   const formatDateHeader = (dateStr: string) => {
-    const date = new Date(dateStr);
+    const date = toLocalDate(dateStr);
     return {
       weekday: date.toLocaleDateString(locale, { weekday: 'short' }),
       day: date.toLocaleDateString(locale, { day: 'numeric', month: 'numeric' }),

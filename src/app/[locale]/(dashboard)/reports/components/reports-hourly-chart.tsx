@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 
 import type { HourlyReport } from '@/types/report';
-import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
 import { formatReportDay } from './report-labels';
 
@@ -61,7 +61,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
 export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps) {
   const t = useTranslations('reports');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   // Nach Tag gruppieren; je Tag alle 24 Stunden auffüllen. Bei mehrtägigen
   // Veranstaltungen entsteht so ein eigenes Diagramm pro Tag.
