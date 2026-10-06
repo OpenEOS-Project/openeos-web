@@ -132,6 +132,29 @@ test.describe('POS - free table numbers', () => {
     expect(order?.paymentStatus).toBe('paid');
   });
 
+  test('reopens the table of an older POS version after the update', async ({ page }) => {
+    // Speicherstand vor dem Umbau: Tischnummer als Text, Version 0.
+    const state = JSON.parse(
+      device.storageState && typeof device.storageState === 'object'
+        ? device.storageState.origins[0].localStorage.find((e) => e.name === 'openeos-device')!.value
+        : '{}',
+    );
+    delete state.state.table;
+    state.state.tableNumber = '8';
+    state.version = 0;
+    await page.addInitScript((value) => {
+      if (!sessionStorage.getItem('e2e-migrated')) {
+        localStorage.setItem('openeos-device', value);
+        sessionStorage.setItem('e2e-migrated', '1');
+      }
+    }, JSON.stringify(state));
+
+    const pos = new POSPage(page);
+    await pos.goto();
+    await expect(pos.pill('8')).toBeVisible();
+    await pos.backToStart();
+  });
+
   test('the counter context has its own pill', async ({ page }) => {
     const pos = new POSPage(page);
     await pos.goto();
