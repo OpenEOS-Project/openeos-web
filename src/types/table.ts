@@ -5,7 +5,7 @@
  * vorher fest, damit Verwaltung und Kasse parallel entstehen können.
  */
 import type { Order } from './order';
-import type { PaymentMethod } from './payment';
+import type { Payment, PaymentMethod } from './payment';
 
 /* ---------- Grundbegriffe ---------- */
 
@@ -156,16 +156,24 @@ export interface BulkCreateConflict {
 export interface DeviceTableArea {
   id: string;
   name: string;
+  sortOrder: number;
   width: number;
   height: number;
   gridSize: number;
   decor: TableDecor[];
-  /** Nur aktive Tische. */
-  tables: DiningTable[];
+  /** Nur aktive Tische (ohne Verwaltungsfelder). */
+  tables: DeviceDiningTable[];
 }
+
+export type DeviceDiningTable = Pick<
+  DiningTable,
+  'id' | 'areaId' | 'label' | 'seats' | 'shape' | 'x' | 'y' | 'width' | 'height' | 'rotation' | 'sortOrder'
+>;
 
 /** GET /device-api/tables — gefiltert auf `event.settings.tables.areaIds`. */
 export interface DeviceTablesResponse {
+  /** Event, für das die Antwort gilt (aktives bzw. Test-Event); ohne Event `null`. */
+  eventId: string | null;
   mode: TableMode;
   areas: DeviceTableArea[];
 }
@@ -191,11 +199,14 @@ export interface DeviceOpenOrdersQuery {
   eventId?: string;
   tableKey?: string;
   tableId?: string;
+  /** z. B. `counter_pickup`: nur Bestellungen ohne Tisch (Theke/To-go). */
+  fulfillmentType?: 'table_service' | 'counter_pickup';
 }
 
 /** POST /device-api/tables/acknowledge — quittiert Gastbestellungen des Tisches. */
 export interface AcknowledgeTableData {
   tableKey: string;
+  eventId?: string;
 }
 
 /** POST /device-api/order-items/deliver — Positionen `ready → delivered`. */
@@ -218,8 +229,16 @@ export interface PaymentsBatchData {
 
 export interface PaymentsBatchResponse {
   orders: Order[];
+  payments: Payment[];
   totalPaid: number;
   change: number;
+}
+
+/** Antwort von POST /device-api/order-items/deliver. */
+export interface DeliverOrderItemsResponse {
+  delivered: { id: string; orderId: string; productName: string }[];
+  /** Waren schon serviert (zweite Kasse war schneller) — kein Fehler. */
+  skipped: string[];
 }
 
 /** GET /device-api/status — Kopf-Pillen der Kasse (Drucker, TSE). */

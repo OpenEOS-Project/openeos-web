@@ -115,6 +115,10 @@ export interface CreateOrderItemData {
 export interface CreateOrderData {
   eventId?: string;
   tableNumber?: string;
+  /** Vordefinierter Tisch (Tischbetrieb `predefined`; bei `free` best effort). */
+  tableId?: string;
+  /** Idempotenz: eine Wiederholung mit derselben ID liefert die bestehende Bestellung. */
+  clientRequestId?: string;
   customerName?: string;
   customerPhone?: string;
   notes?: string;
