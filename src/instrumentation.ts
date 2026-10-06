@@ -25,10 +25,13 @@ export const onRequestError = async (
   }
 ) => {
   const Sentry = await import('@sentry/nextjs');
+  const { scrubRequestInfo } = await import('./lib/error-report-scrub.mjs');
 
+  // Nicht die vollstaendige Anfrage weitergeben: Kopfzeilen wie Cookie,
+  // Authorization oder Geraete-Token sowie Query-Strings bleiben draussen.
   Sentry.captureException(error, {
     extra: {
-      request,
+      request: scrubRequestInfo(request),
       context,
     },
   });
