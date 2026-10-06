@@ -1,62 +1,64 @@
 'use client';
 
 import { PosIcon } from '@openeos/pos-icons';
-import { ShoppingBag01 } from '@untitledui/icons';
-import { cx } from '@/utils/cx';
+import { IconBox } from '@openeos/ui';
 
-const sizes = {
-  sm: 32,
-  md: 48,
-  lg: 64,
-} as const;
+import { resolveUploadUrl } from '@/utils/upload-url';
+import {
+  resolveProductIcon,
+  type IconCategoryLike,
+  type IconProductLike,
+  type IconSource,
+} from '@/utils/product-icon';
 
-interface ProductImageProps {
-  imageUrl: string | null | undefined;
-  productName: string;
-  size?: 'sm' | 'md' | 'lg';
+const BOX = { sm: 'sm', md: 'md', lg: 'lg' } as const;
+const PNG_SIZE = { sm: 24, md: 28, lg: 36 } as const;
+
+interface IconVisualProps {
+  source: IconSource;
+  /** Alternativtext für Fotos; Icons sind dekorativ. */
+  alt: string;
+  size?: keyof typeof BOX;
   className?: string;
 }
 
-export function ProductImage({ imageUrl, productName, size = 'md', className }: ProductImageProps) {
-  const px = sizes[size];
-
-  if (imageUrl?.startsWith('pos-icon:')) {
-    const iconId = imageUrl.slice(9);
+/**
+ * Zeigt eine aufgelöste Bildquelle (siehe utils/product-icon.ts) in der
+ * Icon-Box des Designsystems: OpenEOS-Icon, Foto oder — für Altdaten
+ * ohne passendes Icon — das PNG aus @openeos/pos-icons.
+ */
+export function IconVisual({ source, alt, size = 'md', className }: IconVisualProps) {
+  if (source.kind === 'photo') {
     return (
-      <div
-        className={cx(
-          'flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800',
-          className,
-        )}
-        style={{ width: px, height: px }}
-      >
-        <PosIcon id={iconId} size={Math.round(px * 0.75)} />
-      </div>
+      <IconBox size={BOX[size]} className={className}>
+        {/* Hochgeladene Bilder liegen auf der API, nicht im Next-Build. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={resolveUploadUrl(source.url)} alt={alt} />
+      </IconBox>
     );
   }
-
-  if (imageUrl) {
+  if (source.kind === 'pos-icon') {
     return (
-      <img
-        src={imageUrl}
-        alt={productName}
-        className={cx('rounded-lg object-cover', className)}
-        style={{ width: px, height: px }}
-      />
+      <IconBox size={BOX[size]} className={className}>
+        <PosIcon id={source.id} size={PNG_SIZE[size]} />
+      </IconBox>
     );
   }
+  return <IconBox icon={source.name} tone="accent" size={BOX[size]} className={className} />;
+}
 
-  // Fallback placeholder
-  const iconSize = size === 'sm' ? 'size-4' : size === 'md' ? 'size-5' : 'size-6';
+interface ProductImageProps {
+  product: IconProductLike;
+  /** Kategorie, falls sie nicht am Produkt hängt. */
+  category?: IconCategoryLike | null;
+  productName: string;
+  size?: keyof typeof BOX;
+  className?: string;
+}
+
+/** Bild eines Produkts: eigenes Icon → Foto → Icon der Kategorie → `utensils`. */
+export function ProductImage({ product, category, productName, size = 'md', className }: ProductImageProps) {
   return (
-    <div
-      className={cx(
-        'flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800',
-        className,
-      )}
-      style={{ width: px, height: px }}
-    >
-      <ShoppingBag01 className={cx(iconSize, 'text-gray-500')} />
-    </div>
+    <IconVisual source={resolveProductIcon(product, category)} alt={productName} size={size} className={className} />
   );
 }

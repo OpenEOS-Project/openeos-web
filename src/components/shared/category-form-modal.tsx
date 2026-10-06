@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +12,10 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 import { ColorPicker } from '@/components/shared/color-picker';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { OeIconPicker } from '@/components/shared/oe-icon-picker';
+import { IconVisual } from '@/components/shared/product-image';
+import { resolveCategoryIcon } from '@/utils/product-icon';
+import { Button, Icon } from '@openeos/ui';
 
 /*
  * Dieses Modal lag zweimal im Baum, unter products/ und unter categories/,
@@ -57,6 +61,11 @@ export function CategoryFormModal({
   const t = useTranslations('categories');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const tIcon = useTranslations('oeIconPicker');
+  /* Icon der Kategorie (`oe:<name>`; Altdaten: Emoji/pos-icon) — die
+     Kasse zeigt es in der Kategorienleiste und für Produkte ohne Icon. */
+  const [icon, setIcon] = useState<string | null>(null);
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const validationSchema = useMemo(() => createCategorySchema(tValidation), [tValidation]);
   const isEditing = !!category;
 
@@ -94,6 +103,7 @@ export function CategoryFormModal({
         isActive: category.isActive,
         productionStationId: category.productionStationId || '',
       });
+      setIcon(category.icon ?? null);
     } else {
       reset({
         name: '',
@@ -103,6 +113,7 @@ export function CategoryFormModal({
         isActive: true,
         productionStationId: '',
       });
+      setIcon(null);
     }
   }, [category, reset]);
 
@@ -118,6 +129,7 @@ export function CategoryFormModal({
             name: data.name,
             description: data.description || undefined,
             color: data.color || undefined,
+            icon: icon || null,
             parentId: data.parentId || null,
             isActive: data.isActive,
             productionStationId: data.productionStationId || null,
@@ -130,6 +142,7 @@ export function CategoryFormModal({
             name: data.name,
             description: data.description || undefined,
             color: data.color || undefined,
+            icon: icon || undefined,
             parentId: data.parentId || undefined,
             isActive: data.isActive,
             productionStationId: data.productionStationId || undefined,
@@ -205,6 +218,24 @@ export function CategoryFormModal({
               )}
             />
 
+            <div className="auth-field">
+              <span>{t('form.icon')}</span>
+              <div className="icon-field">
+                <IconVisual source={resolveCategoryIcon({ icon })} alt="" size="lg" />
+                <div className="icon-field__actions">
+                  <Button variant="secondary" size="sm" onClick={() => setIsIconPickerOpen(true)}>
+                    <Icon name="grid" />
+                    {icon ? tIcon('change') : tIcon('choose')}
+                  </Button>
+                  {icon && (
+                    <Button variant="quiet" size="sm" onClick={() => setIcon(null)}>
+                      {tIcon('remove')}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {availableParents.length > 0 && (
               <Controller
                 name="parentId"
@@ -266,6 +297,13 @@ export function CategoryFormModal({
           </div>
         </form>
       </div>
+
+      <OeIconPicker
+        isOpen={isIconPickerOpen}
+        value={icon}
+        onClose={() => setIsIconPickerOpen(false)}
+        onSelect={setIcon}
+      />
     </div>
   );
 }

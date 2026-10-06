@@ -1,10 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Button, Icon } from '@openeos/ui';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ProductImage } from '@/components/shared/product-image';
-import { useProducts } from '@/hooks/use-products';
+import { useProducts, useUpdateProduct } from '@/hooks/use-products';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { toast } from '@/components/shared/toast';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
 
@@ -31,6 +34,17 @@ export function ProductsList({
   const { formatCurrency } = useLocaleFormat();
 
   const { data: products, isLoading, error } = useProducts(eventId);
+  const updateProduct = useUpdateProduct();
+  const apiErrorMessage = useApiErrorMessage();
+
+  /* Favoriten erscheinen an der Kasse in einer eigenen Kategorie ganz
+     oben — ein Klick auf den Stern, ohne das Formular zu öffnen. */
+  const toggleFavorite = (product: Product) => {
+    updateProduct.mutate(
+      { eventId, id: product.id, data: { isFavorite: !product.isFavorite } },
+      { onError: (err) => toast.error(apiErrorMessage(err)) },
+    );
+  };
 
   if (isLoading) {
     return <ListLoading />;
@@ -93,6 +107,9 @@ export function ProductsList({
         <table className="data-table">
           <thead>
             <tr>
+              <th style={{ width: 44 }}>
+                <span className="oe-sr-only">{t('favorite')}</span>
+              </th>
               <th>{t('table.name')}</th>
               <th>{t('table.category')}</th>
               <th className="text-right">{t('table.price')}</th>
@@ -105,8 +122,23 @@ export function ProductsList({
             {products.map((product) => (
               <tr key={product.id}>
                 <td>
+                  <Button
+                    variant="quiet"
+                    size="sm"
+                    iconOnly
+                    style={product.isFavorite ? { color: 'var(--oe-warn)' } : undefined}
+                    aria-pressed={!!product.isFavorite}
+                    aria-label={t(product.isFavorite ? 'favoriteRemove' : 'favoriteAdd', { name: product.name })}
+                    title={t(product.isFavorite ? 'favoriteRemove' : 'favoriteAdd', { name: product.name })}
+                    onClick={() => toggleFavorite(product)}
+                    disabled={updateProduct.isPending && updateProduct.variables?.id === product.id}
+                  >
+                    <Icon name="star" filled={!!product.isFavorite} />
+                  </Button>
+                </td>
+                <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <ProductImage imageUrl={product.imageUrl} productName={product.name} size="sm" />
+                    <ProductImage product={product} productName={product.name} size="sm" />
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{product.name}</div>
                       {product.description && (

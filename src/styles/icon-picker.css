@@ -1,0 +1,92 @@
+/* Icon-Auswahl (components/shared/oe-icon-picker.tsx). Icon-Box und
+   Suchfeld kommen aus @openeos/ui, hier nur Raster und Kachel. */
+
+.icon-picker__search {
+  padding: 16px 24px 4px;
+}
+
+.icon-picker__body {
+  max-height: min(60vh, 560px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.icon-picker__group {
+  margin: 0 0 8px;
+  font: 500 11px var(--oe-f-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+
+.icon-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
+}
+
+.icon-picker__item {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 6px 8px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-surface);
+  color: var(--oe-ink);
+  font: 500 12px/1.2 var(--oe-f-sans);
+  cursor: pointer;
+  transition: border-color var(--oe-dur-2), background var(--oe-dur-2);
+}
+
+.icon-picker__item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-picker__item:hover {
+  border-color: color-mix(in oklab, var(--oe-ink) 35%, transparent);
+}
+
+.icon-picker__item:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
+}
+
+.icon-picker__item.is-selected {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+
+.icon-picker__empty {
+  margin: 24px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--oe-mute);
+}
+
+/* Vorschau im Produkt- und Kategorieformular */
+.icon-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.icon-field__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.icon-field__hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
