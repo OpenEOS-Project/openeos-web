@@ -725,6 +725,9 @@ export const productsApi = {
     apiClient.post<ApiResponse<import('@/types/product').ProductImportResult>>(`/events/${eventId}/products/import`, data),
 };
 
+// Tables API (organization level) — lives in its own module
+export { tablesApi } from '@/lib/tables-api';
+
 // Production Stations API (under events)
 export const productionStationsApi = {
   list: (eventId: string) =>
