@@ -60,8 +60,10 @@ export function AreaTabs({ areas, activeId, onSelect, onAdd, onEdit, onMove, onD
       </div>
 
       {active && (
+        /* Linksbündig am Auslöser: das Menü sitzt neben den Reitern am
+           linken Rand des Inhaltsbereichs, rechtsbündig ragte es darüber
+           hinaus. Reicht der Platz nicht, schiebt @openeos/ui es zurück. */
         <Dropdown
-          align="end"
           triggerVariant="quiet"
           triggerSize="sm"
           className="tables-areas__menu"
