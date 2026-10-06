@@ -82,7 +82,10 @@ test.describe('POS - Point of Sale', () => {
 
       // Das Geraet fragt alle drei Sekunden nach und wechselt selbst.
       await expect(device).toHaveURL(/\/device\/pos$/, { timeout: 15_000 });
-      await expect(device.getByText(EVENT_NAME)).toBeVisible();
+      // Auf schmalen Geraeten steht die Veranstaltung nicht im Kopf (Entwurf):
+      // dort genuegt, dass sie geladen ist und die Startansicht erscheint.
+      await expect(device.getByText(EVENT_NAME)).toBeAttached();
+      await expect(device.getByRole('heading', { name: 'Tisch öffnen' })).toBeVisible();
 
       deviceState = await deviceContext.storageState();
     } finally {
@@ -218,7 +221,7 @@ test.describe('POS - Point of Sale', () => {
       await pos.openMenu('Bestellverlauf');
       const history = page.getByRole('dialog', { name: 'Bestellverlauf' });
       await expect(history).toBeVisible();
-      await expect(history.getByRole('button', { name: /Abgeschlossen/ })).toBeVisible();
+      await expect(history.getByRole('button', { name: 'Abgeschlossen', exact: true })).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(history).toHaveCount(0);
     });
