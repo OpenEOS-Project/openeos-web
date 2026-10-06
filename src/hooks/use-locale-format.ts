@@ -11,7 +11,17 @@ import {
   formatNumber,
   formatPercent,
   formatTime,
+  toIntlLocale,
 } from '@/utils/format';
+
+/**
+ * Locale fuer Intl und toLocale*String, abgeleitet aus der Sprache der
+ * Oberflaeche ('en' -> 'en-GB', siehe toIntlLocale). Wer direkt mit Intl
+ * formatiert, nimmt diesen Wert statt useLocale().
+ */
+export function useIntlLocale(): string {
+  return toIntlLocale(useLocale());
+}
 
 /**
  * Formatierer aus utils/format, gebunden an die Sprache der Oberflaeche.
@@ -20,12 +30,14 @@ import {
  * formatiert — in der englischen Oberflaeche stand dann "06.10.2026" und
  * "3,50 €" neben englischem Text. Server-Komponenten holen die Sprache mit
  * getLocale() aus next-intl/server und rufen die Utils direkt auf.
+ *
+ * `locale` ist die Intl-Locale ('en-GB'), nicht der Sprachcode der Route.
  */
 export function useLocaleFormat() {
   const locale = useLocale();
   return useMemo(
     () => ({
-      locale,
+      locale: toIntlLocale(locale),
       formatCurrency: (amount: number | string) => formatCurrency(amount, locale),
       formatDate: (date: string | Date | null | undefined) => formatDate(date, locale),
       formatDateTime: (date: string | Date | null | undefined) => formatDateTime(date, locale),

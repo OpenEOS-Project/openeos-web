@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useCanCreateMemberAccount, useMembers } from '@/hooks/use-members';
 import { useAuthStore } from '@/stores/auth-store';
@@ -24,7 +25,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
 
 export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEditPermissionsClick }: MembersListProps) {
   const t = useTranslations('members');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const tAdd = useTranslations('memberAdd');
   const { user } = useAuthStore();
   const addLabel = useCanCreateMemberAccount() ? tAdd('openButton') : t('invite');

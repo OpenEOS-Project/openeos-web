@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useEvents } from '@/hooks/use-events';
 import { shopUrlForEvent } from '@/lib/shop-url';
@@ -36,7 +37,7 @@ export function EventsList({
 }: EventsListProps) {
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
 

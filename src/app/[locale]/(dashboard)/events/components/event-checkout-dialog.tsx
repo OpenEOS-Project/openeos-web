@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hooks/use-events';
@@ -27,7 +28,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const tCommon = useTranslations('common');
   const tErrors = useTranslations('errors');
   const apiErrorMessage = useApiErrorMessage();
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   const orderInvoice = useOrderInvoice();
   const activateEvent = useActivateEvent();

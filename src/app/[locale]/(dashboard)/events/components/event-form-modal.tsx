@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +10,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
 import { useEventPricePreview } from '@/hooks/use-event-price-preview';
 import { useDeployment } from '@/components/providers/setup-provider';
-import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
 import { shopUrlForEvent } from '@/lib/shop-url';
 import { getShopUrl } from '@/lib/runtime-config';
 import {
@@ -91,7 +91,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const apiErrorMessage = useApiErrorMessage();
   const validationSchema = useMemo(() => createEventSchema(tValidation, tTables), [tValidation, tTables]);
   const tErrors = useTranslations('errors');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const { formatCurrency } = useLocaleFormat();
   const dayFormat = useMemo(
     () => new Intl.DateTimeFormat(locale, { weekday: 'short', day: '2-digit', month: '2-digit' }),

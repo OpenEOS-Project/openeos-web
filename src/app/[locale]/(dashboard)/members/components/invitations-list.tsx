@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInvitations, useDeleteInvitation, useResendInvitation } from '@/hooks/use-members';
 import type { OrganizationPermissions } from '@/types/auth';
@@ -28,7 +29,7 @@ interface Invitation {
 
 export function InvitationsList({ organizationId }: InvitationsListProps) {
   const t = useTranslations('members');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const deleteInvitation = useDeleteInvitation(organizationId);
   const resendInvitation = useResendInvitation(organizationId);
   const { data: invitationsResponse, isLoading } = useInvitations(organizationId);

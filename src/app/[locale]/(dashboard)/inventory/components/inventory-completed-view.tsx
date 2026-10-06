@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInventoryCount } from '@/hooks/use-inventory';
 import type { InventoryCount } from '@/types/inventory';
@@ -34,7 +35,7 @@ export function InventoryCompletedView({
 }: InventoryCompletedViewProps) {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   const { data: count } = useInventoryCount(eventId, initialCount.id);
   const resolvedCount = count ?? initialCount;

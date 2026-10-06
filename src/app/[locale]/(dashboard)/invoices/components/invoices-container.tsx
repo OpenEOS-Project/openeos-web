@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInvoices } from '@/hooks/use-invoices';
 import { billingApi } from '@/lib/api-client';
@@ -25,7 +26,7 @@ const STATUS_BADGE: Record<string, string> = {
 export function InvoicesContainer() {
   const t = useTranslations('invoices');
   const tErrors = useTranslations('errors');
-  const locale = useLocale();
+  const locale = useIntlLocale();
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';

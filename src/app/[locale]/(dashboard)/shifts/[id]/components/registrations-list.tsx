@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
-import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/types/shift';
 import { SendMessageModal } from './send-message-modal';
@@ -57,7 +57,7 @@ interface RegistrationsListProps {
 export function RegistrationsList({ plan }: RegistrationsListProps) {
   const t = useTranslations();
   const tr = useTranslations('shifts.registrationsList');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const { formatDate } = useLocaleFormat();
   const rowStatusLabel: Record<ShiftRegistrationStatus, string> = {
     confirmed: tr('rowStatus.confirmed'),

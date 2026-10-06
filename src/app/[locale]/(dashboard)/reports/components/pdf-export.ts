@@ -13,6 +13,7 @@ import type {
 import { formatCurrency, formatPercent } from '@/utils/format';
 import type { ReportsFilter } from './reports-filter-bar';
 import { formatReportDay, getChannelLabel, getMethodLabel, type ReportsT } from './report-labels';
+import { addDays, todayKey, toLocalDate } from '@/utils/calendar-date';
 
 export interface PdfExportInput {
   organizationName?: string;
@@ -65,12 +66,10 @@ function buildFilename(input: PdfExportInput, { t }: PdfExportI18n): string {
   }
   const { timeRange, startDate, endDate } = input.filter;
   if (timeRange === 'today') {
-    return t('pdf.filename.today', { date: new Date().toISOString().split('T')[0] });
+    return t('pdf.filename.today', { date: todayKey() });
   }
   if (timeRange === 'yesterday') {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return t('pdf.filename.yesterday', { date: yesterday.toISOString().split('T')[0] });
+    return t('pdf.filename.yesterday', { date: addDays(todayKey(), -1) });
   }
   if (timeRange === 'all') {
     return t('pdf.filename.all');
@@ -94,8 +93,8 @@ function formatPeriodLabel(input: PdfExportInput, { t, locale }: PdfExportI18n):
     yesterday.setDate(yesterday.getDate() - 1);
     parts.push(t('pdf.period.yesterday', { date: formatShortDate(yesterday, locale) }));
   } else if (startDate || endDate) {
-    const s = startDate ? formatShortDate(new Date(startDate), locale) : '…';
-    const e = endDate ? formatShortDate(new Date(endDate.split('T')[0]), locale) : '…';
+    const s = startDate ? formatShortDate(toLocalDate(startDate), locale) : '…';
+    const e = endDate ? formatShortDate(toLocalDate(endDate.split('T')[0]), locale) : '…';
     parts.push(t('pdf.period.range', { start: s, end: e }));
   }
   return parts.join(' · ');

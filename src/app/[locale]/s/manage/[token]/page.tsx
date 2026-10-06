@@ -2,16 +2,18 @@
 
 import { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untitledui/icons';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { toLocalDate } from '@/utils/calendar-date';
 
 const formatDateFor = (iso: string, locale: string) =>
-  new Date(iso).toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+  toLocalDate(iso).toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
 const formatTime = (t: string) => t.slice(0, 5);
 
 /** Same tolerance as the public signup page — a shift pair has to overlap
@@ -40,7 +42,7 @@ export default function HelperManagePage() {
   const t = useTranslations('shifts.helperManage');
   const tCommon = useTranslations();
   const apiErrorMessage = useApiErrorMessage();
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const formatDate = (iso: string) => formatDateFor(iso, locale);
   const queryClient = useQueryClient();
   const [pickerOpen, setPickerOpen] = useState(false);

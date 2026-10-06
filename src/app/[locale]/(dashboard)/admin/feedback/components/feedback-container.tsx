@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import { Check, Mail01 } from '@untitledui/icons';
 
 import { adminApi } from '@/lib/api-client';
@@ -22,7 +23,7 @@ const FILTER: (ContactRequestKind | 'alle')[] = [
 
 export function FeedbackContainer() {
   const t = useTranslations('admin.feedback');
-  const locale = useLocale();
+  const locale = useIntlLocale();
   const queryClient = useQueryClient();
   const [art, setArt] = useState<(typeof FILTER)[number]>('alle');
   const [nurOffene, setNurOffene] = useState(true);

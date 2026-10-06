@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "pos-icons": "node scripts/sync-pos-icons.mjs",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --test scripts/error-report-scrub.test.mjs",
+    "test:unit": "node --test scripts/error-report-scrub.test.mjs && playwright test -c playwright.unit.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",

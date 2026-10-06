@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useMemo } from 'react';
+import { addDays, todayKey, toDayKey } from '@/utils/calendar-date';
 
 /**
  * Zeitraum des Dashboards.
@@ -30,35 +31,28 @@ export interface DashboardRange {
 
 const RangeContext = createContext<DashboardRange | null>(null);
 
-/** Lokales Datum als YYYY-MM-DD — nicht über toISOString, das UTC nimmt
- *  und in unserer Zeitzone abends auf den Folgetag springt. */
-function isoDate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
 export function rangeFor(key: RangeKey, event?: { startDate?: string | null; endDate?: string | null }): DashboardRange {
-  const heute = new Date();
+  // Lokale Kalendertage — nicht über toISOString, das UTC nimmt.
+  const heute = todayKey();
   if (key === 'week') {
-    const von = new Date(heute);
-    von.setDate(von.getDate() - 6);
-    return { key, query: { startDate: isoDate(von), endDate: isoDate(heute) } };
+    return { key, query: { startDate: addDays(heute, -6), endDate: heute } };
   }
   if (key === 'event' && event?.startDate) {
+    /* Start und Ende sind Zeitpunkte (lokale Mitternacht, in UTC der
+       Vorabend). slice(0, 10) nahm davon den UTC-Tag und schnitt so den
+       letzten Veranstaltungstag ab. */
     return {
       key,
       query: {
-        startDate: event.startDate.slice(0, 10),
-        endDate: (event.endDate ?? event.startDate).slice(0, 10),
+        startDate: toDayKey(event.startDate),
+        endDate: toDayKey(event.endDate ?? event.startDate),
       },
     };
   }
   /* Ohne laufende Veranstaltung faellt 'event' auf heute zurueck — dann
      ist auch die Beschriftung 'heute', sonst behauptete sie einen
      Zeitraum, der gar nicht abgefragt wurde. */
-  return { key: 'today', query: { startDate: isoDate(heute), endDate: isoDate(heute) } };
+  return { key: 'today', query: { startDate: heute, endDate: heute } };
 }
 
 export function DashboardRangeProvider({

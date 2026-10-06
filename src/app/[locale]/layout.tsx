@@ -1,7 +1,7 @@
 import { openEosFonts } from '@openeos/ui/fonts';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTimeZone } from 'next-intl/server';
 
 import { Providers } from '@/components/providers/index';
 import { RuntimeConfigScript } from '@/components/runtime-config-script';
@@ -24,6 +24,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   // Get messages for the locale
   const messages = await getMessages();
+  const timeZone = await getTimeZone();
 
   return (
     <html
@@ -36,7 +37,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         style={{ fontFamily: 'var(--f-sans, system-ui, sans-serif)' }}
       >
         <RuntimeConfigScript />
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>

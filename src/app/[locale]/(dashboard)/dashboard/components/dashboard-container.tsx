@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { useEvents, useActiveEvent } from '@/hooks/use-events';
 import { ordersApi } from '@/lib/api-client';
+import { countOrderItems, recentOrdersQuery, RECENT_ORDERS_LIMIT } from '@/lib/recent-orders';
+import { todayKey } from '@/utils/calendar-date';
 import type { Order } from '@/types/order';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
@@ -98,12 +100,14 @@ export function DashboardContainer() {
   );
 
   // Fetch today's orders for recent-activity section
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+  // Local calendar day: toISOString() returned yesterday between 00:00 and
+  // 02:00 in Berlin.
+  const today = useMemo(() => todayKey(), []);
 
   const { data: ordersResponse, isLoading: isLoadingOrders } = useQuery({
-    queryKey: ['orders', organizationId, 'today', today],
+    queryKey: ['orders', organizationId, 'today', today, 'recent'],
     queryFn: async () => {
-      const response = await ordersApi.list(organizationId, { dateFrom: today, dateTo: today });
+      const response = await ordersApi.list(organizationId, recentOrdersQuery(today));
       return response.data;
     },
     enabled: !!organizationId,
@@ -113,8 +117,13 @@ export function DashboardContainer() {
     const orders = ordersResponse || [];
     return [...orders]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10);
+      .slice(0, RECENT_ORDERS_LIMIT);
   }, [ordersResponse]);
+
+  const itemCountLabel = (order: Order) => {
+    const count = countOrderItems(order);
+    return count === null ? '—' : t('recentActivity.itemCount', { count });
+  };
 
 
   /* Reihenfolge, Groesse und Entfernen schreiben alle denselben
@@ -295,7 +304,7 @@ export function DashboardContainer() {
                         </div>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                            {formatTime(order.createdAt)} · {t('recentActivity.itemCount', { count: order.items?.length ?? 0 })}
+                            {formatTime(order.createdAt)} · {itemCountLabel(order)}
                           </div>
                           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>
                             {formatCurrency(order.total)}
@@ -327,7 +336,7 @@ export function DashboardContainer() {
                         <tr key={order.id}>
                           <td className="mono">#{order.dailyNumber}</td>
                           <td className="mono">{formatTime(order.createdAt)}</td>
-                          <td>{t('recentActivity.itemCount', { count: order.items?.length ?? 0 })}</td>
+                          <td>{itemCountLabel(order)}</td>
                           <td className="mono text-right">{formatCurrency(order.total)}</td>
                           <td>
                             <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>

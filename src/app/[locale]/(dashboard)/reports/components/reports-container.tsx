@@ -25,9 +25,10 @@ import { ReportsChannelsTable } from './reports-channels-table';
 import { ReportsCategoriesTable } from './reports-categories-table';
 import { ReportsDevicesTable } from './reports-devices-table';
 import { PdfExportButton } from './pdf-export-button';
+import { todayKey } from '@/utils/calendar-date';
 
 function getTodayRange(): { startDate: string; endDate: string } {
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayKey();
   return { startDate: today, endDate: `${today}T23:59:59` };
 }
 
