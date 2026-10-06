@@ -29,10 +29,15 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { useTableAreas } from '@/hooks/use-tables';
+import { Link } from '@/i18n/routing';
+import type { TableMode } from '@/types/table';
+import { Banner, Checkbox, Icon } from '@openeos/ui';
+import '@/styles/event-tables.css';
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
 // ausserhalb der Komponente gibt es noch kein t().
-function createEventSchema(t: (key: string) => string) {
+function createEventSchema(t: (key: string) => string, tTables: (key: string) => string) {
   return z
     .object({
       name: z.string().min(1, t('nameRequired')).max(200),
@@ -42,11 +47,18 @@ function createEventSchema(t: (key: string) => string) {
       endDate: z.string().optional(),
       shopEnabled: z.boolean().optional(),
       shopServiceFee: z.string().optional(),
+      tablesMode: z.enum(['none', 'free', 'predefined']),
+      tablesAllAreas: z.boolean(),
+      tablesAreaIds: z.array(z.string()),
     })
     .refine((data) => !data.endDate || data.endDate >= data.startDate, {
       path: ['endDate'],
       message: t('endBeforeStart'),
-    });
+    })
+    .refine(
+      (data) => data.tablesMode !== 'predefined' || data.tablesAllAreas || data.tablesAreaIds.length > 0,
+      { path: ['tablesAreaIds'], message: tTables('areasRequired') },
+    );
 }
 
 type EventFormData = z.infer<ReturnType<typeof createEventSchema>>;
@@ -64,14 +76,20 @@ const EMPTY_FORM: EventFormData = {
   endDate: '',
   shopEnabled: false,
   shopServiceFee: '',
+  orderingMode: 'immediate',
+  // Ohne Angabe gilt freie Tischnummer — wie vor den Tischen.
+  tablesMode: 'free',
+  tablesAllAreas: true,
+  tablesAreaIds: [],
 };
 
 export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) {
   const t = useTranslations('events');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const tTables = useTranslations('events.form.tables');
   const apiErrorMessage = useApiErrorMessage();
-  const validationSchema = useMemo(() => createEventSchema(tValidation), [tValidation]);
+  const validationSchema = useMemo(() => createEventSchema(tValidation, tTables), [tValidation, tTables]);
   const tErrors = useTranslations('errors');
   const locale = useLocale();
   const { formatCurrency } = useLocaleFormat();
@@ -84,6 +102,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const organizationId = currentOrganization?.organizationId || '';
   const [error, setError] = useState<string | null>(null);
 
+  const { data: tableAreas = [] } = useTableAreas(isOpen ? organizationId : '');
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
@@ -105,6 +124,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   });
 
   const startDate = watch('startDate');
+  const tablesMode = watch('tablesMode');
+  const tablesAllAreas = watch('tablesAllAreas');
+  const tablesAreaIds = watch('tablesAreaIds');
   const endDate = watch('endDate');
 
   useEffect(() => {
@@ -119,6 +141,12 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         endDate: end,
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
+        // Fehlte bisher: beim Bearbeiten stand der Kassiermodus immer auf
+        // „Sofort“ und Speichern schrieb das zurück.
+        orderingMode: event.settings?.orderingMode ?? 'immediate',
+        tablesMode: event.settings?.tables?.mode ?? 'free',
+        tablesAllAreas: !event.settings?.tables?.areaIds,
+        tablesAreaIds: event.settings?.tables?.areaIds ?? [],
       });
       setShopDays(start ? fromStoredDays(start, end, event.settings?.shop?.days) : []);
     } else {
@@ -168,6 +196,17 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         serviceFee,
       };
 
+      /* Bereiche nur bei vordefinierten Tischen; null heißt alle. Auch
+         gelöschte Bereiche fallen beim Speichern heraus. */
+      const knownAreaIds = new Set(tableAreas.map((a) => a.id));
+      const tables = {
+        mode: data.tablesMode,
+        areaIds:
+          data.tablesMode === 'predefined' && !data.tablesAllAreas
+            ? data.tablesAreaIds.filter((id) => knownAreaIds.has(id))
+            : null,
+      };
+
       const payload = {
         name: data.name,
         description: data.description || undefined,
@@ -181,13 +220,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           id: event.id,
           data: {
             ...payload,
-            settings: { ...event.settings, orderingMode: data.orderingMode, shop: shopSettings },
+            settings: { ...event.settings, orderingMode: data.orderingMode, shop: shopSettings, tables },
           },
         });
       } else {
         await createEvent.mutateAsync({
           organizationId,
-          data: { ...payload, settings: { orderingMode: data.orderingMode, shop: shopSettings } },
+          data: { ...payload, settings: { orderingMode: data.orderingMode, shop: shopSettings, tables } },
         });
       }
       onClose();
@@ -321,6 +360,91 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 </label>
               )}
             />
+
+            <Controller
+              name="tablesMode"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{tTables('label')}</span>
+                  <select
+                    className="select"
+                    aria-label={tTables('label')}
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value as TableMode)}
+                  >
+                    <option value="none">{tTables('none')}</option>
+                    <option value="free">{tTables('free')}</option>
+                    <option value="predefined">{tTables('predefined')}</option>
+                  </select>
+                  <span className="auth-field__hint">{tTables(`${field.value}Hint`)}</span>
+                </label>
+              )}
+            />
+
+            {tablesMode === 'predefined' && (
+              <fieldset className="event-tables">
+                <legend className="event-tables__legend">{tTables('areas')}</legend>
+                {tableAreas.length > 0 && (
+                  <div className="event-tables__list">
+                    <Controller
+                      name="tablesAllAreas"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
+                          {tTables('allAreas')}
+                        </Checkbox>
+                      )}
+                    />
+                    {!tablesAllAreas && (
+                      <Controller
+                        name="tablesAreaIds"
+                        control={control}
+                        render={({ field }) => (
+                          <>
+                            {tableAreas.map((area) => (
+                              <Checkbox
+                                key={area.id}
+                                className="event-tables__area"
+                                checked={field.value.includes(area.id)}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.checked
+                                      ? [...field.value, area.id]
+                                      : field.value.filter((id) => id !== area.id),
+                                  )
+                                }
+                              >
+                                {area.name}
+                                <span className="event-tables__count">
+                                  {tTables('tableCount', { count: area.tables.filter((x) => x.isActive).length })}
+                                </span>
+                              </Checkbox>
+                            ))}
+                          </>
+                        )}
+                      />
+                    )}
+                  </div>
+                )}
+                {errors.tablesAreaIds && (
+                  <span role="alert" className="auth-field__error">{errors.tablesAreaIds.message}</span>
+                )}
+                {(() => {
+                  const chosen = tablesAllAreas ? tableAreas : tableAreas.filter((a) => tablesAreaIds.includes(a.id));
+                  const count = chosen.reduce((sum, a) => sum + a.tables.filter((x) => x.isActive).length, 0);
+                  return count === 0 ? (
+                    <Banner tone="warn" icon={<Icon name="alert" />}>
+                      {tableAreas.length === 0 ? tTables('noTables') : tTables('noTablesInAreas')}
+                    </Banner>
+                  ) : null;
+                })()}
+                <Link href="/tables" className="event-tables__manage">
+                  <Icon name="table" />
+                  {tTables('manage')}
+                </Link>
+              </fieldset>
+            )}
 
             <Controller
               name="shopEnabled"

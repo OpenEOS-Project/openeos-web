@@ -1,0 +1,49 @@
+/* Tischbetrieb im Veranstaltungsdialog (events/components/event-form-modal.tsx).
+   Checkbox, Banner und Icon kommen aus @openeos/ui. */
+
+.event-tables {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-paper-2);
+}
+
+.event-tables__legend {
+  padding: 0 4px;
+  font: 600 12px var(--oe-f-sans);
+  color: var(--oe-ink);
+}
+
+.event-tables__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-tables__area {
+  margin-inline-start: 22px;
+}
+
+.event-tables__count {
+  margin-inline-start: 8px;
+  font: 500 11px var(--oe-f-mono);
+  color: var(--oe-mute);
+}
+
+.event-tables__manage {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font: 600 13px var(--oe-f-sans);
+  color: var(--oe-green-ink);
+  text-decoration: none;
+}
+
+.event-tables__manage:hover {
+  text-decoration: underline;
+}

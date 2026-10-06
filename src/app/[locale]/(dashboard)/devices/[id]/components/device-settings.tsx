@@ -10,6 +10,8 @@ import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/devi
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { useProductionStations } from '@/hooks/use-production-stations';
 import { useActiveEvent } from '@/hooks/use-events';
+import { useTableAreas } from '@/hooks/use-tables';
+import { Link } from '@/i18n/routing';
 
 interface DeviceSettingsProps {
   device: Device;
@@ -66,6 +68,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const { data: aktivesEvent } = useActiveEvent(organizationId ?? '');
   const { data: stationen = [] } = useProductionStations(aktivesEvent?.id ?? '');
   const [posDeviceId, setPosDeviceId] = useState(device.settings?.posDeviceId || '');
+  /* Standardbereich der Kasse im Tischbetrieb: Tischliste und Karte
+     öffnen zuerst diesen Bereich. Leer heißt erster freigegebener. */
+  const [tableAreaId, setTableAreaId] = useState(device.settings?.tableAreaId || '');
+  const { data: tableAreas = [] } = useTableAreas(type === 'pos' ? organizationId : '');
   /* Aussehen der Anzeige. Leere Zeichenkette heisst "nichts eigenes
      gesetzt" — dann greift die Vorgabe der Anzeige selbst. */
   const [theme, setTheme] = useState(device.settings?.display?.theme ?? 'dark');
@@ -85,6 +91,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
     setDisplayMode(device.settings?.displayMode || 'customer');
     setPosDeviceId(device.settings?.posDeviceId || '');
+    setTableAreaId(device.settings?.tableAreaId || '');
     setTheme(device.settings?.display?.theme ?? 'dark');
     setScale(device.settings?.display?.scale ?? 'normal');
     setHeadline(device.settings?.display?.headline ?? '');
@@ -128,6 +135,9 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           printerMode: device.settings?.printerMode,
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
           sumupReaderId: type === 'pos' ? (sumupReaderId || undefined) : device.settings?.sumupReaderId,
+          // null löscht den Wert (die API führt Einstellungen zusammen).
+          tableAreaId:
+            type === 'pos' && serviceMode === 'table' ? tableAreaId || null : device.settings?.tableAreaId,
           displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
           stationId:
             type === 'display' && displayMode === 'station'
@@ -359,6 +369,40 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
                 </div>
               </label>
             ))}
+
+            {serviceMode === 'table' && (
+              <div style={{ marginTop: 8 }}>
+                <FormRow label={t('devices.detail.settings.tableArea')}>
+                  <select
+                    className="select"
+                    value={tableAreaId}
+                    onChange={(e) => setTableAreaId(e.target.value)}
+                    disabled={tableAreas.length === 0}
+                  >
+                    <option value="">{t('devices.detail.settings.tableAreaNone')}</option>
+                    {tableAreas.map((area) => (
+                      <option key={area.id} value={area.id}>{area.name}</option>
+                    ))}
+                    {/* Gelöschter Bereich: Wert sichtbar lassen statt still zu ändern. */}
+                    {tableAreaId && !tableAreas.some((area) => area.id === tableAreaId) && tableAreas.length > 0 && (
+                      <option value={tableAreaId}>{t('devices.detail.settings.tableAreaMissing')}</option>
+                    )}
+                  </select>
+                </FormRow>
+                <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '6px 0 0' }}>
+                  {tableAreas.length === 0 ? (
+                    <>
+                      {t('devices.detail.settings.tableAreaEmpty')}{' '}
+                      <Link href="/tables" style={{ color: 'var(--green-ink)', fontWeight: 600 }}>
+                        {t('devices.detail.settings.tableAreaManage')}
+                      </Link>
+                    </>
+                  ) : (
+                    t('devices.detail.settings.tableAreaHint')
+                  )}
+                </p>
+              </div>
+            )}
           </div>
         </SectionCard>
       )}
