@@ -24,7 +24,7 @@ export class POSPage {
   readonly clearCartButton: Locator;
   readonly paySheet: Locator;
   readonly doneSheet: Locator;
-  readonly moreButton: Locator;
+  readonly menuButton: Locator;
   /** Seitenleiste „Offene Tische“ der Startansicht. */
   readonly openTablesAside: Locator;
   /** Blatt „Tisch wählen“ (Tisch-Pille). */
@@ -41,7 +41,7 @@ export class POSPage {
     this.clearCartButton = this.cart.getByRole('button', { name: 'Warenkorb leeren' });
     this.paySheet = page.getByRole('dialog', { name: /^Kassieren/ });
     this.doneSheet = page.getByRole('dialog', { name: 'Bezahlt' });
-    this.moreButton = page.getByRole('button', { name: 'Weitere Aktionen' });
+    this.menuButton = page.getByRole('button', { name: 'Menü', exact: true });
     this.openTablesAside = page.getByRole('complementary', { name: 'Offene Tische' });
     this.tableSheet = page.getByRole('dialog', { name: 'Tisch wählen' });
   }
@@ -228,7 +228,7 @@ export class POSPage {
   }
 
   async openMenu(item: string) {
-    await this.moreButton.click();
+    await this.menuButton.click();
     await this.page.getByRole('menuitem', { name: item }).click();
   }
 

@@ -239,7 +239,7 @@ test.describe('POS - Point of Sale', () => {
       await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
       await page.reload();
       await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
-      await pos.moreButton.click();
+      await pos.menuButton.click();
       await expect(page.getByRole('menuitem', { name: 'Dunkel' })).toHaveAttribute('aria-current', 'true');
       await page.keyboard.press('Escape');
 
