@@ -845,6 +845,7 @@
       "orderingModeImmediate": "Sofort kassieren",
       "orderingModeTab": "Auf Deckel buchen",
       "orderingModeHint": "Bestimmt, ob an der Kasse direkt bezahlt oder auf einen Deckel gebucht wird.",
+      "orderingModeInherited": "Ohne eigene Auswahl gilt die Vorgabe der Organisation.",
       "priceSum": "Freischalten kostet {price}",
       "priceCalc": "{days} Tage × {perDay} je Tag",
       "priceCalcDiscounted": "{days} Tage × {perDay} = {gross}, abzüglich {percent} % Erstveranstalter-Nachlass",

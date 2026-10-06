@@ -30,6 +30,8 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { useTableAreas } from '@/hooks/use-tables';
+import { useOrganization } from '@/hooks/use-organizations';
+import { resolveOrderingMode } from '@/utils/ordering-mode';
 import { Link } from '@/i18n/routing';
 import type { TableMode } from '@/types/table';
 import { Banner, Checkbox, Icon } from '@openeos/ui';
@@ -76,7 +78,8 @@ const EMPTY_FORM: EventFormData = {
   endDate: '',
   shopEnabled: false,
   shopServiceFee: '',
-  orderingMode: 'immediate',
+  // Ohne Angabe erbt die Veranstaltung den Kassiermodus der Organisation.
+  orderingMode: undefined,
   // Ohne Angabe gilt freie Tischnummer — wie vor den Tischen.
   tablesMode: 'free',
   tablesAllAreas: true,
@@ -103,6 +106,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const [error, setError] = useState<string | null>(null);
 
   const { data: tableAreas = [] } = useTableAreas(isOpen ? organizationId : '');
+  const { data: organization } = useOrganization(isOpen ? organizationId : '');
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
@@ -141,9 +145,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         endDate: end,
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
-        // Fehlte bisher: beim Bearbeiten stand der Kassiermodus immer auf
-        // „Sofort“ und Speichern schrieb das zurück.
-        orderingMode: event.settings?.orderingMode ?? 'immediate',
+        // Nur ein an der Veranstaltung gesetzter Wert; ohne ihn gilt der
+        // der Organisation (Anzeige siehe Auswahlfeld).
+        orderingMode: event.settings?.orderingMode,
         tablesMode: event.settings?.tables?.mode ?? 'free',
         tablesAllAreas: !event.settings?.tables?.areaIds,
         tablesAreaIds: event.settings?.tables?.areaIds ?? [],
@@ -207,6 +211,11 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             : null,
       };
 
+      /* Den Kassiermodus nur schreiben, wenn er an der Veranstaltung gesetzt
+         ist — sonst bliebe die Vorgabe der Organisation nach dem ersten
+         Speichern als fester Wert hängen. */
+      const orderingMode = data.orderingMode ? { orderingMode: data.orderingMode } : {};
+
       const payload = {
         name: data.name,
         description: data.description || undefined,
@@ -220,13 +229,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           id: event.id,
           data: {
             ...payload,
-            settings: { ...event.settings, orderingMode: data.orderingMode, shop: shopSettings, tables },
+            settings: { ...event.settings, ...orderingMode, shop: shopSettings, tables },
           },
         });
       } else {
         await createEvent.mutateAsync({
           organizationId,
-          data: { ...payload, settings: { orderingMode: data.orderingMode, shop: shopSettings, tables } },
+          data: { ...payload, settings: { ...orderingMode, shop: shopSettings, tables } },
         });
       }
       onClose();
@@ -350,12 +359,19 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               render={({ field }) => (
                 <label className="auth-field">
                   <span>{t('form.orderingMode')}</span>
-                  <select className="select" value={field.value || 'immediate'} onChange={field.onChange}>
+                  {/* Ohne eigenen Wert zeigt das Feld den wirksamen Modus
+                      (Organisation, sonst „Sofort“) — wie Kasse und API. */}
+                  <select
+                    className="select"
+                    value={field.value || resolveOrderingMode(null, organization?.settings)}
+                    onChange={field.onChange}
+                  >
                     <option value="immediate">{t('form.orderingModeImmediate')}</option>
                     <option value="tab">{t('form.orderingModeTab')}</option>
                   </select>
                   <span className="auth-field__hint">
                     {t('form.orderingModeHint')}
+                    {!field.value && <> {t('form.orderingModeInherited')}</>}
                   </span>
                 </label>
               )}

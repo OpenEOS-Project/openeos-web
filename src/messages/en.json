@@ -1201,6 +1201,7 @@
       "orderingModeImmediate": "Pay immediately",
       "orderingModeTab": "Run a tab",
       "orderingModeHint": "Decides whether the till takes payment right away or books onto a tab.",
+      "orderingModeInherited": "Unless you choose one here, the organization default applies.",
       "priceSum": "Activating costs {price}",
       "priceCalc": "{days} days × {perDay} per day",
       "priceCalcDiscounted": "{days} days × {perDay} = {gross}, less {percent}% first-event discount",
