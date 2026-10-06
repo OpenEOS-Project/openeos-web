@@ -65,8 +65,17 @@ export async function setEventSettings(admin: PosAdmin, eventId: string, setting
   await ensureOk(res, 'Veranstaltung einstellen');
 }
 
-/** Bereich mit einer Serie Tische (z. B. Praefix „QXA“, 6 Stueck → QXA01…QXA06). */
-export async function createTables(admin: PosAdmin, area: string, prefix: string, count: number) {
+/**
+ * Bereich mit einer Serie Tische (z. B. Praefix „QXA“, 6 Stueck → QXA01…QXA06).
+ * Ohne `layout` liegen alle Tische auf 0/0 (kein Tischplan, keine Karte).
+ */
+export async function createTables(
+  admin: PosAdmin,
+  area: string,
+  prefix: string,
+  count: number,
+  layout?: { cols: number; gap: number },
+) {
   const org = admin.organizationId;
   const created = await apiPost(admin.api, `organizations/${org}/table-areas`, admin.headers, { name: area });
   await apiPost(admin.api, `organizations/${org}/tables/bulk`, admin.headers, {
@@ -75,6 +84,7 @@ export async function createTables(admin: PosAdmin, area: string, prefix: string
     start: 1,
     count,
     padding: 2,
+    ...(layout ? { layout } : {}),
   });
   return created;
 }
@@ -124,10 +134,11 @@ export async function pairPosDevice(
       status: 'verified',
       settings,
       table: null,
-      startView: 'number',
+      // Noch keine Wahl: die Kasse entscheidet nach dem Tischplan (F7).
+      startView: null,
       lastCategory: {},
     },
-    version: 1,
+    version: 2,
   };
   return {
     deviceId: init.deviceId,

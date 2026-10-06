@@ -39,8 +39,12 @@ interface DeviceState {
   table: PosTableContext | null;
   /** Angemeldete Person an der Kasse (PIN). Nicht gespeichert: Neuladen verlangt die PIN erneut. */
   session: PosSessionUser | null;
-  /** Zuletzt gewählte Ansicht der Startseite (Tischwahl), je Gerät gemerkt. */
-  startView: PosStartView;
+  /**
+   * Zuletzt gewählte Ansicht der Startseite (Tischwahl), je Gerät gemerkt.
+   * `null` = noch nie gewählt: dann entscheidet der Tischplan des
+   * Standardbereichs (F7, siehe `defaultStartView`).
+   */
+  startView: PosStartView | null;
   /** Zuletzt gewählte Kategorie je Veranstaltung (`fav` = Favoriten). */
   lastCategory: Record<string, string>;
 
@@ -96,7 +100,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       settings: null,
       table: null,
       session: null,
-      startView: 'number',
+      startView: null,
       lastCategory: {},
       isLoading: false,
       isPolling: false,
@@ -316,7 +320,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
     }),
     {
       name: 'openeos-device',
-      version: 1,
+      version: 2,
       // v0 speicherte die Tischnummer als Text (`tableNumber`). Daraus wird
       // der Kontext; Kassen im Thekenbetrieb hatten dort ihren Gerätenamen.
       migrate: (persisted: unknown, version: number) => {
@@ -330,6 +334,12 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
             : counter
               ? { kind: 'counter' }
               : { kind: 'table', key: toTableKey(legacy), label: legacy };
+        }
+        // Bis v1 war „Nummer“ die gespeicherte Vorgabe, auch ohne Wahl. Ab v2
+        // heißt „nicht gewählt“ `null`, damit die Karte Standard werden kann
+        // (F7). „Tische“ war immer eine bewusste Wahl und bleibt.
+        if (version < 2 && (state.startView === 'number' || state.startView === undefined)) {
+          state.startView = null;
         }
         return state as unknown as DeviceState & DeviceActions;
       },

@@ -2348,6 +2348,18 @@
       "viewList": "Tables",
       "viewNumber": "Number",
       "withoutTable": "Without table"
+    },
+    "floor": {
+      "areaTabs": "Areas",
+      "hintGuest": "guest",
+      "hintReady": "ready",
+      "label": "Floor plan {name}",
+      "reasonGuest": "Guest order",
+      "reasonReady": "Ready to serve",
+      "subtitle": "Tap a table on the map.",
+      "swipeHint": "Swipe to move the map",
+      "viewMap": "Map",
+      "waitingTitle": "Waiting for service"
     }
   },
   "orders": {

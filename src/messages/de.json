@@ -2348,6 +2348,18 @@
       "viewList": "Tische",
       "viewNumber": "Nummer",
       "withoutTable": "Ohne Tisch"
+    },
+    "floor": {
+      "areaTabs": "Bereiche",
+      "hintGuest": "Gast",
+      "hintReady": "fertig",
+      "label": "Tischplan {name}",
+      "reasonGuest": "Gastbestellung",
+      "reasonReady": "Fertig zum Servieren",
+      "subtitle": "Tisch auf der Karte antippen.",
+      "swipeHint": "Zum Verschieben wischen",
+      "viewMap": "Karte",
+      "waitingTitle": "Wartet auf Bedienung"
     }
   },
   "orders": {

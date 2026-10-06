@@ -23,6 +23,9 @@ export type TableDecorType = 'bar' | 'wall' | 'stage' | 'label';
 /** Serverseitig abgeleiteter Zustand; Tische ohne Eintrag sind frei. */
 export type TableStatus = 'busy' | 'wait';
 
+/** Warum ein Tisch wartet: Gastbestellung (QR/Shop) oder fertige Positionen. */
+export type TableWaitReason = 'guest' | 'ready';
+
 /** `event.settings.tables` — `areaIds: null` heißt alle Bereiche. */
 export interface EventTablesSettings {
   mode: TableMode;
@@ -186,6 +189,8 @@ export interface DeviceTableStatus {
   label: string;
   areaId: string | null;
   status: TableStatus;
+  /** Nur bei `wait`; Gastbestellung hat Vorrang. Ältere API-Stände liefern das Feld nicht. */
+  waitReason?: TableWaitReason | null;
   /** Σ(total − paidAmount) der offenen Bestellungen. */
   openAmount: number;
   itemCount: number;

@@ -100,6 +100,20 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-openrow__main span { font: 500 12px var(--oe-f-mono); color: var(--oe-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pos-openrow__sum { font: 600 14px var(--oe-f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
+/* Karte (Restaurant-Ansicht): Tischplan des Bereichs, waagerecht scrollbar */
+.pos-floor { display: grid; gap: 12px; min-width: 0; }
+.pos-floor__tabs { overflow-x: auto; scrollbar-width: none; }
+.pos-floor .oe-floor__table { min-width: 0; }
+.pos-floor .oe-floor__hint { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+/* Startansicht breit/mittel: ganze Karte ohne Scrollen sichtbar (Höhe begrenzt die Breite) */
+.pos-start .pos-floor .oe-floor-wrap { max-width: max(420px, calc((100dvh - 300px) * var(--pos-floor-ratio, 1.5))); }
+.pos-floor__swipe { margin: -4px 0 0; font: 500 12px var(--oe-f-mono); color: var(--oe-mute); }
+.pos-floor__waits { display: grid; gap: 8px; }
+.pos-floor__waits ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pos-floor__wait { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 14px 4px 4px; border: 1px solid var(--oe-line); border-radius: var(--oe-r); background: var(--oe-surface); color: var(--oe-ink); font: 600 13px var(--oe-f-sans); cursor: pointer; }
+.pos-floor__wait:hover { background: var(--oe-paper-2); }
+.pos-floor__wait:focus-visible { outline: 2px solid var(--oe-green-ink); outline-offset: 2px; }
+
 /* Tisch wählen (Blatt) */
 .pos-switch { display: grid; gap: 18px; }
 .pos-carry { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
@@ -274,6 +288,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-start__hd { flex-direction: column; align-items: stretch; }
   .pos-start__mode { justify-items: start; }
   .pos-start__list .pos-without { max-width: none; }
+  .pos-start .pos-floor .oe-floor-wrap { max-width: none; }
   .pos-open { overflow: visible; border-left: 0; border-top: 1px solid var(--oe-line); }
   .pos-open__hd { padding: 16px 14px; }
   .pos-openrow { padding: 10px 12px 10px 14px; }

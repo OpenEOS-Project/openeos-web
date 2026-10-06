@@ -6,6 +6,7 @@ import type {
   DeviceTableStatus,
   PosTableContext,
   TableMode,
+  TableWaitReason,
 } from '@/types/table';
 import { toTableKey } from '@/types/table';
 
@@ -69,6 +70,23 @@ export function matchTables(input: string, areas: DeviceTableArea[]): TableMatch
   return out.sort((a, b) => Number(b.exact) - Number(a.exact));
 }
 
+/**
+ * Hat der Bereich einen gestalteten Tischplan? Ohne Layout liegen alle
+ * Tische auf 0/0 (Serie ohne Anordnung) — dann gibt es keine Karte.
+ */
+export function hasFloorLayout(area: DeviceTableArea): boolean {
+  return area.tables.length > 0 && area.tables.some((table) => table.x !== 0 || table.y !== 0);
+}
+
+/**
+ * Startansicht ohne gemerkte Wahl (F7): die Karte, wenn der Standardbereich
+ * des Geräts einen Tischplan hat, sonst die Nummer.
+ */
+export function defaultStartView(areas: DeviceTableArea[], deviceAreaId: string | null): 'map' | 'number' {
+  const area = deviceAreaId ? areas.find((a) => a.id === deviceAreaId) : undefined;
+  return area && hasFloorLayout(area) ? 'map' : 'number';
+}
+
 export function tableContext(table: DeviceDiningTable): PosTableContext {
   return { kind: 'table', key: toTableKey(table.label), label: table.label, tableId: table.id, areaId: table.areaId };
 }
@@ -78,6 +96,8 @@ export interface OpenTableEntry {
   id: string;
   context: PosTableContext;
   state: 'busy' | 'wait';
+  /** Grund für `wait` laut Server (Gastbestellung bzw. fertig zum Servieren). */
+  waitReason: TableWaitReason | null;
   /** Offener Betrag laut Server plus ungesendeter Warenkorb. */
   amount: number;
   serverAmount: number;
@@ -112,6 +132,7 @@ export function mergeOpenTables(
       id,
       context,
       state: s.status,
+      waitReason: s.status === 'wait' ? (s.waitReason ?? null) : null,
       amount: Number(s.openAmount) || 0,
       serverAmount: Number(s.openAmount) || 0,
       orderCount: s.orderIds.length,
@@ -135,6 +156,7 @@ export function mergeOpenTables(
           id,
           context: cart.context,
           state: 'busy',
+          waitReason: null,
           amount: local,
           serverAmount: 0,
           orderCount: 0,

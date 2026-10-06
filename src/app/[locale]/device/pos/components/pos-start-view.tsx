@@ -5,8 +5,9 @@ import { useTranslations } from 'next-intl';
 import { Banner, Button, Icon, Segment, TableChip, type SegmentOption } from '@openeos/ui';
 import type { PosStartView as StartViewId } from '@/stores/device-store';
 import { toTableKey, type DeviceTableArea, type PosTableContext } from '@/types/table';
-import { matchTables, tableContext, type OpenTableEntry } from '../utils/tables';
+import { hasFloorLayout, matchTables, tableContext, type OpenTableEntry } from '../utils/tables';
 import { OpenTablesAside } from './open-tables-aside';
+import { TableFloor } from './table-floor';
 import { TableKeypad, TABLE_INPUT_MAX, TABLE_SEARCH_MAX } from './table-keypad';
 import { TableList } from './table-list';
 
@@ -15,7 +16,7 @@ interface PosStartViewProps {
   mode: 'free' | 'predefined';
   /** Bereiche mit aktiven Tischen (Standardbereich zuerst). */
   areas: DeviceTableArea[];
-  /** Gemerkte Ansicht des Geräts (nur `predefined`). */
+  /** Ansicht des Geräts (nur `predefined`): gemerkte Wahl oder Vorgabe nach F7. */
   view: StartViewId;
   onViewChange: (view: StartViewId) => void;
   /** Offene Tische (Server + geparkt), sortiert. */
@@ -33,8 +34,8 @@ interface PosStartViewProps {
  * Nummer (frei oder Suche in den Tischen) bzw. Tischliste je Bereich,
  * „Ohne Tisch“ (Theke, To-go) und rechts „Offene Tische“.
  *
- * Die Ansichten stehen in `views`; die Karte (P5) kommt dort als weitere
- * Option dazu.
+ * Die Ansichten stehen in `views`; „Karte“ gibt es nur, wenn ein
+ * freigegebener Bereich einen Tischplan hat (nicht alle Tische auf 0/0).
  */
 export function PosStartView({
   mode,
@@ -49,16 +50,19 @@ export function PosStartView({
 }: PosStartViewProps) {
   const t = useTranslations('pos.tables');
   const tOrder = useTranslations('pos.order');
+  const tFloor = useTranslations('pos.floor');
   const [input, setInput] = useState('');
 
   const tableCount = areas.reduce((sum, area) => sum + area.tables.length, 0);
   const predefined = mode === 'predefined';
   const noTables = predefined && tableCount === 0;
 
+  const hasMap = predefined && areas.some(hasFloorLayout);
   const views: SegmentOption<StartViewId>[] = predefined
     ? [
         { id: 'number', label: t('viewNumber'), icon: 'grid' },
         { id: 'list', label: t('viewList'), icon: 'list' },
+        ...(hasMap ? [{ id: 'map' as const, label: tFloor('viewMap'), icon: 'map' as const }] : []),
       ]
     : [];
   const active: StartViewId = views.some((v) => v.id === view) ? view : 'number';
@@ -119,6 +123,13 @@ export function PosStartView({
         {withoutTable}
       </div>
     );
+  } else if (active === 'map') {
+    main = (
+      <div className="pos-start__list">
+        <TableFloor areas={areas} states={states} onPick={(table) => open(tableContext(table))} />
+        {withoutTable}
+      </div>
+    );
   } else if (active === 'list') {
     main = (
       <div className="pos-start__list">
@@ -167,7 +178,13 @@ export function PosStartView({
         <div className="pos-start__hd">
           <div>
             <h1 id="pos-start-title">{tOrder('startTitle')}</h1>
-            <p>{active === 'list' ? t('subtitleList') : tOrder('startSubtitle')}</p>
+            <p>
+              {active === 'list'
+                ? t('subtitleList')
+                : active === 'map'
+                  ? tFloor('subtitle')
+                  : tOrder('startSubtitle')}
+            </p>
           </div>
           {views.length > 1 && !noTables && (
             <div className="pos-start__mode">
