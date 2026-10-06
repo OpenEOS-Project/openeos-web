@@ -132,6 +132,8 @@ const FALLBACK: IconSource = { kind: 'icon', name: FALLBACK_ICON };
 
 export interface IconCategoryLike {
   icon?: string | null;
+  /** Kategoriefarbe (`#rrggbb`); färbt Linien-Icons der Kategorie. */
+  color?: string | null;
 }
 
 export interface IconProductLike {
@@ -161,6 +163,18 @@ export function resolveProductIcon(
 /** Bild einer Kategorie: gespeicherter Wert, sonst `utensils`. */
 export function resolveCategoryIcon(category: IconCategoryLike | null | undefined): IconSource {
   return parseCategoryValue(category?.icon) ?? FALLBACK;
+}
+
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+/**
+ * Akzentfarbe für Linien-Icons (IconBox `accent`): die Farbe der Kategorie,
+ * sofern es eine gültige Hex-Farbe ist, sonst `null` (Designsystem-Grün).
+ * Fotos und POS-Icons bleiben ungefärbt.
+ */
+export function categoryAccent(category: IconCategoryLike | null | undefined): string | null {
+  const color = category?.color?.trim();
+  return color && HEX_COLOR.test(color) ? color : null;
 }
 
 /** Linien-Icon einer Kategorie für Stellen, die nur Linien-Icons kennen. */

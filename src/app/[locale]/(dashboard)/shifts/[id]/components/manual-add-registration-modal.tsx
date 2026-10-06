@@ -177,16 +177,16 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
               <div role="alert" style={{ padding: 10, borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 13 }}>{error}</div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="field-row">
               <div className="auth-field">
-                <label className="auth-field__label">{t('shifts.form.name')} *</label>
+                <label className="auth-field__label">{t('shifts.form.name')} <span className="auth-field__req">*</span></label>
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder={tm('namePlaceholder')} />
               </div>
               <div className="auth-field">
                 <label className="auth-field__label">{tm('emailOptional')}</label>
                 <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={tm('emailPlaceholder')} />
                 {!email.trim() && (
-                  <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>
+                  <p className="auth-field__hint">
                     {tm('noEmailHint')}
                   </p>
                 )}
@@ -198,7 +198,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="field-row">
               <div className="auth-field">
                 <label className="auth-field__label">{tm('helperNotes')}</label>
                 <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -211,7 +211,7 @@ export function ManualAddRegistrationModal({ open, plan, onClose }: Props) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{t('shifts.public.selectShifts')} *</span>
+                <span className="auth-field__label">{t('shifts.public.selectShifts')} <span className="auth-field__req">*</span></span>
                 <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
                   {tm('selectedCount', { count: selectedShiftIds.size })}
                 </span>

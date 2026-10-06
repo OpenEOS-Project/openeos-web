@@ -100,7 +100,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                 control={control}
                 render={({ field }) => (
                   <div className="auth-field">
-                    <label className="auth-field__label">{t('shifts.editor.jobName')} *</label>
+                    <label className="auth-field__label">{t('shifts.editor.jobName')} <span className="auth-field__req">*</span></label>
                     <textarea
                       className="textarea"
                       rows={5}
@@ -112,7 +112,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                     <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginTop: 4 }}>
                       {t('shifts.jobForm.namesHint')}
                     </p>
-                    {errors.names && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.names.message}</p>}
+                    {errors.names && <p className="auth-field__error">{errors.names.message}</p>}
                   </div>
                 )}
               />
@@ -133,7 +133,7 @@ export function AddJobModal({ open, planId, onClose }: AddJobModalProps) {
                 control={control}
                 render={({ field }) => (
                   <div className="auth-field">
-                    <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} *</label>
+                    <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} <span className="auth-field__req">*</span></label>
                     <input
                       className="input"
                       type="number"

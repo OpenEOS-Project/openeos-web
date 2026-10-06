@@ -262,7 +262,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                     control={control}
                     render={({ field }) => (
                       <div className="auth-field">
-                        <label className="auth-field__label">{t('shifts.form.name')} *</label>
+                        <label className="auth-field__label">{t('shifts.form.name')} <span className="auth-field__req">*</span></label>
                         <input
                           className={`input${errors.name ? ' input--error' : ''}`}
                           placeholder={t('shifts.form.namePlaceholder')}
@@ -272,7 +272,7 @@ export function CreateShiftPlanModal({ open, onClose, onCreated }: CreateShiftPl
                           autoFocus
                         />
                         {errors.name && (
-                          <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.name.message}</p>
+                          <p className="auth-field__error">{errors.name.message}</p>
                         )}
                       </div>
                     )}

@@ -136,7 +136,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.name')} <span className="auth-field__req">*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                 </label>
@@ -161,7 +161,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.type')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.type')} <span className="auth-field__req">*</span></span>
                   <select className="select" value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
                     <option value="fixed">{t('types.fixed')}</option>
                     <option value="manual">{t('types.manual')}</option>
@@ -180,7 +180,7 @@ export function DiscountFormModal({ isOpen, organizationId, voucher, onClose }: 
                 control={control}
                 render={({ field }) => (
                   <label className="auth-field">
-                    <span>{t('form.amount')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                    <span>{t('form.amount')} <span className="auth-field__req">*</span></span>
                     <PriceInput
                       value={field.value ?? 0}
                       onChange={field.onChange}

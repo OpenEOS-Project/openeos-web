@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { Controller, useForm } from 'react-hook-form';
@@ -94,6 +94,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
+  const categoryFieldId = useId();
 
   const {
     control,
@@ -304,10 +305,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
               {/* Produkt-Icon und Foto: das Icon gewinnt, ohne beides zeigt
                   die Kasse das Icon der Kategorie (utils/product-icon.ts). */}
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 8 }}>
-                  {t('form.image.title')}
-                </div>
+              <div className="auth-field">
+                <span className="auth-field__label">{t('form.image.title')}</span>
                 <div className="icon-field">
                   <ProductImage
                     product={{ icon, imageUrl }}
@@ -346,13 +345,13 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
               </div>
 
               {/* Name + Category */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="field-row">
                 <Controller
                   name="name"
                   control={control}
                   render={({ field }) => (
                     <label className="auth-field">
-                      <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                      <span>{t('form.name')} <span className="auth-field__req">*</span></span>
                       <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                       {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                     </label>
@@ -363,14 +362,14 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   name="categoryId"
                   control={control}
                   render={({ field }) => (
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 6 }}>
-                        {t('form.category')} <span style={{ color: 'var(--danger)' }}>*</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
+                    <div className="auth-field">
+                      <label className="auth-field__label" htmlFor={categoryFieldId}>
+                        {t('form.category')} <span className="auth-field__req">*</span>
+                      </label>
+                      <div className="auth-field__control">
                         <select
+                          id={categoryFieldId}
                           className="select"
-                          style={{ flex: 1 }}
                           value={field.value || ''}
                           onChange={(e) => field.onChange(e.target.value)}
                           onBlur={field.onBlur}
@@ -382,16 +381,16 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         </select>
                         <button
                           type="button"
-                          className="btn btn--ghost"
-                          style={{ flexShrink: 0, padding: '0 10px' }}
+                          className="btn btn--ghost btn--field"
                           onClick={() => setIsCategoryFormOpen(true)}
                           title={t('form.createCategory')}
+                          aria-label={t('form.createCategory')}
                         >
-                          +
+                          <Icon name="plus" />
                         </button>
                       </div>
                       {errors.categoryId && (
-                        <div role="alert" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.categoryId.message}</div>
+                        <span role="alert" className="auth-field__error">{errors.categoryId.message}</span>
                       )}
                     </div>
                   )}
@@ -418,7 +417,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   control={control}
                   render={({ field }) => (
                     <label className="auth-field">
-                      <span>{t('form.price')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                      <span>{t('form.price')} <span className="auth-field__req">*</span></span>
                       <PriceInput
                         value={field.value}
                         onChange={field.onChange}
@@ -515,10 +514,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
               {/* Option Groups */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{t('form.optionGroups')}</div>
-                  <button type="button" className="btn btn--ghost" style={{ fontSize: 12, padding: '4px 10px' }} onClick={handleAddGroup}>
-                    + {t('form.addGroup')}
+                <div className="form-section__head">
+                  <span className="auth-field__label">{t('form.optionGroups')}</span>
+                  <button type="button" className="btn btn--ghost btn--xs" onClick={handleAddGroup}>
+                    <Icon name="plus" />
+                    {t('form.addGroup')}
                   </button>
                 </div>
 
@@ -549,23 +549,23 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         />
                         {t('form.required')}
                       </label>
-                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: 'var(--danger)', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)} aria-label={tCommon('delete')}>
+                      <button type="button" className="btn btn--ghost btn--field" style={{ color: 'var(--danger)' }} onClick={() => handleRemoveGroup(groupIndex)} aria-label={tCommon('delete')}>
                         <Icon name="x" />
                       </button>
                     </div>
 
                     {group.options.length > 0 && (
                       <div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px auto auto', gap: 6, marginBottom: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>{t('form.optionName')}</span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>{t('form.optionPrice')}</span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', opacity: 0.5 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 84px var(--oe-control-h-md, 34px)', gap: 6, marginBottom: 4 }}>
+                          <span className="auth-field__label">{t('form.optionName')}</span>
+                          <span className="auth-field__label">{t('form.optionPrice')}</span>
+                          <span className="auth-field__label">
                             {group.type === 'ingredients' ? t('form.includedOption') : t('form.defaultOption')}
                           </span>
                           <span />
                         </div>
                         {group.options.map((option, optionIndex) => (
-                          <div key={optionIndex} style={{ display: 'grid', gridTemplateColumns: '1fr 100px auto auto', gap: 6, marginBottom: 4, alignItems: 'center' }}>
+                          <div key={optionIndex} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 84px var(--oe-control-h-md, 34px)', gap: 6, marginBottom: 4, alignItems: 'center' }}>
                             <input
                               type="text"
                               className="input"
@@ -588,7 +588,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                                 onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'default', e.target.checked)}
                               />
                             </div>
-                            <button type="button" className="btn btn--ghost" style={{ padding: '2px 6px', fontSize: 12 }} onClick={() => handleRemoveOption(groupIndex, optionIndex)} aria-label={tCommon('delete')}>
+                            <button type="button" className="btn btn--ghost btn--field" onClick={() => handleRemoveOption(groupIndex, optionIndex)} aria-label={tCommon('delete')}>
                               <Icon name="x" />
                             </button>
                           </div>
@@ -598,10 +598,12 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
                     <button
                       type="button"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--green-ink)', textAlign: 'left', padding: 0 }}
+                      className="btn btn--quiet btn--xs"
+                      style={{ alignSelf: 'flex-start', color: 'var(--green-ink)' }}
                       onClick={() => handleAddOption(groupIndex)}
                     >
-                      + {t('form.addOption')}
+                      <Icon name="plus" />
+                      {t('form.addOption')}
                     </button>
                   </div>
                 ))}
@@ -664,7 +666,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
               {/* Inventory Fields */}
               {trackInventory && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12 }}>
+                <div className="field-row" style={{ border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 10, padding: 12 }}>
                   <Controller
                     name="stockQuantity"
                     control={control}

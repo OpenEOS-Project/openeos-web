@@ -38,12 +38,10 @@ function WarningBanner({ text }: { text: string }) {
 
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 12, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
-        {label}
-      </label>
+    <label className="auth-field">
+      <span>{label}</span>
       {children}
-    </div>
+    </label>
   );
 }
 

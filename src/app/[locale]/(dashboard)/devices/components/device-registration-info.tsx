@@ -59,10 +59,8 @@ export function DeviceRegistrationInfo() {
               </p>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>
-                {t('registration.link')}
-              </label>
+            <div className="auth-field">
+              <span className="auth-field__label">{t('registration.link')}</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <code style={{
                   flex: 1, fontSize: 12, padding: '8px 12px', borderRadius: 8,

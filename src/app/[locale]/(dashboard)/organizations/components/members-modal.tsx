@@ -126,10 +126,10 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                 padding: 14,
               }}
             >
-              <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('invite')}</p>
+              <p className="auth-field__label" style={{ marginBottom: 10 }}>{t('invite')}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end' }}>
                 <label className="auth-field" style={{ flex: 1, minWidth: 180 }}>
-                  <span style={{ fontSize: 12 }}>{t('form.email')}</span>
+                  <span>{t('form.email')}</span>
                   <input
                     type="email"
                     className={`input${errors.email ? ' input--error' : ''}`}
@@ -138,7 +138,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                   />
                 </label>
                 <label className="auth-field" style={{ width: 160 }}>
-                  <span style={{ fontSize: 12 }}>{t('form.role')}</span>
+                  <span>{t('form.role')}</span>
                   <select className="select" {...register('role')}>
                     {roles.map((role) => (
                       <option key={role.value} value={role.value}>{role.label}</option>
@@ -146,10 +146,10 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                   </select>
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button type="submit" className="btn btn--primary" style={{ fontSize: 13 }} disabled={createInvitation.isPending}>
+                  <button type="submit" className="btn btn--primary btn--control" disabled={createInvitation.isPending}>
                     {createInvitation.isPending ? tCommon('saving') : t('invite')}
                   </button>
-                  <button type="button" className="btn btn--ghost" style={{ fontSize: 13 }} onClick={() => setShowInviteForm(false)}>
+                  <button type="button" className="btn btn--ghost btn--control" onClick={() => setShowInviteForm(false)}>
                     {tCommon('cancel')}
                   </button>
                 </div>

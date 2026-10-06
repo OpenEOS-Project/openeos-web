@@ -5,7 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useCategories } from '@/hooks/use-categories';
 import { useProductionStations } from '@/hooks/use-production-stations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { IconVisual } from '@/components/shared/product-image';
 import type { Category } from '@/types/category';
+import { categoryAccent, resolveCategoryIcon } from '@/utils/product-icon';
 
 interface CategoriesListProps {
   eventId: string;
@@ -81,16 +83,9 @@ export function CategoriesList({
               <tr key={category.id}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                      background: category.color ? `${category.color}20` : 'color-mix(in oklab, var(--ink) 8%, transparent)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={category.color || 'currentColor'} strokeWidth="2">
-                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-                        <line x1="7" y1="7" x2="7.01" y2="7" />
-                      </svg>
-                    </div>
+                    {/* Icon der Kategorie in ihrer Farbe: getönte Fläche, Icon
+                        in der Kategoriefarbe (Kontrast regelt @openeos/ui). */}
+                    <IconVisual source={resolveCategoryIcon(category)} alt="" size="sm" accent={categoryAccent(category)} />
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{category.name}</div>
                       {category.parentId && (
