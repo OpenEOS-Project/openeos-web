@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Badge, Icon, Tile } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import type { Category } from '@/types/category';
-import { IconVisual, productIconSource, type PosProduct } from './product-visual';
+import { categoryTint, IconVisual, productIconSource, type PosProduct } from './product-visual';
 
 interface PosProductGridProps {
   products: PosProduct[];
@@ -44,6 +44,10 @@ export function PosProductGrid({
         const hasDeposit = chargePfand && !!product.pfandType;
         const qty = quantities[product.id] ?? 0;
         const sub = subline(product.description);
+        const category = product.categoryId ? categoryById.get(product.categoryId) : null;
+        const source = productIconSource(product, category);
+        // Ohne eigenes Bild steht das Kategorie-Icon da — in der Kategoriefarbe.
+        const tint = source.kind === 'icon' ? categoryTint(category ?? product.category, 'pos-tile-tint') : {};
 
         const flag = unavailable ? (
           <Badge tone="danger">{t('unavailable')}</Badge>
@@ -60,14 +64,8 @@ export function PosProductGrid({
             name={product.name}
             sub={sub}
             price={formatPrice(product.price)}
-            icon={
-              <IconVisual
-                source={productIconSource(
-                  product,
-                  product.categoryId ? categoryById.get(product.categoryId) : null,
-                )}
-              />
-            }
+            {...tint}
+            icon={<IconVisual source={source} />}
             qty={qty}
             inCart={qty > 0}
             disabled={unavailable || soldOut}

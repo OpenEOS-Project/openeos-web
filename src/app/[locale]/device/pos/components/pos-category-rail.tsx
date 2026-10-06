@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CategoryButton, CategoryNav, Icon } from '@openeos/ui';
 import type { Category } from '@/types/category';
-import { categoryIconSource, IconVisual } from './product-visual';
+import { categoryIconSource, categoryTint, IconVisual } from './product-visual';
 
 export const FAVORITES_ID = 'fav';
 
@@ -44,6 +44,7 @@ export function PosCategoryRail({
       {categories.map((category) => (
         <CategoryButton
           key={category.id}
+          {...categoryTint(category, 'pos-cat-tint')}
           icon={<IconVisual source={categoryIconSource(category)} />}
           label={category.name}
           count={counts[category.id] ?? 0}

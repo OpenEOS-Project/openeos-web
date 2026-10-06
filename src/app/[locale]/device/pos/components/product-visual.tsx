@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { Icon, type IconName } from '@openeos/ui';
 import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { resolveUploadUrl } from '@/utils/upload-url';
@@ -43,4 +44,20 @@ export function productIconSource(product: PosProduct, category?: Category | nul
 
 export function categoryIconSource(category: Category | null | undefined): IconSource {
   return resolveCategoryIcon(category);
+}
+
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+/**
+ * Kategoriefarbe für die getönte Icon-Box (Kategorieleiste, Produkte ohne
+ * eigenes Bild): Klasse + CSS-Variable `--pos-cat`. Ohne gültige Farbe
+ * bleibt es beim Standard.
+ */
+export function categoryTint(
+  category: Pick<Category, 'color'> | null | undefined,
+  className: string,
+): { className?: string; style?: CSSProperties } {
+  const color = category?.color?.trim();
+  if (!color || !HEX_COLOR.test(color)) return {};
+  return { className, style: { '--pos-cat': color } as CSSProperties };
 }

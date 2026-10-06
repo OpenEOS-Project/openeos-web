@@ -134,6 +134,8 @@ test.describe('POS - predefined tables', () => {
 
     await pos.checkout();
     await expect(pos.paySheet).toContainText(/Zu zahlen\s*5,50\s€/);
+    // „Sofort kassieren“: Teilen würde die neue Runde unbezahlt senden (F8).
+    await expect(pos.paySheet.getByRole('button', { name: 'Rechnung teilen' })).toHaveCount(0);
     await pos.payCash('10,00 €');
     await pos.completePayment();
     await expect(pos.doneSheet).toContainText('2 Bestellungen');

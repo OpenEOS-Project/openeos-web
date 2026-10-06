@@ -2112,18 +2112,20 @@
       "more": "Mehr",
       "moreActions": "Weitere Aktionen",
       "openOrders": "Offene Bestellungen",
-      "pfandReturn": "Pfand-Rückgabe"
+      "pfandReturn": "Pfand-Rückgabe",
+      "theme": "Darstellung",
+      "theme_dark": "Dunkel",
+      "theme_light": "Hell",
+      "theme_system": "System"
     },
     "header": {
-      "dismissTest": "Hinweis ausblenden",
       "lock": "Kasse sperren",
       "locked": "Kasse gesperrt · PIN zum Entsperren",
       "logoAlt": "OpenEOS",
       "noEvent": "Keine aktive Veranstaltung",
       "switch": "Wechseln",
       "tableCaption": "Tisch",
-      "tablePill": "Tisch {label} – Tisch wechseln",
-      "testMode": "Testmodus"
+      "tablePill": "Tisch {label} – Tisch wechseln"
     },
     "status": {
       "connecting": "Verbinde …",
@@ -2923,6 +2925,7 @@
     "ORDER_NOT_FOUND": "Die Bestellung wurde nicht gefunden.",
     "ORDER_NOT_FULLY_PAID": "Die Bestellung muss vollständig bezahlt sein.",
     "ORDER_PAID_CANNOT_DELETE": "Bezahlte Bestellungen können nicht gelöscht werden.",
+    "ORDER_PAYMENT_REQUIRED": "Bei „Sofort kassieren“ entsteht eine Bestellung erst mit ihrer Zahlung. Lade die Kasse neu und kassiere erneut.",
     "ORDER_SESSION_EXPIRED": "Die Bestellsitzung ist abgelaufen.",
     "ORDER_SESSION_NOT_FOUND": "Die Bestellsitzung wurde nicht gefunden.",
     "ORGANIZATION_ACCESS_DENIED": "Du hast keinen Zugriff auf diese Organisation.",

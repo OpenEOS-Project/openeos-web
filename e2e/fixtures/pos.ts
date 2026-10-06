@@ -174,18 +174,45 @@ export async function installDevice(page: Page, device: PairedDevice) {
   }, origin.localStorage);
 }
 
-/** Bestellung als Geraet anlegen (Testvorbereitung, z. B. eine gesendete Runde). */
+/** Roh: POST /device-api/orders als Geraet (Antwort ungeprueft). */
+export function postDeviceOrder(admin: PosAdmin, device: PairedDevice, data: Record<string, unknown>) {
+  return admin.api.post('device-api/orders', {
+    headers: { 'x-device-token': device.token },
+    data,
+  });
+}
+
+/**
+ * Unbezahlte Bestellung als Geraet anlegen (Testvorbereitung, z. B. eine
+ * gesendete Runde von einem zweiten Geraet). Im Kassiermodus `immediate`
+ * lehnt die API unbezahlte Bestellungen ab (F8) — dann schaltet der Helfer
+ * die Veranstaltung dafuer kurz auf `tab` und wieder zurueck.
+ */
 export async function deviceOrder(
   admin: PosAdmin,
   device: PairedDevice,
   data: Record<string, unknown>,
+  { orderingMode = 'immediate' }: { orderingMode?: 'immediate' | 'tab' } = {},
 ): Promise<{ id: string; orderNumber: string }> {
-  const res = await admin.api.post('device-api/orders', {
-    headers: { 'x-device-token': device.token },
-    data,
+  const eventId = data.eventId as string;
+  if (orderingMode === 'immediate') await setEventSettings(admin, eventId, { orderingMode: 'tab' });
+  try {
+    const res = await postDeviceOrder(admin, device, data);
+    await ensureOk(res, 'Bestellung anlegen');
+    return (await res.json()).data;
+  } finally {
+    if (orderingMode === 'immediate') await setEventSettings(admin, eventId, { orderingMode: 'immediate' });
+  }
+}
+
+/** Anzahl Bestellungen einer Veranstaltung (Gegenprobe: nichts angelegt). */
+export async function countOrders(admin: PosAdmin, eventId: string): Promise<number> {
+  const res = await admin.api.get(`organizations/${admin.organizationId}/orders?eventId=${eventId}&limit=100`, {
+    headers: admin.headers,
   });
-  await ensureOk(res, 'Bestellung anlegen');
-  return (await res.json()).data;
+  await ensureOk(res, 'Bestellungen zaehlen');
+  const json = await res.json();
+  return (json.meta?.total as number | undefined) ?? (json.data as unknown[]).length;
 }
 
 /** Bestellungen der Organisation fuer die Gegenprobe. */

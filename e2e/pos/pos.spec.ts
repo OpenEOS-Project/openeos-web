@@ -227,5 +227,29 @@ test.describe('POS - Point of Sale', () => {
       await page.keyboard.press('Escape');
       await expect(history).toHaveCount(0);
     });
+
+    test('switches between light and dark from the menu and keeps it on this device', async ({ page }) => {
+      await page.emulateMedia({ colorScheme: 'light' });
+      const pos = new POSPage(page);
+      await pos.goto();
+      const html = page.locator('html');
+      await expect(html).not.toHaveClass(/(^|\s)dark-mode(\s|$)/);
+
+      await pos.openMenu('Dunkel');
+      await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
+      await page.reload();
+      await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
+      await pos.moreButton.click();
+      await expect(page.getByRole('menuitem', { name: 'Dunkel' })).toHaveAttribute('aria-current', 'true');
+      await page.keyboard.press('Escape');
+
+      // „System“ folgt wieder dem Betriebssystem.
+      await pos.openMenu('System');
+      await expect(html).not.toHaveClass(/(^|\s)dark-mode(\s|$)/);
+      await page.emulateMedia({ colorScheme: 'dark' });
+      await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
+      await pos.openMenu('Hell');
+      await expect(html).not.toHaveClass(/(^|\s)dark-mode(\s|$)/);
+    });
   });
 });

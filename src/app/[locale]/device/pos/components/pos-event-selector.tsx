@@ -1,22 +1,18 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Banner, Button, Icon } from '@openeos/ui';
+import { Banner, Icon } from '@openeos/ui';
 
 /**
- * Hinweis „Testmodus“ für die Kasse: einmal pro Sitzung auf der
- * Startansicht bzw. über dem Raster, schließbar.
+ * Testmodus der Kasse: ein schmaler Streifen unter dem Kopf, eine Zeile,
+ * nicht schließbar — er gilt, solange die Veranstaltung im Test läuft,
+ * und nimmt kaum Platz weg. Sonst kein weiteres Testmodus-Element.
  */
-export function PosTestModeBanner({ onDismiss }: { onDismiss: () => void }) {
+export function PosTestModeBanner() {
   const t = useTranslations('pos');
   return (
-    <div className="pos-testbanner">
-      <Banner tone="warn" icon={<Icon name="alert" />}>
-        {t('testMode')}
-      </Banner>
-      <Button variant="quiet" iconOnly aria-label={t('header.dismissTest')} onClick={onDismiss}>
-        <Icon name="x" />
-      </Button>
-    </div>
+    <Banner tone="warn" icon={<Icon name="alert" />} className="pos-testband">
+      {t('testMode')}
+    </Banner>
   );
 }

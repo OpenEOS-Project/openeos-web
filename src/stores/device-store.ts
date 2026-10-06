@@ -17,6 +17,9 @@ export interface PosSessionUser {
 
 export type PosStartView = 'number' | 'list' | 'map';
 
+/** Darstellung der Kasse; `system` folgt dem Betriebssystem. */
+export type PosTheme = 'light' | 'dark' | 'system';
+
 interface DeviceState {
   // Device info
   deviceId: string | null;
@@ -47,6 +50,11 @@ interface DeviceState {
   startView: PosStartView | null;
   /** Zuletzt gewählte Kategorie je Veranstaltung (`fav` = Favoriten). */
   lastCategory: Record<string, string>;
+  /**
+   * Hell/Dunkel der Kasse, je Gerät gemerkt (Menü „···“). Kundendisplay
+   * und Station haben eigene Darstellungseinstellungen.
+   */
+  posTheme: PosTheme;
 
   // UI state
   isLoading: boolean;
@@ -77,6 +85,7 @@ interface DeviceActions {
   setSession: (session: PosSessionUser | null) => void;
   setStartView: (view: PosStartView) => void;
   setLastCategory: (eventId: string, categoryId: string) => void;
+  setPosTheme: (theme: PosTheme) => void;
 
   // Setters
   setError: (error: string | null) => void;
@@ -102,6 +111,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       session: null,
       startView: null,
       lastCategory: {},
+      posTheme: 'system',
       isLoading: false,
       isPolling: false,
       error: null,
@@ -313,6 +323,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       clearSession: () => set({ table: null }),
       setSession: (session) => set({ session }),
       setStartView: (startView) => set({ startView }),
+      setPosTheme: (posTheme) => set({ posTheme }),
       setLastCategory: (eventId, categoryId) =>
         set({ lastCategory: { ...get().lastCategory, [eventId]: categoryId } }),
 
@@ -357,6 +368,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
         table: state.table,
         startView: state.startView,
         lastCategory: state.lastCategory,
+        posTheme: state.posTheme,
       }),
       onRehydrateStorage: () => (state) => {
         // Restore device token to API client after rehydration

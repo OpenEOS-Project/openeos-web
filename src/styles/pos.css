@@ -53,7 +53,11 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-show-md { display: none !important; }
 .pos-head__user .oe-userchip__lock { min-width: 36px; min-height: 36px; }
 .pos-head > .oe-btn--icon { min-width: 44px; min-height: 44px; }
-.pos-testband { display: none; }
+/* Testmodus: ein schmaler Streifen unter dem Kopf, eine Zeile */
+.pos-app .pos-testband { flex: none; align-items: center; gap: 8px; box-sizing: border-box; height: 26px; padding: 0 16px; border-width: 0 0 1px; border-radius: 0; font-size: 12px; position: relative; z-index: 55; }
+.pos-testband .oe-banner__ico { width: 14px; height: 14px; margin: 0; --oe-ico: 14px; }
+.pos-testband > div { min-width: 0; }
+.pos-testband p { font: 600 12px/18px var(--oe-f-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pos-offline { flex: none; margin: 10px 16px 0; }
 
 /* ── Startansicht ───────────────────────────────────────── */
@@ -189,9 +193,32 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-ft-sum { display: grid; margin-right: auto; }
 .pos-ft-sum small { font: 500 11px var(--oe-f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--oe-mute); }
 .pos-ft-sum b { font: 800 22px var(--oe-f-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-.pos-testbanner { display: flex; align-items: flex-start; gap: 4px; grid-column: 1 / -1; }
-.pos-testbanner .oe-banner { flex: 1; }
-.pos-testbanner > .oe-btn { min-width: 44px; min-height: 44px; }
+
+/* Kategoriefarbe (Verwaltung): getönte Icon-Box, Icon in der Farbe. Die
+   Helligkeit der Icon-Farbe ist je Thema begrenzt (--oe-tint-ink-lo/-hi
+   aus @openeos/ui), damit sie auf der Fläche mindestens 3:1 erreicht.
+   Aktiv: kräftige Fläche in der Kategoriefarbe, Icon in Kontrastfarbe. */
+.pos-app .pos-cat-tint .oe-cat__ico,
+.pos-app .pos-tile-tint .oe-tile__ico {
+  background: color-mix(in oklab, var(--pos-cat) var(--oe-tint-bg-mix, 16%), var(--oe-surface));
+  border-color: color-mix(in oklab, var(--pos-cat) 28%, var(--oe-line));
+  color: color-mix(in oklab, var(--pos-cat) 60%, var(--oe-ink));
+}
+.pos-app .pos-order__rail .pos-cat-tint.is-active .oe-cat__ico {
+  background: color-mix(in oklab, var(--pos-cat) 70%, var(--oe-ink));
+  border-color: transparent;
+  color: var(--oe-paper);
+}
+@supports (color: oklch(from red l c h)) {
+  .pos-app .pos-cat-tint .oe-cat__ico,
+  .pos-app .pos-tile-tint .oe-tile__ico {
+    color: oklch(from var(--pos-cat) clamp(var(--oe-tint-ink-lo, 0), l, var(--oe-tint-ink-hi, .55)) c h);
+  }
+  .pos-app .pos-order__rail .pos-cat-tint.is-active .oe-cat__ico {
+    background: oklch(from var(--pos-cat) clamp(var(--oe-tint-ink-lo, 0), l, var(--oe-tint-ink-hi, .55)) c h);
+    color: var(--oe-on-accent);
+  }
+}
 
 /* Listen in Blättern (Pfand, Teilen, Bestellungen) */
 .pos-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -225,6 +252,13 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-pay__l { display: grid; gap: 14px; align-content: start; padding: 18px; border-right: 1px solid var(--oe-line); background: var(--oe-paper); }
 .pos-pay__r { display: grid; gap: 12px; align-content: start; padding: 18px; min-width: 0; }
 .pos-pay__split { justify-self: start; }
+/* „Zu zahlen“, Betrag, Pfand untereinander in einer linken Flucht (Entwurf
+   flow_5_pay) — auch kompakt, wo die Box sonst den Betrag rechts neben die
+   Beschriftung setzt. Gemessen am gerenderten Bild beginnen Beschriftung
+   und Ziffern so auf ±1 px an derselben Kante; ein Ausgleich für den
+   Seitenabstand der Schrift wäre je Ziffer verschieden und bleibt weg. */
+.pos-pay .oe-due { grid-template-columns: minmax(0, 1fr); justify-items: start; align-items: start; }
+.pos-pay .oe-due__amount { grid-row: auto; grid-column: auto; }
 .pos-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .pos-quick .oe-btn { font-family: var(--oe-f-mono); }
 .pos-tipinput { max-width: 220px; }
@@ -280,7 +314,8 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-tablepill { min-width: 0; }
   .pos-head__stat { gap: 0; }
   .pos-head__online > span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .pos-testband { display: block; padding: 4px 12px; background: var(--oe-warn-soft); color: var(--oe-warn-ink); font: 600 11px var(--oe-f-mono); letter-spacing: .06em; text-transform: uppercase; text-align: center; }
+  /* Bleibt beim Scrollen unter dem Kopf stehen (26 px) */
+  .pos-app .pos-testband { position: sticky; top: 56px; z-index: 59; padding: 0 12px; }
   .pos-offline { margin: 8px 12px 0; }
 
   .pos-start { display: block; }
@@ -296,7 +331,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
 
   .pos-order { display: block; padding-bottom: 76px; }
   .pos-order__rail { position: sticky; top: 56px; z-index: 50; border-right: 0; border-bottom: 1px solid var(--oe-line); }
-  .is-test .pos-order__rail { top: 77px; }
+  .is-test .pos-order__rail { top: 82px; }
   .pos-order__main { display: block; }
   .pos-bar { min-height: 0; padding: 12px 12px 10px; gap: 10px; }
   .pos-bar h2 { min-width: 0; }
@@ -313,6 +348,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-cart__handle { display: flex; justify-content: center; align-items: center; height: 20px; margin-bottom: -8px; touch-action: none; cursor: grab; }
   .pos-cart__handle::before { content: ""; width: 40px; height: 4px; border-radius: var(--oe-r-full); background: var(--oe-line-2); }
   .pos-cart__close { display: inline-flex; }
+  .pos-cart__hd { touch-action: none; }
   .pos-cart__ft { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   .pos-cartscrim { display: block; z-index: 95; padding: 0; border: 0; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .pos-order.is-cart-open .pos-cartscrim { opacity: 1; pointer-events: auto; }
