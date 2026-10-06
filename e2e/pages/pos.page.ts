@@ -132,7 +132,7 @@ export class POSPage {
 
   /** „Offene Tische“ zeigt den Tisch mit Betrag, etwa "3,50". */
   async expectOpenTable(label: string, amount: string) {
-    await expect(this.openTableRow(`Tisch ${label}`)).toContainText(new RegExp(`${amount}\s€`));
+    await expect(this.openTableRow(`Tisch ${label}`)).toContainText(new RegExp(`${amount}\\s€`));
   }
 
   product(name: string): Locator {
