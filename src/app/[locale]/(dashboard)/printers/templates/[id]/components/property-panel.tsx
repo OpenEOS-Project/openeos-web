@@ -2,12 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import {
-  Trash01,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-} from '@untitledui/icons';
+  TextAlignCenter,
+  TextAlignEnd,
+  TextAlignJustify,
+  TextAlignStart,
+  Trash,
+} from 'lucide-react';
 import { cx } from '@/utils/cx';
 import type { TemplateElement, TextAlign } from '@/types/print-template';
 
@@ -64,17 +64,17 @@ function AlignmentControl({ value, onChange, label, showJustify, justifyLabel }:
       <div className="flex gap-1">
         {showJustify && (
           <ToggleButton active={value === 'justify'} onClick={() => onChange('justify')}>
-            <AlignJustify className="h-4 w-4" />
+            <TextAlignJustify className="h-4 w-4" />
           </ToggleButton>
         )}
         <ToggleButton active={value === 'left'} onClick={() => onChange('left')}>
-          <AlignLeft className="h-4 w-4" />
+          <TextAlignStart className="h-4 w-4" />
         </ToggleButton>
         <ToggleButton active={value === 'center'} onClick={() => onChange('center')}>
-          <AlignCenter className="h-4 w-4" />
+          <TextAlignCenter className="h-4 w-4" />
         </ToggleButton>
         <ToggleButton active={value === 'right'} onClick={() => onChange('right')}>
-          <AlignRight className="h-4 w-4" />
+          <TextAlignEnd className="h-4 w-4" />
         </ToggleButton>
       </div>
       {showJustify && value === 'justify' && justifyLabel && (
@@ -224,7 +224,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--danger)' }}
             onClick={() => onRemove(element.id)}
           >
-            <Trash01 className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
             {t('deleteElement')}
           </button>
         </div>

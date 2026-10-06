@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefAttributes } from "react";
-import { XClose } from "@untitledui/icons";
+import { X } from "lucide-react";
 import { Button as AriaButton, type ButtonProps as AriaButtonProps } from "react-aria-components";
 import { cx } from "@/utils/cx";
 
@@ -28,7 +28,7 @@ export const TagCloseX = ({ size = "md", className, ...otherProps }: TagCloseXPr
             )}
             {...otherProps}
         >
-            <XClose className={cx("transition-inherit-all", styles[size].icon)} />
+            <X className={cx("transition-inherit-all", styles[size].icon)} />
         </AriaButton>
     );
 };

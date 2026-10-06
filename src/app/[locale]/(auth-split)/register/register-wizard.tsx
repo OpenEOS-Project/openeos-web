@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, CheckCircle } from '@untitledui/icons';
+import { ArrowLeft, ArrowRight, Check, CircleCheck } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
@@ -176,7 +176,7 @@ export function RegisterWizard() {
     return (
       <div className="wizard wizard--success">
         <span className="wizard__success-icon">
-          <CheckCircle />
+          <CircleCheck />
         </span>
         <h1 className="wizard__title">{t('successTitle')}</h1>
         <p className="wizard__copy">

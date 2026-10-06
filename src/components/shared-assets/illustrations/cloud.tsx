@@ -1,7 +1,7 @@
 "use client";
 
 import type { HTMLAttributes } from "react";
-import { SearchLg } from "@untitledui/icons";
+import { Search } from "lucide-react";
 import { cx } from "@/utils/cx";
 
 interface IllustrationProps extends HTMLAttributes<HTMLDivElement> {
@@ -20,7 +20,7 @@ export const sm = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <SearchLg className="size-6" />,
+    children = <Search className="size-6" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -103,7 +103,7 @@ export const md = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <SearchLg className="size-7" />,
+    children = <Search className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -187,7 +187,7 @@ export const lg = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <SearchLg className="size-7" />,
+    children = <Search className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (

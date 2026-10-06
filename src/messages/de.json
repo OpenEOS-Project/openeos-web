@@ -1408,7 +1408,7 @@
   "support": {
     "title": "Support",
     "subtitle": "Chatte direkt mit unserem Support-Team.",
-    "priorityBadge": "🚀 Priority-Support",
+    "priorityBadge": "Priority-Support",
     "priorityHint": "Deine Anfragen werden bevorzugt behandelt.",
     "standardHint": "Antwort in der Regel innerhalb von 1–2 Werktagen.",
     "empty": {
@@ -1787,7 +1787,7 @@
       "subtitle": "Support-Chats aller Organisationen.",
       "threadListEmpty": "Keine Support-Anfragen",
       "unreadBadge": "{count} ungelesen",
-      "priorityBadge": "🚀 Priority",
+      "priorityBadge": "Priority",
       "noThreadSelected": "Wähle eine Organisation aus, um den Chat zu öffnen.",
       "input": {
         "placeholder": "Antwort schreiben…",
@@ -3209,7 +3209,7 @@
     },
     "list": {
       "copyPublicLink": "Öffentlichen Link kopieren",
-      "copied": "✓ Kopiert!"
+      "copied": "Kopiert!"
     },
     "detail": {
       "pdfFileName": "schichtplan",
@@ -3277,7 +3277,8 @@
       "perDay": "Zeiten pro Tag",
       "perDayHint": "Trage für jeden Tag andere Zeiten ein. Schichten, die über Mitternacht gehen (z. B. 22:00–01:00), sind erlaubt.",
       "overnightHint": "Endzeit vor Startzeit bedeutet, dass die Schicht über Mitternacht in den nächsten Tag läuft.",
-      "totalHoursOvernight": "{hours} Stunden pro Tag 🌙 über Nacht",
+      "totalHoursOvernight": "{hours} Stunden pro Tag, über Nacht",
+      "overnight": "Über Nacht",
       "hoursShort": "{hours} h",
       "workersFromJob": "Die Anzahl der Helfer pro Schicht wird aus der jeweiligen Arbeit übernommen – du legst sie dort fest.",
       "minutes": "{count} min",
@@ -3297,7 +3298,7 @@
       "searchPlaceholder": "Schicht suchen (Arbeit, Datum, Uhrzeit)…",
       "noShiftFound": "Keine Schicht gefunden.",
       "noShiftsInPlan": "Keine Schichten im Plan.",
-      "chosen": "✓ gewählt",
+      "chosen": "gewählt",
       "fullCount": "voll {confirmed}/{required}",
       "fullSelectableHint": "Volle Schichten lassen sich trotzdem auswählen (z. B. um Springer einzutragen).",
       "notify": "Helfer per E-Mail benachrichtigen (eine Sammel-Bestätigung)",
@@ -3375,7 +3376,7 @@
       "proposalNote": "Optionale Notiz für den Helfer (nur beim Vorschlag)",
       "proposalNotePlaceholder": "z. B. Wir bräuchten dich an einer anderen Stelle – passt das so?",
       "proposalHint": "Bei „Vorschlag senden“ bekommt der Helfer eine E-Mail mit den Schaltflächen „Annehmen“/„Ablehnen“. „Direkt speichern“ wendet alles sofort an, ohne zu fragen.",
-      "alreadyIn": "✓ dabei",
+      "alreadyIn": "dabei",
       "fullAddableHint": "Volle Schichten lassen sich trotzdem hinzufügen (z. B. um Springer einzutragen).",
       "proposalNeedsEmail": "Vorschläge benötigen eine E-Mail-Adresse des Helfers",
       "proposalTitle": "Der Helfer bekommt eine E-Mail mit Annehmen/Ablehnen – die Änderung greift erst nach Bestätigung",
@@ -3419,8 +3420,8 @@
       "processFailed": "Der Vorschlag konnte nicht verarbeitet werden.",
       "title": "Schichtvorschlag",
       "question": "Soll deine Schicht wie vorgeschlagen verschoben werden?",
-      "accept": "✓ Annehmen",
-      "decline": "✗ Ablehnen",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
       "accepted": "Vorschlag angenommen",
       "declined": "Vorschlag abgelehnt",
       "toOverview": "Zur Schichtübersicht",

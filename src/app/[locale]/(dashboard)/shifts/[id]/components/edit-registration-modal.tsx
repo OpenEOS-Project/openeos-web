@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -468,7 +469,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
                                     {formatTime(s.startTime)}–{formatTime(s.endTime)}
                                   </span>
                                   <span style={{ fontSize: 10, flexShrink: 0, minWidth: 70, textAlign: 'right', color: alreadyHas ? 'var(--green-ink)' : s.isFull ? 'var(--warn-ink)' : 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                                    {alreadyHas ? te('alreadyIn') : s.isFull ? tm('fullCount', { confirmed: s.confirmedCount, required: s.requiredWorkers }) : `${s.confirmedCount}/${s.requiredWorkers}`}
+                                    {alreadyHas ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><Check size={11} aria-hidden />{te('alreadyIn')}</span> : s.isFull ? tm('fullCount', { confirmed: s.confirmedCount, required: s.requiredWorkers }) : `${s.confirmedCount}/${s.requiredWorkers}`}
                                   </span>
                                 </button>
                               );

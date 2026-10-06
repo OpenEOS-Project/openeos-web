@@ -2,7 +2,7 @@
 
 import { useState, type KeyboardEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Image01 } from '@untitledui/icons';
+import { ChevronLeft, ChevronRight, Image } from 'lucide-react';
 
 import { integrationScreenshotSrc, type IntegrationScreenshot } from '@/config/integrations';
 import { cx } from '@/utils/cx';
@@ -58,7 +58,7 @@ export function IntegrationGallery({ screenshots }: IntegrationGalleryProps) {
       <div className="integration-gallery__frame" aria-live="polite">
         {failed[src] ? (
           <div className="integration-gallery__placeholder" role="img" aria-label={alt}>
-            <Image01 aria-hidden="true" />
+            <Image aria-hidden="true" />
             <span>{alt}</span>
           </div>
         ) : (

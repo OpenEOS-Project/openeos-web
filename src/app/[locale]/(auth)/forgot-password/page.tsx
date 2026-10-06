@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Mail01 } from '@untitledui/icons';
+import { ArrowLeft, Mail } from 'lucide-react';
 
 import { Button } from '@/components/ui/buttons/button';
 import { FormInput } from '@/components/ui/input/form-input';
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
       <>
         <div className="mb-6 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-            <Mail01 className="h-6 w-6 text-success-primary" />
+            <Mail className="h-6 w-6 text-success-primary" />
           </div>
         </div>
 

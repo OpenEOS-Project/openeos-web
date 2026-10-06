@@ -113,7 +113,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
             <option value="">{t('devices.detail.printer.defaultPrinter.noPrinter')}</option>
             {printers.map((printer) => (
               <option key={printer.id} value={printer.id}>
-                {printer.isOnline ? '● ' : '○ '}{printer.name}
+                {printer.isOnline ? printer.name : `${printer.name} (${t('printers.offline')})`}
               </option>
             ))}
           </select>
@@ -195,7 +195,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
               <option value="">{t('devices.detail.printer.cashDrawer.noPrinter')}</option>
               {printers.filter((p) => p.hasCashDrawer).map((printer) => (
                 <option key={printer.id} value={printer.id}>
-                  {printer.isOnline ? '● ' : '○ '}{printer.name}
+                  {printer.isOnline ? printer.name : `${printer.name} (${t('printers.offline')})`}
                 </option>
               ))}
             </select>

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useIntlLocale } from '@/hooks/use-locale-format';
-import { Clock, Users01, CheckCircle, AlertCircle } from '@untitledui/icons';
+import { CircleAlert, CircleCheck, Clock, Users } from 'lucide-react';
 import type { ShiftPlan, Shift } from '@/types/shift';
 import { toLocalDate } from '@/utils/calendar-date';
 
@@ -164,7 +164,7 @@ function ShiftCell({ shift }: ShiftCellProps) {
 
       {/* Capacity */}
       <div className="flex items-center gap-1 mb-2">
-        <Users01 className="h-3 w-3 text-tertiary" />
+        <Users className="h-3 w-3 text-tertiary" />
         <span className={isFull ? 'text-green-600 dark:text-green-400 font-medium' : 'text-secondary'}>
           {confirmed.length}/{shift.requiredWorkers}
         </span>
@@ -180,13 +180,13 @@ function ShiftCell({ shift }: ShiftCellProps) {
         <div className="space-y-1 border-t border-secondary/50 pt-1.5">
           {confirmed.map((reg) => (
             <div key={reg.id} className="flex items-center gap-1">
-              <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+              <CircleCheck className="h-3 w-3 text-green-500 flex-shrink-0" />
               <span className="text-primary truncate">{reg.name}</span>
             </div>
           ))}
           {pending.map((reg) => (
             <div key={reg.id} className="flex items-center gap-1">
-              <AlertCircle className="h-3 w-3 text-orange-500 flex-shrink-0" />
+              <CircleAlert className="h-3 w-3 text-orange-500 flex-shrink-0" />
               <span className="text-tertiary truncate">{reg.name}</span>
             </div>
           ))}

@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
@@ -212,7 +213,14 @@ export function PlanSettings({ plan }: PlanSettingsProps) {
             }}
             onClick={copyPublicLink}
           >
-            {linkCopied ? t('shifts.list.copied') : t('shifts.copyLink')}
+            {linkCopied ? (
+              <>
+                <Check aria-hidden />
+                {t('shifts.list.copied')}
+              </>
+            ) : (
+              t('shifts.copyLink')
+            )}
           </button>
           <button
             type="button"

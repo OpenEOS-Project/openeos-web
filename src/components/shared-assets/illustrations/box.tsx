@@ -1,7 +1,7 @@
 "use client";
 
 import type { HTMLAttributes } from "react";
-import { UploadCloud02 } from "@untitledui/icons";
+import { CloudUpload } from "lucide-react";
 import { cx } from "@/utils/cx";
 
 interface IllustrationProps extends HTMLAttributes<HTMLDivElement> {
@@ -20,7 +20,7 @@ export const sm = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <UploadCloud02 className="size-6" />,
+    children = <CloudUpload className="size-6" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -101,7 +101,7 @@ export const md = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <UploadCloud02 className="size-7" />,
+    children = <CloudUpload className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -182,7 +182,7 @@ export const lg = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <UploadCloud02 className="size-7" />,
+    children = <CloudUpload className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (

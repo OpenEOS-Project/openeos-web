@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import type { ComponentType, FC } from 'react';
-import { CreditCard02, ShieldTick } from '@untitledui/icons';
+import { CreditCard, ShieldCheck } from 'lucide-react';
 
 import type { IntegrationId, OrganizationSettings } from '@/types/organization';
 
@@ -86,7 +86,7 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
         altKey: 'sumup.screenshots.pairReader',
       },
     ],
-    navIcon: CreditCard02,
+    navIcon: CreditCard,
     ConfigComponent: dynamic(() =>
       import('@/components/integrations/sumup-integration').then((m) => m.SumUpIntegration),
     ),
@@ -101,7 +101,7 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     longDescriptionKey: 'stripe.longDescription',
     requirementKeys: ['stripe.requirements.account'],
     screenshots: [],
-    navIcon: CreditCard02,
+    navIcon: CreditCard,
   },
   {
     id: 'fiskaly',
@@ -113,7 +113,7 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     longDescriptionKey: 'fiskaly.longDescription',
     requirementKeys: ['fiskaly.requirements.account'],
     screenshots: [],
-    navIcon: ShieldTick,
+    navIcon: ShieldCheck,
   },
 ];
 

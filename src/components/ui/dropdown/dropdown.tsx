@@ -1,7 +1,7 @@
 "use client";
 
 import { type FC, type RefAttributes, useCallback } from "react";
-import { Check, ChevronRight, DotsVertical } from "@untitledui/icons";
+import { Check, ChevronRight, EllipsisVertical } from "lucide-react";
 import type {
     ButtonProps as AriaButtonProps,
     MenuItemProps as AriaMenuItemProps,
@@ -177,7 +177,7 @@ const DropdownDotsButton = (props: AriaButtonProps & RefAttributes<HTMLButtonEle
                 )
             }
         >
-            <DotsVertical className="size-5 transition-inherit-all" />
+            <EllipsisVertical className="size-5 transition-inherit-all" />
         </AriaButton>
     );
 };

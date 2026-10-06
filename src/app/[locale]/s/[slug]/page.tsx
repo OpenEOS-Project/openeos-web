@@ -10,18 +10,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
 import {
-  Calendar,
-  CalendarPlus01,
-  Clock,
-  Users01,
-  CheckCircle,
-  AlertCircle,
   ArrowLeft,
-  Building07,
-  Download01,
+  Building,
+  Calendar,
+  CalendarPlus,
+  CircleAlert,
+  CircleCheck,
+  Clock,
+  Download,
+  LayoutGrid,
   List,
-  Grid01,
-} from '@untitledui/icons';
+  Users,
+} from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
@@ -378,7 +378,7 @@ export default function PublicShiftPlanPage() {
                 background: 'color-mix(in oklab, #d24545 12%, transparent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <AlertCircle style={{ width: 28, height: 28, color: '#d24545' }} />
+                <CircleAlert style={{ width: 28, height: 28, color: '#d24545' }} />
               </div>
               <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', marginBottom: 12 }}>
                 {t('shifts.public.notFound')}
@@ -414,7 +414,7 @@ export default function PublicShiftPlanPage() {
                 background: 'color-mix(in oklab, var(--green-soft) 70%, transparent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <CheckCircle style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
+                <CircleCheck style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
               </div>
               <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', margin: '0 0 10px' }}>
                 {t('shifts.public.registrationSuccess')}
@@ -458,7 +458,7 @@ export default function PublicShiftPlanPage() {
                               cursor: 'pointer', padding: 0, fontFamily: 'inherit',
                             }}
                           >
-                            <CalendarPlus01 style={{ width: 14, height: 14 }} />
+                            <CalendarPlus style={{ width: 14, height: 14 }} />
                             {t('shifts.public.addToGoogleCalendar')}
                           </button>
                         </div>
@@ -472,7 +472,7 @@ export default function PublicShiftPlanPage() {
                     className="btn btn--ghost btn--block"
                     style={{ marginTop: 12, gap: 8 }}
                   >
-                    <Download01 style={{ width: 16, height: 16 }} />
+                    <Download style={{ width: 16, height: 16 }} />
                     {t('shifts.public.downloadICS')}
                   </button>
                 </div>
@@ -533,7 +533,7 @@ export default function PublicShiftPlanPage() {
                     style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }}
                   />
                 ) : (
-                  <Building07 style={{ width: 18, height: 18, color: 'var(--green-ink)' }} />
+                  <Building style={{ width: 18, height: 18, color: 'var(--green-ink)' }} />
                 )}
                 <b>{plan.organization.name}</b>
                 {plan.event && (
@@ -571,7 +571,7 @@ export default function PublicShiftPlanPage() {
                     className={viewMode === mode ? 'is-active' : ''}
                   >
                     {mode === 'mobile'
-                      ? <><Grid01 style={{ width: 14, height: 14 }} />{tp('cardsView')}</>
+                      ? <><LayoutGrid style={{ width: 14, height: 14 }} />{tp('cardsView')}</>
                       : <><List style={{ width: 14, height: 14 }} />{t('shifts.public.listView')}</>}
                   </button>
                 ))}
@@ -671,7 +671,7 @@ export default function PublicShiftPlanPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                   {isSelected ? (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
-                                      <CheckCircle style={{ width: 14, height: 14 }} />
+                                      <CircleCheck style={{ width: 14, height: 14 }} />
                                       {t('shifts.public.selected')}
                                     </span>
                                   ) : shift.isFull ? (
@@ -680,7 +680,7 @@ export default function PublicShiftPlanPage() {
                                     <span className="badge badge--warning" style={{ fontSize: 10 }}>{t('shifts.public.overlap')}</span>
                                   ) : (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
-                                      <Users01 style={{ width: 12, height: 12, color: 'var(--mute)' }} />
+                                      <Users style={{ width: 12, height: 12, color: 'var(--mute)' }} />
                                       {tp.rich('spotsOfFree', {
                                         available: shift.availableSpots,
                                         required: shift.requiredWorkers,
@@ -728,7 +728,7 @@ export default function PublicShiftPlanPage() {
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                               {/* Selection indicator */}
                               <div className="shifts-public__shift-checkbox">
-                                {isSelected && <CheckCircle style={{ width: 12, height: 12, color: 'var(--paper)' }} />}
+                                {isSelected && <CircleCheck style={{ width: 12, height: 12, color: 'var(--paper)' }} />}
                               </div>
 
                               {/* Job color dot */}
@@ -763,7 +763,7 @@ export default function PublicShiftPlanPage() {
                                     {formatTime(shift.startTime)} – {formatTime(shift.endTime)}
                                   </span>
                                   <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                    <Users01 style={{ width: 14, height: 14 }} />
+                                    <Users style={{ width: 14, height: 14 }} />
                                     {shift.confirmedCount}/{shift.requiredWorkers}
                                   </span>
                                 </div>

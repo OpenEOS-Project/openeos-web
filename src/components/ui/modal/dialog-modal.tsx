@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { XClose } from '@untitledui/icons';
+import { X } from 'lucide-react';
 import { ModalOverlay, Modal, Dialog } from './modal';
 import { cx } from '@/utils/cx';
 
@@ -53,7 +53,7 @@ export function DialogModal({
                   className="rounded-lg p-2 text-tertiary hover:bg-secondary hover:text-secondary transition-colors"
                   aria-label="Close"
                 >
-                  <XClose className="h-5 w-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             )}

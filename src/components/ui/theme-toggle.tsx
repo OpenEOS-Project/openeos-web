@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { Moon01, Sun } from '@untitledui/icons';
+import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { cx } from '@/utils/cx';
@@ -43,7 +43,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       )}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {isDark ? <Sun className="size-5" /> : <Moon01 className="size-5" />}
+      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
     </button>
   );
 }

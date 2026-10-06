@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { LinkExternal01 } from '@untitledui/icons';
+import { ExternalLink } from 'lucide-react';
 
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
@@ -109,7 +109,7 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
                 className="integration-info__docs"
               >
                 {t('info.docs')}
-                <LinkExternal01 aria-hidden="true" />
+                <ExternalLink aria-hidden="true" />
               </a>
             )}
 

@@ -1,26 +1,26 @@
 import {
-  BarChartSquare02,
-  Inbox01,
-  LayoutGrid01,
-  Building07,
+  Building,
   Calendar,
+  ChartLine,
   ClipboardCheck,
   HardDrive,
-  LineChartUp01,
-  MarkerPin01,
-  MessageChatCircle,
+  Inbox,
+  LayoutDashboard,
+  LayoutGrid,
+  MapPin,
+  MessagesSquare,
   PackageSearch,
   Printer,
-  Receipt,
-  Settings01,
-  Coins01,
-  ShoppingBag01,
-  Tablet02,
-  PuzzlePiece01,
-  ReceiptCheck,
-  Tag01,
-  Users01,
-} from '@untitledui/icons';
+  Puzzle,
+  ReceiptEuro,
+  ReceiptText,
+  Recycle,
+  Settings,
+  ShoppingBag,
+  TabletSmartphone,
+  Tag,
+  Users,
+} from 'lucide-react';
 
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { getEnabledIntegrations, integrationHref } from '@/config/integrations';
@@ -31,18 +31,18 @@ export const superAdminNavItems: NavItemType[] = [
   {
     labelKey: 'dashboard',
     href: '/dashboard',
-    icon: BarChartSquare02,
+    icon: LayoutDashboard,
   },
   {
     labelKey: 'organizations',
     href: '/organizations',
     saasOnly: true,
-    icon: Building07,
+    icon: Building,
   },
   {
     labelKey: 'users',
     href: '/users',
-    icon: Users01,
+    icon: Users,
   },
   {
     labelKey: 'rentalHardware',
@@ -69,7 +69,7 @@ export const superAdminNavItems: NavItemType[] = [
     labelKey: 'adminSupport',
     href: '/admin/support',
     saasOnly: true,
-    icon: MessageChatCircle,
+    icon: MessagesSquare,
   },
   {
     // Was über die Website hereinkommt. Getrennt vom Support, weil hier
@@ -77,7 +77,7 @@ export const superAdminNavItems: NavItemType[] = [
     labelKey: 'adminFeedback',
     href: '/admin/feedback',
     saasOnly: true,
-    icon: Inbox01,
+    icon: Inbox,
   },
 ];
 
@@ -87,18 +87,18 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     labelKey: 'dashboard',
     href: '/dashboard',
-    icon: BarChartSquare02,
+    icon: LayoutDashboard,
   },
   {
     labelKey: 'orders',
     href: '/orders',
-    icon: Receipt,
+    icon: ReceiptText,
   },
   { divider: true },
   {
     labelKey: 'products',
     href: '/products',
-    icon: ShoppingBag01,
+    icon: ShoppingBag,
     requiredPermission: 'products',
   },
   {
@@ -110,20 +110,20 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     labelKey: 'discounts',
     href: '/discounts',
-    icon: Tag01,
+    icon: Tag,
     requiredPermission: 'discounts',
   },
   {
     labelKey: 'pfand',
     href: '/pfand',
-    icon: Coins01,
+    icon: Recycle,
     requiredPermission: 'pfand',
   },
   { divider: true },
   {
     labelKey: 'devices',
     href: '/devices',
-    icon: Tablet02,
+    icon: TabletSmartphone,
     requiredPermission: 'devices',
   },
   {
@@ -135,7 +135,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     labelKey: 'productionStations',
     href: '/production-stations',
-    icon: MarkerPin01,
+    icon: MapPin,
     requiredPermission: 'products',
   },
   {
@@ -143,14 +143,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     // wer Veranstaltungen verwaltet, verwaltet auch deren Tische.
     labelKey: 'tables',
     href: '/tables',
-    icon: LayoutGrid01,
+    icon: LayoutGrid,
     requiredPermission: 'events',
   },
   { divider: true },
   {
     labelKey: 'members',
     href: '/members',
-    icon: Users01,
+    icon: Users,
     requiredPermission: 'members',
   },
   {
@@ -168,7 +168,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
   {
     labelKey: 'reports',
     href: '/reports',
-    icon: LineChartUp01,
+    icon: ChartLine,
     requiredPermission: 'reports',
   },
   {
@@ -177,14 +177,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     labelKey: 'invoices',
     href: '/invoices',
     saasOnly: true,
-    icon: ReceiptCheck,
+    icon: ReceiptEuro,
     adminOnly: true,
   },
   {
     // Zugangsdaten zu fremden Diensten; dasselbe Argument wie oben.
     labelKey: 'integrations',
     href: '/integrations',
-    icon: PuzzlePiece01,
+    icon: Puzzle,
     adminOnly: true,
   },
   { divider: true },
@@ -192,7 +192,7 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     labelKey: 'support',
     href: '/support',
     saasOnly: true,
-    icon: MessageChatCircle,
+    icon: MessagesSquare,
   },
 ];
 
@@ -200,7 +200,7 @@ export const dashboardFooterItems: NavItemType[] = [
   {
     labelKey: 'settings',
     href: '/settings',
-    icon: Settings01,
+    icon: Settings,
   },
 ];
 

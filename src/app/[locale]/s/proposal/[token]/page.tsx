@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { CheckCircle, AlertCircle } from '@untitledui/icons';
+import { Check, CircleAlert, CircleCheck, X } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
@@ -64,8 +64,8 @@ export default function ShiftProposalPage() {
               {t('question')}
             </p>
             <div style={{ display: 'flex', gap: 8, marginTop: 24, justifyContent: 'center' }}>
-              <button className="btn btn--primary" onClick={() => submit('accept')}>{t('accept')}</button>
-              <button className="btn btn--ghost" onClick={() => submit('decline')}>{t('decline')}</button>
+              <button className="btn btn--primary" onClick={() => submit('accept')}><Check aria-hidden />{t('accept')}</button>
+              <button className="btn btn--ghost" onClick={() => submit('decline')}><X aria-hidden />{t('decline')}</button>
             </div>
           </>
         )}
@@ -79,7 +79,7 @@ export default function ShiftProposalPage() {
 
         {state === 'success' && result && (
           <div style={{ textAlign: 'center' }}>
-            <CheckCircle style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
+            <CircleCheck style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
             <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
               {result.status === 'accepted' ? t('accepted') : t('declined')}
             </h1>
@@ -94,7 +94,7 @@ export default function ShiftProposalPage() {
 
         {state === 'error' && (
           <div style={{ textAlign: 'center' }}>
-            <AlertCircle style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
+            <CircleAlert style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
             <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('errorTitle')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>{errorMsg}</p>
             <button className="btn btn--ghost" style={{ marginTop: 16 }} onClick={() => setState('idle')}>

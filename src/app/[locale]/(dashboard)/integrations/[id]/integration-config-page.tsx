@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft } from '@untitledui/icons';
+import { ArrowLeft } from 'lucide-react';
 
 import { IntegrationLogo } from '@/components/integrations/integration-logo';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';

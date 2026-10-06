@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import type { Locale } from '@/i18n/config';
-import { Globe01 } from '@untitledui/icons';
+import { Globe } from 'lucide-react';
 import { cx } from '@/utils/cx';
 
 interface LocaleSwitcherProps {
@@ -36,7 +36,7 @@ export function LocaleSwitcher({ className }: LocaleSwitcherProps) {
       )}
       aria-label={`Switch to ${nextLocale?.label}`}
     >
-      <Globe01 className="h-4 w-4" />
+      <Globe className="h-4 w-4" />
       <span>{currentLocale?.label}</span>
     </button>
   );

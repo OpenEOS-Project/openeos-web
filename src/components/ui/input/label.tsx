@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode, Ref } from "react";
-import { HelpCircle } from "@untitledui/icons";
+import { CircleQuestionMark } from "lucide-react";
 import type { LabelProps as AriaLabelProps } from "react-aria-components";
 import { Label as AriaLabel } from "react-aria-components";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip/tooltip";
@@ -51,7 +51,7 @@ export const Label = ({ isInvalid, isRequired, tooltip, tooltipDescription, clas
                         isDisabled={false}
                         className="cursor-pointer text-fg-quaternary transition duration-200 hover:text-fg-quaternary_hover focus:text-fg-quaternary_hover"
                     >
-                        <HelpCircle className="size-4" />
+                        <CircleQuestionMark className="size-4" />
                     </TooltipTrigger>
                 </Tooltip>
             )}

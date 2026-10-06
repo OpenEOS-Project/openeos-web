@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
+import { CircleCheck, CircleX, Loader } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
@@ -86,7 +86,7 @@ export default function VerifyEmailPage() {
               <>
                 {iconBox(
                   'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                  <Loading02 style={{ width: 28, height: 28, color: 'var(--green-ink)', animation: 'spin 1s linear infinite' }} />
+                  <Loader style={{ width: 28, height: 28, color: 'var(--green-ink)', animation: 'spin 1s linear infinite' }} />
                 )}
                 <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.loading')}
@@ -100,7 +100,7 @@ export default function VerifyEmailPage() {
               <>
                 {iconBox(
                   'color-mix(in oklab, var(--green-soft) 70%, transparent)',
-                  <CheckCircle style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
+                  <CircleCheck style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
                 )}
                 <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.successTitle')}
@@ -124,7 +124,7 @@ export default function VerifyEmailPage() {
               <>
                 {iconBox(
                   'color-mix(in oklab, #d24545 12%, transparent)',
-                  <XCircle style={{ width: 28, height: 28, color: '#d24545' }} />
+                  <CircleX style={{ width: 28, height: 28, color: '#d24545' }} />
                 )}
                 <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.errorTitle')}

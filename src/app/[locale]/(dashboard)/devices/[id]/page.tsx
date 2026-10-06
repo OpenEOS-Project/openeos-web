@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import type { FC } from 'react';
 import { useTranslations } from 'next-intl';
@@ -119,7 +120,7 @@ export default function DeviceDetailPage() {
             onClick={() => router.push('/devices')}
             aria-label={t('common.back')}
           >
-            ←
+            <ArrowLeft aria-hidden />
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>

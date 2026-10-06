@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, CheckCircle, Lock01 } from '@untitledui/icons';
+import { ArrowLeft, CircleCheck, Lock } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
@@ -68,7 +68,7 @@ export default function ResetPasswordPage() {
       <>
         <div className="mb-6 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error-secondary">
-            <Lock01 className="h-6 w-6 text-error-primary" />
+            <Lock className="h-6 w-6 text-error-primary" />
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
       <>
         <div className="mb-6 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-            <CheckCircle className="h-6 w-6 text-success-primary" />
+            <CircleCheck className="h-6 w-6 text-success-primary" />
           </div>
         </div>
 

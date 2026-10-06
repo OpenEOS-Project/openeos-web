@@ -8,14 +8,14 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
-  Globe01,
-  LogOut01,
-  Mail01,
-  Monitor01,
-  Moon01,
+  Globe,
+  LogOut,
+  Mail,
+  Monitor,
+  Moon,
   Plus,
   Sun,
-} from '@untitledui/icons';
+} from 'lucide-react';
 
 import { CreateOrgModal } from './create-org-modal';
 import { Logo } from '@/components/foundations/logo/logo';
@@ -403,7 +403,7 @@ export function AppSidebar() {
               gap: 8,
             }}
           >
-            <Mail01 style={{ width: 15, height: 15, color: 'var(--warn-ink)', flexShrink: 0 }} />
+            <Mail style={{ width: 15, height: 15, color: 'var(--warn-ink)', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: 'var(--warn-ink)', fontWeight: 600 }}>
               {t('pendingInvitations', { count: pendingInvitations.length })}
             </span>
@@ -544,7 +544,7 @@ export function AppSidebar() {
                   <DropdownOption
                     key={sprache.code}
                     selected={locale === sprache.code}
-                    icon={<Globe01 />}
+                    icon={<Globe />}
                     onClick={() =>
                       localeRouter.replace(localePathname, {
                         locale: sprache.code as 'de' | 'en',
@@ -560,8 +560,8 @@ export function AppSidebar() {
                 {(
                   [
                     { wert: 'light', Symbol: Sun },
-                    { wert: 'dark', Symbol: Moon01 },
-                    { wert: 'system', Symbol: Monitor01 },
+                    { wert: 'dark', Symbol: Moon },
+                    { wert: 'system', Symbol: Monitor },
                   ] as const
                 ).map(({ wert, Symbol }) => (
                   <DropdownOption
@@ -575,7 +575,7 @@ export function AppSidebar() {
                 ))}
 
                 <DropdownSeparator />
-                <DropdownOption danger icon={<LogOut01 />} onClick={logout}>
+                <DropdownOption danger icon={<LogOut />} onClick={logout}>
                   {tAuth('logout')}
                 </DropdownOption>
               </Dropdown>
@@ -590,7 +590,7 @@ export function AppSidebar() {
                 aria-label={tAuth('logout')}
                 title={tAuth('logout')}
               >
-                <LogOut01 />
+                <LogOut />
               </button>
             </div>
           )}
@@ -629,7 +629,7 @@ export function AppSidebar() {
               aria-label={tAuth('logout')}
               title={tAuth('logout')}
             >
-              <LogOut01 style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
+              <LogOut style={{ width: 18, height: 18, flexShrink: 0, opacity: 0.65 }} />
             </button>
           )}
         </div>

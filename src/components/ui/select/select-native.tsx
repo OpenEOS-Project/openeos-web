@@ -1,7 +1,7 @@
 "use client";
 
 import { type SelectHTMLAttributes, useId } from "react";
-import { ChevronDown } from "@untitledui/icons";
+import { ChevronDown } from "lucide-react";
 import { HintText } from "@/components/ui/input/hint-text";
 import { Label } from "@/components/ui/input/label";
 import { cx } from "@/utils/cx";

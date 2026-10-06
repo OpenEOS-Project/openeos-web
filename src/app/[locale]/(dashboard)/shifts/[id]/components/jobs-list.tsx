@@ -13,7 +13,7 @@ import { AddShiftModal } from './add-shift-modal';
 import { ShiftWizardModal } from './shift-wizard-modal';
 import { EditJobModal } from './edit-job-modal';
 import { EditShiftModal } from './edit-shift-modal';
-import { Edit01, Plus, Trash01, CalendarPlus01, Stars01 } from '@untitledui/icons';
+import { CalendarPlus, Pencil, Plus, Sparkles, Trash } from 'lucide-react';
 
 /** Icon-only square button with a title tooltip — keeps button rows compact
  *  on phones where the previous text labels overflowed off-screen.
@@ -123,7 +123,7 @@ export function JobsList({ plan }: JobsListProps) {
             title={t('shifts.jobsList.wizardForAll')}
             aria-label={t('shifts.jobsList.wizardForAll')}
           >
-            <Stars01 style={{ width: 18, height: 18 }} />
+            <Sparkles style={{ width: 18, height: 18 }} />
           </button>
           <button
             className="btn btn--primary"
@@ -172,7 +172,7 @@ export function JobsList({ plan }: JobsListProps) {
                     title={t('shifts.jobForm.editTitle')}
                     aria-label={t('shifts.jobForm.editTitle')}
                   >
-                    <Edit01 style={{ width: 16, height: 16 }} />
+                    <Pencil style={{ width: 16, height: 16 }} />
                   </button>
                   <button
                     className="btn btn--ghost"
@@ -181,7 +181,7 @@ export function JobsList({ plan }: JobsListProps) {
                     title={t('shifts.editor.addShift')}
                     aria-label={t('shifts.editor.addShift')}
                   >
-                    <CalendarPlus01 style={{ width: 16, height: 16 }} />
+                    <CalendarPlus style={{ width: 16, height: 16 }} />
                   </button>
                   <button
                     className="btn btn--ghost"
@@ -192,7 +192,7 @@ export function JobsList({ plan }: JobsListProps) {
                     title={t('common.delete')}
                     aria-label={t('common.delete')}
                   >
-                    <Trash01 style={{ width: 16, height: 16 }} />
+                    <Trash style={{ width: 16, height: 16 }} />
                   </button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export function JobsList({ plan }: JobsListProps) {
                               title={t('shifts.shiftForm.editTitle')}
                               aria-label={t('shifts.shiftForm.editTitle')}
                             >
-                              <Edit01 style={{ width: 16, height: 16 }} />
+                              <Pencil style={{ width: 16, height: 16 }} />
                             </button>
                             <button
                               className="btn btn--ghost"
@@ -249,7 +249,7 @@ export function JobsList({ plan }: JobsListProps) {
                               title={t('common.delete')}
                               aria-label={t('common.delete')}
                             >
-                              <Trash01 style={{ width: 16, height: 16 }} />
+                              <Trash style={{ width: 16, height: 16 }} />
                             </button>
                           </div>
                         </div>

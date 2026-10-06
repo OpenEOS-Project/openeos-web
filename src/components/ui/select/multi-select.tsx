@@ -2,7 +2,7 @@
 
 import type { ReactNode, RefAttributes } from "react";
 import { useCallback, useRef, useState } from "react";
-import { ChevronDown, SearchLg } from "@untitledui/icons";
+import { ChevronDown, Search as SearchIcon } from "lucide-react";
 import { useFilter } from "react-aria";
 import type { Selection } from "react-aria-components";
 import {
@@ -95,7 +95,7 @@ const MultiSelectEmptyState = ({
 }: MultiSelectEmptyStateProps) => (
     <div className={cx("flex flex-col items-center gap-3 px-4 py-4", className)}>
         <div className="flex flex-col items-center gap-3">
-            <FeaturedIcon icon={SearchLg} size="sm" color="gray" theme="modern" />
+            <FeaturedIcon icon={SearchIcon} size="sm" color="gray" theme="modern" />
             <div className="flex flex-col items-center gap-0.5 text-center text-sm">
                 <p className="font-semibold text-primary">{title}</p>
                 <p className="text-tertiary">{description}</p>
@@ -268,7 +268,7 @@ const MultiSelectRoot = ({
                                     <div className={cx("border-b border-secondary", searchSizes[size].wrapper)}>
                                         <AriaSearchField aria-label="Search" value={searchValue} onChange={setSearchValue} autoFocus>
                                             <div className={cx("flex items-center", searchSizes[size].root)}>
-                                                <SearchLg data-icon aria-hidden="true" className="shrink-0 text-fg-quaternary" />
+                                                <SearchIcon data-icon aria-hidden="true" className="shrink-0 text-fg-quaternary" />
                                                 <AriaInput
                                                     placeholder="Search"
                                                     className={cx(

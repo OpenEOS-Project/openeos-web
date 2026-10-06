@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Mail01, CheckCircle } from '@untitledui/icons';
+import { CircleCheck, Mail } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
@@ -79,14 +79,14 @@ export default function HelperManageRequestPage() {
                 style={{ width: '100%', marginTop: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 disabled={pending}
               >
-                <Mail01 style={{ width: 16, height: 16 }} />
+                <Mail style={{ width: 16, height: 16 }} />
                 <span>{pending ? '…' : t('sendLink')}</span>
               </button>
             </form>
           </>
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <CheckCircle style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
+            <CircleCheck style={{ width: 48, height: 48, color: 'var(--green-ink, #10b981)', margin: '0 auto 12px' }} />
             <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('sentTitle')}</h1>
             <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>
               {t('sentDescription')}

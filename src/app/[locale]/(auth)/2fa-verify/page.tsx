@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ShieldTick, Mail01, Phone01, RefreshCw01, ArrowLeft } from '@untitledui/icons';
+import { ArrowLeft, Mail, RefreshCw, ShieldCheck, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/buttons/button';
 import { InputGroup } from '@/components/ui/input/input-group';
@@ -155,7 +155,7 @@ export default function TwoFactorVerifyPage() {
   if (!twoFactorToken) {
     return (
       <div className="space-y-6 text-center">
-        <ShieldTick className="mx-auto h-12 w-12 text-tertiary" />
+        <ShieldCheck className="mx-auto h-12 w-12 text-tertiary" />
         <div>
           <h1 className="text-display-sm font-semibold text-primary">{t('invalidSessionTitle')}</h1>
           <p className="mt-2 text-tertiary">
@@ -175,9 +175,9 @@ export default function TwoFactorVerifyPage() {
       <div className="text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary_alt">
           {method === 'email' ? (
-            <Mail01 className="h-7 w-7 text-brand-primary" />
+            <Mail className="h-7 w-7 text-brand-primary" />
           ) : (
-            <Phone01 className="h-7 w-7 text-brand-primary" />
+            <Smartphone className="h-7 w-7 text-brand-primary" />
           )}
         </div>
         <h1 className="mt-6 text-display-sm font-semibold text-primary">
@@ -249,7 +249,7 @@ export default function TwoFactorVerifyPage() {
         >
           {isLoading ? (
             <>
-              <RefreshCw01 className="mr-2 h-4 w-4 animate-spin" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               {t('verifying')}
             </>
           ) : (

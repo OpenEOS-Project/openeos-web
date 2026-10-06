@@ -2,7 +2,7 @@
 
 import type { FC, ReactNode } from "react";
 import { isValidElement } from "react";
-import { ArrowRight } from "@untitledui/icons";
+import { ArrowRight } from "lucide-react";
 import { cx, sortCx } from "@/utils/cx";
 import { isReactComponent } from "@/utils/is-react-component";
 

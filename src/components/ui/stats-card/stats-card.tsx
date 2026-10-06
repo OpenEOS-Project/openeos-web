@@ -5,23 +5,23 @@ import type { FC, ReactNode, SVGProps } from 'react';
 import {
   ArrowDown,
   ArrowUp,
-  Building07,
+  Building,
   Calendar,
-  CoinsStacked01,
-  CreditCard02,
-  ShoppingBag01,
-  Users01,
-} from '@untitledui/icons';
+  Coins,
+  CreditCard,
+  ShoppingBag,
+  Users,
+} from 'lucide-react';
 
 import { cx } from '@/utils/cx';
 
 const iconConfig = {
-  'shopping-bag': { icon: ShoppingBag01, bg: 'bg-brand-50 dark:bg-brand-950', fg: 'text-brand-600 dark:text-brand-400' },
-  'credit-card': { icon: CreditCard02, bg: 'bg-success-50 dark:bg-success-950', fg: 'text-success-600 dark:text-success-400' },
+  'shopping-bag': { icon: ShoppingBag, bg: 'bg-brand-50 dark:bg-brand-950', fg: 'text-brand-600 dark:text-brand-400' },
+  'credit-card': { icon: CreditCard, bg: 'bg-success-50 dark:bg-success-950', fg: 'text-success-600 dark:text-success-400' },
   calendar: { icon: Calendar, bg: 'bg-warning-50 dark:bg-warning-950', fg: 'text-warning-600 dark:text-warning-400' },
-  users: { icon: Users01, bg: 'bg-blue-light-50 dark:bg-blue-light-950', fg: 'text-blue-light-600 dark:text-blue-light-400' },
-  building: { icon: Building07, bg: 'bg-gray-50 dark:bg-gray-950', fg: 'text-gray-600 dark:text-gray-400' },
-  coins: { icon: CoinsStacked01, bg: 'bg-success-50 dark:bg-success-950', fg: 'text-success-600 dark:text-success-400' },
+  users: { icon: Users, bg: 'bg-blue-light-50 dark:bg-blue-light-950', fg: 'text-blue-light-600 dark:text-blue-light-400' },
+  building: { icon: Building, bg: 'bg-gray-50 dark:bg-gray-950', fg: 'text-gray-600 dark:text-gray-400' },
+  coins: { icon: Coins, bg: 'bg-success-50 dark:bg-success-950', fg: 'text-success-600 dark:text-success-400' },
 } as const;
 
 type IconName = keyof typeof iconConfig;

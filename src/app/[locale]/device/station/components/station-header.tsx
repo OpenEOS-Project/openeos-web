@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Wifi, WifiOff } from '@untitledui/icons';
+import { Wifi, WifiOff } from 'lucide-react';
 import { cx } from '@/utils/cx';
 
 interface StationHeaderProps {

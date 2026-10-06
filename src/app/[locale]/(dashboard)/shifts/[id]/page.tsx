@@ -13,7 +13,7 @@ import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
 import { ShiftCalendar } from './components/shift-calendar';
-import { Send01, Link01, Download01, Lock01, CheckCircle } from '@untitledui/icons';
+import { CircleCheck, Download, Link, Lock, Send } from 'lucide-react';
 
 /** Square 36×36 icon-button — keeps the plan-header row compact on phones. */
 const iconBtnStyle = (variant: 'ghost' | 'primary' = 'ghost'): React.CSSProperties => ({
@@ -184,7 +184,7 @@ export default function ShiftPlanEditorPage() {
                   title={t('shifts.editor.publish')}
                   aria-label={t('shifts.editor.publish')}
                 >
-                  <Send01 style={{ width: 18, height: 18 }} />
+                  <Send style={{ width: 18, height: 18 }} />
                 </button>
               )}
               {plan.status === 'published' && (
@@ -200,8 +200,8 @@ export default function ShiftPlanEditorPage() {
                   aria-label={t('shifts.copyLink')}
                 >
                   {linkCopied
-                    ? <CheckCircle style={{ width: 18, height: 18 }} />
-                    : <Link01 style={{ width: 18, height: 18 }} />}
+                    ? <CircleCheck style={{ width: 18, height: 18 }} />
+                    : <Link style={{ width: 18, height: 18 }} />}
                 </button>
               )}
               <button
@@ -211,7 +211,7 @@ export default function ShiftPlanEditorPage() {
                 title={t('shifts.exportPdf')}
                 aria-label={t('shifts.exportPdf')}
               >
-                <Download01 style={{ width: 18, height: 18 }} />
+                <Download style={{ width: 18, height: 18 }} />
               </button>
               {plan.status === 'published' && (
                 <button
@@ -222,7 +222,7 @@ export default function ShiftPlanEditorPage() {
                   title={t('shifts.editor.close')}
                   aria-label={t('shifts.editor.close')}
                 >
-                  <Lock01 style={{ width: 18, height: 18 }} />
+                  <Lock style={{ width: 18, height: 18 }} />
                 </button>
               )}
             </div>
