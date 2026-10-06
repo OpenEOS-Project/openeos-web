@@ -19,7 +19,7 @@ interface OeIconPickerProps {
   onSelect: (value: string) => void;
 }
 
-/** Speisen zuerst — darum geht es bei Produkten und Kategorien fast immer. */
+/** Speisen zuerst — darum geht es bei Kategorien fast immer. */
 const GROUP_ORDER: IconGroup[] = ['food', 'operations', 'payment', 'actions', 'status'];
 
 /** Klein, ohne Akzente: „Brötchen“ findet auch „brotchen“. */
@@ -36,10 +36,11 @@ function capitalize(text: string): string {
 }
 
 /**
- * Icon-Auswahl aus dem OpenEOS-Set (Spezifikation §4.6) für Produkte und
+ * Icon-Auswahl aus dem OpenEOS-Set (Lucide, Spezifikation §4.6) für
  * Kategorien. Suche über den Namen und die deutschen und englischen
- * Stichwörter des Pakets, ohne Suche nach Gruppen geordnet. Ersetzt die
- * alte Auswahl aus @openeos/pos-icons.
+ * Stichwörter des Pakets, ohne Suche nach Gruppen geordnet — Speisen und
+ * Getränke zuerst. Produkte wählen ihr Bild aus @openeos/pos-icons
+ * (pos-icon-picker.tsx).
  */
 export function OeIconPicker({ isOpen, value, onClose, onSelect }: OeIconPickerProps) {
   const t = useTranslations('oeIconPicker');

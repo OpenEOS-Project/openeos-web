@@ -3619,9 +3619,21 @@
     "customAria": "Eigene Farbe wählen"
   },
   "posIconPicker": {
-    "title": "Icon auswählen",
-    "search": "Icons durchsuchen...",
-    "noResults": "Keine Icons gefunden",
+    "title": "Produkt-Icon wählen",
+    "choose": "Produkt-Icon wählen",
+    "change": "Produkt-Icon ändern",
+    "remove": "Produkt-Icon entfernen",
+    "search": "Produkt-Icons durchsuchen, z. B. Pils oder Pommes",
+    "results": "{count, plural, one {# Treffer} other {# Treffer}}",
+    "noResults": "Kein Produkt-Icon gefunden. Versuch es mit einem anderen Wort.",
+    "loading": "Produkt-Icons werden geladen …",
+    "loadError": "Die Produkt-Icons konnten nicht geladen werden. Lade die Seite neu und versuch es noch einmal.",
+    "groups": {
+      "drink": "Getränke",
+      "food": "Speisen"
+    },
+    "iconWins": "An der Kasse hat das Produkt-Icon Vorrang vor einem hochgeladenen Bild.",
+    "fromCategory": "Ohne Produkt-Icon und Bild zeigt die Kasse das Icon der Kategorie.",
     "close": "Schließen"
   },
   "printTemplates": {
@@ -4412,7 +4424,6 @@
     "change": "Icon ändern",
     "choose": "Icon wählen",
     "close": "Schließen",
-    "fromCategory": "Ohne eigenes Icon und Bild zeigt die Kasse das Icon der Kategorie.",
     "groups": {
       "actions": "Aktionen",
       "food": "Speisen und Getränke",
@@ -4420,7 +4431,6 @@
       "payment": "Zahlung und Beleg",
       "status": "Status"
     },
-    "iconWins": "An der Kasse hat das Icon Vorrang vor dem Bild.",
     "noResults": "Kein Icon gefunden. Versuch es mit einem anderen Wort.",
     "remove": "Icon entfernen",
     "results": "{count, plural, one {# Treffer} other {# Treffer}}",

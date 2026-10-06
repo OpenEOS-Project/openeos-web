@@ -6,6 +6,9 @@ node_modules
 .next
 out
 
+# Produkt-Icons, erzeugt von scripts/sync-pos-icons.mjs aus @openeos/pos-icons
+/public/pos-icons/
+
 # Production
 build
 dist

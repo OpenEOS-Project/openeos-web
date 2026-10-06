@@ -90,3 +90,15 @@
   font-size: 12px;
   color: var(--oe-mute);
 }
+
+/* Produkt-Icons (components/shared/pos-icon-picker.tsx): Bilder brauchen
+   etwas mehr Fläche als Linien-Icons. */
+.icon-picker__grid--images {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+}
+
+.icon-picker__image.oe-icobox {
+  width: 56px;
+  height: 56px;
+  background: transparent;
+}
