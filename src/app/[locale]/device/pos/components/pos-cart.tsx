@@ -340,10 +340,12 @@ export function PosCart({
                 <dd>{formatPrice(sentOpen)}</dd>
               </div>
             )}
-            <div>
-              <dt>{sentOpen > 0.0001 ? tTables('newSubtotal') : t('subtotal')}</dt>
-              <dd>{formatPrice(subtotal)}</dd>
-            </div>
+            {(sentOpen <= 0.0001 || items.length > 0) && (
+              <div>
+                <dt>{sentOpen > 0.0001 ? tTables('newSubtotal') : t('subtotal')}</dt>
+                <dd>{formatPrice(subtotal)}</dd>
+              </div>
+            )}
             {pfandRows.map((row) => (
               <div key={row.name}>
                 <dt>{t('pfandLine', { name: row.name, count: row.units, amount: formatPrice(row.amount) })}</dt>
