@@ -5,3 +5,4 @@ minimumReleaseAgeExclude:
   - '@openeos/ui@0.3.2'
   - '@openeos/ui@0.4.1'
   - '@openeos/ui@0.5.0'
+  - '@openeos/ui@0.5.1'
