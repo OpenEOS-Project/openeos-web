@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus } from '@untitledui/icons';
+import { Plus } from 'lucide-react';
 
 import { LinkDeviceDialog } from './link-device-dialog';
 

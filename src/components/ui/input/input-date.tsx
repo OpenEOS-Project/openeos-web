@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentType, type HTMLAttributes, type ReactNode, type Ref, createContext, useContext } from "react";
-import { HelpCircle, InfoCircle } from "@untitledui/icons";
+import { CircleQuestionMark, Info } from "lucide-react";
 import type { DateInputProps as AriaDateInputProps } from "react-aria-components";
 import {
     DateField as AriaDateField,
@@ -152,13 +152,13 @@ export const InputDateBase = ({
                             tooltipClassName,
                         )}
                     >
-                        <HelpCircle className="size-4 stroke-[2.25px]" />
+                        <CircleQuestionMark className="size-4 stroke-[2.25px]" />
                     </TooltipTrigger>
                 </Tooltip>
             )}
 
             {/* Invalid icon */}
-            <InfoCircle
+            <Info
                 className={cx(
                     "pointer-events-none absolute hidden size-4 stroke-[2.25px] text-fg-error-secondary group-invalid/input:block",
                     sizes[inputSize].iconTrailing,

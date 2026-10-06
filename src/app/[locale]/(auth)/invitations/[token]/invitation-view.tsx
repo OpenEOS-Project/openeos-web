@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Building07, Check, X } from '@untitledui/icons';
+import { Building, Check, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/buttons/button';
 import { Badge } from '@/components/ui/badges/badges';
@@ -134,7 +134,7 @@ export function InvitationView({ token }: InvitationViewProps) {
     <div className="space-y-6">
       <div className="text-center">
         <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-brand-secondary">
-          <Building07 className="size-6 text-brand-primary" />
+          <Building className="size-6 text-brand-primary" />
         </div>
         <h1 className="text-lg font-semibold text-primary">{t('title')}</h1>
         <p className="mt-1 text-sm text-tertiary">{t('subtitle')}</p>

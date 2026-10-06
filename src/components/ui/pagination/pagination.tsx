@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronLeftDouble, ChevronRight, ChevronRightDouble } from "@untitledui/icons";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { ButtonGroup, ButtonGroupItem } from "@/components/ui/button-group/button-group";
 import { Button } from "@/components/ui/buttons/button";
 import { InputBase } from "@/components/ui/input/input";
@@ -435,7 +442,7 @@ export const PaginationCardAdvanced = ({
 
                 <div className={cx("flex flex-1 items-center gap-4 md:ml-auto md:justify-end", align === "center" && "md:justify-center")}>
                     <div className="flex gap-2">
-                        <Button iconLeading={ChevronLeftDouble} color="secondary" size="sm" isDisabled={page === 1} onClick={() => onPageChange?.(1)} />
+                        <Button iconLeading={ChevronsLeft} color="secondary" size="sm" isDisabled={page === 1} onClick={() => onPageChange?.(1)} />
                         <Pagination.PrevTrigger asChild>
                             <Button iconLeading={ChevronLeft} color="secondary" size="sm" />
                         </Pagination.PrevTrigger>
@@ -465,7 +472,7 @@ export const PaginationCardAdvanced = ({
 
                     <div className="flex gap-2">
                         <Button
-                            iconTrailing={ChevronRightDouble}
+                            iconTrailing={ChevronsRight}
                             color="secondary"
                             size="sm"
                             isDisabled={page === total}

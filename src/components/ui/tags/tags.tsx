@@ -1,7 +1,7 @@
 "use client";
 
 import { type ImgHTMLAttributes, type PropsWithChildren, type RefAttributes, createContext, useContext, useState } from "react";
-import { User01 } from "@untitledui/icons";
+import { User } from "lucide-react";
 import {
     Tag as AriaTag,
     TagGroup as AriaTagGroup,
@@ -28,7 +28,7 @@ export const TagAvatar = ({ src, alt, contrastBorder = true, className }: ImgHTM
             {src && !isFailed ? (
                 <img data-avatar-img className="size-full object-cover" src={src} alt={alt} onError={() => setIsFailed(true)} />
             ) : (
-                <User01 className="size-3 stroke-[2.25px] text-fg-quaternary" />
+                <User className="size-3 stroke-[2.25px] text-fg-quaternary" />
             )}
         </div>
     );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu02 } from '@untitledui/icons';
+import { Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { ToastViewport } from '@/components/shared/toast';
@@ -51,7 +51,7 @@ export function AppShell({ children }: AppShellProps) {
           onClick={() => setMobileOpen(true)}
           aria-label={t('openNavigation')}
         >
-          <Menu02 />
+          <Menu />
         </button>
       )}
 

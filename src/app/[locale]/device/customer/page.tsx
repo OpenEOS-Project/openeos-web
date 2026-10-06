@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, ShoppingBag03, Wifi, WifiOff } from '@untitledui/icons';
+import { CircleCheck, ShoppingBag, Wifi, WifiOff } from 'lucide-react';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
 import { useDisplayAppearance } from '@/hooks/use-display-appearance';
@@ -172,7 +172,7 @@ export default function DeviceCustomerDisplayPage() {
       ) : isCompleted ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
           <div className="flex size-28 items-center justify-center rounded-full bg-success-50 ring-8 ring-success-25 dark:bg-success-950 dark:ring-success-900/30">
-            <CheckCircle className="size-14 text-success-600 dark:text-success-400" />
+            <CircleCheck className="size-14 text-success-600 dark:text-success-400" />
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary">{t('thankYou')}</p>
@@ -191,7 +191,7 @@ export default function DeviceCustomerDisplayPage() {
       ) : !hasItems ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
           <div className="flex size-24 items-center justify-center rounded-full bg-brand-50 ring-8 ring-brand-25 dark:bg-brand-950 dark:ring-brand-900/30">
-            <ShoppingBag03 className="size-12 text-brand-600 dark:text-brand-400" />
+            <ShoppingBag className="size-12 text-brand-600 dark:text-brand-400" />
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary">{design.idleText || t('welcome')}</p>

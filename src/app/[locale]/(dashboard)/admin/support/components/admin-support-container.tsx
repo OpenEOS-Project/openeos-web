@@ -1,5 +1,6 @@
 'use client';
 
+import { Rocket } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -73,7 +74,14 @@ export function AdminSupportContainer() {
             >
               <div className="support-thread__row">
                 <span className="support-thread__name">
-                  {thread.prioritySupport && '🚀 '}
+                  {thread.prioritySupport && (
+                    <Rocket
+                      size={14}
+                      role="img"
+                      aria-label={t('priorityBadge')}
+                      style={{ display: 'inline-block', verticalAlign: '-2px', marginRight: 4, color: 'var(--green-ink)' }}
+                    />
+                  )}
                   {thread.organizationName}
                 </span>
                 {thread.unreadCount > 0 && <span className="badge badge--error">{thread.unreadCount}</span>}

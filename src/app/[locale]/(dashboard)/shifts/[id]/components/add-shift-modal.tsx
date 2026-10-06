@@ -1,5 +1,6 @@
 'use client';
 
+import { Moon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
@@ -104,7 +105,7 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
 
               {isOvernight && (
                 <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', color: 'var(--warn-ink)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>🌙</span>
+                  <Moon size={14} aria-hidden style={{ flexShrink: 0 }} />
                   <span>{t('shifts.shiftForm.overnightHint')}</span>
                 </div>
               )}

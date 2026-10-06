@@ -7,7 +7,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
 import { useDisplayAppearance } from '@/hooks/use-display-appearance';
-import { AlertCircle, CheckCircle as CheckCircleIcon } from '@untitledui/icons';
+import { CircleAlert, CircleCheck as CheckCircleIcon } from 'lucide-react';
 import { deviceApi } from '@/lib/api-client';
 import { StationHeader } from './components/station-header';
 import { StationOrderCard } from './components/station-order-card';
@@ -195,7 +195,7 @@ export default function DeviceStationPage() {
           <div className="flex h-full items-center justify-center">
             <div className="flex max-w-md flex-col items-center gap-4 text-center" role="alert">
               <div className="flex size-20 items-center justify-center rounded-full bg-error-secondary">
-                <AlertCircle className="size-10 text-error-primary" />
+                <CircleAlert className="size-10 text-error-primary" />
               </div>
               <div>
                 <p className="text-xl font-semibold text-primary">{tUi('loadError')}</p>

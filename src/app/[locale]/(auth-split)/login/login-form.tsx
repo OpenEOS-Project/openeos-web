@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight, Tablet02, Tv01 } from '@untitledui/icons';
+import { ArrowRight, TabletSmartphone, Tv } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
@@ -293,11 +293,11 @@ export function LoginForm() {
             Zahl, verknüpft wird sie in einem angemeldeten Konto. Der Typ
             entscheidet nur, wohin es danach geht. */}
         <Link href="/device/pair?type=pos" className="auth-form__device">
-          <Tablet02 />
+          <TabletSmartphone />
           <span>{t('deviceMode')}</span>
         </Link>
         <Link href="/device/pair?type=display" className="auth-form__device">
-          <Tv01 />
+          <Tv />
           <span>{t('displayMode')}</span>
         </Link>
       </div>

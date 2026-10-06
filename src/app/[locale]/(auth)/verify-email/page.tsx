@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CheckCircle, RefreshCw01, X } from '@untitledui/icons';
+import { CircleCheck, RefreshCw, X } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
@@ -48,7 +48,7 @@ export default function VerifyEmailPage() {
   if (status === 'loading') {
     return (
       <div className="text-center">
-        <RefreshCw01 className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
+        <RefreshCw className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
         <p className="text-sm text-tertiary">{t('loading')}</p>
       </div>
     );
@@ -59,7 +59,7 @@ export default function VerifyEmailPage() {
       <>
         <div className="mb-6 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-secondary">
-            <CheckCircle className="h-6 w-6 text-success-primary" />
+            <CircleCheck className="h-6 w-6 text-success-primary" />
           </div>
         </div>
 

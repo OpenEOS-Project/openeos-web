@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, Loading02 } from '@untitledui/icons';
+import { CircleCheck, Loader } from 'lucide-react';
 
 import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
@@ -87,7 +87,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
     return (
       <div className="device-link__done">
         <span className="device-link__icon device-link__icon--ok">
-          <CheckCircle />
+          <CircleCheck />
         </span>
         <h3 className="device-link__title">{t('verify.success')}</h3>
         <p className="device-link__lead">{t('verify.successDescription')}</p>
@@ -199,7 +199,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
         className="btn btn--primary btn--block"
         disabled={code.length !== 6 || suchen.isPending}
       >
-        {suchen.isPending ? <Loading02 className="animate-spin" /> : t('verify.lookup')}
+        {suchen.isPending ? <Loader className="animate-spin" /> : t('verify.lookup')}
       </button>
     </form>
   );

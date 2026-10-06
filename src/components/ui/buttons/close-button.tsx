@@ -1,6 +1,6 @@
 "use client";
 
-import { X as CloseIcon } from "@untitledui/icons";
+import { X as CloseIcon } from "lucide-react";
 import { Button as AriaButton, type ButtonProps as AriaButtonProps } from "react-aria-components";
 import { cx } from "@/utils/cx";
 

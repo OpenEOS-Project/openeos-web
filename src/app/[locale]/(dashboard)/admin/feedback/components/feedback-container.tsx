@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useIntlLocale } from '@/hooks/use-locale-format';
-import { Check, Mail01 } from '@untitledui/icons';
+import { Check, Mail } from 'lucide-react';
 
 import { adminApi } from '@/lib/api-client';
 import { ApiException } from '@/types/api';
@@ -109,7 +109,7 @@ export function FeedbackContainer() {
                     das muss man sehen, sonst bleibt sie unbeantwortet liegen. */}
                 {!eintrag.notifiedAt && (
                   <span className="feedback-admin__warn" title={t('notNotifiedHint')}>
-                    <Mail01 />
+                    <Mail />
                     {t('notNotified')}
                   </span>
                 )}

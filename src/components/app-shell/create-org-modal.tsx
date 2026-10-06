@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, X } from '@untitledui/icons';
+import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';

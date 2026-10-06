@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Tv01 } from '@untitledui/icons';
+import { Tv } from 'lucide-react';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { DeviceLinkFlow } from '@/app/[locale]/(dashboard)/devices/components/device-link-flow';
@@ -32,7 +32,7 @@ export default function DeviceVerifyPage() {
       <div className="landing verify-page">
         <div className="app-card verify-card verify-card--center">
           <div className="verify-card__icon">
-            <Tv01 />
+            <Tv />
           </div>
           <h1 className="verify-card__title">{t('verify.title')}</h1>
           <p className="verify-card__lead">{t('verify.loginRequired')}</p>
@@ -63,7 +63,7 @@ export default function DeviceVerifyPage() {
 
         <div className="app-card verify-card">
           <div className="verify-card__icon">
-            <Tv01 />
+            <Tv />
           </div>
           <h1 className="verify-card__title">{t('verify.title')}</h1>
 

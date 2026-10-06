@@ -11,7 +11,7 @@ import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/ty
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
-import { Edit01, Trash01, UserPlus01, Mail01, CheckCircle, AlertCircle, Clock } from '@untitledui/icons';
+import { CircleAlert, CircleCheck, Clock, Mail, Pencil, Trash, UserPlus } from 'lucide-react';
 
 /** Handover overlap tolerance in minutes — has to match the value in
  *  /s/[slug]/page.tsx so the admin and the public-side see overlaps
@@ -220,7 +220,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
               style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
               onClick={() => setManualAddOpen(true)}
             >
-              <UserPlus01 style={{ width: 16, height: 16 }} />
+              <UserPlus style={{ width: 16, height: 16 }} />
               <span>{t('shifts.manualAdd.title')}</span>
             </button>
           }
@@ -277,7 +277,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             disabled={allHelperEmails.length === 0}
             title={tr('sendToAllTitle')}
           >
-            <Mail01 style={{ width: 16, height: 16 }} />
+            <Mail style={{ width: 16, height: 16 }} />
             <span>{tr('sendToAll')}</span>
           </button>
           <button
@@ -287,7 +287,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             title={t('shifts.manualAdd.title')}
             aria-label={t('shifts.manualAdd.title')}
           >
-            <UserPlus01 style={{ width: 18, height: 18 }} />
+            <UserPlus style={{ width: 18, height: 18 }} />
           </button>
         </div>
       </div>
@@ -436,7 +436,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warn-ink)', fontWeight: 600 }}
                             title={tr('overlapTitle')}
                           >
-                            <AlertCircle style={{ width: 12, height: 12 }} />
+                            <CircleAlert style={{ width: 12, height: 12 }} />
                             {t('shifts.public.overlap')}
                           </span>
                         )}
@@ -463,7 +463,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                           aria-label={tr('removeShift')}
                           disabled={removeShiftMutation.isPending}
                         >
-                          <Trash01 style={{ width: 12, height: 12 }} />
+                          <Trash style={{ width: 12, height: 12 }} />
                         </button>
                       </div>
                     );
@@ -524,7 +524,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     title={tr('markVerifiedTitle')}
                     aria-label={tr('markVerified')}
                   >
-                    <CheckCircle style={{ width: 16, height: 16 }} />
+                    <CircleCheck style={{ width: 16, height: 16 }} />
                   </button>
                 );
               })()}
@@ -535,7 +535,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={tr('editRegistration')}
                 aria-label={tr('editRegistration')}
               >
-                <Edit01 style={{ width: 16, height: 16 }} />
+                <Pencil style={{ width: 16, height: 16 }} />
               </button>
               <button
                 className="btn btn--ghost"
@@ -544,7 +544,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={t('shifts.registration.sendMessage')}
                 aria-label={t('shifts.registration.sendMessage')}
               >
-                <Mail01 style={{ width: 16, height: 16 }} />
+                <Mail style={{ width: 16, height: 16 }} />
               </button>
               <div style={{ flex: 1 }} />
               <button
@@ -562,7 +562,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={t('common.delete')}
                 aria-label={t('common.delete')}
               >
-                <Trash01 style={{ width: 16, height: 16 }} />
+                <Trash style={{ width: 16, height: 16 }} />
               </button>
               <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
                 {formatDate(firstReg.createdAt)}

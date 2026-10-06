@@ -222,7 +222,7 @@ export function OrderFlowTab() {
               <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.isOnline ? '● ' : '○ '}{p.name}
+                  {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>
               ))}
             </select>
@@ -282,7 +282,7 @@ export function OrderFlowTab() {
               <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.isOnline ? '● ' : '○ '}{p.name}
+                  {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>
               ))}
             </select>
@@ -353,7 +353,7 @@ export function OrderFlowTab() {
               <option value="">{tf('useRoutingChain')}</option>
               {printers.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.isOnline ? '● ' : '○ '}{p.name}
+                  {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>
               ))}
             </select>

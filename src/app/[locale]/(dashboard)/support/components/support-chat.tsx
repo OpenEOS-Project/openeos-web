@@ -1,5 +1,6 @@
 'use client';
 
+import { Rocket } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -69,7 +70,12 @@ export function SupportChat() {
         <div className="app-page-head__copy">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <h1 className="app-page-head__title">{t('title')}</h1>
-            {data?.prioritySupport && <span className="badge badge--success">{t('priorityBadge')}</span>}
+            {data?.prioritySupport && (
+              <span className="badge badge--success" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Rocket size={12} aria-hidden />
+                {t('priorityBadge')}
+              </span>
+            )}
           </div>
           <p className="app-page-head__sub">{data?.prioritySupport ? t('priorityHint') : t('standardHint')}</p>
         </div>

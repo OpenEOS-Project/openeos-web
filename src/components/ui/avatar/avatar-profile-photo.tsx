@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User01 } from "@untitledui/icons";
+import { User } from "lucide-react";
 import { cx } from "@/utils/cx";
 import { type AvatarProps } from "./avatar";
 import { AvatarOnlineIndicator, VerifiedTick } from "./base-components";
@@ -104,7 +104,7 @@ export const AvatarProfilePhoto = ({
                     styles[size].content,
                 )}
             >
-                {placeholder || <User01 className={cx("text-fg-quaternary", styles[size].icon)} />}
+                {placeholder || <User className={cx("text-fg-quaternary", styles[size].icon)} />}
             </div>
         );
     };

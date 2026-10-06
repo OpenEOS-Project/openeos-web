@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -156,7 +157,14 @@ export default function ShiftsPage() {
                         title={t('shifts.list.copyPublicLink')}
                         onClick={() => copyPublicLink(plan.id, plan.publicSlug)}
                       >
-                        {copiedPlanId === plan.id ? t('shifts.list.copied') : t('shifts.copyLink')}
+                        {copiedPlanId === plan.id ? (
+              <>
+                <Check aria-hidden />
+                {t('shifts.list.copied')}
+              </>
+            ) : (
+              t('shifts.copyLink')
+            )}
                       </button>
                     )}
                     <div style={{ flex: 1 }} />

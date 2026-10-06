@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, RotateCcw } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import {
   DndContext,
@@ -244,7 +245,8 @@ export function InlineTemplateDesigner({
               style={{ padding: '6px 12px', fontSize: 13 }}
               title={t('resetTitle')}
             >
-              ↺ {t('resetToDefault')}
+              <RotateCcw aria-hidden />
+              {t('resetToDefault')}
             </button>
             <button
               className="btn btn--primary"
@@ -252,7 +254,16 @@ export function InlineTemplateDesigner({
               disabled={saveState === 'saving'}
               style={{ padding: '6px 14px', fontSize: 13 }}
             >
-              {saveState === 'saving' ? t('saving') : saveState === 'saved' ? `✓ ${t('saved')}` : t('save')}
+              {saveState === 'saving' ? (
+                t('saving')
+              ) : saveState === 'saved' ? (
+                <>
+                  <Check aria-hidden />
+                  {t('saved')}
+                </>
+              ) : (
+                t('save')
+              )}
             </button>
           </div>
         </div>

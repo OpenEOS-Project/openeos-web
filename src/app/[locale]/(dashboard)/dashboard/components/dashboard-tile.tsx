@@ -3,7 +3,7 @@
 import { useCallback, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { DotsGrid, X } from '@untitledui/icons';
+import { Grip, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { GRID_COLUMNS, MAX_HEIGHT, MIN_WIDTH, clamp } from './widgets/widget-sizing';
@@ -116,7 +116,7 @@ export function DashboardTile({
             {...attributes}
             {...listeners}
           >
-            <DotsGrid />
+            <Grip />
           </button>
           <span className="dash-tile__size" aria-label={t('size', { label, width, height })}>
             {width}×{height}

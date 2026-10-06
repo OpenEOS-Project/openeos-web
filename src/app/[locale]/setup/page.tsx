@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircle, Building07, User01, Globe01, Home01 } from '@untitledui/icons';
+import { Building, CircleCheck, Globe, House, User } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
@@ -176,7 +176,7 @@ export default function SetupPage() {
 
           <div className="rounded-xl border border-secondary bg-primary p-6 shadow-sm text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success-secondary">
-              <CheckCircle className="h-8 w-8 text-success-primary" />
+              <CircleCheck className="h-8 w-8 text-success-primary" />
             </div>
             <h1 className="text-2xl font-bold text-primary">{t('complete.title')}</h1>
             <p className="mt-2 text-tertiary">{t('complete.description')}</p>
@@ -223,7 +223,7 @@ export default function SetupPage() {
                 className="w-full flex items-start gap-4 p-4 rounded-lg border border-secondary hover:border-brand-primary hover:bg-brand-secondary/5 transition-colors text-left"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-secondary">
-                  <Home01 className="h-5 w-5 text-brand-primary" />
+                  <House className="h-5 w-5 text-brand-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-primary">{t('modeSelect.single.title')}</p>
@@ -237,7 +237,7 @@ export default function SetupPage() {
                 className="w-full flex items-start gap-4 p-4 rounded-lg border border-secondary hover:border-brand-primary hover:bg-brand-secondary/5 transition-colors text-left"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-secondary">
-                  <Globe01 className="h-5 w-5 text-brand-primary" />
+                  <Globe className="h-5 w-5 text-brand-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-primary">{t('modeSelect.multi.title')}</p>
@@ -254,7 +254,7 @@ export default function SetupPage() {
             <form onSubmit={singleForm.handleSubmit(onSubmit)} className="space-y-6">
               <div className="text-center">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-secondary">
-                  <Home01 className="h-6 w-6 text-brand-primary" />
+                  <House className="h-6 w-6 text-brand-primary" />
                 </div>
                 <h1 className="text-xl font-bold text-primary">{t('modeSelect.single.title')}</h1>
                 <p className="mt-1 text-sm text-tertiary">{t('form.single.subtitle')}</p>
@@ -269,7 +269,7 @@ export default function SetupPage() {
               {/* Admin Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-secondary">
-                  <User01 className="h-4 w-4" />
+                  <User className="h-4 w-4" />
                   {t('admin.sectionTitle')}
                 </div>
 
@@ -351,7 +351,7 @@ export default function SetupPage() {
               {/* Organization Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-secondary">
-                  <Building07 className="h-4 w-4" />
+                  <Building className="h-4 w-4" />
                   {t('organization.sectionTitle')}
                 </div>
 
@@ -396,7 +396,7 @@ export default function SetupPage() {
             <form onSubmit={multiForm.handleSubmit(onSubmit)} className="space-y-6">
               <div className="text-center">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-warning-secondary">
-                  <Globe01 className="h-6 w-6 text-warning-primary" />
+                  <Globe className="h-6 w-6 text-warning-primary" />
                 </div>
                 <h1 className="text-xl font-bold text-primary">{t('modeSelect.multi.title')}</h1>
                 <p className="mt-1 text-sm text-tertiary">{t('form.multi.subtitle')}</p>
@@ -411,7 +411,7 @@ export default function SetupPage() {
               {/* Super Admin Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-secondary">
-                  <User01 className="h-4 w-4" />
+                  <User className="h-4 w-4" />
                   {t('admin.superAdminTitle')}
                 </div>
 

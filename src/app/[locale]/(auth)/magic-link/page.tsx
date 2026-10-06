@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { RefreshCw01, X } from '@untitledui/icons';
+import { RefreshCw, X } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
@@ -84,7 +84,7 @@ export default function MagicLinkPage() {
   if (status === 'loading') {
     return (
       <div className="text-center">
-        <RefreshCw01 className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
+        <RefreshCw className="mx-auto mb-6 h-8 w-8 animate-spin text-brand-primary" />
         <p className="text-sm text-tertiary">{t('loading')}</p>
       </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import type { HTMLAttributes } from "react";
-import { AlertCircle } from "@untitledui/icons";
+import { CircleAlert } from "lucide-react";
 import { cx } from "@/utils/cx";
 
 interface IllustrationProps extends HTMLAttributes<HTMLDivElement> {
@@ -20,7 +20,7 @@ export const sm = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <AlertCircle className="size-6" />,
+    children = <CircleAlert className="size-6" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -115,7 +115,7 @@ export const md = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <AlertCircle className="size-7" />,
+    children = <CircleAlert className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (
@@ -208,7 +208,7 @@ export const lg = ({
     className,
     svgClassName,
     childrenClassName,
-    children = <AlertCircle className="size-7" />,
+    children = <CircleAlert className="size-7" />,
     ...otherProps
 }: Omit<IllustrationProps, "size">) => {
     return (

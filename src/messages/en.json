@@ -988,7 +988,7 @@
       "subtitle": "Support chats across all organizations.",
       "threadListEmpty": "No support requests",
       "unreadBadge": "{count} unread",
-      "priorityBadge": "🚀 Priority",
+      "priorityBadge": "Priority",
       "noThreadSelected": "Select an organization to open the chat.",
       "input": {
         "placeholder": "Write a reply…",
@@ -1764,7 +1764,7 @@
   "support": {
     "title": "Support",
     "subtitle": "Chat directly with our support team.",
-    "priorityBadge": "🚀 Priority support",
+    "priorityBadge": "Priority support",
     "priorityHint": "Your requests are handled with priority.",
     "standardHint": "We usually reply within 1–2 business days.",
     "empty": {
@@ -3209,7 +3209,7 @@
     },
     "list": {
       "copyPublicLink": "Copy public link",
-      "copied": "✓ Copied!"
+      "copied": "Copied!"
     },
     "detail": {
       "pdfFileName": "shift-plan",
@@ -3277,7 +3277,8 @@
       "perDay": "Times per day",
       "perDayHint": "Enter different times for each day. Shifts that run past midnight (e.g. 22:00–01:00) are allowed.",
       "overnightHint": "An end time before the start time means the shift runs past midnight into the next day.",
-      "totalHoursOvernight": "{hours} hours per day 🌙 overnight",
+      "totalHoursOvernight": "{hours} hours per day, overnight",
+      "overnight": "Overnight",
       "hoursShort": "{hours} h",
       "workersFromJob": "The number of helpers per shift is taken from each job – you set it there.",
       "minutes": "{count} min",
@@ -3297,7 +3298,7 @@
       "searchPlaceholder": "Search shifts (job, date, time)…",
       "noShiftFound": "No shift found.",
       "noShiftsInPlan": "No shifts in this plan.",
-      "chosen": "✓ selected",
+      "chosen": "selected",
       "fullCount": "full {confirmed}/{required}",
       "fullSelectableHint": "Full shifts can still be selected (e.g. to add stand-ins).",
       "notify": "Notify helper by email (one combined confirmation)",
@@ -3375,7 +3376,7 @@
       "proposalNote": "Optional note for the helper (proposal only)",
       "proposalNotePlaceholder": "e.g. We would need you somewhere else – does that work for you?",
       "proposalHint": "With “Send proposal”, the helper receives an email with “Accept”/“Decline” buttons. “Save directly” applies everything immediately without asking.",
-      "alreadyIn": "✓ assigned",
+      "alreadyIn": "assigned",
       "fullAddableHint": "Full shifts can still be added (e.g. to add stand-ins).",
       "proposalNeedsEmail": "Proposals require the helper’s email address",
       "proposalTitle": "The helper receives an email to accept or decline – the change only applies after confirmation",
@@ -3419,8 +3420,8 @@
       "processFailed": "The proposal could not be processed.",
       "title": "Shift proposal",
       "question": "Should your shift be moved as proposed?",
-      "accept": "✓ Accept",
-      "decline": "✗ Decline",
+      "accept": "Accept",
+      "decline": "Decline",
       "accepted": "Proposal accepted",
       "declined": "Proposal declined",
       "toOverview": "To shift overview",

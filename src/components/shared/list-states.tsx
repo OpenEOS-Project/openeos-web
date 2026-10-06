@@ -33,7 +33,7 @@ export function ListError({ message, onRetry }: { message?: string; onRetry?: ()
 interface ListEmptyProps {
   title: string;
   description?: string;
-  /** Icon rendered inside .empty-state__icon (an SVG or @untitledui icon). */
+  /** Icon rendered inside .empty-state__icon (an SVG or Lucide icon). */
   icon?: ReactNode;
   /** Optional call-to-action, rendered below the description. */
   action?: ReactNode;

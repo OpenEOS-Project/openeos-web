@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Tablet02, CheckCircle, XCircle, Loading02 } from '@untitledui/icons';
+import { CircleCheck, CircleX, Loader, TabletSmartphone } from 'lucide-react';
 import { useDeviceStore } from '@/stores/device-store';
 import { zielRouteFuerGeraet } from '@/lib/device-route';
 
@@ -146,7 +146,7 @@ export default function DeviceRegisterPage() {
               boxShadow: 'var(--oe-sh-2)',
             }}
           >
-            <Tablet02 style={{ width: 32, height: 32, color: 'var(--oe-on-accent)' }} />
+            <TabletSmartphone style={{ width: 32, height: 32, color: 'var(--oe-on-accent)' }} />
           </div>
           <h1
             style={{
@@ -285,7 +285,7 @@ export default function DeviceRegisterPage() {
                 justifyContent: 'center',
               }}
             >
-              <Loading02
+              <Loader
                 style={{ width: 28, height: 28, color: 'var(--oe-warn)', animation: 'spin 1s linear infinite' }}
               />
             </div>
@@ -380,7 +380,7 @@ export default function DeviceRegisterPage() {
                 justifyContent: 'center',
               }}
             >
-              <CheckCircle style={{ width: 28, height: 28, color: 'var(--oe-green-2)' }} />
+              <CircleCheck style={{ width: 28, height: 28, color: 'var(--oe-green-2)' }} />
             </div>
             <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--oe-ink)', margin: 0 }}>
               {t('register.verifiedTitle')}
@@ -409,7 +409,7 @@ export default function DeviceRegisterPage() {
                 justifyContent: 'center',
               }}
             >
-              <XCircle style={{ width: 28, height: 28, color: 'var(--oe-danger)' }} />
+              <CircleX style={{ width: 28, height: 28, color: 'var(--oe-danger)' }} />
             </div>
             <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--oe-ink)', margin: 0 }}>
               {t('register.blockedTitle')}

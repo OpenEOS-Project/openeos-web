@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { CheckCircle } from '@untitledui/icons';
+import { CircleCheck } from 'lucide-react';
 import { Button } from '@/components/ui/buttons/button';
 import { cx } from '@/utils/cx';
 
@@ -147,7 +147,7 @@ export function StationOrderCard({ order, items, onItemReady, isMarkingReady, is
                 {/* Groesse und Abstand ueber pos.css: Die Tailwind-Klassen
                     h-4 w-4 sind hier wirkungslos, das Symbol erschien in
                     seiner natuerlichen Groesse neben dem Text. */}
-                <CheckCircle className="station-done__icon" />
+                <CircleCheck className="station-done__icon" />
                 {t('ready')}
               </Button>
             ) : (

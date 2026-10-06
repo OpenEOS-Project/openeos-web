@@ -1,7 +1,7 @@
 "use client";
 
 import { isValidElement, useContext } from "react";
-import { Check } from "@untitledui/icons";
+import { Check } from "lucide-react";
 import type { ListBoxItemProps as AriaListBoxItemProps } from "react-aria-components";
 import { ListBoxItem as AriaListBoxItem, Text as AriaText } from "react-aria-components";
 import { Avatar } from "@/components/ui/avatar/avatar";

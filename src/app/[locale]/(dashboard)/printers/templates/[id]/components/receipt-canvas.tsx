@@ -5,7 +5,7 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslations } from 'next-intl';
 import { QRCodeSVG } from 'qrcode.react';
-import { DotsVertical, X } from '@untitledui/icons';
+import { EllipsisVertical, X } from 'lucide-react';
 import { cx } from '@/utils/cx';
 import type { TemplateElement, PrintTemplateDesign } from '@/types/print-template';
 import { renderPreview } from '../utils/preview-renderer';
@@ -108,7 +108,7 @@ function SortableCanvasElement({
             aria-label={t('moveElement')}
             title={t('moveElement')}
           >
-            <DotsVertical className="h-3.5 w-3.5" />
+            <EllipsisVertical className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"

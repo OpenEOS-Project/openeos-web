@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash01, Plus, CheckCircle, AlertCircle, Clock, Calendar } from '@untitledui/icons';
+import { Calendar, CircleAlert, CircleCheck, Clock, Plus, Trash } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
@@ -120,7 +120,7 @@ export default function HelperManagePage() {
     return (
       <main style={pageStyle}>
         <div style={{ ...cardStyle, textAlign: 'center' }}>
-          <AlertCircle style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
+          <CircleAlert style={{ width: 48, height: 48, color: '#dc2626', margin: '0 auto 12px' }} />
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{t('invalidTitle')}</h1>
           <p style={{ color: 'var(--mute, #666)', fontSize: 14, marginTop: 8 }}>
             {t('invalidDescription')}
@@ -144,7 +144,7 @@ export default function HelperManagePage() {
 
         {toast && (
           <div style={{ marginTop: 16, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #10b981 12%, transparent)', color: '#065f46', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle style={{ width: 14, height: 14 }} />
+            <CircleCheck style={{ width: 14, height: 14 }} />
             <span>{toast}</span>
           </div>
         )}
@@ -188,7 +188,7 @@ export default function HelperManagePage() {
                       </span>
                       {overlaps && (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#b45309', fontWeight: 600 }}>
-                          <AlertCircle style={{ width: 12, height: 12 }} />
+                          <CircleAlert style={{ width: 12, height: 12 }} />
                           {tCommon('shifts.public.overlap')}
                         </span>
                       )}
@@ -207,7 +207,7 @@ export default function HelperManagePage() {
                     title={t('removeTitle')}
                     aria-label={t('removeLabel')}
                   >
-                    <Trash01 style={{ width: 16, height: 16 }} />
+                    <Trash style={{ width: 16, height: 16 }} />
                   </button>
                 </div>
               );

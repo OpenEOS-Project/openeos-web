@@ -3,15 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  X,
-  ArrowLeft,
-  ArrowRight,
-  Calendar,
-  Clock,
-  Users01,
-  Check,
-} from '@untitledui/icons';
+import { ArrowLeft, ArrowRight, Calendar, Check, Clock, Moon, Users, X } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useIntlLocale } from '@/hooks/use-locale-format';
@@ -418,7 +410,8 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                   </div>
 
                   {canProceedStep2 && (
-                    <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-faint)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {timeToMinutes(endTime) <= timeToMinutes(startTime) && <Moon size={14} aria-hidden />}
                       {t(
                         timeToMinutes(endTime) <= timeToMinutes(startTime)
                           ? 'shifts.wizardExtra.totalHoursOvernight'
@@ -451,8 +444,9 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                           onChange={(ev) => setDayTimes((m) => ({ ...m, [d]: { start: timesFor(d).start, end: ev.target.value } }))}
                           style={{ padding: '6px 10px', fontSize: 13 }}
                         />
-                        <span style={{ fontSize: 11, color: overnight ? 'var(--warn-ink)' : 'var(--ink-faint)' }}>
-                          {tw('hoursShort', { hours: Math.round((durationMinutes(s, e) / 60) * 10) / 10 })}{overnight ? ' 🌙' : ''}
+                        <span style={{ fontSize: 11, color: overnight ? 'var(--warn-ink)' : 'var(--ink-faint)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          {tw('hoursShort', { hours: Math.round((durationMinutes(s, e) / 60) * 10) / 10 })}
+                          {overnight && <Moon size={12} role="img" aria-label={tw('overnight')} />}
                         </span>
                       </div>
                     );
@@ -466,7 +460,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-faint)' }}>
-                <Users01 className="size-5" />
+                <Users className="size-5" />
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.configure')}</h3>
               </div>
 
