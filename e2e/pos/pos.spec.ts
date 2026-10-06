@@ -161,6 +161,8 @@ test.describe('POS - Point of Sale', () => {
       await expect(pos.paySheet.getByRole('button', { name: 'Löschen' })).toBeInViewport();
       await page.keyboard.press('Escape');
       await expect(pos.paySheet).toHaveCount(0);
+      // Kassieren hat das Warenkorb-Blatt geschlossen.
+      await pos.openCart();
       await pos.clearCartButton.click();
     });
 
