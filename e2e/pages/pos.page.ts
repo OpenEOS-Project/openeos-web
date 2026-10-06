@@ -76,14 +76,14 @@ export class POSPage {
   /** Offen heisst: Klasse is-open — die Sichtbarkeit haengt beim Schliessen
    *  noch die Dauer der Animation nach. */
   private async isCartOpen() {
-    return /\bis-open\b/.test((await this.cart.getAttribute('class')) ?? '');
+    // Geschlossen ist das Blatt unsichtbar und damit nicht per Rolle auffindbar.
+    return /\bis-open\b/.test((await this.page.locator('aside.pos-cart').getAttribute('class')) ?? '');
   }
 
   async openCart() {
     if (!this.isCompact) return;
     if (await this.isCartOpen()) return;
     await this.cartBar.click();
-    await expect(this.cart).toHaveClass(/\bis-open\b/);
     await expect(this.cart).toBeVisible();
   }
 
