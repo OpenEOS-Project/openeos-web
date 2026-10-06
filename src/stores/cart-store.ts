@@ -57,7 +57,22 @@ interface CartState {
 }
 
 interface CartActions {
-  addItem: (product: Product, quantity?: number, selectedOptions?: SelectedOption[]) => void;
+  addItem: (
+    product: Product,
+    quantity?: number,
+    selectedOptions?: SelectedOption[],
+    kitchenNotes?: string,
+  ) => void;
+  /** Bearbeitet eine Zeile (Optionen-Blatt): Optionen, Küchennotiz, Menge, Nachfüllen. */
+  updateItem: (
+    cartItemId: string,
+    changes: {
+      selectedOptions?: SelectedOption[];
+      kitchenNotes?: string;
+      quantity?: number;
+      refillCount?: number;
+    },
+  ) => void;
   updateItemQuantity: (cartItemId: string, quantity: number) => void;
   updateItemNotes: (cartItemId: string, notes: string, kitchenNotes?: string) => void;
   setItemRefillCount: (cartItemId: string, refillCount: number) => void;
@@ -116,14 +131,15 @@ export const useCartStore = create<CartState & CartActions>()(
       pfandReturns: [],
 
       // Actions
-      addItem: (product, quantity = 1, selectedOptions = []) => {
+      addItem: (product, quantity = 1, selectedOptions = [], kitchenNotes = '') => {
         const state = get();
 
-        // Check if same product with same options exists
+        // Gleiche Kombination (Produkt + Optionen + Küchennotiz) erhöht die Menge
         const existingItem = state.items.find(
           (item) =>
             item.product.id === product.id &&
-            JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+            JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions) &&
+            (item.kitchenNotes || '') === kitchenNotes
         );
 
         if (existingItem) {
@@ -149,7 +165,7 @@ export const useCartStore = create<CartState & CartActions>()(
             product,
             quantity,
             notes: '',
-            kitchenNotes: '',
+            kitchenNotes,
             selectedOptions,
             unitPrice: calculateUnitPrice(product, selectedOptions),
             pfandType,
@@ -157,6 +173,28 @@ export const useCartStore = create<CartState & CartActions>()(
           };
           set({ items: [...state.items, newItem] });
         }
+      },
+
+      updateItem: (cartItemId, changes) => {
+        set({
+          items: get().items.map((item) => {
+            if (item.id !== cartItemId) return item;
+            const selectedOptions = changes.selectedOptions ?? item.selectedOptions;
+            const quantity = Math.max(1, changes.quantity ?? item.quantity);
+            const refillCount = Math.max(
+              0,
+              Math.min(changes.refillCount ?? item.refillCount, quantity),
+            );
+            return {
+              ...item,
+              selectedOptions,
+              kitchenNotes: changes.kitchenNotes ?? item.kitchenNotes,
+              quantity,
+              refillCount,
+              unitPrice: calculateUnitPrice(item.product, selectedOptions),
+            };
+          }),
+        });
       },
 
       setItemRefillCount: (cartItemId, refillCount) => {
