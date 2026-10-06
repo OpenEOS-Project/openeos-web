@@ -489,7 +489,8 @@
     "support": "Support",
     "adminEvents": "Events & Abrechnung",
     "adminSupport": "Support-Anfragen",
-    "adminFeedback": "Zuschriften"
+    "adminFeedback": "Zuschriften",
+    "tables": "Tische"
   },
   "settings": {
     "title": "Einstellungen",
@@ -860,6 +861,22 @@
         "serviceFee": "Servicegebühr",
         "serviceFeeUnit": "EUR pro Bestellung",
         "serviceFeeHint": "Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr."
+      },
+      "tables": {
+        "allAreas": "Alle Bereiche",
+        "areas": "Bereiche für diese Veranstaltung",
+        "areasRequired": "Wähl mindestens einen Bereich.",
+        "free": "Tischnummer frei eingeben",
+        "freeHint": "Die Kasse fragt eine beliebige Nummer ab, wie bisher.",
+        "label": "Tische",
+        "manage": "Tische verwalten",
+        "noTables": "Es sind noch keine Tische angelegt. Ohne Tische können die Kassen nur ohne Tisch buchen.",
+        "noTablesInAreas": "In den gewählten Bereichen gibt es keine aktiven Tische.",
+        "none": "Keine Tische (Thekenbetrieb)",
+        "noneHint": "Alle Kassen buchen an der Theke, ohne nach einem Tisch zu fragen.",
+        "predefined": "Vordefinierte Tische",
+        "predefinedHint": "Die Kasse bietet nur die angelegten Tische an, als Liste und auf dem Tischplan.",
+        "tableCount": "{count, plural, =0 {keine Tische} one {# Tisch} other {# Tische}}"
       }
     },
     "status": {
@@ -1166,7 +1183,11 @@
         "filename": "produkt-vorlage.csv"
       }
     },
-    "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}"
+    "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}",
+    "favorite": "Favorit",
+    "favoriteAdd": "{name} als Favorit markieren",
+    "favoriteHint": "Erscheint an der Kasse in der Kategorie „Favoriten“ ganz oben.",
+    "favoriteRemove": "{name} nicht mehr als Favorit"
   },
   "productionStations": {
     "title": "Standorte",
@@ -2546,7 +2567,13 @@
           "showLogo": "Logo anzeigen",
           "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein.",
           "autoClearSeconds": "{seconds, plural, =1 {# Sekunde} other {# Sekunden}}"
-        }
+        },
+        "tableArea": "Standardbereich",
+        "tableAreaEmpty": "Noch keine Bereiche angelegt.",
+        "tableAreaHint": "Die Kasse öffnet diesen Bereich zuerst, in der Tischliste und auf dem Tischplan.",
+        "tableAreaManage": "Tische verwalten",
+        "tableAreaMissing": "Gelöschter Bereich",
+        "tableAreaNone": "Kein Standardbereich"
       },
       "printer": {
         "defaultPrinter": {
@@ -2713,6 +2740,7 @@
     "ORDER_ITEM_CANCELLED": "Eine stornierte Position kann nicht als fertig markiert werden.",
     "ORDER_ITEM_NOT_FOUND": "Die Bestellposition wurde nicht gefunden.",
     "ORDER_ITEM_NOT_PENDING": "Nur noch nicht bearbeitete Positionen können geändert werden.",
+    "ORDER_ITEM_NOT_READY": "Diese Position ist noch nicht fertig.",
     "ORDER_ITEM_PAID_CANNOT_REMOVE": "Bereits bezahlte Positionen können nicht entfernt werden.",
     "ORDER_NOT_EDITABLE": "Abgeschlossene oder stornierte Bestellungen können nicht bearbeitet werden.",
     "ORDER_NOT_FOUND": "Die Bestellung wurde nicht gefunden.",
@@ -2806,7 +2834,16 @@
     "SUMUP_NO_CHECKOUT_URL": "SumUp hat keine Bezahlseite geliefert. Bitte versuche es erneut.",
     "SUPER_ADMIN_REQUIRED": "Dafür sind Super-Admin-Rechte erforderlich.",
     "SUPPORT_PIN_INVALID": "Die Support-PIN ist ungültig.",
+    "TABLE_AREA_NAME_TAKEN": "Einen Bereich „{name}“ gibt es schon.",
+    "TABLE_AREA_NOT_FOUND": "Den Bereich gibt es nicht mehr. Lade die Seite neu.",
+    "TABLE_HAS_OPEN_ORDERS": "An diesem Tisch sind noch Bestellungen offen. Kassiere sie zuerst ab.",
+    "TABLE_LABEL_INVALID": "Die Tischbezeichnung „{label}“ ist länger als {max} Zeichen.",
+    "TABLE_LABEL_TAKEN": "Diese Tische gibt es schon: {conflicts}",
+    "TABLE_MODE_INVALID": "Diesen Tischbetrieb gibt es nicht.",
+    "TABLE_NOT_FOUND": "Den Tisch gibt es nicht oder er ist für diese Veranstaltung nicht freigegeben.",
     "TABLE_NUMBER_REQUIRED": "Bitte gib eine Tischnummer an.",
+    "TABLE_OUT_OF_AREA": "Die Position liegt außerhalb des Bereichs.",
+    "TABLE_REQUIRED": "Wähl zuerst einen Tisch.",
     "TAX_RATE_NOT_ALLOWED": "Der Steuersatz {rate} % ist für diese Organisation nicht zulässig.",
     "TEST_LIMIT_REACHED": "Test-Limit erreicht ({maxOrders} Bestellungen). Schalte die Veranstaltung frei, um weiter zu kassieren.",
     "TOKEN_EXPIRED": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
@@ -4027,6 +4064,190 @@
     "verifyEmail": "E-Mail bestätigen",
     "twoFactor": "Zwei-Faktor-Anmeldung",
     "shifts": "Schichtpläne",
-    "invitation": "Einladung"
+    "invitation": "Einladung",
+    "tables": "Tische"
+  },
+  "tables": {
+    "areas": {
+      "add": "Bereich hinzufügen",
+      "addTitle": "Bereich anlegen",
+      "created": "Bereich angelegt",
+      "delete": "Bereich löschen",
+      "deleteText": "Der Bereich und {count, plural, =0 {seine Karte werden} one {sein Tisch werden} other {seine # Tische werden}} gelöscht. Bestellungen bleiben erhalten.",
+      "deleteTitle": "Bereich „{name}“ löschen?",
+      "deleted": "Bereich gelöscht",
+      "edit": "Name und Größe ändern",
+      "editTitle": "Bereich bearbeiten",
+      "gridRange": "Das Raster muss zwischen {min} und {max} liegen.",
+      "gridSize": "Raster",
+      "height": "Höhe",
+      "menu": "Aktionen für Bereich {name}",
+      "moveLeft": "Nach links",
+      "moveRight": "Nach rechts",
+      "name": "Name",
+      "namePlaceholder": "z. B. Zelt A oder Biergarten",
+      "nameRequired": "Gib einen Namen an.",
+      "saved": "Bereich gespeichert",
+      "sizeHint": "In Einheiten. Ein Tisch ist 80 groß, die Standardkarte 1200 mal 800. Beim Verkleinern rücken Tische an den Rand.",
+      "sizeRange": "Breite und Höhe müssen zwischen {min} und {max} liegen.",
+      "tablist": "Bereiche",
+      "width": "Breite"
+    },
+    "bulk": {
+      "area": "Bereich",
+      "cols": "Spalten",
+      "colsHint": "Tische je Reihe auf der Karte",
+      "colsInvalid": "1 bis 50",
+      "conflicts": "{count, plural, one {Diese Bezeichnung gibt es schon} other {Diese Bezeichnungen gibt es schon}}: {labels}",
+      "count": "Anzahl",
+      "countInvalid": "1 bis {max} Tische",
+      "created": "{count, plural, one {# Tisch angelegt} other {# Tische angelegt}}",
+      "more": "und {count} weitere",
+      "padding": "Stellen",
+      "paddingHint": "2 Stellen: A01 statt A1",
+      "paddingInvalid": "0 bis 3",
+      "prefix": "Präfix",
+      "prefixHint": "Darf leer bleiben",
+      "preview": "Vorschau",
+      "previewCount": "{count, plural, =0 {keine Tische} one {# Tisch} other {# Tische}}",
+      "previewEmpty": "Prüf Start, Anzahl und Stellen.",
+      "seats": "Plätze",
+      "seatsInvalid": "1 bis {max}",
+      "seatsPlaceholder": "offen",
+      "shape": "Form",
+      "start": "Start",
+      "startInvalid": "Ab 0",
+      "submit": "{count, plural, =0 {Tische anlegen} one {# Tisch anlegen} other {# Tische anlegen}}",
+      "taken": "belegt",
+      "takenLabel": "{label}, gibt es schon",
+      "title": "Serie anlegen",
+      "tooLong": "Die Bezeichnung {label} ist länger als {max} Zeichen."
+    },
+    "decor": {
+      "bar": "Theke",
+      "label": "Beschriftung",
+      "stage": "Bühne",
+      "wall": "Wand"
+    },
+    "delete": {
+      "decorText": "Das Element verschwindet von der Karte.",
+      "decorTitle": "{name} entfernen?",
+      "text": "Der Tisch verschwindet aus Karte und Kasse. Bezahlte Bestellungen behalten ihre Tischnummer. Sind noch Bestellungen offen, kassiere sie zuerst.",
+      "title": "Tisch {label} löschen?"
+    },
+    "empty": {
+      "createArea": "Bereich anlegen",
+      "example": "Beispiel anlegen (Zelt A, A01–A12)",
+      "exampleArea": "Zelt A",
+      "exampleCreated": "Beispiel angelegt: Zelt A mit A01 bis A12",
+      "text": "Leg einen Bereich an, zum Beispiel ein Zelt, den Saal oder den Biergarten, und darin deine Tische. Oder starte mit einem Beispiel und pass es an.",
+      "title": "Noch keine Tische"
+    },
+    "floor": {
+      "empty": "In diesem Bereich stehen noch keine Tische. Leg einzelne an oder gleich eine Serie.",
+      "hint": "Ziehen verschiebt, der Griff unten rechts ändert die Größe. Tastatur: Pfeile 1 Raster (mit Umschalt 5), Entf löscht, Strg+D dupliziert, Esc hebt die Auswahl auf.",
+      "inactive": "inaktiv",
+      "label": "Tischplan {name}",
+      "mobileHint": "Karte am Tablet oder PC bearbeiten. Hier siehst du sie nur.",
+      "previewLabel": "Vorschau Tischplan {name}",
+      "table": "Tisch {label}",
+      "tableSeats": "Tisch {label}, {seats} Plätze"
+    },
+    "inspector": {
+      "active": "Aktiv",
+      "activeHint": "Inaktive Tische bietet die Kasse nicht an.",
+      "area": "Bereich",
+      "areaHint": "Verschiebt den Tisch in einen anderen Bereich.",
+      "close": "Auswahl aufheben",
+      "degrees": "{value}°",
+      "delete": "Löschen",
+      "duplicate": "Duplizieren",
+      "empty": "Wähl einen Tisch oder ein Deko-Element auf der Karte, um es zu bearbeiten.",
+      "height": "Höhe",
+      "label": "Bezeichnung",
+      "labelInvalid": "1 bis {max} Zeichen",
+      "region": "Eigenschaften",
+      "rotate90": "Um 90 Grad drehen",
+      "rotate90Short": "90°",
+      "rotateLeft": "Um 15 Grad nach links drehen",
+      "rotateLeftShort": "-15°",
+      "rotateRight": "Um 15 Grad nach rechts drehen",
+      "rotateRightShort": "+15°",
+      "rotation": "Drehung",
+      "seats": "Plätze",
+      "seatsInvalid": "1 bis {max}",
+      "seatsPlaceholder": "offen",
+      "shape": "Form",
+      "text": "Text",
+      "title": "Tisch {label}",
+      "width": "Breite"
+    },
+    "list": {
+      "actions": "Aktionen",
+      "active": "Aktiv",
+      "activeOf": "Tisch {label} aktiv",
+      "area": "Bereich",
+      "areaOf": "Bereich von Tisch {label}",
+      "caption": "{count, plural, one {# Tisch} other {# Tische}}",
+      "deleteOf": "Tisch {label} löschen",
+      "empty": "Noch keine Tische",
+      "emptyHint": "Leg Tische einzeln an oder als Serie.",
+      "label": "Bezeichnung",
+      "labelOf": "Bezeichnung von Tisch {label}",
+      "open": "Offen",
+      "seats": "Plätze",
+      "seatsOf": "Plätze an Tisch {label}",
+      "seatsPlaceholder": "offen",
+      "shape": "Form",
+      "shapeOf": "Form von Tisch {label}"
+    },
+    "save": {
+      "error": "Nicht gespeichert",
+      "pending": "Ungespeichert",
+      "saved": "Gespeichert",
+      "saving": "Speichert …"
+    },
+    "shape": {
+      "rect": "Eckig",
+      "round": "Rund"
+    },
+    "subtitle": "Bereiche, Tische und Tischplan deiner Organisation. Welche Veranstaltung welche Tische nutzt, stellst du in der Veranstaltung ein.",
+    "title": "Tische",
+    "toast": {
+      "created": "Tisch {label} angelegt",
+      "deleted": "Tisch {label} gelöscht",
+      "saveFailed": "Das hat nicht geklappt. Versuch es noch einmal."
+    },
+    "toolbar": {
+      "add": "Hinzufügen",
+      "addRoundTable": "Runder Tisch",
+      "addTable": "Tisch",
+      "bulk": "Serie anlegen",
+      "decor": "Deko",
+      "grid": "Raster",
+      "snap": "Einrasten",
+      "view": "Ansicht",
+      "viewList": "Liste",
+      "viewMap": "Karte"
+    }
+  },
+  "oeIconPicker": {
+    "change": "Icon ändern",
+    "choose": "Icon wählen",
+    "close": "Schließen",
+    "fromCategory": "Ohne eigenes Icon und Bild zeigt die Kasse das Icon der Kategorie.",
+    "groups": {
+      "actions": "Aktionen",
+      "food": "Speisen und Getränke",
+      "operations": "Betrieb",
+      "payment": "Zahlung und Beleg",
+      "status": "Status"
+    },
+    "iconWins": "An der Kasse hat das Icon Vorrang vor dem Bild.",
+    "noResults": "Kein Icon gefunden. Versuch es mit einem anderen Wort.",
+    "remove": "Icon entfernen",
+    "results": "{count, plural, one {# Treffer} other {# Treffer}}",
+    "search": "Icons durchsuchen, z. B. Bier oder Pommes",
+    "title": "Icon wählen"
   }
 }

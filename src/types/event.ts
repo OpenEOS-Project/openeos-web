@@ -1,3 +1,5 @@
+import type { EventTablesSettings } from './table';
+
 // Matches backend EventStatus enum
 export type EventStatus = 'active' | 'inactive' | 'test';
 
@@ -43,6 +45,8 @@ export interface EventSettings {
   enableTableService?: boolean;
   enableTakeaway?: boolean;
   maxOrdersPerHour?: number;
+  /** Tischbetrieb; fehlt → `free` (freie Nummer wie bisher). */
+  tables?: EventTablesSettings | null;
   shop?: {
     enabled?: boolean;
     hoursMode?: ShopHoursMode;

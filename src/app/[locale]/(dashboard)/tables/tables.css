@@ -1,0 +1,402 @@
+/* ==========================================================
+   Verwaltung · Tische — nur Seitenlayout. Optik (Karte, Reiter,
+   Knöpfe, Felder, Tisch-Kacheln) kommt aus @openeos/ui.
+   ========================================================== */
+
+.tables-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oe-s4, 16px);
+  min-width: 0;
+}
+
+.tables-muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+
+.tables-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-danger-ink, var(--oe-danger));
+}
+
+.tables-mono {
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+  color: var(--oe-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.tables-loading {
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+}
+
+.tables-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--oe-s2, 8px);
+  margin-top: var(--oe-s2, 8px);
+}
+
+/* ---------- Bereiche ---------- */
+
+.tables-areas {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--oe-s3, 12px);
+  border-bottom: 1px solid var(--oe-line);
+  min-width: 0;
+}
+
+.tables-areas__tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  border-bottom: 0;
+  scrollbar-width: thin;
+}
+
+.tables-areas__tabs .oe-tab {
+  white-space: nowrap;
+}
+
+.tables-areas__menu,
+.tables-areas__add {
+  margin-bottom: 6px;
+  flex: none;
+}
+
+/* ---------- Werkzeugleiste ---------- */
+
+.tables-toolbar {
+  padding: 0;
+  row-gap: var(--oe-s2, 8px);
+}
+
+.tables-toolbar__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oe-s2, 8px);
+}
+
+.tables-toolbar__group + .tables-toolbar__group {
+  padding-inline-start: var(--oe-s3, 12px);
+  border-inline-start: 1px solid var(--oe-line);
+  gap: var(--oe-s4, 16px);
+}
+
+.tables-toolbar__status {
+  white-space: nowrap;
+}
+
+/* ---------- Karte + Inspektor ---------- */
+
+.tables-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--oe-s4, 16px);
+  align-items: start;
+}
+
+.tables-workspace__map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oe-s3, 12px);
+  min-width: 0;
+}
+
+.tables-floor__hint {
+  font-size: 12px;
+}
+
+.tables-inspector {
+  position: sticky;
+  top: var(--oe-s4, 16px);
+  display: flex;
+  flex-direction: column;
+}
+
+.tables-inspector__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--oe-s3, 12px);
+  padding: var(--oe-s6, 24px) var(--oe-s4, 16px);
+  text-align: center;
+}
+
+.tables-inspector__empty p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-mute);
+  max-width: 220px;
+}
+
+.tables-inspector__head {
+  display: flex;
+  align-items: center;
+  gap: var(--oe-s2, 8px);
+  padding: var(--oe-s3, 12px) var(--oe-s3, 12px) var(--oe-s3, 12px) var(--oe-s4, 16px);
+  border-bottom: 1px solid var(--oe-line);
+}
+
+.tables-inspector__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: 700 15px/1.2 var(--oe-f-sans);
+  color: var(--oe-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tables-inspector__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oe-s3, 12px);
+  padding: var(--oe-s4, 16px);
+}
+
+.tables-inspector__label {
+  /* wie .oe-field > label */
+  font: 500 11px/1 var(--oe-f-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+
+.tables-inspector__label .tables-mono {
+  margin-inline-start: 4px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--oe-ink);
+}
+
+.tables-inspector .oe-segment {
+  align-self: flex-start;
+}
+
+.tables-inspector__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tables-inspector__switch {
+  display: grid;
+  gap: 4px;
+}
+
+.tables-inspector__switch .tables-muted {
+  font-size: 12px;
+}
+
+.tables-inspector__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oe-s2, 8px);
+  padding: var(--oe-s3, 12px) var(--oe-s4, 16px);
+  border-top: 1px solid var(--oe-line);
+}
+
+.tables-inspector__foot .oe-btn:last-child {
+  margin-inline-start: auto;
+}
+
+.tables-grid-2,
+.tables-grid-3 {
+  display: grid;
+  align-items: start;
+  gap: var(--oe-s3, 12px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tables-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1180px) {
+  .tables-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tables-inspector {
+    position: static;
+  }
+}
+
+/* ---------- Liste ---------- */
+
+.tables-list {
+  overflow-x: auto;
+}
+
+.tables-list .oe-input,
+.tables-list .oe-select {
+  min-width: 0;
+}
+
+.tables-list__label {
+  max-width: 160px;
+  font-weight: 600;
+}
+
+.tables-list__seats {
+  max-width: 88px;
+}
+
+.tables-list__actions {
+  text-align: end;
+  width: 1%;
+}
+
+.tables-list.oe-table-wrap .oe-table th.oe-table__num {
+  text-align: end;
+}
+
+.tables-list tr.is-inactive .tables-list__label {
+  color: var(--oe-mute);
+}
+
+/* Telefon: jede Zeile als Karte mit beschrifteten Feldern. */
+@media (max-width: 767px) {
+  .tables-list {
+    overflow: visible;
+  }
+
+  .tables-list thead {
+    display: none;
+  }
+
+  .tables-list table,
+  .tables-list tbody {
+    display: block;
+  }
+
+  .tables-list tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.6fr) auto;
+    grid-template-areas:
+      'label seats open del'
+      'area shape active active';
+    gap: 8px 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--oe-line);
+  }
+
+  .tables-list td:nth-child(1) { grid-area: label; }
+  .tables-list td:nth-child(2) { grid-area: area; }
+  .tables-list td:nth-child(3) { grid-area: seats; }
+  .tables-list td:nth-child(4) { grid-area: shape; }
+  .tables-list td:nth-child(5) { grid-area: active; }
+  .tables-list td:nth-child(6) { grid-area: open; }
+  .tables-list td:nth-child(7) { grid-area: del; }
+
+  .tables-list tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .tables-list td,
+  .tables-list.oe-table-wrap .oe-table td {
+    display: grid;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    text-align: start;
+  }
+
+  .tables-list td[data-label]::before {
+    content: attr(data-label);
+    font: 500 11px var(--oe-f-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--oe-mute);
+  }
+
+  .tables-list__label,
+  .tables-list__seats {
+    max-width: none;
+  }
+
+  .tables-list__actions {
+    width: auto;
+    align-content: end;
+    justify-items: end;
+  }
+
+  .tables-list.oe-table-wrap .oe-table td.oe-table__num {
+    text-align: start;
+  }
+
+  .tables-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--oe-s3, 12px);
+  }
+
+  .tables-toolbar__group .oe-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------- Dialoge ---------- */
+
+.tables-modal__form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.tables-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oe-s4, 16px);
+}
+
+.tables-bulk__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oe-s2, 8px);
+  padding: var(--oe-s3, 12px);
+  background: var(--oe-paper-2);
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+}
+
+.tables-bulk__preview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--oe-s2, 8px);
+}
+
+.tables-bulk__preview-head h3 {
+  margin: 0;
+  font: 600 13px var(--oe-f-sans);
+  color: var(--oe-ink);
+}
+
+.tables-bulk__chips {
+  --oe-tables-min: 64px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tables-bulk__chips .oe-tablechip {
+  cursor: default;
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .tables-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

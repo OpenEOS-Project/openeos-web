@@ -489,7 +489,8 @@
     "support": "Support",
     "adminEvents": "Events & billing",
     "adminSupport": "Support requests",
-    "adminFeedback": "Feedback"
+    "adminFeedback": "Feedback",
+    "tables": "Tables"
   },
   "settings": {
     "title": "Settings",
@@ -1216,6 +1217,22 @@
         "serviceFee": "Service fee",
         "serviceFeeUnit": "EUR per order",
         "serviceFeeHint": "Added as a flat amount per order to the total in the online shop. Leave empty for no fee."
+      },
+      "tables": {
+        "allAreas": "All areas",
+        "areas": "Areas for this event",
+        "areasRequired": "Select at least one area.",
+        "free": "Enter table number freely",
+        "freeHint": "The POS asks for any number, as before.",
+        "label": "Tables",
+        "manage": "Manage tables",
+        "noTables": "No tables have been created yet. Without tables the POS can only book without a table.",
+        "noTablesInAreas": "There are no active tables in the selected areas.",
+        "none": "No tables (counter service)",
+        "noneHint": "All POS devices book at the counter without asking for a table.",
+        "predefined": "Predefined tables",
+        "predefinedHint": "The POS only offers the tables you created, as a list and on the floor plan.",
+        "tableCount": "{count, plural, =0 {no tables} one {# table} other {# tables}}"
       }
     },
     "status": {
@@ -1522,7 +1539,11 @@
         "filename": "product-template.csv"
       }
     },
-    "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}"
+    "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}",
+    "favorite": "Favorite",
+    "favoriteAdd": "Mark {name} as favorite",
+    "favoriteHint": "Shown at the top of the POS in the “Favorites” category.",
+    "favoriteRemove": "Remove {name} from favorites"
   },
   "productionStations": {
     "title": "Stations",
@@ -2546,7 +2567,13 @@
           "showLogo": "Show logo",
           "showLogoHint": "Displays the organization logo in the header.",
           "autoClearSeconds": "{seconds, plural, =1 {# second} other {# seconds}}"
-        }
+        },
+        "tableArea": "Default area",
+        "tableAreaEmpty": "No areas created yet.",
+        "tableAreaHint": "The POS opens this area first, in the table list and on the floor plan.",
+        "tableAreaManage": "Manage tables",
+        "tableAreaMissing": "Deleted area",
+        "tableAreaNone": "No default area"
       },
       "printer": {
         "defaultPrinter": {
@@ -2713,6 +2740,7 @@
     "ORDER_ITEM_CANCELLED": "A cancelled item cannot be marked as done.",
     "ORDER_ITEM_NOT_FOUND": "The order item was not found.",
     "ORDER_ITEM_NOT_PENDING": "Only items that have not been processed can be changed.",
+    "ORDER_ITEM_NOT_READY": "This item is not ready yet.",
     "ORDER_ITEM_PAID_CANNOT_REMOVE": "Items that have already been paid cannot be removed.",
     "ORDER_NOT_EDITABLE": "Completed or cancelled orders cannot be edited.",
     "ORDER_NOT_FOUND": "The order was not found.",
@@ -2806,7 +2834,16 @@
     "SUMUP_NO_CHECKOUT_URL": "SumUp did not return a checkout page. Please try again.",
     "SUPER_ADMIN_REQUIRED": "Super admin rights are required for this.",
     "SUPPORT_PIN_INVALID": "The support PIN is invalid.",
+    "TABLE_AREA_NAME_TAKEN": "An area “{name}” already exists.",
+    "TABLE_AREA_NOT_FOUND": "The area no longer exists. Reload the page.",
+    "TABLE_HAS_OPEN_ORDERS": "There are still open orders at this table. Settle them first.",
+    "TABLE_LABEL_INVALID": "The table label “{label}” is longer than {max} characters.",
+    "TABLE_LABEL_TAKEN": "These tables already exist: {conflicts}",
+    "TABLE_MODE_INVALID": "This table mode does not exist.",
+    "TABLE_NOT_FOUND": "The table does not exist or is not enabled for this event.",
     "TABLE_NUMBER_REQUIRED": "Please enter a table number.",
+    "TABLE_OUT_OF_AREA": "The position is outside the area.",
+    "TABLE_REQUIRED": "Select a table first.",
     "TAX_RATE_NOT_ALLOWED": "The tax rate {rate} % is not allowed for this organization.",
     "TEST_LIMIT_REACHED": "Test limit reached ({maxOrders} orders). Unlock the event to keep taking orders.",
     "TOKEN_EXPIRED": "Your session has expired. Please sign in again.",
@@ -4027,6 +4064,190 @@
     "verifyEmail": "Verify email",
     "twoFactor": "Two-factor sign-in",
     "shifts": "Shift plans",
-    "invitation": "Invitation"
+    "invitation": "Invitation",
+    "tables": "Tables"
+  },
+  "tables": {
+    "areas": {
+      "add": "Add area",
+      "addTitle": "Create area",
+      "created": "Area created",
+      "delete": "Delete area",
+      "deleteText": "The area and {count, plural, =0 {its map} one {its table} other {its # tables}} will be deleted. Orders are kept.",
+      "deleteTitle": "Delete area “{name}”?",
+      "deleted": "Area deleted",
+      "edit": "Change name and size",
+      "editTitle": "Edit area",
+      "gridRange": "The grid must be between {min} and {max}.",
+      "gridSize": "Grid",
+      "height": "Height",
+      "menu": "Actions for area {name}",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "name": "Name",
+      "namePlaceholder": "e.g. Tent A or beer garden",
+      "nameRequired": "Enter a name.",
+      "saved": "Area saved",
+      "sizeHint": "In units. A table is 80, the default map 1200 by 800. When shrinking, tables move to the edge.",
+      "sizeRange": "Width and height must be between {min} and {max}.",
+      "tablist": "Areas",
+      "width": "Width"
+    },
+    "bulk": {
+      "area": "Area",
+      "cols": "Columns",
+      "colsHint": "Tables per row on the map",
+      "colsInvalid": "1 to 50",
+      "conflicts": "{count, plural, one {This label already exists} other {These labels already exist}}: {labels}",
+      "count": "Count",
+      "countInvalid": "1 to {max} tables",
+      "created": "{count, plural, one {# table created} other {# tables created}}",
+      "more": "and {count} more",
+      "padding": "Digits",
+      "paddingHint": "2 digits: A01 instead of A1",
+      "paddingInvalid": "0 to 3",
+      "prefix": "Prefix",
+      "prefixHint": "May be empty",
+      "preview": "Preview",
+      "previewCount": "{count, plural, =0 {no tables} one {# table} other {# tables}}",
+      "previewEmpty": "Check start, count and digits.",
+      "seats": "Seats",
+      "seatsInvalid": "1 to {max}",
+      "seatsPlaceholder": "open",
+      "shape": "Shape",
+      "start": "Start",
+      "startInvalid": "From 0",
+      "submit": "{count, plural, =0 {Create tables} one {Create # table} other {Create # tables}}",
+      "taken": "taken",
+      "takenLabel": "{label}, already exists",
+      "title": "Create series",
+      "tooLong": "The label {label} is longer than {max} characters."
+    },
+    "decor": {
+      "bar": "Bar",
+      "label": "Label",
+      "stage": "Stage",
+      "wall": "Wall"
+    },
+    "delete": {
+      "decorText": "The element is removed from the map.",
+      "decorTitle": "Remove {name}?",
+      "text": "The table disappears from the map and the POS. Paid orders keep their table number. If orders are still open, settle them first.",
+      "title": "Delete table {label}?"
+    },
+    "empty": {
+      "createArea": "Create area",
+      "example": "Create example (Tent A, A01–A12)",
+      "exampleArea": "Tent A",
+      "exampleCreated": "Example created: Tent A with A01 to A12",
+      "text": "Create an area, for example a tent, the hall or the beer garden, and add your tables to it. Or start with an example and adjust it.",
+      "title": "No tables yet"
+    },
+    "floor": {
+      "empty": "There are no tables in this area yet. Add single tables or a whole series.",
+      "hint": "Drag to move, use the handle at the bottom right to resize. Keyboard: arrows move 1 grid step (5 with Shift), Delete removes, Ctrl+D duplicates, Esc clears the selection.",
+      "inactive": "inactive",
+      "label": "Floor plan {name}",
+      "mobileHint": "Edit the map on a tablet or computer. Here it is view only.",
+      "previewLabel": "Floor plan preview {name}",
+      "table": "Table {label}",
+      "tableSeats": "Table {label}, {seats} seats"
+    },
+    "inspector": {
+      "active": "Active",
+      "activeHint": "The POS does not offer inactive tables.",
+      "area": "Area",
+      "areaHint": "Moves the table to another area.",
+      "close": "Clear selection",
+      "degrees": "{value}°",
+      "delete": "Delete",
+      "duplicate": "Duplicate",
+      "empty": "Select a table or a decor element on the map to edit it.",
+      "height": "Height",
+      "label": "Label",
+      "labelInvalid": "1 to {max} characters",
+      "region": "Properties",
+      "rotate90": "Rotate by 90 degrees",
+      "rotate90Short": "90°",
+      "rotateLeft": "Rotate 15 degrees left",
+      "rotateLeftShort": "-15°",
+      "rotateRight": "Rotate 15 degrees right",
+      "rotateRightShort": "+15°",
+      "rotation": "Rotation",
+      "seats": "Seats",
+      "seatsInvalid": "1 to {max}",
+      "seatsPlaceholder": "open",
+      "shape": "Shape",
+      "text": "Text",
+      "title": "Table {label}",
+      "width": "Width"
+    },
+    "list": {
+      "actions": "Actions",
+      "active": "Active",
+      "activeOf": "Table {label} active",
+      "area": "Area",
+      "areaOf": "Area of table {label}",
+      "caption": "{count, plural, one {# table} other {# tables}}",
+      "deleteOf": "Delete table {label}",
+      "empty": "No tables yet",
+      "emptyHint": "Add tables one by one or as a series.",
+      "label": "Label",
+      "labelOf": "Label of table {label}",
+      "open": "Open",
+      "seats": "Seats",
+      "seatsOf": "Seats at table {label}",
+      "seatsPlaceholder": "open",
+      "shape": "Shape",
+      "shapeOf": "Shape of table {label}"
+    },
+    "save": {
+      "error": "Not saved",
+      "pending": "Unsaved",
+      "saved": "Saved",
+      "saving": "Saving …"
+    },
+    "shape": {
+      "rect": "Rectangular",
+      "round": "Round"
+    },
+    "subtitle": "Areas, tables and floor plan of your organization. Which event uses which tables is set in the event.",
+    "title": "Tables",
+    "toast": {
+      "created": "Table {label} created",
+      "deleted": "Table {label} deleted",
+      "saveFailed": "That did not work. Please try again."
+    },
+    "toolbar": {
+      "add": "Add",
+      "addRoundTable": "Round table",
+      "addTable": "Table",
+      "bulk": "Create series",
+      "decor": "Decor",
+      "grid": "Grid",
+      "snap": "Snap",
+      "view": "View",
+      "viewList": "List",
+      "viewMap": "Map"
+    }
+  },
+  "oeIconPicker": {
+    "change": "Change icon",
+    "choose": "Choose icon",
+    "close": "Close",
+    "fromCategory": "Without its own icon and image the POS shows the category icon.",
+    "groups": {
+      "actions": "Actions",
+      "food": "Food and drinks",
+      "operations": "Operations",
+      "payment": "Payment and receipt",
+      "status": "Status"
+    },
+    "iconWins": "At the POS the icon takes precedence over the image.",
+    "noResults": "No icon found. Try another word.",
+    "remove": "Remove icon",
+    "results": "{count, plural, one {# result} other {# results}}",
+    "search": "Search icons, e.g. beer or fries",
+    "title": "Choose icon"
   }
 }

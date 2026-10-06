@@ -34,6 +34,10 @@ export interface Product {
   /** Umsatzsteuersatz in Prozent. 0 heißt steuerfrei. */
   taxRate?: number;
   imageUrl: string | null;
+  /** `oe:<name>` aus dem OpenEOS-Icon-Set; hat Vorrang vor `imageUrl`. */
+  icon?: string | null;
+  /** Erscheint an der Kasse unter „Favoriten“. */
+  isFavorite?: boolean;
   isActive: boolean;
   isAvailable: boolean;
   trackInventory: boolean;
@@ -58,6 +62,8 @@ export interface CreateProductData {
   price: number;
   taxRate?: number;
   imageUrl?: string;
+  icon?: string;
+  isFavorite?: boolean;
   isActive?: boolean;
   isAvailable?: boolean;
   trackInventory?: boolean;
@@ -77,6 +83,8 @@ export interface UpdateProductData {
   price?: number;
   taxRate?: number;
   imageUrl?: string | null;
+  icon?: string | null;
+  isFavorite?: boolean;
   isActive?: boolean;
   isAvailable?: boolean;
   trackInventory?: boolean;

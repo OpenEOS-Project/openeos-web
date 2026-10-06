@@ -7,8 +7,10 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { Button, Icon } from '@openeos/ui';
+
 import { ProductImage } from '@/components/shared/product-image';
-import { PosIconPicker } from '@/components/shared/pos-icon-picker';
+import { OeIconPicker } from '@/components/shared/oe-icon-picker';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
@@ -42,6 +44,7 @@ function createProductSchema(t: (key: string) => string) {
     sortOrder: z.coerce.number().min(0).optional(),
     productionStationId: z.string().optional(),
     pfandTypeId: z.string().optional(),
+    isFavorite: z.boolean(),
   });
 }
 
@@ -58,6 +61,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
+  const tIcon = useTranslations('oeIconPicker');
   const { formatCurrency } = useLocaleFormat();
   // Vorgabe fuer neue Produkte in der Sprache der Oberflaeche; gespeichert
   // wird der Text, den das Feld beim Absenden enthaelt.
@@ -84,6 +88,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroup[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  /* Eigenes Icon (`oe:<name>`) — hat an der Kasse Vorrang vor dem Bild. */
+  const [icon, setIcon] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +118,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
       sortOrder: 0,
       productionStationId: '',
       pfandTypeId: '',
+      isFavorite: false,
     },
   });
 
@@ -135,9 +142,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         sortOrder: product.sortOrder,
         productionStationId: product.productionStationId || '',
         pfandTypeId: product.pfandTypeId || '',
+        isFavorite: product.isFavorite ?? false,
       });
       setOptionGroups(product.options?.groups || []);
       setImageUrl(product.imageUrl ?? null);
+      setIcon(product.icon ?? null);
     } else {
       reset({
         name: '',
@@ -153,9 +162,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         sortOrder: 0,
         productionStationId: '',
         pfandTypeId: '',
+        isFavorite: false,
       });
       setOptionGroups([]);
       setImageUrl(null);
+      setIcon(null);
     }
   }, [product, reset, defaultStockUnit]);
 
@@ -248,12 +259,20 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         options: { groups: cleanedGroups },
         productionStationId: data.productionStationId || null,
         pfandTypeId: data.pfandTypeId || null,
+        isFavorite: data.isFavorite,
       };
 
       if (isEditing && product) {
-        await updateProduct.mutateAsync({ eventId, id: product.id, data: { ...payload, imageUrl: imageUrl || null } });
+        await updateProduct.mutateAsync({
+          eventId,
+          id: product.id,
+          data: { ...payload, imageUrl: imageUrl || null, icon: icon || null },
+        });
       } else {
-        await createProduct.mutateAsync({ eventId, data: { ...payload, imageUrl: imageUrl || undefined } });
+        await createProduct.mutateAsync({
+          eventId,
+          data: { ...payload, imageUrl: imageUrl || undefined, icon: icon || undefined },
+        });
       }
       onClose();
     } catch {
@@ -265,6 +284,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     reset();
     setOptionGroups([]);
     setImageUrl(null);
+    setIcon(null);
     onClose();
   };
 
@@ -282,14 +302,20 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-              {/* Image */}
+              {/* Icon und Bild: das Icon gewinnt, ohne beides zeigt die
+                  Kasse das Icon der Kategorie (utils/product-icon.ts). */}
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: 0.7, marginBottom: 8 }}>
                   {t('form.image.title')}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <ProductImage imageUrl={imageUrl} productName={watch('name') || '?'} size="lg" />
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <div className="icon-field">
+                  <ProductImage
+                    product={{ icon, imageUrl }}
+                    category={categories?.find((c) => c.id === watch('categoryId'))}
+                    productName={watch('name') || '?'}
+                    size="lg"
+                  />
+                  <div className="icon-field__actions">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -297,18 +323,25 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       style={{ display: 'none' }}
                       onChange={handleFileUpload}
                     />
-                    <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} disabled={isUploading} onClick={() => fileInputRef.current?.click()}>
+                    <Button variant="secondary" size="sm" onClick={() => setIsIconPickerOpen(true)}>
+                      <Icon name="grid" />
+                      {icon ? tIcon('change') : tIcon('choose')}
+                    </Button>
+                    {icon && (
+                      <Button variant="quiet" size="sm" onClick={() => setIcon(null)}>
+                        {tIcon('remove')}
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" disabled={isUploading} onClick={() => fileInputRef.current?.click()}>
                       {isUploading ? t('form.image.uploading') : t('form.image.upload')}
-                    </button>
-                    <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setIsIconPickerOpen(true)}>
-                      {t('form.image.chooseIcon')}
-                    </button>
+                    </Button>
                     {imageUrl && (
-                      <button type="button" className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--danger)' }} onClick={() => setImageUrl(null)}>
+                      <Button variant="danger-quiet" size="sm" onClick={() => setImageUrl(null)}>
                         {t('form.image.remove')}
-                      </button>
+                      </Button>
                     )}
                   </div>
+                  <p className="icon-field__hint">{icon ? tIcon('iconWins') : tIcon('fromCategory')}</p>
                 </div>
               </div>
 
@@ -516,8 +549,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         />
                         {t('form.required')}
                       </label>
-                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: 'var(--danger)', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)}>
-                        ✕
+                      <button type="button" className="btn btn--ghost" style={{ padding: '4px 8px', color: 'var(--danger)', fontSize: 12 }} onClick={() => handleRemoveGroup(groupIndex)} aria-label={tCommon('delete')}>
+                        <Icon name="x" />
                       </button>
                     </div>
 
@@ -555,8 +588,8 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                                 onChange={(e) => handleUpdateOption(groupIndex, optionIndex, 'default', e.target.checked)}
                               />
                             </div>
-                            <button type="button" className="btn btn--ghost" style={{ padding: '2px 6px', fontSize: 12 }} onClick={() => handleRemoveOption(groupIndex, optionIndex)}>
-                              ✕
+                            <button type="button" className="btn btn--ghost" style={{ padding: '2px 6px', fontSize: 12 }} onClick={() => handleRemoveOption(groupIndex, optionIndex)} aria-label={tCommon('delete')}>
+                              <Icon name="x" />
                             </button>
                           </div>
                         ))}
@@ -576,6 +609,19 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
 
               {/* Status Toggles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Controller
+                name="isFavorite"
+                control={control}
+                render={({ field }) => (
+                  <SettingToggle
+                    label={t('favorite')}
+                    hint={t('favoriteHint')}
+                    checked={!!field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+
               <Controller
                 name="isActive"
                 control={control}
@@ -663,12 +709,14 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
         onCreated={handleCategoryCreated}
       />
 
-      <PosIconPicker
+      <OeIconPicker
         isOpen={isIconPickerOpen}
+        value={icon}
         onClose={() => setIsIconPickerOpen(false)}
-        onSelect={(iconUrl) => {
-          setImageUrl(iconUrl);
-          setIsIconPickerOpen(false);
+        onSelect={(value) => {
+          setIcon(value);
+          // Altes PNG-Icon im Bildfeld ablösen; ein Foto bleibt stehen.
+          if (imageUrl?.startsWith('pos-icon:')) setImageUrl(null);
         }}
       />
     </>

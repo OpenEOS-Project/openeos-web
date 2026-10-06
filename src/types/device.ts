@@ -63,6 +63,8 @@ export interface Device {
     printerMode?: PrinterMode;
     requirePin?: boolean;
     display?: DisplayAppearance;
+    /** Standardbereich der Kasse (Tischbetrieb), öffnet diesen Bereich zuerst. */
+    tableAreaId?: string | null;
     [key: string]: unknown;
   };
   createdAt: string;
