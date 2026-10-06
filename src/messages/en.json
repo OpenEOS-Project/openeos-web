@@ -3619,9 +3619,21 @@
     "customAria": "Choose a custom color"
   },
   "posIconPicker": {
-    "title": "Choose icon",
-    "search": "Search icons...",
-    "noResults": "No icons found",
+    "title": "Choose product icon",
+    "choose": "Choose product icon",
+    "change": "Change product icon",
+    "remove": "Remove product icon",
+    "search": "Search product icons, e.g. beer or fries",
+    "results": "{count, plural, one {# result} other {# results}}",
+    "noResults": "No product icon found. Try another word.",
+    "loading": "Loading product icons …",
+    "loadError": "The product icons could not be loaded. Reload the page and try again.",
+    "groups": {
+      "drink": "Drinks",
+      "food": "Food"
+    },
+    "iconWins": "At the POS the product icon takes precedence over an uploaded image.",
+    "fromCategory": "Without a product icon or image the POS shows the category icon.",
     "close": "Close"
   },
   "printTemplates": {
@@ -4412,7 +4424,6 @@
     "change": "Change icon",
     "choose": "Choose icon",
     "close": "Close",
-    "fromCategory": "Without its own icon and image the POS shows the category icon.",
     "groups": {
       "actions": "Actions",
       "food": "Food and drinks",
@@ -4420,7 +4431,6 @@
       "payment": "Payment and receipt",
       "status": "Status"
     },
-    "iconWins": "At the POS the icon takes precedence over the image.",
     "noResults": "No icon found. Try another word.",
     "remove": "Remove icon",
     "results": "{count, plural, one {# result} other {# results}}",

@@ -1,30 +1,40 @@
 'use client';
 
 import { Icon, type IconName } from '@openeos/ui';
+import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { resolveUploadUrl } from '@/utils/upload-url';
-import { resolveCategoryIcon, resolveProductIcon, type IconSource } from '@/utils/product-icon';
+import {
+  categoryIconName,
+  resolveCategoryIcon,
+  resolveProductIcon,
+  type IconSource,
+} from '@/utils/product-icon';
 import type { Category } from '@/types/category';
 import type { Product } from '@/types/product';
 
 /** Produkt mit den Feldern, die mit der API-Erweiterung „Tische“ kommen. */
 export type PosProduct = Product & { icon?: string | null; isFavorite?: boolean };
 
-/** Name eines Linien-Icons für Stellen, die nur Icons kennen (Blattkopf). */
-export function iconNameOf(source: IconSource): IconName {
-  return source.kind === 'icon' ? source.name : 'utensils';
+/**
+ * Linien-Icon für Stellen, die nur Linien-Icons kennen (Blattkopf): bei
+ * Produktbildern und Fotos das Icon der Kategorie.
+ */
+export function sheetIconOf(product: PosProduct, category?: Category | null): IconName {
+  const source = productIconSource(product, category);
+  return source.kind === 'icon' ? source.name : categoryIconName(category ?? product.category);
 }
 
 /**
- * Inhalt einer Icon-Box: Linien-Icon oder Foto. PNGs aus
- * @openeos/pos-icons ohne Gegenstück zeigt die Kasse als `utensils`
- * (das PNG bleibt der Verwaltung vorbehalten).
+ * Inhalt einer Icon-Box: Produktbild (POS-Icon), Foto oder Linien-Icon.
+ * Bilder sind dekorativ — der Produktname steht daneben.
  */
 export function IconVisual({ source }: { source: IconSource }) {
   if (source.kind === 'photo') {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={resolveUploadUrl(source.url)} alt="" loading="lazy" />;
   }
-  return <Icon name={source.kind === 'icon' ? source.name : 'utensils'} />;
+  if (source.kind === 'pos-icon') return <PosIconImage id={source.id} />;
+  return <Icon name={source.name} />;
 }
 
 export function productIconSource(product: PosProduct, category?: Category | null): IconSource {

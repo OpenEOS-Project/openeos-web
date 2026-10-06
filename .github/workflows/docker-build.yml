@@ -64,8 +64,9 @@ jobs:
       - name: Check device views for symbols
         run: node scripts/check-pos-symbols.mjs
 
-      # Reine Funktionen (Kalendertage, Formatierung) ohne Browser. Die
-      # Datumstests schalten selbst zwischen mehreren Zeitzonen um.
+      # Reine Funktionen ohne Browser: Fehlerbericht-Filter (node --test)
+      # sowie Kalendertage und Formatierung (Playwright-Runner, die
+      # Datumstests schalten selbst zwischen mehreren Zeitzonen um).
       - name: Unit tests
         run: pnpm test:unit
 
