@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 import {
   use2FAStatus,
@@ -116,7 +117,7 @@ export function SecuritySection() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, #22c55e 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+                <Icon name="check" size={16} style={{ color: 'var(--green-ink)' }} />
               </div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.enabled')}</div>
@@ -133,7 +134,7 @@ export function SecuritySection() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, var(--warn) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                <Icon name="alert" size={16} style={{ color: 'var(--warn-ink, var(--warn))' }} />
               </div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.disabled')}</div>
@@ -238,12 +239,12 @@ export function SecuritySection() {
                   <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>{t('twoFactor.selectMethod')}</p>
                   <button type="button" onClick={handleStartTotpSetup} disabled={setupTotp.isPending}
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, borderRadius: 10, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="1.75"><rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>
+                    <Icon name="device" size={24} style={{ color: 'var(--green-ink)' }} />
                     <div><div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.methodTotp')}</div><div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.setupTotp')}</div></div>
                   </button>
                   <button type="button" onClick={handleStartEmailSetup} disabled={setupEmailOtp.isPending}
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, borderRadius: 10, border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="1.75"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                    <Icon name="mail" size={24} style={{ color: 'var(--green-ink)' }} />
                     <div><div style={{ fontWeight: 600, fontSize: 14 }}>{t('twoFactor.methodEmail')}</div><div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.setupEmail')}</div></div>
                   </button>
                 </div>
@@ -325,7 +326,7 @@ export function SecuritySection() {
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ padding: 12, borderRadius: 8, background: 'color-mix(in oklab, var(--warn) 12%, transparent)', display: 'flex', gap: 10 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                <Icon name="alert" size={16} style={{ color: 'var(--warn-ink, var(--warn))', flexShrink: 0, marginTop: 1 }} />
                 <p style={{ fontSize: 13, color: 'var(--warn-ink)' }}>{t('twoFactor.disableConfirmDescription')}</p>
               </div>
               <div className="auth-field">

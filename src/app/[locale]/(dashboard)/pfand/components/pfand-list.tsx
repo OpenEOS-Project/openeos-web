@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
@@ -35,10 +36,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v10M9.5 9.5h3.5a1.5 1.5 0 0 1 0 3H10a1.5 1.5 0 0 0 0 3h3.5" />
-          </svg>
+          <Icon name="deposit" size={28} />
         }
         action={
           <button className="btn btn--primary" onClick={onCreateClick}>
@@ -102,7 +100,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
                       aria-label={t('actions.edit')}
                       title={t('actions.edit')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                      <Icon name="edit" size={16} />
                     </button>
                     <button
                       type="button"
@@ -112,7 +110,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
                       aria-label={t('actions.delete')}
                       title={t('actions.delete')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                      <Icon name="trash" size={16} />
                     </button>
                   </div>
                 </td>

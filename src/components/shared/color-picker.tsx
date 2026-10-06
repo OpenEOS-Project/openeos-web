@@ -2,6 +2,7 @@
 
 import { useId, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 /**
  * Farbwahl aus einer Vorgabe, mit dem Systemdialog als Ausweg.
@@ -71,9 +72,7 @@ export function ColorPicker({ value, onChange, onBlur }: ColorPickerProps) {
           aria-label={t('customAria')}
           title={t('custom')}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
+          <Icon name="plus" size={14} />
         </button>
         <input
           ref={nativeRef}

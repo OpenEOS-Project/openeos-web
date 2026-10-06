@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useSetTestMode } from '@/hooks/use-events';
 import { useOnboardingStatus } from '@/hooks/use-onboarding';
@@ -98,9 +99,7 @@ export function QuickStartCard({ organizationId }: Props) {
             >
               <span className="quick-start__marker" aria-hidden="true">
                 {step.done ? (
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <Icon name="check" size={13} />
                 ) : (
                   index + 1
                 )}

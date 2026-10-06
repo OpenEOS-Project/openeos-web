@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { Inbox } from 'lucide-react';
 
 /** Standard loading state for list pages — centered spinner in an app-card. */
 export function ListLoading() {
@@ -45,12 +46,7 @@ export function ListEmpty({ title, description, icon, action }: ListEmptyProps) 
     <div className="app-card">
       <div className="empty-state">
         <div className="empty-state__icon">
-          {icon || (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <path d="M3 10h18" />
-            </svg>
-          )}
+          {icon || <Inbox size={28} />}
         </div>
         <h3 className="empty-state__title">{title}</h3>
         {description && <p className="empty-state__sub">{description}</p>}

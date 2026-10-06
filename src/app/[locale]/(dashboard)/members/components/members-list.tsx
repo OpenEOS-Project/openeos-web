@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useCanCreateMemberAccount, useMembers } from '@/hooks/use-members';
@@ -45,9 +46,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-          </svg>
+          <Icon name="users" size={28} />
         }
         action={
           <button type="button" className="btn btn--primary" onClick={onInviteClick}>
@@ -161,7 +160,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
                           aria-label={t('actions.editPermissions')}
                           title={t('actions.editPermissions')}
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                          <Icon name="edit" size={16} />
                         </button>
                         <button
                           type="button"
@@ -171,7 +170,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
                           aria-label={t('actions.remove')}
                           title={t('actions.remove')}
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                          <Icon name="trash" size={16} />
                         </button>
                       </div>
                     )}

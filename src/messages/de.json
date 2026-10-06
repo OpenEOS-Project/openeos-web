@@ -845,6 +845,7 @@
       "orderingModeImmediate": "Sofort kassieren",
       "orderingModeTab": "Auf Deckel buchen",
       "orderingModeHint": "Bestimmt, ob an der Kasse direkt bezahlt oder auf einen Deckel gebucht wird.",
+      "orderingModeInherited": "Ohne eigene Auswahl gilt die Vorgabe der Organisation.",
       "priceSum": "Freischalten kostet {price}",
       "priceCalc": "{days} Tage × {perDay} je Tag",
       "priceCalcDiscounted": "{days} Tage × {perDay} = {gross}, abzüglich {percent} % Erstveranstalter-Nachlass",
@@ -3374,8 +3375,8 @@
       "restore": "Wiederherstellen",
       "remove": "Entfernen",
       "new": "NEU",
-      "closePicker": "× Auswahl schließen",
-      "addShift": "+ Schicht hinzufügen",
+      "closePicker": "Auswahl schließen",
+      "addShift": "Schicht hinzufügen",
       "proposalNote": "Optionale Notiz für den Helfer (nur beim Vorschlag)",
       "proposalNotePlaceholder": "z. B. Wir bräuchten dich an einer anderen Stelle – passt das so?",
       "proposalHint": "Bei „Vorschlag senden“ bekommt der Helfer eine E-Mail mit den Schaltflächen „Annehmen“/„Ablehnen“. „Direkt speichern“ wendet alles sofort an, ohne zu fragen.",
@@ -3446,7 +3447,7 @@
       "closeList": "Schichtliste schließen",
       "addMore": "Weitere Schicht hinzufügen",
       "spotsFree": "{available}/{required} frei",
-      "signUp": "+ eintragen",
+      "signUp": "eintragen",
       "linkValidity": "Dein Verwaltungs-Link gilt 24 Stunden. Danach kannst du auf der Seite des Schichtplans einen neuen anfordern."
     },
     "publicPage": {

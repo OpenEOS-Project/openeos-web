@@ -1201,6 +1201,7 @@
       "orderingModeImmediate": "Pay immediately",
       "orderingModeTab": "Run a tab",
       "orderingModeHint": "Decides whether the till takes payment right away or books onto a tab.",
+      "orderingModeInherited": "Unless you choose one here, the organization default applies.",
       "priceSum": "Activating costs {price}",
       "priceCalc": "{days} days × {perDay} per day",
       "priceCalcDiscounted": "{days} days × {perDay} = {gross}, less {percent}% first-event discount",
@@ -3374,8 +3375,8 @@
       "restore": "Restore",
       "remove": "Remove",
       "new": "NEW",
-      "closePicker": "× Close picker",
-      "addShift": "+ Add shift",
+      "closePicker": "Close picker",
+      "addShift": "Add shift",
       "proposalNote": "Optional note for the helper (proposal only)",
       "proposalNotePlaceholder": "e.g. We would need you somewhere else – does that work for you?",
       "proposalHint": "With “Send proposal”, the helper receives an email with “Accept”/“Decline” buttons. “Save directly” applies everything immediately without asking.",
@@ -3446,7 +3447,7 @@
       "closeList": "Close shift list",
       "addMore": "Add another shift",
       "spotsFree": "{available}/{required} free",
-      "signUp": "+ sign up",
+      "signUp": "sign up",
       "linkValidity": "Your management link is valid for 24 hours. After that, you can request a new one on the shift plan page."
     },
     "publicPage": {

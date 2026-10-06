@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useMembers, useCreateInvitation, useRemoveMember, useUpdateMember, useInvitations, useDeleteInvitation } from '@/hooks/use-members';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -174,9 +175,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
               {invitations.length > 0 && (
                 <div>
                   <h4 style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--ink-faint)', marginBottom: 8 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                    </svg>
+                    <Icon name="clock" size={13} />
                     {tOrg('membersModal.invitationsTitle', { count: invitations.length })}
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -203,9 +202,7 @@ export function MembersModal({ isOpen, organization, onClose }: MembersModalProp
                           justifyContent: 'center',
                           flexShrink: 0,
                         }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber, var(--warn))" strokeWidth="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-                          </svg>
+                          <Icon name="mail" size={12} style={{ color: 'var(--amber, var(--warn))' }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

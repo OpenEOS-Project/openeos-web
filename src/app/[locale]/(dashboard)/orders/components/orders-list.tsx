@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
+import { ShoppingBag } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
@@ -238,29 +240,18 @@ export function OrdersList() {
           aria-label={t('common.refresh')}
           title={t('common.refresh')}
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <Icon
+            name="refresh"
+            size={18}
             style={isFetching ? { animation: 'spin 0.75s linear infinite' } : undefined}
-          >
-            <path d="M21 12a9 9 0 1 1-3-6.7" />
-            <polyline points="21 4 21 10 15 10" />
-          </svg>
+          />
         </button>
       </div>
 
       {orders.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
-            </svg>
+            <ShoppingBag size={28} />
           </div>
           <h3 className="empty-state__title">{t('orders.noOrders')}</h3>
           <p className="empty-state__sub">{t('orders.noOrdersDescription')}</p>

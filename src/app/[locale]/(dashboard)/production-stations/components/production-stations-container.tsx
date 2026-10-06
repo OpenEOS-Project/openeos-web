@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { Building } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 
 import { useDeleteProductionStation } from '@/hooks/use-production-stations';
 import { useActiveEvent } from '@/hooks/use-events';
@@ -45,9 +47,7 @@ export function ProductionStationsContainer() {
         title={tCommon('noOrganization.title')}
         description={tCommon('noOrganization.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-          </svg>
+          <Building size={28} />
         }
       />
     );
@@ -72,10 +72,7 @@ export function ProductionStationsContainer() {
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
+          <Icon name="calendar" size={28} />
         }
         action={
           <Link href="/events" className="btn btn--primary" style={{ marginTop: 12 }}>

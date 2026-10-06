@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
+import { Icon } from '@openeos/ui';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { SettingToggle } from '@/components/shared/setting-toggle';
@@ -75,7 +76,7 @@ export function PreferencesSection() {
               >
                 {isActive && (
                   <span style={{ position: 'absolute', top: 6, right: 6 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="3"><path d="M20 6 9 17l-5-5" /></svg>
+                    <Icon name="check" size={12} style={{ color: 'var(--green-ink)' }} />
                   </span>
                 )}
                 <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 500, color: isActive ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 70%, transparent)' }}>
@@ -109,7 +110,7 @@ export function PreferencesSection() {
                 }}
               >
                 {isActive && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="3"><path d="M20 6 9 17l-5-5" /></svg>
+                  <Icon name="check" size={12} style={{ color: 'var(--green-ink)' }} />
                 )}
                 <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 500, color: isActive ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 70%, transparent)' }}>
                   {lang.label}

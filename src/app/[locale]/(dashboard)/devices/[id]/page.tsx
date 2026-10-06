@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 import { useState } from 'react';
 import type { FC } from 'react';
 import { useTranslations } from 'next-intl';
@@ -129,10 +130,7 @@ export default function DeviceDetailPage() {
               background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-ink)" strokeWidth="1.75">
-                <rect x="5" y="2" width="14" height="20" rx="2" />
-                <line x1="12" y1="18" x2="12" y2="18.01" />
-              </svg>
+              <Icon name="device" size={20} style={{ color: 'var(--green-ink)' }} />
             </div>
             <div style={{ minWidth: 0 }}>
               <h1 className="app-page-head__title" style={{ margin: 0 }}>{device.name}</h1>

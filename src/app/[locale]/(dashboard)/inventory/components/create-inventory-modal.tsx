@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import {
@@ -101,7 +102,7 @@ export function CreateInventoryModal({
           <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <label className="auth-field">
               <span>
-                {t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span>
+                {t('form.name')} <span className="auth-field__req">*</span>
               </span>
               <input
                 type="text"
@@ -131,10 +132,7 @@ export function CreateInventoryModal({
             )}
 
             <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4M12 16h.01" />
-              </svg>
+              <Icon name="info" size={14} />
               {t('form.bulkAddHint', {
                 count: (products ?? []).filter((p) => p.trackInventory).length,
               })}

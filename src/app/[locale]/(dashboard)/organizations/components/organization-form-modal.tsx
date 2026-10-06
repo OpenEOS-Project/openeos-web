@@ -136,7 +136,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <label className="auth-field">
-              <span>{t('form.name')} *</span>
+              <span>{t('form.name')} <span className="auth-field__req">*</span></span>
               <input
                 type="text"
                 className={`input${errors.name ? ' input--error' : ''}`}

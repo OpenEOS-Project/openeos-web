@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useUpdateProductStock } from '@/hooks/use-products';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -142,7 +143,8 @@ export function StockAdjustmentModal({
               onClick={() => handleAdjust('subtract')}
               disabled={updateStock.isPending || adjustmentNum <= 0 || newStockAfterSubtract < 0}
             >
-              − {t('stock.subtract')}
+              <Icon name="minus" />
+              {t('stock.subtract')}
             </button>
             <button
               type="button"
@@ -150,7 +152,8 @@ export function StockAdjustmentModal({
               onClick={() => handleAdjust('add')}
               disabled={updateStock.isPending || adjustmentNum <= 0}
             >
-              + {t('stock.add')}
+              <Icon name="plus" />
+              {t('stock.add')}
             </button>
           </div>
         </div>

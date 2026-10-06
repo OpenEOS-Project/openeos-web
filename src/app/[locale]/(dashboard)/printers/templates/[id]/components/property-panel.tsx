@@ -6,8 +6,8 @@ import {
   TextAlignEnd,
   TextAlignJustify,
   TextAlignStart,
-  Trash,
 } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 import { cx } from '@/utils/cx';
 import type { TemplateElement, TextAlign } from '@/types/print-template';
 
@@ -224,7 +224,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--danger)' }}
             onClick={() => onRemove(element.id)}
           >
-            <Trash className="h-4 w-4" />
+            <Icon name="trash" size={16} />
             {t('deleteElement')}
           </button>
         </div>

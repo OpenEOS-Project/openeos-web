@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInvitations, useDeleteInvitation, useResendInvitation } from '@/hooks/use-members';
@@ -69,9 +70,7 @@ export function InvitationsList({ organizationId }: InvitationsListProps) {
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" style={{ color: 'var(--ink-faint)' }}>
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-          </svg>
+          <Icon name="clock" size={16} style={{ color: 'var(--ink-faint)' }} />
           <h3 className="app-card__title">
             {t('invitations.title')}
             <span className="badge badge--warning" style={{ marginLeft: 8 }}>{invitations.length}</span>
@@ -107,9 +106,7 @@ export function InvitationsList({ organizationId }: InvitationsListProps) {
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber, var(--warn))" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-                </svg>
+                <Icon name="mail" size={14} style={{ color: 'var(--amber, var(--warn))' }} />
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
