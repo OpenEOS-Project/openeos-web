@@ -283,9 +283,9 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
             )}
 
             {/* Helper details */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="field-row">
               <div className="auth-field">
-                <label className="auth-field__label">{t('shifts.form.name')} *</label>
+                <label className="auth-field__label">{t('shifts.form.name')} <span className="auth-field__req">*</span></label>
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="auth-field">
@@ -299,7 +299,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="field-row">
               <div className="auth-field">
                 <label className="auth-field__label">{tm('helperNotes')}</label>
                 <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -313,7 +313,7 @@ export function EditRegistrationModal({ open, plan, registration, allRegistratio
             {/* Shifts list */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{te('registeredShifts')}</span>
+                <span className="auth-field__label">{te('registeredShifts')}</span>
                 <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
                   {te('activeCount', { count: groupRegs.length - removedRegIds.size + addedShiftIds.size })}
                 </span>

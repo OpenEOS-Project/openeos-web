@@ -73,7 +73,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
             )}
 
             <div className="auth-field">
-              <label className="auth-field__label">{t('shifts.form.name')} *</label>
+              <label className="auth-field__label">{t('shifts.form.name')} <span className="auth-field__req">*</span></label>
               <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
             </div>
 
@@ -83,7 +83,7 @@ export function EditJobModal({ open, job, planId, onClose }: Props) {
             </div>
 
             <div className="auth-field">
-              <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} *</label>
+              <label className="auth-field__label">{t('shifts.jobForm.workersPerShift')} <span className="auth-field__req">*</span></label>
               <input
                 className="input"
                 type="number"

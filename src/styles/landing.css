@@ -1518,18 +1518,8 @@ body:has(.landing) {
   display: flex; flex-direction: column;
   gap: 6px;
 }
-/* Nur die Beschriftung oben im Feld. Hinweise und Fehlermeldungen unter
-   dem Eingabefeld sind ebenfalls <span>s — ohne :first-child standen sie
-   als Versal-Mono-Ueberschrift da ("BEI LEERER AUSWAHL …"). Sie tragen
-   .auth-field__hint bzw. .auth-field__error. */
-.landing .auth-field > span:first-child {
-  font-family: var(--f-mono, "JetBrains Mono", ui-monospace, monospace);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--mute);
-  font-weight: 500;
-}
+/* Die Beschriftung (.auth-field > span:first-child) steht weiter unten
+   unter "Formularfelder" zusammen mit den anderen Label-Varianten. */
 .landing .auth-field input {
   /* Eine Zeile Text, ein Rahmen, etwas Luft — mehr braucht ein Feld
      nicht. Die vorherigen 14px auf 9px Polsterung ergaben gut 41px hohe
@@ -3081,10 +3071,15 @@ body:has(.landing) {
 }
 /* Das native Feld bleibt bedienbar, aber unsichtbar — es wird nur ueber
    den Knopf davor ausgeloest. display:none wuerde click() verhindern. */
-.landing .color-picker__native {
+/* input.… haelt gegen ".auth-field input" (gleiche Spezifitaet, steht
+   spaeter), sonst bekaeme das unsichtbare Feld dort Feldhoehe und Rahmen. */
+.landing input.color-picker__native {
   position: absolute;
   width: 0;
   height: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -3104,6 +3099,15 @@ body:has(.landing) {
 }
 @media (max-width: 420px) {
   .landing .field-row { grid-template-columns: 1fr; }
+}
+/* Ein kurzes Feld neben einem langen (PLZ + Ort, IP + Port). Steht
+   hinter der Media-Regel, damit das Paar auch schmal nebeneinander
+   bleibt — 120px reichen fuer PLZ bzw. Port immer. */
+.landing .field-row--narrow-start {
+  grid-template-columns: 120px 1fr;
+}
+.landing .field-row--narrow-end {
+  grid-template-columns: 1fr 120px;
 }
 
 /* ---------- Betragseingabe ----------
@@ -3172,12 +3176,6 @@ body:has(.landing) {
 }
 .landing .cat-row__grip:hover { background: color-mix(in oklab, var(--ink) 6%, transparent); color: var(--mute); }
 .landing .cat-row__grip:active { cursor: grabbing; }
-.landing .cat-row__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
 .landing .cat-row__copy { flex: 1; min-width: 0; }
 .landing .cat-row__name { font: 600 13px var(--oe-f-sans); color: var(--ink); }
 .landing .cat-row__desc {
@@ -3991,15 +3989,62 @@ body:has(.landing) {
 }
 
 /* ---------- Formularfelder ----------
-   .auth-field__label wird 81-mal verwendet und hatte keine einzige
-   Regel — die Beschriftungen waren unformatiert. Sie folgen jetzt
-   .oe-field > label: Mono, gesperrt, Versalien. */
+   Eine Beschriftung, vier Schreibweisen im Markup: <span> als erstes Kind,
+   .auth-field__label, <label> als Kind und .oe-field > label aus dem
+   Designsystem (Input/Select aus @openeos/ui). Bisher hatten sie
+   unterschiedliche Zeilenhoehen (1 gegen normal) und Sperrungen; zwei
+   Felder in einer Reihe begannen dadurch auf verschiedener Hoehe. Die
+   feste Zeilenhoehe von 16px haelt alle Varianten gleich hoch.
+
+   Nur das erste <span> ist die Beschriftung. Hinweise und Fehlermeldungen
+   unter dem Eingabefeld sind ebenfalls <span>s — ohne :first-child standen
+   sie als Versal-Mono-Ueberschrift da ("BEI LEERER AUSWAHL …"). Sie tragen
+   .auth-field__hint bzw. .auth-field__error. */
+.landing .auth-field > span:first-child,
 .landing .auth-field__label,
-.landing .auth-field > label {
-  font: 500 11px/1 var(--oe-f-mono);
+.landing .auth-field > label,
+.landing .oe-field > label,
+.landing .tables-inspector__label {
+  font: 500 11px/16px var(--oe-f-mono);
   letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--mute);
+}
+/* Pflichtsternchen in der Beschriftung. */
+.landing .auth-field__req {
+  color: var(--danger);
+}
+/* Eingabefeld mit Knopf daneben (z. B. Kategorie + "Neu"). Der Knopf
+   ist quadratisch und so hoch wie das Feld. */
+.landing .auth-field__control {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.landing .auth-field__control > :is(input, select, .input, .select) {
+  flex: 1;
+  min-width: 0;
+}
+.landing .btn--field {
+  flex: none;
+  width: var(--oe-control-h-md, 34px);
+  height: var(--oe-control-h-md, 34px);
+  padding: 0;
+}
+/* Textknopf in einer Feldzeile: gleiche Hoehe wie das Feld daneben. */
+.landing .btn--control {
+  flex: none;
+  height: var(--oe-control-h-md, 34px);
+  padding-block: 0;
+  font-size: 13px;
+}
+/* Kopf eines Feldabschnitts: Beschriftung links, Aktion rechts. */
+.landing .form-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 .landing .auth-field__hint {
   font-size: 12px;

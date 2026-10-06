@@ -65,35 +65,32 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
               <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{device.name}</p>
             </div>
 
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
-              {t('verifyDialog.type')}
+            <label className="auth-field" style={{ marginBottom: 16 }}>
+              <span>{t('verifyDialog.type')}</span>
+              <select
+                className="select"
+                value={type}
+                onChange={(e) => setType(e.target.value as DeviceClass)}
+              >
+                {(['pos', 'display', 'admin'] as DeviceClass[]).map((opt) => (
+                  <option key={opt} value={opt}>{t(`class.${opt}`)}</option>
+                ))}
+              </select>
+              <span className="auth-field__hint">{t('verifyDialog.typeHint')}</span>
             </label>
-            <select
-              className="select"
-              value={type}
-              onChange={(e) => setType(e.target.value as DeviceClass)}
-              style={{ marginBottom: 16 }}
-            >
-              {(['pos', 'display', 'admin'] as DeviceClass[]).map((opt) => (
-                <option key={opt} value={opt}>{t(`class.${opt}`)}</option>
-              ))}
-            </select>
-            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: '-8px 0 16px' }}>
-              {t('verifyDialog.typeHint')}
-            </p>
 
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
-              {t('verifyDialog.code')}
+            <label className="auth-field">
+              <span>{t('verifyDialog.code')}</span>
+              <input
+                className="input"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder={t('verifyDialog.codePlaceholder')}
+                maxLength={6}
+                autoFocus
+                style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontFamily: 'var(--f-mono)' }}
+              />
             </label>
-            <input
-              className="input"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder={t('verifyDialog.codePlaceholder')}
-              maxLength={6}
-              autoFocus
-              style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontFamily: 'var(--f-mono)' }}
-            />
 
             {error && (
               <p role="alert" style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, margin: 0 }}>{error}</p>

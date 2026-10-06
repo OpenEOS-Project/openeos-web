@@ -137,7 +137,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
           {/* Module permissions */}
           {!isAdmin && (
             <div>
-              <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('permissions.title')}</p>
+              <p className="auth-field__label" style={{ marginBottom: 10 }}>{t('permissions.title')}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {PERMISSION_KEYS.map((key) => (
                   <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
@@ -160,8 +160,8 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
 
           {/* PIN Section */}
           <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)', paddingTop: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t('pin.title')}</p>
-            <p style={{ fontSize: 12, color: 'var(--ink-faint)', marginBottom: 12 }}>{t('pin.hint')}</p>
+            <p className="auth-field__label" style={{ marginBottom: 4 }}>{t('pin.title')}</p>
+            <p className="auth-field__hint" style={{ marginBottom: 12 }}>{t('pin.hint')}</p>
 
             {effectiveHasPin ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -202,13 +202,12 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
                     setPinError(null);
                   }}
                   placeholder={t('pin.placeholder')}
-                  className="input"
+                                    className="input"
                   style={{ width: 120 }}
                 />
                 <button
                   type="button"
-                  className="btn btn--ghost"
-                  style={{ fontSize: 12, padding: '4px 10px' }}
+                  className="btn btn--ghost btn--control"
                   onClick={async () => {
                     if (!/^\d{4,6}$/.test(pinInput)) {
                       setPinError(t('pin.invalid'));
@@ -233,7 +232,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
             )}
 
             {pinError && (
-              <p role="alert" style={{ marginTop: 6, fontSize: 12, color: 'var(--red, var(--danger))' }}>{pinError}</p>
+              <p role="alert" className="auth-field__error" style={{ marginTop: 6 }}>{pinError}</p>
             )}
           </div>
         </div>

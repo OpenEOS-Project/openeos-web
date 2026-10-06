@@ -101,8 +101,8 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <SectionCard title={t('devices.detail.printer.defaultPrinter.title')}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+                <div className="auth-field">
+          <label className="auth-field__label">
             {t('devices.detail.printer.defaultPrinter.title')}
           </label>
           <select
@@ -178,8 +178,8 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
         title={t('devices.detail.printer.cashDrawer.title')}
         description={t('devices.detail.printer.cashDrawer.description')}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+                <div className="auth-field">
+          <label className="auth-field__label">
             {t('devices.detail.printer.cashDrawer.selectPrinter')}
           </label>
           {printers.filter((p) => p.hasCashDrawer).length === 0 ? (

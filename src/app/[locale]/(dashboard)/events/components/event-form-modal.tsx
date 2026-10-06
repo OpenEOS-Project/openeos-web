@@ -258,7 +258,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               control={control}
               render={({ field }) => (
                 <label className="auth-field" style={errors.name ? { '--field-border': 'var(--danger)' } as React.CSSProperties : {}}>
-                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.name')} <span className="auth-field__req">*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
                     <span role="alert" className="auth-field__error">{errors.name.message}</span>
@@ -279,7 +279,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="field-row">
                 <Controller
                   name="startDate"
                   control={control}
@@ -289,7 +289,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       style={errors.startDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
                     >
                       <span>
-                        {t('form.startDate')} <span style={{ color: 'var(--danger)' }}>*</span>
+                        {t('form.startDate')} <span className="auth-field__req">*</span>
                       </span>
                       <input type="date" {...field} />
                     </label>
@@ -315,7 +315,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               {errors.endDate && (
                 <span role="alert" className="auth-field__error">{t('form.endBeforeStart')}</span>
               )}
-              <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+              <span className="auth-field__hint">
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
               </span>
 
@@ -489,8 +489,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                     )}
 
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
-                        {t('form.shop.openingHours')}
+                      {/* Kein .auth-field-Huelle: deren Eingaberegel wuerde auch
+                          die Tages-Checkboxen auf Feldhoehe ziehen. */}
+                      <div className="form-section__head">
+                        <span className="auth-field__label">{t('form.shop.openingHours')}</span>
                       </div>
 
                         {shopDays.length === 0 ? (
@@ -548,15 +550,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                           </div>
                         )}
 
-                        <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 8, marginBottom: 0 }}>
+                        <p className="auth-field__hint" style={{ margin: '8px 0 0' }}>
                           {t('form.shop.openingHoursHint')}
                         </p>
                     </div>
 
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>
-                        {t('form.shop.serviceFee')}
-                      </div>
+                    <div className="auth-field">
+                      <span className="auth-field__label">{t('form.shop.serviceFee')}</span>
                         <Controller
                           name="shopServiceFee"
                           control={control}
@@ -579,9 +579,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                             </div>
                           )}
                         />
-                        <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 6, marginBottom: 0 }}>
-                        {t('form.shop.serviceFeeHint')}
-                      </p>
+                        <span className="auth-field__hint">{t('form.shop.serviceFeeHint')}</span>
                     </div>
                   </SettingToggle>
                 );

@@ -96,9 +96,9 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                 control={control}
                 render={({ field }) => (
                   <div className="auth-field">
-                    <label className="auth-field__label">{t('shifts.editor.shiftDate')} *</label>
+                    <label className="auth-field__label">{t('shifts.editor.shiftDate')} <span className="auth-field__req">*</span></label>
                     <input className="input" type="date" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                    {errors.date && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.date.message}</p>}
+                    {errors.date && <p className="auth-field__error">{errors.date.message}</p>}
                   </div>
                 )}
               />
@@ -110,15 +110,15 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                 </div>
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="field-row">
                 <Controller
                   name="startTime"
                   control={control}
                   render={({ field }) => (
                     <div className="auth-field">
-                      <label className="auth-field__label">{t('shifts.editor.shiftStartTime')} *</label>
+                      <label className="auth-field__label">{t('shifts.editor.shiftStartTime')} <span className="auth-field__req">*</span></label>
                       <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                      {errors.startTime && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.startTime.message}</p>}
+                      {errors.startTime && <p className="auth-field__error">{errors.startTime.message}</p>}
                     </div>
                   )}
                 />
@@ -127,9 +127,9 @@ export function AddShiftModal({ open, jobId, planId, onClose }: AddShiftModalPro
                   control={control}
                   render={({ field }) => (
                     <div className="auth-field">
-                      <label className="auth-field__label">{t('shifts.editor.shiftEndTime')} *</label>
+                      <label className="auth-field__label">{t('shifts.editor.shiftEndTime')} <span className="auth-field__req">*</span></label>
                       <input className="input" type="time" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-                      {errors.endTime && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.endTime.message}</p>}
+                      {errors.endTime && <p className="auth-field__error">{errors.endTime.message}</p>}
                     </div>
                   )}
                 />

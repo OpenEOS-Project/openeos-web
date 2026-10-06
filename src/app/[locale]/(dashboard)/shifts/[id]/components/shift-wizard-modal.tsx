@@ -335,7 +335,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t('shifts.wizard.selectDates')}</h3>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="field-row">
                 <label className="auth-field">
                   <span>{t('shifts.wizard.startDate')}</span>
                   <input
@@ -388,7 +388,7 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
 
               {!perDay ? (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="field-row">
                     <label className="auth-field">
                       <span>{t('shifts.wizard.startTime')}</span>
                       <input
@@ -489,13 +489,9 @@ export function ShiftWizardModal({ open, jobIds, plan, onClose }: ShiftWizardMod
               </p>
 
               {/* Overlap selection */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>
-                  {t('shifts.wizard.overlap')}
-                </label>
-                <p style={{ margin: 0, fontSize: 12, color: 'var(--ink-faint)' }}>
-                  {t('shifts.wizard.overlapDescription')}
-                </p>
+              <div className="auth-field">
+                <span className="auth-field__label">{t('shifts.wizard.overlap')}</span>
+                <p className="auth-field__hint">{t('shifts.wizard.overlapDescription')}</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {[0, 15, 30, 45].map((mins) => (
                     <button

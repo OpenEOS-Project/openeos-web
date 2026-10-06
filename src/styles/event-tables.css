@@ -13,9 +13,12 @@
 }
 
 .event-tables__legend {
+  /* Metrik der Feldbeschriftungen (.auth-field__label in landing.css). */
   padding: 0 4px;
-  font: 600 12px var(--oe-f-sans);
-  color: var(--oe-ink);
+  font: 500 11px/16px var(--oe-f-mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
 }
 
 .event-tables__list {

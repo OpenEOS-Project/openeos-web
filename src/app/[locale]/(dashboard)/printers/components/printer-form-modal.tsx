@@ -18,10 +18,10 @@ interface PrinterFormModalProps {
 
 function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</label>
+    <label className="auth-field">
+      <span>{label}</span>
       {children}
-    </div>
+    </label>
   );
 }
 
@@ -110,7 +110,7 @@ export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFo
             </FormRow>
 
             {connectionType === 'network' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 12 }}>
+              <div className="field-row field-row--narrow-end">
                 <FormRow label={t('form.ipAddress')}>
                   <input className="input" value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} placeholder="192.168.1.100" />
                 </FormRow>
@@ -121,7 +121,7 @@ export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFo
             )}
 
             {connectionType === 'usb' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="field-row">
                 <FormRow label={t('form.usbVendorId')}>
                   <input className="input" value={usbVendorId} onChange={(e) => setUsbVendorId(e.target.value)} placeholder="0x04b8" />
                 </FormRow>

@@ -82,7 +82,7 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
             )}
 
             <div className="auth-field">
-              <label className="auth-field__label">{t('shifts.editor.shiftDate')} *</label>
+              <label className="auth-field__label">{t('shifts.editor.shiftDate')} <span className="auth-field__req">*</span></label>
               <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
 
@@ -93,13 +93,13 @@ export function EditShiftModal({ open, shift, planId, onClose }: Props) {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="field-row">
               <div className="auth-field">
-                <label className="auth-field__label">{t('shifts.shiftForm.startTime')} *</label>
+                <label className="auth-field__label">{t('shifts.shiftForm.startTime')} <span className="auth-field__req">*</span></label>
                 <input className="input" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
               </div>
               <div className="auth-field">
-                <label className="auth-field__label">{t('shifts.shiftForm.endTime')} *</label>
+                <label className="auth-field__label">{t('shifts.shiftForm.endTime')} <span className="auth-field__req">*</span></label>
                 <input className="input" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
               </div>
             </div>

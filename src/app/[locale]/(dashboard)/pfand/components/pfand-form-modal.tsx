@@ -100,7 +100,7 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.name')} <span className="auth-field__req">*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && <span role="alert" className="auth-field__error">{errors.name.message}</span>}
                 </label>
@@ -112,7 +112,7 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.amount')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.amount')} <span className="auth-field__req">*</span></span>
                   <PriceInput
                     value={field.value ?? 0}
                     onChange={field.onChange}

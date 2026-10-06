@@ -38,10 +38,10 @@ interface ProductionStationFormModalProps {
 
 function FormRow({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</label>
+    <div className="auth-field">
+      <label className="auth-field__label">{label}</label>
       {children}
-      {hint && <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: 0 }}>{hint}</p>}
+      {hint && <span className="auth-field__hint">{hint}</span>}
     </div>
   );
 }
