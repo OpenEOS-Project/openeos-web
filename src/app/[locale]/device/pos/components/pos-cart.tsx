@@ -297,7 +297,7 @@ export function PosCart({
       </aside>
       <button
         type="button"
-        className="pos-cartscrim"
+        className="oe-scrim pos-cartscrim"
         tabIndex={-1}
         aria-label={t('close')}
         onClick={onCloseSheet}

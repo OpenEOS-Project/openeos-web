@@ -248,7 +248,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-cart__handle::before { content: ""; width: 40px; height: 4px; border-radius: var(--oe-r-full); background: var(--oe-line-2); }
   .pos-cart__close { display: inline-flex; }
   .pos-cart__ft { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-  .pos-cartscrim { display: block; position: fixed; inset: 0; z-index: 95; border: 0; background: color-mix(in oklab, var(--oe-ink) 40%, transparent); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .pos-cartscrim { display: block; z-index: 95; padding: 0; border: 0; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .pos-order.is-cart-open .pos-cartscrim { opacity: 1; pointer-events: auto; }
   .pos-cartbar { display: block; position: fixed; left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); z-index: 90; }
   .pos-order.is-cart-open .pos-cartbar { display: none; }
