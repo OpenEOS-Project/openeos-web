@@ -32,8 +32,11 @@ interface PosHeaderProps {
   deviceName: string;
   eventName: string | null;
   isTestEvent: boolean;
-  /** Tisch-Pille nur in der Bestellansicht mit Tischbetrieb. */
-  table: { label: string; onSwitch: () => void } | null;
+  /**
+   * Tisch-Pille nur in der Bestellansicht mit Tischbetrieb: Tisch, Theke
+   * oder To-go (dann „Bestellung“ statt „Tisch“).
+   */
+  table: { kind: 'table' | 'counter' | 'togo'; label: string; onSwitch: () => void } | null;
   connection: PosConnectionState;
   /** Bondrucker des Geräts — nur gesetzt, wenn die API einen Zustand liefert. */
   printer: PosPrinterStatus | null;
@@ -92,11 +95,15 @@ export function PosHeader({
           type="button"
           className="pos-tablepill"
           onClick={table.onSwitch}
-          aria-label={t('header.tablePill', { label: table.label })}
+          aria-label={
+            table.kind === 'table'
+              ? t('header.tablePill', { label: table.label })
+              : t('tables.pillOther', { label: table.label })
+          }
         >
-          <Icon name="table" />
+          <Icon name={table.kind === 'table' ? 'table' : table.kind === 'togo' ? 'send' : 'beer'} />
           <span className="pos-tablepill__txt">
-            <small>{t('header.tableCaption')}</small>
+            <small>{table.kind === 'table' ? t('header.tableCaption') : t('tables.pillCaptionOrder')}</small>
             <b>{table.label}</b>
           </span>
           <span className="pos-tablepill__sw">
