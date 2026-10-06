@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-import { createPosEvent, pairPosDevice, posAdmin, setEventSettings, type PairedDevice, type PosAdmin } from '../fixtures/pos';
+import {
+  createPosEvent,
+  installDevice,
+  pairPosDevice,
+  posAdmin,
+  setEventSettings,
+  type PairedDevice,
+  type PosAdmin,
+} from '../fixtures/pos';
 import { POSPage } from '../pages/pos.page';
 
 /*
@@ -37,7 +45,9 @@ test.afterAll(async () => {
 });
 
 test.describe('POS - counter device', () => {
-  test.use({ storageState: async ({}, use) => use(device.storageState) });
+  test.beforeEach(async ({ page }) => {
+    await installDevice(page, device);
+  });
 
   test('sells right away without choosing a table', async ({ page }) => {
     const pos = new POSPage(page);

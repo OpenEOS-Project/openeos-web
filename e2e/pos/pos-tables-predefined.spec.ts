@@ -4,6 +4,7 @@ import {
   createPosEvent,
   createTables,
   deviceOrder,
+  installDevice,
   letterStamp,
   pairPosDevice,
   posAdmin,
@@ -57,7 +58,9 @@ test.afterAll(async () => {
 });
 
 test.describe('POS - predefined tables', () => {
-  test.use({ storageState: async ({}, use) => use(device.storageState) });
+  test.beforeEach(async ({ page }) => {
+    await installDevice(page, device);
+  });
 
   test('finds a table by its number', async ({ page }) => {
     const pos = new POSPage(page);
@@ -170,12 +173,12 @@ test.describe('POS - predefined tables', () => {
         },
       ],
     });
-    await page.route('**/device-api/orders/open?*', (route) =>
+    await page.route(/\/device-api\/orders\/open\?/, (route) =>
       route.request().url().includes('tableKey=')
         ? route.fulfill({ json: { data: [order(delivered ? 'delivered' : 'ready')] } })
         : route.continue(),
     );
-    await page.route('**/device-api/order-items/deliver', (route) => {
+    await page.route(/\/device-api\/order-items\/deliver$/, (route) => {
       delivered = true;
       return route.fulfill({ json: { data: { delivered: [{ id: 'e2e-item' }], skipped: [] } } });
     });

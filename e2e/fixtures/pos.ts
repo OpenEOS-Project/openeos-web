@@ -1,4 +1,4 @@
-import type { APIRequestContext, BrowserContextOptions } from '@playwright/test';
+import type { APIRequestContext, BrowserContextOptions, Page } from '@playwright/test';
 
 import { apiLogin, apiPost, ensureOk, newApiContext } from './api';
 import { TEST_ADMIN } from './test-data';
@@ -145,6 +145,22 @@ export async function pairPosDevice(
       ],
     },
   };
+}
+
+/**
+ * Das gekoppelte Geraet in diese Seite legen (localStorage), einmal je Tab:
+ * Ein Neuladen behaelt den Stand, den die Kasse inzwischen gespeichert hat.
+ * (Statt `test.use({ storageState })`: dessen Wert wird ausgewertet, bevor
+ * `beforeAll` das Geraet gekoppelt hat.)
+ */
+export async function installDevice(page: Page, device: PairedDevice) {
+  const origin = (device.storageState as { origins: Array<{ localStorage: Array<{ name: string; value: string }> }> })
+    .origins[0];
+  await page.addInitScript((entries) => {
+    if (sessionStorage.getItem('e2e-device')) return;
+    for (const entry of entries) localStorage.setItem(entry.name, entry.value);
+    sessionStorage.setItem('e2e-device', '1');
+  }, origin.localStorage);
 }
 
 /** Bestellung als Geraet anlegen (Testvorbereitung, z. B. eine gesendete Runde). */

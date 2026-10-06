@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-import { createPosEvent, findOrder, pairPosDevice, posAdmin, type PairedDevice, type PosAdmin } from '../fixtures/pos';
+import {
+  createPosEvent,
+  findOrder,
+  installDevice,
+  pairPosDevice,
+  posAdmin,
+  type PairedDevice,
+  type PosAdmin,
+} from '../fixtures/pos';
 import { POSPage } from '../pages/pos.page';
 
 /*
@@ -38,7 +46,9 @@ test.afterAll(async () => {
 });
 
 test.describe('POS - free table numbers', () => {
-  test.use({ storageState: async ({}, use) => use(device.storageState) });
+  test.beforeEach(async ({ page }) => {
+    await installDevice(page, device);
+  });
 
   test('sends a round, lists the table as open and pays all rounds in one go', async ({ page }) => {
     const pos = new POSPage(page);
