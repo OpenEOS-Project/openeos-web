@@ -85,10 +85,10 @@ export default function DevicePairPage() {
       : '';
 
   return (
-    <div className="pos-root display-pair">
+    <div className="pos-root oe-root display-pair">
       <div className="display-pair__inner">
         {/* Ein Logo, keine Umschaltung: Der Hintergrund dieser Seite ist
-            immer hell (--pos-bg), ein dunkles Thema gibt es hier nicht.
+            immer hell (--oe-paper), ein dunkles Thema gibt es hier nicht.
             Zwei Fassungen brachten nur die Möglichkeit, die falsche zu
             zeigen — auf dem Fernseher stand prompt das weiße Logo auf
             cremefarbenem Grund. */}
