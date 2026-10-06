@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button, EmptyState, Icon, IconBox, Spinner } from '@openeos/ui';
+import { Banner, Button, CartLine, EmptyState, Icon, IconBox, Spinner } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { useCartHydration, useCartStore, type CartItem } from '@/stores/cart-store';
+import type { Order, OrderItem } from '@/types/order';
 import { PosCartLine } from './pos-cart-line';
 import { PosSheet } from './pos-sheet';
 
@@ -32,7 +33,21 @@ interface PosCartProps {
   /** Kompakt: als Blatt von unten geöffnet. */
   sheetOpen: boolean;
   onCloseSheet: () => void;
+  /** Tischbetrieb: gesendete, noch offene Bestellungen des Tisches. */
+  sent?: SentOrders | null;
 }
+
+export interface SentOrders {
+  orders: Order[];
+  /** Offener Betrag laut Server. */
+  openAmount: number;
+  /** Fertige Positionen als serviert markieren. */
+  onServe: (itemIds: string[]) => void;
+  serving: boolean;
+}
+
+const isGuestOrder = (order: Order) => order.source === 'online' || order.source === 'qr_order';
+const liveItems = (order: Order) => (order.items ?? []).filter((item) => item.status !== 'cancelled');
 
 /** Spielt `oe-bump`, wenn sich der Schlüssel ändert (nicht beim ersten Rendern). */
 function useBump(key: number) {
@@ -67,8 +82,10 @@ export function PosCart({
   openOrders,
   sheetOpen,
   onCloseSheet,
+  sent,
 }: PosCartProps) {
   const t = useTranslations('pos.cartV2');
+  const tTables = useTranslations('pos.tables');
   const formatPrice = useFormatPrice();
   const hydrated = useCartHydration();
   const {
@@ -118,6 +135,53 @@ export function PosCart({
 
   const bump = useBump(count);
 
+  // Gesendet: eigene Runden und Gastbestellungen getrennt; fertige Positionen
+  // (Station „fertig“) warten auf „Serviert“.
+  const sentOrders = sent?.orders ?? [];
+  const staffOrders = sentOrders.filter((o) => !isGuestOrder(o));
+  const guestOrders = sentOrders.filter(isGuestOrder);
+  const sentCount = sentOrders.reduce((sum, o) => sum + liveItems(o).reduce((n, i) => n + i.quantity, 0), 0);
+  const readyItems = sentOrders.flatMap((o) =>
+    o.fulfillmentType === 'table_service' ? liveItems(o).filter((i) => i.status === 'ready') : [],
+  );
+  const readyCount = readyItems.reduce((sum, i) => sum + i.quantity, 0);
+  const sentOpen = sent?.openAmount ?? 0;
+  const total = sentOpen + payable;
+  const canCheckout = items.length > 0 || sentOpen > 0.0001;
+  const meta = t('meta', { context: contextLabel, count });
+
+  const sentLine = (item: OrderItem) => {
+    const paid = Math.min(item.paidQuantity || 0, item.quantity);
+    const options = (item.options?.selected ?? []).map((o) =>
+      o.excluded ? t('without', { option: o.option }) : o.option,
+    );
+    const notes = [item.notes, item.kitchenNotes].filter(Boolean).map((n) => t('note', { note: n as string }));
+    const paidText = paid > 0 ? [tTables('paidPart', { count: paid })] : [];
+    const lineMeta = [...options, ...notes, ...paidText].join(' · ');
+    const status =
+      item.status === 'ready'
+        ? { icon: 'bell' as const, label: tTables('statusReady') }
+        : item.status === 'delivered'
+          ? { icon: 'check' as const, label: tTables('statusDelivered') }
+          : { icon: 'chef' as const, label: tTables('statusSent') };
+    return (
+      <CartLine
+        key={item.id}
+        className={paid >= item.quantity ? 'is-paid' : undefined}
+        name={item.productName}
+        meta={lineMeta || undefined}
+        sent={
+          <>
+            <Icon name={status.icon} />
+            {status.label}
+          </>
+        }
+        qtyText={tTables('qtyText', { count: item.quantity })}
+        total={formatPrice(Number(item.totalPrice))}
+      />
+    );
+  };
+
   const handleClear = () => {
     if (items.length >= CONFIRM_CLEAR_FROM) setConfirmClear(true);
     else clearCart();
@@ -157,7 +221,7 @@ export function PosCart({
           />
           <div className="pos-cart__title">
             <b>{t('title')}</b>
-            <span>{t('meta', { context: contextLabel, count })}</span>
+            <span>{sentCount > 0 ? `${meta} · ${tTables('metaSent', { count: sentCount })}` : meta}</span>
           </div>
           {openOrders && (
             <Button
@@ -209,13 +273,44 @@ export function PosCart({
             <div className="pos-center">
               <Spinner />
             </div>
-          ) : items.length === 0 ? (
+          ) : items.length === 0 && sentOrders.length === 0 ? (
             <EmptyState
               icon={<Icon name="cart" />}
               title={t('empty')}
               description={t('emptyHint', { context: contextLabel })}
             />
           ) : (
+            <>
+              {readyCount > 0 && sent && (
+                <Banner tone="warn" icon={<Icon name="bell" />} className="pos-ready">
+                  <span>{tTables('readyBanner', { count: readyCount })}</span>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    loading={sent.serving}
+                    onClick={() => sent.onServe(readyItems.map((i) => i.id))}
+                  >
+                    {!sent.serving && <Icon name="check" />}
+                    {tTables('serve')}
+                  </Button>
+                </Banner>
+              )}
+              {staffOrders.length > 0 && (
+                <section aria-label={tTables('sentTitle')}>
+                  <span className="oe-label pos-cart__sec">{tTables('sentTitle')}</span>
+                  <ul className="oe-cartlines">{staffOrders.flatMap((o) => liveItems(o).map(sentLine))}</ul>
+                </section>
+              )}
+              {guestOrders.length > 0 && (
+                <section aria-label={tTables('guestTitle')}>
+                  <span className="oe-label pos-cart__sec">{tTables('guestTitle')}</span>
+                  <ul className="oe-cartlines">{guestOrders.flatMap((o) => liveItems(o).map(sentLine))}</ul>
+                </section>
+              )}
+              {sentOrders.length > 0 && items.length > 0 && (
+                <span className="oe-label pos-cart__sec">{tTables('newTitle')}</span>
+              )}
+              {items.length > 0 && (
             <ul className="oe-cartlines" aria-label={t('linesLabel')}>
               {items.map((item) => (
                 <PosCartLine
@@ -232,13 +327,21 @@ export function PosCart({
                 />
               ))}
             </ul>
+              )}
+            </>
           )}
         </div>
 
         <div className="pos-cart__ft">
           <dl className="pos-sums">
+            {sentOpen > 0.0001 && (
+              <div>
+                <dt>{tTables('sentOpen')}</dt>
+                <dd>{formatPrice(sentOpen)}</dd>
+              </div>
+            )}
             <div>
-              <dt>{t('subtotal')}</dt>
+              <dt>{sentOpen > 0.0001 ? tTables('newSubtotal') : t('subtotal')}</dt>
               <dd>{formatPrice(subtotal)}</dd>
             </div>
             {pfandRows.map((row) => (
@@ -261,7 +364,7 @@ export function PosCart({
             )}
             <div className="pos-sums__total">
               <dt>{t('total')}</dt>
-              <dd>{formatPrice(payable)}</dd>
+              <dd>{formatPrice(total)}</dd>
             </div>
           </dl>
           {tokensShown && (
@@ -286,7 +389,7 @@ export function PosCart({
             <Button
               variant="primary"
               size="lg"
-              disabled={items.length === 0 || actionsDisabled}
+              disabled={!canCheckout || actionsDisabled}
               onClick={onCheckout}
             >
               <Icon name="receipt" />

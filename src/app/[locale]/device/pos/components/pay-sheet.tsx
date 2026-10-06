@@ -58,20 +58,50 @@ interface PaySheetProps {
   onPay: (result: PayResult) => Promise<void>;
   /** Offline: Abschließen gesperrt. */
   disabled?: boolean;
+  /**
+   * Schlüssel in `sessionStorage`, unter dem eine erfolgreiche, aber nicht
+   * gespeicherte Kartenzahlung liegt — nach Neuladen bleibt „Erneut
+   * speichern“ erreichbar statt erneut zu kassieren.
+   */
+  persistKey?: string;
 }
 
 const TIP_PRESETS = [0.5, 1, 2] as const;
 
-/** Schnellwahl: „Passend“ plus die nächsten zwei runden Beträge. */
-function quickAmounts(amount: number): number[] {
-  const steps = [1, 5, 10, 20, 50, 100];
-  const out: number[] = [];
-  for (const step of steps) {
-    const value = Math.ceil((amount + 0.0001) / step) * step;
-    if (value > amount && !out.includes(value)) out.push(value);
-    if (out.length === 2) break;
+/**
+ * Schnellwahl wie im Entwurf: Passend, nächste 10 €, nächste 20 €, 50 € —
+ * nur Werte ≥ Betrag, ohne Doppelte, höchstens drei Knöpfe. Geliefert
+ * werden die Beträge nach „Passend“.
+ */
+export function quickAmounts(amount: number): number[] {
+  const cents = Math.round(amount * 100);
+  const candidates = [cents, Math.ceil(cents / 1000) * 1000, Math.ceil(cents / 2000) * 2000, 5000];
+  return candidates
+    .filter((v, i, all) => all.indexOf(v) === i && v >= cents)
+    .slice(0, 3)
+    .slice(1)
+    .map((v) => v / 100);
+}
+
+/** Kartenzahlung erfolgreich, Bestellung nicht gespeichert — übersteht Neuladen. */
+function readUnsaved(key: string | undefined): PayResult | null {
+  if (!key || typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as PayResult) : null;
+  } catch {
+    return null;
   }
-  return out;
+}
+
+function writeUnsaved(key: string | undefined, value: PayResult | null) {
+  if (!key || typeof window === 'undefined') return;
+  try {
+    if (value) window.sessionStorage.setItem(key, JSON.stringify(value));
+    else window.sessionStorage.removeItem(key);
+  } catch {
+    // Speicher voll/gesperrt: dann nur im Blatt
+  }
 }
 
 /**
@@ -90,6 +120,7 @@ export function PaySheet({
   onSplit,
   onPay,
   disabled = false,
+  persistKey,
 }: PaySheetProps) {
   const t = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
@@ -113,8 +144,12 @@ export function PaySheet({
     try {
       await onPay(result);
       setUnsaved(null);
+      writeUnsaved(persistKey, null);
     } catch {
-      if (result.method === 'sumup') setUnsaved(result);
+      if (result.method === 'sumup') {
+        setUnsaved(result);
+        writeUnsaved(persistKey, result);
+      }
     } finally {
       setBusy(false);
     }
@@ -134,7 +169,7 @@ export function PaySheet({
     setCustomTip(null);
     setManual(null);
     setManualValue('');
-    setUnsaved(null);
+    setUnsaved(readUnsaved(persistKey));
     drawerOpened.current = false;
     sumup.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps

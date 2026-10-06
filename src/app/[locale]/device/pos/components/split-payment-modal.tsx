@@ -2,14 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, EmptyState, Icon, Segment, Spinner, Stepper } from '@openeos/ui';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import { amountReceivedFor } from '@/utils/cash-tender';
-import type { Order, OrderItem } from '@/types/order';
+import type { OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
+import { useOpenOrders, type OpenOrdersScope } from '../hooks/use-open-orders';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
@@ -18,6 +19,8 @@ interface SplitPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string | null;
+  /** Offene Bestellungen welches Kontexts: Tisch oder Theke. */
+  scope: OpenOrdersScope | null;
   /** Karte: Lesegerät, Buchung ohne Gerät oder gar nicht. */
   card: 'sumup' | 'manual' | null;
   disabled?: boolean;
@@ -37,7 +40,7 @@ type GroupBy = 'order' | 'category';
  * kassieren (`/payments/split` je Bestellung). Nach jeder Teilzahlung
  * lädt die Liste neu; ist alles bezahlt, schließt das Blatt.
  */
-export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: SplitPaymentModalProps) {
+export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disabled }: SplitPaymentModalProps) {
   const t = useTranslations('pos.splitPayment');
   const tTabs = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
@@ -51,15 +54,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: 
   const [groupBy, setGroupBy] = useState<GroupBy>('order');
   const [paying, setPaying] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['device-open-tabs'],
-    queryFn: () => deviceApi.getOpenOrders(),
-    enabled: isOpen,
-  });
-  const orders: Order[] = useMemo(
-    () => (data?.data || []).filter((o) => !eventId || !o.eventId || o.eventId === eventId),
-    [data, eventId],
-  );
+  const { orders, isLoading } = useOpenOrders(eventId, scope, isOpen);
 
   const unpaidItems: UnpaidItem[] = useMemo(
     () =>
@@ -111,6 +106,13 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: 
       ...Object.fromEntries(entries.map((e) => [e.item.id, e.unpaid])),
     }));
 
+  const invalidate = () =>
+    Promise.all(
+      ['device-open-orders', 'device-table-status', 'device-order-history'].map((key) =>
+        queryClient.invalidateQueries({ queryKey: [key] }),
+      ),
+    );
+
   const pay = async (result: PayResult) => {
     const byOrder = new Map<string, { items: { orderItemId: string; quantity: number }[]; amount: number }>();
     for (const entry of unpaidItems) {
@@ -137,7 +139,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: 
       }
     } catch (error) {
       toast(apiErrorMessage(error), 'danger');
-      queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
+      invalidate();
       throw error;
     }
     const changeAmount = result.amountReceived ? result.amountReceived - selectedTotal : 0;
@@ -148,8 +150,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, card, disabled }: 
     );
     setSelection({});
     setPaying(false);
-    await queryClient.invalidateQueries({ queryKey: ['device-open-tabs'] });
-    queryClient.invalidateQueries({ queryKey: ['device-order-history'] });
+    await invalidate();
     if (remaining - selectedTotal <= 0.0001) onClose();
   };
 

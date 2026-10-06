@@ -9,7 +9,7 @@ import { useDeviceStore } from '@/stores/device-store';
 import type { Category } from '@/types/category';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { OptionsSheet, type OptionsResult } from './options-sheet';
-import { PosCart } from './pos-cart';
+import { PosCart, type SentOrders } from './pos-cart';
 import { FAVORITES_ID, PosCategoryRail } from './pos-category-rail';
 import { PosProductGrid } from './pos-product-grid';
 import { PosSearch, searchKey } from './pos-search';
@@ -32,6 +32,8 @@ interface PosOrderViewProps {
   openOrders?: { count: number; onOpen: () => void };
   /** Hinweise über dem Raster (Testmodus). */
   notices?: ReactNode;
+  /** Tischbetrieb: gesendete Bestellungen des Tisches. */
+  sent?: SentOrders | null;
 }
 
 /**
@@ -53,6 +55,7 @@ export function PosOrderView({
   onPfandReturn,
   openOrders,
   notices,
+  sent,
 }: PosOrderViewProps) {
   const t = useTranslations('pos.order');
   const tCart = useTranslations('pos.cartV2');
@@ -117,7 +120,7 @@ export function PosOrderView({
       : (activeCategories.find((c) => c.id === selectedId)?.name ?? t('allItems'));
 
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  const payable = chargePfand ? getPayableTotal() : getNetTotal();
+  const payable = (chargePfand ? getPayableTotal() : getNetTotal()) + (sent?.openAmount ?? 0);
 
   const selectCategory = (id: string) => {
     if (eventId) setLastCategory(eventId, id);
@@ -230,6 +233,7 @@ export function PosOrderView({
         openOrders={openOrders}
         sheetOpen={cartOpen}
         onCloseSheet={() => setCartOpen(false)}
+        sent={sent}
       />
 
       <div className="pos-cartbar">
