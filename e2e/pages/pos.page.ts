@@ -86,9 +86,12 @@ export class POSPage {
     await expect(this.pill(label)).toBeVisible();
   }
 
-  /** Tisch-Chip (Liste, Blatt) — zugaenglicher Name „Tisch A03, frei“. */
+  /**
+   * Tisch-Chip der Tischliste — zugaenglicher Name „Tisch A03, frei“. Die
+   * Zeilen in „Offene Tische“ beginnen genauso, daher auf die Liste begrenzt.
+   */
   tableChip(label: string): Locator {
-    return this.page.getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
+    return this.page.locator('.pos-tablelist').getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
   }
 
   /** „Ohne Tisch“ auf der Startansicht: Theke oder To-go. */
