@@ -17,6 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { Icon } from '@openeos/ui';
 
 import { useCategories, useDeleteCategory, useReorderCategories } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -121,7 +122,8 @@ export function CategoriesManagementModal({
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <button type="button" className="btn btn--primary" style={{ fontSize: 13 }} onClick={handleCreateClick}>
-                + {t('create')}
+                <Icon name="plus" />
+                {t('create')}
               </button>
               <DialogCloseButton onClick={onClose} />
             </div>
@@ -135,10 +137,7 @@ export function CategoriesManagementModal({
             ) : !categories || categories.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state__icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-                    <line x1="7" y1="7" x2="7.01" y2="7" />
-                  </svg>
+                  <Icon name="tag" size={28} />
                 </div>
                 <h3 className="empty-state__title">{t('empty.title')}</h3>
                 <p className="empty-state__sub">{t('empty.description')}</p>

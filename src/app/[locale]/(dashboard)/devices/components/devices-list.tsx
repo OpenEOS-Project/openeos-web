@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
@@ -123,10 +124,7 @@ export function DevicesList() {
     return (
       <div className="empty-state">
         <div className="empty-state__icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <rect x="5" y="2" width="14" height="20" rx="2" />
-            <line x1="12" y1="18" x2="12" y2="18.01" />
-          </svg>
+          <Icon name="device" size={28} />
         </div>
         <h3 className="empty-state__title">{t('devices.noDevices')}</h3>
         <p className="empty-state__sub">{t('devices.noDevicesDescription')}</p>
@@ -180,10 +178,7 @@ export function DevicesList() {
                           background: 'color-mix(in oklab, var(--ink) 6%, transparent)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                            <rect x="5" y="2" width="14" height="20" rx="2" />
-                            <line x1="12" y1="18" x2="12" y2="18.01" />
-                          </svg>
+                          <Icon name="device" size={18} />
                         </div>
                         <span style={{
                           position: 'absolute', top: -3, right: -3,

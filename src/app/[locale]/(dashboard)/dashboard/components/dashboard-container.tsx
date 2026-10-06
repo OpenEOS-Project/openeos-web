@@ -14,7 +14,8 @@ import type { Order } from '@/types/order';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
 import { DashboardGrid } from './dashboard-grid';
-import { Dropdown, DropdownCaption, DropdownOption } from '@openeos/ui';
+import { Building, ShoppingBag } from 'lucide-react';
+import { Dropdown, DropdownCaption, DropdownOption, Icon } from '@openeos/ui';
 import { DashboardRangeProvider, rangeFor, type RangeKey } from './dashboard-range';
 import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
@@ -164,9 +165,7 @@ export function DashboardContainer() {
         title={tCommon('noOrganization.title')}
         description={tCommon('noOrganization.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-          </svg>
+          <Building size={28} />
         }
       />
     );
@@ -231,9 +230,7 @@ export function DashboardContainer() {
             onClick={() => setIsEditing((v) => !v)}
           >
             {!isEditing && (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-              </svg>
+              <Icon name="edit" size={14} />
             )}
             {isEditing ? t('customize.done') : t('customize.button')}
           </button>
@@ -274,9 +271,7 @@ export function DashboardContainer() {
           ) : recentOrders.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state__icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
-                </svg>
+                <ShoppingBag size={28} />
               </div>
               <h3 className="empty-state__title">{t('recentActivity.empty.title')}</h3>
               <p className="empty-state__sub">{t('recentActivity.empty.description')}</p>

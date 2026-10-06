@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Building } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -168,9 +169,7 @@ export function OrganizationGeneralSection() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={resolveUploadUrl(logoUrl)} alt={currentOrganization.organization?.name ?? ''} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="color-mix(in oklab, var(--ink) 35%, transparent)" strokeWidth="1.5">
-                  <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-                </svg>
+                <Building size={28} style={{ color: 'color-mix(in oklab, var(--ink) 35%, transparent)' }} />
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0, flex: '1 1 200px' }}>

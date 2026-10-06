@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useRentalHardware, useDeleteRentalHardware } from '@/hooks/use-rentals';
 import { HardwareFormModal } from './hardware-form-modal';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -39,9 +40,7 @@ export function HardwareList() {
           title={t('title')}
           description={t('description')}
           icon={
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
-            </svg>
+            <Icon name="monitor" size={28} />
           }
           action={
             <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>

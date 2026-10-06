@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDiscountVouchers } from '@/hooks/use-discount-vouchers';
@@ -39,10 +40,7 @@ export function DiscountsList({
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-            <line x1="7" y1="7" x2="7.01" y2="7" />
-          </svg>
+          <Icon name="tag" size={28} />
         }
         action={
           <button className="btn btn--primary" onClick={onCreateClick}>
@@ -117,7 +115,7 @@ export function DiscountsList({
                       aria-label={t('actions.edit')}
                       title={t('actions.edit')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                      <Icon name="edit" size={16} />
                     </button>
                     <button
                       type="button"
@@ -127,7 +125,7 @@ export function DiscountsList({
                       aria-label={t('actions.delete')}
                       title={t('actions.delete')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                      <Icon name="trash" size={16} />
                     </button>
                   </div>
                 </td>

@@ -13,7 +13,7 @@ import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
 import { ShiftCalendar } from './components/shift-calendar';
-import { CircleCheck, Download, Link, Lock, Send } from 'lucide-react';
+import { ArrowLeft, CircleCheck, ClipboardCheck, Download, Link, Lock, Send } from 'lucide-react';
 
 /** Square 36×36 icon-button — keeps the plan-header row compact on phones. */
 const iconBtnStyle = (variant: 'ghost' | 'primary' = 'ghost'): React.CSSProperties => ({
@@ -146,9 +146,7 @@ export default function ShiftPlanEditorPage() {
                 onClick={() => router.push('/shifts')}
                 aria-label={t('common.back')}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 12H5M12 5l-7 7 7 7" />
-                </svg>
+                <ArrowLeft size={16} />
               </button>
               <div style={{
                 width: 36, height: 36, borderRadius: 8, flexShrink: 0,
@@ -156,9 +154,7 @@ export default function ShiftPlanEditorPage() {
                 color: 'var(--green-ink)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" />
-                </svg>
+                <ClipboardCheck size={18} />
               </div>
               <div style={{ minWidth: 0 }}>
                 {/* Echte Ueberschrift statt <div>: diese Seite trug als

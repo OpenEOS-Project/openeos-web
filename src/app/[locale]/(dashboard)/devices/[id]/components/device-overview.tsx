@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useQuery } from '@tanstack/react-query';
 import { devicesApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -171,10 +172,7 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
                   title={t('devices.detail.info.copyId')}
                   aria-label={t('devices.detail.info.copyId')}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
+                  <Icon name="copy" size={14} />
                 </button>
               </dd>
             </div>

@@ -1,7 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
@@ -147,7 +148,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
               borderRadius: 'var(--r-sm)',
             }}
           >
-            <X style={{ width: 20, height: 20 }} />
+            <Icon name="x" size={20} />
           </button>
         </div>
 
@@ -309,7 +310,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
             {step < total - 1 ? (
               <button type="button" className="btn btn--primary" onClick={goNext}>
                 <span>{tCommon('next')}</span>
-                <ArrowRight style={{ width: 16, height: 16 }} />
+                <Icon name="arrow-right" size={16} />
               </button>
             ) : (
               <button
@@ -322,7 +323,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                 ) : (
                   <>
                     <span>{tCommon('create')}</span>
-                    <Check style={{ width: 16, height: 16 }} />
+                    <Icon name="check" size={16} />
                   </>
                 )}
               </button>

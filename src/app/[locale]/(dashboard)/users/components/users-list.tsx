@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
+import { Building } from 'lucide-react';
 
 import { useAdminUsers, useUnlockUser } from '@/hooks/use-admin';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
@@ -33,9 +35,7 @@ export function UsersList() {
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-          </svg>
+          <Icon name="users" size={28} />
         }
       />
     );
@@ -108,9 +108,7 @@ export function UsersList() {
                     <span style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {user.firstName} {user.lastName}
                     </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, color: 'var(--ink-faint)' }}>
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
+                    <Icon name="chevron-right" size={14} style={{ flexShrink: 0, color: 'var(--ink-faint)' }} />
                   </div>
                   <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {user.email}
@@ -131,9 +129,7 @@ export function UsersList() {
                     <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {orgs.map((uo) => (
                         <span key={uo.id} style={{ fontSize: 11, color: 'var(--ink-faint)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-                          </svg>
+                          <Building size={11} />
                           {uo.organization?.name ?? '-'}
                         </span>
                       ))}
@@ -219,9 +215,7 @@ export function UsersList() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           {orgs.map((uo) => (
                             <span key={uo.id} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: 'var(--ink-faint)' }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-                              </svg>
+                              <Building size={12} />
                               {uo.organization?.name ?? '-'}
                             </span>
                           ))}

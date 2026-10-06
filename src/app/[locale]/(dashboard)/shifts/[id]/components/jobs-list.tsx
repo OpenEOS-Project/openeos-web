@@ -13,7 +13,8 @@ import { AddShiftModal } from './add-shift-modal';
 import { ShiftWizardModal } from './shift-wizard-modal';
 import { EditJobModal } from './edit-job-modal';
 import { EditShiftModal } from './edit-shift-modal';
-import { CalendarPlus, Pencil, Plus, Sparkles, Trash } from 'lucide-react';
+import { CalendarPlus, Sparkles } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 
 /** Icon-only square button with a title tooltip — keeps button rows compact
  *  on phones where the previous text labels overflowed off-screen.
@@ -93,9 +94,7 @@ export function JobsList({ plan }: JobsListProps) {
           title={t('shifts.editor.noJobs')}
           description={t('shifts.editor.noJobsDescription')}
           icon={
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-            </svg>
+            <Icon name="users" size={28} />
           }
           action={
             <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowAddJobModal(true)}>
@@ -132,7 +131,7 @@ export function JobsList({ plan }: JobsListProps) {
             title={t('shifts.editor.addJob')}
             aria-label={t('shifts.editor.addJob')}
           >
-            <Plus style={{ width: 18, height: 18 }} />
+            <Icon name="plus" size={18} />
           </button>
         </div>
       </div>
@@ -172,7 +171,7 @@ export function JobsList({ plan }: JobsListProps) {
                     title={t('shifts.jobForm.editTitle')}
                     aria-label={t('shifts.jobForm.editTitle')}
                   >
-                    <Pencil style={{ width: 16, height: 16 }} />
+                    <Icon name="edit" size={16} />
                   </button>
                   <button
                     className="btn btn--ghost"
@@ -192,7 +191,7 @@ export function JobsList({ plan }: JobsListProps) {
                     title={t('common.delete')}
                     aria-label={t('common.delete')}
                   >
-                    <Trash style={{ width: 16, height: 16 }} />
+                    <Icon name="trash" size={16} />
                   </button>
                 </div>
               </div>
@@ -240,7 +239,7 @@ export function JobsList({ plan }: JobsListProps) {
                               title={t('shifts.shiftForm.editTitle')}
                               aria-label={t('shifts.shiftForm.editTitle')}
                             >
-                              <Pencil style={{ width: 16, height: 16 }} />
+                              <Icon name="edit" size={16} />
                             </button>
                             <button
                               className="btn btn--ghost"
@@ -249,7 +248,7 @@ export function JobsList({ plan }: JobsListProps) {
                               title={t('common.delete')}
                               aria-label={t('common.delete')}
                             >
-                              <Trash style={{ width: 16, height: 16 }} />
+                              <Icon name="trash" size={16} />
                             </button>
                           </div>
                         </div>

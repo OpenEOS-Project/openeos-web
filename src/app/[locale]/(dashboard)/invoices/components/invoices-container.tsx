@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
+import { ExternalLink, FileText } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInvoices } from '@/hooks/use-invoices';
@@ -74,12 +76,7 @@ export function InvoicesContainer() {
            Zusatz läse sich die leere Liste wie ein Fehler. */
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-            <path d="M14 2v6h6" />
-            <path d="M8 13h8" />
-            <path d="M8 17h5" />
-          </svg>
+          <FileText size={28} />
         }
       />
     );
@@ -128,11 +125,7 @@ export function InvoicesContainer() {
                         onClick={() => handleDownload(invoice)}
                         disabled={downloading === invoice.id}
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
+                        <Icon name="download" size={15} />
                         {t('download')}
                       </button>
                     )}
@@ -146,11 +139,7 @@ export function InvoicesContainer() {
                         title={t('viewAtStripe')}
                         style={{ padding: 6, minWidth: 0 }}
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
+                        <ExternalLink size={15} />
                       </a>
                     )}
                   </div>

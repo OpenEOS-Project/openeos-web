@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { ArrowLeft } from 'lucide-react';
 
 import {
   useInventoryCount,
@@ -232,9 +233,7 @@ export function InventoryCountView({
               onClick={onBack}
               style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
+              <ArrowLeft size={16} />
               {tCommon('back')}
             </button>
 

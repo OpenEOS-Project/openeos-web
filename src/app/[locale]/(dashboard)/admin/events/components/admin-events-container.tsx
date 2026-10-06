@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced, useWaiveEvent } from '@/hooks/use-admin-events';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -288,9 +289,7 @@ export function AdminEventsContainer() {
           title={t('empty.title')}
           description={t('empty.description')}
           icon={
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
-            </svg>
+            <Icon name="calendar" size={28} />
           }
         />
       ) : (

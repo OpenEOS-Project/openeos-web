@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInventoryCounts, useDeleteInventoryCount } from '@/hooks/use-inventory';
@@ -75,11 +76,7 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
-            <rect x="9" y="3" width="6" height="4" rx="1" />
-            <path d="M9 12h6M9 16h4" />
-          </svg>
+          <Icon name="orders" size={28} />
         }
         action={
           <button className="btn btn--primary" onClick={onCreateClick}>
@@ -151,10 +148,7 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
                       aria-label={tCommon('delete')}
                       title={tCommon('delete')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                      </svg>
+                      <Icon name="trash" size={16} />
                     </button>
                   )}
                 </td>

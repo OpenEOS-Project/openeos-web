@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
 
 import { useAdminStats, useAdminRevenueStats, useAdminRecentActivity } from '@/hooks/use-admin';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -87,9 +88,7 @@ export function SuperAdminDashboard() {
         ) : !auditLogs || auditLogs.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
-              </svg>
+              <Icon name="edit" size={28} />
             </div>
             <h3 className="empty-state__title">{t('recentActivity.empty.title')}</h3>
             <p className="empty-state__sub">{t('recentActivity.empty.description')}</p>

@@ -250,7 +250,7 @@ export default function HelperManagePage() {
                         {formatDate(s.date)} · {formatTime(s.startTime)}–{formatTime(s.endTime)} · {t('spotsFree', { available: s.availableSpots, required: s.requiredWorkers })}
                       </div>
                     </div>
-                    <span style={{ color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>{t('signUp')}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}><Plus size={13} aria-hidden="true" />{t('signUp')}</span>
                   </button>
                 )),
             )}

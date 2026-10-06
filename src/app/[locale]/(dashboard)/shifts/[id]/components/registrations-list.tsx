@@ -11,7 +11,8 @@ import type { ShiftPlan, ShiftRegistration, ShiftRegistrationStatus } from '@/ty
 import { SendMessageModal } from './send-message-modal';
 import { ManualAddRegistrationModal } from './manual-add-registration-modal';
 import { EditRegistrationModal } from './edit-registration-modal';
-import { CircleAlert, CircleCheck, Clock, Mail, Pencil, Trash, UserPlus } from 'lucide-react';
+import { CircleAlert, UserPlus } from 'lucide-react';
+import { Icon } from '@openeos/ui';
 
 /** Handover overlap tolerance in minutes — has to match the value in
  *  /s/[slug]/page.tsx so the admin and the public-side see overlaps
@@ -210,9 +211,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
           title={t('shifts.registration.noRegistrations')}
           description={t('shifts.registration.noRegistrationsDescription')}
           icon={
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-            </svg>
+            <Icon name="users" size={28} />
           }
           action={
             <button
@@ -277,7 +276,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             disabled={allHelperEmails.length === 0}
             title={tr('sendToAllTitle')}
           >
-            <Mail style={{ width: 16, height: 16 }} />
+            <Icon name="mail" size={16} />
             <span>{tr('sendToAll')}</span>
           </button>
           <button
@@ -446,7 +445,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                             style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}
                             title={tr('registeredAt', { date: registeredAtLabel })}
                           >
-                            <Clock style={{ width: 10, height: 10, display: 'inline', verticalAlign: '-1px', marginRight: 2 }} />
+                            <Icon name="clock" size={10} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 2 }} />
                             {registeredAtLabel}
                           </span>
                         )}
@@ -463,7 +462,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                           aria-label={tr('removeShift')}
                           disabled={removeShiftMutation.isPending}
                         >
-                          <Trash style={{ width: 12, height: 12 }} />
+                          <Icon name="trash" size={12} />
                         </button>
                       </div>
                     );
@@ -524,7 +523,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                     title={tr('markVerifiedTitle')}
                     aria-label={tr('markVerified')}
                   >
-                    <CircleCheck style={{ width: 16, height: 16 }} />
+                    <Icon name="check-circle" size={16} />
                   </button>
                 );
               })()}
@@ -535,7 +534,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={tr('editRegistration')}
                 aria-label={tr('editRegistration')}
               >
-                <Pencil style={{ width: 16, height: 16 }} />
+                <Icon name="edit" size={16} />
               </button>
               <button
                 className="btn btn--ghost"
@@ -544,7 +543,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={t('shifts.registration.sendMessage')}
                 aria-label={t('shifts.registration.sendMessage')}
               >
-                <Mail style={{ width: 16, height: 16 }} />
+                <Icon name="mail" size={16} />
               </button>
               <div style={{ flex: 1 }} />
               <button
@@ -562,7 +561,7 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
                 title={t('common.delete')}
                 aria-label={t('common.delete')}
               >
-                <Trash style={{ width: 16, height: 16 }} />
+                <Icon name="trash" size={16} />
               </button>
               <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
                 {formatDate(firstReg.createdAt)}

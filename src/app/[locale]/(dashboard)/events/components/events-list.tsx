@@ -1,6 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Icon } from '@openeos/ui';
+import { Building, ExternalLink, FlaskConical, Pause, Play } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useEvents } from '@/hooks/use-events';
@@ -49,9 +51,7 @@ export function EventsList({
         title={tCommon('noOrganization.title')}
         description={tCommon('noOrganization.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
-          </svg>
+          <Building size={28} />
         }
       />
     );
@@ -71,12 +71,7 @@ export function EventsList({
         title={t('empty.title')}
         description={t('empty.description')}
         icon={
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
+          <Icon name="calendar" size={28} />
         }
         action={
           <button className="btn btn--primary" onClick={onCreateClick}>
@@ -138,12 +133,7 @@ export function EventsList({
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
                     }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                      </svg>
+                      <Icon name="calendar" size={16} />
                     </div>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{event.name}</div>
@@ -171,7 +161,7 @@ export function EventsList({
                       aria-label={t('actions.edit')}
                       title={t('actions.edit')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                      <Icon name="edit" size={16} />
                     </button>
                     {event.settings?.shop?.enabled && (
                       <a
@@ -183,7 +173,7 @@ export function EventsList({
                         aria-label={t('actions.openShop')}
                         title={t('actions.openShop')}
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                        <ExternalLink size={16} />
                       </a>
                     )}
                     {(event.status === 'inactive' || event.status === 'test') && (
@@ -196,7 +186,7 @@ export function EventsList({
                         aria-label={t('actions.activate')}
                         title={t('actions.activate')}
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 4 20 12 6 20 6 4" /></svg>
+                        <Play size={16} />
                       </button>
                     )}
                     {event.status === 'inactive' && (
@@ -208,7 +198,7 @@ export function EventsList({
                         aria-label={t('actions.testMode')}
                         title={t('actions.testMode')}
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 2v6L4 20a2 2 0 0 0 1.8 2.8h12.4A2 2 0 0 0 20 20L15 8V2" /><line x1="9" y1="2" x2="15" y2="2" /><line x1="7" y1="14" x2="17" y2="14" /></svg>
+                        <FlaskConical size={16} />
                       </button>
                     )}
                     {(event.status === 'active' || event.status === 'test') && (
@@ -220,7 +210,7 @@ export function EventsList({
                         aria-label={t('actions.deactivate')}
                         title={t('actions.deactivate')}
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+                        <Pause size={16} />
                       </button>
                     )}
                     <button
@@ -231,7 +221,7 @@ export function EventsList({
                       aria-label={t('actions.delete')}
                       title={t('actions.delete')}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                      <Icon name="trash" size={16} />
                     </button>
                   </div>
                 </td>
