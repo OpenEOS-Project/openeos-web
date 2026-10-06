@@ -60,7 +60,7 @@ function AlignmentControl({ value, onChange, label, showJustify, justifyLabel }:
 }) {
   return (
     <div>
-      <label className="text-xs text-secondary block mb-1.5">{label}</label>
+      <label className="auth-field__label block mb-1.5">{label}</label>
       <div className="flex gap-1">
         {showJustify && (
           <ToggleButton active={value === 'justify'} onClick={() => onChange('justify')}>
@@ -122,7 +122,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
         {element.type === 'text' && (
           <div>
-            <label htmlFor="content" className="text-xs text-secondary block mb-1.5">{tp('content')}</label>
+            <label htmlFor="content" className="auth-field__label block mb-1.5">{tp('content')}</label>
             <input
               id="content"
               className="input"
@@ -135,7 +135,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
         {element.type === 'field' && element.field !== 'items_list' && element.field !== 'qr_code' && element.field !== 'priority' && (
           <div>
-            <label htmlFor="label" className="text-xs text-secondary block mb-1.5">{tp('label')}</label>
+            <label htmlFor="label" className="auth-field__label block mb-1.5">{tp('label')}</label>
             <input
               id="label"
               className="input"
@@ -165,7 +165,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
         {element.type === 'separator' && (
           <div>
-            <label className="text-xs text-secondary block mb-1.5">{tp('char')}</label>
+            <label className="auth-field__label block mb-1.5">{tp('char')}</label>
             <div className="flex gap-2">
               <ToggleButton active={element.char !== '-'} onClick={() => update({ char: '=' })}>
                 =
@@ -179,7 +179,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
         {(element.type === 'spacer' || element.type === 'feed') && (
           <div>
-            <label htmlFor="lines" className="text-xs text-secondary block mb-1.5">{tp('lines')}</label>
+            <label htmlFor="lines" className="auth-field__label block mb-1.5">{tp('lines')}</label>
             <input
               id="lines"
               className="input"
@@ -194,7 +194,7 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
 
         {element.type === 'field' && (
           <div>
-            <label className="text-xs text-secondary block mb-1.5">{tp('condition')}</label>
+            <label className="auth-field__label block mb-1.5">{tp('condition')}</label>
             <select
               className="select"
               value={element.condition || ''}

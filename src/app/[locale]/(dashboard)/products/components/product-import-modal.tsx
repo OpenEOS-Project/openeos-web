@@ -143,15 +143,6 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
     !previewResult.fatalError &&
     (previewResult.summary.create + previewResult.summary.update) > 0;
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: 13,
-    fontWeight: 600,
-    color: 'var(--ink)',
-    opacity: 0.7,
-    marginBottom: 6,
-    display: 'block',
-  };
-
   const chipStyle = (color: string): React.CSSProperties => ({
     display: 'inline-flex',
     alignItems: 'center',
@@ -194,9 +185,9 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
           {!importDone && (
             <>
               {/* File input + paste */}
-              <div>
-                <span style={labelStyle}>{t('csvLabel')}</span>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <div className="auth-field">
+                <span className="auth-field__label">{t('csvLabel')}</span>
+                <div style={{ display: 'flex', gap: 8 }}>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -243,8 +234,8 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
               </div>
 
               {/* Mode */}
-              <div>
-                <span style={labelStyle}>{t('modeLabel')}</span>
+              <label className="auth-field">
+                <span>{t('modeLabel')}</span>
                 <select
                   className="select"
                   value={mode}
@@ -257,7 +248,7 @@ export function ProductImportModal({ isOpen, eventId, onClose }: ProductImportMo
                   <option value="update">{t('mode.update')}</option>
                   <option value="create">{t('mode.create')}</option>
                 </select>
-              </div>
+              </label>
 
               {/* Column helper */}
               <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.6, lineHeight: 1.6, background: 'color-mix(in oklab, var(--ink) 5%, transparent)', borderRadius: 8, padding: '10px 14px' }}>

@@ -251,7 +251,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
               <div style={{ position: 'relative' }}>
                 <label className="auth-field">
                   <span>
-                    {t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span>
+                    {t('form.name')} <span className="auth-field__req">*</span>
                   </span>
                   <input
                     type="text"
@@ -312,7 +312,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                   </div>
                 )}
                 {companySearchEnabled && (
-                  <p style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginTop: 4 }}>
+                  <p className="auth-field__hint" style={{ marginTop: 4 }}>
                     {t('companySearchHint')}
                   </p>
                 )}
@@ -320,28 +320,28 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
 
               <label className="auth-field">
                 <span>
-                  {t('form.email')} <span style={{ color: 'var(--danger)' }}>*</span>
+                  {t('form.email')} <span className="auth-field__req">*</span>
                 </span>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </label>
 
               <label className="auth-field">
                 <span>
-                  {t('form.street')} <span style={{ color: 'var(--danger)' }}>*</span>
+                  {t('form.street')} <span className="auth-field__req">*</span>
                 </span>
                 <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} />
               </label>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12 }}>
+              <div className="field-row field-row--narrow-start">
                 <label className="auth-field">
                   <span>
-                    {t('form.zip')} <span style={{ color: 'var(--danger)' }}>*</span>
+                    {t('form.zip')} <span className="auth-field__req">*</span>
                   </span>
                   <input type="text" value={zip} onChange={(e) => setZip(e.target.value)} />
                 </label>
                 <label className="auth-field">
                   <span>
-                    {t('form.city')} <span style={{ color: 'var(--danger)' }}>*</span>
+                    {t('form.city')} <span className="auth-field__req">*</span>
                   </span>
                   <input type="text" value={city} onChange={(e) => setCity(e.target.value)} />
                 </label>

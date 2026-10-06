@@ -3,7 +3,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import { IconVisual } from '@/components/shared/product-image';
 import type { Category } from '@/types/category';
+import { categoryAccent, resolveCategoryIcon } from '@/utils/product-icon';
 
 interface Props {
   category: Category;
@@ -57,11 +59,9 @@ export function CategorySortableRow({
         </svg>
       </button>
 
-      <span
-        className="cat-row__dot"
-        style={{ background: category.color || 'var(--mute-2)' }}
-        aria-hidden="true"
-      />
+      {/* Icon der Kategorie in ihrer Farbe — wie in der Kategorienliste
+          und an Produkten ohne eigenes Bild. */}
+      <IconVisual source={resolveCategoryIcon(category)} alt="" size="sm" accent={categoryAccent(category)} />
 
       <div className="cat-row__copy">
         <div className="cat-row__name">{category.name}</div>

@@ -14,7 +14,7 @@ import { ColorPicker } from '@/components/shared/color-picker';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { OeIconPicker } from '@/components/shared/oe-icon-picker';
 import { IconVisual } from '@/components/shared/product-image';
-import { resolveCategoryIcon } from '@/utils/product-icon';
+import { categoryAccent, resolveCategoryIcon } from '@/utils/product-icon';
 import { Button, Icon } from '@openeos/ui';
 
 /*
@@ -182,7 +182,7 @@ export function CategoryFormModal({
               control={control}
               render={({ field }) => (
                 <label className="auth-field">
-                  <span>{t('form.name')} <span style={{ color: 'var(--danger)' }}>*</span></span>
+                  <span>{t('form.name')} <span className="auth-field__req">*</span></span>
                   <input type="text" placeholder={t('form.namePlaceholder')} {...field} />
                   {errors.name && (
                     <span role="alert" className="auth-field__error">{errors.name.message}</span>
@@ -221,7 +221,12 @@ export function CategoryFormModal({
             <div className="auth-field">
               <span>{t('form.icon')}</span>
               <div className="icon-field">
-                <IconVisual source={resolveCategoryIcon({ icon })} alt="" size="lg" />
+                <IconVisual
+                  source={resolveCategoryIcon({ icon })}
+                  alt=""
+                  size="lg"
+                  accent={categoryAccent({ color: watch('color') })}
+                />
                 <div className="icon-field__actions">
                   <Button variant="secondary" size="sm" onClick={() => setIsIconPickerOpen(true)}>
                     <Icon name="grid" />

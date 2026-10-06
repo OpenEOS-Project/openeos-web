@@ -284,7 +284,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
             )}
 
             {activeMode === 'create' && (
-              <div className="auth-fields auth-fields--two">
+              <div className="field-row">
                 <TextField
                   label={tAdd('firstName')}
                   value={form.firstName}
@@ -347,7 +347,7 @@ export function InviteMemberModal({ isOpen, organizationId, onClose }: InviteMem
 
             {!isAdmin && (
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t('permissions.title')}</p>
+                <p className="auth-field__label" style={{ marginBottom: 10 }}>{t('permissions.title')}</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {PERMISSION_KEYS.map((key) => {
                     const grantable = actorIsAdmin || !!ownPermissions[key];

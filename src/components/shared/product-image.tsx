@@ -5,6 +5,7 @@ import { IconBox } from '@openeos/ui';
 import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import {
+  categoryAccent,
   resolveProductIcon,
   type IconCategoryLike,
   type IconProductLike,
@@ -18,6 +19,11 @@ interface IconVisualProps {
   /** Alternativtext für Bilder; Linien-Icons sind dekorativ. */
   alt: string;
   size?: keyof typeof BOX;
+  /**
+   * Farbe für Linien-Icons, in der Regel die Kategoriefarbe
+   * (`categoryAccent`). Ohne Farbe: Designsystem-Grün.
+   */
+  accent?: string | null;
   className?: string;
 }
 
@@ -26,7 +32,7 @@ interface IconVisualProps {
  * Icon-Box des Designsystems: POS-Icon (Produktbild), Foto oder
  * Linien-Icon (Kategorie, Rückfall).
  */
-export function IconVisual({ source, alt, size = 'md', className }: IconVisualProps) {
+export function IconVisual({ source, alt, size = 'md', accent, className }: IconVisualProps) {
   if (source.kind === 'photo') {
     return (
       <IconBox size={BOX[size]} className={className}>
@@ -43,7 +49,9 @@ export function IconVisual({ source, alt, size = 'md', className }: IconVisualPr
       </IconBox>
     );
   }
-  return <IconBox icon={source.name} tone="accent" size={BOX[size]} className={className} />;
+  /* Linien-Icons tragen die Kategoriefarbe: getönte Fläche, Icon in der
+     Farbe, Helligkeit vom Designsystem auf ≥ 3:1 begrenzt. */
+  return <IconBox icon={source.name} tone="accent" accent={accent} size={BOX[size]} className={className} />;
 }
 
 interface ProductImageProps {
@@ -55,9 +63,18 @@ interface ProductImageProps {
   className?: string;
 }
 
-/** Bild eines Produkts: POS-Icon → Foto → Icon der Kategorie → `utensils`. */
+/**
+ * Bild eines Produkts: POS-Icon → Foto → Icon der Kategorie → `utensils`.
+ * Die beiden Rückfälle sind Linien-Icons in der Farbe der Kategorie.
+ */
 export function ProductImage({ product, category, productName, size = 'md', className }: ProductImageProps) {
   return (
-    <IconVisual source={resolveProductIcon(product, category)} alt={productName} size={size} className={className} />
+    <IconVisual
+      source={resolveProductIcon(product, category)}
+      alt={productName}
+      size={size}
+      accent={categoryAccent(category ?? product.category)}
+      className={className}
+    />
   );
 }

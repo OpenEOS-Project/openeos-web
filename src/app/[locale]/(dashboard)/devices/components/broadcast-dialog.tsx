@@ -68,10 +68,8 @@ export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogP
               </div>
             )}
 
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
-                {t('message')}
-              </label>
+            <label className="auth-field" style={{ marginBottom: 16 }}>
+              <span>{t('message')}</span>
               <input
                 className="input"
                 value={message}
@@ -79,12 +77,10 @@ export function BroadcastDialog({ onClose, onlineDeviceCount }: BroadcastDialogP
                 placeholder={t('messagePlaceholder')}
                 autoFocus
               />
-            </div>
+            </label>
 
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--ink)' }}>
-                {t('messageType')}
-              </label>
+            <div className="auth-field">
+              <span className="auth-field__label">{t('messageType')}</span>
               <div style={{ display: 'flex', gap: 8 }}>
                 {types.map((type) => (
                   <button

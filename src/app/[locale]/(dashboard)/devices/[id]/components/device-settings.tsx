@@ -36,10 +36,10 @@ function SectionCard({ title, description, children }: { title: string; descript
 
 function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</label>
+        <label className="auth-field">
+      <span>{label}</span>
       {children}
-    </div>
+    </label>
   );
 }
 
