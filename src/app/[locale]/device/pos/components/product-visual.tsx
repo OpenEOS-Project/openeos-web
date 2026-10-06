@@ -1,9 +1,11 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { Icon, type IconName } from '@openeos/ui';
 import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import {
+  categoryAccent,
   categoryIconName,
   resolveCategoryIcon,
   resolveProductIcon,
@@ -43,4 +45,19 @@ export function productIconSource(product: PosProduct, category?: Category | nul
 
 export function categoryIconSource(category: Category | null | undefined): IconSource {
   return resolveCategoryIcon(category);
+}
+
+/**
+ * Kategoriefarbe für die getönte Icon-Box (Kategorieleiste, Produkte ohne
+ * eigenes Bild): Klasse + CSS-Variable `--pos-cat`, Farbe wie in der
+ * Verwaltung über `categoryAccent` (nur gültige Hex-Werte). Kategorieleiste
+ * und Kachel sind keine `IconBox` — daher die Tönung in pos.css mit
+ * denselben Tokens (`--oe-tint-*`) wie `.oe-icobox--tint`.
+ */
+export function categoryTint(
+  category: Pick<Category, 'color'> | null | undefined,
+  className: string,
+): { className?: string; style?: CSSProperties } {
+  const color = categoryAccent(category);
+  return color ? { className, style: { '--pos-cat': color } as CSSProperties } : {};
 }

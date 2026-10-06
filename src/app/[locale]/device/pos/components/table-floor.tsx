@@ -128,6 +128,8 @@ export function TableFloor({ areas, states, currentKey, onPick, showWaiting = fa
     <div
       className="pos-floor"
       ref={wrapRef}
+      // Der Plan wird gewischt (verschoben) — im Tisch-Blatt kein Schließen per Ziehen.
+      data-oe-nodrag
       style={{ '--pos-floor-ratio': area.width / Math.max(area.height, 1) } as CSSProperties}
     >
       {mapAreas.length > 1 && (

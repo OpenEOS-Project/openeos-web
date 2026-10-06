@@ -37,6 +37,7 @@ import { TableSwitchSheet } from './components/table-switch-sheet';
 import { useOpenOrders, type OpenOrdersScope } from './hooks/use-open-orders';
 import { checkoutTotals, usePosCheckout } from './hooks/use-pos-checkout';
 import { usePosData } from './hooks/use-pos-data';
+import { usePosTheme } from './hooks/use-pos-theme';
 import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents } from './hooks/use-pos-live';
 import { defaultStartView, effectiveTableMode, mergeOpenTables, sameContext, sortAreas } from './utils/tables';
 
@@ -50,8 +51,9 @@ export default function DevicePosPage() {
   const tUi = useTranslations('deviceUi');
   const router = useRouter();
   const hydrated = useDeviceHydration();
-  const { deviceId, deviceToken, status, checkStatus } = useDeviceStore();
+  const { deviceId, deviceToken, status, checkStatus, posTheme } = useDeviceStore();
   const [layer, setLayer] = useState<HTMLElement | null>(null);
+  usePosTheme(posTheme ?? 'system');
 
   useEffect(() => {
     if (!hydrated) return;
@@ -91,8 +93,19 @@ function PosApp() {
   const toast = usePosToast();
   const queryClient = useQueryClient();
   const apiErrorMessage = useApiErrorMessage();
-  const { deviceName, settings, table: storedTable, session, setSession, setTable, startView, setStartView, logout } =
-    useDeviceStore();
+  const {
+    deviceName,
+    settings,
+    table: storedTable,
+    session,
+    setSession,
+    setTable,
+    startView,
+    setStartView,
+    posTheme,
+    setPosTheme,
+    logout,
+  } = useDeviceStore();
   const serviceMode = (settings?.serviceMode as string) || 'table';
   const deviceAreaId = (settings?.tableAreaId as string | undefined) ?? null;
   const requirePin = !!settings?.requirePin;
@@ -105,7 +118,6 @@ function PosApp() {
   const [printing, setPrinting] = useState(false);
   const [serving, setServing] = useState(false);
   const [broadcasts, setBroadcasts] = useState<BroadcastMessage[]>([]);
-  const [testDismissed, setTestDismissed] = useState(false);
 
   const handleBroadcast = useCallback((message: BroadcastMessage) => {
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -182,6 +194,7 @@ function PosApp() {
 
   const checkout = usePosCheckout({
     eventId,
+    orderingMode,
     context: context ?? COUNTER,
     chargePfand,
     sentOrders,
@@ -292,13 +305,19 @@ function PosApp() {
       : []),
   ];
 
-  const testBanner = isTest && !testDismissed ? <PosTestModeBanner onDismiss={() => setTestDismissed(true)} /> : null;
   const startMode = tableMode === 'predefined' ? 'predefined' : 'free';
-  // „Rechnung teilen“ am Tisch; ungesendete Zeilen werden vorher gesendet.
+  // „Rechnung teilen“ am Tisch. Im Modus `tab` werden ungesendete Zeilen
+  // vorher gesendet; im Modus `immediate` entsteht nie eine unbezahlte
+  // Bestellung (F8) — geteilt werden dort nur schon offene Bestellungen
+  // (Gastbestellung, Rest), solange nichts Ungesendetes im Warenkorb liegt.
   // An der Theke läuft Teilen über „Offene Bestellungen“.
-  const canSplit = context?.kind === 'table' && (totals.openOrderIds.length > 0 || cart.items.length > 0);
+  const canSplit =
+    context?.kind === 'table' &&
+    (isTab
+      ? totals.openOrderIds.length > 0 || cart.items.length > 0
+      : totals.openOrderIds.length > 0 && cart.items.length === 0);
   const openSplit = async () => {
-    if (useCartStore.getState().items.length > 0) await checkout.send();
+    if (isTab && useCartStore.getState().items.length > 0) await checkout.send();
     if (useCartStore.getState().items.length === 0) setSheet('split');
   };
 
@@ -329,7 +348,6 @@ function PosApp() {
             ? { count: counterOrderCount, onOpen: () => setSheet('openOrders') }
             : undefined
         }
-        notices={testBanner}
         sent={
           context?.kind === 'table'
             ? { orders: sentOrders, openAmount: totals.sentOpen, onServe: serve, serving }
@@ -348,7 +366,6 @@ function PosApp() {
         openTablesLoading={tableStatus.isLoading}
         staleSince={connection === 'online' ? null : tableStatus.updatedAt}
         onOpen={(next) => openContext(next)}
-        notices={testBanner}
       />
     );
   }
@@ -360,7 +377,6 @@ function PosApp() {
         <PosHeader
           deviceName={deviceAreaName ? `${deviceName || 'POS'} · ${deviceAreaName}` : deviceName || 'POS'}
           eventName={activeEvent?.name ?? null}
-          isTestEvent={isTest}
           table={
             tablesEnabled && inOrderView && context
               ? {
@@ -375,9 +391,11 @@ function PosApp() {
           user={requirePin ? session : null}
           onLock={lock}
           menu={menu}
+          theme={posTheme ?? 'system'}
+          onThemeChange={setPosTheme}
           onLogout={() => setSheet('logout')}
         />
-        {isTest && <div className="pos-testband">{t('header.testMode')}</div>}
+        {isTest && <PosTestModeBanner />}
         {offline && (
           <Banner tone="danger" icon={<Icon name="wifi-off" />} className="pos-offline">
             {t('offline.banner')}

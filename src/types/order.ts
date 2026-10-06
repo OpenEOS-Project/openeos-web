@@ -128,6 +128,12 @@ export interface CreateOrderData {
   items?: CreateOrderItemData[];
   discountAmount?: number;
   discountReason?: string;
+  /**
+   * Nur Geräte-API: Zahlung gleich mitbuchen (eine Transaktion, alles oder
+   * nichts). Pflicht im Kassiermodus `immediate`; `orderIds` = weitere
+   * offene Bestellungen, die mitbezahlt werden (die neue kommt als letzte).
+   */
+  payment?: Omit<import('./table').PaymentsBatchData, 'orderIds'> & { orderIds?: string[] };
 }
 
 export interface UpdateOrderData {

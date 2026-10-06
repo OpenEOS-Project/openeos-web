@@ -25,8 +25,6 @@ interface PosStartViewProps {
   /** Ohne Live-Verbindung: Stand des Tischstatus. */
   staleSince?: number | null;
   onOpen: (context: PosTableContext) => void;
-  /** Hinweise über dem Ziffernblock (Testmodus). */
-  notices?: ReactNode;
 }
 
 /**
@@ -46,7 +44,6 @@ export function PosStartView({
   openTablesLoading,
   staleSince,
   onOpen,
-  notices,
 }: PosStartViewProps) {
   const t = useTranslations('pos.tables');
   const tOrder = useTranslations('pos.order');
@@ -199,7 +196,6 @@ export function PosStartView({
             </div>
           )}
         </div>
-        {notices}
         {main}
       </div>
       <OpenTablesAside

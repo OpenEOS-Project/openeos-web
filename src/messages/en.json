@@ -2112,18 +2112,20 @@
       "more": "More",
       "moreActions": "More actions",
       "openOrders": "Open orders",
-      "pfandReturn": "Deposit return"
+      "pfandReturn": "Deposit return",
+      "theme": "Appearance",
+      "theme_dark": "Dark",
+      "theme_light": "Light",
+      "theme_system": "System"
     },
     "header": {
-      "dismissTest": "Hide notice",
       "lock": "Lock register",
       "locked": "Register locked · enter PIN to unlock",
       "logoAlt": "OpenEOS",
       "noEvent": "No active event",
       "switch": "Change",
       "tableCaption": "Table",
-      "tablePill": "Table {label} – change table",
-      "testMode": "Test mode"
+      "tablePill": "Table {label} – change table"
     },
     "status": {
       "connecting": "Connecting …",
@@ -2923,6 +2925,7 @@
     "ORDER_NOT_FOUND": "The order was not found.",
     "ORDER_NOT_FULLY_PAID": "The order must be fully paid.",
     "ORDER_PAID_CANNOT_DELETE": "Paid orders cannot be deleted.",
+    "ORDER_PAYMENT_REQUIRED": "With \"Pay immediately\" an order is only created together with its payment. Reload the POS and check out again.",
     "ORDER_SESSION_EXPIRED": "The ordering session has expired.",
     "ORDER_SESSION_NOT_FOUND": "The ordering session was not found.",
     "ORGANIZATION_ACCESS_DENIED": "You do not have access to this organization.",

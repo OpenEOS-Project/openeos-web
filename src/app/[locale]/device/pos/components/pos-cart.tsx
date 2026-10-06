@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Banner, Button, CartLine, EmptyState, Icon, IconBox, Spinner } from '@openeos/ui';
+import { Banner, Button, CartLine, EmptyState, Icon, IconBox, Spinner, useSwipeToClose } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { useCartHydration, useCartStore, type CartItem } from '@/stores/cart-store';
 import type { Order, OrderItem } from '@/types/order';
@@ -11,8 +11,6 @@ import { PosSheet } from './pos-sheet';
 
 /** Ab dieser Zahl an Positionen fragt „Warenkorb leeren“ nach. */
 const CONFIRM_CLEAR_FROM = 3;
-/** Wischweg in px, ab dem das Warenkorb-Blatt (kompakt) schließt. */
-const SWIPE_CLOSE = 80;
 
 interface PosCartProps {
   /** „Tisch 12“ oder „Theke“ — Kopfzeile und Leerzustand. */
@@ -103,7 +101,15 @@ export function PosCart({
     getReturnedPfandUnits,
   } = useCartStore();
   const [confirmClear, setConfirmClear] = useState(false);
-  const [drag, setDrag] = useState<{ start: number; dy: number } | null>(null);
+  const cartRef = useRef<HTMLElement>(null);
+  // Telefon: Herunterziehen am Griff/Kopf oder in der Liste (oben) schließt.
+  useSwipeToClose(cartRef, {
+    enabled: sheetOpen,
+    onClose: onCloseSheet,
+    grip: '.pos-cart__handle, .pos-cart__hd',
+    scroller: '.pos-cart__lines',
+    property: '--cart-drag',
+  });
 
   // Summen ausschließlich aus dem Warenkorb-Speicher (unveränderte Logik).
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -187,31 +193,14 @@ export function PosCart({
     else clearCart();
   };
 
-  const style = drag ? ({ '--cart-drag': `${drag.dy}px` } as CSSProperties) : undefined;
-
   return (
     <>
       <aside
-        className={['pos-cart', sheetOpen && 'is-open', drag && 'is-dragging'].filter(Boolean).join(' ')}
+        ref={cartRef}
+        className={sheetOpen ? 'pos-cart is-open' : 'pos-cart'}
         aria-label={t('title')}
-        style={style}
       >
-        <div
-          className="pos-cart__handle"
-          aria-hidden
-          onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId);
-            setDrag({ start: e.clientY, dy: 0 });
-          }}
-          onPointerMove={(e) => {
-            if (drag) setDrag({ start: drag.start, dy: Math.max(0, e.clientY - drag.start) });
-          }}
-          onPointerUp={() => {
-            if (drag && drag.dy > SWIPE_CLOSE) onCloseSheet();
-            setDrag(null);
-          }}
-          onPointerCancel={() => setDrag(null)}
-        />
+        <div className="pos-cart__handle" aria-hidden />
         <div className="pos-cart__hd">
           <IconBox
             icon="cart"

@@ -16,8 +16,8 @@ import {
   type CartContents,
 } from '@/stores/cart-store';
 import { ApiException } from '@/types/api';
-import type { Order } from '@/types/order';
-import type { PosTableContext } from '@/types/table';
+import type { CreateOrderData, Order } from '@/types/order';
+import type { PaymentsBatchData, PosTableContext } from '@/types/table';
 import { uuidV4 } from '@/utils/uuid';
 import type { DoneInfo } from '../components/done-sheet';
 import type { PayResult } from '../components/pay-sheet';
@@ -32,6 +32,11 @@ const REQUEST_KEY = 'openeos-pos-request';
 
 interface CheckoutContext {
   eventId: string | null;
+  /**
+   * Wirksamer Kassiermodus (Veranstaltung, sonst Organisation, sonst
+   * `immediate`). Nur `tab` kennt „Senden“ (unbezahlte Bestellung, F8).
+   */
+  orderingMode: 'immediate' | 'tab';
   /** Wofür gebucht wird (an Theken-Geräten immer `counter`). */
   context: PosTableContext;
   chargePfand: boolean;
@@ -103,14 +108,19 @@ function clearRequestId() {
 }
 
 /**
- * Senden und Kassieren. Senden legt eine unbezahlte Bestellung an (Modus
- * `tab`). Kassieren legt ungesendete Positionen als Bestellung an und
- * bucht dann alle offenen Bestellungen des Kontexts in einer Sammelzahlung
- * (`payments/batch`, alles oder nichts). Karte: erst das Geld am
+ * Senden und Kassieren. Senden legt eine unbezahlte Bestellung an (nur
+ * Modus `tab`). Kassieren legt ungesendete Positionen zusammen mit der
+ * Zahlung an — Bestellung und Zahlung in einer Transaktion, offene
+ * Bestellungen des Kontexts zahlen mit (`POST /device-api/orders` mit
+ * `payment`); ohne ungesendete Positionen bucht es die offenen
+ * Bestellungen als Sammelzahlung (`payments/batch`). So entsteht beim
+ * Kassieren nie eine unbezahlte Bestellung, und Küche und Stationen
+ * bekommen erst nach der Zahlung etwas. Karte: erst das Geld am
  * Lesegerät, dann die Bestellung.
  */
 export function usePosCheckout({
   eventId,
+  orderingMode,
   context,
   chargePfand,
   sentOrders,
@@ -146,7 +156,7 @@ export function usePosCheckout({
     });
   };
 
-  const createOrder = async (discount: number): Promise<Order> => {
+  const createOrder = async (discount: number, payment?: CreateOrderData['payment']): Promise<Order> => {
     if (!eventId) throw new Error('No event selected');
     const cart = useCartStore.getState();
     const items = buildItems();
@@ -175,6 +185,7 @@ export function usePosCheckout({
           }),
       items,
       ...(discount > 0 ? { discountAmount: discount, discountReason: reason } : {}),
+      ...(payment ? { payment } : {}),
     });
     return response.data;
   };
@@ -199,6 +210,8 @@ export function usePosCheckout({
 
   /** „Senden“ (Modus `tab`): unbezahlte Bestellung an Küche und Theke. */
   const send = async () => {
+    // „Sofort kassieren“: nie unbezahlt an die Küche (F8, die API lehnt es ab).
+    if (orderingMode !== 'tab') return;
     const cart = useCartStore.getState();
     const count = cart.getItemCount();
     setIsSending(true);
@@ -253,68 +266,71 @@ export function usePosCheckout({
       time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
     };
 
-    // 1. Ungesendete Positionen als Bestellung. Mit offenen Bestellungen
-    //    läuft der Rabatt über die Sammelzahlung (über alle verteilt).
-    let created: Order | null = null;
-    if (cart.items.length > 0) {
-      try {
-        created = await createOrder(hasOpen ? 0 : totals.discount);
-      } catch (error) {
-        handleTableError(error);
+    const charged = totals.due > 0 && result.method !== 'free';
+    const reason = cart.appliedVouchers.map((v) => v.name).join(', ');
+    const payment: Omit<PaymentsBatchData, 'orderIds'> = {
+      paymentMethod: result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash',
+      ...(result.method === 'cash' && result.amountReceived !== undefined
+        ? { amountReceived: result.amountReceived }
+        : {}),
+      ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
+      ...(result.method === 'sumup' && result.transactionId ? { providerTransactionId: result.transactionId } : {}),
+      // Mit offenen Bestellungen läuft der Rabatt über die Zahlung (über alle verteilt).
+      ...(hasOpen && totals.discount > 0
+        ? { discountAmount: Math.round(totals.discount * 100) / 100, discountReason: reason }
+        : {}),
+    };
+
+    const failed = (error: unknown) => {
+      invalidate();
+      // Karte: Das Geld ist gebucht — Warenkorb bleibt, „Erneut speichern“
+      // wiederholt mit derselben Anfrage-ID.
+      if (result.method === 'sumup') toast(t('pay.unsavedTitle'), 'danger');
+      else
         toast(
-          result.method === 'sumup' ? t('pay.unsavedTitle') : apiErrorMessage(error, t('pay.orderFailed')),
+          errorReason(error) === 'ORDER_ALREADY_PAID'
+            ? t('tables.alreadyPaid')
+            : apiErrorMessage(error, t('pay.orderFailed')),
           'danger',
         );
+    };
+
+    // 1. Ungesendete Positionen: Bestellung und Zahlung in einem Schritt —
+    //    scheitert die Zahlung, gibt es auch keine Bestellung (kein
+    //    Küchenbon). Offene Bestellungen des Kontexts zahlen mit.
+    let created: Order | null = null;
+    if (cart.items.length > 0) {
+      const withPayment = hasOpen || charged;
+      try {
+        created = await createOrder(
+          hasOpen ? 0 : totals.discount,
+          withPayment ? { ...payment, ...(hasOpen ? { orderIds: totals.openOrderIds } : {}) } : undefined,
+        );
+        // Ältere API ohne Zahlung bei der Anlage: die Bestellung kam
+        // unbezahlt an — dann wie früher hinterher kassieren.
+        if (withPayment && created.paymentStatus !== 'paid') {
+          await deviceTablesApi.payBatch({
+            ...payment,
+            orderIds: Array.from(new Set([...totals.openOrderIds, created.id])),
+          });
+        }
+      } catch (error) {
+        handleTableError(error);
+        failed(error);
+        throw error;
+      }
+    } else if (hasOpen) {
+      // 2. Nur offene Bestellungen (Gastbestellung, Teilzahlungsrest, `tab`):
+      //    eine Sammelzahlung über alle (atomar).
+      try {
+        await deviceTablesApi.payBatch({ ...payment, orderIds: totals.openOrderIds });
+      } catch (error) {
+        failed(error);
         throw error;
       }
     }
 
     const orderIds = Array.from(new Set([...totals.openOrderIds, ...(created ? [created.id] : [])]));
-    const charged = totals.due > 0 && result.method !== 'free';
-    // Bei einer Wiederholung steht die eben angelegte Bestellung schon unter
-    // den offenen — ihr Rabatt ist dann bereits gebucht.
-    const discountInBatch = totals.openOrderIds.some((id) => id !== created?.id) && totals.discount > 0;
-
-    // 2. Eine Sammelzahlung über alles (atomar). Ohne offene Bestellungen
-    //    und ohne Betrag (Rabatt deckt alles) ist die neue Bestellung schon
-    //    beim Anlegen bezahlt.
-    if (orderIds.length > 0 && (hasOpen || charged)) {
-      try {
-        await deviceTablesApi.payBatch({
-          orderIds,
-          paymentMethod: result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash',
-          ...(result.method === 'cash' && result.amountReceived !== undefined
-            ? { amountReceived: result.amountReceived }
-            : {}),
-          ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
-          ...(result.method === 'sumup' && result.transactionId
-            ? { providerTransactionId: result.transactionId }
-            : {}),
-          ...(discountInBatch
-            ? {
-                discountAmount: Math.round(totals.discount * 100) / 100,
-                discountReason: cart.appliedVouchers.map((v) => v.name).join(', '),
-              }
-            : {}),
-        });
-      } catch (error) {
-        invalidate();
-        // Karte: Das Geld ist gebucht — Warenkorb bleibt, „Erneut speichern“
-        // wiederholt mit derselben Anfrage-ID.
-        if (result.method === 'sumup') {
-          toast(t('pay.unsavedTitle'), 'danger');
-          throw error;
-        }
-        if (created) clearSent();
-        toast(
-          errorReason(error) === 'ORDER_ALREADY_PAID'
-            ? t('tables.alreadyPaid')
-            : `${t('tables.paymentFailed')} ${apiErrorMessage(error)}`,
-          'danger',
-        );
-        throw error;
-      }
-    }
 
     clearSent();
     invalidate();

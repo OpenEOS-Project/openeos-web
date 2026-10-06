@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
-  Badge,
   Dropdown,
+  DropdownCaption,
   DropdownOption,
   DropdownSeparator,
   Icon,
@@ -13,6 +13,7 @@ import {
   type IconName,
 } from '@openeos/ui';
 import type { PosConnectionState } from '@/hooks/use-pos-connection';
+import type { PosTheme } from '@/stores/device-store';
 
 export interface PosPrinterStatus {
   name: string;
@@ -31,7 +32,6 @@ export interface PosMenuAction {
 interface PosHeaderProps {
   deviceName: string;
   eventName: string | null;
-  isTestEvent: boolean;
   /**
    * Tisch-Pille nur in der Bestellansicht mit Tischbetrieb: Tisch, Theke
    * oder To-go (dann „Bestellung“ statt „Tisch“).
@@ -43,9 +43,18 @@ interface PosHeaderProps {
   user: { firstName: string; lastName: string } | null;
   onLock?: () => void;
   menu: PosMenuAction[];
+  /** Hell/Dunkel/System, je Gerät gespeichert. */
+  theme: PosTheme;
+  onThemeChange: (theme: PosTheme) => void;
   /** Abmelden steht getrennt am Ende des Menüs. */
   onLogout: () => void;
 }
+
+const THEMES: Array<{ id: PosTheme; icon: IconName }> = [
+  { id: 'light', icon: 'sun' },
+  { id: 'dark', icon: 'moon' },
+  { id: 'system', icon: 'monitor' },
+];
 
 const CONNECTION_TONE: Record<PosConnectionState, 'default' | 'warn' | 'danger'> = {
   online: 'default',
@@ -58,13 +67,14 @@ const CONNECTION_TONE: Record<PosConnectionState, 'default' | 'warn' | 'danger'>
 export function PosHeader({
   deviceName,
   eventName,
-  isTestEvent,
   table,
   connection,
   printer,
   user,
   onLock,
   menu,
+  theme,
+  onThemeChange,
   onLogout,
 }: PosHeaderProps) {
   const t = useTranslations('pos');
@@ -84,10 +94,7 @@ export function PosHeader({
       <span className="pos-head__sep" aria-hidden />
       <div className="pos-head__ctx">
         <b>{deviceName}</b>
-        <span>
-          {eventName ?? t('header.noEvent')}
-          {isTestEvent && <Badge tone="warn">{t('header.testMode')}</Badge>}
-        </span>
+        <span>{eventName ?? t('header.noEvent')}</span>
       </div>
 
       {table && (
@@ -170,6 +177,18 @@ export function PosHeader({
               danger={action.danger}
             >
               {action.label}
+            </DropdownOption>
+          ))}
+          <DropdownSeparator />
+          <DropdownCaption>{t('menu.theme')}</DropdownCaption>
+          {THEMES.map((option) => (
+            <DropdownOption
+              key={option.id}
+              icon={<Icon name={option.icon} />}
+              selected={theme === option.id}
+              onClick={() => onThemeChange(option.id)}
+            >
+              {t(`menu.theme_${option.id}`)}
             </DropdownOption>
           ))}
           <DropdownSeparator />

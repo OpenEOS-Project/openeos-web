@@ -30,8 +30,6 @@ interface PosOrderViewProps {
   onCheckout: () => void;
   onPfandReturn?: () => void;
   openOrders?: { count: number; onOpen: () => void };
-  /** Hinweise über dem Raster (Testmodus). */
-  notices?: ReactNode;
   /** Tischbetrieb: gesendete Bestellungen des Tisches. */
   sent?: SentOrders | null;
 }
@@ -54,7 +52,6 @@ export function PosOrderView({
   onCheckout,
   onPfandReturn,
   openOrders,
-  notices,
   sent,
 }: PosOrderViewProps) {
   const t = useTranslations('pos.order');
@@ -212,7 +209,6 @@ export function PosOrderView({
           <PosSearch open={searchOpen} query={query} onOpenChange={setSearchOpen} onQueryChange={setQuery} />
         </div>
         <div className="pos-gridwrap oe-scroll">
-          {notices}
           {content}
         </div>
       </main>
