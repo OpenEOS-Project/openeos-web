@@ -9,8 +9,10 @@ import type {
   ChannelReport,
   CategoryReport,
   DeviceReport,
+  NetSalesSummary,
 } from '@/types/report';
 import { formatCurrency, formatPercent } from '@/utils/format';
+import { netReconciliation } from '@/utils/report-net';
 import type { ReportsFilter } from './reports-filter-bar';
 import { formatReportDay, getChannelLabel, getMethodLabel, type ReportsT } from './report-labels';
 import { addDays, todayKey, toLocalDate } from '@/utils/calendar-date';
@@ -25,6 +27,8 @@ export interface PdfExportInput {
   hourly?: HourlyReport[];
   channels?: ChannelReport[];
   categories?: CategoryReport[];
+  /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
+  net?: NetSalesSummary;
   devices?: DeviceReport[];
 }
 
@@ -290,6 +294,7 @@ function addTableSection(
   body: string[][],
   emptyLabel: string,
   rightAlignCols: number[] = [],
+  foot: string[][] = [],
 ): number {
   cursorY = ensureSpace(doc, cursorY, 18);
 
@@ -316,6 +321,13 @@ function addTableSection(
     startY: cursorY,
     head: [head],
     body,
+    ...(foot.length
+      ? {
+          foot,
+          showFoot: 'lastPage' as const,
+          footStyles: { fillColor: [255, 255, 255] as [number, number, number], textColor: [30, 30, 30] as [number, number, number], fontStyle: 'bold' as const },
+        }
+      : {}),
     margin: { left: MARGIN, right: MARGIN, bottom: 20 },
     styles: { fontSize: 9, cellPadding: 2.5, textColor: [30, 30, 30] },
     headStyles: { fillColor: GREEN_INK, textColor: [255, 255, 255], fontStyle: 'bold' },
@@ -351,6 +363,17 @@ function addFooters(doc: jsPDF, { t, locale }: PdfExportI18n): void {
 export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI18n): Promise<void> {
   const { t, locale } = i18n;
   const money = (amount: number) => formatCurrency(amount, locale);
+  // Abgleichzeilen unter Produkten/Kategorien: Summe, Erstattungen ohne
+  // Position, Trinkgeld, Umsatz netto (wie in der Tabelle der Auswertung).
+  const netFoot = (revenues: number[] | undefined, itemsLabel: string, labelCols: number, trailing: number) =>
+    input.net && revenues?.length
+      ? netReconciliation(revenues, input.net).map((line) => [
+          line.key === 'items' ? itemsLabel : t(`net.${line.key}`),
+          ...Array.from({ length: labelCols - 1 }, () => ''),
+          money(line.amount),
+          ...Array.from({ length: trailing }, () => ''),
+        ])
+      : [];
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
   let cursorY = await drawHeader(doc, input, i18n);
@@ -397,6 +420,7 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
     ]),
     t('products.empty'),
     [2, 3, 4],
+    netFoot(input.products?.map((p) => p.revenue), t('net.items'), 3, 1),
   );
 
   cursorY = addTableSection(
@@ -427,6 +451,7 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
     (input.categories ?? []).map((c) => [c.name, String(c.quantity), money(c.revenue)]),
     t('categories.empty'),
     [1, 2],
+    netFoot(input.categories?.map((c) => c.revenue), t('net.categoryItems'), 2, 0),
   );
 
   cursorY = addTableSection(

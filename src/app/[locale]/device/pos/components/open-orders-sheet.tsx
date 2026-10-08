@@ -8,6 +8,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import type { PaymentMethod } from '@/types/payment';
+import type { PosCardMode } from '@/utils/pos-card-mode';
 import { errorReason } from '../hooks/use-pos-checkout';
 import { useOpenOrders } from '../hooks/use-open-orders';
 import { remainingOf } from '../utils/tables';
@@ -20,7 +21,7 @@ interface OpenOrdersSheetProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string | null;
-  card: 'sumup' | 'manual' | null;
+  card: PosCardMode;
   disabled?: boolean;
   onSplit: () => void;
   onPaid: (info: DoneInfo) => void;

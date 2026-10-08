@@ -756,6 +756,11 @@
         "deleteConfirmMessage": "„{name}“ wird von SumUp entkoppelt und kann danach keine Zahlungen mehr annehmen. Zum erneuten Verwenden muss er neu gekoppelt werden.",
         "renameReader": "Kartenleser „{name}“ umbenennen",
         "deleteReader": "Kartenleser „{name}“ löschen"
+      },
+      "testMode": {
+        "title": "Testmodus",
+        "activeTitle": "Testmodus aktiv – keine SumUp-Kartenzahlungen",
+        "text": "Solange eine Veranstaltung im Testmodus ist, löst die Kasse keine echten SumUp-Kartenzahlungen aus: Die Zahlart ist an der Kasse ausgegraut, Zahlungen am Lesegerät lehnt der Server ab. Bar und die manuelle Kartenbuchung bleiben möglich; Erstattungen von Testbestellungen werden nur gebucht."
       }
     },
     "organizationNotifications": {
@@ -2425,7 +2430,8 @@
       "tipRoundUp": "Aufrunden auf {amount}",
       "title": "Kassieren · {context}",
       "unsavedText": "Die Karte wurde mit {amount} belastet (Vorgang {id}). Nicht erneut kassieren – speichere die Bestellung erneut.",
-      "unsavedTitle": "Kartenzahlung erfolgreich, Bestellung nicht gespeichert"
+      "unsavedTitle": "Kartenzahlung erfolgreich, Bestellung nicht gespeichert",
+      "cardTestModeHint": "Im Testmodus ohne echte Kartenzahlung"
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -2664,6 +2670,89 @@
         "refund_receipt_reprinted": "Gegenbeleg nachgedruckt"
       },
       "payments": "Zahlungen"
+    },
+    "refund": {
+      "cancelItems": "Positionen stornieren",
+      "cancelAndRefund": "Stornieren & erstatten",
+      "refund": "Erstatten",
+      "title": "Erstatten · #{number}",
+      "cancelAndRefundTitle": "Stornieren & erstatten · #{number}",
+      "refundable": "Erstattbar: {amount}",
+      "mode": "Art der Erstattung",
+      "modeItems": "Positionen",
+      "modeAmount": "Betrag",
+      "modeFull": "Alles",
+      "alsoCancel": "Positionen auch stornieren",
+      "alsoCancelHint": "Küche und Station nehmen sie heraus; noch nicht begonnene gehen zurück in den Bestand.",
+      "items": "Positionen",
+      "nothingToSelect": "Keine Position mehr zu erstatten.",
+      "perUnit": "{amount} je Stück",
+      "deposit": "{amount} Pfand",
+      "includeDeposit": "Pfand mit erstatten",
+      "amount": "Betrag",
+      "amountHint": "Höchstens {max}",
+      "amountInvalid": "Gib einen Betrag bis {max} ein.",
+      "fullCancelHint": "Die ganze Bestellung wird storniert und {amount} erstattet.",
+      "fullRefundHint": "Es werden {amount} erstattet; die Bestellung bleibt bestehen.",
+      "via": "Rückgabe über",
+      "viaAuto": "Automatisch (jüngste Zahlung zuerst)",
+      "methodHint": {
+        "cash": "Bar zurückgeben – wird als „bar ausgezahlt“ gebucht. Nimm das Geld aus der Kasse.",
+        "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
+        "card": "Am Kartenterminal erstatten – wird als „manuell erstattet“ gebucht.",
+        "test": "Testmodus: wird nicht echt erstattet, nur gebucht."
+      },
+      "method": {
+        "cash": "Rückgabe bar – wird als „bar ausgezahlt“ gebucht.",
+        "sumup": "Rückgabe über SumUp auf die Karte des Gastes.",
+        "card": "Rückgabe am Kartenterminal – wird als „manuell erstattet“ gebucht.",
+        "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet."
+      },
+      "reasonRequired": "Grund (Pflicht)",
+      "reasonOptional": "Grund (optional)",
+      "reasonChoose": "Grund wählen",
+      "reasonText": "Ergänzung",
+      "reasonPlaceholder": "z. B. „Burger kalt“",
+      "startedTitle": "Küche hat schon begonnen – trotzdem stornieren?",
+      "startedText": "{items}: schon in Arbeit, fertig oder serviert. Das zählt als Ausschuss, der Bestand geht nicht zurück.",
+      "startedConfirm": "Ja, trotzdem stornieren",
+      "sumupFailedTitle": "SumUp hat die Erstattung abgelehnt",
+      "sumupFailedText": "Die Erstattung über SumUp ist fehlgeschlagen.",
+      "sumupManualHint": "Versuch es erneut oder gib den Betrag anders zurück und buche ihn als „manuell erstattet“.",
+      "retry": "Erneut versuchen",
+      "markManual": "Als manuell erstattet buchen",
+      "sum": "Erstattung",
+      "action": "Erstatten",
+      "cancelAndRefundAction": "Stornieren & erstatten",
+      "confirmTitle": "Erstattung bestätigen",
+      "confirmText": "{amount} erstatten? Das lässt sich nicht rückgängig machen.",
+      "confirmCancelText": "Positionen stornieren und {amount} erstatten? Das lässt sich nicht rückgängig machen.",
+      "confirmReceipt": "Ein Gegenbeleg geht an den Bondrucker.",
+      "confirmAction": "Jetzt erstatten",
+      "confirmCancelAction": "Jetzt stornieren & erstatten",
+      "back": "Zurück",
+      "booking": "Wird gebucht …",
+      "doneTitle": "Erstattet",
+      "result": {
+        "cash": "{amount} als bar ausgezahlt gebucht.",
+        "sumup": "{amount} über SumUp erstattet.",
+        "manual": "{amount} als manuell erstattet gebucht.",
+        "test": "Testmodus: gebucht, nicht beim Zahlungsanbieter erstattet.",
+        "printed": "Gegenbeleg gedruckt",
+        "notPrinted": "Kein Bondrucker eingerichtet – Gegenbeleg nicht gedruckt"
+      },
+      "cancelTitle": "Positionen stornieren · #{number}",
+      "cancelSubtitle": "Noch nicht begonnene Positionen gehen zurück in den Bestand.",
+      "cancelConfirmTitle": "Storno bestätigen",
+      "cancelConfirmText": "{count, plural, =1 {1 Position} other {# Positionen}} für {amount} stornieren? Das lässt sich nicht rückgängig machen.",
+      "cancelAction": "{count, plural, =0 {Stornieren} =1 {1 Position stornieren} other {# Positionen stornieren}}",
+      "selectAll": "Alle wählen",
+      "selectNone": "Keine",
+      "selectedCount": "{count, plural, =0 {Nichts gewählt} =1 {1 Position} other {# Positionen}}",
+      "cancelDone": "{count, plural, =1 {1 Position storniert} other {# Positionen storniert}}",
+      "paidNeedsRefund": "Schon bezahlt – storniere mit Erstattung.",
+      "less": "{name}: weniger",
+      "more": "{name}: mehr"
     }
   },
   "device": {
@@ -3305,6 +3394,7 @@
     "STRIPE_WEBHOOK_SECRET_MISSING": "Online-Zahlung ist derzeit nicht verfügbar.",
     "SUBSCRIPTION_CONFIG_NOT_FOUND": "Die Abo-Konfiguration wurde nicht gefunden.",
     "SUMUP_API_ERROR": "SumUp hat die Anfrage abgelehnt. Bitte versuche es später erneut oder prüfe die Zugangsdaten.",
+    "SUMUP_DISABLED_IN_TEST_MODE": "Im Testmodus löst die Kasse keine echten SumUp-Kartenzahlungen aus. Kassiere bar oder buche die Karte manuell.",
     "SUMUP_INVALID_CREDENTIALS": "SumUp-Zugangsdaten ungültig – bitte prüfen",
     "SUMUP_NOT_CONFIGURED": "SumUp ist noch nicht eingerichtet. Bitte hinterlege zuerst API-Key und Merchant Code.",
     "SUMUP_NO_CHECKOUT_URL": "SumUp hat keine Bezahlseite geliefert. Bitte versuche es erneut.",
@@ -4105,7 +4195,7 @@
     },
     "products": {
       "title": "Top-Produkte",
-      "subtitle": "Sortiert nach Menge",
+      "subtitle": "Netto, nach Umsatz sortiert",
       "empty": "Keine Produktdaten vorhanden",
       "columns": {
         "product": "Produkt",
@@ -4139,7 +4229,7 @@
     },
     "categories": {
       "title": "Top-Kategorien",
-      "subtitle": "Sortiert nach Umsatz",
+      "subtitle": "Netto, nach Umsatz sortiert",
       "empty": "Keine Kategoriedaten vorhanden",
       "columns": {
         "category": "Kategorie",
@@ -4212,6 +4302,15 @@
         "openStart": "start",
         "openEnd": "ende"
       }
+    },
+    "net": {
+      "items": "Summe Produkte",
+      "categoryItems": "Summe Kategorien",
+      "unassignedRefunds": "Erstattungen ohne Position",
+      "tips": "Trinkgeld",
+      "rounding": "Rundung (Rabatt anteilig)",
+      "netRevenue": "Umsatz netto",
+      "note": "Netto: Stornos und erstattete Mengen sind abgezogen, Rabatte anteilig verteilt, Pfand ist nicht enthalten. Kulanz-Erstattungen ohne Positionsbezug stehen als eigene Zeile – sie lassen sich keinem Produkt zuordnen."
     }
   },
   "inventory": {

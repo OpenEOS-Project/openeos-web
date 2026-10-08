@@ -1,24 +1,36 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
-import type { CategoryReport } from '@/types/report';
+import type { CategoryReport, NetSalesSummary } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { netReconciliation } from '@/utils/report-net';
 import { downloadCsv } from './csv-export';
+import { ReportsNetFooter } from './reports-net-footer';
 
 interface ReportsCategoriesTableProps {
   data: CategoryReport[] | undefined;
+  /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
+  net?: NetSalesSummary;
   isLoading: boolean;
 }
 
-export function ReportsCategoriesTable({ data, isLoading }: ReportsCategoriesTableProps) {
+export function ReportsCategoriesTable({ data, net, isLoading }: ReportsCategoriesTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
+  const netLines = useMemo(
+    () => (net && data?.length ? netReconciliation(data.map((c) => c.revenue), net) : []),
+    [net, data],
+  );
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [t('categories.columns.category'), t('categories.columns.quantity'), t('categories.columns.revenue')];
-    const rows = data.map((c) => [c.name, c.quantity, c.revenue]);
+    const rows: (string | number)[][] = data.map((c) => [c.name, c.quantity, c.revenue]);
+    for (const line of netLines) {
+      rows.push([line.key === 'items' ? t('net.categoryItems') : t(`net.${line.key}`), '', line.amount]);
+    }
     downloadCsv(t('export.filenames.categories'), headers, rows);
   };
 
@@ -69,7 +81,11 @@ export function ReportsCategoriesTable({ data, isLoading }: ReportsCategoriesTab
                 </tr>
               ))}
             </tbody>
+            {netLines.length > 0 && (
+              <ReportsNetFooter lines={netLines} labelSpan={2} itemsLabel={t('net.categoryItems')} />
+            )}
           </table>
+          <p className="report-net__note">{t('net.note')}</p>
         </div>
       )}
     </div>

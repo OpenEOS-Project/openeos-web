@@ -24,6 +24,7 @@ import { deviceTablesApi } from '@/lib/device-tables-api';
 
 import type { OrderDetail, OrderDetailItem } from '@/types/order-history';
 import type { PaymentMethod } from '@/types/payment';
+import type { PosCardMode } from '@/utils/pos-card-mode';
 
 import { useInvalidateOrders, useOrderDetail, useRefundGate } from '../hooks/use-order-history';
 import type { DoneInfo } from './done-sheet';
@@ -37,7 +38,7 @@ import { usePosToast } from './pos-toast';
 interface OrderDetailSheetProps {
   orderId: string | null;
   onClose: () => void;
-  card: 'sumup' | 'manual' | null;
+  card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
 }

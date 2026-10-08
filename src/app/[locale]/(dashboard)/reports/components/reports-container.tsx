@@ -14,6 +14,7 @@ import {
   useChannelsReport,
   useCategoriesReport,
   useDevicesReport,
+  useNetSalesSummary,
 } from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
 
@@ -71,6 +72,7 @@ export function ReportsContainer() {
   const channelsReport = useChannelsReport(organizationId, reportQuery);
   const categoriesReport = useCategoriesReport(organizationId, reportQuery);
   const devicesReport = useDevicesReport(organizationId, reportQuery);
+  const netSummary = useNetSalesSummary(organizationId, reportQuery);
 
   const selectedEventName = events.find((e) => e.id === filter.eventId)?.name;
 
@@ -104,6 +106,7 @@ export function ReportsContainer() {
             hourly={hourlyReport.data}
             channels={channelsReport.data}
             categories={categoriesReport.data}
+            net={netSummary.data}
             devices={devicesReport.data}
           />
         }
@@ -111,13 +114,13 @@ export function ReportsContainer() {
 
       <ReportsKpiCards data={salesReport.data} isLoading={salesReport.isLoading} />
 
-      <ReportsProductsTable data={productsReport.data} isLoading={productsReport.isLoading} />
+      <ReportsProductsTable data={productsReport.data} net={netSummary.data} isLoading={productsReport.isLoading} />
 
       <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
 
       <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} />
 
-      <ReportsCategoriesTable data={categoriesReport.data} isLoading={categoriesReport.isLoading} />
+      <ReportsCategoriesTable data={categoriesReport.data} net={netSummary.data} isLoading={categoriesReport.isLoading} />
 
       <ReportsDevicesTable data={devicesReport.data} isLoading={devicesReport.isLoading} />
 

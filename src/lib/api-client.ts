@@ -901,6 +901,20 @@ export const ordersApi = {
     apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
       `/organizations/${organizationId}/orders/${orderId}/refunds/${refundId}/reprint`
     ),
+
+  /** Positionen stornieren (ohne Erstattung), gleiche Regeln wie an der Kasse. */
+  cancelItems: (organizationId: string, orderId: string, data: import('@/types/order-history').CancelItemsData) =>
+    apiClient.post<ApiResponse<import('@/types/order-history').OrderDetail>>(
+      `/organizations/${organizationId}/orders/${orderId}/cancel-items`,
+      data
+    ),
+
+  /** Erstattung mit Gegenbeleg (Recht „Bestellungen“ oder Admin). */
+  createRefund: (organizationId: string, orderId: string, data: import('@/types/order-history').CreateRefundData) =>
+    apiClient.post<ApiResponse<import('@/types/order-history').RefundResult>>(
+      `/organizations/${organizationId}/orders/${orderId}/refunds`,
+      data
+    ),
 };
 
 // Payments API
@@ -1970,6 +1984,11 @@ export const reportsApi = {
   getCategories: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
     apiClient.get<ApiResponse<import('@/types/report').CategoryReport[]>>(
       `/organizations/${organizationId}/reports/categories${reportQuery(params)}`
+    ),
+
+  getNetSummary: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').NetSalesSummary>>(
+      `/organizations/${organizationId}/reports/net-summary${reportQuery(params)}`
     ),
 
   getDevices: (organizationId: string, params?: import('@/types/report').ReportQuery) =>

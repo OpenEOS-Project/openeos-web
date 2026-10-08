@@ -1,23 +1,20 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { ITEM_STATUS_TONE, cancellableQuantity, isStarted } from '@/utils/order-history';
+import { ITEM_STATUS_TONE, cancellableQuantity } from '@/utils/order-history';
+import { toggleAllCancelItems } from '@/utils/refund-form';
 import { Badge, Banner, Button, Checkbox, Chip, Chips, Icon, Stepper, Textarea } from '@openeos/ui';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { useCancelItemsForm } from '@/hooks/use-refund-form';
 
 import { deviceApi } from '@/lib/api-client';
 
-import {
-  type DeviceActor,
-  type OrderDetail,
-  REFUND_REASON_CODES,
-  type RefundReasonCode,
-} from '@/types/order-history';
+import { type DeviceActor, type OrderDetail, REFUND_REASON_CODES } from '@/types/order-history';
 
 import { isPinError } from '../hooks/use-order-history';
 import { errorReason } from '../hooks/use-pos-checkout';
@@ -52,41 +49,17 @@ export function OrderCancelSheet({
   const formatPrice = useFormatPrice();
   const toast = usePosToast();
   const apiErrorMessage = useApiErrorMessage();
-  const items = useMemo(() => order.items.filter((i) => cancellableQuantity(i) > 0), [order.items]);
-  const [qty, setQty] = useState<Record<string, number>>({});
-  const [reasonCode, setReasonCode] = useState<RefundReasonCode | null>(null);
-  const [reasonText, setReasonText] = useState('');
-  const [confirmStarted, setConfirmStarted] = useState(false);
+  const form = useCancelItemsForm(order, open);
+  const { qty, reasonCode, reasonText, confirmStarted } = form.state;
+  const { items, started, all, count, value, needsReason } = form.view;
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    // Eine einzige Position ist gleich vorgewählt.
-    setQty(items.length === 1 ? { [items[0].id]: cancellableQuantity(items[0]) } : {});
-    setReasonCode(null);
-    setReasonText('');
-    setConfirmStarted(false);
-  }, [open, items]);
-
-  const selected = items.filter((i) => (qty[i.id] ?? 0) > 0);
-  const started = selected.filter((i) => isStarted(i.status));
-  const all = items.length > 0 && items.every((i) => (qty[i.id] ?? 0) === cancellableQuantity(i));
-  const count = selected.reduce((s, i) => s + (qty[i.id] ?? 0), 0);
-  const value = selected.reduce((s, i) => s + (i.unitPrice + i.optionsPrice) * (qty[i.id] ?? 0), 0);
-  const needsReason = started.length > 0;
-  const canSubmit = count > 0 && (!needsReason || (confirmStarted && !!reasonCode)) && !busy;
+  const canSubmit = form.view.ready && !busy;
 
   const submit = () =>
     run(async (actor) => {
       setBusy(true);
       try {
-        await deviceApi.cancelOrderItems(order.id, {
-          ...actor,
-          items: selected.map((i) => ({ orderItemId: i.id, quantity: qty[i.id] })),
-          ...(reasonCode ? { reasonCode } : {}),
-          ...(reasonText.trim() ? { reasonText: reasonText.trim() } : {}),
-          ...(started.length ? { confirmStarted: true } : {}),
-        });
+        await deviceApi.cancelOrderItems(order.id, { ...actor, ...form.payload() });
         toast(t('cancelItemsSuccess', { count }));
         onDone();
       } catch (error) {
@@ -138,11 +111,7 @@ export function OrderCancelSheet({
         <div className="pos-row pos-row--wrap">
           <Button
             variant="ghost"
-            onClick={() =>
-              setQty(
-                all ? {} : Object.fromEntries(items.map((i) => [i.id, cancellableQuantity(i)]))
-              )
-            }
+            onClick={() => form.set('qty', toggleAllCancelItems(form.view))}
           >
             <Icon name={all ? 'x' : 'check'} />
             {all ? t('selectNone') : t('selectAll')}
@@ -170,8 +139,8 @@ export function OrderCancelSheet({
                   value={value}
                   min={0}
                   max={max}
-                  onDecrement={() => setQty((q) => ({ ...q, [item.id]: Math.max(0, value - 1) }))}
-                  onIncrement={() => setQty((q) => ({ ...q, [item.id]: Math.min(max, value + 1) }))}
+                  onDecrement={() => form.setQty(item.id, value - 1, max)}
+                  onIncrement={() => form.setQty(item.id, value + 1, max)}
                   labels={{ decrease: t('less'), increase: t('more') }}
                 />
               </li>
@@ -184,7 +153,7 @@ export function OrderCancelSheet({
             <p>{t('startedText', { items: started.map((i) => i.productName).join(', ') })}</p>
             <Checkbox
               checked={confirmStarted}
-              onChange={(e) => setConfirmStarted(e.target.checked)}
+              onChange={(e) => form.set('confirmStarted', e.target.checked)}
             >
               {t('startedConfirm')}
             </Checkbox>
@@ -198,7 +167,7 @@ export function OrderCancelSheet({
               <Chip
                 key={code}
                 active={reasonCode === code}
-                onClick={() => setReasonCode(reasonCode === code ? null : code)}
+                onClick={() => form.set('reasonCode', reasonCode === code ? null : code)}
               >
                 {t(`reasons.${code}`)}
               </Chip>
@@ -206,7 +175,7 @@ export function OrderCancelSheet({
           </Chips>
           <Textarea
             value={reasonText}
-            onChange={(e) => setReasonText(e.target.value)}
+            onChange={(e) => form.set('reasonText', e.target.value)}
             placeholder={t('reasonPlaceholder')}
             aria-label={t('reasonText')}
             rows={2}

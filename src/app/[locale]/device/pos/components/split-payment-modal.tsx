@@ -10,6 +10,7 @@ import { deviceApi } from '@/lib/api-client';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import type { OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
+import type { PosCardMode } from '@/utils/pos-card-mode';
 import { useOpenOrders, type OpenOrdersScope } from '../hooks/use-open-orders';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
@@ -22,7 +23,7 @@ interface SplitPaymentModalProps {
   /** Offene Bestellungen welches Kontexts: Tisch oder Theke. */
   scope: OpenOrdersScope | null;
   /** Karte: Lesegerät, Buchung ohne Gerät oder gar nicht. */
-  card: 'sumup' | 'manual' | null;
+  card: PosCardMode;
   disabled?: boolean;
 }
 
