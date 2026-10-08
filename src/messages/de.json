@@ -2682,8 +2682,8 @@
         "mode": "Anzeigeart",
         "linkedTo": "Verknüpft mit",
         "linkedToNone": "nicht zugewiesen",
-        "linkedStation": "Station",
-        "linkedStationUnknown": "Station nicht in der aktiven Veranstaltung",
+        "linkedStation": "Standort",
+        "linkedStationUnknown": "Standort nicht in der aktiven Veranstaltung",
         "linkedPosUnknown": "Kasse nicht gefunden",
         "linkedToSet": "In den Einstellungen festlegen",
         "posMode": "Betrieb",
@@ -2744,10 +2744,10 @@
           "stationNone": "Kein Standort gewählt",
           "customerTitle": "Kundendisplay",
           "stationTitle": "Stationsanzeige",
-          "stationHint": "Die Anzeige zeigt die Bestellungen dieser Station aus der aktiven Veranstaltung.",
-          "stationNoEvent": "Keine aktive Veranstaltung: Stationen gehören zu einer Veranstaltung.",
-          "stationEmpty": "Die aktive Veranstaltung hat noch keine Stationen.",
-          "stationOther": "Station einer anderen Veranstaltung"
+          "stationHint": "Die Anzeige zeigt die Bestellungen dieses Standorts aus der aktiven Veranstaltung.",
+          "stationNoEvent": "Keine aktive Veranstaltung: Standorte gehören zu einer Veranstaltung.",
+          "stationEmpty": "Die aktive Veranstaltung hat noch keine Standorte.",
+          "stationOther": "Standort einer anderen Veranstaltung"
         },
         "appearance": {
           "title": "Aussehen & Inhalt",
