@@ -15,7 +15,8 @@ import { POSPage } from '../pages/pos.page';
 
 /*
  * Kasse mit vordefinierten Tischen (Tischmodus `predefined`, Kassiermodus
- * `immediate`; Spezifikation §5.2.1, §5.6): Nummernsuche, Tischliste nach
+ * `immediate`; Spezifikation §5.2.1, §5.6): Nummernsuche (Gerät mit
+ * Tischwahl „Nummer“), Tischliste nach
  * Bereich, Tisch-wählen-Blatt, Status „offen“ mit Betrag, gesendete
  * Bestellungen im Warenkorb, Sammelzahlung und „Serviert“.
  *
@@ -28,6 +29,7 @@ const PRODUCTS = { schorle: 'Apfelschorle', wasser: 'Wasser' } as const;
 
 let admin: PosAdmin;
 let device: PairedDevice;
+let numberDevice: PairedDevice;
 let prefix: string;
 let area: string;
 let eventId: string;
@@ -50,16 +52,35 @@ test.beforeAll(async () => {
   });
   eventId = event.id;
   productIds = event.productIds;
-  device = await pairPosDevice(admin, 'Kasse fest', { serviceMode: 'table', tableAreaId: created.id });
+  // Tischwahl ist eine Geräteeinstellung: eine Kasse mit Liste, eine mit Ziffernblock.
+  device = await pairPosDevice(admin, 'Kasse fest', {
+    serviceMode: 'table',
+    tableAreaId: created.id,
+    tableSelectView: 'list',
+  });
+  numberDevice = await pairPosDevice(admin, 'Kasse fest Nummer', {
+    serviceMode: 'table',
+    tableAreaId: created.id,
+    tableSelectView: 'number',
+  });
 });
 
 test.afterAll(async () => {
   await admin.api.dispose();
 });
 
-test.describe('POS - predefined tables', () => {
+test.describe('POS - predefined tables, table selection "number"', () => {
   test.beforeEach(async ({ page }) => {
-    await installDevice(page, device);
+    await installDevice(page, numberDevice);
+  });
+
+  test('shows the keypad without a view switch', async ({ page }) => {
+    const pos = new POSPage(page);
+    await pos.goto();
+    await expect(page.getByRole('button', { name: '1', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Liste', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Karte', exact: true })).toHaveCount(0);
+    await expect(pos.tableChip(label(1))).toHaveCount(0);
   });
 
   test('finds a table by its number', async ({ page }) => {
@@ -77,10 +98,29 @@ test.describe('POS - predefined tables', () => {
     await expect(page.getByRole('button', { name: 'Nummer eingeben' })).toBeDisabled();
   });
 
+  test('the table sheet also shows the keypad', async ({ page }) => {
+    const pos = new POSPage(page);
+    await pos.goto();
+    await pos.openTableByNumber('1', label(1));
+    await pos.openTableSheet();
+    await expect(pos.tableSheet.getByRole('button', { name: '2', exact: true })).toBeVisible();
+    await expect(pos.tableSheet.getByRole('button', { name: new RegExp(`^Tisch ${label(2)}, `) })).toHaveCount(0);
+    await pos.tableSheet.getByRole('button', { name: '4', exact: true }).click();
+    await pos.tableSheet.getByRole('button', { name: `Tisch ${label(4)} öffnen` }).click();
+    await expect(pos.pill(label(4))).toBeVisible();
+  });
+});
+
+test.describe('POS - predefined tables, table selection "list"', () => {
+  test.beforeEach(async ({ page }) => {
+    await installDevice(page, device);
+  });
+
   test('lists tables by area and switches tables with the sheet', async ({ page }) => {
     const pos = new POSPage(page);
     await pos.goto();
-    await page.getByRole('button', { name: 'Tische', exact: true }).click();
+    // Liste ohne Umschalter
+    await expect(page.getByRole('button', { name: 'Karte', exact: true })).toHaveCount(0);
     await expect(page.getByRole('region', { name: area })).toBeVisible();
     await expect(pos.tableChip(label(1))).toBeVisible();
     await expect(pos.tableChip(label(6))).toBeVisible();
@@ -122,7 +162,6 @@ test.describe('POS - predefined tables', () => {
     const pos = new POSPage(page);
     await pos.goto();
     await pos.expectOpenTable(label(5), '2,00');
-    await page.getByRole('button', { name: 'Tische', exact: true }).click();
     await expect(pos.tableChip(label(5))).toHaveClass(/oe-tablechip--busy/);
 
     await pos.openTableFromList(label(5));
@@ -187,7 +226,7 @@ test.describe('POS - predefined tables', () => {
 
     const pos = new POSPage(page);
     await pos.goto();
-    await pos.openTableByNumber('6', label(6));
+    await pos.openTableFromList(label(6));
     await pos.openCart();
     await expect(pos.cart).toContainText('1 Artikel fertig zum Servieren');
     await pos.cart.getByRole('button', { name: 'Serviert' }).click();

@@ -18,7 +18,17 @@ export type TableMode = 'none' | 'free' | 'predefined';
 
 export type DiningTableShape = 'rect' | 'round';
 
+/** Rechteckige Deko-Elemente (bis 0.6 die einzigen). */
 export type TableDecorType = 'bar' | 'wall' | 'stage' | 'label';
+
+/** Zonentyp: Küche, gesperrter Bereich, Bar/Theke, Sonstiges. */
+export type TableZoneType = 'kitchen' | 'blocked' | 'bar' | 'other';
+
+/** Punkt auf der Karte, in Einheiten des Bereichs (ganzzahlig). */
+export interface TablePoint {
+  x: number;
+  y: number;
+}
 
 /** Serverseitig abgeleiteter Zustand; Tische ohne Eintrag sind frei. */
 export type TableStatus = 'busy' | 'wait';
@@ -42,6 +52,56 @@ export interface TableDecor {
   height: number;
   rotation: number;
   label?: string;
+}
+
+/** Wand als Linienzug (≥ 2 Punkte); in `decor` erkennbar an `points`. */
+export interface TableWallLine {
+  id: string;
+  type: 'wall';
+  points: TablePoint[];
+  /** Stärke in Einheiten (2–100); ohne Angabe 10. */
+  thickness?: number;
+}
+
+/** Zone (Polygon, ≥ 3 Punkte) — reine Darstellung, keine Tische. */
+export interface TableZone {
+  id: string;
+  type: 'zone';
+  zoneType: TableZoneType;
+  points: TablePoint[];
+  label?: string;
+}
+
+/** Ein Eintrag in `table_areas.decor`: Rechteck, Wand als Linienzug oder Zone. */
+export type TableAreaElement = TableDecor | TableWallLine | TableZone;
+
+export function isWallLine(item: TableAreaElement): item is TableWallLine {
+  return item.type === 'wall' && 'points' in item && Array.isArray(item.points);
+}
+
+export function isZone(item: TableAreaElement): item is TableZone {
+  return item.type === 'zone';
+}
+
+export function isRectDecor(item: TableAreaElement): item is TableDecor {
+  return !isWallLine(item) && !isZone(item);
+}
+
+/** Teilt `decor` in Rechtecke, Wände (Linienzug) und Zonen. */
+export function splitAreaDecor(decor: readonly TableAreaElement[] | null | undefined): {
+  rects: TableDecor[];
+  walls: TableWallLine[];
+  zones: TableZone[];
+} {
+  const rects: TableDecor[] = [];
+  const walls: TableWallLine[] = [];
+  const zones: TableZone[] = [];
+  for (const item of decor ?? []) {
+    if (isWallLine(item)) walls.push(item);
+    else if (isZone(item)) zones.push(item);
+    else rects.push(item);
+  }
+  return { rects, walls, zones };
 }
 
 export interface DiningTable {
@@ -72,7 +132,9 @@ export interface TableArea {
   width: number;
   height: number;
   gridSize: number;
-  decor: TableDecor[];
+  decor: TableAreaElement[];
+  /** Umriss des Raums (Polygon); `null` = ganze Karte. */
+  outline: TablePoint[] | null;
   createdAt: string;
   updatedAt: string;
   /** Verwaltung: aktive und inaktive Tische, sortiert. */
@@ -93,7 +155,9 @@ export interface UpdateTableAreaData {
   width?: number;
   height?: number;
   gridSize?: number;
-  decor?: TableDecor[];
+  decor?: TableAreaElement[];
+  /** `null` setzt den Umriss zurück (ganze Karte). */
+  outline?: TablePoint[] | null;
 }
 
 /** PATCH …/table-areas/order */
@@ -114,7 +178,8 @@ export interface TableLayoutItem {
 /** PUT …/table-areas/:areaId/layout — Autosave der Karte in einer Transaktion. */
 export interface SaveTableLayoutData {
   tables: TableLayoutItem[];
-  decor: TableDecor[];
+  decor?: TableAreaElement[];
+  outline?: TablePoint[] | null;
 }
 
 export interface CreateDiningTableData {
@@ -163,7 +228,9 @@ export interface DeviceTableArea {
   width: number;
   height: number;
   gridSize: number;
-  decor: TableDecor[];
+  decor: TableAreaElement[];
+  /** Umriss; ältere API-Stände liefern das Feld nicht. */
+  outline?: TablePoint[] | null;
   /** Nur aktive Tische (ohne Verwaltungsfelder). */
   tables: DeviceDiningTable[];
 }

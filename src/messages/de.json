@@ -2367,7 +2367,11 @@
       "subtitle": "Tisch auf der Karte antippen.",
       "swipeHint": "Zum Verschieben wischen",
       "viewMap": "Karte",
-      "waitingTitle": "Wartet auf Bedienung"
+      "waitingTitle": "Wartet auf Bedienung",
+      "zoneBar": "Bar/Theke",
+      "zoneBlocked": "Gesperrt",
+      "zoneKitchen": "Küche",
+      "zoneOther": "Sonstiges"
     }
   },
   "orders": {
@@ -2688,7 +2692,16 @@
         "status": "Status",
         "mode": "Anzeigeart",
         "linkedTo": "Verknüpft mit",
-        "linkedToNone": "nicht zugewiesen"
+        "linkedToNone": "nicht zugewiesen",
+        "linkedStation": "Standort",
+        "linkedStationUnknown": "Standort nicht in der aktiven Veranstaltung",
+        "linkedPosUnknown": "Kasse nicht gefunden",
+        "linkedToSet": "In den Einstellungen festlegen",
+        "posMode": "Betrieb",
+        "posArea": "Bereich {area}",
+        "posAreaNone": "Kein Standardbereich",
+        "posView": "Tischwahl: {view}",
+        "posViewAuto": "Tischwahl: automatisch"
       },
       "info": {
         "title": "Geräte-Details",
@@ -2704,19 +2717,21 @@
       },
       "settings": {
         "basic": {
-          "title": "Grundeinstellungen",
-          "description": "Name, Typ und Display-Modus des Geräts"
+          "title": "Allgemein",
+          "description": "Name, Typ und Display-Modus des Geräts",
+          "descriptionGeneral": "Name und Gerätetyp",
+          "typeHint": "Der Typ bestimmt, welche Einstellungen darunter erscheinen."
         },
         "serviceMode": {
-          "title": "Betriebsmodus",
-          "description": "Lege fest, wie das Gerät im Kassenbetrieb verwendet wird",
+          "title": "Betrieb",
+          "description": "Wie die Kasse bucht: mit Tischen (Bedienung) oder direkt an der Theke.",
           "table": "Bedienung",
-          "tableDescription": "Tischnummer wird vor jeder Bestellung abgefragt",
+          "tableDescription": "Vor jeder Bestellung wird ein Tisch gewählt (oder „Ohne Tisch“).",
           "counter": "Feste Kasse",
           "counterDescription": "Keine Tischabfrage, ideal für Thekenbetrieb"
         },
         "auth": {
-          "title": "Authentifizierung",
+          "title": "Sicherheit (PIN)",
           "description": "Sicherheitseinstellungen für das Gerät",
           "requirePin": "PIN erforderlich",
           "requirePinDescription": "Benutzer müssen sich am Gerät mit einer PIN anmelden",
@@ -2728,7 +2743,7 @@
           "none": "Kein Standort ausgewählt"
         },
         "display": {
-          "title": "Display-Einstellungen",
+          "title": "Anzeige",
           "description": "Lege fest, was dieses Display anzeigt.",
           "mode": "Anzeigemodus",
           "modeCustomer": "Kundendisplay (Live-Warenkorb einer Kasse)",
@@ -2737,7 +2752,13 @@
           "posDeviceNone": "Keine Kasse ausgewählt",
           "posDeviceHint": "Das Display zeigt live den Warenkorb der ausgewählten Kasse an.",
           "station": "Standort",
-          "stationNone": "Kein Standort gewählt"
+          "stationNone": "Kein Standort gewählt",
+          "customerTitle": "Kundendisplay",
+          "stationTitle": "Stationsanzeige",
+          "stationHint": "Die Anzeige zeigt die Bestellungen dieses Standorts aus der aktiven Veranstaltung.",
+          "stationNoEvent": "Keine aktive Veranstaltung: Standorte gehören zu einer Veranstaltung.",
+          "stationEmpty": "Die aktive Veranstaltung hat noch keine Standorte.",
+          "stationOther": "Standort einer anderen Veranstaltung"
         },
         "appearance": {
           "title": "Aussehen & Inhalt",
@@ -2757,14 +2778,34 @@
           "autoClearOff": "Stehen lassen",
           "showLogo": "Logo anzeigen",
           "showLogoHint": "Blendet das Vereinslogo in der Kopfzeile ein.",
-          "autoClearSeconds": "{seconds, plural, =1 {# Sekunde} other {# Sekunden}}"
+          "autoClearSeconds": "{seconds, plural, =1 {# Sekunde} other {# Sekunden}}",
+          "autoClearHint": "Erledigte Bestellungen verschwinden nach dieser Zeit von der Anzeige."
         },
         "tableArea": "Standardbereich",
         "tableAreaEmpty": "Noch keine Bereiche angelegt.",
         "tableAreaHint": "Die Kasse öffnet diesen Bereich zuerst, in der Tischliste und auf dem Tischplan.",
         "tableAreaManage": "Tische verwalten",
         "tableAreaMissing": "Gelöschter Bereich",
-        "tableAreaNone": "Kein Standardbereich"
+        "tableAreaNone": "Kein Standardbereich",
+        "tables": {
+          "title": "Tische",
+          "description": "Gilt nur im Betrieb „Bedienung“."
+        },
+        "tableSelectView": {
+          "label": "Tischwahl an der Kasse",
+          "auto": "Automatisch ({view})",
+          "number": "Nummer eingeben",
+          "list": "Liste",
+          "map": "Karte",
+          "hint": "Die Kasse zeigt beim Öffnen eines Tisches und im Blatt „Tisch wählen“ genau diese Ansicht, ohne Umschalter. Automatisch: Karte, wenn der Standardbereich einen Tischplan hat, sonst Liste.",
+          "hintFree": "Die aktive Veranstaltung nutzt freie Tischnummern: Dort zeigt die Kasse immer den Ziffernblock. Die Wahl gilt für Veranstaltungen mit vordefinierten Tischen.",
+          "hintNone": "Die aktive Veranstaltung hat keinen Tischbetrieb. Die Wahl gilt, sobald eine Veranstaltung vordefinierte Tische nutzt.",
+          "noMap": "„Karte“ gibt es, sobald ein Bereich einen Tischplan hat."
+        },
+        "payment": {
+          "title": "Zahlung",
+          "description": "Kartenzahlung über ein SumUp-Lesegerät."
+        }
       },
       "printer": {
         "defaultPrinter": {
@@ -4356,6 +4397,7 @@
       "empty": "In diesem Bereich stehen noch keine Tische. Leg einzelne an oder gleich eine Serie.",
       "hint": "Ziehen verschiebt, der Griff unten rechts ändert die Größe. Tastatur: Pfeile 1 Raster (mit Umschalt 5), Entf löscht, Strg+D dupliziert, Esc hebt die Auswahl auf.",
       "inactive": "inaktiv",
+      "issues": "{count, plural, one {Tisch {labels} liegt} other {Tische {labels} liegen}} außerhalb der Raumform oder in einem gesperrten Bereich. Die Kasse bietet {count, plural, one {ihn} other {sie}} trotzdem an.",
       "label": "Tischplan {name}",
       "mobileHint": "Karte am Tablet oder PC bearbeiten. Hier siehst du sie nur.",
       "previewLabel": "Vorschau Tischplan {name}",
@@ -4371,10 +4413,17 @@
       "degrees": "{value}°",
       "delete": "Löschen",
       "duplicate": "Duplizieren",
-      "empty": "Wähl einen Tisch oder ein Deko-Element auf der Karte, um es zu bearbeiten.",
+      "empty": "Wähl einen Tisch, eine Wand, eine Zone oder ein Deko-Element auf der Karte, um es zu bearbeiten.",
       "height": "Höhe",
       "label": "Bezeichnung",
       "labelInvalid": "1 bis {max} Zeichen",
+      "outlineDone": "Fertig",
+      "outlineRect": "Rechteck (ganze Karte).",
+      "outlineReset": "Auf Rechteck zurücksetzen",
+      "outlineText": "Zieh die Ecken, um den Raum zu formen. Außerhalb ist die Karte grau schraffiert; Tische dort werden markiert.",
+      "outlineTitle": "Raumform",
+      "points": "{count, plural, one {# Punkt.} other {# Punkte.}}",
+      "pointsHint": "Punkte auf der Karte ziehen, an den Kantenmitten neue einfügen; Entf löscht den gewählten Punkt.",
       "region": "Eigenschaften",
       "rotate90": "Um 90 Grad drehen",
       "rotate90Short": "90°",
@@ -4388,8 +4437,15 @@
       "seatsPlaceholder": "offen",
       "shape": "Form",
       "text": "Text",
+      "thickness": "Stärke",
+      "thicknessHint": "In Einheiten der Karte, Raster meist 20.",
+      "thicknessInvalid": "{min} bis {max}",
       "title": "Tisch {label}",
-      "width": "Breite"
+      "width": "Breite",
+      "zoneBlockedHint": "Gesperrte Bereiche sind schraffiert. Tische darin werden markiert.",
+      "zoneHint": "Zonen sind nur Darstellung, Tische gehören nicht dazu.",
+      "zoneLabel": "Beschriftung",
+      "zoneType": "Typ"
     },
     "list": {
       "actions": "Aktionen",
@@ -4433,11 +4489,40 @@
       "addTable": "Tisch",
       "bulk": "Serie anlegen",
       "decor": "Deko",
+      "draw": "Zeichnen",
       "grid": "Raster",
+      "outline": "Raumform",
       "snap": "Einrasten",
       "view": "Ansicht",
       "viewList": "Liste",
-      "viewMap": "Karte"
+      "viewMap": "Karte",
+      "wall": "Wand",
+      "zone": "Zone",
+      "zoneActive": "Zone: {type}"
+    },
+    "zone": {
+      "bar": "Bar/Theke",
+      "blocked": "Gesperrter Bereich",
+      "blockedShort": "Gesperrt",
+      "kitchen": "Küche",
+      "other": "Sonstiges"
+    },
+    "shapes": {
+      "outline": "Raumform",
+      "wall": "Wand",
+      "zone": "Zone"
+    },
+    "floorTools": {
+      "addPoint": "Punkt einfügen",
+      "blocked": "im gesperrten Bereich",
+      "cancel": "Abbrechen",
+      "done": "Fertig",
+      "drawWall": "Wand zeichnen: Punkte setzen, Doppelklick oder „Fertig“ beendet. Rücktaste nimmt den letzten Punkt, Esc bricht ab.",
+      "drawZone": "Zone zeichnen: mindestens drei Punkte setzen, Doppelklick, Tipp auf den ersten Punkt oder „Fertig“ beendet.",
+      "editOutline": "Raumform: Ecken ziehen, an den Kantenmitten Punkte einfügen, Entf löscht den gewählten Punkt.",
+      "outside": "außerhalb des Raums",
+      "point": "Punkt {n}",
+      "undoPoint": "Letzten Punkt entfernen"
     }
   },
   "oeIconPicker": {

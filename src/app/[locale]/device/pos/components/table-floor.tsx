@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
-import { FloorPlan, Legend, Tabs, type FloorDecor, type FloorTable } from '@openeos/ui';
+import { FloorPlan, Legend, Tabs, type FloorDecor, type FloorTable, type FloorWall, type FloorZone } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
-import { toTableKey, type DeviceDiningTable, type DeviceTableArea } from '@/types/table';
+import { splitAreaDecor, toTableKey, type DeviceDiningTable, type DeviceTableArea } from '@/types/table';
 import { hasFloorLayout, type OpenTableEntry } from '../utils/tables';
 
 interface TableFloorProps {
@@ -104,10 +104,14 @@ export function TableFloor({ areas, states, currentKey, onPick, showWaiting = fa
     };
   });
 
-  const decor: FloorDecor[] = area.decor.map((item) => ({
+  // Raumform, Wände und Zonen nur zur Orientierung — anklickbar sind die Tische.
+  const parts = splitAreaDecor(area.decor);
+  const decor: FloorDecor[] = parts.rects.map((item) => ({
     ...item,
     label: item.type === 'wall' ? undefined : item.label,
   }));
+  const walls: FloorWall[] = parts.walls.map((w) => ({ id: w.id, points: w.points, thickness: w.thickness }));
+  const zones: FloorZone[] = parts.zones.map((z) => ({ id: z.id, zoneType: z.zoneType, points: z.points, label: z.label }));
 
   const smallest = Math.min(...area.tables.map((table) => Math.min(table.width, table.height)));
   const fits = available === null || available >= area.width * MIN_SCALE;
@@ -150,6 +154,17 @@ export function TableFloor({ areas, states, currentKey, onPick, showWaiting = fa
         gridSize={area.gridSize}
         tables={tables}
         decor={decor}
+        walls={walls}
+        zones={zones}
+        outline={area.outline ?? null}
+        labels={{
+          zoneTypes: {
+            kitchen: tf('zoneKitchen'),
+            blocked: tf('zoneBlocked'),
+            bar: tf('zoneBar'),
+            other: tf('zoneOther'),
+          },
+        }}
         currentId={currentId}
         minScale={minScale}
         tableLabel={(table) => ariaLabels.get(table.id) ?? table.label}

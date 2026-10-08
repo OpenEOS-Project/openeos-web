@@ -15,8 +15,6 @@ export interface PosSessionUser {
   lastName: string;
 }
 
-export type PosStartView = 'number' | 'list' | 'map';
-
 /** Darstellung der Kasse; `system` folgt dem Betriebssystem. */
 export type PosTheme = 'light' | 'dark' | 'system';
 
@@ -42,12 +40,6 @@ interface DeviceState {
   table: PosTableContext | null;
   /** Angemeldete Person an der Kasse (PIN). Nicht gespeichert: Neuladen verlangt die PIN erneut. */
   session: PosSessionUser | null;
-  /**
-   * Zuletzt gewählte Ansicht der Startseite (Tischwahl), je Gerät gemerkt.
-   * `null` = noch nie gewählt: dann entscheidet der Tischplan des
-   * Standardbereichs (F7, siehe `defaultStartView`).
-   */
-  startView: PosStartView | null;
   /** Zuletzt gewählte Kategorie je Veranstaltung (`fav` = Favoriten). */
   lastCategory: Record<string, string>;
   /**
@@ -83,7 +75,6 @@ interface DeviceActions {
   /** Zurück zur Startansicht (kein Tisch offen). */
   clearSession: () => void;
   setSession: (session: PosSessionUser | null) => void;
-  setStartView: (view: PosStartView) => void;
   setLastCategory: (eventId: string, categoryId: string) => void;
   setPosTheme: (theme: PosTheme) => void;
 
@@ -109,7 +100,6 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       settings: null,
       table: null,
       session: null,
-      startView: null,
       lastCategory: {},
       posTheme: 'system',
       isLoading: false,
@@ -322,7 +312,6 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
       setTable: (table) => set({ table }),
       clearSession: () => set({ table: null }),
       setSession: (session) => set({ session }),
-      setStartView: (startView) => set({ startView }),
       setPosTheme: (posTheme) => set({ posTheme }),
       setLastCategory: (eventId, categoryId) =>
         set({ lastCategory: { ...get().lastCategory, [eventId]: categoryId } }),
@@ -331,7 +320,7 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
     }),
     {
       name: 'openeos-device',
-      version: 2,
+      version: 3,
       // v0 speicherte die Tischnummer als Text (`tableNumber`). Daraus wird
       // der Kontext; Kassen im Thekenbetrieb hatten dort ihren Gerätenamen.
       migrate: (persisted: unknown, version: number) => {
@@ -346,12 +335,9 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
               ? { kind: 'counter' }
               : { kind: 'table', key: toTableKey(legacy), label: legacy };
         }
-        // Bis v1 war „Nummer“ die gespeicherte Vorgabe, auch ohne Wahl. Ab v2
-        // heißt „nicht gewählt“ `null`, damit die Karte Standard werden kann
-        // (F7). „Tische“ war immer eine bewusste Wahl und bleibt.
-        if (version < 2 && (state.startView === 'number' || state.startView === undefined)) {
-          state.startView = null;
-        }
+        // Bis v2 merkte sich jede Kasse ihre Startansicht (`startView`). Ab v3 legt die Verwaltung die Tischwahl je Gerät fest
+        // (`settings.tableSelectView`); die lokal gemerkte Ansicht entfällt.
+        if (version < 3) delete state.startView;
         return state as unknown as DeviceState & DeviceActions;
       },
       partialize: (state) => ({
@@ -366,7 +352,6 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
         settings: state.settings,
         // Persist session state for device POS
         table: state.table,
-        startView: state.startView,
         lastCategory: state.lastCategory,
         posTheme: state.posTheme,
       }),

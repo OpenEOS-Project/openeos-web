@@ -2,9 +2,19 @@
 
 import { useId, useState, type KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button, Icon, IconBox, Input, Segment, Select, Switch, rotateBy } from '@openeos/ui';
+import { Button, Icon, IconBox, Input, Segment, Select, Switch, rotateBy, type FloorTool } from '@openeos/ui';
 
-import type { DiningTable, DiningTableShape, TableArea, TableDecor, UpdateDiningTableData } from '@/types/table';
+import type {
+  DiningTable,
+  DiningTableShape,
+  TableArea,
+  TableDecor,
+  TableWallLine,
+  TableZone,
+  TableZoneType,
+  UpdateDiningTableData,
+} from '@/types/table';
+import { isRectDecor, isWallLine, isZone } from '@/types/table';
 
 import type { FloorSelection } from './floor-editor';
 import type { LayoutFields } from './use-layout-draft';
@@ -16,11 +26,23 @@ interface TableInspectorProps {
   selection: FloorSelection | null;
   onLayout: (tableId: string, fields: Partial<LayoutFields>) => void;
   onUpdate: (table: DiningTable, data: UpdateDiningTableData) => void;
-  onDecor: (decorId: string, fields: Partial<TableDecor>) => void;
+  /** Felder eines Deko-Elements, einer Wand oder Zone. */
+  onDecor: (decorId: string, fields: Record<string, unknown>) => void;
   onDuplicate: (id: string, kind: FloorSelection['kind']) => void;
   onDelete: (id: string, kind: FloorSelection['kind']) => void;
   onClose: () => void;
+  /** Werkzeug der Karte; bei „Raumform“ zeigt der Inspektor die Raumform. */
+  tool?: FloorTool;
+  onResetOutline?: () => void;
+  /** Werkzeug beenden (zurück zur Auswahl). */
+  onToolDone?: () => void;
 }
+
+const ZONE_TYPE_IDS: TableZoneType[] = ['kitchen', 'blocked', 'bar', 'other'];
+const ZONE_ICONS = { kitchen: 'chef', blocked: 'ban', bar: 'beer', other: 'zone' } as const;
+const WALL_THICKNESS_MIN = 2;
+const WALL_THICKNESS_MAX = 100;
+const WALL_THICKNESS_DEFAULT = 10;
 
 /**
  * Eigenschaften des gewählten Tisches bzw. Deko-Elements. Lage und Größe
@@ -32,7 +54,30 @@ export function TableInspector(props: TableInspectorProps) {
   const { area, selection } = props;
 
   const table = selection?.kind === 'table' ? area.tables.find((x) => x.id === selection.id) : undefined;
-  const decor = selection?.kind === 'decor' ? area.decor.find((x) => x.id === selection.id) : undefined;
+  const element = selection && selection.kind !== 'table' ? area.decor.find((x) => x.id === selection.id) : undefined;
+  const decor = element && isRectDecor(element) ? element : undefined;
+  const wall = element && isWallLine(element) ? element : undefined;
+  const zone = element && isZone(element) ? element : undefined;
+
+  if (props.tool === 'outline') {
+    return (
+      <aside className="oe-card tables-inspector" aria-label={t('region')}>
+        <OutlineFields {...props} />
+      </aside>
+    );
+  }
+
+  if (wall || zone) {
+    return (
+      <aside className="oe-card tables-inspector" aria-label={t('region')}>
+        {wall ? (
+          <WallFields key={`${wall.id}:${wall.thickness ?? ''}`} wall={wall} {...props} />
+        ) : (
+          <ZoneFields key={`${zone!.id}:${zone!.label ?? ''}:${zone!.zoneType}`} zone={zone!} {...props} />
+        )}
+      </aside>
+    );
+  }
 
   if (!table && !decor) {
     return (
@@ -331,6 +376,158 @@ function DecorFields({
         <Button variant="danger-quiet" size="sm" onClick={() => onDelete(decor.id, 'decor')}>
           <Icon name="trash" />
           {t('delete')}
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function ShapeFoot({
+  id,
+  kind,
+  onDuplicate,
+  onDelete,
+}: Pick<TableInspectorProps, 'onDuplicate' | 'onDelete'> & { id: string; kind: 'wall' | 'zone' }) {
+  const t = useTranslations('tables.inspector');
+  return (
+    <div className="tables-inspector__foot">
+      <Button variant="ghost" size="sm" onClick={() => onDuplicate(id, kind)}>
+        <Icon name="copy" />
+        {t('duplicate')}
+      </Button>
+      <Button variant="danger-quiet" size="sm" onClick={() => onDelete(id, kind)}>
+        <Icon name="trash" />
+        {t('delete')}
+      </Button>
+    </div>
+  );
+}
+
+/** Wand als Linienzug: Stärke; Punkte direkt auf der Karte. */
+function WallFields({ wall, onDecor, onDuplicate, onDelete, onClose }: TableInspectorProps & { wall: TableWallLine }) {
+  const t = useTranslations('tables.inspector');
+  const tShapes = useTranslations('tables.shapes');
+  const current = wall.thickness ?? WALL_THICKNESS_DEFAULT;
+  const [value, setValue] = useState(String(current));
+  const [error, setError] = useState<string | undefined>();
+
+  const commit = () => {
+    const next = parseIntOrNull(value);
+    if (next === null || next < WALL_THICKNESS_MIN || next > WALL_THICKNESS_MAX) {
+      setError(t('thicknessInvalid', { min: WALL_THICKNESS_MIN, max: WALL_THICKNESS_MAX }));
+      return;
+    }
+    setError(undefined);
+    if (next !== current) onDecor(wall.id, { thickness: next });
+  };
+
+  return (
+    <>
+      <div className="tables-inspector__head">
+        <IconBox icon="wall" size="sm" />
+        <h2 className="tables-inspector__title">{tShapes('wall')}</h2>
+        <Button variant="quiet" size="sm" iconOnly onClick={onClose} aria-label={t('close')}>
+          <Icon name="x" />
+        </Button>
+      </div>
+      <div className="tables-inspector__body">
+        <Input
+          label={t('thickness')}
+          hint={t('thicknessHint')}
+          type="number"
+          inputMode="numeric"
+          min={WALL_THICKNESS_MIN}
+          max={WALL_THICKNESS_MAX}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={commit}
+          onKeyDown={blurOnEnter}
+          error={error}
+        />
+        <p className="tables-muted">
+          {t('points', { count: wall.points.length })} {t('pointsHint')}
+        </p>
+      </div>
+      <ShapeFoot id={wall.id} kind="wall" onDuplicate={onDuplicate} onDelete={onDelete} />
+    </>
+  );
+}
+
+/** Zone: Typ und Beschriftung; Punkte direkt auf der Karte. */
+function ZoneFields({ zone, onDecor, onDuplicate, onDelete, onClose }: TableInspectorProps & { zone: TableZone }) {
+  const t = useTranslations('tables.inspector');
+  const tZone = useTranslations('tables.zone');
+  const [text, setText] = useState(zone.label ?? '');
+
+  const commitText = () => {
+    const next = text.trim();
+    if (next !== (zone.label ?? '')) onDecor(zone.id, { label: next || undefined });
+  };
+
+  return (
+    <>
+      <div className="tables-inspector__head">
+        <IconBox icon={ZONE_ICONS[zone.zoneType]} size="sm" />
+        <h2 className="tables-inspector__title">{zone.label || tZone(zone.zoneType)}</h2>
+        <Button variant="quiet" size="sm" iconOnly onClick={onClose} aria-label={t('close')}>
+          <Icon name="x" />
+        </Button>
+      </div>
+      <div className="tables-inspector__body">
+        <Select
+          label={t('zoneType')}
+          hint={zone.zoneType === 'blocked' ? t('zoneBlockedHint') : t('zoneHint')}
+          value={zone.zoneType}
+          onChange={(e) => onDecor(zone.id, { zoneType: e.target.value as TableZoneType })}
+        >
+          {ZONE_TYPE_IDS.map((type) => (
+            <option key={type} value={type}>
+              {tZone(type)}
+            </option>
+          ))}
+        </Select>
+        <Input
+          label={t('zoneLabel')}
+          value={text}
+          maxLength={60}
+          placeholder={tZone(zone.zoneType)}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={commitText}
+          onKeyDown={blurOnEnter}
+        />
+        <p className="tables-muted">
+          {t('points', { count: zone.points.length })} {t('pointsHint')}
+        </p>
+      </div>
+      <ShapeFoot id={zone.id} kind="zone" onDuplicate={onDuplicate} onDelete={onDelete} />
+    </>
+  );
+}
+
+/** Raumform: Hinweise, Anzahl der Ecken, Zurücksetzen. */
+function OutlineFields({ area, onResetOutline, onToolDone }: TableInspectorProps) {
+  const t = useTranslations('tables.inspector');
+  const custom = !!area.outline && area.outline.length >= 3;
+  return (
+    <>
+      <div className="tables-inspector__head">
+        <IconBox icon="outline" tone="accent" size="sm" />
+        <h2 className="tables-inspector__title">{t('outlineTitle')}</h2>
+      </div>
+      <div className="tables-inspector__body">
+        <p className="tables-muted">{t('outlineText')}</p>
+        <p className="tables-muted">
+          {custom ? t('points', { count: area.outline!.length }) : t('outlineRect')}
+        </p>
+      </div>
+      <div className="tables-inspector__foot">
+        <Button variant="ghost" size="sm" disabled={!custom} onClick={onResetOutline}>
+          <Icon name="undo" />
+          {t('outlineReset')}
+        </Button>
+        <Button variant="primary" size="sm" onClick={onToolDone}>
+          <Icon name="check" />
+          {t('outlineDone')}
         </Button>
       </div>
     </>

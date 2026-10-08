@@ -6,7 +6,8 @@ import type {
   CreateTableAreaData,
   DiningTable,
   TableArea,
-  TableDecor,
+  TableAreaElement,
+  TablePoint,
   TableLayoutItem,
   UpdateDiningTableData,
   UpdateTableAreaData,
@@ -26,7 +27,10 @@ import type {
  */
 export interface TableLayoutPatch {
   tables: TableLayoutItem[];
-  decor?: TableDecor[];
+  /** Rechtecke, Wände (Linienzug) und Zonen. */
+  decor?: TableAreaElement[];
+  /** Umriss; fehlt → unverändert, `null` → ganze Karte. */
+  outline?: TablePoint[] | null;
 }
 
 const base = (organizationId: string) => `/organizations/${organizationId}`;

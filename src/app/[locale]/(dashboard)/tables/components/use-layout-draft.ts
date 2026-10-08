@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { patchAreasCache, saveTableLayout, tableKeys } from '@/hooks/use-tables';
-import type { DiningTable, TableArea, TableDecor, TableLayoutItem } from '@/types/table';
+import type { DiningTable, TableArea, TableAreaElement, TableLayoutItem, TablePoint } from '@/types/table';
 
 /**
  * Autosave der Karte (Spezifikation §4.3).
@@ -12,7 +12,8 @@ import type { DiningTable, TableArea, TableDecor, TableLayoutItem } from '@/type
  * Änderungen an Lage, Größe, Drehung und Form landen sofort als Entwurf
  * über den Serverdaten (optimistisch) und gehen 600 ms nach der letzten
  * Änderung gesammelt per `PUT …/layout` raus — nur die geänderten Tische,
- * die Deko nur, wenn sie sich geändert hat. Je Bereich läuft immer nur ein
+ * Deko (Rechtecke, Wände, Zonen) und Umriss nur, wenn sie sich geändert
+ * haben. Je Bereich läuft immer nur ein
  * Speichervorgang; was währenddessen dazukommt, folgt danach.
  * Schlägt das Speichern fehl, verschwindet der Entwurf (Rücksprung auf den
  * Serverstand) und `onError` zeigt den Grund.
@@ -23,13 +24,15 @@ export type SaveState = 'saved' | 'pending' | 'saving' | 'error';
 
 interface Draft {
   tables: Map<string, Partial<LayoutFields>>;
-  decor: TableDecor[] | null;
+  decor: TableAreaElement[] | null;
+  /** `undefined` = unverändert, `null` = zurück auf die ganze Karte. */
+  outline?: TablePoint[] | null;
 }
 
 function draftIn(drafts: Map<string, Draft>, areaId: string): Draft {
   let draft = drafts.get(areaId);
   if (!draft) {
-    draft = { tables: new Map(), decor: null };
+    draft = { tables: new Map(), decor: null, outline: undefined };
     drafts.set(areaId, draft);
   }
   return draft;
@@ -96,6 +99,7 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
           const saved = await saveTableLayout(organizationId, areaId, {
             tables,
             ...(current.decor ? { decor: current.decor } : {}),
+            ...(current.outline !== undefined ? { outline: current.outline } : {}),
           });
           queryClient.setQueryData<TableArea[]>(key, (areas) =>
             patchAreasCache(
@@ -103,6 +107,7 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
               (a) => ({
                 ...a,
                 decor: saved.decor ?? a.decor,
+                outline: saved.outline !== undefined ? saved.outline : a.outline,
                 tables: a.tables.map((t) => saved.tables?.find((s) => s.id === t.id) ?? t),
               }),
               areaId,
@@ -154,10 +159,19 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
     [schedule],
   );
 
-  /** Deko des Bereichs ersetzen (Hinzufügen, Verschieben, Löschen). */
+  /** Deko des Bereichs ersetzen (Hinzufügen, Verschieben, Löschen; auch Wände und Zonen). */
   const changeDecor = useCallback(
-    (areaId: string, decor: TableDecor[]) => {
+    (areaId: string, decor: TableAreaElement[]) => {
       draftIn(pending.current, areaId).decor = decor;
+      schedule(areaId);
+    },
+    [schedule],
+  );
+
+  /** Umriss des Bereichs setzen; `null` = ganze Karte. */
+  const changeOutline = useCallback(
+    (areaId: string, outline: TablePoint[] | null) => {
+      draftIn(pending.current, areaId).outline = outline;
       schedule(areaId);
     },
     [schedule],
@@ -169,6 +183,7 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
       const layers = [inflight.current.get(area.id), pending.current.get(area.id)].filter(Boolean) as Draft[];
       if (layers.length === 0) return area;
       let { tables, decor } = area;
+      let outline = area.outline ?? null;
       for (const layer of layers) {
         if (layer.tables.size) {
           tables = tables.map((t) => {
@@ -177,8 +192,9 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
           });
         }
         if (layer.decor) decor = layer.decor;
+        if (layer.outline !== undefined) outline = layer.outline;
       }
-      return { ...area, tables, decor };
+      return { ...area, tables, decor, outline };
     },
     // revision: neu berechnen, sobald sich ein Entwurf ändert
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -207,7 +223,7 @@ export function useLayoutDraft(organizationId: string, onError: (error: unknown)
   }, [flushAll, isBusy]);
 
   return useMemo(
-    () => ({ apply, changeTable, changeDecor, flush, flushAll, isBusy, state }),
-    [apply, changeTable, changeDecor, flush, flushAll, isBusy, state],
+    () => ({ apply, changeTable, changeDecor, changeOutline, flush, flushAll, isBusy, state }),
+    [apply, changeTable, changeDecor, changeOutline, flush, flushAll, isBusy, state],
   );
 }

@@ -2,7 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Banner, Button, EmptyState, Icon, Spinner, type FloorChange, type FloorItemKind } from '@openeos/ui';
+import {
+  Banner,
+  Button,
+  EmptyState,
+  Icon,
+  Spinner,
+  isRectOutline,
+  movePoints,
+  tableIssue,
+  type FloorChange,
+  type FloorItemKind,
+  type FloorPoint,
+  type FloorShapeChange,
+  type FloorShapeDraft,
+  type FloorTool,
+} from '@openeos/ui';
 
 import { ListEmpty, ListError } from '@/components/shared/list-states';
 import { toast } from '@/components/shared/toast';
@@ -28,10 +43,12 @@ import type {
   DiningTable,
   DiningTableShape,
   TableArea,
-  TableDecor,
+  TableAreaElement,
   TableDecorType,
+  TableZoneType,
   UpdateDiningTableData,
 } from '@/types/table';
+import { isRectDecor, isZone, splitAreaDecor } from '@/types/table';
 
 import { AreaTabs } from './area-tabs';
 import { BulkCreateModal } from './bulk-create-modal';
@@ -45,7 +62,7 @@ import { useLayoutDraft, type LayoutFields } from './use-layout-draft';
 
 type DeleteTarget =
   | { kind: 'table'; table: DiningTable }
-  | { kind: 'decor'; areaId: string; decor: TableDecor }
+  | { kind: 'decor'; areaId: string; decor: TableAreaElement }
   | { kind: 'area'; area: TableArea };
 
 const EXAMPLE = { prefix: 'A', start: 1, count: 12, padding: 2, seats: 6 } as const;
@@ -68,6 +85,8 @@ export function TablesContainer() {
   const [selection, setSelection] = useState<FloorSelection | null>(null);
   const [snap, setSnap] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
+  const [tool, setTool] = useState<FloorTool>('select');
+  const [zoneType, setZoneType] = useState<TableZoneType>('kitchen');
   const [areaDialog, setAreaDialog] = useState<{ area: TableArea | null } | null>(null);
   const [areaError, setAreaError] = useState<string | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -116,6 +135,7 @@ export function TablesContainer() {
   const selectArea = (areaId: string) => {
     if (activeArea) void draft.flush(activeArea.id);
     setSelection(null);
+    setTool('select');
     setActiveAreaId(areaId);
   };
 
@@ -264,13 +284,18 @@ export function TablesContainer() {
     } else {
       const source = activeArea.decor.find((x) => x.id === id);
       if (!source) return;
-      const copy = {
-        ...source,
-        id: newDecorId(),
-        ...clampRect({ x: source.x + grid * 2, y: source.y + grid * 2, width: source.width, height: source.height }, activeArea),
-      };
+      const copy: TableAreaElement = isRectDecor(source)
+        ? {
+            ...source,
+            id: newDecorId(),
+            ...clampRect(
+              { x: source.x + grid * 2, y: source.y + grid * 2, width: source.width, height: source.height },
+              activeArea,
+            ),
+          }
+        : { ...source, id: newDecorId(), points: movePoints(source.points, grid * 2, grid * 2, activeArea, grid) };
       draft.changeDecor(activeArea.id, [...activeArea.decor, copy]);
-      setSelection({ id: copy.id, kind: 'decor' });
+      setSelection({ id: copy.id, kind });
     }
   };
 
@@ -314,6 +339,52 @@ export function TablesContainer() {
 
   /* ---------- Karte ---------- */
 
+  /* ---------- Wände, Zonen, Raumform ---------- */
+
+  const changeTool = (next: FloorTool, nextZone?: TableZoneType) => {
+    if (nextZone) setZoneType(nextZone);
+    setTool(next);
+    if (next !== 'select') setSelection(null);
+  };
+
+  const createShape = (shape: FloorShapeDraft) => {
+    if (!activeArea) return;
+    const id = newDecorId();
+    const item: TableAreaElement =
+      shape.kind === 'wall'
+        ? { id, type: 'wall', points: shape.points }
+        : { id, type: 'zone', zoneType, points: shape.points };
+    draft.changeDecor(activeArea.id, [...activeArea.decor, item]);
+    setTool('select');
+    setSelection({ id, kind: shape.kind });
+  };
+
+  const commitShape = (change: FloorShapeChange) => {
+    if (!activeArea) return;
+    draft.changeDecor(
+      activeArea.id,
+      activeArea.decor.map((d) => (d.id === change.id && !isRectDecor(d) ? { ...d, points: change.points } : d)),
+    );
+  };
+
+  const commitOutline = (points: FloorPoint[]) => {
+    if (!activeArea) return;
+    draft.changeOutline(activeArea.id, isRectOutline(points, activeArea) ? null : points);
+  };
+
+  const resetOutline = () => {
+    if (activeArea) draft.changeOutline(activeArea.id, null);
+  };
+
+  /** Tische außerhalb der Raumform bzw. in gesperrten Zonen (nur Hinweis). */
+  const issueTables = useMemo(() => {
+    if (!activeArea) return [];
+    const blocked = splitAreaDecor(activeArea.decor)
+      .zones.filter((z) => z.zoneType === 'blocked')
+      .map((z) => z.points);
+    return activeArea.tables.filter((table) => tableIssue(table, activeArea.outline, blocked));
+  }, [activeArea]);
+
   const commit = (change: FloorChange) => {
     if (!activeArea) return;
     const { id, kind, ...rect } = change;
@@ -329,23 +400,32 @@ export function TablesContainer() {
     } else {
       draft.changeDecor(
         activeArea.id,
-        activeArea.decor.map((d) => (d.id === id ? { ...d, ...rounded } : d)),
+        activeArea.decor.map((d) => (d.id === id && isRectDecor(d) ? { ...d, ...rounded } : d)),
       );
     }
   };
 
-  const changeDecor = (decorId: string, fields: Partial<TableDecor>) => {
+  /** Felder eines Deko-Elements, einer Wand oder Zone ändern (Inspektor). */
+  const changeDecor = (decorId: string, fields: Record<string, unknown>) => {
     if (!activeArea) return;
     draft.changeDecor(
       activeArea.id,
       activeArea.decor.map((d) => {
         if (d.id !== decorId) return d;
-        const next = { ...d, ...fields };
+        const next = { ...d, ...fields } as TableAreaElement & { label?: string; thickness?: number };
         if (!next.label) delete next.label;
+        if ('thickness' in next && !next.thickness) delete next.thickness;
         return next;
       }),
     );
   };
+
+  const elementName = (item: TableAreaElement) =>
+    isZone(item)
+      ? item.label || t(`zone.${item.zoneType}`)
+      : isRectDecor(item)
+        ? item.label || t(`decor.${item.type}`)
+        : t('shapes.wall');
 
   const addDecor = (type: TableDecorType) => {
     if (!activeArea) return;
@@ -410,7 +490,7 @@ export function TablesContainer() {
             deleteTarget.kind === 'table'
               ? t('delete.title', { label: deleteTarget.table.label })
               : deleteTarget.kind === 'decor'
-                ? t('delete.decorTitle', { name: deleteTarget.decor.label || t(`decor.${deleteTarget.decor.type}`) })
+                ? t('delete.decorTitle', { name: elementName(deleteTarget.decor) })
                 : t('areas.deleteTitle', { name: deleteTarget.area.name })
           }
           text={
@@ -474,6 +554,7 @@ export function TablesContainer() {
         onViewChange={(next) => {
           setView(next);
           setSelection(null);
+          setTool('select');
         }}
         canEditMap={canEditMap}
         snap={snap}
@@ -485,6 +566,9 @@ export function TablesContainer() {
         onAddTable={addTable}
         onBulk={() => setBulkOpen(true)}
         onAddDecor={addDecor}
+        tool={tool}
+        zoneType={zoneType}
+        onToolChange={changeTool}
       />
 
       {effectiveView === 'map' && activeArea ? (
@@ -495,8 +579,21 @@ export function TablesContainer() {
                 {t('floor.empty')}
               </Banner>
             )}
+            {issueTables.length > 0 && (
+              <Banner tone="warn" icon={<Icon name="alert" />}>
+                {t('floor.issues', {
+                  count: issueTables.length,
+                  labels: issueTables.map((x) => x.label).join(', '),
+                })}
+              </Banner>
+            )}
             <FloorEditor
               area={activeArea}
+              tool={tool}
+              onShapeCreate={createShape}
+              onShapeCommit={commitShape}
+              onOutlineCommit={commitOutline}
+              onToolCancel={() => setTool('select')}
               selection={selection}
               snap={snap}
               showGrid={showGrid}
@@ -517,6 +614,9 @@ export function TablesContainer() {
             onDuplicate={duplicate}
             onDelete={requestDelete}
             onClose={() => setSelection(null)}
+            tool={tool}
+            onResetOutline={resetOutline}
+            onToolDone={() => setTool('select')}
           />
         </div>
       ) : (

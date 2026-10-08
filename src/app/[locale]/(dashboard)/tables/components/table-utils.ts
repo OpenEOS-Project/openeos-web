@@ -1,7 +1,7 @@
-import { clampToArea, snapToGrid } from '@openeos/ui';
+import { clampToArea, snapToGrid, tableIssue } from '@openeos/ui';
 
 import type { DiningTable, DiningTableShape, TableArea, TableDecor, TableDecorType } from '@/types/table';
-import { toTableKey } from '@/types/table';
+import { splitAreaDecor, toTableKey } from '@/types/table';
 
 /** Grenzen wie in der API (Spezifikation §3.3). */
 export const LABEL_MAX = 20;
@@ -74,11 +74,16 @@ const overlaps = (a: Rect, b: Rect, pad: number) =>
 export function findFreeSpot(area: TableArea, width: number, height: number, avoid: Rect[] = []): { x: number; y: number } {
   const grid = area.gridSize > 0 ? area.gridSize : 20;
   const gap = grid * 2;
-  const occupied: Rect[] = [...area.tables, ...area.decor, ...avoid];
+  const { rects, zones } = splitAreaDecor(area.decor);
+  const occupied: Rect[] = [...area.tables, ...rects, ...avoid];
+  const blocked = zones.filter((z) => z.zoneType === 'blocked').map((z) => z.points);
   for (let y = gap; y + height <= area.height; y += grid) {
     for (let x = gap; x + width <= area.width; x += grid) {
       const candidate = { x, y, width, height };
-      if (!occupied.some((r) => overlaps(candidate, r, grid))) return { x, y };
+      if (occupied.some((r) => overlaps(candidate, r, grid))) continue;
+      // Nicht außerhalb der Raumform und nicht in gesperrte Zonen.
+      if (tableIssue({ ...candidate, rotation: 0 }, area.outline, blocked)) continue;
+      return { x, y };
     }
   }
   return clampRect({ x: area.width / 2 - width / 2, y: area.height / 2 - height / 2, width, height }, area);

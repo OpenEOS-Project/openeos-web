@@ -39,7 +39,7 @@ import { checkoutTotals, usePosCheckout } from './hooks/use-pos-checkout';
 import { usePosData } from './hooks/use-pos-data';
 import { usePosTheme } from './hooks/use-pos-theme';
 import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents } from './hooks/use-pos-live';
-import { defaultStartView, effectiveTableMode, mergeOpenTables, sameContext, sortAreas } from './utils/tables';
+import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 
 type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'logout' | 'table' | null;
 
@@ -100,8 +100,6 @@ function PosApp() {
     session,
     setSession,
     setTable,
-    startView,
-    setStartView,
     posTheme,
     setPosTheme,
     logout,
@@ -164,8 +162,14 @@ function PosApp() {
   const isTab = orderingMode === 'tab';
 
   const areas = useMemo(() => sortAreas(tablesQuery.data?.areas ?? [], deviceAreaId), [tablesQuery.data, deviceAreaId]);
-  // Startansicht: gemerkte Wahl, sonst Karte, wenn der Standardbereich einen Tischplan hat (F7).
-  const startViewNow = startView ?? defaultStartView(areas, deviceAreaId);
+  // Tischwahl fest je Gerät (Verwaltung); ohne Einstellung Karte, wenn der
+  // Standardbereich einen Tischplan hat, sonst Liste. Freie Nummer: Ziffernblock.
+  const selectView = resolveTableSelectView(
+    tableMode === 'free' ? 'free' : 'predefined',
+    settings?.tableSelectView,
+    areas,
+    deviceAreaId,
+  );
   // Kopf „Kasse 03 · Zelt A“: Standardbereich des Geräts, wenn freigegeben.
   const deviceAreaName = tablesEnabled ? (areas.find((a) => a.id === deviceAreaId)?.name ?? null) : null;
   const tableStatus = useTableStatus(eventId, { enabled: tablesEnabled, live: isConnected });
@@ -360,8 +364,7 @@ function PosApp() {
       <PosStartView
         mode={startMode}
         areas={areas}
-        view={startViewNow}
-        onViewChange={setStartView}
+        view={selectView}
         openTables={openTables}
         openTablesLoading={tableStatus.isLoading}
         staleSince={connection === 'online' ? null : tableStatus.updatedAt}
@@ -419,7 +422,7 @@ function PosApp() {
             carryDefault={carryDefault}
             onSelect={(next, carry) => openContext(next, carry)}
             onStart={() => openContext(null)}
-            preferMap={startViewNow === 'map'}
+            view={selectView}
           />
         )}
         <PaySheet

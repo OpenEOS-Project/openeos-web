@@ -69,7 +69,8 @@ test.describe('POS - floor plan', () => {
     const pos = new POSPage(page);
     await pos.goto();
     await expect(pos.startView).toBeVisible();
-    await expect(segment(page, 'Karte')).toHaveAttribute('aria-pressed', 'true');
+    // Ohne Einstellung: Karte (Standardbereich mit Tischplan), kein Umschalter.
+    await expect(segment(page, 'Karte')).toHaveCount(0);
     await expect(page.getByText('Tisch auf der Karte antippen.')).toBeVisible();
     await expect(page.getByRole('group', { name: `Tischplan ${area}` })).toBeVisible();
 
@@ -126,40 +127,92 @@ test.describe('POS - floor plan', () => {
     await expect(pos.openTableRow(`Tisch ${label(4)}`)).toContainText('Gastbestellung');
   });
 
-  test('offers the map in the table sheet and marks the current table', async ({ page }) => {
+  test('shows room shape, walls and zones on the map, only tables are tappable', async ({ page }) => {
+    await page.route(/\/device-api\/tables(\?|$)/, async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      for (const a of json.data.areas) {
+        a.outline = [
+          { x: 0, y: 0 },
+          { x: a.width, y: 0 },
+          { x: a.width, y: a.height - 120 },
+          { x: a.width - 160, y: a.height },
+          { x: 0, y: a.height },
+        ];
+        a.decor = [
+          ...a.decor,
+          { id: 'e2e-wall', type: 'wall', points: [{ x: 0, y: 0 }, { x: a.width, y: 0 }], thickness: 12 },
+          {
+            id: 'e2e-kitchen',
+            type: 'zone',
+            zoneType: 'kitchen',
+            points: [
+              { x: a.width - 300, y: 20 },
+              { x: a.width - 20, y: 20 },
+              { x: a.width - 20, y: 200 },
+              { x: a.width - 300, y: 200 },
+            ],
+          },
+        ];
+      }
+      await route.fulfill({ response, json });
+    });
+
+    const pos = new POSPage(page);
+    await pos.goto();
+    const plan = page.locator('.pos-floor');
+    await expect(plan.locator('.oe-floor__outside')).toHaveCount(1);
+    await expect(plan.locator('.oe-floor__wall-line')).toHaveCount(1);
+    await expect(plan.locator('.oe-floor__zone--kitchen')).toHaveCount(1);
+    await expect(plan.locator('.oe-floor__zonelabel--kitchen')).toContainText('Küche');
+    // Zonen und Wände sind reine Darstellung.
+    await expect(plan.locator('.oe-floor__svg [role="button"]')).toHaveCount(0);
+    await pos.openTableOnMap(label(2));
+  });
+
+  test('the table sheet shows the same view as the start view, without a switch', async ({ page }) => {
     const pos = new POSPage(page);
     await pos.goto();
     await pos.openTableOnMap(label(1));
     await pos.closeCart();
 
     await pos.openTableSheet();
-    await expect(pos.tableSheet.getByRole('button', { name: 'Karte', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(pos.tableSheet.getByRole('button', { name: 'Liste', exact: true })).toHaveCount(0);
     await expect(pos.floorTable(label(1), pos.tableSheet)).toHaveAttribute('aria-current', 'true');
-
-    await pos.tableSheet.getByRole('button', { name: 'Tische', exact: true }).click();
-    await expect(pos.tableSheet.getByRole('button', { name: new RegExp(`^Tisch ${label(1)}, `) })).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
-    await pos.tableSheet.getByRole('button', { name: 'Karte', exact: true }).click();
     await pos.floorTable(label(5), pos.tableSheet).click();
     await expect(pos.pill(label(5))).toBeVisible();
   });
 
-  test('remembers the chosen start view on this device', async ({ page }) => {
+  test('follows the table selection set for the device, live', async ({ page }) => {
+    const setView = async (tableSelectView: string | null) => {
+      const res = await admin.api.patch(`organizations/${admin.organizationId}/devices/${device.deviceId}`, {
+        headers: admin.headers,
+        data: { settings: { tableSelectView } },
+      });
+      expect(res.ok()).toBeTruthy();
+    };
     const pos = new POSPage(page);
     await pos.goto();
-    await segment(page, 'Nummer').click();
-    await expect(segment(page, 'Nummer')).toHaveAttribute('aria-pressed', 'true');
-    await page.reload();
-    await expect(pos.startView).toBeVisible();
-    await expect(segment(page, 'Nummer')).toHaveAttribute('aria-pressed', 'true');
+    await expect(pos.floorTable(label(1))).toBeVisible();
+    try {
+      await setView('list');
+      await expect(pos.tableChip(label(1))).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator('.pos-floor')).toHaveCount(0);
+
+      await setView('number');
+      await expect(segment(page, '1')).toBeVisible({ timeout: 15_000 });
+      await expect(pos.tableChip(label(1))).toHaveCount(0);
+
+      await page.reload();
+      await expect(pos.startView).toBeVisible();
+      await expect(segment(page, '1')).toBeVisible();
+    } finally {
+      await setView(null);
+    }
+    await expect(pos.floorTable(label(1))).toBeVisible({ timeout: 15_000 });
   });
 
-  test('does not offer the map without a floor plan', async ({ page }) => {
+  test('falls back to the list without a floor plan', async ({ page }) => {
     // Alle Tische auf 0/0 = kein Tischplan.
     await page.route(/\/device-api\/tables(\?|$)/, async (route) => {
       const response = await route.fetch();
@@ -171,8 +224,8 @@ test.describe('POS - floor plan', () => {
     const pos = new POSPage(page);
     await pos.goto();
     await expect(pos.startView).toBeVisible();
-    await expect(segment(page, 'Tische')).toBeVisible();
+    await expect(pos.tableChip(label(1))).toBeVisible();
     await expect(segment(page, 'Karte')).toHaveCount(0);
-    await expect(segment(page, 'Nummer')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.pos-floor')).toHaveCount(0);
   });
 });

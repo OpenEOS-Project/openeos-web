@@ -1,24 +1,25 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { Banner, Button, Icon, Segment, TableChip, type SegmentOption } from '@openeos/ui';
-import type { PosStartView as StartViewId } from '@/stores/device-store';
-import { toTableKey, type DeviceTableArea, type PosTableContext } from '@/types/table';
-import { hasFloorLayout, matchTables, tableContext, type OpenTableEntry } from '../utils/tables';
+import { Banner, Button, Icon } from '@openeos/ui';
+import type { DeviceTableArea, PosTableContext } from '@/types/table';
+import { tableContext, type OpenTableEntry, type TableSelectView } from '../utils/tables';
 import { OpenTablesAside } from './open-tables-aside';
 import { TableFloor } from './table-floor';
-import { TableKeypad, TABLE_INPUT_MAX, TABLE_SEARCH_MAX } from './table-keypad';
 import { TableList } from './table-list';
+import { TableNumberEntry } from './table-number-entry';
 
 interface PosStartViewProps {
   /** Wirksamer Tischbetrieb: frei eingegebene Nummer oder vordefinierte Tische. */
   mode: 'free' | 'predefined';
   /** Bereiche mit aktiven Tischen (Standardbereich zuerst). */
   areas: DeviceTableArea[];
-  /** Ansicht des Geräts (nur `predefined`): gemerkte Wahl oder Vorgabe nach F7. */
-  view: StartViewId;
-  onViewChange: (view: StartViewId) => void;
+  /**
+   * Tischwahl des Geräts (Verwaltung → Gerät → Einstellungen, siehe
+   * `resolveTableSelectView`); kein Umschalter an der Kasse.
+   */
+  view: TableSelectView;
   /** Offene Tische (Server + geparkt), sortiert. */
   openTables: OpenTableEntry[];
   openTablesLoading?: boolean;
@@ -28,41 +29,20 @@ interface PosStartViewProps {
 }
 
 /**
- * Startansicht „Tisch öffnen“ im Tischbetrieb (Spezifikation §5.2.1):
- * Nummer (frei oder Suche in den Tischen) bzw. Tischliste je Bereich,
- * „Ohne Tisch“ (Theke, To-go) und rechts „Offene Tische“.
- *
- * Die Ansichten stehen in `views`; „Karte“ gibt es nur, wenn ein
- * freigegebener Bereich einen Tischplan hat (nicht alle Tische auf 0/0).
+ * Startansicht „Tisch öffnen“ im Tischbetrieb (Spezifikation §5.2.1): genau
+ * die Tischwahl, die für das Gerät eingestellt ist — Nummer (frei oder
+ * Suche in den Tischen), Tischliste je Bereich oder Karte —, dazu „Ohne
+ * Tisch“ (Theke, To-go) und rechts „Offene Tische“.
  */
-export function PosStartView({
-  mode,
-  areas,
-  view,
-  onViewChange,
-  openTables,
-  openTablesLoading,
-  staleSince,
-  onOpen,
-}: PosStartViewProps) {
+export function PosStartView({ mode, areas, view, openTables, openTablesLoading, staleSince, onOpen }: PosStartViewProps) {
   const t = useTranslations('pos.tables');
   const tOrder = useTranslations('pos.order');
   const tFloor = useTranslations('pos.floor');
-  const [input, setInput] = useState('');
 
   const tableCount = areas.reduce((sum, area) => sum + area.tables.length, 0);
   const predefined = mode === 'predefined';
   const noTables = predefined && tableCount === 0;
-
-  const hasMap = predefined && areas.some(hasFloorLayout);
-  const views: SegmentOption<StartViewId>[] = predefined
-    ? [
-        { id: 'number', label: t('viewNumber'), icon: 'grid' },
-        { id: 'list', label: t('viewList'), icon: 'list' },
-        ...(hasMap ? [{ id: 'map' as const, label: tFloor('viewMap'), icon: 'map' as const }] : []),
-      ]
-    : [];
-  const active: StartViewId = views.some((v) => v.id === view) ? view : 'number';
+  const active: TableSelectView = predefined ? view : 'number';
 
   const states = useMemo(() => {
     const map = new Map<string, OpenTableEntry>();
@@ -70,29 +50,7 @@ export function PosStartView({
     return map;
   }, [openTables]);
 
-  const matches = useMemo(() => (predefined ? matchTables(input, areas) : []), [predefined, input, areas]);
-
-  const open = (context: PosTableContext) => {
-    setInput('');
-    onOpen(context);
-  };
-
-  const submit = () => {
-    const label = input.trim();
-    if (!label) return;
-    if (!predefined) {
-      open({ kind: 'table', key: toTableKey(label), label });
-      return;
-    }
-    if (matches.length === 1) open(tableContext(matches[0].table));
-  };
-
-  const error = predefined && input && matches.length === 0 ? t('noMatch', { input }) : null;
-  let buttonLabel = tOrder('enterNumber');
-  if (input && !predefined) buttonLabel = tOrder('openTable', { label: input });
-  else if (input && matches.length === 1) buttonLabel = tOrder('openTable', { label: matches[0].table.label });
-  else if (input && matches.length > 1) buttonLabel = t('pickMatch');
-  const canSubmit = !!input && (!predefined || matches.length === 1);
+  const open = (context: PosTableContext) => onOpen(context);
 
   const withoutTable = (
     <div className="pos-without">
@@ -137,33 +95,7 @@ export function PosStartView({
   } else {
     main = (
       <div className="pos-start__pad">
-        <TableKeypad
-          value={input}
-          onChange={setInput}
-          onSubmit={submit}
-          captureKeyboard
-          maxLength={predefined ? TABLE_SEARCH_MAX : TABLE_INPUT_MAX}
-          error={error}
-          enterDisabled={!canSubmit}
-        />
-        {matches.length > 1 && (
-          <div className="pos-matches" role="group" aria-label={t('matchesLabel', { count: matches.length })}>
-            {matches.map(({ table, area }) => (
-              <TableChip
-                key={table.id}
-                label={table.label}
-                hint={area.name}
-                aria-label={t('chipAria', { label: table.label, hint: area.name })}
-                state={states.get(toTableKey(table.label))?.state ?? 'free'}
-                onClick={() => open(tableContext(table))}
-              />
-            ))}
-          </div>
-        )}
-        <Button variant="primary" size="lg" block disabled={!canSubmit} onClick={submit}>
-          <Icon name="arrow-right" />
-          {buttonLabel}
-        </Button>
+        <TableNumberEntry mode={mode} areas={areas} states={states} onOpen={open} />
         {withoutTable}
       </div>
     );
@@ -183,18 +115,6 @@ export function PosStartView({
                   : tOrder('startSubtitle')}
             </p>
           </div>
-          {views.length > 1 && !noTables && (
-            <div className="pos-start__mode">
-              <span className="oe-label">{t('viewLabel')}</span>
-              <Segment<StartViewId>
-                size="lg"
-                aria-label={t('viewLabel')}
-                options={views}
-                value={active}
-                onChange={onViewChange}
-              />
-            </div>
-          )}
         </div>
         {main}
       </div>

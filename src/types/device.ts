@@ -43,6 +43,9 @@ export interface DeviceStats {
 }
 
 // Device entity
+/** Tischwahl an der Kasse: Nummer eingeben, Liste nach Bereichen, Tischplan. */
+export type TableSelectView = 'number' | 'list' | 'map';
+
 export interface Device {
   id: string;
   organizationId: string;
@@ -65,6 +68,14 @@ export interface Device {
     display?: DisplayAppearance;
     /** Standardbereich der Kasse (Tischbetrieb), öffnet diesen Bereich zuerst. */
     tableAreaId?: string | null;
+    /**
+     * Tischwahl an der Kasse (fest je Gerät). Fehlt: Karte, wenn der
+     * Standardbereich einen Tischplan hat, sonst Liste; bei freier
+     * Tischnummer immer der Ziffernblock. `null` setzt zurück.
+     */
+    tableSelectView?: TableSelectView | null;
+    /** Stationsanzeige: welche Station (Produktionsstation) sie zeigt. */
+    stationId?: string;
     [key: string]: unknown;
   };
   createdAt: string;

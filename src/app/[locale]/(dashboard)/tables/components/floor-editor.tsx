@@ -2,9 +2,22 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { FloorPlan, type FloorChange, type FloorDecor, type FloorItemKind, type FloorTable } from '@openeos/ui';
+import {
+  FloorPlan,
+  type FloorChange,
+  type FloorDecor,
+  type FloorItemKind,
+  type FloorPlanLabels,
+  type FloorPoint,
+  type FloorShapeChange,
+  type FloorShapeDraft,
+  type FloorTable,
+  type FloorTool,
+  type FloorWall,
+  type FloorZone,
+} from '@openeos/ui';
 
-import type { TableArea } from '@/types/table';
+import { splitAreaDecor, type TableArea } from '@/types/table';
 
 export interface FloorSelection {
   id: string;
@@ -14,6 +27,8 @@ export interface FloorSelection {
 interface FloorEditorProps {
   area: TableArea;
   mode?: 'edit' | 'view';
+  /** Werkzeug: Auswahl, Wand zeichnen, Zone zeichnen, Raumform. */
+  tool?: FloorTool;
   selection: FloorSelection | null;
   snap: boolean;
   showGrid: boolean;
@@ -21,17 +36,23 @@ interface FloorEditorProps {
   onCommit: (change: FloorChange) => void;
   onDelete: (id: string, kind: FloorItemKind) => void;
   onDuplicate: (id: string, kind: FloorItemKind) => void;
+  onShapeCreate?: (shape: FloorShapeDraft) => void;
+  onShapeCommit?: (change: FloorShapeChange) => void;
+  onOutlineCommit?: (points: FloorPoint[]) => void;
+  onToolCancel?: () => void;
 }
 
 /**
- * Karte eines Bereichs. Ziehen, Eckgriff und Tastatur stecken in
- * `FloorPlan` aus @openeos/ui (Pointer Events, auch mit dem Finger);
- * hier kommen nur Daten, Beschriftungen und die Rückmeldungen hinein.
+ * Karte eines Bereichs. Ziehen, Eckgriff, Zeichnen und Tastatur stecken in
+ * `FloorPlan` aus @openeos/ui (Pointer Events, auch mit dem Finger); hier
+ * kommen nur Daten, Beschriftungen und die Rückmeldungen hinein.
+ * `decor` der API wird in Rechtecke, Wände (Linienzug) und Zonen geteilt.
  * `mode="view"` ist die nicht bearbeitbare Vorschau auf dem Telefon.
  */
 export function FloorEditor({
   area,
   mode = 'edit',
+  tool = 'select',
   selection,
   snap,
   showGrid,
@@ -39,6 +60,10 @@ export function FloorEditor({
   onCommit,
   onDelete,
   onDuplicate,
+  onShapeCreate,
+  onShapeCommit,
+  onOutlineCommit,
+  onToolCancel,
 }: FloorEditorProps) {
   const t = useTranslations('tables');
 
@@ -59,13 +84,40 @@ export function FloorEditor({
     [area.tables],
   );
 
-  const decor = useMemo<FloorDecor[]>(
-    () =>
-      area.decor.map((item) => ({
+  const { decor, walls, zones } = useMemo(() => {
+    const parts = splitAreaDecor(area.decor);
+    return {
+      decor: parts.rects.map<FloorDecor>((item) => ({
         ...item,
         label: item.type === 'wall' ? undefined : item.label,
       })),
-    [area.decor],
+      walls: parts.walls.map<FloorWall>((w) => ({ id: w.id, points: w.points, thickness: w.thickness })),
+      zones: parts.zones.map<FloorZone>((z) => ({ id: z.id, zoneType: z.zoneType, points: z.points, label: z.label })),
+    };
+  }, [area.decor]);
+
+  const labels = useMemo<Partial<FloorPlanLabels>>(
+    () => ({
+      zoneTypes: {
+        kitchen: t('zone.kitchen'),
+        blocked: t('zone.blockedShort'),
+        bar: t('zone.bar'),
+        other: t('zone.other'),
+      },
+      wall: t('shapes.wall'),
+      outline: t('shapes.outline'),
+      point: t('floorTools.point'),
+      addPoint: t('floorTools.addPoint'),
+      drawWall: t('floorTools.drawWall'),
+      drawZone: t('floorTools.drawZone'),
+      editOutline: t('floorTools.editOutline'),
+      done: t('floorTools.done'),
+      cancel: t('floorTools.cancel'),
+      undoPoint: t('floorTools.undoPoint'),
+      outside: t('floorTools.outside'),
+      blocked: t('floorTools.blocked'),
+    }),
+    [t],
   );
 
   const tableLabel = (table: FloorTable) => {
@@ -89,17 +141,26 @@ export function FloorEditor({
       gridSize={area.gridSize}
       tables={tables}
       decor={decor}
+      walls={walls}
+      zones={zones}
+      outline={area.outline}
       mode={mode}
-      selectedId={mode === 'edit' ? selection?.id ?? null : null}
+      tool={mode === 'edit' ? tool : 'select'}
+      selectedId={mode === 'edit' ? (selection?.id ?? null) : null}
       snap={snap}
       showGrid={showGrid}
       tableLabel={tableLabel}
       decorLabel={decorLabel}
+      labels={labels}
       minScale={0.5}
       onSelect={(id, kind) => onSelect(id ? { id, kind } : null)}
       onCommit={onCommit}
       onDelete={onDelete}
       onDuplicate={onDuplicate}
+      onShapeCreate={onShapeCreate}
+      onShapeCommit={onShapeCommit}
+      onOutlineCommit={onOutlineCommit}
+      onToolCancel={onToolCancel}
     />
   );
 }
