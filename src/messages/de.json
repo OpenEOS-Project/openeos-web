@@ -2536,8 +2536,14 @@
       "orders": "{count, plural, one {# Bestellung} other {# Bestellungen}}",
       "items": "{count, plural, one {# Artikel} other {# Artikel}}",
       "pickup": "Abholung",
+      "service": "Bedienung",
+      "togo": "To-go",
       "priorityRush": "Eilt",
-      "priorityHigh": "Hoch"
+      "priorityHigh": "Hoch",
+      "done": "Erledigt",
+      "markReadyError": "Position nicht als fertig gemeldet",
+      "markReadyErrorHint": "Bitte versuche es noch einmal.",
+      "dismiss": "Hinweis schließen"
     }
   },
   "devices": {
