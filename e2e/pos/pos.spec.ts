@@ -205,7 +205,8 @@ test.describe('POS - Point of Sale', () => {
       await pos.nextReceipt();
       await expect(pos.startView).toBeVisible();
 
-      // Gegenprobe in der Verwaltung: bezahlt, mit Tisch und Positionen.
+      // Gegenprobe in der Verwaltung: ein Status wie in der Kasse
+      // („Abgeschlossen“ heißt bezahlt und fertig), Tisch, Positionen, Bar.
       const adminContext = await browser.newContext({ storageState: undefined });
       try {
         const admin = await adminContext.newPage();
@@ -216,8 +217,8 @@ test.describe('POS - Point of Sale', () => {
         await expect(row).toContainText('Tisch 5');
         await expect(row).toContainText('2x Apfelschorle');
         await expect(row).toContainText('1x Wasser');
-        await expect(row).toContainText('Bezahlt');
         await expect(row).toContainText('Abgeschlossen');
+        await expect(row.getByTitle('Bar')).toBeVisible();
         await expect(row).toContainText(/9,00\s€/);
       } finally {
         await adminContext.close();
