@@ -309,7 +309,8 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
             <small>{t('refundSum')}</small>
             <b>{formatPrice(preview)}</b>
           </span>
-          <Button variant="ghost" size="lg" onClick={onClose}>
+          {/* Auf dem Telefon schließt das Blatt über Kreuz/Wischen; der Platz gehört der Aktion. */}
+          <Button variant="ghost" size="lg" className="pos-oh-hide-sm" onClick={onClose}>
             {t('back')}
           </Button>
           <Button

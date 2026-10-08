@@ -474,6 +474,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-oh-item .oe-badge { grid-column: 2; justify-self: start; }
   .pos-oh-item__sum { grid-row: 1; grid-column: 3; }
   .pos-oh-actions .oe-btn { flex: 1 1 calc(50% - 4px); }
+  .pos-oh-row__no small { font-size: 11px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
