@@ -170,10 +170,14 @@ test.describe('Tische', () => {
   test('zeichnet eine Wand, eine Zone und die Raumform', async ({ page }) => {
     await openTables(page);
     await selectArea(page);
+    const toolbar = page.locator('.tables-toolbar');
     const plan = page.locator('.tables-floor .oe-floor');
-    const box = (await plan.boundingBox())!;
-    // Bereich 1200 × 800 Einheiten (Vorgabe).
-    const at = (x: number, y: number): [number, number] => [box.x + (x * box.width) / 1200, box.y + (y * box.height) / 800];
+    // Bereich 1200 × 800 Einheiten (Vorgabe). Lage jedes Mal neu messen:
+    // Hinweise über der Karte (z. B. Tisch in gesperrter Zone) verschieben sie.
+    const at = async (x: number, y: number): Promise<[number, number]> => {
+      const box = (await plan.boundingBox())!;
+      return [box.x + (x * box.width) / 1200, box.y + (y * box.height) / 800];
+    };
     const decorOf = async () => {
       const area = (await areasFromApi()).find((a) => a.name === AREA) as unknown as {
         decor: Array<{ type: string; points?: Array<{ x: number; y: number }>; zoneType?: string }>;
@@ -183,10 +187,10 @@ test.describe('Tische', () => {
     };
 
     // Wand: drei Punkte, Fertig. 45° rastet ein.
-    await page.getByRole('button', { name: 'Wand', exact: true }).click();
-    await page.mouse.click(...at(900, 620));
-    await page.mouse.click(...at(1000, 618));
-    await page.mouse.click(...at(1100, 722));
+    await toolbar.getByRole('button', { name: 'Wand', exact: true }).click();
+    await page.mouse.click(...(await at(900, 620)));
+    await page.mouse.click(...(await at(1000, 618)));
+    await page.mouse.click(...(await at(1100, 722)));
     await page.locator('.oe-floor__toolbar').getByRole('button', { name: 'Fertig' }).click();
     await expect(page.getByRole('complementary', { name: 'Eigenschaften' }).getByRole('heading', { name: 'Wand' })).toBeVisible();
     await expect
@@ -198,11 +202,11 @@ test.describe('Tische', () => {
       ]);
 
     // Zone „Gesperrter Bereich“ per Doppelklick beenden.
-    await page.getByRole('button', { name: 'Zone', exact: true }).click();
+    await toolbar.getByRole('button', { name: 'Zone', exact: true }).click();
     await page.getByRole('menuitem', { name: 'Gesperrter Bereich' }).click();
-    await page.mouse.click(...at(700, 660));
-    await page.mouse.click(...at(840, 660));
-    await page.mouse.dblclick(...at(840, 780));
+    await page.mouse.click(...(await at(700, 660)));
+    await page.mouse.click(...(await at(840, 660)));
+    await page.mouse.dblclick(...(await at(840, 780)));
     const inspector = page.getByRole('complementary', { name: 'Eigenschaften' });
     await expect(inspector.getByLabel('Typ')).toHaveValue('blocked');
     await inspector.getByLabel('Beschriftung').fill('Notausgang');
@@ -213,12 +217,12 @@ test.describe('Tische', () => {
       .toBe('blocked');
 
     // Raumform: Ecke unten rechts nach innen ziehen.
-    await page.getByRole('button', { name: 'Raumform', exact: true }).click();
+    await toolbar.getByRole('button', { name: 'Raumform', exact: true }).click();
     const corner = page.locator('.oe-floor__point:not(.oe-floor__point--add)').nth(2);
     const c = (await corner.boundingBox())!;
     await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2);
     await page.mouse.down();
-    await page.mouse.move(...at(1100, 700), { steps: 8 });
+    await page.mouse.move(...(await at(1100, 700)), { steps: 8 });
     await page.mouse.up();
     await expect.poll(async () => (await decorOf()).outline?.[2]).toEqual({ x: 1100, y: 700 });
     await inspector.getByRole('button', { name: 'Auf Rechteck zurücksetzen' }).click();
