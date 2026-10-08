@@ -19,6 +19,22 @@ export interface SalesReport {
   cancellationRate: number;
 }
 
+/**
+ * Abgleich der Produkt- und Kategorieberichte mit dem Umsatz netto
+ * (`GET reports/net-summary`): Produkte + Erstattungen ohne Position +
+ * Trinkgeld = Umsatz netto (`SalesReport.totalRevenue`).
+ */
+export interface NetSalesSummary {
+  /** Warenwert netto aller Positionen. */
+  itemsRevenue: number;
+  /** Kulanz-Erstattungen ohne Positionsbezug (negativ). */
+  unassignedRefunds: number;
+  /** Trinkgeld abzüglich erstattetem Trinkgeld. */
+  tips: number;
+  netRevenue: number;
+}
+
+/** Produkte netto: Storno und erstattete Mengen abgezogen, Rabatt anteilig, ohne Pfand. */
 export interface ProductReport {
   productId: string;
   productName: string;

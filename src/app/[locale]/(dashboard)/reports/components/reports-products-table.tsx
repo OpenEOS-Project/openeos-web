@@ -3,16 +3,20 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
-import type { ProductReport } from '@/types/report';
+import type { NetSalesSummary, ProductReport } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { netReconciliation } from '@/utils/report-net';
 import { downloadCsv } from './csv-export';
+import { ReportsNetFooter } from './reports-net-footer';
 
 interface ReportsProductsTableProps {
   data: ProductReport[] | undefined;
+  /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
+  net?: NetSalesSummary;
   isLoading: boolean;
 }
 
-export function ReportsProductsTable({ data, isLoading }: ReportsProductsTableProps) {
+export function ReportsProductsTable({ data, net, isLoading }: ReportsProductsTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
 
@@ -20,6 +24,10 @@ export function ReportsProductsTable({ data, isLoading }: ReportsProductsTablePr
     if (!data) return [];
     return [...data].sort((a, b) => b.revenue - a.revenue);
   }, [data]);
+  const netLines = useMemo(
+    () => (net && sorted.length ? netReconciliation(sorted.map((p) => p.revenue), net) : []),
+    [net, sorted],
+  );
 
   const handleExport = () => {
     if (!sorted.length) return;
@@ -37,6 +45,10 @@ export function ReportsProductsTable({ data, isLoading }: ReportsProductsTablePr
       p.revenue,
       p.averagePrice,
     ]);
+    // Abgleichzeilen wie in der Tabelle (Summe, Erstattungen ohne Position, Trinkgeld, Umsatz netto).
+    for (const line of netLines) {
+      rows.push([line.key === 'items' ? t('net.items') : t(`net.${line.key}`), '', '', line.amount, '']);
+    }
     downloadCsv(t('export.filenames.products'), headers, rows);
   };
 
@@ -91,7 +103,11 @@ export function ReportsProductsTable({ data, isLoading }: ReportsProductsTablePr
                 </tr>
               ))}
             </tbody>
+            {netLines.length > 0 && (
+              <ReportsNetFooter lines={netLines} labelSpan={3} trailing={1} itemsLabel={t('net.items')} />
+            )}
           </table>
+          <p className="report-net__note">{t('net.note')}</p>
         </div>
       )}
     </div>

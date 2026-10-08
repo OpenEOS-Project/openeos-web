@@ -12,6 +12,7 @@ import type {
   ChannelReport,
   CategoryReport,
   DeviceReport,
+  NetSalesSummary,
 } from '@/types/report';
 import type { ReportsFilter } from './reports-filter-bar';
 import { generateReportsPdf } from './pdf-export';
@@ -26,6 +27,7 @@ interface PdfExportButtonProps {
   hourly?: HourlyReport[];
   channels?: ChannelReport[];
   categories?: CategoryReport[];
+  net?: NetSalesSummary;
   devices?: DeviceReport[];
 }
 

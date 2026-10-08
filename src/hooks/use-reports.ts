@@ -20,6 +20,7 @@ function useReport<T>(
     | 'hourly'
     | 'channels'
     | 'categories'
+    | 'net-summary'
     | 'devices'
     | 'inventory'
     | 'stock-movements',
@@ -59,6 +60,17 @@ export function useCategoriesReport(organizationId: string, params?: ReportQuery
     organizationId,
     'categories',
     () => reportsApi.getCategories(organizationId, params),
+    params,
+    enabled,
+  );
+}
+
+/** Abgleich Produkte/Kategorien ↔ Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
+export function useNetSalesSummary(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(
+    organizationId,
+    'net-summary',
+    () => reportsApi.getNetSummary(organizationId, params),
     params,
     enabled,
   );

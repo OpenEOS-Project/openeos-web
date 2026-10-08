@@ -5016,3 +5016,133 @@ body:has(.landing) {
   font-size: 14px;
   color: var(--mute);
 }
+
+/* ── Bestelldetail: Storno und Erstattung (Verwaltung) ──────────────── */
+.landing .order-action__items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.landing .order-action__items li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+}
+.landing .order-action__items li.is-selected {
+  border-color: var(--oe-green-ink);
+  background: color-mix(in oklab, var(--oe-green) 8%, transparent);
+}
+.landing .order-action__items li.is-cancel {
+  border-color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 6%, transparent);
+}
+.landing .order-action__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+}
+.landing .order-action__item small {
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .order-action__stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.landing .order-action__stepper b {
+  min-width: 42px;
+  text-align: center;
+  font-size: 14px;
+}
+.landing .order-action__stepper small {
+  font-weight: 400;
+  color: var(--mute);
+}
+.landing .order-action__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.landing .order-action__check input {
+  margin-top: 2px;
+  accent-color: var(--green-ink);
+}
+.landing .order-action__check span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.landing .order-action__check small {
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .order-action__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+.landing .order-action__alert {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
+  color: var(--ink);
+  font-size: 13px;
+}
+.landing .order-action__alert > b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--danger);
+}
+.landing .order-action__sum {
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+  line-height: 1.2;
+}
+.landing .order-action__sum small {
+  font-size: 11px;
+  color: var(--mute);
+}
+.landing .order-action__sum b {
+  font-size: 16px;
+}
+.landing .order-action__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Auswertung: Abgleich Produkte/Kategorien ↔ Umsatz netto ───────── */
+.landing .report-net__row td {
+  font-size: 13px;
+  color: var(--mute);
+  border-top: 1px solid var(--oe-line-2);
+}
+.landing .report-net__row[data-strong] td {
+  font-weight: 700;
+  color: var(--ink);
+}
+.landing .report-net__note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--mute);
+}

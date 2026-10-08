@@ -19,7 +19,11 @@ export function TopProductsWidget({ organizationId }: Props) {
 
   const top5 = useMemo(() => {
     if (!data) return [];
-    return [...data].sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+    // Netto: ganz erstattete Produkte (Menge 0) gehören nicht in die Rangliste.
+    return [...data]
+      .filter((p) => p.quantitySold > 0)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
   }, [data]);
 
   return (

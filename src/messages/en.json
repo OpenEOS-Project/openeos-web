@@ -756,6 +756,11 @@
         "deleteConfirmMessage": "\"{name}\" will be unpaired from SumUp and can no longer take payments. To use it again, it has to be paired anew.",
         "renameReader": "Rename card reader \"{name}\"",
         "deleteReader": "Delete card reader \"{name}\""
+      },
+      "testMode": {
+        "title": "Test mode",
+        "activeTitle": "Test mode active – no SumUp card payments",
+        "text": "While an event is in test mode, the POS does not start real SumUp card payments: the payment method is greyed out at the POS and the server refuses card reader payments. Cash and manual card bookings keep working; refunds of test orders are only booked."
       }
     },
     "organizationNotifications": {
@@ -2425,7 +2430,8 @@
       "tipRoundUp": "Round up to {amount}",
       "title": "Check out · {context}",
       "unsavedText": "The card was charged {amount} (transaction {id}). Do not charge again – save the order again.",
-      "unsavedTitle": "Card payment successful, order not saved"
+      "unsavedTitle": "Card payment successful, order not saved",
+      "cardTestModeHint": "No real card payments in test mode"
     },
     "done": {
       "change": "Change {amount}",
@@ -2664,6 +2670,89 @@
         "refund_receipt_reprinted": "Counter-receipt reprinted"
       },
       "payments": "Payments"
+    },
+    "refund": {
+      "cancelItems": "Cancel items",
+      "cancelAndRefund": "Cancel & refund",
+      "refund": "Refund",
+      "title": "Refund · #{number}",
+      "cancelAndRefundTitle": "Cancel & refund · #{number}",
+      "refundable": "Refundable: {amount}",
+      "mode": "Type of refund",
+      "modeItems": "Items",
+      "modeAmount": "Amount",
+      "modeFull": "Everything",
+      "alsoCancel": "Also cancel the items",
+      "alsoCancelHint": "Kitchen and stations drop them; items not started yet go back into stock.",
+      "items": "Items",
+      "nothingToSelect": "Nothing left to refund.",
+      "perUnit": "{amount} each",
+      "deposit": "{amount} deposit",
+      "includeDeposit": "Refund the deposit too",
+      "amount": "Amount",
+      "amountHint": "At most {max}",
+      "amountInvalid": "Enter an amount up to {max}.",
+      "fullCancelHint": "The whole order is cancelled and {amount} refunded.",
+      "fullRefundHint": "{amount} will be refunded; the order stays.",
+      "via": "Refund via",
+      "viaAuto": "Automatic (latest payment first)",
+      "methodHint": {
+        "cash": "Give the cash back – booked as \"paid out in cash\". Take the money from the till.",
+        "sumup": "Refunded to the guest's card through SumUp.",
+        "card": "Refund at the card terminal – booked as \"refunded manually\".",
+        "test": "Test mode: only booked, nothing is really refunded."
+      },
+      "method": {
+        "cash": "Refund in cash – booked as \"paid out in cash\".",
+        "sumup": "Refund through SumUp to the guest's card.",
+        "card": "Refund at the card terminal – booked as \"refunded manually\".",
+        "test": "Test mode – only booked, not refunded at the payment provider."
+      },
+      "reasonRequired": "Reason (required)",
+      "reasonOptional": "Reason (optional)",
+      "reasonChoose": "Choose a reason",
+      "reasonText": "Note",
+      "reasonPlaceholder": "e.g. \"burger was cold\"",
+      "startedTitle": "The kitchen has already started – cancel anyway?",
+      "startedText": "{items}: already in progress, ready or served. This counts as waste; stock is not restored.",
+      "startedConfirm": "Yes, cancel anyway",
+      "sumupFailedTitle": "SumUp declined the refund",
+      "sumupFailedText": "The refund through SumUp failed.",
+      "sumupManualHint": "Try again, or give the money back another way and book it as \"refunded manually\".",
+      "retry": "Try again",
+      "markManual": "Book as refunded manually",
+      "sum": "Refund",
+      "action": "Refund",
+      "cancelAndRefundAction": "Cancel & refund",
+      "confirmTitle": "Confirm refund",
+      "confirmText": "Refund {amount}? This cannot be undone.",
+      "confirmCancelText": "Cancel the items and refund {amount}? This cannot be undone.",
+      "confirmReceipt": "A counter-receipt is sent to the receipt printer.",
+      "confirmAction": "Refund now",
+      "confirmCancelAction": "Cancel & refund now",
+      "back": "Back",
+      "booking": "Booking …",
+      "doneTitle": "Refunded",
+      "result": {
+        "cash": "{amount} booked as paid out in cash.",
+        "sumup": "{amount} refunded through SumUp.",
+        "manual": "{amount} booked as refunded manually.",
+        "test": "Test mode: booked, not refunded at the payment provider.",
+        "printed": "Counter-receipt printed",
+        "notPrinted": "No receipt printer set up – counter-receipt not printed"
+      },
+      "cancelTitle": "Cancel items · #{number}",
+      "cancelSubtitle": "Items not started yet go back into stock.",
+      "cancelConfirmTitle": "Confirm cancellation",
+      "cancelConfirmText": "Cancel {count, plural, =1 {1 item} other {# items}} worth {amount}? This cannot be undone.",
+      "cancelAction": "{count, plural, =0 {Cancel} =1 {Cancel 1 item} other {Cancel # items}}",
+      "selectAll": "Select all",
+      "selectNone": "None",
+      "selectedCount": "{count, plural, =0 {Nothing selected} =1 {1 item} other {# items}}",
+      "cancelDone": "{count, plural, =1 {1 item cancelled} other {# items cancelled}}",
+      "paidNeedsRefund": "Already paid – cancel with a refund.",
+      "less": "{name}: fewer",
+      "more": "{name}: more"
     }
   },
   "device": {
@@ -3305,6 +3394,7 @@
     "STRIPE_WEBHOOK_SECRET_MISSING": "Online payment is currently unavailable.",
     "SUBSCRIPTION_CONFIG_NOT_FOUND": "The subscription configuration was not found.",
     "SUMUP_API_ERROR": "SumUp rejected the request. Please try again later or check the credentials.",
+    "SUMUP_DISABLED_IN_TEST_MODE": "In test mode the POS does not start real SumUp card payments. Take cash or book the card payment manually.",
     "SUMUP_INVALID_CREDENTIALS": "SumUp credentials invalid – please check",
     "SUMUP_NOT_CONFIGURED": "SumUp is not set up yet. Please enter the API key and merchant code first.",
     "SUMUP_NO_CHECKOUT_URL": "SumUp did not return a checkout page. Please try again.",
@@ -4105,7 +4195,7 @@
     },
     "products": {
       "title": "Top products",
-      "subtitle": "Sorted by quantity",
+      "subtitle": "Net, sorted by revenue",
       "empty": "No product data available",
       "columns": {
         "product": "Product",
@@ -4139,7 +4229,7 @@
     },
     "categories": {
       "title": "Top categories",
-      "subtitle": "Sorted by revenue",
+      "subtitle": "Net, sorted by revenue",
       "empty": "No category data available",
       "columns": {
         "category": "Category",
@@ -4212,6 +4302,15 @@
         "openStart": "start",
         "openEnd": "end"
       }
+    },
+    "net": {
+      "items": "Total products",
+      "categoryItems": "Total categories",
+      "unassignedRefunds": "Refunds without an item",
+      "tips": "Tips",
+      "rounding": "Rounding (discount spread)",
+      "netRevenue": "Net revenue",
+      "note": "Net: cancellations and refunded quantities are deducted, discounts spread proportionally, deposits excluded. Goodwill refunds without an item are shown as a separate line – they cannot be assigned to a product."
     }
   },
   "inventory": {
