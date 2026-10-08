@@ -39,6 +39,7 @@ export interface OrderItem {
   notes: string | null;
   kitchenNotes: string | null;
   paidQuantity: number;
+  refundedQuantity?: number;
   pfandTypeId: string | null;
   depositAmount: number;
   isRefill: boolean;
@@ -91,6 +92,10 @@ export interface Order {
   createdByUser?: { id: string; firstName: string; lastName: string } | null;
   /** Device/terminal that created the order. */
   createdByDevice?: { id: string; name: string } | null;
+  /** Summe der Erstattungen (Gegenbelege). */
+  refundedAmount?: number;
+  /** Ein Status je Bestellung, gleich in Kasse und Verwaltung. */
+  displayStatus?: import('./order-history').OrderDisplayStatus;
 }
 
 export type OrderChannel = 'service' | 'counter' | 'online';
@@ -174,6 +179,12 @@ export interface QueryOrdersParams {
   search?: string;
   dateFrom?: string;
   dateTo?: string;
+  /** Suche: Nummer, Tisch, Name oder Produkt. */
+  q?: string;
+  /** Status wie in der Kasse, kommagetrennt (z. B. `unpaid,refunded`). */
+  displayStatus?: string;
+  /** Zahlart, kommagetrennt: cash, card, sumup, discount. */
+  paymentMethod?: string;
   includeItems?: boolean;
   page?: number;
   limit?: number;

@@ -1,4 +1,4 @@
-import { test, expect, type BrowserContextOptions } from '@playwright/test';
+import { type BrowserContextOptions, expect, test } from '@playwright/test';
 
 import { apiLogin, apiPost, newApiContext } from '../fixtures/api';
 import { loginAs } from '../fixtures/auth.fixture';
@@ -38,7 +38,9 @@ test.beforeAll(async () => {
       startDate: '2026-03-01',
     });
     await apiPost(api, `organizations/${org}/events/${event.id}/activate`, admin.headers);
-    const category = await apiPost(api, `events/${event.id}/categories`, admin.headers, { name: CATEGORY });
+    const category = await apiPost(api, `events/${event.id}/categories`, admin.headers, {
+      name: CATEGORY,
+    });
     await apiPost(api, `events/${event.id}/products`, admin.headers, {
       categoryId: category.id,
       name: PRODUCTS.schorle,
@@ -103,7 +105,11 @@ test.describe('POS - Point of Sale', () => {
       await pos.goto();
       await pos.openTableByNumber('5');
 
-      await expect(page.getByRole('navigation', { name: 'Kategorien' }).getByRole('button', { name: new RegExp(CATEGORY) })).toBeVisible();
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Kategorien' })
+          .getByRole('button', { name: new RegExp(CATEGORY) })
+      ).toBeVisible();
       await expect(pos.product(PRODUCTS.schorle)).toContainText('3,50');
       await expect(pos.product(PRODUCTS.wasser)).toContainText('2,00');
       await pos.openCart();
@@ -224,12 +230,17 @@ test.describe('POS - Point of Sale', () => {
       await pos.openMenu('Bestellverlauf');
       const history = page.getByRole('dialog', { name: 'Bestellverlauf' });
       await expect(history).toBeVisible();
-      await expect(history.getByRole('button', { name: 'Abgeschlossen', exact: true })).toBeVisible();
+      // Ein Status je Bestellung: Status-Chips mit Zähler, Suche serverseitig.
+      await expect(history.getByRole('button', { name: /^Abgeschlossen/ })).toBeVisible();
+      await expect(history.getByRole('button', { name: /^In Küche/ })).toBeVisible();
+      await expect(history.getByRole('searchbox', { name: 'Suche' })).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(history).toHaveCount(0);
     });
 
-    test('switches between light and dark from the menu and keeps it on this device', async ({ page }) => {
+    test('switches between light and dark from the menu and keeps it on this device', async ({
+      page,
+    }) => {
       await page.emulateMedia({ colorScheme: 'light' });
       const pos = new POSPage(page);
       await pos.goto();
@@ -241,7 +252,10 @@ test.describe('POS - Point of Sale', () => {
       await page.reload();
       await expect(html).toHaveClass(/(^|\s)dark-mode(\s|$)/);
       await pos.menuButton.click();
-      await expect(page.getByRole('menuitem', { name: 'Dunkel' })).toHaveAttribute('aria-current', 'true');
+      await expect(page.getByRole('menuitem', { name: 'Dunkel' })).toHaveAttribute(
+        'aria-current',
+        'true'
+      );
       await page.keyboard.press('Escape');
 
       // „System“ folgt wieder dem Betriebssystem.

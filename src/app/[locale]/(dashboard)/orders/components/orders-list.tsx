@@ -8,29 +8,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import {
-  getOrderChannel,
-  type Order,
-  type OrderChannel,
-  type OrderStatus,
-  type OrderPaymentStatus,
-} from '@/types/order';
-import { OrderDetailModal } from './order-detail-modal';
+import { getOrderChannel, type Order, type OrderChannel } from '@/types/order';
+import type { HistoryPaymentFilter } from '@/types/order-history';
+import { STATUS_FILTERS, paymentIcon } from '@/utils/order-history';
+import { OrderDetailModal, displayStatusBadge } from './order-detail-modal';
 
-const statusBadge: Record<OrderStatus, string> = {
-  open: 'badge badge--neutral',
-  in_progress: 'badge badge--warning',
-  ready: 'badge badge--info',
-  completed: 'badge badge--success',
-  cancelled: 'badge badge--error',
-};
-
-const paymentBadge: Record<OrderPaymentStatus, string> = {
-  unpaid: 'badge badge--error',
-  partly_paid: 'badge badge--warning',
-  paid: 'badge badge--success',
-  refunded: 'badge badge--neutral',
-};
+const PAYMENT_FILTERS: HistoryPaymentFilter[] = ['cash', 'card', 'sumup', 'discount'];
 
 const channelBadge: Record<OrderChannel, string> = {
   service: 'badge badge--info',
@@ -53,8 +36,11 @@ export function OrdersList() {
   const { currentOrganization } = useAuthStore();
   const organizationId = currentOrganization?.organizationId;
 
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
-  const [paymentFilter, setPaymentFilter] = useState<OrderPaymentStatus | 'all'>('all');
+  // Ein Status wie in der Kasse (In Küche, Fertig, Offen, Abgeschlossen, Storniert, Erstattet).
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [paymentFilter, setPaymentFilter] = useState<HistoryPaymentFilter | 'all'>('all');
+  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<OrderChannel | 'all'>('all');
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -66,6 +52,15 @@ export function OrdersList() {
     setPage(1);
   };
 
+  // Suche erst nach einer kurzen Pause an den Server.
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setQuery(search.trim());
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(handle);
+  }, [search]);
+
   const { data: eventsData } = useQuery({
     queryKey: ['events', organizationId],
     queryFn: () => eventsApi.list(organizationId!),
@@ -75,8 +70,11 @@ export function OrdersList() {
   const events = eventsData?.data || [];
 
   const filterParams: Record<string, string> = {};
-  if (statusFilter !== 'all') filterParams.status = statusFilter;
-  if (paymentFilter !== 'all') filterParams.paymentStatus = paymentFilter;
+  if (statusFilter !== 'all') {
+    filterParams.displayStatus = (STATUS_FILTERS.find((f) => f.id === statusFilter)?.statuses ?? []).join(',');
+  }
+  if (paymentFilter !== 'all') filterParams.paymentMethod = paymentFilter;
+  if (query) filterParams.q = query;
   if (eventFilter !== 'all') filterParams.eventId = eventFilter;
   if (channelFilter !== 'all') Object.assign(filterParams, channelQuery[channelFilter]);
 
@@ -93,7 +91,7 @@ export function OrdersList() {
     isFetching: isFetchingOrders,
     refetch: refetchOrders,
   } = useQuery({
-    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, page],
+    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, query, page],
     queryFn: () => ordersApi.list(organizationId!, listParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
@@ -109,7 +107,7 @@ export function OrdersList() {
     isFetching: isFetchingStats,
     refetch: refetchStats,
   } = useQuery({
-    queryKey: ['orders-stats', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter],
+    queryKey: ['orders-stats', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, query],
     queryFn: () => ordersApi.stats(organizationId!, filterParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
@@ -175,31 +173,44 @@ export function OrdersList() {
 
       {/* Filters */}
       <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+        <input
+          className="input"
+          type="search"
+          style={{ flex: '2 1 200px', minWidth: 0 }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('orders.filters.searchPlaceholder')}
+          aria-label={t('orders.filters.searchPlaceholder')}
+        />
+
         <select
           className="select"
           style={{ flex: '1 1 140px', minWidth: 0 }}
           value={statusFilter}
-          onChange={(e) => updateFilter(setStatusFilter)(e.target.value as OrderStatus | 'all')}
+          onChange={(e) => updateFilter(setStatusFilter)(e.target.value)}
+          aria-label={t('orders.columns.status')}
         >
           <option value="all">{t('orders.filters.allStatuses')}</option>
-          <option value="open">{t('orders.status.open')}</option>
-          <option value="in_progress">{t('orders.status.inProgress')}</option>
-          <option value="ready">{t('orders.status.ready')}</option>
-          <option value="completed">{t('orders.status.completed')}</option>
-          <option value="cancelled">{t('orders.status.cancelled')}</option>
+          {STATUS_FILTERS.map((f) => (
+            <option key={f.id} value={f.id}>
+              {t(`orders.displayStatus.${f.id}`)}
+            </option>
+          ))}
         </select>
 
         <select
           className="select"
           style={{ flex: '1 1 140px', minWidth: 0 }}
           value={paymentFilter}
-          onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as OrderPaymentStatus | 'all')}
+          onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as HistoryPaymentFilter | 'all')}
+          aria-label={t('orders.columns.payment')}
         >
           <option value="all">{t('orders.filters.allPayments')}</option>
-          <option value="unpaid">{t('orders.paymentStatus.unpaid')}</option>
-          <option value="partly_paid">{t('orders.paymentStatus.partlyPaid')}</option>
-          <option value="paid">{t('orders.paymentStatus.paid')}</option>
-          <option value="refunded">{t('orders.paymentStatus.refunded')}</option>
+          {PAYMENT_FILTERS.map((m) => (
+            <option key={m} value={m}>
+              {t(`orders.history.payment.${m}`)}
+            </option>
+          ))}
         </select>
 
         <select
@@ -272,8 +283,8 @@ export function OrdersList() {
             </thead>
             <tbody>
               {orders.map((order: Order) => {
-                const statusCls = statusBadge[order.status] ?? 'badge badge--neutral';
-                const paymentCls = paymentBadge[order.paymentStatus] ?? 'badge badge--neutral';
+                const display = order.displayStatus ?? 'in_kitchen';
+                const methods = [...new Set((order as Order & { paymentMethods?: string[] }).paymentMethods ?? [])];
                 const channel = getOrderChannel(order);
                 const creator = creatorLabel(order);
 
@@ -340,13 +351,29 @@ export function OrdersList() {
                       )}
                     </td>
                     <td>
-                      <span className={statusCls}>{t(`orders.status.${order.status}`)}</span>
+                      <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>
                     </td>
                     <td>
-                      <span className={paymentCls}>{t(`orders.paymentStatus.${order.paymentStatus}`)}</span>
+                      <span style={{ display: 'inline-flex', gap: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                        {methods.map((m) => (
+                          <span key={m} title={t(`orders.history.payment.${m === 'cash' ? 'cash' : m.startsWith('sumup') ? 'sumup' : 'card'}`)}>
+                            <Icon name={paymentIcon(m)} size={16} />
+                          </span>
+                        ))}
+                        {Number(order.discountAmount) > 0 && (
+                          <span title={t('orders.history.payment.discount')}>
+                            <Icon name="percent" size={16} />
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td className="mono text-right">
                       <div style={{ fontWeight: 600 }}>{formatCurrency(order.total)}</div>
+                      {Number(order.refundedAmount) > 0 && (
+                        <div style={{ fontSize: 11, color: 'var(--danger)' }}>
+                          {t('orders.history.refunded')}: {formatCurrency(-Number(order.refundedAmount))}
+                        </div>
+                      )}
                       {order.paidAmount > 0 && order.paidAmount < order.total && (
                         <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
                           {t('orders.paid')}: {formatCurrency(order.paidAmount)}

@@ -26,6 +26,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'pfand',
   'reports',
   'inventory',
+  'orders',
 ];
 
 export function EditPermissionsModal({ isOpen, organizationId, member, onClose }: EditPermissionsModalProps) {
@@ -44,6 +45,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
     pfand: false,
     reports: false,
     inventory: false,
+    orders: false,
     ...member.permissions,
   });
   const [error, setError] = useState<string | null>(null);

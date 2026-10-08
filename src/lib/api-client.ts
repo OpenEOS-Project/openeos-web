@@ -890,6 +890,17 @@ export const ordersApi = {
 
   cancel: (organizationId: string, orderId: string, data?: import('@/types/order').CancelOrderData) =>
     apiClient.post<ApiResponse<import('@/types/order').Order>>(`/organizations/${organizationId}/orders/${orderId}/cancel`, data || {}),
+
+  /** Detail wie in der Kasse: Positionen, Zahlungen, Erstattungen, Verlauf. */
+  history: (organizationId: string, orderId: string) =>
+    apiClient.get<ApiResponse<import('@/types/order-history').OrderDetail>>(
+      `/organizations/${organizationId}/orders/${orderId}/history`
+    ),
+
+  reprintRefund: (organizationId: string, orderId: string, refundId: string) =>
+    apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
+      `/organizations/${organizationId}/orders/${orderId}/refunds/${refundId}/reprint`
+    ),
 };
 
 // Payments API
@@ -1420,11 +1431,62 @@ export const deviceApi = {
     );
   },
 
-  // Cancel order
-  cancelOrder: (orderId: string, reason?: string) =>
+  /** Bestellverlauf: Filter, Zähler je Status und Seiten serverseitig. */
+  getOrderHistory: (params: import('@/types/order-history').OrderHistoryParams) => {
+    const searchParams = new URLSearchParams();
+    if (params.eventId) searchParams.set('eventId', params.eventId);
+    if (params.q) searchParams.set('q', params.q);
+    if (params.displayStatus?.length) searchParams.set('displayStatus', params.displayStatus.join(','));
+    if (params.paymentMethod?.length) searchParams.set('paymentMethod', params.paymentMethod.join(','));
+    if (params.scope) searchParams.set('scope', params.scope);
+    if (params.from) searchParams.set('from', params.from);
+    if (params.to) searchParams.set('to', params.to);
+    if (params.cursor) searchParams.set('cursor', params.cursor);
+    if (params.limit) searchParams.set('limit', String(params.limit));
+    const qs = searchParams.toString();
+    return apiClient.get<import('@/types/order-history').OrderHistoryPage>(
+      `/device-api/orders${qs ? `?${qs}` : ''}`,
+      { useDeviceAuth: true }
+    );
+  },
+
+  getOrderDetail: (orderId: string) =>
+    apiClient.get<ApiResponse<import('@/types/order-history').OrderDetail>>(`/device-api/orders/${orderId}`, {
+      useDeviceAuth: true,
+    }),
+
+  cancelOrderItems: (orderId: string, data: import('@/types/order-history').CancelItemsData) =>
+    apiClient.post<ApiResponse<import('@/types/order-history').OrderDetail>>(
+      `/device-api/orders/${orderId}/cancel-items`,
+      data,
+      { useDeviceAuth: true }
+    ),
+
+  createRefund: (orderId: string, data: import('@/types/order-history').CreateRefundData) =>
+    apiClient.post<ApiResponse<import('@/types/order-history').RefundResult>>(
+      `/device-api/orders/${orderId}/refunds`,
+      data,
+      { useDeviceAuth: true }
+    ),
+
+  reprintRefund: (orderId: string, refundId: string) =>
+    apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
+      `/device-api/orders/${orderId}/refunds/${refundId}/reprint`,
+      {},
+      { useDeviceAuth: true }
+    ),
+
+  // Cancel order (only unpaid; paid orders need a refund)
+  cancelOrder: (
+    orderId: string,
+    reason?: string,
+    actor?: import('@/types/order-history').DeviceActor & {
+      reasonCode?: import('@/types/order-history').RefundReasonCode;
+    }
+  ) =>
     apiClient.post<ApiResponse<import('@/types/order').Order>>(
       `/device-api/orders/${orderId}/cancel`,
-      { reason },
+      { reason, ...actor },
       { useDeviceAuth: true }
     ),
 

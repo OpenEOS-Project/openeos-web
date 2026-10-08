@@ -4,6 +4,7 @@
 .device-settings{display:flex;flex-direction:column;gap:20px}
 .device-settings__stack{display:flex;flex-direction:column;gap:16px}
 .device-settings__row{display:flex;flex-direction:column;gap:6px}
+.device-settings__label{font-size:14px;font-weight:600;color:var(--ink)}
 .device-settings__hint{margin:0;font-size:12px;line-height:1.45;color:color-mix(in oklab,var(--ink) 55%,transparent)}
 .device-settings__link{color:var(--green-ink);font-weight:600}
 .device-settings__dependent{margin:4px 0 0 4px;padding:12px 0 4px 16px;border-left:2px solid color-mix(in oklab,var(--green-ink) 45%,transparent);display:flex;flex-direction:column;gap:12px}
