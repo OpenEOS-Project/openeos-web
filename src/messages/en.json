@@ -2541,8 +2541,14 @@
       "orders": "{count, plural, one {# order} other {# orders}}",
       "items": "{count, plural, one {# item} other {# items}}",
       "pickup": "Pickup",
+      "service": "Table service",
+      "togo": "To go",
       "priorityRush": "Rush",
-      "priorityHigh": "High"
+      "priorityHigh": "High",
+      "done": "Done",
+      "markReadyError": "Item not marked as ready",
+      "markReadyErrorHint": "Please try again.",
+      "dismiss": "Dismiss notice"
     }
   },
   "devices": {
