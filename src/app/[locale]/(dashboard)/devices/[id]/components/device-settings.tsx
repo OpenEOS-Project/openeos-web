@@ -1,26 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi, sumupApi } from '@/lib/api-client';
 import { toast } from '@/components/shared/toast';
-import type { Device, DeviceClass, DisplayMode, ServiceMode } from '@/types/device';
+import type { Device, DeviceClass, DisplayMode, ServiceMode, TableSelectView } from '@/types/device';
+import type { TableArea } from '@/types/table';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { useProductionStations } from '@/hooks/use-production-stations';
 import { useActiveEvent } from '@/hooks/use-events';
 import { useTableAreas } from '@/hooks/use-tables';
 import { Link } from '@/i18n/routing';
+import '@/styles/device-settings.css';
 
 interface DeviceSettingsProps {
   device: Device;
   organizationId: string;
 }
 
-function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function SectionCard({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
-    <div className="app-card">
+    <section className="app-card">
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{title}</h2>
@@ -28,20 +30,43 @@ function SectionCard({ title, description, children }: { title: string; descript
         </div>
       </div>
       <div className="app-card__body">
-        {children}
+        <div className="device-settings__stack">{children}</div>
       </div>
+    </section>
+  );
+}
+
+function FormRow({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="device-settings__row">
+      <label className="auth-field">
+        <span>{label}</span>
+        {children}
+      </label>
+      {hint && <p className="device-settings__hint">{hint}</p>}
     </div>
   );
 }
 
-function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
+/**
+ * Einstellungen, die nur in einer bestimmten Wahl gelten (z. B. Station nur
+ * bei der Stationsanzeige), stehen direkt darunter, eingerückt und mit
+ * eigener Überschrift — nicht irgendwo weiter unten.
+ */
+function Dependent({ title, text, children }: { title: string; text?: string; children: ReactNode }) {
   return (
-        <label className="auth-field">
-      <span>{label}</span>
-      {children}
-    </label>
+    <div className="device-settings__dependent" role="group" aria-label={title}>
+      <p className="device-settings__dependent-title">{title}</p>
+      {text && <p className="device-settings__hint">{text}</p>}
+      <div className="device-settings__stack">{children}</div>
+    </div>
   );
 }
+
+/** Hat ein Bereich einen Tischplan (nicht alle Tische auf 0/0)? Wie die Kasse. */
+const hasFloorLayout = (area: TableArea) => area.tables.some((table) => table.isActive && (table.x !== 0 || table.y !== 0));
+
+const TABLE_SELECT_VIEWS: TableSelectView[] = ['number', 'list', 'map'];
 
 export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) {
   const t = useTranslations();
@@ -56,12 +81,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
   const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
   const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'customer');
-  /* Welche Station dieser Bildschirm zeigt. Die Anzeige liest den Wert
-     seit jeher, gesetzt werden konnte er nirgends — der Bildschirm bat
-     um eine Zuweisung, die es in der Oberflaeche nicht gab. */
-  const [stationId, setStationId] = useState<string>(
-    (device.settings?.stationId as string | undefined) || '',
-  );
+  /* Welche Station dieser Bildschirm zeigt (`settings.stationId`). */
+  const [stationId, setStationId] = useState<string>((device.settings?.stationId as string | undefined) || '');
 
   /* Stationen gehoeren zur laufenden Veranstaltung — eine Kuechenanzeige
      ohne aktives Event hat nichts anzuzeigen. */
@@ -71,6 +92,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   /* Standardbereich der Kasse im Tischbetrieb: Tischliste und Karte
      öffnen zuerst diesen Bereich. Leer heißt erster freigegebener. */
   const [tableAreaId, setTableAreaId] = useState(device.settings?.tableAreaId || '');
+  /* Tischwahl an der Kasse (Nummer / Liste / Karte); leer = automatisch. */
+  const [tableSelectView, setTableSelectView] = useState<TableSelectView | ''>(device.settings?.tableSelectView || '');
   const { data: tableAreas = [] } = useTableAreas(type === 'pos' ? organizationId : '');
   /* Aussehen der Anzeige. Leere Zeichenkette heisst "nichts eigenes
      gesetzt" — dann greift die Vorgabe der Anzeige selbst. */
@@ -79,9 +102,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [headline, setHeadline] = useState(device.settings?.display?.headline ?? '');
   const [showLogo, setShowLogo] = useState(device.settings?.display?.showLogo ?? true);
   const [idleText, setIdleText] = useState(device.settings?.display?.idleText ?? '');
-  const [autoClearSeconds, setAutoClearSeconds] = useState(
-    String(device.settings?.display?.autoClearSeconds ?? 0),
-  );
+  const [autoClearSeconds, setAutoClearSeconds] = useState(String(device.settings?.display?.autoClearSeconds ?? 0));
 
   useEffect(() => {
     setName(device.name);
@@ -90,8 +111,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     setRequirePin(device.settings?.requirePin ?? false);
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
     setDisplayMode(device.settings?.displayMode || 'customer');
+    setStationId((device.settings?.stationId as string | undefined) || '');
     setPosDeviceId(device.settings?.posDeviceId || '');
     setTableAreaId(device.settings?.tableAreaId || '');
+    setTableSelectView(device.settings?.tableSelectView || '');
     setTheme(device.settings?.display?.theme ?? 'dark');
     setScale(device.settings?.display?.scale ?? 'normal');
     setHeadline(device.settings?.display?.headline ?? '');
@@ -124,6 +147,13 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     (d) => d.type === 'pos' && d.status === 'verified' && d.id !== device.id,
   );
 
+  /* Tischbetrieb der aktiven Veranstaltung: bestimmt, welche Tischwahl
+     sinnvoll ist. Ohne Angabe gilt wie in der Kasse „frei“. */
+  const eventTableMode = aktivesEvent ? (aktivesEvent.settings?.tables?.mode ?? 'free') : null;
+  const anyMap = tableAreas.some(hasFloorLayout);
+  const defaultArea = tableAreas.find((area) => area.id === tableAreaId);
+  const autoView: TableSelectView = defaultArea && hasFloorLayout(defaultArea) ? 'map' : 'list';
+
   const updateMutation = useMutation({
     mutationFn: () =>
       devicesApi.update(organizationId, device.id, {
@@ -134,19 +164,16 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           serviceMode: type === 'pos' ? serviceMode : device.settings?.serviceMode,
           printerMode: device.settings?.printerMode,
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
-          sumupReaderId: type === 'pos' ? (sumupReaderId || undefined) : device.settings?.sumupReaderId,
+          sumupReaderId: type === 'pos' ? sumupReaderId || undefined : device.settings?.sumupReaderId,
           // null löscht den Wert (die API führt Einstellungen zusammen).
           tableAreaId:
             type === 'pos' && serviceMode === 'table' ? tableAreaId || null : device.settings?.tableAreaId,
+          tableSelectView:
+            type === 'pos' && serviceMode === 'table' ? tableSelectView || null : device.settings?.tableSelectView,
           displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
-          stationId:
-            type === 'display' && displayMode === 'station'
-              ? stationId || undefined
-              : device.settings?.stationId,
+          stationId: type === 'display' && displayMode === 'station' ? stationId || undefined : device.settings?.stationId,
           posDeviceId:
-            type === 'display' && displayMode === 'customer'
-              ? (posDeviceId || undefined)
-              : device.settings?.posDeviceId,
+            type === 'display' && displayMode === 'customer' ? posDeviceId || undefined : device.settings?.posDeviceId,
           display:
             type === 'display'
               ? {
@@ -175,261 +202,269 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
      schickte das Geraet in dieselbe Ansicht wie eine Kasse. Aus dem
      Kopplungsdialog ist er schon draussen; hier stand er noch. */
   const typeOptions: DeviceClass[] = ['pos', 'display'];
+  const s = (key: string, values?: Record<string, string | number>) => t(`devices.detail.settings.${key}`, values);
+
+  /* ---------- Kasse: Tische (hängt am Betriebsmodus „Bedienung“) ---------- */
+
+  const tablesBlock = (
+    <Dependent title={s('tables.title')} text={s('tables.description')}>
+      <FormRow
+        label={s('tableArea')}
+        hint={
+          tableAreas.length === 0 ? (
+            <>
+              {s('tableAreaEmpty')}{' '}
+              <Link href="/tables" className="device-settings__link">
+                {s('tableAreaManage')}
+              </Link>
+            </>
+          ) : (
+            s('tableAreaHint')
+          )
+        }
+      >
+        <select
+          className="select"
+          value={tableAreaId}
+          onChange={(e) => setTableAreaId(e.target.value)}
+          disabled={tableAreas.length === 0}
+        >
+          <option value="">{s('tableAreaNone')}</option>
+          {tableAreas.map((area) => (
+            <option key={area.id} value={area.id}>
+              {area.name}
+            </option>
+          ))}
+          {/* Gelöschter Bereich: Wert sichtbar lassen statt still zu ändern. */}
+          {tableAreaId && !tableAreas.some((area) => area.id === tableAreaId) && tableAreas.length > 0 && (
+            <option value={tableAreaId}>{s('tableAreaMissing')}</option>
+          )}
+        </select>
+      </FormRow>
+
+      <FormRow
+        label={s('tableSelectView.label')}
+        hint={
+          <>
+            {eventTableMode === 'free'
+              ? s('tableSelectView.hintFree')
+              : eventTableMode === 'none'
+                ? s('tableSelectView.hintNone')
+                : s('tableSelectView.hint')}
+            {!anyMap && (
+              <>
+                {' '}
+                {s('tableSelectView.noMap')}{' '}
+                <Link href="/tables" className="device-settings__link">
+                  {s('tableAreaManage')}
+                </Link>
+              </>
+            )}
+          </>
+        }
+      >
+        <select
+          className="select"
+          value={tableSelectView}
+          onChange={(e) => setTableSelectView(e.target.value as TableSelectView | '')}
+        >
+          <option value="">{s('tableSelectView.auto', { view: s(`tableSelectView.${autoView}`) })}</option>
+          {TABLE_SELECT_VIEWS.map((view) => (
+            <option key={view} value={view} disabled={view === 'map' && !anyMap && tableSelectView !== 'map'}>
+              {s(`tableSelectView.${view}`)}
+            </option>
+          ))}
+        </select>
+      </FormRow>
+    </Dependent>
+  );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard
-        title={t('devices.detail.settings.basic.title')}
-        description={t('devices.detail.settings.basic.description')}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <FormRow label={t('devices.edit.name')}>
-            <input
-              className="input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('devices.edit.namePlaceholder')}
-            />
-          </FormRow>
+    <div className="device-settings">
+      <SectionCard title={s('basic.title')} description={s('basic.descriptionGeneral')}>
+        <FormRow label={t('devices.edit.name')}>
+          <input
+            className="input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t('devices.edit.namePlaceholder')}
+          />
+        </FormRow>
 
-          <FormRow label={t('devices.edit.type')}>
-            <select className="select" value={type} onChange={(e) => setType(e.target.value as DeviceClass)}>
-              {typeOptions.map((opt) => (
-                <option key={opt} value={opt}>{t(`devices.class.${opt}`)}</option>
-              ))}
-            </select>
-          </FormRow>
-
-          {type === 'pos' && sumupConfigured && (
-            <FormRow label={t('devices.edit.sumupReader')}>
-              <select className="select" value={sumupReaderId} onChange={(e) => setSumupReaderId(e.target.value)}>
-                <option value="">{t('devices.edit.sumupReaderNone')}</option>
-                {(readersQuery.data || []).map((reader) => (
-                  <option key={reader.id} value={reader.id}>{reader.name}</option>
-                ))}
-              </select>
-            </FormRow>
-          )}
-
-          {type === 'pos' && !sumupConfigured && (
-            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-              {t('devices.edit.sumupNotConfigured')}
-            </p>
-          )}
-        </div>
+        <FormRow label={t('devices.edit.type')} hint={s('basic.typeHint')}>
+          <select className="select" value={type} onChange={(e) => setType(e.target.value as DeviceClass)}>
+            {typeOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {t(`devices.class.${opt}`)}
+              </option>
+            ))}
+          </select>
+        </FormRow>
       </SectionCard>
 
-      {type === 'display' && (
-        <SectionCard
-          title={t('devices.detail.settings.display.title')}
-          description={t('devices.detail.settings.display.description')}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormRow label={t('devices.detail.settings.display.mode')}>
-              <select
-                className="select"
-                value={displayMode}
-                onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}
-              >
-                <option value="customer">{t('devices.detail.settings.display.modeCustomer')}</option>
-                <option value="station">{t('devices.detail.settings.display.modeStation')}</option>
-              </select>
-            </FormRow>
+      {/* ---------- Kasse ---------- */}
 
-            {displayMode === 'customer' && (
-              <FormRow label={t('devices.detail.settings.display.posDevice')}>
-                <select
-                  className="select"
-                  value={posDeviceId}
-                  onChange={(e) => setPosDeviceId(e.target.value)}
-                >
-                  <option value="">{t('devices.detail.settings.display.posDeviceNone')}</option>
-                  {posDevices.map((pos) => (
-                    <option key={pos.id} value={pos.id}>{pos.name}</option>
-                  ))}
-                </select>
-              </FormRow>
-            )}
-
-            {displayMode === 'customer' && (
-              <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                {t('devices.detail.settings.display.posDeviceHint')}
-              </p>
-            )}
+      {type === 'pos' && (
+        <SectionCard title={s('serviceMode.title')} description={s('serviceMode.description')}>
+          <div className="device-settings__choices" role="radiogroup" aria-label={s('serviceMode.title')}>
+            {(['table', 'counter'] as ServiceMode[]).map((mode) => (
+              <div key={mode} className="device-settings__choice-wrap">
+                <label className="device-settings__choice">
+                  <input
+                    type="radio"
+                    name="serviceMode"
+                    value={mode}
+                    checked={serviceMode === mode}
+                    onChange={() => setServiceMode(mode)}
+                  />
+                  <span>
+                    <b>{s(`serviceMode.${mode}`)}</b>
+                    <small>{s(`serviceMode.${mode}Description`)}</small>
+                  </span>
+                </label>
+                {mode === 'table' && serviceMode === 'table' && tablesBlock}
+              </div>
+            ))}
           </div>
         </SectionCard>
       )}
 
+      {type === 'pos' && (
+        <SectionCard title={s('payment.title')} description={s('payment.description')}>
+          {sumupConfigured ? (
+            <FormRow label={t('devices.edit.sumupReader')}>
+              <select className="select" value={sumupReaderId} onChange={(e) => setSumupReaderId(e.target.value)}>
+                <option value="">{t('devices.edit.sumupReaderNone')}</option>
+                {(readersQuery.data || []).map((reader) => (
+                  <option key={reader.id} value={reader.id}>
+                    {reader.name}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+          ) : (
+            <p className="device-settings__hint">{t('devices.edit.sumupNotConfigured')}</p>
+          )}
+        </SectionCard>
+      )}
+
+      {type === 'pos' && (
+        <SectionCard title={s('auth.title')} description={s('auth.description')}>
+          <SettingToggle
+            label={s('auth.requirePin')}
+            hint={s('auth.requirePinDescription')}
+            checked={requirePin}
+            onChange={setRequirePin}
+          />
+          <p className="device-settings__hint">{s('auth.pinManagedPerMember')}</p>
+        </SectionCard>
+      )}
+
+      {/* ---------- Anzeige ---------- */}
+
       {type === 'display' && (
-        <SectionCard
-          title={t('devices.detail.settings.appearance.title')}
-          description={t('devices.detail.settings.appearance.description')}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormRow label={t('devices.detail.settings.appearance.theme')}>
-              <select className="select" value={theme} onChange={(e) => setTheme(e.target.value as typeof theme)}>
-                <option value="dark">{t('devices.detail.settings.appearance.themeDark')}</option>
-                <option value="light">{t('devices.detail.settings.appearance.themeLight')}</option>
-                <option value="auto">{t('devices.detail.settings.appearance.themeAuto')}</option>
-              </select>
-            </FormRow>
+        <SectionCard title={s('display.title')} description={s('display.description')}>
+          <FormRow label={s('display.mode')}>
+            <select className="select" value={displayMode} onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}>
+              <option value="customer">{s('display.modeCustomer')}</option>
+              <option value="station">{s('display.modeStation')}</option>
+            </select>
+          </FormRow>
 
-            <FormRow label={t('devices.detail.settings.appearance.scale')}>
-              <select className="select" value={scale} onChange={(e) => setScale(e.target.value as typeof scale)}>
-                <option value="normal">{t('devices.detail.settings.appearance.scaleNormal')}</option>
-                <option value="large">{t('devices.detail.settings.appearance.scaleLarge')}</option>
-              </select>
-            </FormRow>
+          {displayMode === 'customer' && (
+            <Dependent title={s('display.customerTitle')} text={s('display.posDeviceHint')}>
+              <FormRow label={s('display.posDevice')}>
+                <select className="select" value={posDeviceId} onChange={(e) => setPosDeviceId(e.target.value)}>
+                  <option value="">{s('display.posDeviceNone')}</option>
+                  {posDevices.map((pos) => (
+                    <option key={pos.id} value={pos.id}>
+                      {pos.name}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </Dependent>
+          )}
 
-            <FormRow label={t('devices.detail.settings.appearance.headline')}>
-              <input
-                className="input"
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder={t('devices.detail.settings.appearance.headlinePlaceholder')}
-              />
-            </FormRow>
-
-            <FormRow label={t('devices.detail.settings.appearance.idleText')}>
-              <input
-                className="input"
-                value={idleText}
-                onChange={(e) => setIdleText(e.target.value)}
-                placeholder={t('devices.detail.settings.appearance.idleTextPlaceholder')}
-              />
-            </FormRow>
-
-            {displayMode === 'station' && (
-              <FormRow label={t('devices.detail.settings.display.station')}>
-                <select
-                  className="select"
-                  value={stationId}
-                  onChange={(e) => setStationId(e.target.value)}
-                >
-                  <option value="">{t('devices.detail.settings.display.stationNone')}</option>
+          {displayMode === 'station' && (
+            <Dependent title={s('display.stationTitle')} text={s('display.stationHint')}>
+              <FormRow
+                label={s('display.station')}
+                hint={!aktivesEvent ? s('display.stationNoEvent') : stationen.length === 0 ? s('display.stationEmpty') : undefined}
+              >
+                <select className="select" value={stationId} onChange={(e) => setStationId(e.target.value)}>
+                  <option value="">{s('display.stationNone')}</option>
                   {stationen.map((station) => (
                     <option key={station.id} value={station.id}>
                       {station.name}
                     </option>
                   ))}
+                  {stationId && !stationen.some((station) => station.id === stationId) && (
+                    <option value={stationId}>{s('display.stationOther')}</option>
+                  )}
                 </select>
               </FormRow>
-            )}
-
-            {displayMode === 'station' && (
-              <FormRow label={t('devices.detail.settings.appearance.autoClear')}>
-                <select
-                  className="select"
-                  value={autoClearSeconds}
-                  onChange={(e) => setAutoClearSeconds(e.target.value)}
-                >
-                  <option value="0">{t('devices.detail.settings.appearance.autoClearOff')}</option>
+              <FormRow label={s('appearance.autoClear')} hint={s('appearance.autoClearHint')}>
+                <select className="select" value={autoClearSeconds} onChange={(e) => setAutoClearSeconds(e.target.value)}>
+                  <option value="0">{s('appearance.autoClearOff')}</option>
                   {[10, 30, 60].map((seconds) => (
                     <option key={seconds} value={String(seconds)}>
-                      {t('devices.detail.settings.appearance.autoClearSeconds', { seconds })}
+                      {s('appearance.autoClearSeconds', { seconds })}
                     </option>
                   ))}
                 </select>
               </FormRow>
-            )}
+            </Dependent>
+          )}
+        </SectionCard>
+      )}
 
-            <SettingToggle
-              label={t('devices.detail.settings.appearance.showLogo')}
-              hint={t('devices.detail.settings.appearance.showLogoHint')}
-              checked={showLogo}
-              onChange={setShowLogo}
+      {type === 'display' && (
+        <SectionCard title={s('appearance.title')} description={s('appearance.description')}>
+          <FormRow label={s('appearance.theme')}>
+            <select className="select" value={theme} onChange={(e) => setTheme(e.target.value as typeof theme)}>
+              <option value="dark">{s('appearance.themeDark')}</option>
+              <option value="light">{s('appearance.themeLight')}</option>
+              <option value="auto">{s('appearance.themeAuto')}</option>
+            </select>
+          </FormRow>
+
+          <FormRow label={s('appearance.scale')}>
+            <select className="select" value={scale} onChange={(e) => setScale(e.target.value as typeof scale)}>
+              <option value="normal">{s('appearance.scaleNormal')}</option>
+              <option value="large">{s('appearance.scaleLarge')}</option>
+            </select>
+          </FormRow>
+
+          <FormRow label={s('appearance.headline')}>
+            <input
+              className="input"
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              placeholder={s('appearance.headlinePlaceholder')}
             />
-          </div>
-        </SectionCard>
-      )}
+          </FormRow>
 
-      {type === 'pos' && (
-        <SectionCard
-          title={t('devices.detail.settings.serviceMode.title')}
-          description={t('devices.detail.settings.serviceMode.description')}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {(['table', 'counter'] as ServiceMode[]).map((mode) => (
-              <label key={mode} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="serviceMode"
-                  value={mode}
-                  checked={serviceMode === mode}
-                  onChange={() => setServiceMode(mode)}
-                  style={{ marginTop: 2, flexShrink: 0, accentColor: 'var(--green-ink)' }}
-                />
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
-                    {t(`devices.detail.settings.serviceMode.${mode}`)}
-                  </p>
-                  <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: '2px 0 0' }}>
-                    {t(`devices.detail.settings.serviceMode.${mode}Description`)}
-                  </p>
-                </div>
-              </label>
-            ))}
+          <FormRow label={s('appearance.idleText')}>
+            <input
+              className="input"
+              value={idleText}
+              onChange={(e) => setIdleText(e.target.value)}
+              placeholder={s('appearance.idleTextPlaceholder')}
+            />
+          </FormRow>
 
-            {serviceMode === 'table' && (
-              <div style={{ marginTop: 8 }}>
-                <FormRow label={t('devices.detail.settings.tableArea')}>
-                  <select
-                    className="select"
-                    value={tableAreaId}
-                    onChange={(e) => setTableAreaId(e.target.value)}
-                    disabled={tableAreas.length === 0}
-                  >
-                    <option value="">{t('devices.detail.settings.tableAreaNone')}</option>
-                    {tableAreas.map((area) => (
-                      <option key={area.id} value={area.id}>{area.name}</option>
-                    ))}
-                    {/* Gelöschter Bereich: Wert sichtbar lassen statt still zu ändern. */}
-                    {tableAreaId && !tableAreas.some((area) => area.id === tableAreaId) && tableAreas.length > 0 && (
-                      <option value={tableAreaId}>{t('devices.detail.settings.tableAreaMissing')}</option>
-                    )}
-                  </select>
-                </FormRow>
-                <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '6px 0 0' }}>
-                  {tableAreas.length === 0 ? (
-                    <>
-                      {t('devices.detail.settings.tableAreaEmpty')}{' '}
-                      <Link href="/tables" style={{ color: 'var(--green-ink)', fontWeight: 600 }}>
-                        {t('devices.detail.settings.tableAreaManage')}
-                      </Link>
-                    </>
-                  ) : (
-                    t('devices.detail.settings.tableAreaHint')
-                  )}
-                </p>
-              </div>
-            )}
-          </div>
-        </SectionCard>
-      )}
-
-      {type === 'pos' && (
-        <SectionCard
-          title={t('devices.detail.settings.auth.title')}
-          description={t('devices.detail.settings.auth.description')}
-        >
           <SettingToggle
-            label={t('devices.detail.settings.auth.requirePin')}
-            hint={t('devices.detail.settings.auth.requirePinDescription')}
-            checked={requirePin}
-            onChange={setRequirePin}
+            label={s('appearance.showLogo')}
+            hint={s('appearance.showLogoHint')}
+            checked={showLogo}
+            onChange={setShowLogo}
           />
-          <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', marginTop: 12 }}>
-            {t('devices.detail.settings.auth.pinManagedPerMember')}
-          </p>
         </SectionCard>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
-        <button
-          className="btn btn--primary"
-          onClick={() => updateMutation.mutate()}
-          disabled={updateMutation.isPending}
-        >
+      <div className="device-settings__actions">
+        <button className="btn btn--primary" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
           {updateMutation.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>

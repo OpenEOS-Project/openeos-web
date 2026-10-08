@@ -5,7 +5,11 @@ import { Icon } from '@openeos/ui';
 import { useQuery } from '@tanstack/react-query';
 import { devicesApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useActiveEvent } from '@/hooks/use-events';
+import { useProductionStations } from '@/hooks/use-production-stations';
+import { useTableAreas } from '@/hooks/use-tables';
 import type { Device } from '@/types/device';
+import '@/styles/device-settings.css';
 
 interface DeviceOverviewProps {
   device: Device;
@@ -41,7 +45,17 @@ function formatRelativeTime(dateStr: string | null | undefined, locale: string):
   return rtf.format(-tage, 'day');
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+function StatCard({
+  label,
+  value,
+  sub,
+  children,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+  children?: React.ReactNode;
+}) {
   return (
     <div className="app-card" style={{ padding: '20px 24px' }}>
       <p style={{ fontSize: 12, fontWeight: 600, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>
@@ -55,6 +69,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
           {sub}
         </p>
       )}
+      {children}
     </div>
   );
 }
@@ -89,10 +104,42 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
     enabled: !!organizationId && device.type === 'display',
   });
 
-  const verknuepftMit =
-    device.settings?.displayMode === 'station'
-      ? null
-      : (geschwisterData?.data ?? []).find((d) => d.id === device.settings?.posDeviceId)?.name ?? null;
+  /* Stationsanzeige: die zugewiesene Station (`settings.stationId`, wie in
+     den Einstellungen) — Stationen gehoeren zur aktiven Veranstaltung. */
+  const isStation = device.type === 'display' && device.settings?.displayMode === 'station';
+  const stationId = (device.settings?.stationId as string | undefined) || '';
+  const { data: aktivesEvent } = useActiveEvent(isStation ? organizationId : '');
+  const { data: stationen = [] } = useProductionStations(isStation && stationId ? (aktivesEvent?.id ?? '') : '');
+
+  let verknuepftMit: string | null = null;
+  if (isStation) {
+    verknuepftMit = stationId
+      ? (stationen.find((st) => st.id === stationId)?.name ?? t('devices.detail.stats.linkedStationUnknown'))
+      : null;
+  } else if (device.type === 'display') {
+    const posId = device.settings?.posDeviceId;
+    verknuepftMit = posId
+      ? ((geschwisterData?.data ?? []).find((d) => d.id === posId)?.name ?? t('devices.detail.stats.linkedPosUnknown'))
+      : null;
+  }
+
+  /* Kasse: Betriebsmodus und Tische (Standardbereich, Tischwahl). */
+  const isPos = device.type === 'pos';
+  const tableService = isPos && (device.settings?.serviceMode ?? 'table') === 'table';
+  const areaId = device.settings?.tableAreaId ?? null;
+  const { data: areas = [] } = useTableAreas(tableService && areaId ? organizationId : '');
+  const areaName = areaId ? (areas.find((a) => a.id === areaId)?.name ?? null) : null;
+  const selectView = device.settings?.tableSelectView;
+  const posSub = tableService
+    ? [
+        areaName ? t('devices.detail.stats.posArea', { area: areaName }) : t('devices.detail.stats.posAreaNone'),
+        selectView
+          ? t('devices.detail.stats.posView', {
+              view: t(`devices.detail.settings.tableSelectView.${selectView}`),
+            })
+          : t('devices.detail.stats.posViewAuto'),
+      ].join(' · ')
+    : undefined;
 
   const copyDeviceId = async () => {
     try {
@@ -131,12 +178,25 @@ export function DeviceOverview({ device, organizationId }: DeviceOverviewProps) 
               }
             />
             <StatCard
-              label={t('devices.detail.stats.linkedTo')}
+              label={isStation ? t('devices.detail.stats.linkedStation') : t('devices.detail.stats.linkedTo')}
               value={verknuepftMit ?? t('devices.detail.stats.linkedToNone')}
-            />
+            >
+              {!verknuepftMit && (
+                /* Volle Navigation: der Reiter liest ?tab= beim Laden. */
+                <a className="device-overview__link" href="?tab=settings">
+                  {t('devices.detail.stats.linkedToSet')}
+                  <Icon name="arrow-right" size={12} />
+                </a>
+              )}
+            </StatCard>
           </>
         ) : (
           <>
+            <StatCard
+              label={t('devices.detail.stats.posMode')}
+              value={t(`devices.detail.settings.serviceMode.${tableService ? 'table' : 'counter'}`)}
+              sub={posSub}
+            />
             <StatCard label={t('devices.detail.stats.orders')} value={stats?.ordersCount ?? 0} />
             <StatCard label={t('devices.detail.stats.payments')} value={stats?.paymentsCount ?? 0} />
             <StatCard label={t('devices.detail.stats.revenue')} value={formatCurrency(stats?.revenueTotal ?? 0)} />

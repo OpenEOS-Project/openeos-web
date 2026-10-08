@@ -2362,7 +2362,11 @@
       "subtitle": "Tap a table on the map.",
       "swipeHint": "Swipe to move the map",
       "viewMap": "Map",
-      "waitingTitle": "Waiting for service"
+      "waitingTitle": "Waiting for service",
+      "zoneBar": "Bar",
+      "zoneBlocked": "Blocked",
+      "zoneKitchen": "Kitchen",
+      "zoneOther": "Other"
     }
   },
   "orders": {
@@ -2677,7 +2681,16 @@
         "status": "Status",
         "mode": "Display kind",
         "linkedTo": "Linked to",
-        "linkedToNone": "not assigned"
+        "linkedToNone": "not assigned",
+        "linkedStation": "Station",
+        "linkedStationUnknown": "Station not in the active event",
+        "linkedPosUnknown": "POS not found",
+        "linkedToSet": "Set it in the settings",
+        "posMode": "Operation",
+        "posArea": "Area {area}",
+        "posAreaNone": "No default area",
+        "posView": "Table selection: {view}",
+        "posViewAuto": "Table selection: automatic"
       },
       "info": {
         "title": "Device Details",
@@ -2693,19 +2706,21 @@
       },
       "settings": {
         "basic": {
-          "title": "Basic Settings",
-          "description": "Name, type and display mode of the device"
+          "title": "General",
+          "description": "Name, type and display mode of the device",
+          "descriptionGeneral": "Name and device type",
+          "typeHint": "The type decides which settings appear below."
         },
         "serviceMode": {
-          "title": "Service Mode",
-          "description": "Define how the device is used in point of sale operations",
+          "title": "Operation",
+          "description": "How the POS books: with tables (table service) or directly at the counter.",
           "table": "Table Service",
-          "tableDescription": "Table number is requested before each order",
+          "tableDescription": "A table is chosen before each order (or \"Without table\").",
           "counter": "Counter",
           "counterDescription": "No table prompt, ideal for counter service"
         },
         "auth": {
-          "title": "Authentication",
+          "title": "Security (PIN)",
           "description": "Security settings for the device",
           "requirePin": "Require PIN",
           "requirePinDescription": "Users must authenticate with a PIN at the device",
@@ -2717,7 +2732,7 @@
           "none": "No station selected"
         },
         "display": {
-          "title": "Display Settings",
+          "title": "Display",
           "description": "Configure what this display shows.",
           "mode": "Display mode",
           "modeCustomer": "Customer display (live cart of a POS)",
@@ -2726,7 +2741,13 @@
           "posDeviceNone": "No POS selected",
           "posDeviceHint": "The display mirrors the selected POS device's cart in real time.",
           "station": "Station",
-          "stationNone": "No station selected"
+          "stationNone": "No station selected",
+          "customerTitle": "Customer display",
+          "stationTitle": "Station display",
+          "stationHint": "The display shows the orders of this station in the active event.",
+          "stationNoEvent": "No active event: stations belong to an event.",
+          "stationEmpty": "The active event has no stations yet.",
+          "stationOther": "Station of another event"
         },
         "appearance": {
           "title": "Appearance & content",
@@ -2746,14 +2767,34 @@
           "autoClearOff": "Keep on screen",
           "showLogo": "Show logo",
           "showLogoHint": "Displays the organization logo in the header.",
-          "autoClearSeconds": "{seconds, plural, =1 {# second} other {# seconds}}"
+          "autoClearSeconds": "{seconds, plural, =1 {# second} other {# seconds}}",
+          "autoClearHint": "Completed orders disappear from the display after this time."
         },
         "tableArea": "Default area",
         "tableAreaEmpty": "No areas created yet.",
         "tableAreaHint": "The POS opens this area first, in the table list and on the floor plan.",
         "tableAreaManage": "Manage tables",
         "tableAreaMissing": "Deleted area",
-        "tableAreaNone": "No default area"
+        "tableAreaNone": "No default area",
+        "tables": {
+          "title": "Tables",
+          "description": "Only applies to table service."
+        },
+        "tableSelectView": {
+          "label": "Table selection on the POS",
+          "auto": "Automatic ({view})",
+          "number": "Enter number",
+          "list": "List",
+          "map": "Map",
+          "hint": "When opening a table and in the \"Choose table\" sheet, the POS shows exactly this view, without a switch. Automatic: map if the default area has a floor plan, otherwise list.",
+          "hintFree": "The active event uses free table numbers: there the POS always shows the keypad. The choice applies to events with predefined tables.",
+          "hintNone": "The active event does not use tables. The choice applies as soon as an event uses predefined tables.",
+          "noMap": "\"Map\" becomes available once an area has a floor plan."
+        },
+        "payment": {
+          "title": "Payment",
+          "description": "Card payments via a SumUp reader."
+        }
       },
       "printer": {
         "defaultPrinter": {
@@ -4341,6 +4382,7 @@
       "empty": "There are no tables in this area yet. Add single tables or a whole series.",
       "hint": "Drag to move, use the handle at the bottom right to resize. Keyboard: arrows move 1 grid step (5 with Shift), Delete removes, Ctrl+D duplicates, Esc clears the selection.",
       "inactive": "inactive",
+      "issues": "{count, plural, one {Table {labels} is} other {Tables {labels} are}} outside the room shape or in a blocked area. The POS still offers {count, plural, one {it} other {them}}.",
       "label": "Floor plan {name}",
       "mobileHint": "Edit the map on a tablet or computer. Here it is view only.",
       "previewLabel": "Floor plan preview {name}",
@@ -4356,10 +4398,17 @@
       "degrees": "{value}°",
       "delete": "Delete",
       "duplicate": "Duplicate",
-      "empty": "Select a table or a decor element on the map to edit it.",
+      "empty": "Select a table, wall, zone or decor element on the map to edit it.",
       "height": "Height",
       "label": "Label",
       "labelInvalid": "1 to {max} characters",
+      "outlineDone": "Done",
+      "outlineRect": "Rectangle (whole map).",
+      "outlineReset": "Reset to rectangle",
+      "outlineText": "Drag the corners to shape the room. Outside, the map is greyed out and hatched; tables there are flagged.",
+      "outlineTitle": "Room shape",
+      "points": "{count, plural, one {# point.} other {# points.}}",
+      "pointsHint": "Drag points on the map, insert new ones at the edge midpoints; Delete removes the selected point.",
       "region": "Properties",
       "rotate90": "Rotate by 90 degrees",
       "rotate90Short": "90°",
@@ -4373,8 +4422,15 @@
       "seatsPlaceholder": "open",
       "shape": "Shape",
       "text": "Text",
+      "thickness": "Thickness",
+      "thicknessHint": "In map units, the grid is usually 20.",
+      "thicknessInvalid": "{min} to {max}",
       "title": "Table {label}",
-      "width": "Width"
+      "width": "Width",
+      "zoneBlockedHint": "Blocked areas are hatched. Tables inside are flagged.",
+      "zoneHint": "Zones are for display only; tables do not belong to them.",
+      "zoneLabel": "Label",
+      "zoneType": "Type"
     },
     "list": {
       "actions": "Actions",
@@ -4418,11 +4474,40 @@
       "addTable": "Table",
       "bulk": "Create series",
       "decor": "Decor",
+      "draw": "Draw",
       "grid": "Grid",
+      "outline": "Room shape",
       "snap": "Snap",
       "view": "View",
       "viewList": "List",
-      "viewMap": "Map"
+      "viewMap": "Map",
+      "wall": "Wall",
+      "zone": "Zone",
+      "zoneActive": "Zone: {type}"
+    },
+    "zone": {
+      "bar": "Bar",
+      "blocked": "Blocked area",
+      "blockedShort": "Blocked",
+      "kitchen": "Kitchen",
+      "other": "Other"
+    },
+    "shapes": {
+      "outline": "Room shape",
+      "wall": "Wall",
+      "zone": "Zone"
+    },
+    "floorTools": {
+      "addPoint": "Insert point",
+      "blocked": "in a blocked area",
+      "cancel": "Cancel",
+      "done": "Done",
+      "drawWall": "Draw a wall: place points, double-click or \"Done\" finishes. Backspace removes the last point, Esc cancels.",
+      "drawZone": "Draw a zone: place at least three points, double-click, tap the first point or \"Done\" finishes.",
+      "editOutline": "Room shape: drag the corners, insert points at the edge midpoints, Delete removes the selected point.",
+      "outside": "outside the room",
+      "point": "Point {n}",
+      "undoPoint": "Remove last point"
     }
   },
   "oeIconPicker": {

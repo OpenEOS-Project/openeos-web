@@ -134,11 +134,9 @@ export async function pairPosDevice(
       status: 'verified',
       settings,
       table: null,
-      // Noch keine Wahl: die Kasse entscheidet nach dem Tischplan (F7).
-      startView: null,
       lastCategory: {},
     },
-    version: 2,
+    version: 3,
   };
   return {
     deviceId: init.deviceId,

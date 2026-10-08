@@ -1,9 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Button, Dropdown, DropdownOption, Icon, Segment, Status, Switch, Toolbar } from '@openeos/ui';
+import { Button, Dropdown, DropdownOption, Icon, Segment, Status, Switch, Toolbar, type FloorTool, type IconName } from '@openeos/ui';
 
-import type { DiningTableShape, TableDecorType } from '@/types/table';
+import type { DiningTableShape, TableDecorType, TableZoneType } from '@/types/table';
 
 import type { SaveState } from './use-layout-draft';
 
@@ -23,13 +23,26 @@ interface TablesToolbarProps {
   onAddTable: (shape: DiningTableShape) => void;
   onBulk: () => void;
   onAddDecor: (type: TableDecorType) => void;
+  /** Werkzeug der Karte (Auswahl, Wand, Zone, Raumform). */
+  tool: FloorTool;
+  /** Typ der nächsten Zone (Werkzeug „Zone“). */
+  zoneType: TableZoneType;
+  onToolChange: (tool: FloorTool, zoneType?: TableZoneType) => void;
 }
 
-const DECOR: { type: TableDecorType; icon: 'beer' | 'wall' | 'stage' | 'text' }[] = [
+/* Wände zeichnet man seit 0.6 als Linienzug (Werkzeug „Wand“); bestehende
+   Rechteck-Wände bleiben bearbeitbar, werden aber nicht mehr angeboten. */
+const DECOR: { type: TableDecorType; icon: IconName }[] = [
   { type: 'bar', icon: 'beer' },
-  { type: 'wall', icon: 'wall' },
   { type: 'stage', icon: 'stage' },
   { type: 'label', icon: 'text' },
+];
+
+export const ZONE_TYPES: { type: TableZoneType; icon: IconName }[] = [
+  { type: 'kitchen', icon: 'chef' },
+  { type: 'blocked', icon: 'ban' },
+  { type: 'bar', icon: 'beer' },
+  { type: 'other', icon: 'zone' },
 ];
 
 /** Werkzeugleiste über Karte bzw. Liste, rechts der Speicherstatus. */
@@ -46,9 +59,13 @@ export function TablesToolbar({
   onAddTable,
   onBulk,
   onAddDecor,
+  tool,
+  zoneType,
+  onToolChange,
 }: TablesToolbarProps) {
   const t = useTranslations('tables.toolbar');
   const tDecor = useTranslations('tables.decor');
+  const tZone = useTranslations('tables.zone');
   const tSave = useTranslations('tables.save');
   const mapTools = canEditMap && view === 'map';
 
@@ -87,6 +104,44 @@ export function TablesToolbar({
           </Dropdown>
         )}
       </div>
+
+      {mapTools && (
+        <div className="tables-toolbar__group" role="group" aria-label={t('draw')}>
+          <Button
+            variant={tool === 'wall' ? 'primary' : 'secondary'}
+            size="sm"
+            aria-pressed={tool === 'wall'}
+            onClick={() => onToolChange(tool === 'wall' ? 'select' : 'wall')}
+          >
+            <Icon name="wall" />
+            {t('wall')}
+          </Button>
+          <Dropdown
+            triggerSize="sm"
+            trigger={
+              <>
+                <Icon name={tool === 'zone' ? (ZONE_TYPES.find((z) => z.type === zoneType)?.icon ?? 'zone') : 'zone'} />
+                {tool === 'zone' ? t('zoneActive', { type: tZone(zoneType) }) : t('zone')}
+              </>
+            }
+          >
+            {ZONE_TYPES.map((item) => (
+              <DropdownOption key={item.type} icon={<Icon name={item.icon} />} onClick={() => onToolChange('zone', item.type)}>
+                {tZone(item.type)}
+              </DropdownOption>
+            ))}
+          </Dropdown>
+          <Button
+            variant={tool === 'outline' ? 'primary' : 'secondary'}
+            size="sm"
+            aria-pressed={tool === 'outline'}
+            onClick={() => onToolChange(tool === 'outline' ? 'select' : 'outline')}
+          >
+            <Icon name="outline" />
+            {t('outline')}
+          </Button>
+        </div>
+      )}
 
       {mapTools && (
         <div className="tables-toolbar__group">

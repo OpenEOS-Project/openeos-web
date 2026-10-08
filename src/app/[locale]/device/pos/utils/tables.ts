@@ -1,5 +1,6 @@
 import { cartItemCount, cartPayable, type ParkedCart } from '@/stores/cart-store';
 import type { Order } from '@/types/order';
+import type { TableSelectView } from '@/types/device';
 import type {
   DeviceDiningTable,
   DeviceTableArea,
@@ -78,13 +79,35 @@ export function hasFloorLayout(area: DeviceTableArea): boolean {
   return area.tables.length > 0 && area.tables.some((table) => table.x !== 0 || table.y !== 0);
 }
 
+/** Tischwahl an der Kasse (Geräteeinstellung `tableSelectView`). */
+export type { TableSelectView } from '@/types/device';
+
+export function isTableSelectView(value: unknown): value is TableSelectView {
+  return value === 'number' || value === 'list' || value === 'map';
+}
+
 /**
- * Startansicht ohne gemerkte Wahl (F7): die Karte, wenn der Standardbereich
- * des Geräts einen Tischplan hat, sonst die Nummer.
+ * Welche Tischwahl die Kasse zeigt — fest je Gerät, kein Umschalter:
+ * - freie Tischnummer (Event `free`): immer der Ziffernblock;
+ * - eingestellt (`settings.tableSelectView`): genau diese Ansicht; „Karte“
+ *   fällt auf die Liste zurück, solange kein freigegebener Bereich einen
+ *   Tischplan hat;
+ * - nicht eingestellt: Karte, wenn der Standardbereich einen Tischplan
+ *   hat, sonst die Liste.
  */
-export function defaultStartView(areas: DeviceTableArea[], deviceAreaId: string | null): 'map' | 'number' {
+export function resolveTableSelectView(
+  mode: 'free' | 'predefined',
+  setting: unknown,
+  areas: DeviceTableArea[],
+  deviceAreaId: string | null,
+): TableSelectView {
+  if (mode === 'free') return 'number';
+  if (isTableSelectView(setting)) {
+    if (setting === 'map' && !areas.some(hasFloorLayout)) return 'list';
+    return setting;
+  }
   const area = deviceAreaId ? areas.find((a) => a.id === deviceAreaId) : undefined;
-  return area && hasFloorLayout(area) ? 'map' : 'number';
+  return area && hasFloorLayout(area) ? 'map' : 'list';
 }
 
 export function tableContext(table: DeviceDiningTable): PosTableContext {

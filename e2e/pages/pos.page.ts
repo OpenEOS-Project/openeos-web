@@ -77,11 +77,9 @@ export class POSPage {
     await expect(this.pill(label)).toBeVisible();
   }
 
-  /** Startansicht „Tische“: Tisch in der Liste antippen. */
+  /** Startansicht „Liste“ (Geräteeinstellung `tableSelectView`): Tisch in der Liste antippen. */
   async openTableFromList(label: string) {
     await expect(this.startView).toBeVisible();
-    const segment = this.page.getByRole('button', { name: 'Tische', exact: true });
-    if ((await segment.getAttribute('aria-pressed')) !== 'true') await segment.click();
     await this.tableChip(label).click();
     await expect(this.pill(label)).toBeVisible();
   }
@@ -99,11 +97,9 @@ export class POSPage {
     return scope.locator('.pos-floor').getByRole('button', { name: new RegExp(`^Tisch ${label}, `) });
   }
 
-  /** Startansicht „Karte“: Tisch auf dem Tischplan antippen. */
+  /** Startansicht „Karte“ (Geräteeinstellung `tableSelectView`): Tisch auf dem Tischplan antippen. */
   async openTableOnMap(label: string) {
     await expect(this.startView).toBeVisible();
-    const segment = this.page.getByRole('button', { name: 'Karte', exact: true });
-    if ((await segment.getAttribute('aria-pressed')) !== 'true') await segment.click();
     await this.floorTable(label).click();
     await expect(this.pill(label)).toBeVisible();
   }

@@ -54,7 +54,8 @@ test.describe('POS - free table numbers', () => {
     const pos = new POSPage(page);
     await pos.goto();
     // Freie Nummer: kein Umschalter Nummer/Tische
-    await expect(page.getByRole('button', { name: 'Tische', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Liste', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Karte', exact: true })).toHaveCount(0);
     await pos.openTableByNumber('12');
 
     await pos.addProduct(PRODUCTS.schorle);

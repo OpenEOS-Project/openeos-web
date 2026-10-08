@@ -1,0 +1,20 @@
+/* Gerätedetail: Einstellungen und Übersicht.
+   Abhängige Einstellungen stehen eingerückt direkt unter der Wahl, von der
+   sie abhängen (Anzeigemodus → Kasse/Station, Bedienung → Tische). */
+.device-settings{display:flex;flex-direction:column;gap:20px}
+.device-settings__stack{display:flex;flex-direction:column;gap:16px}
+.device-settings__row{display:flex;flex-direction:column;gap:6px}
+.device-settings__hint{margin:0;font-size:12px;line-height:1.45;color:color-mix(in oklab,var(--ink) 55%,transparent)}
+.device-settings__link{color:var(--green-ink);font-weight:600}
+.device-settings__dependent{margin:4px 0 0 4px;padding:12px 0 4px 16px;border-left:2px solid color-mix(in oklab,var(--green-ink) 45%,transparent);display:flex;flex-direction:column;gap:12px}
+.device-settings__dependent-title{margin:0;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in oklab,var(--ink) 60%,transparent)}
+.device-settings__dependent>.device-settings__hint{margin-top:-8px}
+.device-settings__choices{display:flex;flex-direction:column;gap:12px}
+.device-settings__choice-wrap{display:flex;flex-direction:column;gap:4px}
+.device-settings__choice{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.device-settings__choice input{margin-top:3px;flex-shrink:0;accent-color:var(--green-ink)}
+.device-settings__choice span{display:flex;flex-direction:column;gap:2px}
+.device-settings__choice b{font-size:14px;font-weight:600;color:var(--ink)}
+.device-settings__choice small{font-size:13px;color:color-mix(in oklab,var(--ink) 55%,transparent)}
+.device-settings__actions{display:flex;justify-content:flex-end;gap:12px;align-items:center}
+.device-overview__link{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:12px;font-weight:600;color:var(--green-ink)}
