@@ -28,6 +28,13 @@ test.describe('order history (POS + admin)', () => {
     ).toEqual({ parts: ['3x Burger', '2x Pils', '1x Wasser'], more: 1 });
   });
 
+  test('a fully cancelled order still shows what was ordered', () => {
+    expect(itemsSummary([{ productName: 'Bratwurst', quantity: 2, status: 'cancelled' }])).toEqual({
+      parts: ['2x Bratwurst'],
+      more: 0,
+    });
+  });
+
   test('payment icons: one per method, voucher on top', () => {
     expect(
       paymentBadges({ paymentMethods: ['cash', 'sumup_terminal', 'cash'], discountAmount: 2 }).map(

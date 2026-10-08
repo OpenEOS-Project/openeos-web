@@ -90,7 +90,8 @@ export function orderPlace(
 }
 
 /**
- * Kurzinhalt „3x Burger, 2x Pils“ (stornierte Positionen zählen nicht,
+ * Kurzinhalt „3x Burger, 2x Pils“ (stornierte Positionen zählen nicht —
+ * außer die ganze Bestellung ist storniert —
  * gleiche Produkte zusammengefasst). Mehr als `max` Produkte: der Rest
  * als Zahl (`more`), die Darstellung entscheidet über den Text.
  */
@@ -99,8 +100,10 @@ export function itemsSummary(
   max = 3
 ): { parts: string[]; more: number } {
   const byName = new Map<string, number>();
+  // Ganz stornierte Bestellung: den stornierten Inhalt zeigen statt „nichts“.
+  const showCancelled = items.every((item) => item.status === 'cancelled');
   for (const item of items) {
-    if (item.status === 'cancelled') continue;
+    if (item.status === 'cancelled' && !showCancelled) continue;
     byName.set(item.productName, (byName.get(item.productName) ?? 0) + item.quantity);
   }
   const all = [...byName.entries()].map(([name, qty]) => `${qty}x ${name}`);

@@ -336,7 +336,19 @@ export function OrdersList() {
                       {order.items && order.items.length > 0 ? (
                         <div>
                           {order.items.slice(0, 2).map((item) => (
-                            <div key={item.id} style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                            <div
+                              key={item.id}
+                              style={{
+                                fontSize: 13,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: 200,
+                                // Stornierte Positionen durchgestrichen, wie in der Kasse.
+                                textDecoration: item.status === 'cancelled' ? 'line-through' : undefined,
+                                opacity: item.status === 'cancelled' ? 0.55 : undefined,
+                              }}
+                            >
                               {item.quantity}x {item.productName}
                             </div>
                           ))}

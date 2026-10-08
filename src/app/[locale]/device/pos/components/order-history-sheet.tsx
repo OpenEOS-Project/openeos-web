@@ -156,6 +156,7 @@ export function OrderHistorySheet({
         <Button
           variant={showFilters || extraFilters > 0 ? 'secondary' : 'ghost'}
           aria-expanded={showFilters}
+          aria-label={extraFilters > 0 ? `${t('filters')} (${extraFilters})` : t('filters')}
           onClick={() => setShowFilters((v) => !v)}
         >
           <Icon name="filter" />
