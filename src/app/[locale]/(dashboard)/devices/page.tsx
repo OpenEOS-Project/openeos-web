@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server';
 import { ModuleGuard } from '@/components/shared/module-guard';
 
 import { DevicesList } from './components/devices-list';
-import { LinkDeviceButton } from './components/link-device-button';
 import { DeviceRegistrationInfo } from './components/device-registration-info';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,8 +24,6 @@ export default async function DevicesPage() {
             <h1 className="app-page-head__title">{t('title')}</h1>
             <p className="app-page-head__sub">{t('description')}</p>
           </div>
-          {/* Die Gegenseite zum Code auf dem Bildschirm. */}
-          <LinkDeviceButton />
         </div>
 
         {/* Registration Info with QR Code (for POS devices) */}

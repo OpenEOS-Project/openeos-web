@@ -1,6 +1,5 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
 import { Icon } from '@openeos/ui';
 import { useState } from 'react';
 import type { FC } from 'react';
@@ -10,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { DetailPageHead } from '@/components/shared/detail-page-head';
 import type { Device, DeviceClass, DeviceStatus } from '@/types/device';
 import { DeviceOverview } from './components/device-overview';
 import { DeviceSettings } from './components/device-settings';
@@ -112,72 +112,52 @@ export default function DeviceDetailPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {/* Header */}
-      <div className="app-page-head" style={{ marginBottom: 0 }}>
-        <div className="app-page-head__copy" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button
-            className="btn btn--ghost"
-            style={{ padding: '6px 10px', flexShrink: 0 }}
-            onClick={() => router.push('/devices')}
-            aria-label={t('common.back')}
-          >
-            <ArrowLeft aria-hidden />
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-              background: 'color-mix(in oklab, var(--green-ink) 10%, transparent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Icon name="device" size={20} style={{ color: 'var(--green-ink)' }} />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <h1 className="app-page-head__title" style={{ margin: 0 }}>{device.name}</h1>
-              <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-                {t(`devices.class.${device.type}`)}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <DetailPageHead
+        backHref="/devices"
+        backLabel={t('common.back')}
+        icon={<Icon name="device" size={22} />}
+        title={device.name}
+        meta={t(`devices.class.${device.type}`)}
+        badges={
+          <>
             <span className={isOnline ? 'badge badge--success' : 'badge badge--neutral'}>
               {isOnline ? t('devices.online') : t('devices.offline')}
             </span>
             <span className={statusBadgeClass[device.status]}>
               {t(`devices.status.${device.status}`)}
             </span>
-          </div>
-        </div>
-
-        <div className="app-page-head__actions">
-          {device.status === 'verified' && (
+          </>
+        }
+        actions={
+          <>
+            {device.status === 'verified' && (
+              <button
+                className="btn btn--ghost"
+                onClick={() => blockMutation.mutate()}
+                disabled={blockMutation.isPending}
+              >
+                {t('devices.actions.block')}
+              </button>
+            )}
+            {device.status === 'blocked' && (
+              <button
+                className="btn btn--ghost"
+                onClick={() => unblockMutation.mutate()}
+                disabled={unblockMutation.isPending}
+              >
+                {t('devices.actions.unblock')}
+              </button>
+            )}
             <button
               className="btn btn--ghost"
-              onClick={() => blockMutation.mutate()}
-              disabled={blockMutation.isPending}
+              style={{ color: 'var(--danger)' }}
+              onClick={() => setShowDeleteConfirm(true)}
             >
-              {t('devices.actions.block')}
+              {t('devices.actions.delete')}
             </button>
-          )}
-          {device.status === 'blocked' && (
-            <button
-              className="btn btn--ghost"
-              onClick={() => unblockMutation.mutate()}
-              disabled={unblockMutation.isPending}
-            >
-              {t('devices.actions.unblock')}
-            </button>
-          )}
-          <button
-            className="btn btn--ghost"
-            style={{ color: 'var(--danger)' }}
-            onClick={() => setShowDeleteConfirm(true)}
-          >
-            {t('devices.actions.delete')}
-          </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Tabs */}
       <div style={{

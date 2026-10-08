@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft } from 'lucide-react';
 
 import { IntegrationLogo } from '@/components/integrations/integration-logo';
+import { DetailPageHead } from '@/components/shared/detail-page-head';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { IntegrationGuard } from '@/components/shared/integration-guard';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { getIntegration } from '@/config/integrations';
 import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/use-integrations';
-import { Link } from '@/i18n/routing';
 import type { IntegrationId } from '@/types/organization';
 
 interface IntegrationConfigPageProps {
@@ -59,28 +58,19 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div>
-        <Link href="/integrations" className="integration-page__back">
-          <ArrowLeft aria-hidden="true" />
-          {t('backToCatalog')}
-        </Link>
-      </div>
-
-      <div className="app-page-head" style={{ marginBottom: 0 }}>
-        <div className="integration-page__title">
-          <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
-          <div className="app-page-head__copy">
-            <h1 className="app-page-head__title">{integration.name}</h1>
-            <p className="app-page-head__sub">{t(integration.shortDescriptionKey)}</p>
-          </div>
-        </div>
-        <div className="app-page-head__actions">
+    <div>
+      <DetailPageHead
+        backHref="/integrations"
+        backLabel={t('backToCatalog')}
+        logo={<IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />}
+        title={integration.name}
+        meta={t(integration.shortDescriptionKey)}
+        actions={
           <button type="button" className="btn btn--ghost" onClick={() => setConfirmOpen(true)}>
             {t('actions.deactivate')}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       <ConfigComponent />
 

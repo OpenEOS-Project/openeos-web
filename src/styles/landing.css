@@ -2476,6 +2476,76 @@ body:has(.landing) {
   flex-shrink: 0;
 }
 
+/* Detailseiten (DetailPageHead): Zurueck, Symbol, Titel mit Status, darunter
+   eine Zeile Kontext; die Aktionen rechts. Reicht die Breite nicht, rutschen
+   die Aktionen unter den Titel statt ihn zusammenzudruecken. */
+.landing .detail-head {
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 12px;
+}
+.landing .detail-head__main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 320px;
+}
+.landing .detail-head__back {
+  flex-shrink: 0;
+  padding: 8px 10px;
+}
+.landing .detail-head__back svg {
+  width: 16px;
+  height: 16px;
+}
+.landing .detail-head__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--green-soft) 60%, var(--paper));
+  color: var(--green-ink);
+}
+.landing .detail-head__icon svg {
+  width: 22px;
+  height: 22px;
+}
+.landing .detail-head__text {
+  min-width: 0;
+}
+.landing .detail-head__titlerow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.landing .detail-head__title {
+  overflow-wrap: anywhere;
+}
+.landing .detail-head__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  margin-top: 4px;
+}
+.landing .detail-head__actions {
+  flex-wrap: wrap;
+  flex-shrink: 1;
+}
+/* Schmal ist jede Spalte neben dem Titel teuer: ohne Symbolkachel bricht
+   der Titel nicht mehr Wort fuer Wort um. */
+@media (max-width: 640px) {
+  .landing .detail-head__icon {
+    display: none;
+  }
+  .landing .detail-head__main {
+    align-items: flex-start;
+  }
+}
+
 /* ============================= APP CARD ============================= */
 .landing .app-card {
   /* --surface statt --paper: eine Karte in der Seitenfarbe hebt sich
@@ -3420,25 +3490,6 @@ body:has(.landing) {
   color: var(--mute);
 }
 .landing .integration-gallery__counter { opacity: 0.7; }
-
-/* Konfigurationsseite */
-.landing .integration-page__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mute);
-  text-decoration: none;
-}
-.landing .integration-page__back:hover { color: var(--ink); }
-.landing .integration-page__back svg { width: 16px; height: 16px; }
-.landing .integration-page__title {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-}
 
 /* Integrationen als Untereintrag unter "Integrationen" in der Seitenleiste.
    Eingeklappt gibt es keinen Platz fuer Einrueckung — dort stehen die

@@ -97,7 +97,7 @@ export function JobsList({ plan }: JobsListProps) {
             <Icon name="users" size={28} />
           }
           action={
-            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowAddJobModal(true)}>
+            <button className="btn btn--primary" onClick={() => setShowAddJobModal(true)}>
               {t('shifts.editor.addJob')}
             </button>
           }
@@ -109,29 +109,24 @@ export function JobsList({ plan }: JobsListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+      {/* Beschriftete Knoepfe wie im Kartenkopf der Listen: Ein „+" und
+          ein Funkeln ohne Text musste man vorher per Tooltip erraten. */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>
           {t('shifts.jobsList.heading', { count: jobs.length })}
         </span>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <button
             className="btn btn--ghost"
-            style={iconBtnStyle('ghost')}
             onClick={handleOpenWizardForAll}
             disabled={jobs.length === 0}
             title={t('shifts.jobsList.wizardForAll')}
-            aria-label={t('shifts.jobsList.wizardForAll')}
           >
-            <Sparkles style={{ width: 18, height: 18 }} />
+            <Sparkles aria-hidden />
+            <span>{t('shifts.jobsList.wizard')}</span>
           </button>
-          <button
-            className="btn btn--primary"
-            style={iconBtnStyle('ghost')}
-            onClick={() => setShowAddJobModal(true)}
-            title={t('shifts.editor.addJob')}
-            aria-label={t('shifts.editor.addJob')}
-          >
-            <Icon name="plus" size={18} />
+          <button className="btn btn--primary" onClick={() => setShowAddJobModal(true)}>
+            {t('shifts.editor.addJob')}
           </button>
         </div>
       </div>

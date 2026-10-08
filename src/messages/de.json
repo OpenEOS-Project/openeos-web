@@ -1006,7 +1006,8 @@
     },
     "list": {
       "subcategory": "Unterkategorie"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Kategorien} =1 {1 Kategorie} other {# Kategorien}}"
   },
   "products": {
     "title": "Produkte",
@@ -1275,7 +1276,8 @@
       "accountLocked": "Konto gesperrt",
       "lockedUntil": "Gesperrt bis {date}",
       "failedAttempts": "{count} fehlgeschlagene Anmeldeversuche"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Benutzer} =1 {1 Benutzer} other {# Benutzer}}"
   },
   "invitation": {
     "title": "Einladung",
@@ -1355,7 +1357,8 @@
       "title": "Rabatt-Bon löschen",
       "message": "Möchtest du den Rabatt-Bon \"{name}\" wirklich löschen?",
       "confirm": "Löschen"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Rabatt-Bons} =1 {1 Rabatt-Bon} other {# Rabatt-Bons}}"
   },
   "pfand": {
     "title": "Pfand",
@@ -1404,7 +1407,8 @@
         "description": "Bei Verkauf an der Theke bzw. zum Mitnehmen wird Pfand erhoben."
       },
       "trigger": "Einstellungen"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Pfand-Typen} =1 {1 Pfand-Typ} other {# Pfand-Typen}}"
   },
   "support": {
     "title": "Support",
@@ -1603,7 +1607,8 @@
     },
     "membersModal": {
       "invitationsTitle": "Ausstehende Einladungen ({count})"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Organisationen} =1 {1 Organisation} other {# Organisationen}}"
   },
   "billing": {
     "title": "Abrechnung",
@@ -2546,7 +2551,7 @@
     "addDevice": "Gerät hinzufügen",
     "linkDevice": "Gerät verknüpfen",
     "noDevices": "Keine Geräte registriert",
-    "noDevicesDescription": "Registriere Geräte unter /device/register",
+    "noDevicesDescription": "Öffne die Kopplungsseite auf dem Gerät und gib die angezeigte Zahl über „Gerät verbinden“ ein.",
     "deviceCount": "{count, plural, =0 {Keine Geräte} =1 {1 Gerät} other {# Geräte}}",
     "status": {
       "pending": "Ausstehend",
@@ -3053,8 +3058,7 @@
   "shifts": {
     "title": "Schichtpläne",
     "description": "Erstelle und verwalte Schichtpläne für deine Veranstaltungen",
-    "createPlan": "Neuer Schichtplan",
-    "createFirstPlan": "Ersten Schichtplan erstellen",
+    "createPlan": "Schichtplan erstellen",
     "noPlans": "Keine Schichtpläne",
     "noPlansDescription": "Erstelle deinen ersten Schichtplan, um Helfer für deine Veranstaltung einzuteilen.",
     "confirmDelete": "Möchtest du diesen Schichtplan wirklich löschen? Alle Anmeldungen gehen verloren.",
@@ -3135,7 +3139,8 @@
       "noJobs": "Keine Arbeiten definiert",
       "noJobsDescription": "Füge eine Arbeit hinzu, um Schichten zu erstellen.",
       "noShifts": "Keine Schichten",
-      "noShiftsDescription": "Füge dieser Arbeit Schichten hinzu."
+      "noShiftsDescription": "Füge dieser Arbeit Schichten hinzu.",
+      "closePlan": "Plan schließen"
     },
     "calendar": {
       "title": "Kalender",
@@ -3267,7 +3272,8 @@
       "heading": "Arbeiten ({count})",
       "wizardForAll": "Schicht-Generator für alle Arbeiten",
       "defaultWorkers": "Standard: {count} Helfer pro Schicht",
-      "confirmDeleteJob": "Möchtest du diese Arbeit samt ihren Schichten wirklich löschen?"
+      "confirmDeleteJob": "Möchtest du diese Arbeit samt ihren Schichten wirklich löschen?",
+      "wizard": "Schicht-Generator"
     },
     "wizardExtra": {
       "stepDate": "Datum",
@@ -3466,7 +3472,8 @@
       "spotsOfFree": "<n>{available}</n><muted>/{required} frei</muted>",
       "spotsFree": "{count} frei",
       "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
   "setup": {
     "title": "Willkommen bei OpenEOS",
@@ -3617,7 +3624,8 @@
           "manual": "Manuell"
         }
       }
-    }
+    },
+    "subtitle": "Drucker, Bon-Vorlagen und wohin welcher Bon gedruckt wird"
   },
   "colorPicker": {
     "custom": "Eigene Farbe",
@@ -3919,7 +3927,7 @@
   "inventory": {
     "title": "Inventur",
     "subtitle": "Bestandserfassung und Lagerkontrolle für deine Veranstaltung",
-    "create": "Neue Inventur",
+    "create": "Inventur erstellen",
     "createAndStart": "Erstellen & Starten",
     "creating": "Wird erstellt…",
     "createError": "Fehler beim Erstellen der Inventur. Bitte erneut versuchen.",
@@ -4007,7 +4015,8 @@
       "counted": "Gezählt",
       "difference": "Differenz",
       "notes": "Notiz"
-    }
+    },
+    "count": "{count, plural, =0 {Keine Inventuren} =1 {1 Inventur} other {# Inventuren}}"
   },
   "invoices": {
     "title": "Rechnungen",

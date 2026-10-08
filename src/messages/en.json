@@ -1362,7 +1362,8 @@
     },
     "list": {
       "subcategory": "Subcategory"
-    }
+    },
+    "count": "{count, plural, =0 {No categories} =1 {1 category} other {# categories}}"
   },
   "products": {
     "title": "Products",
@@ -1631,7 +1632,8 @@
       "accountLocked": "Account locked",
       "lockedUntil": "Locked until {date}",
       "failedAttempts": "{count} failed login attempts"
-    }
+    },
+    "count": "{count, plural, =0 {No users} =1 {1 user} other {# users}}"
   },
   "invitation": {
     "title": "Invitation",
@@ -1711,7 +1713,8 @@
       "title": "Delete discount voucher",
       "message": "Do you really want to delete the discount voucher \"{name}\"?",
       "confirm": "Delete"
-    }
+    },
+    "count": "{count, plural, =0 {No discount vouchers} =1 {1 discount voucher} other {# discount vouchers}}"
   },
   "pfand": {
     "title": "Deposit (Pfand)",
@@ -1760,7 +1763,8 @@
         "description": "A deposit is charged for counter sales and takeaway."
       },
       "trigger": "Settings"
-    }
+    },
+    "count": "{count, plural, =0 {No deposit types} =1 {1 deposit type} other {# deposit types}}"
   },
   "support": {
     "title": "Support",
@@ -1959,7 +1963,8 @@
     },
     "membersModal": {
       "invitationsTitle": "Pending invitations ({count})"
-    }
+    },
+    "count": "{count, plural, =0 {No organizations} =1 {1 organization} other {# organizations}}"
   },
   "pos": {
     "title": "POS",
@@ -2546,7 +2551,7 @@
     "addDevice": "Add Device",
     "linkDevice": "Link device",
     "noDevices": "No devices registered",
-    "noDevicesDescription": "Register devices at /device/register",
+    "noDevicesDescription": "Open the pairing page on the device and enter the number it shows via “Connect device”.",
     "deviceCount": "{count, plural, =0 {No devices} =1 {1 device} other {# devices}}",
     "status": {
       "pending": "Pending",
@@ -3053,8 +3058,7 @@
   "shifts": {
     "title": "Shift Plans",
     "description": "Create and manage shift plans for your events",
-    "createPlan": "New Shift Plan",
-    "createFirstPlan": "Create First Shift Plan",
+    "createPlan": "Create shift plan",
     "noPlans": "No Shift Plans",
     "noPlansDescription": "Create your first shift plan to organize helpers for your event.",
     "confirmDelete": "Are you sure you want to delete this shift plan? All registrations will be lost.",
@@ -3106,7 +3110,8 @@
       "noJobs": "No jobs defined",
       "noJobsDescription": "Add a job to create shifts.",
       "noShifts": "No shifts",
-      "noShiftsDescription": "Add shifts to this job."
+      "noShiftsDescription": "Add shifts to this job.",
+      "closePlan": "Close plan"
     },
     "calendar": {
       "title": "Calendar",
@@ -3267,7 +3272,8 @@
       "heading": "Jobs ({count})",
       "wizardForAll": "Shift generator for all jobs",
       "defaultWorkers": "Default: {count, plural, =1 {1 helper} other {# helpers}} per shift",
-      "confirmDeleteJob": "Are you sure you want to delete this job and its shifts?"
+      "confirmDeleteJob": "Are you sure you want to delete this job and its shifts?",
+      "wizard": "Shift generator"
     },
     "wizardExtra": {
       "stepDate": "Date",
@@ -3466,7 +3472,8 @@
       "spotsOfFree": "<n>{available}</n><muted>/{required} free</muted>",
       "spotsFree": "{count} free",
       "pillLabel": "{count, plural, =1 {shift selected} other {shifts selected}}"
-    }
+    },
+    "count": "{count, plural, =0 {No shift plans} =1 {1 shift plan} other {# shift plans}}"
   },
   "setup": {
     "title": "Welcome to OpenEOS",
@@ -3617,7 +3624,8 @@
           "manual": "Manual"
         }
       }
-    }
+    },
+    "subtitle": "Printers, receipt templates and where each ticket is printed"
   },
   "colorPicker": {
     "custom": "Custom color",
@@ -3919,7 +3927,7 @@
   "inventory": {
     "title": "Stocktaking",
     "subtitle": "Stock recording and inventory control for your event",
-    "create": "New Stocktake",
+    "create": "Create stocktake",
     "createAndStart": "Create & Start",
     "creating": "Creating…",
     "createError": "Failed to create inventory count. Please try again.",
@@ -4007,7 +4015,8 @@
       "counted": "Counted",
       "difference": "Difference",
       "notes": "Notes"
-    }
+    },
+    "count": "{count, plural, =0 {No stocktakes} =1 {1 stocktake} other {# stocktakes}}"
   },
   "invoices": {
     "title": "Invoices",
