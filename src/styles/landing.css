@@ -5142,7 +5142,8 @@ body:has(.landing) {
   color: var(--ink);
 }
 .landing .report-net__note {
-  margin: 10px 0 0;
+  margin: 0;
+  padding: 10px 16px 14px;
   font-size: 12px;
   color: var(--mute);
 }
