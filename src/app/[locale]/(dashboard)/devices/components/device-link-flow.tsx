@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/select/select';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
+import { normalizePairingCode, PAIRING_CODE_LENGTH } from '@/utils/pairing-code';
 
 /* 'admin' fehlt hier bewusst — der Wert wurde nirgends ausgewertet und
    schickte das Geraet in dieselbe Ansicht wie eine Kasse. */
@@ -40,7 +41,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
   const { organizations } = useAuthStore();
 
   const [schritt, setSchritt] = useState<Schritt>('code');
-  const [code, setCode] = useState(codeAusUrl ?? '');
+  const [code, setCode] = useState(normalizePairingCode(codeAusUrl));
   const [gefunden, setGefunden] = useState<PendingDeviceLookup | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
 
@@ -79,7 +80,8 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
   /* Mit Code aus dem QR-Code sofort suchen: Wer gescannt hat, hat die
      Zahl schon übergeben und soll sie nicht abtippen. */
   useEffect(() => {
-    if (codeAusUrl?.length === 6) suchen.mutate(codeAusUrl);
+    const ausUrl = normalizePairingCode(codeAusUrl);
+    if (ausUrl.length === PAIRING_CODE_LENGTH) suchen.mutate(ausUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeAusUrl]);
 
@@ -172,7 +174,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
       className="device-link__form"
       onSubmit={(e) => {
         e.preventDefault();
-        if (code.length !== 6) return setFehler(t('verify.invalidCode'));
+        if (code.length !== PAIRING_CODE_LENGTH) return setFehler(t('verify.invalidCode'));
         setFehler(null);
         suchen.mutate(code);
       }}
@@ -181,12 +183,17 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
 
       <div className="device-link__field">
         <Label htmlFor="code">{t('verify.code')}</Label>
+        {/* Ohne maxLength: Das Feld schnitt eingefügte Codes mit
+            Leerzeichen („57 30 80") nach sechs Zeichen ab, bevor sie
+            bereinigt werden konnten. Gekürzt wird jetzt nach dem
+            Entfernen der Trenner. */}
         <Input
           id="code"
           value={code}
-          onChange={setCode}
+          onChange={(wert) => setCode(normalizePairingCode(wert))}
           placeholder="000000"
-          maxLength={6}
+          inputMode="numeric"
+          autoComplete="one-time-code"
           className="verify-code-input"
           autoFocus
         />
@@ -197,7 +204,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
       <button
         type="submit"
         className="btn btn--primary btn--block"
-        disabled={code.length !== 6 || suchen.isPending}
+        disabled={code.length !== PAIRING_CODE_LENGTH || suchen.isPending}
       >
         {suchen.isPending ? <Loader className="animate-spin" /> : t('verify.lookup')}
       </button>

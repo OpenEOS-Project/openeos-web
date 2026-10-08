@@ -4757,11 +4757,13 @@ body:has(.landing) {
   height: 58px;
   font-family: var(--oe-f-mono, ui-monospace, monospace);
   font-size: 30px;
-  letter-spacing: .38em;
+  /* Ziffern am Stueck wie auf dem Geraet, nur mit etwas Luft — die alte
+     Laufweite (.38em) liess „000000" wie sechs einzelne Felder aussehen. */
+  letter-spacing: .05em;
   text-align: center;
   /* Gleicht die Laufweite hinter der letzten Ziffer aus, die den Text
      sonst optisch nach links zieht. */
-  text-indent: .38em;
+  text-indent: .05em;
 }
 
 /* ===================== NEUERUNGEN BEIM ANMELDEN ===================== */
