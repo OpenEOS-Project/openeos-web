@@ -550,7 +550,7 @@ export function PaySheet({
           )}
           {amount > 0 && !unsaved && (
             <ChoiceGroup
-              options={methodOptions.map((o) => ({ ...o, disabled: locked }))}
+              options={methodOptions.map((o) => ({ ...o, disabled: locked || o.disabled }))}
               value={method}
               onChange={(id) => {
                 setMethod(id);

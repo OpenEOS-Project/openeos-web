@@ -72,7 +72,7 @@ test.describe('POS - SumUp in test mode', () => {
 
     const pos = new POSPage(page);
     await pos.goto();
-    await expect(page.getByText(/Testmodus/).first()).toBeVisible();
+    await expect(page.getByText(/^Testmodus — Bestellungen werden/)).toBeVisible();
     await pos.addProduct(PRODUCT);
     await pos.checkout();
 
