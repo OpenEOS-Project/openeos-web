@@ -2,31 +2,19 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { ListLoading } from '@/components/shared/list-states';
+import { DetailPageHead } from '@/components/shared/detail-page-head';
 import type { ShiftPlanStatus } from '@/types/shift';
 import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
 import { PlanSettings } from './components/plan-settings';
 import { ShiftCalendar } from './components/shift-calendar';
-import { ArrowLeft, CircleCheck, ClipboardCheck, Download, Link, Lock, Send } from 'lucide-react';
-
-/** Square 36×36 icon-button — keeps the plan-header row compact on phones. */
-const iconBtnStyle = (variant: 'ghost' | 'primary' = 'ghost'): React.CSSProperties => ({
-  padding: 6,
-  width: 36,
-  height: 36,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  ...(variant === 'primary'
-    ? { background: 'var(--green-ink)', color: 'var(--paper)' }
-    : {}),
-});
+import { ClipboardCheck } from 'lucide-react';
 
 const statusBadge: Record<ShiftPlanStatus, string> = {
   draft: 'badge badge--neutral',
@@ -37,7 +25,6 @@ const statusBadge: Record<ShiftPlanStatus, string> = {
 export default function ShiftPlanEditorPage() {
   const t = useTranslations();
   const apiErrorMessage = useApiErrorMessage();
-  const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -134,122 +121,85 @@ export default function ShiftPlanEditorPage() {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Header card */}
-      <div className="app-card">
-        <div className="app-card__body" style={{ paddingBottom: 0 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+    <div>
+      <DetailPageHead
+        backHref="/shifts"
+        backLabel={t('common.back')}
+        icon={<ClipboardCheck />}
+        title={plan.name}
+        meta={
+          <>
+            <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
+            {plan.event && <><span aria-hidden="true">•</span><span>{plan.event.name}</span></>}
+          </>
+        }
+        badges={<span className={statusBadge[plan.status]}>{t(`shifts.status.${plan.status}`)}</span>}
+        actions={
+          <>
+            {/* Beschriftet statt nur Symbole: „Schloss" und „Pfeil" musste
+                man vorher erst per Tooltip erraten. */}
+            {plan.status === 'published' && (
               <button
                 className="btn btn--ghost"
-                style={{ flexShrink: 0, padding: '8px 10px' }}
-                onClick={() => router.push('/shifts')}
-                aria-label={t('common.back')}
+                style={linkCopied ? { color: 'var(--green-ink)', borderColor: 'var(--green-ink)' } : undefined}
+                onClick={copyPublicLink}
               >
-                <ArrowLeft size={16} />
+                {linkCopied ? t('shifts.detail.linkCopied') : t('shifts.copyLink')}
               </button>
-              <div style={{
-                width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                color: 'var(--green-ink)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <ClipboardCheck size={18} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                {/* Echte Ueberschrift statt <div>: diese Seite trug als
-                    einzige keinen <h1>. Kopf und Tableiste teilen sich hier
-                    bewusst eine Karte, deshalb bleibt die Groesse kompakt —
-                    ein voller app-page-head wuerde die Leiste sprengen. */}
-                <h1 className="app-page-head__title" style={{ fontSize: 17, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{plan.name}</h1>
-                <div style={{ fontSize: 12, color: 'var(--mute)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'var(--f-mono)' }}>{plan.publicSlug}</span>
-                  {plan.event && <><span>•</span><span>{plan.event.name}</span></>}
-                </div>
-              </div>
-              <span className={statusBadge[plan.status]} style={{ flexShrink: 0 }}>{t(`shifts.status.${plan.status}`)}</span>
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {plan.status === 'draft' && (
-                <button
-                  className="btn btn--primary"
-                  style={iconBtnStyle('primary')}
-                  onClick={() => publishMutation.mutate()}
-                  disabled={publishMutation.isPending}
-                  title={t('shifts.editor.publish')}
-                  aria-label={t('shifts.editor.publish')}
-                >
-                  <Send style={{ width: 18, height: 18 }} />
-                </button>
-              )}
-              {plan.status === 'published' && (
-                <button
-                  className="btn btn--ghost"
-                  style={{
-                    ...iconBtnStyle(),
-                    color: linkCopied ? 'var(--green-ink)' : undefined,
-                    borderColor: linkCopied ? 'var(--green-ink)' : undefined,
-                  }}
-                  onClick={copyPublicLink}
-                  title={linkCopied ? t('shifts.detail.linkCopied') : t('shifts.copyLink')}
-                  aria-label={t('shifts.copyLink')}
-                >
-                  {linkCopied
-                    ? <CircleCheck style={{ width: 18, height: 18 }} />
-                    : <Link style={{ width: 18, height: 18 }} />}
-                </button>
-              )}
+            )}
+            <button className="btn btn--ghost" onClick={downloadPdf}>
+              {t('shifts.exportPdf')}
+            </button>
+            {plan.status === 'published' && (
               <button
                 className="btn btn--ghost"
-                style={iconBtnStyle()}
-                onClick={downloadPdf}
-                title={t('shifts.exportPdf')}
-                aria-label={t('shifts.exportPdf')}
+                onClick={() => closeMutation.mutate()}
+                disabled={closeMutation.isPending}
               >
-                <Download style={{ width: 18, height: 18 }} />
+                {t('shifts.editor.closePlan')}
               </button>
-              {plan.status === 'published' && (
-                <button
-                  className="btn btn--ghost"
-                  style={iconBtnStyle()}
-                  onClick={() => closeMutation.mutate()}
-                  disabled={closeMutation.isPending}
-                  title={t('shifts.editor.close')}
-                  aria-label={t('shifts.editor.close')}
-                >
-                  <Lock style={{ width: 18, height: 18 }} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Tab bar inside the same card */}
-          <div style={{ display: 'flex', gap: 0, marginTop: 16, borderBottom: '1px solid color-mix(in oklab, var(--ink) 7%, transparent)', marginLeft: -20, marginRight: -20, paddingLeft: 20, paddingRight: 20, overflowX: 'auto' }}>
-            {tabs.map((tab) => (
+            )}
+            {plan.status === 'draft' && (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  padding: '10px 16px',
-                  fontSize: 13,
-                  fontWeight: activeTab === tab.id ? 600 : 500,
-                  color: activeTab === tab.id ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 55%, transparent)',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: activeTab === tab.id ? '2px solid var(--green-ink)' : '2px solid transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  marginBottom: -1,
-                  whiteSpace: 'nowrap',
-                  fontFamily: 'inherit',
-                }}
+                className="btn btn--primary"
+                onClick={() => publishMutation.mutate()}
+                disabled={publishMutation.isPending}
               >
-                {tab.label}
+                {t('shifts.editor.publish')}
               </button>
-            ))}
-          </div>
-        </div>
+            )}
+          </>
+        }
+      />
+
+      {/* Tableiste wie auf der Geraete- und der Druckerseite: unter dem
+          Seitenkopf statt mit ihm in einer Karte. */}
+      <div
+        style={{
+          borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+          display: 'flex', gap: 0, marginBottom: 24, overflowX: 'auto',
+        }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '10px 18px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+              background: 'none', border: 'none', whiteSpace: 'nowrap', fontFamily: 'inherit',
+              borderBottom: activeTab === tab.id
+                ? '2px solid var(--green-ink)'
+                : '2px solid transparent',
+              color: activeTab === tab.id
+                ? 'var(--green-ink)'
+                : 'color-mix(in oklab, var(--ink) 55%, transparent)',
+              marginBottom: -1,
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Tab content */}

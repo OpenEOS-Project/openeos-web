@@ -330,14 +330,14 @@ export default function DeviceRegisterPage() {
                   fontSize: 44,
                   fontWeight: 700,
                   color: 'var(--oe-green-ink)',
-                  letterSpacing: '0.08em',
+                  letterSpacing: '0.05em',
                   lineHeight: 1.1,
                   whiteSpace: 'nowrap',
                 }}
               >
-                {/* In Zweiergruppen wie auf /device/pair — dieselbe Zahl
-                    soll an beiden Stellen gleich aussehen. */}
-                {verificationCode?.replace(/(\d{2})(?=\d)/g, '$1 ')}
+                {/* Am Stück wie auf /device/pair — dieselbe Zahl soll an
+                    beiden Stellen gleich aussehen. */}
+                {verificationCode}
               </div>
             </div>
 

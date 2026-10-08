@@ -7,6 +7,7 @@ import { Building } from 'lucide-react';
 
 import { useAdminUser, useUnlockUser } from '@/hooks/use-admin';
 import { ListLoading } from '@/components/shared/list-states';
+import { DetailPageHead } from '@/components/shared/detail-page-head';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 const ROLE_BADGE: Record<string, string> = {
@@ -47,20 +48,7 @@ export function UserDetail() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div className="app-page-head">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            style={{ padding: '6px 10px', minWidth: 0 }}
-            onClick={() => router.push('/users')}
-            aria-label={t('detail.back')}
-          >
-            <Icon name="chevron-left" size={16} />
-          </button>
-          <h1 className="app-page-head__title">{t('detail.title')}</h1>
-        </div>
-      </div>
+      <DetailPageHead backHref="/users" backLabel={t('detail.back')} title={t('detail.title')} />
 
       {/* User Info Card */}
       <div className="app-card">

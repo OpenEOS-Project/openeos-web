@@ -71,10 +71,9 @@ export function UsersList() {
           ein inline display:flex schlaegt md:hidden, dadurch standen
           Karten und Tabelle auf breiten Viewports uebereinander. */}
       <div className="flex flex-col gap-2.5 md:hidden">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>{t('title')}</h2>
-          <span className="badge badge--neutral">{users.length}</span>
-        </div>
+        {/* Anzahl statt eines zweiten Titels, wie im Kartenkopf der
+            breiten Ansicht und auf den anderen Listen. */}
+        <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: users.length })}</p>
         {users.map((user) => {
           const status = getUserStatus(user);
           const orgs = user.userOrganizations ?? [];
@@ -146,11 +145,7 @@ export function UsersList() {
       <div className="app-card app-card--flat hidden md:block">
         <div className="app-card__head">
           <div>
-            <h2 className="app-card__title">
-              {t('title')}
-              <span className="pill" style={{ marginLeft: 8 }}>{users.length}</span>
-            </h2>
-            <p className="app-card__sub">{t('subtitle')}</p>
+            <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: users.length })}</p>
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>

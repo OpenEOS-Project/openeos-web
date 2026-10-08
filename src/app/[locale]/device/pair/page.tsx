@@ -120,9 +120,11 @@ export default function DevicePairPage() {
                 Aufmerksamkeit, obwohl nur einer aus zehn Metern lesbar
                 ist. */}
             <div className="display-pair__code" aria-label={t('codeLabel')}>
-              {/* In Zweiergruppen, weil sechs Ziffern am Stück über den
-                  Raum hinweg schwer abzulesen sind. */}
-              {verificationCode.replace(/(\d{2})(?=\d)/g, '$1 ')}
+              {/* Am Stück, ohne Zweiergruppen: Eingegeben wird die Zahl
+                  ebenfalls ohne Trenner, und „57 30 80" las sich wie drei
+                  Zahlen. Lesbar halten sie Festbreitenschrift und etwas
+                  Laufweite (pos.css). */}
+              {verificationCode}
             </div>
 
             {verknuepfUrl && (

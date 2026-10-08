@@ -43,7 +43,7 @@ export function HardwareList() {
             <Icon name="monitor" size={28} />
           }
           action={
-            <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => setShowCreateModal(true)}>
+            <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
               {t('add')}
             </button>
           }

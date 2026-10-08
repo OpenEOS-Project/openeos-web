@@ -54,11 +54,8 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
           Karten und Tabelle auf breiten Viewports uebereinander. */}
       <div className="flex flex-col gap-2.5 md:hidden">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700 }}>{t('title')}</h2>
-            <span className="badge badge--neutral">{organizations.length}</span>
-          </div>
-          <button type="button" className="btn btn--primary" style={{ fontSize: 12, padding: '6px 12px' }} onClick={onCreateClick}>
+          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: organizations.length })}</p>
+          <button type="button" className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
         </div>
@@ -125,11 +122,7 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
       <div className="app-card app-card--flat hidden md:block">
         <div className="app-card__head">
           <div>
-            <h2 className="app-card__title">
-              {t('title')}
-              <span className="pill" style={{ marginLeft: 8 }}>{organizations.length}</span>
-            </h2>
-            <p className="app-card__sub">{t('subtitle')}</p>
+            <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: organizations.length })}</p>
           </div>
           <button type="button" className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}

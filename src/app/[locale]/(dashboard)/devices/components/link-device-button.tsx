@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus } from 'lucide-react';
 
 import { LinkDeviceDialog } from './link-device-dialog';
 
@@ -19,9 +18,10 @@ export function LinkDeviceButton() {
 
   return (
     <>
-      <button type="button" className="btn btn--primary btn--sm" onClick={() => setOffen(true)}>
-        <Plus />
-        <span>{t('verify.cta')}</span>
+      {/* Groesse und Form wie „Produkt erstellen" & Co. im Kartenkopf der
+          anderen Listen — dort steht der Knopf jetzt auch. */}
+      <button type="button" className="btn btn--primary" onClick={() => setOffen(true)}>
+        {t('verify.cta')}
       </button>
 
       {offen && <LinkDeviceDialog onClose={() => setOffen(false)} />}

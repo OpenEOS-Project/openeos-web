@@ -14,9 +14,9 @@ export default async function OrdersPage() {
   const t = await getTranslations('orders');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div className="app-page-head">
-        <div>
+        <div className="app-page-head__copy">
           <h1 className="app-page-head__title">{t('title')}</h1>
           <p className="app-page-head__sub">{t('description')}</p>
         </div>

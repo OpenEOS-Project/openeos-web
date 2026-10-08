@@ -6,6 +6,8 @@ import { QRCodeSVG } from 'qrcode.react';
 
 import { useAuthStore } from '@/stores/auth-store';
 
+import { LinkDeviceButton } from './link-device-button';
+
 export function DeviceRegistrationInfo() {
   const t = useTranslations('devices');
   const { currentOrganization } = useAuthStore();
@@ -33,7 +35,18 @@ export function DeviceRegistrationInfo() {
 
   return (
     <div className="app-card">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
+      {/* Titel links, „Gerät verbinden" rechts im Kartenkopf — dasselbe
+          Muster wie „Produkt erstellen" auf den anderen Listen. Der Knopf
+          stand vorher allein oben im Seitenkopf, getrennt von der
+          Anleitung, deren dritter Schritt auf ihn verweist. */}
+      <div className="app-card__head">
+        <div>
+          <h2 className="app-card__title">{t('registration.title')}</h2>
+          <p className="app-card__sub">{t('registration.description')}</p>
+        </div>
+        <LinkDeviceButton />
+      </div>
+      <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           {/* QR Code */}
           <div style={{ flexShrink: 0 }}>
@@ -50,14 +63,6 @@ export function DeviceRegistrationInfo() {
 
           {/* Info */}
           <div style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)', margin: '0 0 4px' }}>
-                {t('registration.title')}
-              </h3>
-              <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-                {t('registration.description')}
-              </p>
-            </div>
 
             <div className="auth-field">
               <span className="auth-field__label">{t('registration.link')}</span>

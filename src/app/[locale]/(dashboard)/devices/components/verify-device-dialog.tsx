@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Device, DeviceClass } from '@/types/device';
+import { normalizePairingCode } from '@/utils/pairing-code';
 
 interface VerifyDeviceDialogProps {
   device: Device;
@@ -84,11 +85,12 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
               <input
                 className="input"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(normalizePairingCode(e.target.value))}
                 placeholder={t('verifyDialog.codePlaceholder')}
-                maxLength={6}
+                inputMode="numeric"
+                autoComplete="one-time-code"
                 autoFocus
-                style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontFamily: 'var(--f-mono)' }}
+                style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.05em', fontFamily: 'var(--f-mono)' }}
               />
             </label>
 

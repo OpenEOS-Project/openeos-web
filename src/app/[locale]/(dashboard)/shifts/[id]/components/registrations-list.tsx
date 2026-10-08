@@ -268,10 +268,10 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             </div>
           );
         })()}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <button
             className="btn btn--ghost"
-            style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             onClick={() => { setMessageHelper(null); setMessageModalOpen(true); }}
             disabled={allHelperEmails.length === 0}
             title={tr('sendToAllTitle')}
@@ -279,14 +279,9 @@ export function RegistrationsList({ plan }: RegistrationsListProps) {
             <Icon name="mail" size={16} />
             <span>{tr('sendToAll')}</span>
           </button>
-          <button
-            className="btn btn--primary"
-            style={iconBtnStyle()}
-            onClick={() => setManualAddOpen(true)}
-            title={t('shifts.manualAdd.title')}
-            aria-label={t('shifts.manualAdd.title')}
-          >
-            <UserPlus style={{ width: 18, height: 18 }} />
+          {/* Beschriftet wie die Hauptaktion auf den anderen Seiten. */}
+          <button className="btn btn--primary" onClick={() => setManualAddOpen(true)}>
+            {t('shifts.manualAdd.title')}
           </button>
         </div>
       </div>

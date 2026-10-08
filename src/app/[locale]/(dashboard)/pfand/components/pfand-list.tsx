@@ -53,8 +53,9 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div>
-          <h2 className="app-card__title">{t('title')}</h2>
-          <p className="app-card__sub">{t('subtitle')}</p>
+          {/* Nur die Anzahl wie bei Produkten und Geraeten — Titel und
+              Untertitel stehen schon im Seitenkopf darueber. */}
+          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: types.length })}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn--ghost" onClick={onSettingsClick}>

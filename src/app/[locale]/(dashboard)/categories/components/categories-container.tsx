@@ -83,7 +83,7 @@ export function CategoriesContainer() {
           <Icon name="calendar" size={28} />
         }
         action={
-          <Link href="/events" className="btn btn--primary" style={{ marginTop: 12 }}>
+          <Link href="/events" className="btn btn--primary">
             {t('noEvents.goToEvents')}
           </Link>
         }

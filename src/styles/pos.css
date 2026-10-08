@@ -448,8 +448,11 @@ body:has(.pos-root) { overscroll-behavior: none; }
   background: currentColor;
   opacity: .35;
 }
-/* Ziffernbreite fest, sonst wandert der Code bei jedem Wechsel. */
+/* Festbreitenschrift: jede Ziffer gleich breit, sonst wandert der Code bei
+   jedem Wechsel, und ohne Zweiergruppen haelt das gleichmaessige Raster die
+   sechs Ziffern lesbar auseinander. */
 .display-pair__code {
+  font-family: var(--oe-f-mono);
   font-variant-numeric: tabular-nums;
   /* An beiden Seiten gemessen. Nur an der Hoehe zu haengen ist auf dem
      Fernseher richtig — auf einem hochkanten Telefon ist die Hoehe die
@@ -457,12 +460,15 @@ body:has(.pos-root) { overscroll-behavior: none; }
      Zeilen um. Die schmalere Seite entscheidet jetzt mit. */
   font-size: clamp(40px, min(14vh, 14vw), 150px);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  /* Etwas Luft zusaetzlich zur festen Ziffernbreite. Sie steht auch hinter
+     der letzten Ziffer und schob den Code optisch nach links — der
+     negative Rand nimmt sie aus der Breite. */
+  letter-spacing: 0.05em;
+  margin-right: -0.05em;
   line-height: 1;
   color: var(--oe-green-ink);
-  /* Der Code ist eine Einheit — umgebrochen las man "12 34" und darunter
-     "56" als zwei Zahlen. 14vw haelt ihn auf einem 360px-Telefon in einer
-     Zeile. */
+  /* Der Code ist eine Einheit und bricht nie um. 14vw haelt ihn auf einem
+     360px-Telefon in einer Zeile. */
   white-space: nowrap;
 }
 .display-pair__qr {
