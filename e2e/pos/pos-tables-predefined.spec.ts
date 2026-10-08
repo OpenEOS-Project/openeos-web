@@ -226,7 +226,7 @@ test.describe('POS - predefined tables, table selection "list"', () => {
 
     const pos = new POSPage(page);
     await pos.goto();
-    await pos.openTableByNumber('6', label(6));
+    await pos.openTableFromList(label(6));
     await pos.openCart();
     await expect(pos.cart).toContainText('1 Artikel fertig zum Servieren');
     await pos.cart.getByRole('button', { name: 'Serviert' }).click();

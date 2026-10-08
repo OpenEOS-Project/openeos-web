@@ -69,7 +69,8 @@ test.describe('POS - floor plan', () => {
     const pos = new POSPage(page);
     await pos.goto();
     await expect(pos.startView).toBeVisible();
-    await expect(segment(page, 'Karte')).toHaveAttribute('aria-pressed', 'true');
+    // Ohne Einstellung: Karte (Standardbereich mit Tischplan), kein Umschalter.
+    await expect(segment(page, 'Karte')).toHaveCount(0);
     await expect(page.getByText('Tisch auf der Karte antippen.')).toBeVisible();
     await expect(page.getByRole('group', { name: `Tischplan ${area}` })).toBeVisible();
 
