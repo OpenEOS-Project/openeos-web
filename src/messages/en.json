@@ -61,7 +61,7 @@
         "panels": {
           "checkout": {
             "step": "Step 1 · Checkout",
-            "copy": "Orders are taken right at the counter — on any tablet, even without a connection."
+            "copy": "Orders are taken right at the counter — on any tablet or phone."
           },
           "receipt": {
             "step": "Step 2 · Receipt",
