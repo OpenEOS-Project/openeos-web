@@ -61,7 +61,7 @@
         "panels": {
           "checkout": {
             "step": "Schritt 1 · Kasse",
-            "copy": "Die Bestellung wird an der Theke aufgenommen — auf jedem Tablet, auch ohne Netz."
+            "copy": "Die Bestellung wird an der Theke aufgenommen — auf jedem Tablet oder Smartphone."
           },
           "receipt": {
             "step": "Schritt 2 · Bon",
