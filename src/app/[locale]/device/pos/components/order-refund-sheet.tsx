@@ -1,17 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import {
-  ITEM_STATUS_TONE,
-  cancellableQuantity,
-  isStarted,
-  paymentIcon,
-  paymentKey,
-  round2,
-} from '@/utils/order-history';
+import { ITEM_STATUS_TONE, paymentIcon, paymentKey } from '@/utils/order-history';
+import type { RefundMode, RefundPreset } from '@/utils/refund-form';
 import {
   Badge,
   Banner,
@@ -30,16 +24,15 @@ import {
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { useRefundForm } from '@/hooks/use-refund-form';
 
 import { deviceApi } from '@/lib/api-client';
 
 import { ApiException } from '@/types/api';
 import {
-  type CreateRefundData,
   type DeviceActor,
   type OrderDetail,
   REFUND_REASON_CODES,
-  type RefundReasonCode,
   type RefundResult,
 } from '@/types/order-history';
 
@@ -48,11 +41,7 @@ import { errorReason } from '../hooks/use-pos-checkout';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
 
-export interface RefundPreset {
-  mode: 'items' | 'amount' | 'full';
-  /** Positionen zugleich stornieren (Storno bezahlter Bestellungen). */
-  cancelItems: boolean;
-}
+export type { RefundPreset } from '@/utils/refund-form';
 
 interface OrderRefundSheetProps {
   preset: RefundPreset | null;
@@ -61,8 +50,6 @@ interface OrderRefundSheetProps {
   run: (action: (actor: DeviceActor) => Promise<void>) => Promise<void>;
   onDone: () => void;
 }
-
-type Mode = RefundPreset['mode'];
 
 interface ProviderFailure {
   message: string | null;
@@ -75,6 +62,7 @@ interface ProviderFailure {
  * Der Rückgabeweg folgt der ursprünglichen Zahlung: bar (Kassenlade),
  * SumUp (über die SumUp-API, bei Fehler „manuell erstattet“), fremdes
  * Kartengerät (manuell). Jede Erstattung druckt einen Gegenbeleg.
+ * Formularlogik gemeinsam mit der Verwaltung (`useRefundForm`).
  */
 export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderRefundSheetProps) {
   const t = useTranslations('pos.orderHistory');
@@ -83,38 +71,20 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
   const apiErrorMessage = useApiErrorMessage();
   const open = preset !== null;
 
-  const [mode, setMode] = useState<Mode>('items');
-  const [cancelItems, setCancelItems] = useState(false);
-  const [qty, setQty] = useState<Record<string, number>>({});
-  const [amount, setAmount] = useState('');
-  const [includeDeposit, setIncludeDeposit] = useState(true);
-  const [paymentId, setPaymentId] = useState<string>('auto');
-  const [reasonCode, setReasonCode] = useState<RefundReasonCode | null>(null);
-  const [reasonText, setReasonText] = useState('');
-  const [confirmStarted, setConfirmStarted] = useState(false);
+  const form = useRefundForm(order, preset);
+  const { mode, cancelItems, qty, amount, includeDeposit, paymentId, reasonCode, reasonText, confirmStarted } =
+    form.state;
+  const { payments, maxAmount, methodPayment, method, items, started, hasDeposit, preview, amountInvalid } =
+    form.view;
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<ProviderFailure | null>(null);
   const [result, setResult] = useState<RefundResult | null>(null);
-  const requestIds = useRef(new Map<string, string>());
   const failureRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!preset) return;
-    setMode(preset.mode);
-    setCancelItems(preset.cancelItems);
-    setQty({});
-    setAmount('');
-    setIncludeDeposit(true);
-    setReasonCode(null);
-    setReasonText('');
-    setConfirmStarted(false);
     setFailure(null);
     setResult(null);
-    requestIds.current.clear();
-    const refundable = order.payments.filter((p) => p.refundable > 0);
-    setPaymentId(refundable.length === 1 ? refundable[0].id : 'auto');
-    // Nur ein Kontext: preset wechselt beim Öffnen.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset]);
 
   // Ablehnung von SumUp sichtbar machen (auf kleinen Bildschirmen weiter unten).
@@ -122,80 +92,12 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
     if (failure) failureRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [failure]);
 
-  const payments = order.payments.filter((p) => p.refundable > 0);
-  const chosenPayment = payments.find((p) => p.id === paymentId) ?? null;
-  const maxAmount = chosenPayment ? chosenPayment.refundable : order.refundable;
-  const methodPayment =
-    chosenPayment ??
-    [...payments].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ??
-    null;
-
-  const items = useMemo(
-    () =>
-      order.items
-        .map((item) => ({
-          item,
-          max: cancelItems ? cancellableQuantity(item) : item.refundableQuantity,
-        }))
-        .filter((x) => x.max > 0),
-    [order.items, cancelItems]
-  );
-  const selected = items.filter(({ item }) => (qty[item.id] ?? 0) > 0);
-  // Begonnene Positionen, die mit storniert würden (bei „Alles“ alle aktiven).
-  const started = !cancelItems
-    ? []
-    : mode === 'full'
-      ? order.items
-          .filter((item) => cancellableQuantity(item) > 0 && isStarted(item.status))
-          .map((item) => ({ item }))
-      : selected.filter(({ item }) => isStarted(item.status));
-  const hasDeposit = selected.some(({ item }) => item.depositAmount > 0);
-
-  // Vorschau; der Server rechnet exakt (Rabatt, Pfand, Teilzahlungen).
-  const preview = (() => {
-    if (mode === 'full') return order.refundable;
-    if (mode === 'amount') return Math.min(Number(amount.replace(',', '.')) || 0, maxAmount);
-    const sum = selected.reduce((s, { item }) => {
-      const n = qty[item.id] ?? 0;
-      const deposit = cancelItems || includeDeposit ? item.depositAmount * n : 0;
-      return s + item.unitRefund * n + deposit;
-    }, 0);
-    return Math.min(round2(sum), order.refundable);
-  })();
-
-  const amountValue = Number(amount.replace(',', '.'));
-  const amountInvalid =
-    mode === 'amount' && (!(amountValue > 0) || amountValue > maxAmount + 0.001);
-  const nothingSelected = mode === 'items' && selected.length === 0;
-  const canSubmit =
-    !busy &&
-    !!reasonCode &&
-    !nothingSelected &&
-    !amountInvalid &&
-    (started.length === 0 || confirmStarted);
-
-  const payload = (manual: boolean): CreateRefundData => ({
-    mode,
-    reasonCode: reasonCode!,
-    ...(reasonText.trim() ? { reasonText: reasonText.trim() } : {}),
-    ...(mode === 'items'
-      ? { items: selected.map(({ item }) => ({ orderItemId: item.id, quantity: qty[item.id] })) }
-      : {}),
-    ...(mode === 'amount' ? { amount: round2(amountValue) } : {}),
-    ...(mode !== 'amount' && cancelItems ? { cancelItems: true } : {}),
-    ...(mode === 'items' && !cancelItems && !includeDeposit ? { includeDeposit: false } : {}),
-    ...(paymentId !== 'auto' ? { paymentId } : {}),
-    ...(started.length ? { confirmStarted: true } : {}),
-    ...(manual ? { manual: true } : {}),
-  });
+  const canSubmit = !busy && form.view.ready;
 
   const submit = (manual: boolean) =>
     run(async (actor) => {
-      const body = payload(manual);
-      // Gleiche Anfrage nach Netzfehler = dieselbe Erstattung (idempotent).
-      const key = JSON.stringify(body);
-      const clientRequestId = requestIds.current.get(key) ?? crypto.randomUUID();
-      requestIds.current.set(key, clientRequestId);
+      const body = form.payload(manual);
+      const clientRequestId = form.clientRequestId(body);
       setBusy(true);
       setFailure(null);
       try {
@@ -220,12 +122,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
       }
     });
 
-  const methodHint = (() => {
-    if (!methodPayment) return null;
-    const key = paymentKey(methodPayment.paymentMethod);
-    if (order.isTest && key !== 'cash') return t('methodHint.test');
-    return t(`methodHint.${key}`);
-  })();
+  const methodHint = method ? t(`methodHint.${method}`) : null;
 
   const title = cancelItems
     ? t('cancelAndRefundTitle', { number: order.dailyNumber })
@@ -288,12 +185,12 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
       title={title}
       subtitle={t('refundableAmount', { amount: formatPrice(order.refundable) })}
       toolbar={
-        <Segment<Mode>
+        <Segment<RefundMode>
           aria-label={t('refundMode')}
           size="lg"
           value={mode}
           onChange={(next) => {
-            setMode(next);
+            form.set('mode', next);
             setFailure(null);
           }}
           options={[
@@ -328,7 +225,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
     >
       <div className="pos-oh-form">
         {mode !== 'amount' && (
-          <Switch checked={cancelItems} onChange={(e) => setCancelItems(e.target.checked)}>
+          <Switch checked={cancelItems} onChange={(e) => form.set('cancelItems', e.target.checked)}>
             <span className="pos-oh-switch">
               <b>{t('alsoCancel')}</b>
               <small>{t('alsoCancelHint')}</small>
@@ -369,10 +266,8 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
                     value={value}
                     min={0}
                     max={max}
-                    onDecrement={() => setQty((q) => ({ ...q, [item.id]: Math.max(0, value - 1) }))}
-                    onIncrement={() =>
-                      setQty((q) => ({ ...q, [item.id]: Math.min(max, value + 1) }))
-                    }
+                    onDecrement={() => form.setQty(item.id, value - 1, max)}
+                    onIncrement={() => form.setQty(item.id, value + 1, max)}
                     labels={{ decrease: t('less'), increase: t('more') }}
                   />
                 </li>
@@ -382,7 +277,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
         )}
 
         {mode === 'items' && !cancelItems && hasDeposit && (
-          <Switch checked={includeDeposit} onChange={(e) => setIncludeDeposit(e.target.checked)}>
+          <Switch checked={includeDeposit} onChange={(e) => form.set('includeDeposit', e.target.checked)}>
             {t('includeDeposit')}
           </Switch>
         )}
@@ -398,7 +293,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
             }
             inputMode="decimal"
             value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ''))}
+            onChange={(e) => form.set('amount', e.target.value.replace(/[^0-9.,]/g, ''))}
             placeholder="0,00"
           />
         )}
@@ -414,11 +309,11 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
         {started.length > 0 && (
           <Banner tone="danger" icon={<Icon name="alert" />} title={t('startedTitle')}>
             <p>
-              {t('startedText', { items: started.map(({ item }) => item.productName).join(', ') })}
+              {t('startedText', { items: started.map((item) => item.productName).join(', ') })}
             </p>
             <Checkbox
               checked={confirmStarted}
-              onChange={(e) => setConfirmStarted(e.target.checked)}
+              onChange={(e) => form.set('confirmStarted', e.target.checked)}
             >
               {t('startedConfirm')}
             </Checkbox>
@@ -431,7 +326,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
             <ChoiceGroup<string>
               aria-label={t('refundVia')}
               value={paymentId}
-              onChange={setPaymentId}
+              onChange={(id) => form.set('paymentId', id)}
               options={[
                 { id: 'auto', label: t('refundViaAuto'), icon: 'refresh' },
                 ...payments.map((p) => ({
@@ -459,7 +354,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
               <Chip
                 key={code}
                 active={reasonCode === code}
-                onClick={() => setReasonCode(reasonCode === code ? null : code)}
+                onClick={() => form.set('reasonCode', reasonCode === code ? null : code)}
               >
                 {t(`reasons.${code}`)}
               </Chip>
@@ -467,7 +362,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
           </Chips>
           <Textarea
             value={reasonText}
-            onChange={(e) => setReasonText(e.target.value)}
+            onChange={(e) => form.set('reasonText', e.target.value)}
             placeholder={t('reasonPlaceholder')}
             aria-label={t('reasonText')}
             rows={2}

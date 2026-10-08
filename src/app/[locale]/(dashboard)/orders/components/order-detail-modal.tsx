@@ -1,17 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/shared/toast';
 import { Icon } from '@openeos/ui';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { usePermissions } from '@/hooks/use-permissions';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ordersApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { getOrderChannel, type Order, type OrderChannel, type OrderItemStatus } from '@/types/order';
 import type { OrderDetail, OrderDisplayStatus } from '@/types/order-history';
-import { paymentIcon, paymentKey } from '@/utils/order-history';
+import { cancellableQuantity, paymentIcon, paymentKey } from '@/utils/order-history';
+import type { RefundPreset } from '@/utils/refund-form';
+
+import { OrderCancelItemsDialog } from './order-cancel-items-dialog';
+import { OrderRefundDialog } from './order-refund-dialog';
 
 /** Ein Status je Bestellung, gleiche Bedeutung wie in der Kasse. */
 export const displayStatusBadge: Record<OrderDisplayStatus, string> = {
@@ -57,6 +63,19 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
     queryFn: async () => (await ordersApi.history(organizationId!, order!.id)).data,
     enabled: !!organizationId && !!order,
   });
+  const queryClient = useQueryClient();
+  const { hasPermission } = usePermissions();
+  const mayRefund = hasPermission('orders');
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [refund, setRefund] = useState<RefundPreset | null>(null);
+
+  /** Nach Storno/Erstattung: Detail, Liste und Kennzahlen neu laden. */
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ['order-history', organizationId, order?.id] });
+    void queryClient.invalidateQueries({ queryKey: ['orders', organizationId] });
+    void queryClient.invalidateQueries({ queryKey: ['orders-stats', organizationId] });
+  };
+
   const reprint = useMutation({
     mutationFn: (refundId: string) => ordersApi.reprintRefund(organizationId!, order!.id, refundId),
     onSuccess: (res) =>
@@ -67,92 +86,166 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
   if (!order) return null;
 
   const channel = getOrderChannel(order);
-  const discount = Number(order.discountAmount || 0);
-  const pfand = Number(order.pfandTotal || 0);
-  const tip = Number(order.tipAmount || 0);
+  // Nach Storno/Erstattung gelten die Zahlen des frisch geladenen Details.
+  const subtotal = Number(detail?.subtotal ?? order.subtotal);
+  const total = Number(detail?.total ?? order.total);
+  const paidAmount = Number(detail?.paidAmount ?? order.paidAmount);
+  const discount = Number(detail?.discountAmount ?? order.discountAmount ?? 0);
+  const pfand = Number(detail?.pfandTotal ?? order.pfandTotal ?? 0);
+  const tip = Number(detail?.tipAmount ?? order.tipAmount ?? 0);
+
+  // Wie an der Kasse: unbezahlte Positionen stornieren, bezahlte nur mit
+  // Erstattung; erstatten, solange etwas erstattbar ist.
+  const isCancelled = (detail?.status ?? order.status) === 'cancelled';
+  const activeItems = detail?.items.filter((i) => cancellableQuantity(i) > 0) ?? [];
+  const canCancelItems = !!detail && mayRefund && !isCancelled && activeItems.length > 0 && detail.refundable <= 0;
+  const canCancelPaid = !!detail && mayRefund && !isCancelled && activeItems.length > 0 && detail.refundable > 0;
+  const canRefund = !!detail && mayRefund && detail.refundable > 0;
 
   return (
-    <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
-        <div className="modal__head">
-          <div>
-            <h2 style={{ margin: 0 }}>{t('orders.detail.title', { number: order.dailyNumber })}</h2>
-            <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontFamily: 'var(--f-mono)', marginTop: 2 }}>
-              {order.orderNumber}
+    <>
+      <div className="modal__overlay" onClick={onClose}>
+        <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
+          <div className="modal__head">
+            <div>
+              <h2 style={{ margin: 0 }}>{t('orders.detail.title', { number: order.dailyNumber })}</h2>
+              <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontFamily: 'var(--f-mono)', marginTop: 2 }}>
+                {order.orderNumber}
+              </div>
             </div>
-          </div>
-          <DialogCloseButton onClick={onClose} />
-        </div>
-
-        <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Badges */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
-            {(() => {
-              const display = detail?.displayStatus ?? order.displayStatus ?? 'in_kitchen';
-              return <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>;
-            })()}
+            <DialogCloseButton onClick={onClose} />
           </div>
 
-          {/* Meta grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-            <MetaRow label={t('orders.detail.createdAt')} value={formatDateTime(order.createdAt)} />
-            {creatorLabel && <MetaRow label={t('orders.detail.createdBy')} value={creatorLabel} />}
-            {order.tableNumber && <MetaRow label={t('orders.columns.table')} value={order.tableNumber} />}
-            {order.customerName && <MetaRow label={t('orders.customer')} value={order.customerName} />}
-            {order.customerPhone && <MetaRow label={t('orders.detail.phone')} value={order.customerPhone} />}
-          </div>
-
-          {order.notes && (
-            <div style={{ fontSize: 13, padding: '10px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
-              <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{t('orders.detail.notes')}: </span>
-              {order.notes}
+          <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Badges */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
+              {(() => {
+                const display = detail?.displayStatus ?? order.displayStatus ?? 'in_kitchen';
+                return <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>;
+              })()}
             </div>
-          )}
 
-          {/* Items */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {(detail?.items ?? order.items ?? []).map((item) => (
-              <ItemRow key={item.id} item={item} refillLabel={t('orders.detail.refill')} />
-            ))}
-          </div>
+            {/* Meta grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+              <MetaRow label={t('orders.detail.createdAt')} value={formatDateTime(order.createdAt)} />
+              {creatorLabel && <MetaRow label={t('orders.detail.createdBy')} value={creatorLabel} />}
+              {order.tableNumber && <MetaRow label={t('orders.columns.table')} value={order.tableNumber} />}
+              {order.customerName && <MetaRow label={t('orders.customer')} value={order.customerName} />}
+              {order.customerPhone && <MetaRow label={t('orders.detail.phone')} value={order.customerPhone} />}
+            </div>
 
-          {/* Totals */}
-          <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <TotalRow label={t('orders.detail.subtotal')} value={formatCurrency(order.subtotal)} />
-            {discount > 0 && (
-              <TotalRow
-                label={order.discountReason ? `${t('orders.detail.discount')} (${order.discountReason})` : t('orders.detail.discount')}
-                value={`−${formatCurrency(discount)}`}
-              />
+            {order.notes && (
+              <div style={{ fontSize: 13, padding: '10px 12px', borderRadius: 8, background: 'color-mix(in oklab, var(--ink) 4%, transparent)' }}>
+                <span style={{ color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{t('orders.detail.notes')}: </span>
+                {order.notes}
+              </div>
             )}
-            {pfand > 0 && <TotalRow label={t('orders.detail.pfand')} value={formatCurrency(pfand)} />}
-            {tip > 0 && <TotalRow label={t('orders.detail.tip')} value={formatCurrency(tip)} />}
-            <TotalRow label={t('orders.detail.total')} value={formatCurrency(order.total)} strong />
-            {Number(order.paidAmount) > 0 && (
-              <TotalRow label={t('orders.paid')} value={formatCurrency(order.paidAmount)} />
-            )}
-            {Number(detail?.refundedAmount ?? 0) > 0 && (
-              <>
-                <TotalRow label={t('orders.history.refunded')} value={formatCurrency(-Number(detail!.refundedAmount))} />
+
+            {/* Items */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {(detail?.items ?? order.items ?? []).map((item) => (
+                <ItemRow key={item.id} item={item} refillLabel={t('orders.detail.refill')} />
+              ))}
+            </div>
+
+            {/* Totals */}
+            <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <TotalRow label={t('orders.detail.subtotal')} value={formatCurrency(subtotal)} />
+              {discount > 0 && (
                 <TotalRow
-                  label={t('orders.history.netTotal')}
-                  value={formatCurrency(Number(order.paidAmount) - Number(detail!.refundedAmount))}
+                  label={order.discountReason ? `${t('orders.detail.discount')} (${order.discountReason})` : t('orders.detail.discount')}
+                  value={`−${formatCurrency(discount)}`}
                 />
-              </>
-            )}
+              )}
+              {pfand > 0 && <TotalRow label={t('orders.detail.pfand')} value={formatCurrency(pfand)} />}
+              {tip > 0 && <TotalRow label={t('orders.detail.tip')} value={formatCurrency(tip)} />}
+              <TotalRow label={t('orders.detail.total')} value={formatCurrency(total)} strong />
+              {paidAmount > 0 && (
+                <TotalRow label={t('orders.paid')} value={formatCurrency(paidAmount)} />
+              )}
+              {Number(detail?.refundedAmount ?? 0) > 0 && (
+                <>
+                  <TotalRow label={t('orders.history.refunded')} value={formatCurrency(-Number(detail!.refundedAmount))} />
+                  <TotalRow
+                    label={t('orders.history.netTotal')}
+                    value={formatCurrency(paidAmount - Number(detail!.refundedAmount))}
+                  />
+                </>
+              )}
+            </div>
+
+            {detail && <HistorySections detail={detail} onReprint={(id) => reprint.mutate(id)} reprinting={reprint.isPending} />}
           </div>
 
-          {detail && <HistorySections detail={detail} onReprint={(id) => reprint.mutate(id)} reprinting={reprint.isPending} />}
-        </div>
-
-        <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>
-            {t('common.close')}
-          </button>
+          <div className="modal__foot" style={{ flexWrap: 'wrap' }}>
+            {(canCancelItems || canCancelPaid || canRefund) && (
+              <div className="order-action__bar" style={{ marginRight: 'auto' }}>
+                {canCancelItems && (
+                  <button type="button" className="btn btn--danger-quiet" onClick={() => setCancelOpen(true)}>
+                    <Icon name="ban" size={16} />
+                    {t('orders.refund.cancelItems')}
+                  </button>
+                )}
+                {canCancelPaid && (
+                  <button
+                    type="button"
+                    className="btn btn--danger-quiet"
+                    onClick={() => setRefund({ mode: 'items', cancelItems: true })}
+                  >
+                    <Icon name="ban" size={16} />
+                    {t('orders.refund.cancelAndRefund')}
+                  </button>
+                )}
+                {canRefund && (
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    onClick={() => setRefund({ mode: 'items', cancelItems: false })}
+                  >
+                    <Icon name="undo" size={16} />
+                    {t('orders.refund.refund')}
+                  </button>
+                )}
+              </div>
+            )}
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {t('common.close')}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Außerhalb des Overlays: ein Klick auf deren Hintergrund schlösse sonst auch das Detail. */}
+      {detail && organizationId && (
+        <>
+          <OrderCancelItemsDialog
+            organizationId={organizationId}
+            order={detail}
+            open={cancelOpen}
+            onClose={() => setCancelOpen(false)}
+            onDone={(count) => {
+              setCancelOpen(false);
+              toast.success(t('orders.refund.cancelDone', { count }));
+              refresh();
+            }}
+            onRefundRequired={() => {
+              setCancelOpen(false);
+              toast.error(t('orders.refund.paidNeedsRefund'));
+              refresh();
+              setRefund({ mode: 'items', cancelItems: true });
+            }}
+          />
+          <OrderRefundDialog
+            organizationId={organizationId}
+            order={detail}
+            preset={refund}
+            onClose={() => setRefund(null)}
+            onDone={refresh}
+          />
+        </>
+      )}
+    </>
   );
 }
 
