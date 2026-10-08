@@ -1,26 +1,48 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
+
 import { useTranslations } from 'next-intl';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '@/stores/auth-store';
-import { devicesApi, sumupApi } from '@/lib/api-client';
-import { toast } from '@/components/shared/toast';
-import type { Device, DeviceClass, DisplayMode, ServiceMode, TableSelectView } from '@/types/device';
-import type { TableArea } from '@/types/table';
-import { SettingToggle } from '@/components/shared/setting-toggle';
-import { useProductionStations } from '@/hooks/use-production-stations';
-import { useActiveEvent } from '@/hooks/use-events';
-import { useTableAreas } from '@/hooks/use-tables';
+
 import { Link } from '@/i18n/routing';
 import '@/styles/device-settings.css';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { SettingToggle } from '@/components/shared/setting-toggle';
+import { toast } from '@/components/shared/toast';
+
+import { useActiveEvent } from '@/hooks/use-events';
+import { useProductionStations } from '@/hooks/use-production-stations';
+import { useTableAreas } from '@/hooks/use-tables';
+
+import { devicesApi, sumupApi } from '@/lib/api-client';
+
+import { useAuthStore } from '@/stores/auth-store';
+
+import type {
+  Device,
+  DeviceClass,
+  DisplayMode,
+  ServiceMode,
+  TableSelectView,
+} from '@/types/device';
+import type { RefundPermission } from '@/types/order-history';
+import type { TableArea } from '@/types/table';
 
 interface DeviceSettingsProps {
   device: Device;
   organizationId: string;
 }
 
-function SectionCard({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+function SectionCard({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
   return (
     <section className="app-card">
       <div className="app-card__head">
@@ -36,7 +58,15 @@ function SectionCard({ title, description, children }: { title: string; descript
   );
 }
 
-function FormRow({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+function FormRow({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="device-settings__row">
       <label className="auth-field">
@@ -53,7 +83,15 @@ function FormRow({ label, hint, children }: { label: string; hint?: ReactNode; c
  * bei der Stationsanzeige), stehen direkt darunter, eingerückt und mit
  * eigener Überschrift — nicht irgendwo weiter unten.
  */
-function Dependent({ title, text, children }: { title: string; text?: string; children: ReactNode }) {
+function Dependent({
+  title,
+  text,
+  children,
+}: {
+  title: string;
+  text?: string;
+  children: ReactNode;
+}) {
   return (
     <div className="device-settings__dependent" role="group" aria-label={title}>
       <p className="device-settings__dependent-title">{title}</p>
@@ -64,9 +102,11 @@ function Dependent({ title, text, children }: { title: string; text?: string; ch
 }
 
 /** Hat ein Bereich einen Tischplan (nicht alle Tische auf 0/0)? Wie die Kasse. */
-const hasFloorLayout = (area: TableArea) => area.tables.some((table) => table.isActive && (table.x !== 0 || table.y !== 0));
+const hasFloorLayout = (area: TableArea) =>
+  area.tables.some((table) => table.isActive && (table.x !== 0 || table.y !== 0));
 
 const TABLE_SELECT_VIEWS: TableSelectView[] = ['number', 'list', 'map'];
+const REFUND_PERMISSIONS: RefundPermission[] = ['allowed', 'pin', 'disabled'];
 
 export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) {
   const t = useTranslations();
@@ -77,12 +117,24 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
 
   const [name, setName] = useState(device.name);
   const [type, setType] = useState<DeviceClass>(device.type);
-  const [serviceMode, setServiceMode] = useState<ServiceMode>(device.settings?.serviceMode || 'table');
+  const [serviceMode, setServiceMode] = useState<ServiceMode>(
+    device.settings?.serviceMode || 'table'
+  );
   const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
-  const [sumupReaderId, setSumupReaderId] = useState((device.settings?.sumupReaderId as string) || '');
-  const [displayMode, setDisplayMode] = useState<DisplayMode>(device.settings?.displayMode || 'customer');
+  /* Stornieren & Erstatten an der Kasse: erlaubt (Standard), nur mit PIN, aus. */
+  const [refundPermission, setRefundPermission] = useState<RefundPermission>(
+    device.settings?.refundPermission ?? 'allowed'
+  );
+  const [sumupReaderId, setSumupReaderId] = useState(
+    (device.settings?.sumupReaderId as string) || ''
+  );
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(
+    device.settings?.displayMode || 'customer'
+  );
   /* Welche Station dieser Bildschirm zeigt (`settings.stationId`). */
-  const [stationId, setStationId] = useState<string>((device.settings?.stationId as string | undefined) || '');
+  const [stationId, setStationId] = useState<string>(
+    (device.settings?.stationId as string | undefined) || ''
+  );
 
   /* Stationen gehoeren zur laufenden Veranstaltung — eine Kuechenanzeige
      ohne aktives Event hat nichts anzuzeigen. */
@@ -93,7 +145,9 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
      öffnen zuerst diesen Bereich. Leer heißt erster freigegebener. */
   const [tableAreaId, setTableAreaId] = useState(device.settings?.tableAreaId || '');
   /* Tischwahl an der Kasse (Nummer / Liste / Karte); leer = automatisch. */
-  const [tableSelectView, setTableSelectView] = useState<TableSelectView | ''>(device.settings?.tableSelectView || '');
+  const [tableSelectView, setTableSelectView] = useState<TableSelectView | ''>(
+    device.settings?.tableSelectView || ''
+  );
   const { data: tableAreas = [] } = useTableAreas(type === 'pos' ? organizationId : '');
   /* Aussehen der Anzeige. Leere Zeichenkette heisst "nichts eigenes
      gesetzt" — dann greift die Vorgabe der Anzeige selbst. */
@@ -102,13 +156,16 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [headline, setHeadline] = useState(device.settings?.display?.headline ?? '');
   const [showLogo, setShowLogo] = useState(device.settings?.display?.showLogo ?? true);
   const [idleText, setIdleText] = useState(device.settings?.display?.idleText ?? '');
-  const [autoClearSeconds, setAutoClearSeconds] = useState(String(device.settings?.display?.autoClearSeconds ?? 0));
+  const [autoClearSeconds, setAutoClearSeconds] = useState(
+    String(device.settings?.display?.autoClearSeconds ?? 0)
+  );
 
   useEffect(() => {
     setName(device.name);
     setType(device.type);
     setServiceMode(device.settings?.serviceMode || 'table');
     setRequirePin(device.settings?.requirePin ?? false);
+    setRefundPermission(device.settings?.refundPermission ?? 'allowed');
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
     setDisplayMode(device.settings?.displayMode || 'customer');
     setStationId((device.settings?.stationId as string | undefined) || '');
@@ -144,7 +201,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   });
 
   const posDevices = (posDevicesQuery.data || []).filter(
-    (d) => d.type === 'pos' && d.status === 'verified' && d.id !== device.id,
+    (d) => d.type === 'pos' && d.status === 'verified' && d.id !== device.id
   );
 
   /* Tischbetrieb der aktiven Veranstaltung: bestimmt, welche Tischwahl
@@ -164,16 +221,33 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           serviceMode: type === 'pos' ? serviceMode : device.settings?.serviceMode,
           printerMode: device.settings?.printerMode,
           requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
-          sumupReaderId: type === 'pos' ? sumupReaderId || undefined : device.settings?.sumupReaderId,
+          // „Erlaubt“ ist die Vorgabe: dann nichts speichern (null löscht).
+          refundPermission:
+            type === 'pos'
+              ? refundPermission === 'allowed'
+                ? null
+                : refundPermission
+              : device.settings?.refundPermission,
+          sumupReaderId:
+            type === 'pos' ? sumupReaderId || undefined : device.settings?.sumupReaderId,
           // null löscht den Wert (die API führt Einstellungen zusammen).
           tableAreaId:
-            type === 'pos' && serviceMode === 'table' ? tableAreaId || null : device.settings?.tableAreaId,
+            type === 'pos' && serviceMode === 'table'
+              ? tableAreaId || null
+              : device.settings?.tableAreaId,
           tableSelectView:
-            type === 'pos' && serviceMode === 'table' ? tableSelectView || null : device.settings?.tableSelectView,
+            type === 'pos' && serviceMode === 'table'
+              ? tableSelectView || null
+              : device.settings?.tableSelectView,
           displayMode: type === 'display' ? displayMode : device.settings?.displayMode,
-          stationId: type === 'display' && displayMode === 'station' ? stationId || undefined : device.settings?.stationId,
+          stationId:
+            type === 'display' && displayMode === 'station'
+              ? stationId || undefined
+              : device.settings?.stationId,
           posDeviceId:
-            type === 'display' && displayMode === 'customer' ? posDeviceId || undefined : device.settings?.posDeviceId,
+            type === 'display' && displayMode === 'customer'
+              ? posDeviceId || undefined
+              : device.settings?.posDeviceId,
           display:
             type === 'display'
               ? {
@@ -202,7 +276,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
      schickte das Geraet in dieselbe Ansicht wie eine Kasse. Aus dem
      Kopplungsdialog ist er schon draussen; hier stand er noch. */
   const typeOptions: DeviceClass[] = ['pos', 'display'];
-  const s = (key: string, values?: Record<string, string | number>) => t(`devices.detail.settings.${key}`, values);
+  const s = (key: string, values?: Record<string, string | number>) =>
+    t(`devices.detail.settings.${key}`, values);
 
   /* ---------- Kasse: Tische (hängt am Betriebsmodus „Bedienung“) ---------- */
 
@@ -236,9 +311,9 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             </option>
           ))}
           {/* Gelöschter Bereich: Wert sichtbar lassen statt still zu ändern. */}
-          {tableAreaId && !tableAreas.some((area) => area.id === tableAreaId) && tableAreas.length > 0 && (
-            <option value={tableAreaId}>{s('tableAreaMissing')}</option>
-          )}
+          {tableAreaId &&
+            !tableAreas.some((area) => area.id === tableAreaId) &&
+            tableAreas.length > 0 && <option value={tableAreaId}>{s('tableAreaMissing')}</option>}
         </select>
       </FormRow>
 
@@ -268,9 +343,15 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           value={tableSelectView}
           onChange={(e) => setTableSelectView(e.target.value as TableSelectView | '')}
         >
-          <option value="">{s('tableSelectView.auto', { view: s(`tableSelectView.${autoView}`) })}</option>
+          <option value="">
+            {s('tableSelectView.auto', { view: s(`tableSelectView.${autoView}`) })}
+          </option>
           {TABLE_SELECT_VIEWS.map((view) => (
-            <option key={view} value={view} disabled={view === 'map' && !anyMap && tableSelectView !== 'map'}>
+            <option
+              key={view}
+              value={view}
+              disabled={view === 'map' && !anyMap && tableSelectView !== 'map'}
+            >
               {s(`tableSelectView.${view}`)}
             </option>
           ))}
@@ -292,7 +373,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
         </FormRow>
 
         <FormRow label={t('devices.edit.type')} hint={s('basic.typeHint')}>
-          <select className="select" value={type} onChange={(e) => setType(e.target.value as DeviceClass)}>
+          <select
+            className="select"
+            value={type}
+            onChange={(e) => setType(e.target.value as DeviceClass)}
+          >
             {typeOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {t(`devices.class.${opt}`)}
@@ -306,7 +391,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
 
       {type === 'pos' && (
         <SectionCard title={s('serviceMode.title')} description={s('serviceMode.description')}>
-          <div className="device-settings__choices" role="radiogroup" aria-label={s('serviceMode.title')}>
+          <div
+            className="device-settings__choices"
+            role="radiogroup"
+            aria-label={s('serviceMode.title')}
+          >
             {(['table', 'counter'] as ServiceMode[]).map((mode) => (
               <div key={mode} className="device-settings__choice-wrap">
                 <label className="device-settings__choice">
@@ -333,7 +422,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
         <SectionCard title={s('payment.title')} description={s('payment.description')}>
           {sumupConfigured ? (
             <FormRow label={t('devices.edit.sumupReader')}>
-              <select className="select" value={sumupReaderId} onChange={(e) => setSumupReaderId(e.target.value)}>
+              <select
+                className="select"
+                value={sumupReaderId}
+                onChange={(e) => setSumupReaderId(e.target.value)}
+              >
                 <option value="">{t('devices.edit.sumupReaderNone')}</option>
                 {(readersQuery.data || []).map((reader) => (
                   <option key={reader.id} value={reader.id}>
@@ -357,6 +450,40 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             onChange={setRequirePin}
           />
           <p className="device-settings__hint">{s('auth.pinManagedPerMember')}</p>
+          <div className="device-settings__row">
+            <span className="device-settings__label">{s('auth.refund')}</span>
+            <p className="device-settings__hint">{s('auth.refundDescription')}</p>
+            <div
+              className="device-settings__choices"
+              role="radiogroup"
+              aria-label={s('auth.refund')}
+            >
+              {REFUND_PERMISSIONS.map((mode) => (
+                <div key={mode} className="device-settings__choice-wrap">
+                  <label className="device-settings__choice">
+                    <input
+                      type="radio"
+                      name="refundPermission"
+                      value={mode}
+                      checked={refundPermission === mode}
+                      onChange={() => setRefundPermission(mode)}
+                    />
+                    <span>
+                      <b>{s(`auth.refund_${mode}`)}</b>
+                      <small>{s(`auth.refund_${mode}Description`)}</small>
+                    </span>
+                  </label>
+                  {mode === 'pin' && refundPermission === 'pin' && (
+                    <Dependent title={s('auth.refund_pin')} text={s('auth.refund_pinHint')}>
+                      <Link href="/members" className="device-settings__link">
+                        {t('members.permissions.title')}
+                      </Link>
+                    </Dependent>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </SectionCard>
       )}
 
@@ -365,7 +492,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       {type === 'display' && (
         <SectionCard title={s('display.title')} description={s('display.description')}>
           <FormRow label={s('display.mode')}>
-            <select className="select" value={displayMode} onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}>
+            <select
+              className="select"
+              value={displayMode}
+              onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}
+            >
               <option value="customer">{s('display.modeCustomer')}</option>
               <option value="station">{s('display.modeStation')}</option>
             </select>
@@ -374,7 +505,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           {displayMode === 'customer' && (
             <Dependent title={s('display.customerTitle')} text={s('display.posDeviceHint')}>
               <FormRow label={s('display.posDevice')}>
-                <select className="select" value={posDeviceId} onChange={(e) => setPosDeviceId(e.target.value)}>
+                <select
+                  className="select"
+                  value={posDeviceId}
+                  onChange={(e) => setPosDeviceId(e.target.value)}
+                >
                   <option value="">{s('display.posDeviceNone')}</option>
                   {posDevices.map((pos) => (
                     <option key={pos.id} value={pos.id}>
@@ -390,9 +525,19 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             <Dependent title={s('display.stationTitle')} text={s('display.stationHint')}>
               <FormRow
                 label={s('display.station')}
-                hint={!aktivesEvent ? s('display.stationNoEvent') : stationen.length === 0 ? s('display.stationEmpty') : undefined}
+                hint={
+                  !aktivesEvent
+                    ? s('display.stationNoEvent')
+                    : stationen.length === 0
+                      ? s('display.stationEmpty')
+                      : undefined
+                }
               >
-                <select className="select" value={stationId} onChange={(e) => setStationId(e.target.value)}>
+                <select
+                  className="select"
+                  value={stationId}
+                  onChange={(e) => setStationId(e.target.value)}
+                >
                   <option value="">{s('display.stationNone')}</option>
                   {stationen.map((station) => (
                     <option key={station.id} value={station.id}>
@@ -405,7 +550,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
                 </select>
               </FormRow>
               <FormRow label={s('appearance.autoClear')} hint={s('appearance.autoClearHint')}>
-                <select className="select" value={autoClearSeconds} onChange={(e) => setAutoClearSeconds(e.target.value)}>
+                <select
+                  className="select"
+                  value={autoClearSeconds}
+                  onChange={(e) => setAutoClearSeconds(e.target.value)}
+                >
                   <option value="0">{s('appearance.autoClearOff')}</option>
                   {[10, 30, 60].map((seconds) => (
                     <option key={seconds} value={String(seconds)}>
@@ -422,7 +571,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       {type === 'display' && (
         <SectionCard title={s('appearance.title')} description={s('appearance.description')}>
           <FormRow label={s('appearance.theme')}>
-            <select className="select" value={theme} onChange={(e) => setTheme(e.target.value as typeof theme)}>
+            <select
+              className="select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as typeof theme)}
+            >
               <option value="dark">{s('appearance.themeDark')}</option>
               <option value="light">{s('appearance.themeLight')}</option>
               <option value="auto">{s('appearance.themeAuto')}</option>
@@ -430,7 +583,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           </FormRow>
 
           <FormRow label={s('appearance.scale')}>
-            <select className="select" value={scale} onChange={(e) => setScale(e.target.value as typeof scale)}>
+            <select
+              className="select"
+              value={scale}
+              onChange={(e) => setScale(e.target.value as typeof scale)}
+            >
               <option value="normal">{s('appearance.scaleNormal')}</option>
               <option value="large">{s('appearance.scaleLarge')}</option>
             </select>
@@ -464,7 +621,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       )}
 
       <div className="device-settings__actions">
-        <button className="btn btn--primary" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
+        <button
+          className="btn btn--primary"
+          onClick={() => updateMutation.mutate()}
+          disabled={updateMutation.isPending}
+        >
           {updateMutation.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>

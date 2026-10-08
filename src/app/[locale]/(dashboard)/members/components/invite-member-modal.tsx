@@ -31,6 +31,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'pfand',
   'reports',
   'inventory',
+  'orders',
 ];
 
 const NO_PERMISSIONS: OrganizationPermissions = Object.fromEntries(

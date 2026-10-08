@@ -76,6 +76,8 @@ export interface Device {
     tableSelectView?: TableSelectView | null;
     /** Stationsanzeige: welche Station (Produktionsstation) sie zeigt. */
     stationId?: string;
+    /** Kasse: Stornieren & Erstatten (fehlt = erlaubt). `null` setzt zurück. */
+    refundPermission?: import('./order-history').RefundPermission | null;
     [key: string]: unknown;
   };
   createdAt: string;

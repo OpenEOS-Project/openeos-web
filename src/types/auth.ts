@@ -13,6 +13,8 @@ export interface OrganizationPermissions {
   pfand?: boolean;
   reports?: boolean;
   inventory?: boolean;
+  /** Bestellungen stornieren und erstatten (Kasse per PIN, Verwaltung). */
+  orders?: boolean;
 }
 
 export interface UserOrganization {

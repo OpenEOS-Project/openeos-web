@@ -22,7 +22,7 @@ import { BroadcastToast } from './components/broadcast-toast';
 import { DoneSheet, type DoneInfo } from './components/done-sheet';
 import { LogoutSheet } from './components/logout-sheet';
 import { OpenOrdersSheet } from './components/open-orders-sheet';
-import { OrderHistoryDrawer } from './components/order-history-drawer';
+import { OrderHistorySheet } from './components/order-history-sheet';
 import { PaySheet } from './components/pay-sheet';
 import { PfandReturnModal } from './components/pfand-return-modal';
 import { PinEntryScreen } from './components/pin-entry-screen';
@@ -455,7 +455,14 @@ function PosApp() {
           printing={printing}
           onNext={nextReceipt}
         />
-        <OrderHistoryDrawer isOpen={sheet === 'history'} onClose={() => setSheet(null)} eventId={eventId} />
+        <OrderHistorySheet
+          isOpen={sheet === 'history'}
+          onClose={() => setSheet(null)}
+          eventId={eventId}
+          card={card ?? 'manual'}
+          disabled={offline}
+          onPaid={setDone}
+        />
         <OpenOrdersSheet
           isOpen={sheet === 'openOrders'}
           onClose={() => setSheet(null)}
