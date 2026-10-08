@@ -18,6 +18,7 @@ import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
 import type { PosTableContext } from '@/types/table';
 import { resolveChargePfand } from '@/utils/pfand';
+import { resolvePosCardMode } from '@/utils/pos-card-mode';
 import { BroadcastToast } from './components/broadcast-toast';
 import { DoneSheet, type DoneInfo } from './components/done-sheet';
 import { LogoutSheet } from './components/logout-sheet';
@@ -187,7 +188,12 @@ function PosApp() {
   const counterOrderCount = context?.kind === 'table' ? 0 : scopeOrders.length;
   const printer = usePosDeviceStatus();
 
-  const card = settings?.sumupReaderId && isIntegrationEnabled(orgSettings, 'sumup') ? 'sumup' : null;
+  // Testmodus: SumUp-Zahlart deaktiviert, keine Aufrufe am Lesegerät.
+  const card = resolvePosCardMode({
+    readerLinked: !!settings?.sumupReaderId,
+    sumupEnabled: isIntegrationEnabled(orgSettings, 'sumup'),
+    isTest,
+  });
   const contextLabel = !context
     ? ''
     : context.kind === 'table'

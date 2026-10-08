@@ -29,6 +29,7 @@ import {
 import { useFormatPrice } from '@/hooks/use-format-price';
 
 import type { HistoryPaymentFilter, OrderHistoryRow } from '@/types/order-history';
+import type { PosCardMode } from '@/utils/pos-card-mode';
 
 import { DEFAULT_FILTERS, type HistoryFilters, useOrderHistory } from '../hooks/use-order-history';
 import type { DoneInfo } from './done-sheet';
@@ -39,7 +40,7 @@ interface OrderHistorySheetProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string | null;
-  card: 'sumup' | 'manual' | null;
+  card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
 }

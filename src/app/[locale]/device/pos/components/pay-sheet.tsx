@@ -18,6 +18,7 @@ import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
+import type { PosCardMode } from '@/utils/pos-card-mode';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { useSumupCheckout } from '../hooks/use-sumup-checkout';
 import { PosSheet } from './pos-sheet';
@@ -48,8 +49,11 @@ interface PaySheetProps {
   amount: number;
   /** Enthaltenes Pfand (Unterzeile „inkl. … Pfand“). */
   pfandIncluded?: number;
-  /** `sumup` mit Lesegerät, `manual` als Buchung ohne Gerät, `null` = keine Karte. */
-  card: 'sumup' | 'manual' | null;
+  /**
+   * `sumup` mit Lesegerät, `sumup_test` = Lesegerät, aber Testmodus
+   * (Zahlart deaktiviert), `manual` als Buchung ohne Gerät, `null` = keine Karte.
+   */
+  card: PosCardMode;
   /** Rabatt-Bons (nur beim Kassieren des Warenkorbs). */
   discount?: PayDiscount | null;
   /** „Rechnung teilen“ — nur wenn es etwas zu teilen gibt. */
@@ -193,7 +197,23 @@ export function PaySheet({
 
   const methodOptions: ChoiceOption<Method>[] = [
     { id: 'cash', label: t('cash'), icon: 'cash' },
-    ...(card ? [{ id: 'card' as const, label: t('card'), icon: 'contactless' as const, hint: card === 'manual' ? t('cardManualHint') : undefined }] : []),
+    ...(card
+      ? [
+          {
+            id: 'card' as const,
+            label: t('card'),
+            icon: 'contactless' as const,
+            // Testmodus: keine echte Kartenzahlung, kein Aufruf am Lesegerät.
+            disabled: card === 'sumup_test',
+            hint:
+              card === 'manual'
+                ? t('cardManualHint')
+                : card === 'sumup_test'
+                  ? t('cardTestModeHint')
+                  : undefined,
+          },
+        ]
+      : []),
     ...(discount && discount.vouchers.length > 0
       ? [{ id: 'discount' as const, label: t('discount'), icon: 'ticket' as const }]
       : []),
@@ -292,7 +312,7 @@ export function PaySheet({
         {t('cardManual', { amount: formatPrice(amount) })}
       </Button>
     );
-  } else if (method === 'card') {
+  } else if (method === 'card' && card === 'sumup') {
     primary = sumup.busy ? (
       <Button variant="secondary" size="lg" className="oe-grow" onClick={() => sumup.cancel()}>
         <Icon name="x" />
@@ -371,7 +391,7 @@ export function PaySheet({
     );
   } else if (method === 'card' && card === 'manual') {
     right = <Prompt icon="card" title={t('cardManualTitle')} text={t('cardManualText', { amount: formatPrice(amount) })} />;
-  } else if (method === 'card') {
+  } else if (method === 'card' && card === 'sumup') {
     if (sumup.busy || sumup.state === 'success') {
       right = (
         <Prompt

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@openeos/ui';
+import { Banner, Icon } from '@openeos/ui';
 import { CircleAlert } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi, sumupApi } from '@/lib/api-client';
@@ -12,6 +12,7 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { useIntegrationErrorMessage } from '@/hooks/use-integrations';
+import { useActiveEvent } from '@/hooks/use-events';
 
 export function SumUpIntegration() {
   const t = useTranslations('settings.organizationSumup');
@@ -24,6 +25,8 @@ export function SumUpIntegration() {
   const integrationError = useIntegrationErrorMessage();
 
   const organizationId = currentOrganization?.organizationId;
+  const { data: activeEvent } = useActiveEvent(organizationId ?? '');
+  const inTestMode = activeEvent?.status === 'test';
   const sumupSettings = currentOrganization?.organization?.settings?.sumup;
   const isConfigured = !!sumupSettings?.merchantCode;
 
@@ -259,6 +262,15 @@ export function SumUpIntegration() {
           </div>
         </div>
       </div>
+
+      {/* Testmodus: die Kasse loest keine echten SumUp-Zahlungen aus (API sperrt sie). */}
+      <Banner
+        tone={inTestMode ? 'warn' : 'info'}
+        icon={<Icon name="info" />}
+        title={inTestMode ? t('testMode.activeTitle') : t('testMode.title')}
+      >
+        {t('testMode.text')}
+      </Banner>
 
       {/* Readers Card */}
       <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
