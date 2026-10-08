@@ -212,6 +212,7 @@ export function OrderHistorySheet({
           <div className="pos-oh-more__grp">
             <small>{t('scope')}</small>
             <Segment<'device' | 'all'>
+              size="lg"
               aria-label={t('scope')}
               value={filters.scope}
               onChange={(scope) => setFilters((f) => ({ ...f, scope }))}
@@ -224,6 +225,7 @@ export function OrderHistorySheet({
           <div className="pos-oh-more__grp">
             <small>{t('range')}</small>
             <Segment<'today' | 'event'>
+              size="lg"
               aria-label={t('range')}
               value={filters.range}
               onChange={(range) => setFilters((f) => ({ ...f, range }))}
