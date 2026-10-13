@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Link } from '@/i18n/routing';
+import { SourceCodeLink } from '@/components/shared/source-code-link';
 import { localizePlatformUrl, type PublicLegalInfo } from '@/lib/legal';
 
 type LegalKind = 'imprint' | 'privacy';
@@ -75,6 +76,9 @@ export function PoweredByOpenEos({ legal }: { legal: PublicLegalInfo | null | un
           </a>
         </>
       )}
+      {/* AGPL-3.0 § 13: Quellcode auch auf den oeffentlichen Seiten anbieten */}
+      <span aria-hidden="true">·</span>
+      <SourceCodeLink iconSize={0} />
     </p>
   );
 }
