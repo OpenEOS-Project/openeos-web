@@ -27,6 +27,10 @@
     "noOrganization": {
       "title": "No organization selected",
       "description": "Please select an organization first."
+    },
+    "sourceCode": {
+      "label": "Source code (AGPL-3.0)",
+      "title": "OpenEOS is free software under the AGPL-3.0-or-later. Get the source code here."
     }
   },
   "auth": {
@@ -808,7 +812,16 @@
       "saved": "Settings saved",
       "saveFailed": "Failed to save settings"
     },
-    "subtitle": "Manage your personal and organization settings"
+    "subtitle": "Manage your personal and organization settings",
+    "about": {
+      "title": "About OpenEOS",
+      "version": "Version",
+      "license": "License",
+      "licenseText": "OpenEOS is free software: you can use, redistribute and modify it under the terms of the GNU Affero General Public License, version 3 or (at your option) any later version. It comes without any warranty.",
+      "sourceText": "The complete source code of this installation is available here:",
+      "copyright": "Copyright © 2026 LUXCODE by Lukas Lukic-Spitznagel and contributors",
+      "thirdParty": "Bundled third-party components and their licenses are listed in NOTICE and THIRD_PARTY_NOTICES.md in the source code."
+    }
   },
   "billing": {
     "title": "Billing",
@@ -2333,7 +2346,8 @@
       "theme": "Appearance",
       "theme_dark": "Dark",
       "theme_light": "Light",
-      "theme_system": "System"
+      "theme_system": "System",
+      "sourceCode": "Source code (AGPL-3.0)"
     },
     "header": {
       "lock": "Lock register",

@@ -47,6 +47,7 @@ import { useSidebarStore } from '@/stores/sidebar-store';
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
 import { APP_VERSION } from '@/lib/version';
+import { SourceCodeLink } from '@/components/shared/source-code-link';
 import { useReleaseVersion } from '@/hooks/use-release-version';
 import { useDeployment } from '@/components/providers/setup-provider';
 
@@ -602,6 +603,7 @@ export function AppSidebar() {
               {/^\d/.test(versionsText) ? `v${versionsText}` : versionsText}
             </p>
           )}
+          {!isCollapsed && <SourceCodeLink className="app-sidebar__source" iconSize={12} />}
 
           {/* Eingeklappt bleibt nur Platz fuer Symbole — dann stehen die
               Eintraege wie zuvor untereinander. */}
