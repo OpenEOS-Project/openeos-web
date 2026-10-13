@@ -9,6 +9,7 @@ import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hoo
 import { billingApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { DEFAULT_BUSINESS_DAY_START_HOUR } from '@/lib/event-schedule';
+import { checkoutCancellationHint, formatUnlockDeadline } from '@/utils/event-unlock';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
 import { ApiException } from '@/types/api';
@@ -163,6 +164,10 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     startsOn && endsOn && endsOn !== startsOn && billing.days > 1
       ? `${startsOn} – ${endsOn}`
       : startsOn;
+  // Bis wann sich die Freischaltung nach dem Bezahlen kostenlos stornieren
+  // ließe — wer erst kurz vor Beginn bezahlt, soll vorher wissen, dass es
+  // dann keinen kostenlosen Rückweg mehr gibt.
+  const cancellationHint = checkoutCancellationHint(billing);
 
   return (
     <div className="modal__overlay" onClick={onClose}>
@@ -233,6 +238,19 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
 
           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
             {t('noVat')}
+          </p>
+
+          <p
+            style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}
+            data-testid="checkout-cancellation-hint"
+          >
+            {cancellationHint?.kind === 'until'
+              ? t('cancellationUntil', {
+                  deadline: formatUnlockDeadline(cancellationHint.deadline, locale, billing.cancellation.timezone),
+                })
+              : cancellationHint?.kind === 'too_late'
+                ? t('cancellationTooLate')
+                : t('cancellationRule')}
           </p>
 
           {!payByInvoice ? (

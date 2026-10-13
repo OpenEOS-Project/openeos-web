@@ -31,6 +31,53 @@ export interface EventBilling {
   organizationName: string;
   billingEmail: string | null;
   billingAddress: BillingAddressDetails | null;
+  /** Wann bezahlt bzw. auf Rechnung bestellt wurde. */
+  paidAt: string | null;
+  /** Der tatsächlich berechnete Betrag — `finalPrice` ist nur der heutige Preis. */
+  priceCharged: number | null;
+  /** Ob und bis wann sich die Freischaltung kostenlos stornieren lässt. */
+  cancellation: EventUnlockCancellationInfo;
+  /** Die letzte Stornierung dieser Veranstaltung, falls es eine gab. */
+  lastCancellation: EventUnlockCancellation | null;
+}
+
+/** Warum die Freischaltung gerade nicht storniert werden kann. */
+export type EventUnlockCancellationBlock =
+  | 'not_paid'
+  | 'deadline_passed'
+  | 'has_orders'
+  | 'online_refund_unavailable';
+
+export interface EventUnlockCancellationInfo {
+  allowed: boolean;
+  /**
+   * Bis wann kostenlos storniert werden kann (ISO). Steht auch vor dem
+   * Bezahlen schon da — der Bezahldialog nennt die Frist.
+   */
+  deadline: string | null;
+  /** Zeitzone der Organisation — die Frist wird darin angezeigt. */
+  timezone: string;
+  blockedReason: EventUnlockCancellationBlock | null;
+}
+
+export type EventRefundStatus = 'pending' | 'succeeded' | 'failed' | 'canceled' | 'requires_action';
+
+export interface EventUnlockCancellation {
+  id: string;
+  cancelledAt: string;
+  amount: number;
+  currency: string;
+  /** Wie die Freischaltung bezahlt war: über Stripe oder auf Rechnung. */
+  previousBillingStatus: 'paid' | 'invoice';
+  /** Stand der Erstattung bei Stripe; null bei Zahlung auf Rechnung. */
+  refundStatus: EventRefundStatus | null;
+  /** Nummer der Stornorechnung, sofern Stripe eine ausgestellt hat. */
+  creditNoteNumber: string | null;
+}
+
+export interface EventUnlockCancellationResult {
+  cancellation: EventUnlockCancellation;
+  billing: EventBilling;
 }
 
 export interface OrderInvoiceData {
@@ -58,9 +105,13 @@ export interface CompanySearchResponse {
   results: CompanySearchResultItem[];
 }
 
-/** Eine von Stripe ausgestellte Rechnung. */
+/** Eine von Stripe ausgestellte Rechnung oder Stornorechnung. */
 export interface OrganizationInvoice {
   id: string;
+  /** Rechnung oder Stornorechnung (Gutschrift zu einer Rechnung). */
+  kind: 'invoice' | 'credit_note';
+  /** Bei einer Stornorechnung: die Nummer der Rechnung, die sie aufhebt. */
+  relatedInvoiceNumber: string | null;
   /** Fortlaufende Rechnungsnummer von Stripe. Entwürfe haben noch keine. */
   number: string | null;
   issuedAt: string | null;

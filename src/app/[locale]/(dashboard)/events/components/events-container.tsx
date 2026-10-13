@@ -21,6 +21,7 @@ import type { EventBilling } from '@/types/billing';
 
 import { EventCheckoutDialog } from './event-checkout-dialog';
 import { EventFormModal } from './event-form-modal';
+import { EventUnlockDialog } from './event-unlock-dialog';
 import { EventsList } from './events-list';
 
 export function EventsContainer() {
@@ -32,6 +33,7 @@ export function EventsContainer() {
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   const [checkout, setCheckout] = useState<{ event: Event; billing: EventBilling } | null>(null);
   const [checkingEventId, setCheckingEventId] = useState<string | null>(null);
+  const [unlockEvent, setUnlockEvent] = useState<Event | null>(null);
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -174,7 +176,14 @@ export function EventsContainer() {
         onActivateClick={handleActivateClick}
         onDeactivateClick={handleDeactivateClick}
         onSetTestModeClick={handleSetTestModeClick}
+        onUnlockClick={deployment.billingEnabled ? setUnlockEvent : undefined}
         activatingEventId={checkingEventId}
+      />
+
+      <EventUnlockDialog
+        event={unlockEvent}
+        organizationId={organizationId}
+        onClose={() => setUnlockEvent(null)}
       />
 
       <EventFormModal

@@ -66,6 +66,8 @@ export interface Event {
   endDate: string | null;
   status: EventStatus;
   settings: EventSettings;
+  /** Abrechnungsstand der Freischaltung (nur im gehosteten Betrieb von Belang). */
+  billingStatus?: import('./billing').EventBillingStatus;
   createdAt: string;
   updatedAt: string;
 }
