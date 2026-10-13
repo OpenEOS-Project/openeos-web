@@ -1081,11 +1081,17 @@
       "actions": {
         "reset": "Reset",
         "invoice": "Invoice",
-        "waive": "Waive"
+        "waive": "Waive",
+        "cancelBilling": "Cancel"
       },
       "pagination": {
         "total": "{count, plural, =1 {# event total} other {# events total}}",
         "page": "Page {page} of {totalPages}"
+      },
+      "cancelBilling": {
+        "title": "Cancel activation",
+        "description": "Refunds the full amount via Stripe (with a credit note) or reverses the invoice order, and puts the event into test mode. The 7-day deadline does not apply here; events with real orders cannot be cancelled.",
+        "submit": "Cancel activation"
       }
     },
     "printers": {
@@ -1254,7 +1260,8 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "testMode": "Test Mode",
-      "openShop": "Open shop"
+      "openShop": "Open shop",
+      "unlock": "Activation"
     },
     "deleteConfirm": {
       "title": "Delete Event",
@@ -1296,10 +1303,56 @@
       "payOnline": "Place binding order",
       "redirecting": "Redirecting …",
       "paymentCancelled": "Payment cancelled — the event was not activated.",
-      "paymentPending": "The payment is still being processed. Please check again in a moment."
+      "paymentPending": "The payment is still being processed. Please check again in a moment.",
+      "cancellationUntil": "Free cancellation until {deadline} (7 days before the start).",
+      "cancellationTooLate": "The event starts in less than 7 days. Once you have paid, free cancellation is no longer possible.",
+      "cancellationRule": "Free cancellation up to 7 days before the start."
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
-    "editTitle": "Edit event"
+    "editTitle": "Edit event",
+    "unlock": {
+      "title": "Activation",
+      "status": {
+        "paid": "Activated – paid by card or direct debit",
+        "invoice": "Activated – ordered on invoice",
+        "waived": "Activated – free of charge",
+        "none": "Not activated",
+        "cancelled": "Activation cancelled"
+      },
+      "paidAmountOn": "{amount} paid on {date}",
+      "paidAmount": "{amount} paid",
+      "orderedAmountOn": "{amount}, ordered on invoice on {date}",
+      "orderedAmount": "{amount}, ordered on invoice",
+      "lastCancellation": "Cancelled on {date} ({amount}).",
+      "creditNote": "Credit note {number}.",
+      "deadline": "Free cancellation until {deadline}.",
+      "locked": {
+        "deadlinePassed": "The deadline for free cancellation passed on {deadline}. Please contact support.",
+        "deadlinePassedNoDate": "Free cancellation is no longer possible. Please contact support.",
+        "hasOrders": "This event already has orders, so free cancellation is no longer possible. Please contact support.",
+        "refundUnavailable": "Online refunds are unavailable right now. Please try again later or contact support."
+      },
+      "waivedNote": "Nothing was charged for this activation – there is nothing to refund.",
+      "cancelButton": "Cancel activation",
+      "confirm": {
+        "title": "Cancel activation?",
+        "amountLabel": "You get back",
+        "wayBackTitle": "Where the money goes",
+        "wayBackStripe": "The full amount goes back to the card or account you paid with – usually within 5–10 business days for cards and about 5 business days for direct debit. A credit note appears under Invoices.",
+        "wayBackInvoice": "You ordered on invoice. If the invoice has already been issued, you get a cancellation invoice; if you have already paid it, we transfer the amount back.",
+        "consequencesTitle": "What happens next",
+        "consequenceTestMode": "The event is no longer activated and continues in test mode. Your setup stays.",
+        "consequenceReactivate": "You can activate it again later; the price is then recalculated.",
+        "consequenceEmail": "A confirmation goes to {email}.",
+        "back": "Back",
+        "submit": "Cancel now",
+        "submitting": "Cancelling …"
+      },
+      "toast": {
+        "refunded": "Activation cancelled – {amount} will be refunded.",
+        "cancelled": "Activation cancelled."
+      }
+    }
   },
   "categories": {
     "title": "Categories",
@@ -3218,7 +3271,9 @@
     "EVENT_ACTIVE_CANNOT_DELETE": "Active events cannot be deleted.",
     "EVENT_ALREADY_ACTIVE": "The event is already active.",
     "EVENT_ALREADY_PAID": "The event is already unlocked.",
+    "EVENT_CANCELLATION_DEADLINE_PASSED": "The deadline for free cancellation has passed. Please contact support.",
     "EVENT_END_BEFORE_START": "The event cannot end before it starts.",
+    "EVENT_HAS_ORDERS": "The event already has orders – free cancellation is no longer possible. Please contact support.",
     "EVENT_NOT_ACTIVE": "The event is not active.",
     "EVENT_NOT_FOUND": "The event was not found.",
     "EVENT_NOT_PAID": "The event has not been unlocked yet. Please purchase it first.",
@@ -3348,6 +3403,7 @@
     "REFUND_AMOUNT_INVALID": "Enter an amount greater than 0.",
     "REFUND_EXCEEDS_PAYMENT": "At most {max} € can be refunded via this payment.",
     "REFUND_EXCEEDS_REFUNDABLE": "At most {max} € can be refunded.",
+    "REFUND_FAILED": "The refund failed. Nothing was cancelled – please try again later.",
     "REFUND_ITEMS_REQUIRED": "Select at least one item.",
     "REFUND_NOTHING_TO_REFUND": "There is nothing left to refund for this order.",
     "REFUND_NOT_ALLOWED": "Cancelling and refunding is switched off on this register.",
@@ -4425,7 +4481,8 @@
       "open": "Open",
       "draft": "Draft",
       "uncollectible": "Uncollectible",
-      "void": "Voided"
+      "void": "Voided",
+      "issued": "Issued"
     },
     "download": "PDF",
     "downloadFailed": "The PDF could not be loaded.",
@@ -4435,7 +4492,11 @@
       "title": "No invoices yet",
       "description": "Once an event has been paid for online, its invoice appears here. Documents for orders placed on account arrive by email and are not listed here."
     },
-    "issuerNote": "Invoices are issued through our payment provider, Stripe."
+    "issuerNote": "Invoices are issued through our payment provider, Stripe.",
+    "creditNote": {
+      "badge": "Credit note",
+      "description": "Credit note for {number}"
+    }
   },
   "integrations": {
     "title": "Integrations",

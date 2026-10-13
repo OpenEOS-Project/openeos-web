@@ -599,6 +599,12 @@ export const eventsApi = {
       `/organizations/${organizationId}/events/${id}/billing/sync`
     ),
 
+  /** Freischaltung kostenlos stornieren — erstattet und schaltet zurück in den Testmodus. */
+  cancelUnlock: (organizationId: string, id: string) =>
+    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellationResult>>(
+      `/organizations/${organizationId}/events/${id}/billing/cancel`
+    ),
+
   copyProductsFrom: (
     organizationId: string,
     targetEventId: string,
@@ -1099,6 +1105,10 @@ export const adminApi = {
 
   waiveEvent: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
+
+  /** Freischaltung stornieren, auch nach Ablauf der Frist (nur Plattform-Admins). */
+  cancelEventBilling: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellation>>(`/admin/events/${id}/cancel-billing`),
 
   // Support Chat (Super-Admin inbox)
   getSupportThreads: () =>

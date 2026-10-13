@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
-import { Building, ExternalLink, FlaskConical, Pause, Play } from 'lucide-react';
+import { BadgeCheck, Building, ExternalLink, FlaskConical, Pause, Play } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useEvents } from '@/hooks/use-events';
@@ -18,6 +18,11 @@ interface EventsListProps {
   onActivateClick: (event: Event) => void;
   onDeactivateClick: (event: Event) => void;
   onSetTestModeClick: (event: Event) => void;
+  /**
+   * Freischaltung ansehen bzw. stornieren. Nur im gehosteten Betrieb
+   * gesetzt — ohne Abrechnung gibt es nichts freizuschalten.
+   */
+  onUnlockClick?: (event: Event) => void;
   /** Event currently being checked/activated — shows a busy state on its activate button. */
   activatingEventId?: string | null;
 }
@@ -35,6 +40,7 @@ export function EventsList({
   onActivateClick,
   onDeactivateClick,
   onSetTestModeClick,
+  onUnlockClick,
   activatingEventId,
 }: EventsListProps) {
   const t = useTranslations('events');
@@ -176,6 +182,21 @@ export function EventsList({
                         <ExternalLink size={16} />
                       </a>
                     )}
+                    {onUnlockClick &&
+                      (event.billingStatus === 'paid' ||
+                        event.billingStatus === 'invoice' ||
+                        event.billingStatus === 'waived') && (
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
+                          onClick={() => onUnlockClick(event)}
+                          aria-label={t('actions.unlock')}
+                          title={t('actions.unlock')}
+                        >
+                          <BadgeCheck size={16} />
+                        </button>
+                      )}
                     {(event.status === 'inactive' || event.status === 'test') && (
                       <button
                         type="button"

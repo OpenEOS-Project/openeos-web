@@ -23,6 +23,8 @@ const STATUS_BADGE: Record<string, string> = {
   draft: 'badge',
   uncollectible: 'badge badge--error',
   void: 'badge',
+  // Stornorechnungen (Stripe-Gutschriften) sind ausgestellt oder ungültig.
+  issued: 'badge badge--neutral',
 };
 
 export function InvoicesContainer() {
@@ -103,13 +105,25 @@ export function InvoicesContainer() {
                   {invoice.number ?? (
                     <span style={{ opacity: 0.5 }}>{t('noNumber')}</span>
                   )}
+                  {invoice.kind === 'credit_note' && (
+                    <div>
+                      <span className="badge badge--warning" style={{ marginTop: 4 }}>
+                        {t('creditNote.badge')}
+                      </span>
+                    </div>
+                  )}
                 </td>
                 <td className="mono">
                   {invoice.issuedAt ? dateFormat.format(new Date(invoice.issuedAt)) : '–'}
                 </td>
-                <td>{invoice.description ?? '–'}</td>
+                <td>
+                  {invoice.kind === 'credit_note' && invoice.relatedInvoiceNumber
+                    ? t('creditNote.description', { number: invoice.relatedInvoiceNumber })
+                    : (invoice.description ?? '–')}
+                </td>
                 <td className="mono" style={{ textAlign: 'right' }}>
-                  {formatCurrency(invoice.total, locale)}
+                  {/* Eine Stornorechnung hebt einen Betrag auf — als negativer Wert lesbar. */}
+                  {formatCurrency(invoice.kind === 'credit_note' ? -invoice.total : invoice.total, locale)}
                 </td>
                 <td>
                   <span className={STATUS_BADGE[invoice.status] ?? 'badge'}>

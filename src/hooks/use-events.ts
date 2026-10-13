@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { eventsApi } from '@/lib/api-client';
 
+import { invoiceKeys } from './use-invoices';
 import { onboardingKeys } from './use-onboarding';
 import type { CreateEventData, Event, UpdateEventData } from '@/types/event';
 import type { OrderInvoiceData } from '@/types/billing';
@@ -15,6 +16,7 @@ export const eventKeys = {
   details: () => [...eventKeys.all, 'detail'] as const,
   detail: (organizationId: string, id: string) => [...eventKeys.details(), organizationId, id] as const,
   active: (organizationId: string) => [...eventKeys.all, 'active', organizationId] as const,
+  billing: (organizationId: string, id: string) => [...eventKeys.all, 'billing', organizationId, id] as const,
 };
 
 export function useEvents(organizationId: string) {
@@ -218,6 +220,40 @@ export function useOrderInvoice() {
     onSuccess: (data, { organizationId }) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
       queryClient.setQueryData(eventKeys.detail(organizationId, data.id), data);
+    },
+  });
+}
+
+/** Freischaltung, bezahlter Betrag und Stornofrist einer Veranstaltung. */
+export function useEventBilling(organizationId: string, id: string | null) {
+  return useQuery({
+    queryKey: eventKeys.billing(organizationId, id ?? ''),
+    queryFn: async () => {
+      const response = await eventsApi.billing(organizationId, id as string);
+      return response.data;
+    },
+    enabled: !!organizationId && !!id,
+  });
+}
+
+/**
+ * Storniert die Freischaltung. Danach stimmen Liste, aktive Veranstaltung
+ * (sie fällt in den Testmodus) und Rechnungen (Stornorechnung) nicht mehr.
+ */
+export function useCancelEventUnlock() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
+      const response = await eventsApi.cancelUnlock(organizationId, id);
+      return response.data;
+    },
+    onSuccess: (data, { organizationId, id }) => {
+      queryClient.setQueryData(eventKeys.billing(organizationId, id), data.billing);
+      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+      queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.list(organizationId) });
+      queryClient.invalidateQueries({ queryKey: onboardingKeys.status(organizationId) });
     },
   });
 }
