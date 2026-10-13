@@ -1,13 +1,14 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, CircleCheck } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
 import { authApi } from '@/lib/api-client';
+import { localizePlatformUrl } from '@/lib/legal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ApiException } from '@/types/api';
 
@@ -27,6 +28,11 @@ interface FormState {
   terms: boolean;
   newsletter: boolean;
 }
+
+/* AGB und Datenschutzerklaerung von OpenEOS — die Registrierung schliesst
+   den Vertrag mit OpenEOS, nicht mit einem Verein. */
+const TERMS_URL = 'https://openeos.de/terms';
+const PRIVACY_URL = 'https://openeos.de/privacy';
 
 const initial: FormState = {
   email: '',
@@ -49,6 +55,7 @@ export function RegisterWizard() {
   const tErr = useTranslations('auth.register.errors');
   const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
+  const locale = useLocale();
   const [stepIdx, setStepIdx] = useState(0);
   const [data, setData] = useState<FormState>(() => ({
     ...initial,
@@ -130,6 +137,9 @@ export function RegisterWizard() {
         // gleich einen Anmeldelink statt der Bestaetigungsmail.
         password: data.mitPasswort ? data.password : undefined,
         organizationName: data.organizationName,
+        // Frueher nur abgefragt, aber nie mitgeschickt — die API kannte das
+        // Feld nicht. Gespeichert wird der Zeitpunkt der Einwilligung.
+        newsletterOptIn: data.newsletter,
       });
       setDone(true);
     } catch (err) {
@@ -337,7 +347,20 @@ export function RegisterWizard() {
                 checked={data.terms}
                 onChange={(e) => update('terms', e.target.checked)}
               />
-              <span>{t('steps.confirm.terms')}</span>
+              <span>
+                {t.rich('steps.confirm.terms', {
+                  terms: (chunks) => (
+                    <a href={localizePlatformUrl(TERMS_URL, locale)} target="_blank" rel="noopener noreferrer">
+                      {chunks}
+                    </a>
+                  ),
+                  privacy: (chunks) => (
+                    <a href={localizePlatformUrl(PRIVACY_URL, locale)} target="_blank" rel="noopener noreferrer">
+                      {chunks}
+                    </a>
+                  ),
+                })}
+              </span>
             </label>
             {errors.terms && <span className="auth-error">{errors.terms}</span>}
 
