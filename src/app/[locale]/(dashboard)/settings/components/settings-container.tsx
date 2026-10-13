@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { ProfileSection } from './profile-section';
 import { AccountSection } from './account-section';
 import { SecuritySection } from './security-section';
 import { PreferencesSection } from './preferences-section';
 import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
+import { OrganizationLegalSection } from './organization-legal-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -47,9 +49,18 @@ export function SettingsContainer() {
   const t = useTranslations('settings');
   const { currentOrganization, user } = useAuthStore();
   const isSuperAdmin = user?.isSuperAdmin ?? false;
-  const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>('personal');
+  /* ?tab=org-legal (und die anderen Reiter-IDs) oeffnet direkt den Reiter —
+     die Warnungen an Shop und Schichtplan verlinken so auf die rechtlichen
+     Angaben. */
+  const requestedTab = useSearchParams().get('tab');
+  const orgTabIds = ['org-general', 'org-contact', 'org-legal'];
+  const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
+    requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
+  );
   const [activePersonal, setActivePersonal] = useState('profile');
-  const [activeOrg, setActiveOrg] = useState('org-general');
+  const [activeOrg, setActiveOrg] = useState(
+    requestedTab && orgTabIds.includes(requestedTab) ? requestedTab : 'org-general',
+  );
 
   const personalTabs: SettingsTab[] = [
     { id: 'profile', label: t('profile.title'), children: <ProfileSection /> },
@@ -61,6 +72,7 @@ export function SettingsContainer() {
   const organizationTabs: SettingsTab[] = [
     { id: 'org-general', label: t('organizationGeneral.title'), children: <OrganizationGeneralSection /> },
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
+    { id: 'org-legal', label: t('organizationLegal.tab'), children: <OrganizationLegalSection /> },
   ];
 
   /* Super-Admins bekamen frueher statt "Organisation" nur "Plattform". Auf

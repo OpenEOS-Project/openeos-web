@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { shiftsApi } from '@/lib/api-client';
 import { ListLoading } from '@/components/shared/list-states';
 import { DetailPageHead } from '@/components/shared/detail-page-head';
+import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
 import type { ShiftPlanStatus } from '@/types/shift';
 import { JobsList } from './components/jobs-list';
 import { RegistrationsList } from './components/registrations-list';
@@ -171,6 +172,15 @@ export default function ShiftPlanEditorPage() {
           </>
         }
       />
+
+      {/* Helfer geben auf der Anmeldeseite Daten an den Verein. Fehlen
+          Impressum oder Datenschutzhinweis, wird gewarnt — vor und nach dem
+          Veroeffentlichen, gesperrt wird nicht. */}
+      {plan.status !== 'closed' && (
+        <div style={{ marginBottom: 16 }}>
+          <LegalInfoWarning context="shifts" />
+        </div>
+      )}
 
       {/* Tableiste wie auf der Geraete- und der Druckerseite: unter dem
           Seitenkopf statt mit ihm in einer Karte. */}

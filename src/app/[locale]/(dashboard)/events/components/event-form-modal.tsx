@@ -12,6 +12,7 @@ import { useEventPricePreview } from '@/hooks/use-event-price-preview';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
 import { shopUrlForEvent } from '@/lib/shop-url';
+import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
 import { getShopUrl } from '@/lib/runtime-config';
 import {
   countEventDays,
@@ -482,6 +483,10 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                     checked={!!value}
                     onChange={onChange}
                   >
+                    {/* Der Verein verkauft — ohne Impressum und
+                        Datenschutzhinweis zeigt der Shop nur einen
+                        neutralen Hinweis. Warnen statt sperren. */}
+                    <LegalInfoWarning context="shop" />
                     {event && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                         <code
