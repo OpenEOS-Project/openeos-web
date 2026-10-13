@@ -233,6 +233,10 @@ export function useEventBilling(organizationId: string, id: string | null) {
       return response.data;
     },
     enabled: !!organizationId && !!id,
+    // Frist und Bestellungen ändern sich unabhängig von dieser Ansicht —
+    // vor einer Entscheidung über Geld immer frisch laden.
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
