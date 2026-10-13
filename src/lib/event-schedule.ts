@@ -11,6 +11,12 @@
  * gehoert sein Ende auf den Folgetag — "10 bis 2 Uhr" ist eine Nacht.
  *
  * Aendert sich die Regel dort, muss sie hier mitgehen.
+ *
+ * Abgerechnet wird nach Geschaeftstagen von 6 bis 6 Uhr. Das Formular
+ * kennt nur Daten und schickt beide Enden als Mitternacht; die rutschen
+ * beim Zaehlen gemeinsam auf den Vortag, die Zahl bleibt die der
+ * Kalendertage. countEventDays hier und der Preis vom Server sagen deshalb
+ * dasselbe — die Zahl selbst kommt in der Preisvorschau trotzdem vom Server.
  */
 
 import { isDayKey, listDays, parseDayKey, toDayKey } from '@/utils/calendar-date';
@@ -40,7 +46,14 @@ export function listEventDays(startDate: string, endDate: string): string[] {
   return days.length > 0 ? days : [startDate];
 }
 
-/** Abgerechnete Veranstaltungstage. */
+/**
+ * Stunde, zu der ein abgerechneter Veranstaltungstag wechselt, falls die
+ * API sie (noch) nicht mitliefert. Massgeblich ist BUSINESS_DAY_START_HOUR
+ * der API, die sie in Preisvorschau und Abrechnung mitschickt.
+ */
+export const DEFAULT_BUSINESS_DAY_START_HOUR = 6;
+
+/** Veranstaltungstage des Formularzeitraums (reine Daten, siehe oben). */
 export function countEventDays(startDate: string, endDate: string): number {
   return Math.max(1, listEventDays(startDate, endDate).length);
 }

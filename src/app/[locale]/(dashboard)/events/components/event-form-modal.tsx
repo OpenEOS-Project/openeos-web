@@ -15,6 +15,7 @@ import { shopUrlForEvent } from '@/lib/shop-url';
 import { getShopUrl } from '@/lib/runtime-config';
 import {
   countEventDays,
+  DEFAULT_BUSINESS_DAY_START_HOUR,
   fromStoredDays,
   isOvernight,
   parseDayKey,
@@ -345,6 +346,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                           days: preis.days,
                           perDay: formatCurrency(preis.pricePerDay),
                         })}
+                  </span>
+                  {/* Nur hier, wo es um den Preis geht: die Tage oben zaehlen
+                      nach Datum, abgerechnet wird von 6 bis 6 Uhr. */}
+                  <span className="event-price-hint__calc">
+                    {t('form.priceDayRule', {
+                      hour: preis.businessDayStartHour ?? DEFAULT_BUSINESS_DAY_START_HOUR,
+                    })}
                   </span>
                   <span className="event-price-hint__free">
                     {t('form.priceTestFree', { max: preis.testEventMaxOrders })}
