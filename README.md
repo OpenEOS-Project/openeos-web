@@ -170,7 +170,8 @@ Nach jedem erfolgreichen Image-Build auf `main` kann derselbe Workflow (`.github
 |----------|--------------|
 | `DEPLOY_ENABLED` | `true` aktiviert den Deploy-Job, sonst wird er übersprungen |
 | `DEPLOY_PATH` | Optional — Compose-Verzeichnis auf dem Server (Default: `/srv/docker/<repo-name>`) |
-| `DEPLOY_SERVICE` | Name des zu aktualisierenden Compose-Service |
+| `DEPLOY_SERVICE` | Optional — Compose-Dienst (Default: der Dienst mit dem Image dieses Repos) |
+| `DEPLOY_GUARD_URL` | Optional — Deploy-Schutz-Endpunkt (Default: `https://api.openeos.de/api/internal/deploy-guard`) |
 
 **Benötigte Secrets:**
 
@@ -180,8 +181,27 @@ Nach jedem erfolgreichen Image-Build auf `main` kann derselbe Workflow (`.github
 | `DEPLOY_USER` | SSH-Benutzer |
 | `DEPLOY_SSH_KEY` | Privater SSH-Key für den Zugriff |
 | `DEPLOY_PORT` | (optional) SSH-Port, Standard: `22` |
+| `DEPLOY_GUARD_TOKEN` | Token des Deploy-Schutzes (wie in der `.env` der Produktions-API); ohne ihn wird die Prüfung mit Warnung übersprungen |
 
-Der Deploy-Job verbindet sich per SSH auf den Server und führt dort `docker compose pull` + `docker compose up -d` für den konfigurierten Service aus, gefolgt von `docker image prune -f`.
+Ablauf:
+
+1. **Deploy-Schutz** (nur Produktion, Composite Action
+   `OpenEOS-Project/.github/actions/deploy-guard`): läuft gerade ein Fest —
+   eine aktive Veranstaltung mit echten Bestellungen in den letzten
+   30 Minuten —, wartet der Job, fragt alle 5 Minuten erneut und bricht nach
+   90 Minuten ab. Übergehen: „Run workflow“ auf `main` mit `force: true`.
+2. Per SSH: `docker compose pull <dienst>`, dann **`docker rollout <dienst>`**
+   ([docker-rollout](https://github.com/wowu/docker-rollout)): neue Instanzen
+   starten neben den alten, bekommen erst Verkehr, wenn ihr Health-Check
+   (`/api/health`) grün ist; die alten werden über `/tmp/drain` aus dem Proxy
+   genommen und dann gestoppt. Werden die neuen nicht gesund, laufen die alten
+   weiter und das vorige Image bekommt sein Tag zurück. Ohne `docker rollout`
+   auf dem Server: `docker compose up -d` wie bisher.
+3. `docker image prune -f`.
+
+**Health-Check:** `GET /api/health` antwortet 200, sobald der Next-Server läuft
+(ohne API-Aufruf). **Herunterfahren:** Auf SIGTERM nimmt Next.js keine neuen
+Verbindungen mehr an, lässt laufende Anfragen zu Ende laufen und beendet sich.
 
 ## License
 

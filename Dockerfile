@@ -58,4 +58,14 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# /api/health antwortet, sobald der Server laeuft (ohne API, ohne Rendern).
+# 127.0.0.1 statt localhost: localhost zeigt im Container zuerst auf ::1,
+# der Server lauscht aber nur auf IPv4.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD wget -q -T 3 -O /dev/null http://127.0.0.1:3000/api/health || exit 1
+
+# SIGTERM (docker stop): Next.js nimmt keine neuen Verbindungen mehr an,
+# laesst laufende Anfragen zu Ende laufen und beendet sich dann
+# (next/dist/server/lib/start-server.js). Keine eigene Signalbehandlung noetig.
+STOPSIGNAL SIGTERM
 CMD ["node", "server.js"]
