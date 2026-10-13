@@ -1090,9 +1090,18 @@
       },
       "cancelBilling": {
         "title": "Cancel activation",
-        "description": "Refunds the full amount via Stripe (with a credit note) or reverses the invoice order, and puts the event into test mode. The 7-day deadline does not apply here; events with real orders cannot be cancelled.",
+        "description": "Cancels the activation and puts the event back into test mode. Paid online: full refund through Stripe with a credit note. By invoice through Stripe: an open invoice is voided, a paid one gets a credit note with a refund. The 7-day deadline does not apply here; events with real orders cannot be cancelled.",
         "submit": "Cancel activation"
-      }
+      },
+      "invoiceStatus": {
+        "open": "Invoice open",
+        "overdue": "Overdue",
+        "paid": "Invoice paid",
+        "void": "Invoice void",
+        "uncollectible": "Uncollectible"
+      },
+      "invoiceDue": "due {date}",
+      "manualInvoice": "invoiced manually"
     },
     "printers": {
       "metaTitle": "Printers · Super admin",
@@ -1306,7 +1315,8 @@
       "paymentPending": "The payment is still being processed. Please check again in a moment.",
       "cancellationUntil": "Free cancellation until {deadline} (7 days before the start).",
       "cancellationTooLate": "The event starts in less than 7 days. Once you have paid, free cancellation is no longer possible.",
-      "cancellationRule": "Free cancellation up to 7 days before the start."
+      "cancellationRule": "Free cancellation up to 7 days before the start.",
+      "invoiceNoticeStripe": "The event is activated right away. You get the invoice by email, payable within {days} days – by bank transfer or online."
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
     "editTitle": "Edit event",
@@ -1346,12 +1356,30 @@
         "consequenceEmail": "A confirmation goes to {email}.",
         "back": "Back",
         "submit": "Cancel now",
-        "submitting": "Cancelling …"
+        "submitting": "Cancelling …",
+        "amountLabelInvoiceOpen": "Invoice amount you no longer owe",
+        "wayBackInvoiceOpen": "The invoice has not been paid yet. It is cancelled and you don’t owe anything.",
+        "wayBackInvoicePaid": "The invoice has already been paid. You get a credit note and the full amount back: automatically for card or direct debit; for a bank transfer, Stripe sends you an email asking for the bank account to transfer it back to."
       },
       "toast": {
         "refunded": "Activation cancelled – {amount} will be refunded.",
-        "cancelled": "Activation cancelled."
-      }
+        "cancelled": "Activation cancelled.",
+        "invoiceVoided": "Activation cancelled – the invoice is void."
+      },
+      "invoice": {
+        "line": "Invoice {number}",
+        "status": {
+          "open": "open",
+          "overdue": "overdue",
+          "paid": "paid",
+          "void": "cancelled",
+          "uncollectible": "uncollectible"
+        },
+        "dueOn": "due {date}",
+        "pay": "Pay invoice"
+      },
+      "invoiceVoided": "The invoice was cancelled.",
+      "bankRefund": "For the transfer back, Stripe sent you an email asking for your bank account."
     }
   },
   "categories": {
@@ -1992,7 +2020,10 @@
       "eventPriceOverride": "Price per event",
       "eventPriceOverrideHint": "Leave empty for default price",
       "prioritySupport": "Priority support",
-      "prioritySupportHint": "Prioritize this organization's requests in the support chat."
+      "prioritySupportHint": "Prioritize this organization's requests in the support chat.",
+      "invoiceDaysUntilDue": "Payment term (days)",
+      "invoiceDaysUntilDueHint": "Leave empty for the platform default",
+      "invoiceDaysUntilDueInvalid": "Please enter a whole number between 1 and 90"
     },
     "actions": {
       "edit": "Edit",
@@ -4482,7 +4513,8 @@
       "draft": "Draft",
       "uncollectible": "Uncollectible",
       "void": "Voided",
-      "issued": "Issued"
+      "issued": "Issued",
+      "overdue": "Overdue"
     },
     "download": "PDF",
     "downloadFailed": "The PDF could not be loaded.",
@@ -4490,13 +4522,15 @@
     "noNumber": "no number",
     "empty": {
       "title": "No invoices yet",
-      "description": "Once an event has been paid for online, its invoice appears here. Documents for orders placed on account arrive by email and are not listed here."
+      "description": "As soon as an event is activated online or by invoice, the invoice shows up here. Invoices that used to be issued by hand were sent by email and are not in this list."
     },
     "issuerNote": "Invoices are issued through our payment provider, Stripe.",
     "creditNote": {
       "badge": "Credit note",
       "description": "Credit note for {number}"
-    }
+    },
+    "pay": "Pay",
+    "dueOn": "due {date}"
   },
   "integrations": {
     "title": "Integrations",

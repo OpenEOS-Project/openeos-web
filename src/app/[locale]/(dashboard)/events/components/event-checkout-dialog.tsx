@@ -269,7 +269,11 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
           ) : (
             <>
               <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-                {t('invoiceNotice')}
+                {/* Mit Stripe kommt die Rechnung sofort und nennt ein
+                    Zahlungsziel; ohne Stripe stellt sie der Betreiber von Hand. */}
+                {billing.invoiceViaStripe
+                  ? t('invoiceNoticeStripe', { days: billing.invoiceDaysUntilDue ?? 14 })
+                  : t('invoiceNotice')}
               </p>
 
               <div style={{ position: 'relative' }}>

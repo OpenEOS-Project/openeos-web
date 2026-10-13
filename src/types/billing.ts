@@ -39,6 +39,34 @@ export interface EventBilling {
   cancellation: EventUnlockCancellationInfo;
   /** Die letzte Stornierung dieser Veranstaltung, falls es eine gab. */
   lastCancellation: EventUnlockCancellation | null;
+  /**
+   * Auf Rechnung: ob Stripe die Rechnung ausstellt und verschickt. Fehlt
+   * Stripe, bleibt es beim alten Weg (Rechnung von Hand).
+   */
+  invoiceViaStripe?: boolean;
+  /** Zahlungsziel einer Rechnung in Tagen (Standard bzw. Wert der Organisation). */
+  invoiceDaysUntilDue?: number;
+  /** Die Stripe-Rechnung zur Freischaltung; null bei Altfällen und ohne Rechnung. */
+  invoice?: EventInvoiceSummary | null;
+}
+
+/**
+ * Zahlungsstand einer Stripe-Rechnung. `overdue` gibt es bei Stripe nicht als
+ * Status — es ist eine offene Rechnung nach dem Fälligkeitsdatum.
+ */
+export type EventInvoiceStatus = 'open' | 'paid' | 'overdue' | 'void' | 'uncollectible';
+
+/** Die Rechnung, die Stripe beim Freischalten auf Rechnung ausgestellt hat. */
+export interface EventInvoiceSummary {
+  id: string;
+  number: string | null;
+  status: EventInvoiceStatus;
+  /** Fälligkeitsdatum (ISO). */
+  dueAt: string | null;
+  /** Wann der Zahlungseingang gemeldet wurde (ISO). */
+  paidAt: string | null;
+  /** Stripes Rechnungsseite — dort lässt sich auch bezahlen. */
+  hostedUrl: string | null;
 }
 
 /** Warum die Freischaltung gerade nicht storniert werden kann. */
@@ -73,6 +101,10 @@ export interface EventUnlockCancellation {
   refundStatus: EventRefundStatus | null;
   /** Nummer der Stornorechnung, sofern Stripe eine ausgestellt hat. */
   creditNoteNumber: string | null;
+  /** Auf Rechnung, noch nicht bezahlt: die Stripe-Rechnung wurde storniert (void). */
+  invoiceVoided?: boolean;
+  /** Per Überweisung bezahlt: die Rücküberweisung braucht die Bankverbindung des Kunden. */
+  manualRefundRequired?: boolean;
 }
 
 export interface EventUnlockCancellationResult {
@@ -117,8 +149,11 @@ export interface OrganizationInvoice {
   issuedAt: string | null;
   total: number;
   currency: string;
+  /** Stripes Status; zusätzlich `overdue` für offene Rechnungen nach dem Fälligkeitsdatum. */
   status: string;
   paid: boolean;
+  /** Fälligkeitsdatum (nur Rechnungen mit Zahlungsziel). */
+  dueAt?: string | null;
   description: string | null;
   hostedUrl: string | null;
   hasPdf: boolean;

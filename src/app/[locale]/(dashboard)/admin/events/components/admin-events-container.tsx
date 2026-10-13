@@ -15,6 +15,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { AdminEventListItem } from '@/types/admin';
+import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 
 const statusBadge: Record<string, string> = {
   active: 'badge badge--success',
@@ -28,6 +29,15 @@ const billingStatusBadge: Record<string, string> = {
   paid: 'badge badge--success',
   invoice: 'badge badge--info',
   waived: 'badge badge--neutral',
+};
+
+/* Zahlungsstand einer Stripe-Rechnung (auf Rechnung). */
+const invoiceStatusBadge: Record<string, string> = {
+  open: 'badge badge--warning',
+  overdue: 'badge badge--error',
+  paid: 'badge badge--success',
+  void: 'badge badge--neutral',
+  uncollectible: 'badge badge--error',
 };
 
 type Translator = ReturnType<typeof useTranslations>;
@@ -48,6 +58,35 @@ function billingStatusLabels(t: Translator): Record<string, string> {
     invoice: t('admin.events.billingStatus.invoice'),
     waived: t('admin.events.billingStatus.waived'),
   };
+}
+
+/** Auf Rechnung über Stripe: Zahlungsstand, Nummer (Link zur Rechnungsseite) und Fälligkeit. */
+function StripeInvoiceCell({ event }: { event: AdminEventListItem }) {
+  const t = useTranslations('admin.events');
+  const { formatDate } = useLocaleFormat();
+  const status = invoiceDisplayStatus(event.invoiceStatus ?? 'open', event.invoiceDueAt);
+  const label = event.invoiceNumber ?? event.stripeInvoiceId;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }} data-testid="admin-event-invoice">
+      <span className={invoiceStatusBadge[status] ?? 'badge badge--neutral'}>
+        {t.has(`invoiceStatus.${status}`) ? t(`invoiceStatus.${status}`) : status}
+      </span>
+      <span className="mono" style={{ fontSize: 11 }}>
+        {event.invoiceHostedUrl ? (
+          <a href={event.invoiceHostedUrl} target="_blank" rel="noopener noreferrer">
+            {label}
+          </a>
+        ) : (
+          label
+        )}
+      </span>
+      {event.invoiceDueAt && isInvoicePayable(status) && (
+        <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+          {t('invoiceDue', { date: formatDate(event.invoiceDueAt) })}
+        </span>
+      )}
+    </div>
+  );
 }
 
 interface MarkInvoicedModalProps {
@@ -393,9 +432,18 @@ export function AdminEventsContainer() {
                       </span>
                     </td>
                     <td>
-                      {event.invoicedAt ? (
+                      {event.stripeInvoiceId ? (
+                        /* Auf Rechnung über Stripe: Nummer, Zahlungsstand und
+                           Fälligkeit kommen von Stripe, nicht aus einem Vermerk. */
+                        <StripeInvoiceCell event={event} />
+                      ) : event.invoicedAt ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <span className="badge badge--success">{formatDate(event.invoicedAt)}</span>
+                          {/* Altfall: auf Rechnung, aber die Rechnung wurde außerhalb
+                              von OpenEOS gestellt und hier nur vermerkt. */}
+                          {event.billingStatus === 'invoice' && (
+                            <span style={{ fontSize: 11 }} data-testid="admin-event-manual-invoice">{t('manualInvoice')}</span>
+                          )}
                           {event.invoiceNote && (
                             <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {event.invoiceNote}
@@ -408,7 +456,7 @@ export function AdminEventsContainer() {
                     </td>
                     <td className="text-right">
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        {event.invoicedAt ? (
+                        {event.stripeInvoiceId ? null : event.invoicedAt ? (
                           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
                             {t('actions.reset')}
                           </button>

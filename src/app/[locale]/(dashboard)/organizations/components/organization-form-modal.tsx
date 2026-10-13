@@ -25,6 +25,11 @@ function createOrganizationSchema(t: (key: string) => string) {
     }),
     billingMode: z.enum(['prepaid', 'invoice']),
     eventPriceOverride: z.string().optional(),
+    // Leer = Standard der Plattform (INVOICE_DAYS_UNTIL_DUE).
+    invoiceDaysUntilDue: z
+      .string()
+      .optional()
+      .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 90), t('form.invoiceDaysUntilDueInvalid')),
     prioritySupport: z.boolean(),
   });
 }
@@ -51,6 +56,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors, isSubmitting, dirtyFields },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(createOrganizationSchema(t)),
@@ -59,9 +65,11 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
       billingMode: 'prepaid',
       eventPriceOverride: '',
+      invoiceDaysUntilDue: '',
       prioritySupport: false,
     },
   });
+  const billingMode = watch('billingMode');
 
   useEffect(() => {
     if (organization) {
@@ -75,6 +83,8 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         billingMode: organization.billingMode ?? 'prepaid',
         eventPriceOverride:
           typeof organization.eventPriceOverride === 'number' ? String(organization.eventPriceOverride) : '',
+        invoiceDaysUntilDue:
+          typeof organization.invoiceDaysUntilDue === 'number' ? String(organization.invoiceDaysUntilDue) : '',
         prioritySupport: organization.prioritySupport ?? false,
       });
     } else {
@@ -83,6 +93,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
         billingMode: 'prepaid',
         eventPriceOverride: '',
+        invoiceDaysUntilDue: '',
         prioritySupport: false,
       });
     }
@@ -94,6 +105,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         const parsedPrice = parseFloat(String(data.eventPriceOverride ?? '').replace(',', '.'));
         const eventPriceOverride =
           data.eventPriceOverride && Number.isFinite(parsedPrice) ? Math.round(parsedPrice * 100) / 100 : null;
+        const invoiceDaysUntilDue = data.invoiceDaysUntilDue ? Number(data.invoiceDaysUntilDue) : null;
         await updateOrganization.mutateAsync({
           id: organization.id,
           data: {
@@ -104,6 +116,10 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
             // Vorauswahl des Formulars ueberschrieben werden.
             ...(organization.billingMode || dirtyFields.billingMode ? { billingMode: data.billingMode } : {}),
             eventPriceOverride,
+            // Nur mitschicken, wo es eine Rolle spielt oder schon gesetzt war.
+            ...(data.billingMode === 'invoice' || organization.invoiceDaysUntilDue != null
+              ? { invoiceDaysUntilDue }
+              : {}),
             prioritySupport: data.prioritySupport,
           },
         });
@@ -199,6 +215,25 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                     {...register('eventPriceOverride')}
                   />
                 </label>
+
+                {billingMode === 'invoice' && (
+                  <label className="auth-field" style={{ gridColumn: '1 / -1' }}>
+                    <span>{t('form.invoiceDaysUntilDue')}</span>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1"
+                      max="90"
+                      inputMode="numeric"
+                      className="input"
+                      placeholder={t('form.invoiceDaysUntilDueHint')}
+                      {...register('invoiceDaysUntilDue')}
+                    />
+                    {errors.invoiceDaysUntilDue && (
+                      <span role="alert" className="auth-field__error">{errors.invoiceDaysUntilDue.message}</span>
+                    )}
+                  </label>
+                )}
 
                 {/* Spannt ueber beide Rasterspalten — die Zeile traegt ihren
                     eigenen Rahmen und wirkt halbbreit wie ein Bruchstueck. */}

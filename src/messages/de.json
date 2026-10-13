@@ -944,7 +944,8 @@
       "paymentPending": "Die Zahlung wird noch verarbeitet. Bitte in einem Moment erneut nachsehen.",
       "cancellationUntil": "Kostenlos stornierbar bis {deadline} (7 Tage vor Beginn).",
       "cancellationTooLate": "Die Veranstaltung beginnt in weniger als 7 Tagen. Nach dem Bezahlen ist keine kostenlose Stornierung mehr möglich.",
-      "cancellationRule": "Kostenlos stornierbar bis 7 Tage vor Beginn."
+      "cancellationRule": "Kostenlos stornierbar bis 7 Tage vor Beginn.",
+      "invoiceNoticeStripe": "Die Veranstaltung ist sofort freigeschaltet. Du bekommst die Rechnung per E-Mail, zahlbar innerhalb von {days} Tagen – per Überweisung oder online."
     },
     "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
     "editTitle": "Veranstaltung bearbeiten",
@@ -984,12 +985,30 @@
         "consequenceEmail": "Eine Bestätigung geht an {email}.",
         "back": "Zurück",
         "submit": "Jetzt stornieren",
-        "submitting": "Wird storniert …"
+        "submitting": "Wird storniert …",
+        "amountLabelInvoiceOpen": "Rechnungsbetrag, der entfällt",
+        "wayBackInvoiceOpen": "Die Rechnung ist noch nicht bezahlt. Sie wird storniert, du musst nichts mehr zahlen.",
+        "wayBackInvoicePaid": "Die Rechnung ist schon bezahlt. Du bekommst eine Stornorechnung und den vollen Betrag zurück: bei Karte oder Lastschrift automatisch, bei Überweisung schickt dir Stripe eine E-Mail, in der du die Bankverbindung für die Rücküberweisung angibst."
       },
       "toast": {
         "refunded": "Freischaltung storniert – {amount} werden erstattet.",
-        "cancelled": "Freischaltung storniert."
-      }
+        "cancelled": "Freischaltung storniert.",
+        "invoiceVoided": "Freischaltung storniert – die Rechnung ist aufgehoben."
+      },
+      "invoice": {
+        "line": "Rechnung {number}",
+        "status": {
+          "open": "offen",
+          "overdue": "überfällig",
+          "paid": "bezahlt",
+          "void": "storniert",
+          "uncollectible": "uneinbringlich"
+        },
+        "dueOn": "fällig am {date}",
+        "pay": "Rechnung bezahlen"
+      },
+      "invoiceVoided": "Die Rechnung wurde storniert.",
+      "bankRefund": "Für die Rücküberweisung hat dir Stripe eine E-Mail geschickt, in der du deine Bankverbindung angibst."
     }
   },
   "categories": {
@@ -1630,7 +1649,10 @@
       "eventPriceOverride": "Preis pro Veranstaltung",
       "eventPriceOverrideHint": "Leer = Standardpreis",
       "prioritySupport": "Priority-Support",
-      "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln."
+      "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln.",
+      "invoiceDaysUntilDue": "Zahlungsziel (Tage)",
+      "invoiceDaysUntilDueHint": "Leer = Standard der Plattform",
+      "invoiceDaysUntilDueInvalid": "Bitte eine ganze Zahl zwischen 1 und 90 eingeben"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -1945,9 +1967,18 @@
       },
       "cancelBilling": {
         "title": "Freischaltung stornieren",
-        "description": "Erstattet den vollen Betrag über Stripe (mit Stornorechnung) bzw. hebt den Rechnungskauf auf und setzt die Veranstaltung in den Testmodus. Die 7-Tage-Frist gilt hier nicht; Veranstaltungen mit echten Bestellungen lassen sich nicht stornieren.",
+        "description": "Hebt die Freischaltung auf und setzt die Veranstaltung in den Testmodus. Online bezahlt: volle Erstattung über Stripe mit Stornorechnung. Auf Rechnung über Stripe: eine offene Rechnung wird storniert, eine bezahlte bekommt eine Stornorechnung mit Erstattung. Die 7-Tage-Frist gilt hier nicht; Veranstaltungen mit echten Bestellungen lassen sich nicht stornieren.",
         "submit": "Stornieren"
-      }
+      },
+      "invoiceStatus": {
+        "open": "Rechnung offen",
+        "overdue": "Überfällig",
+        "paid": "Rechnung bezahlt",
+        "void": "Rechnung storniert",
+        "uncollectible": "Uneinbringlich"
+      },
+      "invoiceDue": "fällig {date}",
+      "manualInvoice": "manuell abgerechnet"
     },
     "printers": {
       "metaTitle": "Drucker · Super-Admin",
@@ -4482,7 +4513,8 @@
       "draft": "Entwurf",
       "uncollectible": "Uneinbringlich",
       "void": "Storniert",
-      "issued": "Ausgestellt"
+      "issued": "Ausgestellt",
+      "overdue": "Überfällig"
     },
     "download": "PDF",
     "downloadFailed": "Das PDF konnte nicht geladen werden.",
@@ -4490,13 +4522,15 @@
     "noNumber": "ohne Nummer",
     "empty": {
       "title": "Noch keine Rechnungen",
-      "description": "Sobald eine Veranstaltung online bezahlt wurde, erscheint die Rechnung hier. Belege zu Bestellungen auf Rechnung werden per E-Mail zugestellt und stehen nicht in dieser Liste."
+      "description": "Sobald eine Veranstaltung online oder auf Rechnung freigeschaltet wurde, erscheint die Rechnung hier. Früher von Hand gestellte Rechnungen kamen per E-Mail und stehen nicht in dieser Liste."
     },
     "issuerNote": "Rechnungen werden über unseren Zahlungsdienstleister Stripe ausgestellt.",
     "creditNote": {
       "badge": "Stornorechnung",
       "description": "Stornorechnung zu {number}"
-    }
+    },
+    "pay": "Bezahlen",
+    "dueOn": "fällig {date}"
   },
   "integrations": {
     "title": "Integrationen",

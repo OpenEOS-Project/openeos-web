@@ -10,6 +10,7 @@ import { useInvoices } from '@/hooks/use-invoices';
 import { billingApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { formatCurrency } from '@/utils/format';
+import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
 import { toast } from '@/components/shared/toast';
 import type { OrganizationInvoice } from '@/types/billing';
@@ -20,6 +21,7 @@ import type { OrganizationInvoice } from '@/types/billing';
 const STATUS_BADGE: Record<string, string> = {
   paid: 'badge badge--success',
   open: 'badge badge--warning',
+  overdue: 'badge badge--error',
   draft: 'badge',
   uncollectible: 'badge badge--error',
   void: 'badge',
@@ -73,9 +75,9 @@ export function InvoicesContainer() {
     return (
       <ListEmpty
         title={t('empty.title')}
-        /* Der Text nennt beide Wege: wer auf Rechnung zahlt, bekommt seine
-           Belege per E-Mail und wird hier dauerhaft nichts sehen. Ohne den
-           Zusatz läse sich die leere Liste wie ein Fehler. */
+        /* Online bezahlt oder auf Rechnung über Stripe: beides landet hier.
+           Nur Altfälle von Hand gestellter Rechnungen stehen nicht in der
+           Liste — der Text sagt das, damit es nicht wie ein Fehler aussieht. */
         description={t('empty.description')}
         icon={
           <FileText size={28} />
@@ -95,12 +97,15 @@ export function InvoicesContainer() {
               <th>{t('table.description')}</th>
               <th style={{ textAlign: 'right' }}>{t('table.amount')}</th>
               <th>{t('table.status')}</th>
-              <th style={{ width: 160 }}>{t('table.actions')}</th>
+              <th>{t('table.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice.id}>
+            {invoices.map((invoice) => {
+              const status = invoiceDisplayStatus(invoice.status, invoice.dueAt);
+              const payable = invoice.kind === 'invoice' && isInvoicePayable(status) && !!invoice.hostedUrl;
+              return (
+              <tr key={invoice.id} data-testid="invoice-row">
                 <td className="mono">
                   {invoice.number ?? (
                     <span style={{ opacity: 0.5 }}>{t('noNumber')}</span>
@@ -126,12 +131,22 @@ export function InvoicesContainer() {
                   {formatCurrency(invoice.kind === 'credit_note' ? -invoice.total : invoice.total, locale)}
                 </td>
                 <td>
-                  <span className={STATUS_BADGE[invoice.status] ?? 'badge'}>
-                    {t.has(`status.${invoice.status}`) ? t(`status.${invoice.status}`) : invoice.status}
+                  <span className={STATUS_BADGE[status] ?? 'badge'} data-testid="invoice-status">
+                    {t.has(`status.${status}`) ? t(`status.${status}`) : status}
                   </span>
+                  {/* Nur Rechnungen mit Zahlungsziel (auf Rechnung) haben eines;
+                      bezahlte und stornierte brauchen es nicht mehr. */}
+                  {invoice.dueAt && isInvoicePayable(status) && (
+                    <div
+                      className="mono"
+                      style={{ marginTop: 4, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', whiteSpace: 'nowrap' }}
+                    >
+                      {t('dueOn', { date: dateFormat.format(new Date(invoice.dueAt)) })}
+                    </div>
+                  )}
                 </td>
                 <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                     {invoice.hasPdf && (
                       <button
                         type="button"
@@ -143,7 +158,17 @@ export function InvoicesContainer() {
                         {t('download')}
                       </button>
                     )}
-                    {invoice.hostedUrl && (
+                    {payable && (
+                      <a
+                        className="btn btn--primary btn--sm"
+                        href={invoice.hostedUrl ?? undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('pay')}
+                      </a>
+                    )}
+                    {invoice.hostedUrl && !payable && (
                       <a
                         className="btn btn--ghost btn--sm"
                         href={invoice.hostedUrl}
@@ -159,7 +184,8 @@ export function InvoicesContainer() {
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
