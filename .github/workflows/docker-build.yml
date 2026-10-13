@@ -22,6 +22,11 @@ on:
         required: false
         default: true
         type: boolean
+      force:
+        description: 'Produktion: Deploy-Schutz übergehen (auch während eines Festes ausrollen)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -138,14 +143,30 @@ jobs:
     name: Deploy to production
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    # Auch per "Run workflow" auf main — mit force=true ohne Deploy-Schutz.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    # Der Deploy-Schutz wartet bis zu 90 Minuten.
+    timeout-minutes: 120
+    concurrency:
+      group: deploy-production-${{ github.repository }}
+      cancel-in-progress: false
     steps:
+      # Kein Ausrollen, solange eine Veranstaltung verkauft (echte Bestellungen
+      # in den letzten 30 min): alle 5 min neu fragen, nach 90 min abbrechen.
+      - name: Deploy guard
+        uses: OpenEOS-Project/.github/actions/deploy-guard@main
+        with:
+          token: ${{ secrets.DEPLOY_GUARD_TOKEN }}
+          url: ${{ vars.DEPLOY_GUARD_URL }}
+          force: ${{ inputs.force && 'true' || 'false' }}
+
       - name: Determine SSH port
         id: ssh-port
         run: echo "port=${DEPLOY_PORT:-22}" >> "$GITHUB_OUTPUT"
         env:
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
 
+      # pull -> docker rollout (ohne Ausfallzeit), siehe README.
       - name: Update production via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -153,53 +174,92 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ steps.ssh-port.outputs.port }}
+          command_timeout: 20m
           script: |
-            set -e
             cd ${{ vars.DEPLOY_PATH || format('/srv/docker/{0}', github.event.repository.name) }}
+            set -eu
             SERVICE="${{ vars.DEPLOY_SERVICE }}"
+            IMAGE_PREFIX="ghcr.io/openeos-project/${{ github.event.repository.name }}"
+            config_json() { docker compose config --format json; }
 
-            # Merken, welches Image gerade läuft, damit ein fehlgeschlagener
-            # Health-Check darauf zurückrollen kann statt einen kaputten
-            # Stand live zu lassen.
-            PREVIOUS_IMAGE=$(docker compose ps -q $SERVICE 2>/dev/null | head -1 | xargs -r docker inspect --format='{{.Image}}' 2>/dev/null || true)
-
-            docker compose pull $SERVICE
-            docker compose up -d $SERVICE
-
-            CONTAINER_ID=$(docker compose ps -q $SERVICE | head -1)
-            HEALTHY=false
-            for i in $(seq 1 10); do
-              sleep 3
-              # Bewusst 127.0.0.1 und NICHT localhost: im Container zeigt
-              # localhost per /etc/hosts zuerst auf ::1, der Next-Server
-              # lauscht aber nur auf IPv4 0.0.0.0 — über localhost bekommt
-              # man daher immer "connection refused".
-              if docker exec "$CONTAINER_ID" wget -q -O /dev/null http://127.0.0.1:3000/; then
-                HEALTHY=true
-                break
-              fi
-            done
-
-            if [ "$HEALTHY" = "true" ]; then
-              echo "Deploy healthy."
-              docker image prune -f
-            else
-              echo "Neuer Stand hat den Health-Check nach 30s nicht bestanden." >&2
-              if [ -n "$PREVIOUS_IMAGE" ]; then
-                echo "Rolle zurück auf $PREVIOUS_IMAGE" >&2
-                docker tag "$PREVIOUS_IMAGE" "$(docker compose config --images $SERVICE | head -1)"
-                docker compose up -d $SERVICE
-              else
-                echo "Kein Vorgänger-Image bekannt (Erst-Deploy?) — kein automatischer Rollback möglich." >&2
-              fi
+            # Ohne DEPLOY_SERVICE: der Dienst, der das Image dieses Repos nutzt.
+            if [ -z "$SERVICE" ]; then
+              SERVICE=$(config_json | jq -r --arg img "$IMAGE_PREFIX" \
+                '.services | to_entries[] | select((.value.image // "") | startswith($img)) | select(.key != "migrate") | .key' | head -n1)
+            fi
+            if [ -z "$SERVICE" ]; then
+              echo "::error::Kein Compose-Dienst mit Image $IMAGE_PREFIX gefunden." >&2
               exit 1
             fi
+            IMAGE_REF=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].image')
+
+            # Laufendes Image merken: schlaegt der Deploy fehl, bekommt es das
+            # Tag zurueck, damit ein spaeterer Neustart nicht den kaputten
+            # Stand hochfaehrt.
+            PREVIOUS_IMAGE=$(docker compose ps -q "$SERVICE" | head -n1 | xargs -r docker inspect --format '{{.Image}}' 2>/dev/null || true)
+            restore_previous_tag() {
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                echo "Setze $IMAGE_REF zurueck auf $PREVIOUS_IMAGE" >&2
+                docker tag "$PREVIOUS_IMAGE" "$IMAGE_REF"
+              fi
+            }
+
+            docker compose pull "$SERVICE"
+
+            # Migrationen als eigener Schritt vor dem Austausch der Instanzen
+            # (nur wo der Server einen Dienst "migrate" hat, also bei der API).
+            # Sie muessen mit dem alten Code vertraeglich sein (expand/contract).
+            if config_json | jq -e '.services.migrate' >/dev/null; then
+              if ! docker compose run --rm --no-deps migrate; then
+                echo "::error::Migration fehlgeschlagen — die laufenden Instanzen bleiben unveraendert." >&2
+                restore_previous_tag
+                exit 1
+              fi
+            fi
+
+            CONTAINER_NAME=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].container_name // empty')
+            if docker rollout --version >/dev/null 2>&1 && [ -z "$CONTAINER_NAME" ]; then
+              # Ohne Ausfallzeit: neue Instanzen neben den alten starten, auf
+              # "healthy" warten, die alten per /tmp/drain aus Traefik nehmen
+              # (Health-Check schlaegt fehl), dann stoppen. Werden die neuen
+              # nicht gesund, entfernt docker rollout sie wieder.
+              if ! docker rollout --timeout 180 --pre-stop-hook 'touch /tmp/drain && sleep 15' "$SERVICE"; then
+                echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
+                restore_previous_tag
+                exit 1
+              fi
+            else
+              # Server noch ohne docker rollout bzw. mit festem container_name:
+              # Austausch wie bisher, mit kurzer Unterbrechung.
+              echo "::warning::docker rollout nicht verfuegbar oder container_name gesetzt — compose up -d."
+              docker compose up -d "$SERVICE"
+              healthy=false
+              for _ in $(seq 1 40); do
+                sleep 3
+                states=$(docker compose ps -q "$SERVICE" | xargs -r docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}')
+                if [ -n "$states" ] && ! echo "$states" | grep -qvE '^(healthy|running)$'; then
+                  healthy=true
+                  break
+                fi
+              done
+              if [ "$healthy" != "true" ]; then
+                echo "::error::Neuer Stand nach 120 s nicht gesund." >&2
+                restore_previous_tag
+                docker compose up -d "$SERVICE"
+                exit 1
+              fi
+            fi
+
+            docker image prune -f
 
   deploy-staging:
     name: Deploy to staging
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && vars.DEPLOY_ENABLED == 'true'
+    concurrency:
+      group: deploy-staging-${{ github.repository }}
+      cancel-in-progress: false
     steps:
       - name: Determine SSH port
         id: ssh-port
@@ -214,44 +274,80 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ steps.ssh-port.outputs.port }}
+          command_timeout: 20m
           script: |
-            set -e
             cd ${{ vars.STAGING_DEPLOY_PATH || format('/srv/docker/staging/{0}', github.event.repository.name) }}
+            set -eu
             SERVICE="${{ vars.DEPLOY_SERVICE }}"
+            IMAGE_PREFIX="ghcr.io/openeos-project/${{ github.event.repository.name }}"
+            config_json() { docker compose config --format json; }
 
-            # Merken, welches Image gerade läuft, damit ein fehlgeschlagener
-            # Health-Check darauf zurückrollen kann statt einen kaputten
-            # Stand live zu lassen.
-            PREVIOUS_IMAGE=$(docker compose ps -q $SERVICE 2>/dev/null | head -1 | xargs -r docker inspect --format='{{.Image}}' 2>/dev/null || true)
-
-            docker compose pull $SERVICE
-            docker compose up -d $SERVICE
-
-            CONTAINER_ID=$(docker compose ps -q $SERVICE | head -1)
-            HEALTHY=false
-            for i in $(seq 1 10); do
-              sleep 3
-              # Bewusst 127.0.0.1 und NICHT localhost: im Container zeigt
-              # localhost per /etc/hosts zuerst auf ::1, der Next-Server
-              # lauscht aber nur auf IPv4 0.0.0.0 — über localhost bekommt
-              # man daher immer "connection refused".
-              if docker exec "$CONTAINER_ID" wget -q -O /dev/null http://127.0.0.1:3000/; then
-                HEALTHY=true
-                break
-              fi
-            done
-
-            if [ "$HEALTHY" = "true" ]; then
-              echo "Deploy healthy."
-              docker image prune -f
-            else
-              echo "Neuer Stand hat den Health-Check nach 30s nicht bestanden." >&2
-              if [ -n "$PREVIOUS_IMAGE" ]; then
-                echo "Rolle zurück auf $PREVIOUS_IMAGE" >&2
-                docker tag "$PREVIOUS_IMAGE" "$(docker compose config --images $SERVICE | head -1)"
-                docker compose up -d $SERVICE
-              else
-                echo "Kein Vorgänger-Image bekannt (Erst-Deploy?) — kein automatischer Rollback möglich." >&2
-              fi
+            # Ohne DEPLOY_SERVICE: der Dienst, der das Image dieses Repos nutzt.
+            if [ -z "$SERVICE" ]; then
+              SERVICE=$(config_json | jq -r --arg img "$IMAGE_PREFIX" \
+                '.services | to_entries[] | select((.value.image // "") | startswith($img)) | select(.key != "migrate") | .key' | head -n1)
+            fi
+            if [ -z "$SERVICE" ]; then
+              echo "::error::Kein Compose-Dienst mit Image $IMAGE_PREFIX gefunden." >&2
               exit 1
             fi
+            IMAGE_REF=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].image')
+
+            # Laufendes Image merken: schlaegt der Deploy fehl, bekommt es das
+            # Tag zurueck, damit ein spaeterer Neustart nicht den kaputten
+            # Stand hochfaehrt.
+            PREVIOUS_IMAGE=$(docker compose ps -q "$SERVICE" | head -n1 | xargs -r docker inspect --format '{{.Image}}' 2>/dev/null || true)
+            restore_previous_tag() {
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                echo "Setze $IMAGE_REF zurueck auf $PREVIOUS_IMAGE" >&2
+                docker tag "$PREVIOUS_IMAGE" "$IMAGE_REF"
+              fi
+            }
+
+            docker compose pull "$SERVICE"
+
+            # Migrationen als eigener Schritt vor dem Austausch der Instanzen
+            # (nur wo der Server einen Dienst "migrate" hat, also bei der API).
+            # Sie muessen mit dem alten Code vertraeglich sein (expand/contract).
+            if config_json | jq -e '.services.migrate' >/dev/null; then
+              if ! docker compose run --rm --no-deps migrate; then
+                echo "::error::Migration fehlgeschlagen — die laufenden Instanzen bleiben unveraendert." >&2
+                restore_previous_tag
+                exit 1
+              fi
+            fi
+
+            CONTAINER_NAME=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].container_name // empty')
+            if docker rollout --version >/dev/null 2>&1 && [ -z "$CONTAINER_NAME" ]; then
+              # Ohne Ausfallzeit: neue Instanzen neben den alten starten, auf
+              # "healthy" warten, die alten per /tmp/drain aus Traefik nehmen
+              # (Health-Check schlaegt fehl), dann stoppen. Werden die neuen
+              # nicht gesund, entfernt docker rollout sie wieder.
+              if ! docker rollout --timeout 180 --pre-stop-hook 'touch /tmp/drain && sleep 15' "$SERVICE"; then
+                echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
+                restore_previous_tag
+                exit 1
+              fi
+            else
+              # Server noch ohne docker rollout bzw. mit festem container_name:
+              # Austausch wie bisher, mit kurzer Unterbrechung.
+              echo "::warning::docker rollout nicht verfuegbar oder container_name gesetzt — compose up -d."
+              docker compose up -d "$SERVICE"
+              healthy=false
+              for _ in $(seq 1 40); do
+                sleep 3
+                states=$(docker compose ps -q "$SERVICE" | xargs -r docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}')
+                if [ -n "$states" ] && ! echo "$states" | grep -qvE '^(healthy|running)$'; then
+                  healthy=true
+                  break
+                fi
+              done
+              if [ "$healthy" != "true" ]; then
+                echo "::error::Neuer Stand nach 120 s nicht gesund." >&2
+                restore_previous_tag
+                docker compose up -d "$SERVICE"
+                exit 1
+              fi
+            fi
+
+            docker image prune -f
