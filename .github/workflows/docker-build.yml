@@ -83,6 +83,26 @@ jobs:
       # (e2e.yml): er braucht Postgres, Redis und die API und soll dieses
       # Image nicht aufhalten, wenn nur die Oberflaeche gebaut werden muss.
 
+  # SBOM (CycloneDX) aus dem Lockfile, als Build-Artefakt am Workflow-Lauf.
+  # Vorbereitung auf den Cyber Resilience Act (Anhang I Teil II, ab 12/2027).
+  sbom:
+    name: SBOM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+          artifact-name: ${{ github.event.repository.name }}-sbom.cdx.json
+          upload-release-assets: false
+
   build:
     needs: typecheck
     runs-on: ubuntu-latest

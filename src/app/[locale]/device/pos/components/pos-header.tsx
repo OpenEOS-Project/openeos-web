@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import {
   Dropdown,
   DropdownCaption,
+  DropdownLink,
   DropdownOption,
   DropdownSeparator,
   Icon,
@@ -13,6 +14,7 @@ import {
   type IconName,
 } from '@openeos/ui';
 import type { PosConnectionState } from '@/hooks/use-pos-connection';
+import { getSourceUrl } from '@/lib/runtime-config';
 import type { PosTheme } from '@/stores/device-store';
 
 export interface PosPrinterStatus {
@@ -191,6 +193,16 @@ export function PosHeader({
               {t(`menu.theme_${option.id}`)}
             </DropdownOption>
           ))}
+          <DropdownSeparator />
+          {/* AGPL-3.0 § 13: Quellcode fuer alle, die die Kasse benutzen. */}
+          <DropdownLink
+            icon={<Icon name="code" />}
+            href={getSourceUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('menu.sourceCode')}
+          </DropdownLink>
           <DropdownSeparator />
           <DropdownOption danger icon={<Icon name="logout" />} onClick={onLogout}>
             {t('menu.logout')}

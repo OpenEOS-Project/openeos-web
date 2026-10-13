@@ -50,6 +50,8 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# License texts travel with the image (AGPL-3.0-or-later)
+COPY --from=builder --chown=nextjs:nodejs /app/LICENSE /app/NOTICE /app/THIRD_PARTY_NOTICES.md ./
 
 USER nextjs
 

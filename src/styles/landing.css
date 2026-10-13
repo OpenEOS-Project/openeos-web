@@ -1310,6 +1310,18 @@
   border-color: color-mix(in oklab, var(--ink) 24%, transparent);
 }
 .landing .auth-form__device svg { width: 16px; height: 16px; }
+/* Quellcode-Link (AGPL-3.0 § 13): leise unter den Geraete-Links. */
+.landing .auth-form__source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 20px auto 0;
+  width: fit-content;
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .auth-form__source:hover { color: var(--ink); text-decoration: underline; }
 
 /* ============================= AUTH (LOGIN / REGISTER) ============================= */
 .landing .auth {
@@ -4542,6 +4554,17 @@ body:has(.landing) {
   color: var(--mute-2);
   text-align: center;
 }
+/* Quellcode-Link (AGPL-3.0 § 13) unter der Versionsnummer. */
+.landing .app-sidebar__source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px 6px;
+  font-size: 11px;
+  color: var(--mute-2);
+}
+.landing .app-sidebar__source:hover { color: var(--ink); text-decoration: underline; }
 
 /* Einklappen sitzt im Kopf. Absolut positioniert, damit das Logo in der
    Mitte bleibt und nicht vom Knopf zur Seite gedrueckt wird. */

@@ -2,6 +2,8 @@
   "name": "openeos-web",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-or-later",
+  "author": "LUXCODE by Lukas Lukic-Spitznagel",
   "scripts": {
     "dev": "node scripts/sync-pos-icons.mjs && next dev --turbopack -p 3002 -H 0.0.0.0",
     "build": "node scripts/sync-pos-icons.mjs && next build",
@@ -22,7 +24,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@openeos/pos-icons": "0.4.0",
-    "@openeos/ui": "0.6.1",
+    "@openeos/ui": "0.6.2",
     "@react-stately/utils": "^3.11.0",
     "@react-types/overlays": "^3.9.2",
     "@react-types/shared": "^3.33.1",

@@ -27,6 +27,10 @@
     "noOrganization": {
       "title": "Keine Organisation ausgewählt",
       "description": "Bitte wähle zuerst eine Organisation aus."
+    },
+    "sourceCode": {
+      "label": "Quellcode (AGPL-3.0)",
+      "title": "OpenEOS ist freie Software unter der AGPL-3.0-or-later. Hier findest du den Quellcode."
     }
   },
   "auth": {
@@ -808,7 +812,16 @@
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
     },
-    "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen"
+    "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen",
+    "about": {
+      "title": "Über OpenEOS",
+      "version": "Version",
+      "license": "Lizenz",
+      "licenseText": "OpenEOS ist freie Software: Du darfst es unter den Bedingungen der GNU Affero General Public License, Version 3 oder (nach deiner Wahl) jeder späteren Version, nutzen, weitergeben und verändern. Es wird ohne jede Gewährleistung bereitgestellt.",
+      "sourceText": "Den vollständigen Quellcode dieser Installation findest du hier:",
+      "copyright": "Copyright © 2026 LUXCODE by Lukas Lukic-Spitznagel und Mitwirkende",
+      "thirdParty": "Enthaltene Fremdbestandteile und ihre Lizenzen stehen in NOTICE und THIRD_PARTY_NOTICES.md im Quellcode."
+    }
   },
   "theme": {
     "light": "Hell",
@@ -2280,7 +2293,8 @@
       "theme": "Darstellung",
       "theme_dark": "Dunkel",
       "theme_light": "Hell",
-      "theme_system": "System"
+      "theme_system": "System",
+      "sourceCode": "Quellcode (AGPL-3.0)"
     },
     "header": {
       "lock": "Kasse sperren",
