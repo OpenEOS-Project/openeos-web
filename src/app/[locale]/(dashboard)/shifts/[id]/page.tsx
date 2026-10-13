@@ -178,7 +178,7 @@ export default function ShiftPlanEditorPage() {
           Veroeffentlichen, gesperrt wird nicht. */}
       {plan.status !== 'closed' && (
         <div style={{ marginBottom: 16 }}>
-          <LegalInfoWarning context="shifts" />
+          <LegalInfoWarning context={plan.status === 'published' ? 'shiftsPublished' : 'shifts'} />
         </div>
       )}
 

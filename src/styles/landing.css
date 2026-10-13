@@ -5235,9 +5235,9 @@ body:has(.landing) {
   background: var(--paper);
 }
 .landing .legal-settings__preview .legal-text { font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
-.landing .legal-settings__preview .legal-text h2 { font-size: 16px; margin: 12px 0 6px; }
+.landing .legal-settings__preview .legal-text h2 { font-size: 16px; font-weight: 700; margin: 12px 0 6px; }
 .landing .legal-settings__preview .legal-text h3,
-.landing .legal-settings__preview .legal-text h4 { font-size: 14px; margin: 10px 0 4px; }
+.landing .legal-settings__preview .legal-text h4 { font-size: 14px; font-weight: 700; margin: 10px 0 4px; }
 .landing .legal-settings__preview .legal-text p { margin: 0 0 8px; }
 .landing .legal-settings__preview .legal-text a { color: var(--green-ink); text-decoration: underline; }
 .landing .legal-settings__footer-preview {

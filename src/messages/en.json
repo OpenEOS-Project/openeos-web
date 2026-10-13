@@ -4970,6 +4970,7 @@
     "title": "Imprint and privacy notice are missing",
     "shop": "In the shop your club sells and asks for name and email. Guests need your imprint and privacy notice for that – until you add them, the shop only shows a neutral note. You can still open the shop.",
     "shifts": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. You can still publish the plan.",
+    "shiftsPublished": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. The plan is already published, so please add them soon.",
     "action": "Add legal information"
   }
 }

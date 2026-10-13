@@ -392,12 +392,17 @@ export function RegisterWizard() {
         </button>
 
         {stepIdx < total - 1 ? (
-          <button type="button" className="btn btn--primary" onClick={goNext}>
+          /* Eigene keys: sonst tauscht React beim letzten "Weiter" nur den
+             type des Knopfs, und derselbe Klick schickt das Formular ab —
+             die Bestaetigungsseite zeigte dann sofort "Bitte akzeptiere
+             die Bedingungen". */
+          <button key="next" type="button" className="btn btn--primary" onClick={goNext}>
             <span>{t('next')}</span>
             <ArrowRight />
           </button>
         ) : (
           <button
+            key="submit"
             type="submit"
             className="btn btn--primary"
             disabled={submitting}

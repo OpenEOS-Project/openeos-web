@@ -20,7 +20,7 @@ export const LEGAL_SETTINGS_HREF = '/settings?tab=org-legal';
  * Sperre wuerde eine laufende Veranstaltung lahmlegen. Die oeffentlichen
  * Seiten zeigen bei fehlenden Angaben einen neutralen Hinweis.
  */
-export function LegalInfoWarning({ context }: { context: 'shop' | 'shifts' }) {
+export function LegalInfoWarning({ context }: { context: 'shop' | 'shifts' | 'shiftsPublished' }) {
   const t = useTranslations('legalWarning');
   const { currentOrganization } = useAuthStore();
   const settings = currentOrganization?.organization?.settings as OrganizationSettings | undefined;
