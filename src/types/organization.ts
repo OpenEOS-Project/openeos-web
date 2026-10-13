@@ -34,6 +34,8 @@ export interface OrganizationSettings {
   };
   /** Weist die Organisation Umsatzsteuer aus? Vereine und Kleinunternehmer nicht. */
   vatExempt?: boolean;
+  /** Impressum und Datenschutzhinweis fuer Shop und Helferseiten. */
+  legal?: import('@/lib/legal').OrganizationLegalSettings;
   pos?: {
     requireTableNumber: boolean;
     autoPrintReceipt: boolean;

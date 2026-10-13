@@ -74,6 +74,8 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   organizationName?: string;
+  /** Einwilligung in gelegentliche Produkt-Neuigkeiten (Checkbox). */
+  newsletterOptIn?: boolean;
 }
 
 export interface AuthResponse {

@@ -144,8 +144,8 @@
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
-          "terms": "Ich akzeptiere die AGB und die Datenschutzerklärung.",
-          "newsletter": "Ich möchte gelegentlich Updates und Neuigkeiten erhalten."
+          "terms": "Ich akzeptiere die <terms>AGB</terms> und habe die <privacy>Datenschutzerklärung</privacy> zur Kenntnis genommen.",
+          "newsletter": "Ich möchte gelegentlich Neuigkeiten zu OpenEOS per E-Mail erhalten. Abbestellen geht jederzeit."
         }
       },
       "errors": {
@@ -810,6 +810,63 @@
       "saveFailed": "Speichern fehlgeschlagen"
     },
     "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen",
+    "organizationLegal": {
+      "tab": "Rechtliche Angaben",
+      "title": "Rechtliche Angaben (Shop & Helferseiten)",
+      "description": "Impressum und Datenschutzhinweis deines Vereins. Sie erscheinen im Shop, auf den Helferseiten und direkt an den Formularen.",
+      "incompleteTitle": "Noch nicht vollständig",
+      "incompleteText": "Solange Impressum oder Datenschutzhinweis fehlen, zeigen Shop und Helferseiten an dieser Stelle einen neutralen Hinweis.",
+      "why": "Du verkaufst bzw. sammelst Helferdaten als Verein – deshalb gehören hier dein Impressum und deine Datenschutzhinweise hin. OpenEOS stellt nur die Technik bereit und steht darunter mit einem eigenen kleinen Hinweis.",
+      "templates": "Hast du noch keine Texte? Muster und Generatoren helfen beim Start, z. B. der <imprintGen>Impressum-Generator von eRecht24</imprintGen> oder der <privacyGen>Datenschutz-Generator</privacyGen>. Nenne im Datenschutzhinweis auch Shop-Bestellungen und Helferanmeldungen mit OpenEOS als Dienstleister.",
+      "noLegalAdvice": "Keine Rechtsberatung: OpenEOS prüft die Texte nicht. Im Zweifel lass sie von einer fachkundigen Stelle prüfen, etwa deinem Landessportbund oder einer Anwältin.",
+      "modeLabel": "{notice}: Link oder Text",
+      "mode": {
+        "url": "Link",
+        "text": "Text"
+      },
+      "imprint": {
+        "label": "Impressum",
+        "short": "Impressum",
+        "urlLabel": "Link zum Impressum",
+        "urlPlaceholder": "https://dein-verein.de/impressum",
+        "urlHint": "Link auf das Impressum deiner Vereinswebsite.",
+        "textLabel": "Text des Impressums",
+        "textPlaceholder": "TSV Musterstadt e.V.\nHauptstraße 1, 12345 Musterstadt\nVertreten durch den Vorstand: …\nE-Mail: info@tsv-musterstadt.de\nRegistergericht: Amtsgericht …, VR 1234"
+      },
+      "privacy": {
+        "label": "Datenschutzhinweis",
+        "short": "Datenschutz",
+        "urlLabel": "Link zum Datenschutzhinweis",
+        "urlPlaceholder": "https://dein-verein.de/datenschutz",
+        "urlHint": "Link auf die Datenschutzerklärung deiner Vereinswebsite.",
+        "textLabel": "Text des Datenschutzhinweises",
+        "textPlaceholder": "# Datenschutzhinweis\nVerantwortlich: TSV Musterstadt e.V., …\n\n## Shop-Bestellungen und Helferanmeldungen\nWir verarbeiten Name und E-Mail-Adresse, um …"
+      },
+      "textHint": "Leerzeile = neuer Absatz, # = Überschrift, **fett**; Links und E-Mail-Adressen werden automatisch klickbar.",
+      "charCount": "{count} / {max} Zeichen",
+      "showPreview": "Vorschau anzeigen",
+      "hidePreview": "Vorschau ausblenden",
+      "previewLabel": "Vorschau",
+      "contactEmail": "Kontakt für Datenschutzfragen (optional)",
+      "contactEmailPlaceholder": "datenschutz@dein-verein.de",
+      "contactEmailHint": "Erscheint neben Impressum und Datenschutz.",
+      "footerPreview": "Vorschau der Fußzeile",
+      "footerPreviewLabel": "Vorschau der Fußzeile im Shop und auf den Helferseiten",
+      "footerResponsible": "Verantwortlich: {organization}",
+      "footerPlatform": "Bereitgestellt mit OpenEOS · Impressum · Datenschutz",
+      "missing": "fehlt",
+      "saved": "Gespeichert",
+      "saving": "Speichern …",
+      "save": "Speichern",
+      "errors": {
+        "url": "Bitte gib einen vollständigen Link an, der mit https:// beginnt.",
+        "urlTooLong": "Der Link darf höchstens {max} Zeichen lang sein.",
+        "textTooLong": "Der Text darf höchstens {max} Zeichen lang sein.",
+        "email": "Bitte gib eine gültige E-Mail-Adresse an.",
+        "linkOrText": "Bitte entweder einen Link oder einen Text angeben, nicht beides.",
+        "saveFailed": "Die Angaben konnten nicht gespeichert werden."
+      }
+    },
     "about": {
       "title": "Über OpenEOS",
       "version": "Version",
@@ -3502,7 +3559,8 @@
     "USER_NOT_FOUND": "Der Benutzer wurde nicht gefunden.",
     "VALIDATION_ERROR": "Einige Angaben sind ungültig. Bitte prüfe deine Eingaben.",
     "VERIFICATION_LINK_EXPIRED": "Der Bestätigungslink ist abgelaufen.",
-    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
+    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
+    "ORGANIZATION_LEGAL_INVALID": "Bitte prüfe die rechtlichen Angaben: Links müssen mit https:// beginnen, und je Angabe gilt entweder ein Link oder ein Text."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -3650,8 +3708,7 @@
       "registerMore": "Weitere Anmeldung",
       "yourShifts": "Deine Schichten",
       "addToGoogleCalendar": "In Google Kalender eintragen",
-      "downloadICS": "Alle als Kalenderdatei herunterladen",
-      "imprint": "Impressum"
+      "downloadICS": "Alle als Kalenderdatei herunterladen"
     },
     "verify": {
       "loading": "Verifizierung läuft...",
@@ -3920,7 +3977,8 @@
       "timeRangeNextDay": "{start} – {end} (am Folgetag)",
       "spotsOfFree": "<n>{available}</n><muted>/{required} frei</muted>",
       "spotsFree": "{count} frei",
-      "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}"
+      "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}",
+      "privacyPurpose": "um deine Schichtanmeldung zu organisieren"
     },
     "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
@@ -4957,5 +5015,34 @@
     "results": "{count, plural, one {# Treffer} other {# Treffer}}",
     "search": "Icons durchsuchen, z. B. Bier oder Pommes",
     "title": "Icon wählen"
+  },
+  "publicLegal": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "responsible": "Verantwortlich: <b>{organization}</b>",
+    "missingBoth": "Impressum und Datenschutzhinweis des Veranstalters sind hier noch nicht hinterlegt.",
+    "missingImprint": "Das Impressum des Veranstalters ist hier noch nicht hinterlegt.",
+    "missingPrivacy": "Der Datenschutzhinweis des Veranstalters ist hier noch nicht hinterlegt.",
+    "poweredBy": "Bereitgestellt mit OpenEOS",
+    "platformImprintLabel": "Impressum von OpenEOS",
+    "platformPrivacyLabel": "Datenschutzerklärung von OpenEOS",
+    "organizationFallback": "der Veranstalter",
+    "formHint": "Deine Angaben verarbeitet {organization}, {purpose}. Mehr dazu im <link>Datenschutzhinweis</link>.",
+    "formHintNoPrivacy": "Deine Angaben verarbeitet {organization}, {purpose}.",
+    "purposeMagicLink": "um dir den Link zu deinen Schichten zu schicken",
+    "imprintTitle": "Impressum",
+    "privacyTitle": "Datenschutzhinweis",
+    "backToPlan": "Zurück zum Schichtplan",
+    "notAvailable": "Diese Seite ist gerade nicht erreichbar.",
+    "externalHint": "{organization} stellt diese Angaben auf einer eigenen Seite bereit.",
+    "openExternal": "Seite öffnen",
+    "contact": "Fragen zum Datenschutz:"
+  },
+  "legalWarning": {
+    "title": "Impressum und Datenschutzhinweis fehlen noch",
+    "shop": "Im Shop verkauft dein Verein und fragt Name und E-Mail ab. Dafür brauchen Gäste dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, zeigt der Shop nur einen neutralen Hinweis. Du kannst den Shop trotzdem öffnen.",
+    "shifts": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Du kannst den Plan trotzdem veröffentlichen.",
+    "shiftsPublished": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Der Plan ist schon veröffentlicht, trag die Angaben bitte bald ein.",
+    "action": "Rechtliche Angaben eintragen"
   }
 }

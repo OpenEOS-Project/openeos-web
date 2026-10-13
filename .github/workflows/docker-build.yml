@@ -213,6 +213,18 @@ jobs:
             fi
             IMAGE_REF=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].image')
 
+            # Nur ein Deploy je Compose-Projekt gleichzeitig — auch gegen manuelle
+            # Rollouts (openeos-rollout auf dem Server nimmt dieselbe Sperre).
+            # Zwei ueberlappende docker rollout raeumen sich gegenseitig Container weg.
+            LOCK_DIR=/var/lib/openeos-deploy/locks
+            [ -d "$LOCK_DIR" ] && [ -w "$LOCK_DIR" ] || LOCK_DIR=/tmp
+            umask 002
+            exec 9>>"$LOCK_DIR/$(config_json | jq -r .name).lock"
+            if ! flock -w 900 9; then
+              echo "::error::Ein anderer Deploy dieses Dienstes laeuft seit 15 Minuten." >&2
+              exit 1
+            fi
+
             # Laufendes Image merken: schlaegt der Deploy fehl, bekommt es das
             # Tag zurueck, damit ein spaeterer Neustart nicht den kaputten
             # Stand hochfaehrt.
@@ -225,6 +237,7 @@ jobs:
             }
 
             docker compose pull "$SERVICE"
+            NEW_IMAGE=$(docker image inspect -f '{{.Id}}' "$IMAGE_REF")
 
             # Migrationen als eigener Schritt vor dem Austausch der Instanzen
             # (nur wo der Server einen Dienst "migrate" hat, also bei der API).
@@ -244,8 +257,14 @@ jobs:
               # (Health-Check schlaegt fehl), dann stoppen. Werden die neuen
               # nicht gesund, entfernt docker rollout sie wieder.
               if ! docker rollout --timeout 180 --pre-stop-hook 'touch /tmp/drain && sleep 15' "$SERVICE"; then
-                echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
-                restore_previous_tag
+                # Laeuft der neue Stand schon gesund, ist nur das Aufraeumen der
+                # alten Instanzen gescheitert — dann das Tag nicht zuruecksetzen.
+                if docker compose ps -q "$SERVICE" | xargs -r docker inspect -f '{{.Image}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' | grep -q "^$NEW_IMAGE healthy$"; then
+                  echo "::error::Rollout unvollstaendig: der neue Stand laeuft, alte Instanzen bitte pruefen (docker compose ps -a)." >&2
+                else
+                  echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
+                  restore_previous_tag
+                fi
                 exit 1
               fi
             else
@@ -313,6 +332,18 @@ jobs:
             fi
             IMAGE_REF=$(config_json | jq -r --arg s "$SERVICE" '.services[$s].image')
 
+            # Nur ein Deploy je Compose-Projekt gleichzeitig — auch gegen manuelle
+            # Rollouts (openeos-rollout auf dem Server nimmt dieselbe Sperre).
+            # Zwei ueberlappende docker rollout raeumen sich gegenseitig Container weg.
+            LOCK_DIR=/var/lib/openeos-deploy/locks
+            [ -d "$LOCK_DIR" ] && [ -w "$LOCK_DIR" ] || LOCK_DIR=/tmp
+            umask 002
+            exec 9>>"$LOCK_DIR/$(config_json | jq -r .name).lock"
+            if ! flock -w 900 9; then
+              echo "::error::Ein anderer Deploy dieses Dienstes laeuft seit 15 Minuten." >&2
+              exit 1
+            fi
+
             # Laufendes Image merken: schlaegt der Deploy fehl, bekommt es das
             # Tag zurueck, damit ein spaeterer Neustart nicht den kaputten
             # Stand hochfaehrt.
@@ -325,6 +356,7 @@ jobs:
             }
 
             docker compose pull "$SERVICE"
+            NEW_IMAGE=$(docker image inspect -f '{{.Id}}' "$IMAGE_REF")
 
             # Migrationen als eigener Schritt vor dem Austausch der Instanzen
             # (nur wo der Server einen Dienst "migrate" hat, also bei der API).
@@ -344,8 +376,14 @@ jobs:
               # (Health-Check schlaegt fehl), dann stoppen. Werden die neuen
               # nicht gesund, entfernt docker rollout sie wieder.
               if ! docker rollout --timeout 180 --pre-stop-hook 'touch /tmp/drain && sleep 15' "$SERVICE"; then
-                echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
-                restore_previous_tag
+                # Laeuft der neue Stand schon gesund, ist nur das Aufraeumen der
+                # alten Instanzen gescheitert — dann das Tag nicht zuruecksetzen.
+                if docker compose ps -q "$SERVICE" | xargs -r docker inspect -f '{{.Image}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' | grep -q "^$NEW_IMAGE healthy$"; then
+                  echo "::error::Rollout unvollstaendig: der neue Stand laeuft, alte Instanzen bitte pruefen (docker compose ps -a)." >&2
+                else
+                  echo "::error::Neue Instanzen wurden nicht gesund — die alten laufen weiter." >&2
+                  restore_previous_tag
+                fi
                 exit 1
               fi
             else
