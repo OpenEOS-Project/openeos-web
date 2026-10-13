@@ -57,6 +57,17 @@ export function useUnmarkEventInvoiced() {
   });
 }
 
+export function useCancelEventBilling() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.cancelEventBilling(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+    },
+  });
+}
+
 export function useWaiveEvent() {
   const queryClient = useQueryClient();
 

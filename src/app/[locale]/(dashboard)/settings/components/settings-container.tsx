@@ -11,6 +11,7 @@ import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
 import { OrganizationLegalSection } from './organization-legal-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
+import { AboutSection } from './about-section';
 import { useAuthStore } from '@/stores/auth-store';
 
 interface SettingsTab {
@@ -67,6 +68,7 @@ export function SettingsContainer() {
     { id: 'account', label: t('account.title'), children: <AccountSection /> },
     { id: 'security', label: t('security.title'), children: <SecuritySection /> },
     { id: 'preferences', label: t('preferences.title'), children: <PreferencesSection /> },
+    { id: 'about', label: t('about.title'), children: <AboutSection /> },
   ];
 
   const organizationTabs: SettingsTab[] = [

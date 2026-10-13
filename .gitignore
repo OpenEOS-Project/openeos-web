@@ -54,3 +54,6 @@ Thumbs.db
 
 # oh-my-claudecode local state
 .omc/
+
+# Screenshots aus Browser-Tests (nicht einchecken)
+screenshots/

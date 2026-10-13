@@ -203,6 +203,10 @@ Ablauf:
 (ohne API-Aufruf). **Herunterfahren:** Auf SIGTERM nimmt Next.js keine neuen
 Verbindungen mehr an, lässt laufende Anfragen zu Ende laufen und beendet sich.
 
-## License
+## Lizenz
 
-AGPLv3
+Copyright (C) 2026 LUXCODE by Lukas Lukic-Spitznagel und Mitwirkende.
+
+Lizenziert unter der GNU Affero General Public License v3.0 oder (nach deiner Wahl) jeder späteren Version (`AGPL-3.0-or-later`), siehe [LICENSE](LICENSE) und [NOTICE](NOTICE). Enthaltene Fremdbestandteile (u. a. Untitled-UI-Komponenten, MIT) stehen in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+**Quellcode-Link (AGPL § 13):** Anmeldung, Einstellungen und das Kassenmenü verlinken den Quellcode. Ziel ist `SOURCE_URL` (Laufzeit, Rückfall `NEXT_PUBLIC_SOURCE_URL` aus dem Build, Standard `https://github.com/OpenEOS-Project`). Wer eine geänderte Fassung betreibt, setzt die Variable auf das eigene Repository.

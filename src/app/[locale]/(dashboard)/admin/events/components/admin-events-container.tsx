@@ -4,7 +4,14 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { useAdminEvents, useMarkEventInvoiced, useUnmarkEventInvoiced, useWaiveEvent } from '@/hooks/use-admin-events';
+import {
+  useAdminEvents,
+  useCancelEventBilling,
+  useMarkEventInvoiced,
+  useUnmarkEventInvoiced,
+  useWaiveEvent,
+} from '@/hooks/use-admin-events';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { AdminEventListItem } from '@/types/admin';
@@ -199,6 +206,60 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
   );
 }
 
+/**
+ * Storno durch die Plattform: ohne Frist, sonst dieselben Regeln wie für die
+ * Organisation (keine echten Bestellungen; Stripe erstattet, Stornorechnung).
+ */
+function CancelBillingModal({ event, onClose }: WaiveModalProps) {
+  const t = useTranslations();
+  const cancelBilling = useCancelEventBilling();
+  const apiErrorMessage = useApiErrorMessage();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleConfirm() {
+    setError(null);
+    cancelBilling.mutate(event.id, {
+      onSuccess: onClose,
+      onError: (err) => setError(apiErrorMessage(err, t('errors.generic'))),
+    });
+  }
+
+  return (
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('admin.events.cancelBilling.title')}</div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
+
+        <div className="modal__body">
+          <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
+            {t('admin.events.cancelBilling.description')}
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
+          {error && (
+            <p role="alert" style={{ fontSize: 13, color: 'var(--danger)', marginTop: 8 }}>
+              {error}
+            </p>
+          )}
+        </div>
+
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
+          <button
+            className="btn btn--primary"
+            style={{ background: 'var(--error, var(--danger))' }}
+            onClick={handleConfirm}
+            disabled={cancelBilling.isPending}
+          >
+            {cancelBilling.isPending ? t('common.saving') : t('admin.events.cancelBilling.submit')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AdminEventsContainer() {
   const t = useTranslations('admin.events');
   const tRoot = useTranslations();
@@ -215,6 +276,7 @@ export function AdminEventsContainer() {
   const [markEvent, setMarkEvent] = useState<AdminEventListItem | null>(null);
   const [unmarkEvent, setUnmarkEvent] = useState<AdminEventListItem | null>(null);
   const [waiveEvent, setWaiveEventTarget] = useState<AdminEventListItem | null>(null);
+  const [cancelBillingEvent, setCancelBillingEvent] = useState<AdminEventListItem | null>(null);
 
   const invoicedParam =
     invoicedFilter === 'yes' ? true : invoicedFilter === 'no' ? false : undefined;
@@ -360,6 +422,11 @@ export function AdminEventsContainer() {
                             {t('actions.waive')}
                           </button>
                         )}
+                        {(event.billingStatus === 'paid' || event.billingStatus === 'invoice') && (
+                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setCancelBillingEvent(event)}>
+                            {t('actions.cancelBilling')}
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -407,6 +474,10 @@ export function AdminEventsContainer() {
       )}
       {waiveEvent && (
         <WaiveEventModal event={waiveEvent} onClose={() => setWaiveEventTarget(null)} />
+      )}
+
+      {cancelBillingEvent && (
+        <CancelBillingModal event={cancelBillingEvent} onClose={() => setCancelBillingEvent(null)} />
       )}
     </>
   );
