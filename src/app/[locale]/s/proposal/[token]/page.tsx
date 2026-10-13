@@ -8,6 +8,8 @@ import { Check, CircleAlert, CircleCheck, X } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { PublicLegalFooter } from '@/components/public-legal/public-legal-footer';
+import { usePublicPlanLegal } from '@/components/public-legal/use-public-plan-legal';
 
 /**
  * Public landing for a shift-move proposal email link.
@@ -28,6 +30,7 @@ export default function ShiftProposalPage() {
 
   const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [result, setResult] = useState<{ status: 'accepted' | 'declined'; message: string; planSlug: string | null } | null>(null);
+  const legal = usePublicPlanLegal(result?.planSlug);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const submit = async (action: 'accept' | 'decline') => {
@@ -51,7 +54,8 @@ export default function ShiftProposalPage() {
   }, [initialAction, token]);
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--paper-2, #f4f4f5)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--paper-2, #f4f4f5)' }}>
+    <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ maxWidth: 460, width: '100%', background: 'var(--paper)', borderRadius: 14, padding: '32px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <Image src="/logo_dark.png" alt="OpenEOS" width={140} height={36} style={{ height: 28, width: 'auto' }} />
@@ -104,5 +108,7 @@ export default function ShiftProposalPage() {
         )}
       </div>
     </main>
+    <PublicLegalFooter legal={legal} slug={result?.planSlug} />
+    </div>
   );
 }

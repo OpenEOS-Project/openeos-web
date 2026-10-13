@@ -144,8 +144,8 @@
           "summaryAccount": "Account",
           "summaryPersonal": "Personal",
           "summaryOrganization": "Organization",
-          "terms": "I accept the Terms and Privacy Policy.",
-          "newsletter": "I'd like to receive occasional updates."
+          "terms": "I accept the <terms>terms and conditions</terms> and have read the <privacy>privacy policy</privacy>.",
+          "newsletter": "I'd like to receive occasional OpenEOS news by email. You can unsubscribe at any time."
         }
       },
       "errors": {
@@ -813,6 +813,63 @@
       "saveFailed": "Failed to save settings"
     },
     "subtitle": "Manage your personal and organization settings",
+    "organizationLegal": {
+      "tab": "Legal information",
+      "title": "Legal information (shop & helper pages)",
+      "description": "Your club's imprint and privacy notice. They appear in the shop, on the helper pages and right next to the forms.",
+      "incompleteTitle": "Not complete yet",
+      "incompleteText": "As long as the imprint or privacy notice is missing, the shop and helper pages show a neutral note in its place.",
+      "why": "Your club sells and collects helper data – that is why your imprint and privacy notice belong here. OpenEOS only provides the technology and is listed below with a small note of its own.",
+      "templates": "No texts yet? Templates and generators help you get started, e.g. the <imprintGen>eRecht24 imprint generator</imprintGen> or the <privacyGen>privacy policy generator</privacyGen>. In the privacy notice, also mention shop orders and helper sign-ups with OpenEOS as service provider.",
+      "noLegalAdvice": "Not legal advice: OpenEOS does not review the texts. If in doubt, have them checked by an expert, e.g. your sports association or a lawyer.",
+      "modeLabel": "{notice}: link or text",
+      "mode": {
+        "url": "Link",
+        "text": "Text"
+      },
+      "imprint": {
+        "label": "Imprint",
+        "short": "Imprint",
+        "urlLabel": "Link to the imprint",
+        "urlPlaceholder": "https://your-club.org/imprint",
+        "urlHint": "Link to the imprint on your club's website.",
+        "textLabel": "Imprint text",
+        "textPlaceholder": "TSV Musterstadt e.V.\nHauptstraße 1, 12345 Musterstadt\nRepresented by the board: …\nEmail: info@tsv-musterstadt.de\nRegister court: Amtsgericht …, VR 1234"
+      },
+      "privacy": {
+        "label": "Privacy notice",
+        "short": "Privacy",
+        "urlLabel": "Link to the privacy notice",
+        "urlPlaceholder": "https://your-club.org/privacy",
+        "urlHint": "Link to the privacy policy on your club's website.",
+        "textLabel": "Privacy notice text",
+        "textPlaceholder": "# Privacy notice\nController: TSV Musterstadt e.V., …\n\n## Shop orders and helper sign-ups\nWe process name and email address to …"
+      },
+      "textHint": "Blank line = new paragraph, # = heading, **bold**; links and email addresses become clickable automatically.",
+      "charCount": "{count} / {max} characters",
+      "showPreview": "Show preview",
+      "hidePreview": "Hide preview",
+      "previewLabel": "Preview",
+      "contactEmail": "Contact for privacy questions (optional)",
+      "contactEmailPlaceholder": "privacy@your-club.org",
+      "contactEmailHint": "Shown next to the imprint and privacy links.",
+      "footerPreview": "Footer preview",
+      "footerPreviewLabel": "Preview of the footer in the shop and on the helper pages",
+      "footerResponsible": "Responsible: {organization}",
+      "footerPlatform": "Powered by OpenEOS · Imprint · Privacy",
+      "missing": "missing",
+      "saved": "Saved",
+      "saving": "Saving …",
+      "save": "Save",
+      "errors": {
+        "url": "Please enter a complete link starting with https://.",
+        "urlTooLong": "The link may be at most {max} characters long.",
+        "textTooLong": "The text may be at most {max} characters long.",
+        "email": "Please enter a valid email address.",
+        "linkOrText": "Please enter either a link or a text, not both.",
+        "saveFailed": "The information could not be saved."
+      }
+    },
     "about": {
       "title": "About OpenEOS",
       "version": "Version",
@@ -3505,7 +3562,8 @@
     "USER_NOT_FOUND": "The user was not found.",
     "VALIDATION_ERROR": "Some entries are invalid. Please check your input.",
     "VERIFICATION_LINK_EXPIRED": "The confirmation link has expired.",
-    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired."
+    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired.",
+    "ORGANIZATION_LEGAL_INVALID": "Please check the legal information: links must start with https://, and each notice is either a link or a text."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -3653,8 +3711,7 @@
       "registerMore": "Register again",
       "yourShifts": "Your shifts",
       "addToGoogleCalendar": "Add to Google Calendar",
-      "downloadICS": "Download all as calendar file",
-      "imprint": "Imprint"
+      "downloadICS": "Download all as calendar file"
     },
     "verify": {
       "loading": "Verifying...",
@@ -3923,7 +3980,8 @@
       "timeRangeNextDay": "{start} – {end} (next day)",
       "spotsOfFree": "<n>{available}</n><muted>/{required} free</muted>",
       "spotsFree": "{count} free",
-      "pillLabel": "{count, plural, =1 {shift selected} other {shifts selected}}"
+      "pillLabel": "{count, plural, =1 {shift selected} other {shifts selected}}",
+      "privacyPurpose": "to organize your shift sign-up"
     },
     "count": "{count, plural, =0 {No shift plans} =1 {1 shift plan} other {# shift plans}}"
   },
@@ -4960,5 +5018,34 @@
     "results": "{count, plural, one {# result} other {# results}}",
     "search": "Search icons, e.g. beer or fries",
     "title": "Choose icon"
+  },
+  "publicLegal": {
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "responsible": "Responsible: <b>{organization}</b>",
+    "missingBoth": "The organizer has not added an imprint or privacy notice here yet.",
+    "missingImprint": "The organizer has not added an imprint here yet.",
+    "missingPrivacy": "The organizer has not added a privacy notice here yet.",
+    "poweredBy": "Powered by OpenEOS",
+    "platformImprintLabel": "OpenEOS imprint",
+    "platformPrivacyLabel": "OpenEOS privacy policy",
+    "organizationFallback": "the organizer",
+    "formHint": "{organization} processes your details {purpose}. See the <link>privacy notice</link>.",
+    "formHintNoPrivacy": "{organization} processes your details {purpose}.",
+    "purposeMagicLink": "to send you the link to your shifts",
+    "imprintTitle": "Imprint",
+    "privacyTitle": "Privacy notice",
+    "backToPlan": "Back to the shift plan",
+    "notAvailable": "This page is not available right now.",
+    "externalHint": "{organization} provides this information on its own page.",
+    "openExternal": "Open page",
+    "contact": "Privacy questions:"
+  },
+  "legalWarning": {
+    "title": "Imprint and privacy notice are missing",
+    "shop": "In the shop your club sells and asks for name and email. Guests need your imprint and privacy notice for that – until you add them, the shop only shows a neutral note. You can still open the shop.",
+    "shifts": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. You can still publish the plan.",
+    "shiftsPublished": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. The plan is already published, so please add them soon.",
+    "action": "Add legal information"
   }
 }

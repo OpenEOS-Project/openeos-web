@@ -6,6 +6,7 @@ import {
   type ApiResponse,
 } from '@/types/api';
 import { getApiUrl } from '@/lib/runtime-config';
+import type { PublicLegalInfo } from '@/lib/legal';
 
 /* Frueher zwei Modul-Konstanten aus NEXT_PUBLIC_API_URL. Die wurden beim
    Build festgeschrieben, womit das veroeffentlichte Image immer auf die
@@ -1775,6 +1776,8 @@ export const shiftsPublicApi = {
         name: string;
         logoUrl: string | null;
       };
+      /** Impressum/Datenschutz des Vereins und Plattform-Links. */
+      legal?: PublicLegalInfo;
       event: {
         name: string;
         startDate: string;
@@ -1846,6 +1849,8 @@ export const shiftsPublicApi = {
         name: string;
         description: string | null;
         organization: { name: string; logoUrl: string | null };
+        legal?: PublicLegalInfo;
+        slug?: string;
         jobs: Array<{
           id: string;
           name: string;

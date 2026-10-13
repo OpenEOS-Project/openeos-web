@@ -405,3 +405,78 @@
   justify-content: space-between;
   gap: 12px;
 }
+
+/* Rechtliche Angaben: oben der Verein (Impressum, Datenschutz), darunter
+   dezent die Plattform ("Bereitgestellt mit OpenEOS"). */
+.shifts-public__footer.public-legal {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.public-legal__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.public-legal__club {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  color: color-mix(in oklab, var(--ink) 80%, transparent);
+}
+.public-legal__club b { font-weight: 600; }
+.public-legal__club a,
+.public-legal__platform a,
+.public-legal__form-hint a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+.public-legal__club a:hover,
+.public-legal__platform a:hover,
+.public-legal__form-hint a:hover { text-decoration-color: currentColor; }
+.public-legal__missing {
+  color: var(--mute);
+  font-style: italic;
+}
+.public-legal__aside a { color: var(--green-ink); font-weight: 600; }
+.public-legal__platform {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 12px;
+  color: var(--mute);
+}
+.public-legal__form-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+
+/* Textseite fuer Impressum/Datenschutz in der Text-Variante */
+.legal-page {
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px clamp(16px, 4vw, 32px) 48px;
+}
+.legal-page__title {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 12px 0 4px;
+}
+.legal-page__meta { color: var(--mute); font-size: 14px; margin: 0 0 24px; }
+.legal-text { font-size: 15px; line-height: 1.6; color: var(--ink); overflow-wrap: anywhere; }
+.legal-text h2 { font-size: 20px; font-weight: 700; margin: 24px 0 8px; }
+.legal-text h3 { font-size: 17px; font-weight: 700; margin: 20px 0 6px; }
+.legal-text h4 { font-size: 15px; font-weight: 700; margin: 16px 0 4px; }
+.legal-text p { margin: 0 0 12px; }
+.legal-text a { color: var(--green-ink); text-decoration: underline; text-underline-offset: 2px; }

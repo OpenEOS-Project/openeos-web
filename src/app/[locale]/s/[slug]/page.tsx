@@ -25,6 +25,9 @@ import {
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import type { PublicLegalInfo } from '@/lib/legal';
+import { Link } from '@/i18n/routing';
+import { PrivacyFormHint, PublicLegalFooter } from '@/components/public-legal/public-legal-footer';
 import { toLocalDate } from '@/utils/calendar-date';
 
 interface ShiftData {
@@ -55,6 +58,7 @@ interface PlanData {
     name: string;
     logoUrl: string | null;
   };
+  legal?: PublicLegalInfo;
   event: {
     name: string;
     startDate: string;
@@ -490,11 +494,7 @@ export default function PublicShiftPlanPage() {
           </div>
         </main>
 
-        <footer className="shifts-public__footer">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
-          <span>© {new Date().getFullYear()} OpenEOS</span>
-        </footer>
+        <PublicLegalFooter legal={plan.legal} slug={slug} />
       </>
     );
   }
@@ -941,6 +941,10 @@ export default function PublicShiftPlanPage() {
                     {t('shifts.public.emailHint')}
                   </p>
 
+                  {/* Art. 13 DSGVO: beim Erheben sagen, wer die Daten
+                      verarbeitet und wo der Datenschutzhinweis steht. */}
+                  <PrivacyFormHint legal={plan.legal} slug={slug} purpose={tp('privacyPurpose')} />
+
                   <button
                     type="submit"
                     className="btn btn--primary btn--lg btn--block"
@@ -956,23 +960,13 @@ export default function PublicShiftPlanPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="shifts-public__footer">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a
-            href={`/s/${slug}/manage`}
-            style={{ color: 'var(--green-ink)', fontWeight: 600 }}
-          >
-            {t('shifts.manageRequest.title')}
-          </a>
-          <span style={{ opacity: 0.4 }}>·</span>
-          <span>© {new Date().getFullYear()} OpenEOS</span>
-          <span style={{ opacity: 0.4 }}>·</span>
-          <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
-        </div>
-      </footer>
+      {/* Fusszeile: Impressum und Datenschutz des Vereins, darunter die
+          Plattform-Links von OpenEOS */}
+      <PublicLegalFooter
+        legal={plan.legal}
+        slug={slug}
+        aside={<Link href={`/s/${slug}/manage`}>{t('shifts.manageRequest.title')}</Link>}
+      />
     </>
   );
 }

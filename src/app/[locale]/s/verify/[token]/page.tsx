@@ -9,6 +9,8 @@ import { CircleCheck, CircleX, Loader } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { PublicLegalFooter } from '@/components/public-legal/public-legal-footer';
+import { usePublicPlanLegal } from '@/components/public-legal/use-public-plan-legal';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
@@ -25,6 +27,7 @@ export default function VerifyEmailPage() {
     status: string;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const legal = usePublicPlanLegal(resultData?.planSlug);
 
   useEffect(() => {
     if (!token) {
@@ -139,17 +142,8 @@ export default function VerifyEmailPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer style={{
-        padding: '1.25rem', textAlign: 'center',
-        borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
-        fontSize: 13, color: 'var(--mute)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-      }}>
-        <span>© {new Date().getFullYear()} OpenEOS</span>
-        <span style={{ opacity: 0.4 }}>·</span>
-        <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
-      </footer>
+      {/* Impressum/Datenschutz des Vereins, sobald der Plan bekannt ist */}
+      <PublicLegalFooter legal={legal} slug={resultData?.planSlug} />
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
