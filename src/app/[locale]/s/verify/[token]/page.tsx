@@ -146,7 +146,7 @@ export default function VerifyEmailPage() {
         fontSize: 13, color: 'var(--mute)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
       }}>
-        <span>© {new Date().getFullYear()} OpenEOS</span>
+        <span>© {new Date().getFullYear()} LUXCODE by Lukas Lukic-Spitznagel · OpenEOS</span>
         <span style={{ opacity: 0.4 }}>·</span>
         <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
       </footer>

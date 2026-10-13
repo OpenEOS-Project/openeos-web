@@ -1,7 +1,5 @@
 import '@/styles/auth-classic.css';
 
-import { getTranslations } from 'next-intl/server';
-
 import { Logo } from '@/components/foundations/logo/logo';
 import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -20,9 +18,7 @@ interface AuthLayoutProps {
  * die OpenEOS-Palette — Papierhintergrund, Karte und Primaerknopf sehen
  * damit aus wie bei Anmeldung und Registrierung.
  */
-export default async function AuthLayout({ children }: AuthLayoutProps) {
-  const t = await getTranslations('auth.layout');
-
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="auth-classic relative flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       {/* Top Bar */}
@@ -42,7 +38,7 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Footer */}
         <p className="auth-classic__foot mt-8 text-center">
-          &copy; {new Date().getFullYear()} OpenEOS. {t('rightsReserved')}
+          &copy; {new Date().getFullYear()} LUXCODE by Lukas Lukic-Spitznagel · OpenEOS
         </p>
         <p className="auth-classic__foot mt-2 text-center">
           <SourceCodeLink className="inline-flex items-center gap-1.5 hover:underline" iconSize={12} />
