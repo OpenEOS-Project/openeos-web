@@ -15,8 +15,10 @@ export type EventDiscountReason = 'first-event' | 'organization' | null;
 export interface EventBilling {
   /** Preis je Veranstaltungstag, vor Nachlass. */
   pricePerDay: number;
-  /** Abgerechnete Veranstaltungstage. */
+  /** Abgerechnete Veranstaltungstage (6 bis 6 Uhr, siehe businessDayStartHour). */
   days: number;
+  /** Stunde, zu der ein Veranstaltungstag wechselt (Ortszeit der Organisation). */
+  businessDayStartHour?: number;
   /** pricePerDay × days, vor Nachlass. */
   price: number;
   discountPercent: number;
@@ -75,6 +77,8 @@ export interface OrganizationInvoice {
 export interface EventPricePreview {
   pricePerDay: number;
   days: number;
+  /** Stunde, zu der ein Veranstaltungstag wechselt (Ortszeit der Organisation). */
+  businessDayStartHour?: number;
   price: number;
   discountPercent: number;
   discountReason: EventDiscountReason;

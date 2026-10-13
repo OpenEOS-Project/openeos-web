@@ -855,6 +855,7 @@
       "priceCalc": "{days} Tage × {perDay} je Tag",
       "priceCalcDiscounted": "{days} Tage × {perDay} = {gross}, abzüglich {percent} % Erstveranstalter-Nachlass",
       "priceTestFree": "Vorher testen ist kostenlos — bis zu {max} Bestellungen im Testmodus.",
+      "priceDayRule": "Ein Veranstaltungstag geht von {hour} bis {hour} Uhr. Endet deine Veranstaltung nachts vor {hour} Uhr, zählt die Nacht zum Vortag – wähle dann diesen Tag als Enddatum.",
       "shop": {
         "enable": "Online-Shop aktivieren",
         "enableHint": "Kunden können Artikel des Events online bestellen und per Karte bezahlen.",
@@ -932,6 +933,7 @@
         "confirm": "Ich bestätige, dass Name und Rechnungsanschrift korrekt und vollständig sind."
       },
       "breakdown": "{days} × {pricePerDay} pro Veranstaltungstag",
+      "dayRule": "Ein Veranstaltungstag geht von {hour} bis {hour} Uhr.",
       "discountFirstEvent": "{percent} % auf die erste Veranstaltung",
       "onlineNotice": "Du wirst zur gesicherten Zahlungsseite weitergeleitet. Die Rechnung erhältst du anschließend per E-Mail.",
       "unavailableNotice": "Online-Zahlung ist derzeit nicht verfügbar — bitte kontaktiere uns.",

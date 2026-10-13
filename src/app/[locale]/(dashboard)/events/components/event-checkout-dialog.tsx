@@ -8,6 +8,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hooks/use-events';
 import { billingApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
+import { DEFAULT_BUSINESS_DAY_START_HOUR } from '@/lib/event-schedule';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { toast } from '@/components/shared/toast';
 import { ApiException } from '@/types/api';
@@ -223,6 +224,11 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                 })}
               </div>
             )}
+            <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+              {t('dayRule', {
+                hour: billing.businessDayStartHour ?? DEFAULT_BUSINESS_DAY_START_HOUR,
+              })}
+            </div>
           </div>
 
           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
