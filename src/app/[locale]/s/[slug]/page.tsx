@@ -493,7 +493,7 @@ export default function PublicShiftPlanPage() {
         <footer className="shifts-public__footer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo_dark.png" alt="OpenEOS" style={{ height: 22, width: 'auto', display: 'block' }} />
-          <span>© {new Date().getFullYear()} OpenEOS</span>
+          <span>© {new Date().getFullYear()} LUXCODE by Lukas Lukic-Spitznagel · OpenEOS</span>
         </footer>
       </>
     );
@@ -968,7 +968,7 @@ export default function PublicShiftPlanPage() {
             {t('shifts.manageRequest.title')}
           </a>
           <span style={{ opacity: 0.4 }}>·</span>
-          <span>© {new Date().getFullYear()} OpenEOS</span>
+          <span>© {new Date().getFullYear()} LUXCODE by Lukas Lukic-Spitznagel · OpenEOS</span>
           <span style={{ opacity: 0.4 }}>·</span>
           <a href="https://openeos.de/imprint" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{t('shifts.public.imprint')}</a>
         </div>

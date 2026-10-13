@@ -218,9 +218,6 @@
       "missingToken": "This address contains no login link.",
       "backToLogin": "Back to sign-in"
     },
-    "layout": {
-      "rightsReserved": "All rights reserved."
-    },
     "twoFactorVerify": {
       "codeLength": "Code must be 6 characters",
       "unknownBrowser": "Unknown browser",
