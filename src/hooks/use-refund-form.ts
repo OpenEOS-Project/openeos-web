@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { OrderDetail } from '@/types/order-history';
 import {
   type CancelItemsState,
+  type RefundFormOptions,
   type RefundFormState,
   type RefundPreset,
   cancelItemsPayload,
@@ -20,21 +21,22 @@ import {
  * Auswahl, Vorschau, Pflichtfelder und die Anfrage (siehe
  * `utils/refund-form.ts`). Öffnen mit `preset`, `null` = geschlossen.
  */
-export function useRefundForm(order: OrderDetail, preset: RefundPreset | null) {
+export function useRefundForm(order: OrderDetail, preset: RefundPreset | null, options: RefundFormOptions = {}) {
+  const { cashless = false } = options;
   const [state, setState] = useState<RefundFormState>(() =>
-    initialRefundState(order, preset ?? { mode: 'items', cancelItems: false })
+    initialRefundState(order, preset ?? { mode: 'items', cancelItems: false }, { cashless })
   );
   const requestIds = useRef(new Map<string, string>());
 
   useEffect(() => {
     if (!preset) return;
-    setState(initialRefundState(order, preset));
+    setState(initialRefundState(order, preset, { cashless }));
     requestIds.current.clear();
     // Nur beim Öffnen: preset wechselt dabei.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset]);
 
-  const view = useMemo(() => refundFormView(order, state), [order, state]);
+  const view = useMemo(() => refundFormView(order, state, { cashless }), [order, state, cashless]);
 
   const set = useCallback(
     <K extends keyof RefundFormState>(key: K, value: RefundFormState[K]) =>

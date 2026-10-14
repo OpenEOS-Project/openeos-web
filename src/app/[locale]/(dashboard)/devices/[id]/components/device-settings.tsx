@@ -8,6 +8,7 @@ import { Link } from '@/i18n/routing';
 import '@/styles/device-settings.css';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { CashTseNotice } from '@/components/shared/cash-tse-notice';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { toast } from '@/components/shared/toast';
 
@@ -16,6 +17,7 @@ import { useProductionStations } from '@/hooks/use-production-stations';
 import { useTableAreas } from '@/hooks/use-tables';
 
 import { devicesApi, sumupApi } from '@/lib/api-client';
+import { isCashlessMode } from '@/lib/cashless';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -114,6 +116,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const { currentOrganization } = useAuthStore();
 
   const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
+  const cashless = isCashlessMode(currentOrganization?.organization?.settings);
 
   const [name, setName] = useState(device.name);
   const [type, setType] = useState<DeviceClass>(device.type);
@@ -437,6 +440,18 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             </FormRow>
           ) : (
             <p className="device-settings__hint">{t('devices.edit.sumupNotConfigured')}</p>
+          )}
+          {/* Bargeld gilt für die ganze Organisation (Einstellungen →
+              Zahlungen); hier nur, was das für diese Kasse heißt. */}
+          {cashless ? (
+            <p className="device-settings__hint">
+              {s('payment.cashless')}{' '}
+              <Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>
+            </p>
+          ) : (
+            <CashTseNotice
+              action={<Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>}
+            />
           )}
         </SectionCard>
       )}
