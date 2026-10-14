@@ -901,6 +901,12 @@
       },
       "savedOn": "Cashless mode is on. The tills switch over right away.",
       "savedOff": "Cashless mode is off. The tills accept cash again.",
+      "confirmOff": {
+        "title": "Allow cash again?",
+        "text": "Your tills can then accept cash again. For tills that take cash, the Kassensicherungsverordnung requires a TSE (technical security system) – the TSE integration for OpenEOS is still in progress. The change is recorded in the history.",
+        "faqLink": "Learn more in the FAQ",
+        "confirm": "Allow cash"
+      },
       "since": "Cashless since {date}",
       "history": {
         "title": "History",
