@@ -94,3 +94,67 @@ input[type="search"]::-webkit-search-cancel-button {
   width: auto;
   object-fit: contain;
 }
+
+/* Hinweis „Bargeld und TSE“ (components/shared/cash-tse-notice.tsx) —
+   in der Verwaltung und an der Kasse, deshalb hier und nicht in
+   landing.css bzw. pos.css. */
+.cash-tse-notice { position: relative; }
+.cash-tse-notice--dismissible .oe-banner { padding-right: 48px; }
+.cash-tse-notice__link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cash-tse-notice__dismiss {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--oe-r-sm, 8px);
+  background: transparent;
+  color: var(--oe-info);
+  cursor: pointer;
+  --oe-ico: 16px;
+}
+.cash-tse-notice__dismiss:hover { background: color-mix(in oklab, var(--oe-info) 12%, transparent); }
+.cash-tse-notice__dismiss:focus-visible { outline: 2px solid var(--oe-info); outline-offset: 2px; }
+/* Was der bargeldlose Modus sperrt (Einstellungen → Zahlungen). */
+.cashless-effects {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+  list-style: disc;
+}
+.cashless-since {
+  margin: -6px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oe-green-ink, var(--oe-ink));
+}
+/* Verlauf der Umschaltungen (Nachweis). */
+.cashless-history { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.cashless-history__title {
+  font: 500 11px/16px var(--oe-f-mono, ui-monospace, monospace);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.cashless-history ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cashless-history li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.cashless-history time { font-variant-numeric: tabular-nums; color: var(--oe-mute); min-width: 128px; }

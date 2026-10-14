@@ -6,6 +6,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { devicesApi, printersApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
 import { toast } from '@/components/shared/toast';
+import { isCashlessMode } from '@/lib/cashless';
+import { useAuthStore } from '@/stores/auth-store';
 import type { Device, PrinterMode } from '@/types/device';
 
 interface DevicePrinterConfigProps {
@@ -40,6 +42,7 @@ function normalizePrinterMode(raw: PrinterMode | undefined): 'fixed' | 'dynamic'
 export function DevicePrinterConfig({ device, organizationId }: DevicePrinterConfigProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const cashless = useAuthStore((state) => isCashlessMode(state.currentOrganization?.organization?.settings));
 
   const routingModes: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [
     {
@@ -199,6 +202,13 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
                 </option>
               ))}
             </select>
+          )}
+          {/* Bargeldlos sperrt die API die Kassenlade; die Zuordnung
+              bleibt stehen, falls der Modus wieder ausgeschaltet wird. */}
+          {cashless && (
+            <p style={{ fontSize: 12, color: 'var(--warn-ink)', margin: '6px 0 0' }}>
+              {t('devices.detail.printer.cashDrawer.cashless')}
+            </p>
           )}
         </div>
       </SectionCard>

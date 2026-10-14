@@ -395,6 +395,18 @@ export const organizationsApi = {
       { enabled },
     ),
 
+  /** Bargeldloser Modus (nur Admins); jede Umschaltung wird protokolliert. */
+  setCashlessMode: (id: string, cashless: boolean) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${id}/payments/cashless`,
+      { cashless },
+    ),
+
+  getCashlessHistory: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').CashlessChange[]>>(
+      `/organizations/${id}/payments/cashless/history`,
+    ),
+
   // Members
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),

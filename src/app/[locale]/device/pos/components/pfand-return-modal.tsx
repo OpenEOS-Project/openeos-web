@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button, EmptyState, Icon, Stepper } from '@openeos/ui';
+import { Banner, Button, EmptyState, Icon, Stepper } from '@openeos/ui';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
@@ -23,11 +23,17 @@ interface PfandReturnModalProps {
   onOffset?: (lines: CartPfandReturnLine[]) => void;
   /** Offline: Auszahlen gesperrt (Verrechnen bleibt lokal möglich). */
   payoutDisabled?: boolean;
+  /**
+   * Bargeldloser Modus: keine Barauszahlung (die API lehnt sie ab). Pfand
+   * lässt sich dann nur gegen neues Pfand im Warenkorb verrechnen.
+   */
+  cashless?: boolean;
 }
 
 /**
  * Pfand-Rückgabe: Zählung je Pfandart, dann „Auszahlen“ (Bargeld, öffnet
- * die Kassenlade) oder „Verrechnen“ gegen den aktuellen Warenkorb.
+ * die Kassenlade) oder „Verrechnen“ gegen den aktuellen Warenkorb. Im
+ * bargeldlosen Modus gibt es nur das Verrechnen.
  */
 export function PfandReturnModal({
   isOpen,
@@ -38,6 +44,7 @@ export function PfandReturnModal({
   initialCounts,
   onOffset,
   payoutDisabled = false,
+  cashless = false,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
   const tCart = useTranslations('pos.cartV2');
@@ -98,16 +105,24 @@ export function PfandReturnModal({
       subtitle={`${t('returnSum')}: ${formatPrice(total)}`}
       footer={
         <>
-          <Button
-            variant={allowOffset ? 'secondary' : 'primary'}
-            className={allowOffset ? undefined : 'oe-grow'}
-            disabled={total <= 0 || submitting || payoutDisabled}
-            loading={submitting}
-            onClick={payout}
-          >
-            {!submitting && <Icon name="cash" />}
-            {t('payoutButton')}
-          </Button>
+          {cashless ? (
+            !allowOffset && (
+              <Button variant="secondary" className="oe-grow" onClick={onClose}>
+                {t('close')}
+              </Button>
+            )
+          ) : (
+            <Button
+              variant={allowOffset ? 'secondary' : 'primary'}
+              className={allowOffset ? undefined : 'oe-grow'}
+              disabled={total <= 0 || submitting || payoutDisabled}
+              loading={submitting}
+              onClick={payout}
+            >
+              {!submitting && <Icon name="cash" />}
+              {t('payoutButton')}
+            </Button>
+          )}
           {allowOffset && (
             <Button variant="primary" className="oe-grow" disabled={total <= 0} onClick={offset}>
               <Icon name="check" />
@@ -117,7 +132,13 @@ export function PfandReturnModal({
         </>
       }
     >
-      {pfandTypes.length === 0 ? (
+      {cashless && (
+        <Banner tone="info" icon={<Icon name="info" />} title={t('cashlessTitle')}>
+          {allowOffset ? t('cashlessOffset') : t('cashlessNoCart')}
+        </Banner>
+      )}
+      {/* Ohne Warenkorb gäbe es bargeldlos nichts zu zählen. */}
+      {cashless && !allowOffset ? null : pfandTypes.length === 0 ? (
         <EmptyState icon={<Icon name="deposit" />} title={t('empty')} />
       ) : (
         <ul className="pos-list">
@@ -140,7 +161,7 @@ export function PfandReturnModal({
           })}
         </ul>
       )}
-      {allowOffset && <p className="pos-hint">{t('offsetHint')}</p>}
+      {allowOffset && !cashless && <p className="pos-hint">{t('offsetHint')}</p>}
     </PosSheet>
   );
 }

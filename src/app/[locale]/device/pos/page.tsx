@@ -13,6 +13,7 @@ import { useDeviceTables } from '@/hooks/use-device-tables';
 import { usePosConnection } from '@/hooks/use-pos-connection';
 import { useTableStatus } from '@/hooks/use-table-status';
 import { deviceApi } from '@/lib/api-client';
+import { isCashlessMode } from '@/lib/cashless';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
@@ -135,6 +136,8 @@ function PosApp() {
   const { orgName, orgSettings, activeEvent, eventsLoading, categories, products, productsLoading, vouchers, pfandTypes } =
     usePosData(eventId, true);
   const isTest = activeEvent?.status === 'test';
+  // Bargeldloser Modus: kein Bar, keine Kassenlade, keine Pfand-Auszahlung.
+  const cashless = isCashlessMode(orgSettings);
 
   useEffect(() => {
     if (activeEvent && eventId !== activeEvent.id) setEventId(activeEvent.id);
@@ -193,6 +196,7 @@ function PosApp() {
     readerLinked: !!settings?.sumupReaderId,
     sumupEnabled: isIntegrationEnabled(orgSettings, 'sumup'),
     isTest,
+    cashless,
   });
   const contextLabel = !context
     ? ''
@@ -304,7 +308,7 @@ function PosApp() {
     { id: 'history', icon: 'clock', label: t('menu.history'), onSelect: () => setSheet('history') },
     ...(isTab ? [{ id: 'open', icon: 'orders' as const, label: t('menu.openOrders'), onSelect: () => setSheet('openOrders') }] : []),
     ...(pfandTypes.length > 0 ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }] : []),
-    ...(settings?.cashDrawerPrinterId
+    ...(settings?.cashDrawerPrinterId && !cashless
       ? [{
           id: 'drawer',
           icon: 'drawer' as const,
@@ -498,6 +502,7 @@ function PosApp() {
             setSheet(null);
           }}
           payoutDisabled={offline}
+          cashless={cashless}
         />
         <LogoutSheet open={sheet === 'logout'} onClose={() => setSheet(null)} onConfirm={handleLogout} />
       </div>
