@@ -901,6 +901,12 @@
       },
       "savedOn": "Bargeldloser Modus ist an. Die Kassen stellen sich sofort um.",
       "savedOff": "Bargeldloser Modus ist aus. Die Kassen nehmen wieder Bargeld an.",
+      "confirmOff": {
+        "title": "Bargeld wieder erlauben?",
+        "text": "Deine Kassen können dann wieder Bargeld annehmen. Für Kassen mit Bargeld schreibt die Kassensicherungsverordnung eine TSE vor – die TSE-Anbindung für OpenEOS ist noch in Arbeit. Die Änderung wird im Verlauf gespeichert.",
+        "faqLink": "Mehr dazu in den FAQ",
+        "confirm": "Bargeld erlauben"
+      },
       "since": "Bargeldlos seit {date}",
       "history": {
         "title": "Verlauf",

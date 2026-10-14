@@ -1,4 +1,4 @@
-import { isCashlessMode, tseFaqUrl } from '@/lib/cashless';
+import { cashlessSwitchStep, isCashlessMode, tseFaqUrl } from '@/lib/cashless';
 import { initialPayMethod, resolvePosCardMode } from '@/utils/pos-card-mode';
 import { initialRefundState, refundFormView } from '@/utils/refund-form';
 import { expect, test } from '@playwright/test';
@@ -44,6 +44,26 @@ test.describe('cashless mode', () => {
     expect(isCashlessMode({})).toBe(false);
     expect(isCashlessMode({ payments: {} })).toBe(false);
     expect(isCashlessMode({ payments: { cashless: true } })).toBe(true);
+  });
+
+  test('switching on saves right away', () => {
+    expect(cashlessSwitchStep(false, { type: 'toggle', checked: true })).toEqual({ confirmOff: false, save: true });
+  });
+
+  test('switching off asks first and sends nothing yet', () => {
+    expect(cashlessSwitchStep(false, { type: 'toggle', checked: false })).toEqual({ confirmOff: true, save: null });
+  });
+
+  test('cancelling the question keeps cashless mode on and sends nothing', () => {
+    const asked = cashlessSwitchStep(false, { type: 'toggle', checked: false });
+    expect(cashlessSwitchStep(asked.confirmOff, { type: 'cancel' })).toEqual({ confirmOff: false, save: null });
+  });
+
+  test('confirming allows cash; the question stays open until saved', () => {
+    const asked = cashlessSwitchStep(false, { type: 'toggle', checked: false });
+    expect(cashlessSwitchStep(asked.confirmOff, { type: 'confirm' })).toEqual({ confirmOff: true, save: false });
+    // Ohne offene Rückfrage bewirkt eine Bestätigung nichts.
+    expect(cashlessSwitchStep(false, { type: 'confirm' })).toEqual({ confirmOff: false, save: null });
   });
 
   test('FAQ link per language', () => {

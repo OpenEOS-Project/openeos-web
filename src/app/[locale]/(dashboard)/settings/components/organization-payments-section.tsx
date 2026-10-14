@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Banner, Icon } from '@openeos/ui';
@@ -13,8 +14,10 @@ import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { Link } from '@/i18n/routing';
 import { organizationsApi } from '@/lib/api-client';
-import { isCashlessMode } from '@/lib/cashless';
+import { cashlessSwitchStep, isCashlessMode, type CashlessSwitchEvent } from '@/lib/cashless';
 import { useAuthStore } from '@/stores/auth-store';
+
+import { CashlessOffDialog } from './cashless-off-dialog';
 
 /**
  * Zahlungen der Organisation: der bargeldlose Modus.
@@ -22,6 +25,8 @@ import { useAuthStore } from '@/stores/auth-store';
  * Eingeschaltet sperrt die API jeden Bargeldweg (Zahlung, Erstattung,
  * Pfand-Auszahlung, Kassenlade); die Kassen stellen sich per Socket sofort
  * um. Ausgeschaltet (Standard) steht hier der Hinweis zu Bargeld und TSE.
+ * Ausschalten (Bargeld wieder erlauben) braucht eine Bestätigung, weil
+ * Bargeld eine TSE voraussetzt; Einschalten speichert sofort.
  * Nur Admins dürfen schalten — die API prüft das ebenfalls und protokolliert
  * jede Umschaltung mit Zeitpunkt und Person; der Verlauf steht darunter
  * (Nachweis, seit wann die Kassen kein Bargeld annehmen).
@@ -35,6 +40,7 @@ export function OrganizationPaymentsSection() {
   const { formatDate, formatDateTime } = useLocaleFormat();
   const queryClient = useQueryClient();
   const organizationId = currentOrganization?.organizationId ?? '';
+  const [confirmOff, setConfirmOff] = useState(false);
 
   const history = useQuery({
     queryKey: ['cashless-history', organizationId],
@@ -64,6 +70,20 @@ export function OrganizationPaymentsSection() {
     },
   });
 
+  const { mutate: saveCashless } = updateCashless;
+  const onSwitch = useCallback(
+    (event: CashlessSwitchEvent) => {
+      const step = cashlessSwitchStep(confirmOff, event);
+      setConfirmOff(step.confirmOff);
+      if (step.save === null) return;
+      // Die Rückfrage schließt erst nach dem Speichern; bei einem Fehler
+      // bleibt sie offen (Toast), Abbrechen geht dann weiter.
+      saveCashless(step.save, { onSuccess: () => setConfirmOff(false) });
+    },
+    [confirmOff, saveCashless]
+  );
+  const cancelConfirmOff = useCallback(() => onSwitch({ type: 'cancel' }), [onSwitch]);
+
   if (!currentOrganization) return null;
 
   const settings = currentOrganization.organization?.settings;
@@ -86,7 +106,7 @@ export function OrganizationPaymentsSection() {
           hint={t('cashless.hint')}
           checked={cashless}
           disabled={!isAdmin || updateCashless.isPending}
-          onChange={(checked) => updateCashless.mutate(checked)}
+          onChange={(checked) => onSwitch({ type: 'toggle', checked })}
         />
 
         {cashless && changedAt && (
@@ -136,6 +156,14 @@ export function OrganizationPaymentsSection() {
           </div>
         )}
       </div>
+
+      {confirmOff && (
+        <CashlessOffDialog
+          pending={updateCashless.isPending}
+          onConfirm={() => onSwitch({ type: 'confirm' })}
+          onCancel={cancelConfirmOff}
+        />
+      )}
     </div>
   );
 }
