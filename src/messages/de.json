@@ -4684,13 +4684,11 @@
         "account": "Ein Stripe-Konto"
       }
     },
-    "fiskaly": {
-      "vendor": "Kassensicherung",
-      "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung.",
-      "longDescription": "fiskaly stellt eine Cloud-TSE bereit, mit der Kassenvorgänge nach der Kassensicherungsverordnung signiert werden.",
-      "requirements": {
-        "account": "Ein fiskaly-Konto"
-      }
+    "tse": {
+      "name": "TSE (Kassensicherung)",
+      "vendor": "Fiskalisierung",
+      "description": "Cloud-TSE nach KassenSichV für Barzahlungen – in Vorbereitung.",
+      "longDescription": "Wer an der Kasse Bargeld annimmt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Bis dahin kannst du den bargeldlosen Modus einschalten: Ohne Bargeld ist keine TSE nötig. Mehr dazu in den <link>FAQ auf openeos.de</link>."
     }
   },
   "onboarding": {

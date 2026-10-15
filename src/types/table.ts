@@ -316,8 +316,8 @@ export interface DeliverOrderItemsResponse {
 /** GET /device-api/status — Kopf-Pillen der Kasse (Drucker, TSE). */
 export interface DevicePosStatusResponse {
   printer: { id: string; name: string; isOnline: boolean; lastSeenAt: string | null } | null;
-  /** Erst mit aktiver fiskaly-Integration gefüllt. */
-  tse: { state: 'ok' | 'error'; provider: 'fiskaly' } | null;
+  /** Bleibt `null`, bis es eine TSE-Anbindung gibt; `provider` nennt dann den Anbieter. */
+  tse: { state: 'ok' | 'error'; provider: string } | null;
 }
 
 /* ---------- Kassen-Kontext ---------- */
