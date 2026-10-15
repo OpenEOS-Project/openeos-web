@@ -337,6 +337,27 @@
         "UPDATE_RENTAL_HARDWARE": "Rental hardware updated",
         "ASSIGN_RENTAL": "Rental assigned",
         "RETURN_RENTAL": "Rental returned",
+        "view_organization": "Organization viewed",
+        "impersonate_start": "Signed in as organization",
+        "impersonate_end": "Organization view ended",
+        "credit_adjustment": "Credits adjusted",
+        "edit_organization": "Organization edited",
+        "delete_organization": "Organization deleted",
+        "edit_user": "User edited",
+        "unlock_user": "User unlocked",
+        "mark_invoice_paid": "Invoice marked as paid",
+        "complete_purchase": "Purchase completed",
+        "set_discount": "Discount set",
+        "remove_discount": "Discount removed",
+        "create_rental_hardware": "Rental hardware added",
+        "assign_rental": "Rental assigned",
+        "return_rental": "Rental returned",
+        "event_checkout_released": "Activation: payment not completed",
+        "event_billing_cancelled": "Activation cancelled",
+        "event_billing_goodwill_refund": "Goodwill refund",
+        "event_payment_dispute_opened": "Dispute opened",
+        "event_payment_dispute_closed": "Dispute closed",
+        "event_duplicate_payment": "Payment without activation",
         "unknown": "Unknown action"
       }
     },
@@ -1187,16 +1208,42 @@
         "reset": "Reset",
         "invoice": "Invoice",
         "waive": "Waive",
-        "cancelBilling": "Cancel"
+        "cancelBilling": "Cancel/refund"
       },
       "pagination": {
         "total": "{count, plural, =1 {# event total} other {# events total}}",
         "page": "Page {page} of {totalPages}"
       },
       "cancelBilling": {
-        "title": "Cancel activation",
-        "description": "Refunds the full amount via Stripe (with a credit note) or reverses the invoice order, and puts the event into test mode. The 7-day deadline does not apply here; events with real orders cannot be cancelled.",
-        "submit": "Cancel activation"
+        "title": "Cancel or refund",
+        "facts": {
+          "paidStripe": "Paid (Stripe)",
+          "orderedInvoice": "Ordered (on invoice)",
+          "refundedSoFar": "Already refunded",
+          "refundable": "Still refundable",
+          "realOrders": "Real orders"
+        },
+        "ordersWarning": "This event has {count, plural, one {# real order} other {# real orders}}. They stay unchanged, as do the activation and the status — the refund is a goodwill gesture.",
+        "deadlinePassed": "The deadline for free cancellation ({deadline}) has passed; it does not apply to you.",
+        "amountLabel": "Amount",
+        "modeFull": "Everything refundable ({amount})",
+        "modePartial": "Partial amount",
+        "amountInput": "Partial amount in euros",
+        "reasonLabel": "Reason (required)",
+        "reasonPlaceholder": "e.g. event cancelled because of a storm",
+        "outcomeCancellation": "Cancellation: the activation is removed, an active event switches to test mode.",
+        "outcomeGoodwill": "Goodwill: activation, status and orders stay unchanged.",
+        "refundStripe": "Stripe refunds the amount and issues a credit note.",
+        "refundInvoiceInvoiced": "On invoice: the invoice has already been issued — issue a credit note for the amount and pay back what was paid.",
+        "refundInvoiceOpen": "On invoice: the invoice has not been issued yet — take the amount into account when invoicing.",
+        "problems": {
+          "nothingRefundable": "Nothing is left to refund for this activation.",
+          "onlineRefundUnavailable": "A refund via Stripe is not possible here (no checkout session or Stripe not configured).",
+          "amountInvalid": "Enter an amount greater than 0.",
+          "amountTooHigh": "At most {max} can be refunded."
+        },
+        "submit": "Cancel activation",
+        "submitGoodwill": "Refund {amount}"
       }
     },
     "printers": {

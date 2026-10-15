@@ -337,6 +337,27 @@
         "UPDATE_RENTAL_HARDWARE": "Miet-Hardware aktualisiert",
         "ASSIGN_RENTAL": "Miet-Zuweisung erstellt",
         "RETURN_RENTAL": "Miet-Rückgabe",
+        "view_organization": "Organisation angesehen",
+        "impersonate_start": "Als Organisation angemeldet",
+        "impersonate_end": "Organisationsansicht beendet",
+        "credit_adjustment": "Credits angepasst",
+        "edit_organization": "Organisation bearbeitet",
+        "delete_organization": "Organisation gelöscht",
+        "edit_user": "Benutzer bearbeitet",
+        "unlock_user": "Benutzer entsperrt",
+        "mark_invoice_paid": "Rechnung als bezahlt markiert",
+        "complete_purchase": "Kauf abgeschlossen",
+        "set_discount": "Rabatt gesetzt",
+        "remove_discount": "Rabatt entfernt",
+        "create_rental_hardware": "Miet-Hardware hinzugefügt",
+        "assign_rental": "Miet-Zuweisung erstellt",
+        "return_rental": "Miet-Rückgabe",
+        "event_checkout_released": "Freischaltung: Zahlung nicht abgeschlossen",
+        "event_billing_cancelled": "Freischaltung storniert",
+        "event_billing_goodwill_refund": "Kulanzerstattung",
+        "event_payment_dispute_opened": "Rückbuchung eröffnet",
+        "event_payment_dispute_closed": "Rückbuchung abgeschlossen",
+        "event_duplicate_payment": "Zahlung ohne Freischaltung",
         "unknown": "Unbekannte Aktion"
       }
     },
@@ -2042,16 +2063,42 @@
         "reset": "Zurücksetzen",
         "invoice": "Abrechnen",
         "waive": "Erlassen",
-        "cancelBilling": "Stornieren"
+        "cancelBilling": "Storno/Erstattung"
       },
       "pagination": {
         "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
         "page": "Seite {page} von {totalPages}"
       },
       "cancelBilling": {
-        "title": "Freischaltung stornieren",
-        "description": "Erstattet den vollen Betrag über Stripe (mit Stornorechnung) bzw. hebt den Rechnungskauf auf und setzt die Veranstaltung in den Testmodus. Die 7-Tage-Frist gilt hier nicht; Veranstaltungen mit echten Bestellungen lassen sich nicht stornieren.",
-        "submit": "Stornieren"
+        "title": "Storno oder Erstattung",
+        "facts": {
+          "paidStripe": "Bezahlt (Stripe)",
+          "orderedInvoice": "Bestellt (auf Rechnung)",
+          "refundedSoFar": "Bereits erstattet",
+          "refundable": "Noch erstattbar",
+          "realOrders": "Echte Bestellungen"
+        },
+        "ordersWarning": "In dieser Veranstaltung gibt es {count, plural, one {# echte Bestellung} other {# echte Bestellungen}}. Sie bleiben unverändert erhalten, ebenso die Freischaltung und der Status — die Erstattung ist Kulanz.",
+        "deadlinePassed": "Die Frist für eine kostenlose Stornierung ({deadline}) ist abgelaufen; für dich gilt sie nicht.",
+        "amountLabel": "Betrag",
+        "modeFull": "Alles Erstattbare ({amount})",
+        "modePartial": "Teilbetrag",
+        "amountInput": "Teilbetrag in Euro",
+        "reasonLabel": "Grund (Pflicht)",
+        "reasonPlaceholder": "z. B. Veranstaltung wegen Unwetter abgesagt",
+        "outcomeCancellation": "Storno: Die Freischaltung wird aufgehoben, eine aktive Veranstaltung wechselt in den Testmodus.",
+        "outcomeGoodwill": "Kulanz: Freischaltung, Status und Bestellungen bleiben unverändert.",
+        "refundStripe": "Stripe erstattet den Betrag und stellt eine Gutschrift (Stornorechnung) aus.",
+        "refundInvoiceInvoiced": "Auf Rechnung: Die Rechnung ist schon gestellt — stelle eine Gutschrift über den Betrag aus und überweise Gezahltes zurück.",
+        "refundInvoiceOpen": "Auf Rechnung: Die Rechnung ist noch nicht gestellt — berücksichtige den Betrag beim Abrechnen.",
+        "problems": {
+          "nothingRefundable": "Für diese Freischaltung ist nichts mehr zu erstatten.",
+          "onlineRefundUnavailable": "Eine Erstattung über Stripe ist hier nicht möglich (keine Checkout-Sitzung oder Stripe nicht konfiguriert).",
+          "amountInvalid": "Gib einen Betrag größer 0 ein.",
+          "amountTooHigh": "Erstattbar sind höchstens {max}."
+        },
+        "submit": "Stornieren",
+        "submitGoodwill": "{amount} erstatten"
       }
     },
     "printers": {
