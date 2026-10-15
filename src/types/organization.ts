@@ -1,5 +1,5 @@
 /** Alle Integrationen, die der Katalog kennt (src/config/integrations.ts). */
-export type IntegrationId = 'sumup' | 'stripe' | 'fiskaly';
+export type IntegrationId = 'sumup' | 'stripe' | 'tse';
 
 export interface IntegrationState {
   enabled: boolean;

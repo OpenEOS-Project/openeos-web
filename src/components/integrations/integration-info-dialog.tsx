@@ -9,6 +9,8 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import {
   integrationDocsUrl,
   integrationHref,
+  integrationMoreInfoUrl,
+  integrationName,
   isIntegrationEnabled,
   type IntegrationDefinition,
 } from '@/config/integrations';
@@ -46,6 +48,8 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
 
   const titleId = `integration-${integration.id}-title`;
   const docsUrl = integrationDocsUrl(integration, locale);
+  const moreInfoUrl = integrationMoreInfoUrl(integration, locale);
+  const name = integrationName(integration, t);
 
   // Escape schließt; der Fokus wandert ins Fenster und beim Schließen zurück
   // auf die Karte, von der aus es geöffnet wurde.
@@ -72,9 +76,9 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
         <div ref={panelRef} className="integration-info__inner">
           <div className="modal__head">
             <div className="integration-info__title">
-              <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
+              <IntegrationLogo name={name} color={integration.color} logo={integration.logo} />
               <div style={{ minWidth: 0 }}>
-                <h2 id={titleId}>{integration.name}</h2>
+                <h2 id={titleId}>{name}</h2>
                 <div className="integration-card__vendor">{t(integration.vendorKey)}</div>
               </div>
               <IntegrationStatusBadge available={integration.available} enabled={enabled} />
@@ -87,7 +91,18 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
 
             <section>
               <h3 className="integration-info__heading">{t('info.whatItDoes')}</h3>
-              <p className="integration-info__text">{t(integration.longDescriptionKey)}</p>
+              <p className="integration-info__text">
+                {t.rich(integration.longDescriptionKey, {
+                  link: (chunks) =>
+                    moreInfoUrl ? (
+                      <a href={moreInfoUrl} target="_blank" rel="noopener noreferrer">
+                        {chunks}
+                      </a>
+                    ) : (
+                      chunks
+                    ),
+                })}
+              </p>
             </section>
 
             {integration.requirementKeys.length > 0 && (

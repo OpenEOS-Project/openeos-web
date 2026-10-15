@@ -4684,13 +4684,11 @@
         "account": "A Stripe account"
       }
     },
-    "fiskaly": {
+    "tse": {
+      "name": "TSE (fiscal security)",
       "vendor": "Fiscalisation",
-      "description": "Cloud TSE for the German cash register security regulation.",
-      "longDescription": "fiskaly provides a cloud TSE that signs POS transactions as required by the German cash register security regulation (KassenSichV).",
-      "requirements": {
-        "account": "A fiskaly account"
-      }
+      "description": "Cloud TSE for cash payments under the German KassenSichV – in preparation.",
+      "longDescription": "If you accept cash at the till, the German cash register security regulation (KassenSichV) requires a certified technical security device (TSE) that signs every transaction. A cloud TSE integration for OpenEOS is in preparation. Until then you can switch on cashless mode: without cash, no TSE is needed. Learn more in the <link>FAQ on openeos.de</link>."
     }
   },
   "onboarding": {
