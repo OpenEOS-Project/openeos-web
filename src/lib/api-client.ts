@@ -1031,59 +1031,17 @@ export const adminApi = {
       `/admin/devices${params ? `?${new URLSearchParams(params)}` : ''}`
     ),
 
-  // Printers (Admin)
+  // Printers (Admin) — read-only overview: agents and printers per organisation
   listPrinters: (params?: { organizationId?: string }) =>
-    apiClient.get<ApiResponse<import('@/types/printer').AdminPrintersResponse>>(
+    apiClient.get<ApiResponse<import('@/types/printer').AdminPrinterOverviewEntry[]>>(
       `/admin/printers${params?.organizationId ? `?organizationId=${encodeURIComponent(params.organizationId)}` : ''}`,
     ),
-
-  assignPrinterDevice: (data: import('@/types/printer').AssignPrinterDeviceData) =>
-    apiClient.post<ApiResponse<import('@/types/printer').Printer>>(
-      '/admin/printers/assign-device',
-      data,
-    ),
-
-  unassignPrinter: (id: string) =>
-    apiClient.delete<ApiResponse<{ success: boolean }>>(`/admin/printers/${id}`),
 
   testPrintPrinter: (id: string) =>
     apiClient.post<ApiResponse<{ success: boolean; message: string }>>(`/admin/printers/${id}/test`),
 
-  updatePrinter: (id: string, data: { hasCashDrawer?: boolean }) =>
-    apiClient.patch<ApiResponse<import('@/types/printer').Printer>>(`/admin/printers/${id}`, data),
-
   deleteDevice: (id: string) =>
     apiClient.delete<ApiResponse<{ success: boolean }>>(`/admin/devices/${id}`),
-
-  // Rental Hardware
-  listRentalHardware: (params?: { type?: string; status?: string; page?: number; limit?: number }) =>
-    apiClient.get<ApiResponse<import('@/types/rental').RentalHardware[]> & { meta: import('@/types/api').PaginationMeta }>(
-      `/admin/rental-hardware${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
-    ),
-
-  createRentalHardware: (data: import('@/types/rental').CreateRentalHardwareData) =>
-    apiClient.post<ApiResponse<import('@/types/rental').RentalHardware>>('/admin/rental-hardware', data),
-
-  updateRentalHardware: (id: string, data: import('@/types/rental').UpdateRentalHardwareData) =>
-    apiClient.patch<ApiResponse<import('@/types/rental').RentalHardware>>(`/admin/rental-hardware/${id}`, data),
-
-  deleteRentalHardware: (id: string) =>
-    apiClient.delete<void>(`/admin/rental-hardware/${id}`),
-
-  // Rental Assignments
-  listRentalAssignments: (params?: { status?: string; page?: number; limit?: number }) =>
-    apiClient.get<ApiResponse<import('@/types/rental').RentalAssignment[]> & { meta: import('@/types/api').PaginationMeta }>(
-      `/admin/rental-assignments${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
-    ),
-
-  createRentalAssignment: (data: import('@/types/rental').CreateRentalAssignmentData) =>
-    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>('/admin/rental-assignments', data),
-
-  activateRental: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>(`/admin/rental-assignments/${id}/activate`),
-
-  returnRental: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/rental').RentalAssignment>>(`/admin/rental-assignments/${id}/return`),
 
   // Events (Admin)
   listAdminEvents: (params?: {
@@ -1280,6 +1238,7 @@ export const printersApi = {
       `/organizations/${organizationId}/printers/${printerId}`
     ),
 
+  /** Manually created printer — network only; USB/Windows printers come from discovery. */
   create: (organizationId: string, data: import('@/types/printer').CreatePrinterData) =>
     apiClient.post<ApiResponse<import('@/types/printer').Printer>>(
       `/organizations/${organizationId}/printers`,
@@ -1300,6 +1259,45 @@ export const printersApi = {
   testPrint: (organizationId: string, printerId: string) =>
     apiClient.post<ApiResponse<{ success: boolean }>>(
       `/organizations/${organizationId}/printers/${printerId}/test`
+    ),
+};
+
+// Printer agents (devices of type printer_agent) and what they discovered.
+// Pairing itself goes through devicesApi.link.
+export const printerAgentsApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/printer').PrinterAgent[]>>(
+      `/organizations/${organizationId}/printer-agents`
+    ),
+
+  /** Removes the agent and its printers; assignments are cleared by the API. */
+  remove: (organizationId: string, deviceId: string) =>
+    apiClient.delete<void>(
+      `/organizations/${organizationId}/printer-agents/${deviceId}`
+    ),
+
+  /** 409 PRINTER_AGENT_OFFLINE when the agent is not connected. */
+  discover: (organizationId: string, deviceId: string, data: import('@/types/printer').DiscoverPrintersData = {}) =>
+    apiClient.post<ApiResponse<{ deviceId: string; subnetScan: boolean }>>(
+      `/organizations/${organizationId}/printer-agents/${deviceId}/discover`,
+      data
+    ),
+
+  listDiscovered: (organizationId: string, deviceId: string) =>
+    apiClient.get<ApiResponse<import('@/types/printer').DiscoveredPrinter[]>>(
+      `/organizations/${organizationId}/printer-agents/${deviceId}/discovered`
+    ),
+
+  /** 409 PRINTER_ALREADY_ADOPTED (params.printerId) when adopted before. */
+  adopt: (
+    organizationId: string,
+    deviceId: string,
+    discoveredId: string,
+    data: import('@/types/printer').AdoptDiscoveredPrinterData,
+  ) =>
+    apiClient.post<ApiResponse<import('@/types/printer').Printer>>(
+      `/organizations/${organizationId}/printer-agents/${deviceId}/discovered/${discoveredId}/adopt`,
+      data
     ),
 };
 

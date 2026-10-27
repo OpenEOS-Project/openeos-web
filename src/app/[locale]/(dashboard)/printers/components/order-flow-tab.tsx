@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
+import { selectablePrinters } from '@/utils/printer-connection';
 import { usePrintTemplates } from '@/hooks/use-print-templates';
 import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { toast } from '@/components/shared/toast';
@@ -89,9 +90,11 @@ export function OrderFlowTab() {
 
   // Shared data: printers + templates
   const { data: printersList } = usePrinters(orgId);
+  // Only adopted/active printers are assignable; a deactivated one stays
+  // listed while it is still stored so the select doesn't go blank.
+  const printersFor = (currentId: string) => selectablePrinters(printersList, currentId);
   const { data: templatesList } = usePrintTemplates(orgId);
 
-  const printers = printersList ?? [];
   const templates = templatesList ?? [];
 
   const kitchenTemplates = templates.filter((tmpl) => tmpl.type === 'kitchen_ticket');
@@ -218,7 +221,7 @@ export function OrderFlowTab() {
               onChange={(e) => setKitchenPrinterId(e.target.value)}
             >
               <option value="">{tf('useRoutingChain')}</option>
-              {printers.map((p) => (
+              {printersFor(kitchenPrinterId).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>
@@ -278,7 +281,7 @@ export function OrderFlowTab() {
               onChange={(e) => setOrderPrinterId(e.target.value)}
             >
               <option value="">{tf('useRoutingChain')}</option>
-              {printers.map((p) => (
+              {printersFor(orderPrinterId).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>
@@ -349,7 +352,7 @@ export function OrderFlowTab() {
               onChange={(e) => setReceiptPrinterId(e.target.value)}
             >
               <option value="">{tf('useRoutingChain')}</option>
-              {printers.map((p) => (
+              {printersFor(receiptPrinterId).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.isOnline ? p.name : `${p.name} (${t('printers.offline')})`}
                 </option>

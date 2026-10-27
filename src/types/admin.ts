@@ -29,7 +29,6 @@ export interface AdminOverviewStats {
   totalUsers: number;
   totalCredits: number;
   pendingPurchases: number;
-  activeRentals: number;
   activeEvents: number;
   newUsersThisMonth: number;
   newOrganizationsThisMonth: number;
@@ -37,8 +36,8 @@ export interface AdminOverviewStats {
 
 export interface AdminRevenueStats {
   totalRevenue: number;
-  creditRevenue: number;
-  rentalRevenue: number;
+  /** Unlocked events (paid or invoiced) — the platform's only revenue stream. */
+  eventRevenue: number;
 }
 
 export interface AdminEventListItem {

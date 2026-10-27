@@ -51,6 +51,29 @@ pnpm build
 pnpm lint
 ```
 
+## Entwicklungs-Hilfen
+
+### Drucker-Agent simulieren
+
+`scripts/dev/printer-agent-sim.mjs` spielt einen Drucker-Agent nach, damit sich die Seite
+„Drucker“ ohne echten Drucker und ohne den Python-Agent testen lässt. Das Skript registriert sich
+als `printer_agent` (`POST /devices/init`), zeigt den 6-stelligen Kopplungscode, verbindet sich nach
+dem Verknüpfen per Socket (Device-Token), schickt `agentHeartbeat`, meldet ein paar gefundene
+Drucker (USB, Netzwerk, bei `--os windows` auch Spooler) an `POST /device-api/printers/discovered`
+und reagiert auf `printerDiscover`, `printerConfigUpdate` und `printerJob`.
+
+```bash
+# API lokal unter http://localhost:3001 (ohne /api)
+node scripts/dev/printer-agent-sim.mjs --api http://localhost:3001 --name "Drucker-Agent Küche"
+
+# Als Windows-Agent (meldet zusätzlich einen Spooler-Drucker); --reset vergisst das gespeicherte Gerät
+node scripts/dev/printer-agent-sim.mjs --os windows --reset
+```
+
+Der Device-Token landet in `.printer-agent-sim.json` (ignoriert von Git), ein Neustart nutzt
+denselben Agent. Danach in der Web-App: Drucker → „Drucker-Agent verbinden“ → Code eingeben →
+gefundene Drucker übernehmen, Testdruck auslösen (der Simulator bestätigt Jobs nach kurzer Zeit).
+
 ## Projektstruktur
 
 ```

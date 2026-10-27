@@ -17,8 +17,6 @@ const FILTER: (ContactRequestKind | 'alle')[] = [
   'feedback',
   'demo',
   'contact',
-  'hardware',
-  'gateway',
 ];
 
 export function FeedbackContainer() {

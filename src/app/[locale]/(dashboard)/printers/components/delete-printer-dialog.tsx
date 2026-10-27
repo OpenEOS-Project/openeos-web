@@ -1,36 +1,39 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '@/stores/auth-store';
-import { printersApi } from '@/lib/api-client';
+
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
+import { toast } from '@/components/shared/toast';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useDeletePrinter } from '@/hooks/use-printers';
 import type { Printer } from '@/types/printer';
 
 interface DeletePrinterDialogProps {
+  organizationId: string;
   printer: Printer;
   onClose: () => void;
 }
 
-export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogProps) {
+export function DeletePrinterDialog({ organizationId, printer, onClose }: DeletePrinterDialogProps) {
   const t = useTranslations('printers');
   const tCommon = useTranslations('common');
-  const queryClient = useQueryClient();
-  const { currentOrganization } = useAuthStore();
-  const organizationId = currentOrganization?.organizationId;
+  const apiErrorMessage = useApiErrorMessage();
+  const deleteMutation = useDeletePrinter(organizationId);
 
-  const deleteMutation = useMutation({
-    mutationFn: () => printersApi.delete(organizationId!, printer.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['printers', organizationId] });
-      onClose();
-    },
-  });
+  function handleDelete() {
+    deleteMutation.mutate(printer.id, {
+      onSuccess: () => {
+        toast.success(t('deleted', { name: printer.name }));
+        onClose();
+      },
+      onError: (err) => toast.error(apiErrorMessage(err, t('deleteFailed'))),
+    });
+  }
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <ModalPanel titleId="delete-printer-dialog-title">
+      <ModalPanel titleId="delete-printer-dialog-title" className="modal__panel--sm">
         <div className="modal__head">
           <h2 id="delete-printer-dialog-title">{t('deletePrinter')}</h2>
           <DialogCloseButton onClick={onClose} />
@@ -40,11 +43,16 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
           <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', marginBottom: 16 }}>
             {t('deleteConfirm', { name: printer.name })}
           </p>
-          <div style={{
-            background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
-            borderRadius: 10, padding: 12, textAlign: 'center',
-          }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{printer.name}</p>
+          <div
+            style={{
+              background: 'color-mix(in oklab, var(--ink) 4%, transparent)',
+              borderRadius: 10,
+              padding: '12px 14px',
+              fontSize: 13,
+              color: 'color-mix(in oklab, var(--ink) 70%, transparent)',
+            }}
+          >
+            {t('deleteHint')}
           </div>
         </div>
 
@@ -56,7 +64,7 @@ export function DeletePrinterDialog({ printer, onClose }: DeletePrinterDialogPro
             type="button"
             className="btn btn--primary"
             style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
-            onClick={() => deleteMutation.mutate()}
+            onClick={handleDelete}
             disabled={deleteMutation.isPending}
           >
             {deleteMutation.isPending ? tCommon('deleting') : tCommon('delete')}

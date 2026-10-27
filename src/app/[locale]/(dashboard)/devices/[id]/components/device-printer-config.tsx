@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { devicesApi, printersApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
+import { selectablePrinters } from '@/utils/printer-connection';
 import { toast } from '@/components/shared/toast';
 import { isCashlessMode } from '@/lib/cashless';
 import { useAuthStore } from '@/stores/auth-store';
@@ -70,7 +71,10 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
   }, [device]);
 
   const { data: printersList } = usePrinters(organizationId);
-  const printers = printersList || [];
+  // Only active printers are assignable; a deactivated one stays visible
+  // while it is still stored on the device so the select doesn't go blank.
+  const printers = selectablePrinters(printersList, defaultPrinterId);
+  const cashDrawerPrinters = selectablePrinters(printersList, cashDrawerPrinterId).filter((p) => p.hasCashDrawer);
 
   const updateMutation = useMutation({
     mutationFn: () =>
@@ -185,7 +189,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
           <label className="auth-field__label">
             {t('devices.detail.printer.cashDrawer.selectPrinter')}
           </label>
-          {printers.filter((p) => p.hasCashDrawer).length === 0 ? (
+          {cashDrawerPrinters.length === 0 ? (
             <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', margin: 0 }}>
               {t('devices.detail.printer.cashDrawer.noPrintersAvailable')}
             </p>
@@ -196,7 +200,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
               onChange={(e) => setCashDrawerPrinterId(e.target.value)}
             >
               <option value="">{t('devices.detail.printer.cashDrawer.noPrinter')}</option>
-              {printers.filter((p) => p.hasCashDrawer).map((printer) => (
+              {cashDrawerPrinters.map((printer) => (
                 <option key={printer.id} value={printer.id}>
                   {printer.isOnline ? printer.name : `${printer.name} (${t('printers.offline')})`}
                 </option>

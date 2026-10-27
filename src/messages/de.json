@@ -294,7 +294,7 @@
         "totalUsers": "Benutzer",
         "totalUsersSubtitle": "Registrierte Benutzer",
         "totalRevenue": "Gesamtumsatz",
-        "totalRevenueSubtitle": "Umsatz im aktuellen Jahr",
+        "totalRevenueSubtitle": "Freigeschaltete Veranstaltungen",
         "activeEvents": "Aktive Events",
         "activeEventsSubtitle": "Derzeit laufende Events",
         "newUsersThisMonth": "Neue Benutzer",
@@ -500,7 +500,6 @@
     "shifts": "Schichtpläne",
     "users": "Benutzer",
     "admin": "Admin",
-    "rentalHardware": "Miet-Hardware",
     "productionStations": "Standorte",
     "templates": "Vorlagen",
     "invoices": "Rechnungen",
@@ -1863,109 +1862,6 @@
         "stripeLinked": "Mit Stripe verknüpft"
       }
     },
-    "rental": {
-      "hardware": {
-        "title": "Miet-Hardware",
-        "description": "Verwalte den Hardware-Pool für Vermietungen.",
-        "add": "Hardware hinzufügen",
-        "edit": "Hardware bearbeiten",
-        "delete": "Hardware löschen",
-        "deleteConfirm": "Möchtest du die Hardware \"{name}\" wirklich löschen?",
-        "table": {
-          "name": "Name",
-          "type": "Typ",
-          "serial": "Seriennummer",
-          "model": "Modell",
-          "rate": "Tagessatz",
-          "status": "Status",
-          "device": "Device",
-          "actions": "Aktionen"
-        },
-        "types": {
-          "printer": "Drucker",
-          "display": "Display"
-        },
-        "status": {
-          "available": "Verfügbar",
-          "rented": "Vermietet",
-          "maintenance": "Wartung",
-          "retired": "Ausgemustert"
-        },
-        "form": {
-          "type": "Typ",
-          "name": "Name",
-          "namePlaceholder": "z.B. Epson TM-T20III",
-          "serial": "Seriennummer",
-          "serialPlaceholder": "z.B. SN-12345678",
-          "model": "Modell",
-          "modelPlaceholder": "z.B. Epson TM-T20III",
-          "description": "Beschreibung",
-          "descriptionPlaceholder": "Optionale Beschreibung",
-          "dailyRate": "Tagessatz (EUR)",
-          "device": "Printer Agent (Gerät)",
-          "deviceNone": "Kein Gerät zugewiesen",
-          "printerConfig": "Drucker-Konfiguration",
-          "printerType": "Druckertyp",
-          "connectionType": "Verbindungstyp",
-          "paperWidth": "Papierbreite",
-          "ipAddress": "IP-Adresse",
-          "port": "Port",
-          "usbVendorId": "USB Vendor ID",
-          "usbProductId": "USB Product ID",
-          "printerTypes": {
-            "receipt": "Kassenbon",
-            "kitchen": "Küchenbon",
-            "label": "Etikett"
-          },
-          "connectionTypes": {
-            "network": "Netzwerk",
-            "usb": "USB",
-            "bluetooth": "Bluetooth"
-          },
-          "notes": "Notizen",
-          "notesPlaceholder": "Interne Notizen"
-        },
-        "count": "{count, plural, =1 {# Hardware-Gerät} other {# Hardware-Geräte}}"
-      },
-      "assignments": {
-        "title": "Zuweisungen",
-        "add": "Zuweisung erstellen",
-        "activate": "Aktivieren",
-        "return": "Rückgabe",
-        "days": "Tage",
-        "noAssignments": "Noch keine Zuweisungen vorhanden.",
-        "table": {
-          "hardware": "Hardware",
-          "organization": "Organisation",
-          "period": "Zeitraum",
-          "amount": "Betrag",
-          "status": "Status",
-          "actions": "Aktionen"
-        },
-        "status": {
-          "pending": "Ausstehend",
-          "confirmed": "Bestätigt",
-          "active": "Aktiv",
-          "returned": "Zurückgegeben",
-          "cancelled": "Storniert"
-        },
-        "form": {
-          "hardware": "Hardware",
-          "hardwarePlaceholder": "Hardware auswählen",
-          "organization": "Organisation",
-          "organizationPlaceholder": "Organisation auswählen",
-          "startDate": "Startdatum",
-          "endDate": "Enddatum",
-          "notes": "Notizen",
-          "notesPlaceholder": "Optionale Notizen",
-          "totalDays": "Gesamttage",
-          "totalAmount": "Gesamtbetrag",
-          "hardwareOption": "{name} ({serial}) — {rate}/Tag"
-        },
-        "count": "{count, plural, =1 {# Zuweisung} other {# Zuweisungen}}",
-        "daysCount": "{count, plural, =1 {# Tag} other {# Tage}}"
-      }
-    },
     "support": {
       "title": "Support-Anfragen",
       "subtitle": "Support-Chats aller Organisationen.",
@@ -1986,9 +1882,7 @@
         "feature": "Wünsche",
         "feedback": "Rückmeldungen",
         "demo": "Demo",
-        "contact": "Kontakt",
-        "hardware": "Hardware",
-        "gateway": "Gateway"
+        "contact": "Kontakt"
       },
       "showingOpen": "Nur offene",
       "showingAll": "Alle anzeigen",
@@ -2101,78 +1995,39 @@
     "printers": {
       "metaTitle": "Drucker · Super-Admin",
       "title": "Drucker",
-      "description": "Übersicht aller Drucker und nicht zugewiesener Drucker-Agents über alle Organisationen hinweg.",
+      "description": "Alle Drucker-Agents und ihre Drucker je Organisation — nur zum Nachsehen. Verbinden, Übernehmen und Bearbeiten macht die Organisation selbst unter „Drucker“.",
       "online": "Online",
       "offline": "Offline",
-      "types": {
-        "kitchen": "Küche",
-        "label": "Etiketten",
-        "receipt": "Beleg"
+      "summary": {
+        "title": "Übersicht",
+        "agents": "{count, plural, =1 {# Agent} other {# Agents}}, {online} online"
       },
-      "toast": {
-        "testPrintSent": "Test-Druck wurde an den Drucker gesendet.",
-        "testPrintNotPossible": "Test-Druck nicht möglich.",
-        "testPrintFailed": "Test-Druck fehlgeschlagen: {message}",
-        "unassigned": "Zuordnung wurde aufgehoben.",
-        "unassignFailed": "Zuordnung aufheben fehlgeschlagen: {message}",
-        "deviceDeleted": "Gerät wurde gelöscht.",
-        "deleteFailed": "Löschen fehlgeschlagen: {message}",
-        "assigned": "Drucker wurde der Organisation zugewiesen."
-      },
-      "unassigned": {
-        "title": "Nicht zugewiesene Drucker-Agents ({count})",
-        "description": "Drucker, die sich beim Backend registriert haben, aber noch keiner Organisation zugeordnet sind.",
-        "empty": "Keine wartenden Drucker-Agents. Sobald ein RPi-Agent sich registriert, erscheint er hier.",
-        "onlineWaiting": "Online · wartet auf Zuordnung",
-        "waiting": "Wartet auf Zuordnung"
-      },
-      "assigned": {
-        "title": "Zugewiesene Drucker ({count})",
-        "description": "Alle Drucker über alle Organisationen.",
-        "empty": "Noch keine Drucker einer Organisation zugewiesen."
+      "searchPlaceholder": "Organisation, Agent oder Drucker suchen",
+      "noMatches": "Nichts gefunden.",
+      "noOrganization": "Ohne Organisation (noch nicht verbunden)",
+      "noAgentInfo": "Noch keine Angaben vom Agent",
+      "lastSeen": "zuletzt gesehen {when}",
+      "discoveredCount": "{count, plural, =1 {# gefundener Drucker} other {# gefundene Drucker}}",
+      "noPrinters": "Noch kein Drucker übernommen.",
+      "empty": {
+        "title": "Noch keine Drucker-Agents",
+        "description": "Sobald eine Organisation einen Drucker-Agent verbindet, erscheint er hier."
       },
       "table": {
-        "name": "Name",
-        "status": "Status",
-        "lastSeen": "Zuletzt gesehen",
-        "action": "Aktion",
-        "organization": "Organisation",
         "printer": "Drucker",
         "type": "Typ",
-        "online": "Online",
+        "connection": "Verbindung",
+        "online": "Status",
+        "lastSeen": "Zuletzt gesehen",
         "actions": "Aktionen"
       },
       "actions": {
-        "assign": "Zuordnen",
-        "testPrint": "Test-Druck",
-        "unassign": "Zuordnung aufheben"
+        "testPrint": "Testdruck"
       },
-      "confirm": {
-        "deleteDevice": "Gerät „{name}“ endgültig löschen?",
-        "unassign": "Drucker „{name}“ wirklich aus „{organization}“ entfernen?"
-      },
-      "assignModal": {
-        "title": "Drucker zuordnen",
-        "description": "Verknüpft das Drucker-Agent-Gerät mit einer Organisation. Hardware-Werte (Name, Typ, Anschluss, USB-Kennung, Papierbreite) werden aus der lokalen Agent-Konfiguration auf dem RPi übernommen.",
-        "name": "Name",
-        "type": "Typ",
-        "connection": "Anschluss",
-        "paperWidth": "Papierbreite",
-        "types": {
-          "kitchen": "Küchendrucker",
-          "label": "Etiketten",
-          "receipt": "Beleg"
-        },
-        "organization": "Organisation *",
-        "orgsLoading": "Lädt Organisationen …",
-        "orgsError": "Fehler beim Laden",
-        "orgsEmpty": "Keine Organisationen verfügbar",
-        "orgsPlaceholder": "Bitte auswählen…",
-        "hasCashDrawer": "Kassenlade ist an diesem Drucker angeschlossen",
-        "submit": "Zuordnen",
-        "organizationRequired": "Bitte wähle eine Organisation aus.",
-        "defaultName": "Drucker",
-        "assignFailed": "Zuordnung fehlgeschlagen"
+      "toast": {
+        "testPrintSent": "Testdruck wurde an den Drucker gesendet.",
+        "testPrintNotPossible": "Testdruck nicht möglich.",
+        "testPrintFailed": "Testdruck fehlgeschlagen: {message}"
       }
     }
   },
@@ -3096,7 +2951,8 @@
     "class": {
       "pos": "Kasse",
       "display": "Display",
-      "admin": "Admin"
+      "admin": "Admin",
+      "printer_agent": "Drucker-Agent"
     },
     "displayMode": {
       "label": "Display-Modus",
@@ -3202,7 +3058,10 @@
       "loginRequired": "Bitte melde dich an, um fortzufahren",
       "login": "Anmelden",
       "cta": "Gerät verbinden",
-      "namePlaceholder": "z. B. Kasse Theke 1"
+      "namePlaceholder": "z. B. Kasse Theke 1",
+      "wrongType": "Dieser Code gehört zu keinem {type}. Für Kassen und Displays nutze „Gerät verbinden“ unter Geräte.",
+      "enterCodeDescriptionPrinterAgent": "Gib den sechsstelligen Code ein, den der Agent beim Start anzeigt (Konsole, Logdatei oder http://localhost:8080 auf dem Rechner).",
+      "successDescriptionPrinterAgent": "Der Drucker-Agent gehört jetzt zu deiner Organisation. Er erscheint gleich in der Liste und meldet die Drucker, die er findet."
     },
     "detail": {
       "tabs": {
@@ -3428,6 +3287,7 @@
     "DEVICE_WRONG_ORGANIZATION": "Das Gerät gehört nicht zu dieser Organisation.",
     "DISCOUNT_VOUCHER_AMOUNT_REQUIRED": "Ein fester Rabatt-Bon benötigt einen Betrag.",
     "DISCOUNT_VOUCHER_NOT_FOUND": "Der Rabatt-Bon wurde nicht gefunden.",
+    "DISCOVERED_PRINTER_NOT_FOUND": "Der gefundene Drucker ist nicht mehr da. Lass den Agent neu suchen.",
     "EMAIL_IN_USE": "Diese E-Mail-Adresse wird bereits verwendet.",
     "EMAIL_NOT_VERIFIED": "Bitte bestätige zuerst deine E-Mail-Adresse.",
     "EMAIL_TWO_FACTOR_NOT_ENABLED": "Die Zwei-Faktor-Authentifizierung per E-Mail ist nicht aktiviert.",
@@ -3448,9 +3308,6 @@
     "FILE_NOT_FOUND": "Die Datei wurde nicht gefunden.",
     "FORBIDDEN": "Dafür fehlt dir die Berechtigung.",
     "HANDOFF_STATION_NOT_FOUND": "Der Übergabe-Standort wurde nicht gefunden oder gehört nicht zur selben Veranstaltung.",
-    "HARDWARE_HAS_ACTIVE_ASSIGNMENTS": "Die Hardware hat aktive Zuweisungen und kann nicht gelöscht werden.",
-    "HARDWARE_NOT_AVAILABLE": "Die Hardware ist nicht verfügbar.",
-    "HARDWARE_NOT_FOUND": "Die Hardware wurde nicht gefunden.",
     "INSUFFICIENT_CREDITS": "Nicht genug Guthaben.",
     "INSUFFICIENT_PERMISSIONS": "Dafür fehlt dir die Berechtigung.",
     "INSUFFICIENT_STOCK": "Nicht genügend Bestand verfügbar.",
@@ -3524,6 +3381,7 @@
     "ORDER_SESSION_EXPIRED": "Die Bestellsitzung ist abgelaufen.",
     "ORDER_SESSION_NOT_FOUND": "Die Bestellsitzung wurde nicht gefunden.",
     "ORGANIZATION_ACCESS_DENIED": "Du hast keinen Zugriff auf diese Organisation.",
+    "ORGANIZATION_LEGAL_INVALID": "Bitte prüfe die rechtlichen Angaben: Links müssen mit https:// beginnen, und je Angabe gilt entweder ein Link oder ein Text.",
     "ORGANIZATION_NAME_REQUIRED": "Bitte gib einen Namen für die Organisation an.",
     "ORGANIZATION_NOT_FOUND": "Die Organisation wurde nicht gefunden.",
     "ORGANIZATION_NOT_SPECIFIED": "Es ist keine Organisation ausgewählt.",
@@ -3544,8 +3402,14 @@
     "PERMISSIONS_EXCEED_OWN": "Du kannst nur Berechtigungen weitergeben, die du selbst hast.",
     "PIN_ALREADY_IN_USE": "Diese PIN wird bereits von einem anderen Mitglied verwendet.",
     "PIN_INVALID": "Die PIN ist ungültig.",
+    "PRINTER_AGENT_NOT_FOUND": "Der Drucker-Agent wurde nicht gefunden.",
+    "PRINTER_AGENT_OFFLINE": "Der Drucker-Agent ist nicht verbunden. Prüfe, ob der Agent auf dem Rechner läuft.",
+    "PRINTER_ALREADY_ADOPTED": "Dieser Drucker wurde bereits übernommen.",
+    "PRINTER_CONNECTION_TYPE_NOT_ALLOWED": "Manuell lassen sich nur Netzwerkdrucker anlegen. USB- und Windows-Drucker findet der Agent selbst.",
+    "PRINTER_FINGERPRINT_TAKEN": "An diesem Agent gibt es den Drucker schon.",
     "PRINTER_HAS_NO_CASH_DRAWER": "An diesem Drucker hängt keine Kassenschublade.",
     "PRINTER_INACTIVE": "Der Drucker ist deaktiviert.",
+    "PRINTER_IP_ADDRESS_REQUIRED": "Für einen Netzwerkdrucker fehlt die IP-Adresse.",
     "PRINTER_NOT_FOUND": "Der Drucker wurde nicht gefunden.",
     "PRINTER_OFFLINE": "Der Drucker ist nicht erreichbar.",
     "PRINT_JOB_COMPLETED": "Abgeschlossene Druckaufträge können nicht abgebrochen werden.",
@@ -3580,8 +3444,6 @@
     "REFUND_PROVIDER_FAILED": "SumUp hat die Erstattung abgelehnt. Versuche es erneut oder buche sie als manuell erstattet.",
     "REFUND_QUANTITY_EXCEEDED": "Von {product} sind nur noch {max} erstattbar.",
     "REFUND_REASON_REQUIRED": "Gib einen Grund an (z. B. Ausschuss).",
-    "RENTAL_ASSIGNMENT_NOT_FOUND": "Die Vermietung wurde nicht gefunden.",
-    "RENTAL_ASSIGNMENT_NOT_PENDING": "Das ist nur bei einer ausstehenden Vermietung möglich.",
     "RESET_TOKEN_EXPIRED": "Der Link zum Zurücksetzen ist abgelaufen.",
     "RESET_TOKEN_INVALID": "Der Link zum Zurücksetzen ist ungültig oder abgelaufen.",
     "SELF_REGISTRATION_DISABLED": "In dieser Installation ist keine Selbstregistrierung möglich. Bitte wende dich an die Administration.",
@@ -3657,8 +3519,7 @@
     "USER_NOT_FOUND": "Der Benutzer wurde nicht gefunden.",
     "VALIDATION_ERROR": "Einige Angaben sind ungültig. Bitte prüfe deine Eingaben.",
     "VERIFICATION_LINK_EXPIRED": "Der Bestätigungslink ist abgelaufen.",
-    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
-    "ORGANIZATION_LEGAL_INVALID": "Bitte prüfe die rechtlichen Angaben: Links müssen mit https:// beginnen, und je Angabe gilt entweder ein Link oder ein Text."
+    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -4133,17 +3994,19 @@
       "templates": "Vorlagen",
       "orderFlow": "Bon-Workflows"
     },
-    "addPrinter": "Drucker hinzufügen",
     "editPrinter": "Drucker bearbeiten",
-    "deletePrinter": "Drucker löschen",
-    "deleteConfirm": "Möchtest du den Drucker \"{name}\" wirklich löschen?",
+    "deletePrinter": "Drucker entfernen",
+    "deleteConfirm": "Möchtest du den Drucker „{name}“ wirklich entfernen?",
+    "deleteHint": "Zuordnungen in Stationen, Bon-Workflows und Kassen werden gelöst. Findet der Agent den Drucker weiterhin, kannst du ihn später erneut übernehmen.",
+    "deleted": "„{name}“ wurde entfernt.",
+    "deleteFailed": "Der Drucker konnte nicht entfernt werden.",
     "testPrint": "Testdruck",
-    "testPrintSuccess": "Testdruck gesendet",
+    "testPrintSuccess": "Testdruck an „{name}“ gesendet.",
+    "testPrintFailed": "Testdruck fehlgeschlagen.",
     "table": {
       "name": "Name",
       "type": "Typ",
       "connection": "Verbindung",
-      "device": "Gerät",
       "status": "Status",
       "actions": "Aktionen"
     },
@@ -4155,28 +4018,109 @@
     "connectionTypes": {
       "network": "Netzwerk",
       "usb": "USB",
-      "bluetooth": "Bluetooth"
+      "windows": "Windows"
     },
     "form": {
       "name": "Druckername",
-      "namePlaceholder": "z.B. Kassendrucker 1",
+      "namePlaceholder": "z. B. Küche links",
       "type": "Druckertyp",
-      "connectionType": "Verbindungstyp",
       "ipAddress": "IP-Adresse",
       "port": "Port",
-      "usbVendorId": "USB Vendor ID",
-      "usbProductId": "USB Product ID",
       "paperWidth": "Papierbreite",
-      "device": "Printer Agent (Gerät)",
-      "devicePlaceholder": "Kein Gerät zugewiesen",
-      "deviceNone": "Ohne Gerät",
-      "hasCashDrawer": "Kassenschublade angeschlossen"
+      "hasCashDrawer": "Kassenlade angeschlossen",
+      "hasCashDrawerHint": "Die Kasse kann die Kassenlade dann über diesen Drucker öffnen.",
+      "isActive": "Drucker aktiv",
+      "isActiveHint": "Deaktivierte Drucker bekommen keine Bons und lassen sich nicht mehr zuordnen.",
+      "connectionFixed": "Verbindung: {kind} — vom Agent erkannt. Nur bei Netzwerkdruckern lassen sich IP-Adresse und Port ändern.",
+      "saved": "Drucker gespeichert.",
+      "created": "Drucker angelegt."
+    },
+    "addManual": {
+      "title": "Drucker manuell anlegen",
+      "description": "Für Netzwerkdrucker, die die Suche nicht findet. Der Agent erreicht ihn über IP-Adresse und Port (meist 9100). USB- und Windows-Drucker findet der Agent selbst.",
+      "submit": "Anlegen"
+    },
+    "adopt": {
+      "title": "Drucker übernehmen",
+      "description": "Gib dem Drucker einen Namen und sag, was er druckt. Die Verbindung übernimmt der Agent aus der Suche.",
+      "success": "„{name}“ ist jetzt einsatzbereit.",
+      "failed": "Der Drucker konnte nicht übernommen werden."
+    },
+    "discovered": {
+      "title": "Gefundene Drucker",
+      "empty": "Der Agent hat noch nichts gefunden. Starte „Neu suchen“ — bei Netzwerkdruckern mit Netzwerksuche — oder lege den Drucker manuell an.",
+      "emptyOffline": "Der Agent ist offline. Sobald er läuft, meldet er die Drucker, die er findet.",
+      "via": "Gefunden per",
+      "viaKinds": {
+        "usb": "USB",
+        "mdns": "mDNS",
+        "portscan": "Netzwerksuche",
+        "spooler": "Windows-Spooler",
+        "manual": "Manuell"
+      },
+      "lastSeen": "Zuletzt gesehen",
+      "adopt": "Übernehmen",
+      "adopted": "Übernommen:"
+    },
+    "agents": {
+      "title": "Drucker-Agents",
+      "count": "{count, plural, =1 {# Agent} other {# Agents}}",
+      "noInfo": "Noch keine Angaben vom Agent",
+      "lastSeen": "zuletzt gesehen {when}",
+      "actions": {
+        "discover": "Neu suchen",
+        "addManual": "Drucker manuell anlegen",
+        "remove": "Agent entfernen"
+      },
+      "printers": {
+        "title": "Drucker",
+        "empty": "Noch kein Drucker übernommen. Übernimm einen gefundenen Drucker oder lege einen Netzwerkdrucker manuell an."
+      },
+      "empty": {
+        "title": "Noch kein Drucker-Agent verbunden",
+        "description": "Der Drucker-Agent läuft auf einem Windows- oder Linux-PC (auch Raspberry Pi) in deinem Netzwerk, findet USB- und Netzwerkdrucker selbst und druckt die Bons. So geht es los:"
+      },
+      "connect": {
+        "title": "Drucker-Agent verbinden",
+        "cta": "Drucker-Agent verbinden",
+        "stepsTitle": "So geht es",
+        "steps": {
+          "download": "Agent für Windows oder Linux herunterladen.",
+          "install": "Auf dem PC installieren und starten (Windows: als Dienst, Linux: install.sh).",
+          "code": "Der Agent zeigt beim Start einen sechsstelligen Code.",
+          "enter": "Code hier eingeben — der Agent erscheint danach in der Liste."
+        },
+        "downloadWindows": "Download Windows",
+        "downloadLinux": "Download Linux",
+        "docs": "Anleitung"
+      },
+      "discover": {
+        "title": "Drucker neu suchen",
+        "description": "„{name}“ sucht nach USB-Druckern, Druckern im Netzwerk (mDNS) und — unter Windows — im Spooler. Gefundene Drucker erscheinen in wenigen Sekunden.",
+        "subnetScan": "Auch Netzwerk durchsuchen (Port 9100)",
+        "subnetScanHint": "Prüft alle Adressen im lokalen Netz. Dauert etwas länger, findet aber Drucker ohne mDNS.",
+        "offlineHint": "Der Agent ist gerade offline — die Suche geht erst, wenn er wieder verbunden ist.",
+        "start": "Suchen",
+        "started": "Suche gestartet — gefundene Drucker erscheinen gleich.",
+        "failed": "Die Suche konnte nicht gestartet werden."
+      },
+      "remove": {
+        "title": "Agent entfernen",
+        "confirm": "Möchtest du „{name}“ wirklich entfernen? {count, plural, =0 {Es hängt kein Drucker daran.} =1 {Der zugehörige Drucker wird mit entfernt.} other {Die # zugehörigen Drucker werden mit entfernt.}}",
+        "hint": "Zuordnungen in Stationen, Bon-Workflows, Kassen und Produkten werden gelöst. Der Agent muss danach neu verbunden werden, um wieder zu drucken.",
+        "submit": "Agent entfernen",
+        "success": "„{name}“ wurde entfernt.",
+        "failed": "Der Agent konnte nicht entfernt werden."
+      }
+    },
+    "orphans": {
+      "title": "Drucker ohne Agent",
+      "description": "Diese Drucker hängen an keinem verbundenen Agent und können nicht drucken."
     },
     "online": "Online",
     "offline": "Offline",
-    "noPrinters": "Noch keine Drucker registriert",
-    "noPrintersDescription": "Registrierte Drucker werden hier angezeigt. Verbinde einen Drucker-Agenten, um zu beginnen.",
-    "noPrintersAssigned": "Drucker werden vom Plattform-Administrator hinzugefügt und deiner Organisation zugewiesen.",
+    "inactive": "Deaktiviert",
+    "cashDrawer": "Kassenlade",
     "printerCount": "{count, plural, =1 {# Drucker} other {# Drucker}}",
     "kitchenTicketMode": {
       "title": "Modus für Küchenbon-Druck",

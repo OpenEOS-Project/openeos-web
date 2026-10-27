@@ -33,7 +33,6 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   organizations: 'organizations',
   users: 'users',
   admin: 'admin',
-  'rental-hardware': 'rentalHardware',
   'production-stations': 'productionStations',
   tables: 'tables',
   templates: 'templates',
