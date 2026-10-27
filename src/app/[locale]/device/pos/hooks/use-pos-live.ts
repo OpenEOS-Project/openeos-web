@@ -136,6 +136,9 @@ export function usePosSocketEvents(eventId: string | null, onBroadcast: (message
         queryClient.invalidateQueries({ queryKey: ['device-tables'] });
         queryClient.invalidateQueries({ queryKey: ['device-table-status'] });
       },
+      // Einstellungen der Organisation (bargeldloser Modus, SumUp an/aus):
+      // Kassieren, Pfand und Menü stellen sich ohne Neuladen um.
+      organizationSettingsUpdated: () => queryClient.invalidateQueries({ queryKey: ['device-organization'] }),
       deviceConfigUpdated: refreshDevice,
       deviceSettingsUpdated: refreshDevice,
       deviceStatusChanged: (data: unknown) => {

@@ -6,7 +6,12 @@ import { useTranslations } from 'next-intl';
 import { IntegrationInfoDialog } from '@/components/integrations/integration-info-dialog';
 import { IntegrationLogo } from '@/components/integrations/integration-logo';
 import { IntegrationStatusBadge } from '@/components/integrations/integration-status-badge';
-import { INTEGRATIONS, isIntegrationEnabled, type IntegrationDefinition } from '@/config/integrations';
+import {
+  INTEGRATIONS,
+  integrationName,
+  isIntegrationEnabled,
+  type IntegrationDefinition,
+} from '@/config/integrations';
 import { useAuthStore } from '@/stores/auth-store';
 
 /**
@@ -34,9 +39,13 @@ export function IntegrationsContainer() {
             aria-haspopup="dialog"
           >
             <span className="integration-card__head">
-              <IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />
+              <IntegrationLogo
+                name={integrationName(integration, t)}
+                color={integration.color}
+                logo={integration.logo}
+              />
               <span className="integration-card__copy">
-                <span className="integration-card__name">{integration.name}</span>
+                <span className="integration-card__name">{integrationName(integration, t)}</span>
                 <span className="integration-card__vendor">{t(integration.vendorKey)}</span>
               </span>
               <IntegrationStatusBadge

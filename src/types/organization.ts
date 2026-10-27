@@ -1,5 +1,5 @@
 /** Alle Integrationen, die der Katalog kennt (src/config/integrations.ts). */
-export type IntegrationId = 'sumup' | 'stripe' | 'fiskaly';
+export type IntegrationId = 'sumup' | 'stripe' | 'tse';
 
 export interface IntegrationState {
   enabled: boolean;
@@ -45,6 +45,15 @@ export interface OrganizationSettings {
   pfand?: {
     tableService?: boolean;
     counterPickup?: boolean;
+  };
+  /**
+   * Zahlungsarten. `cashless: true` = bargeldloser Modus: die API sperrt
+   * jede Barzahlung, Bar-Erstattung und Pfand-Auszahlung (keine TSE nötig).
+   */
+  payments?: {
+    cashless?: boolean;
+    /** Letzte Umschaltung (ISO-Zeitpunkt). */
+    changedAt?: string;
   };
   onlineOrdering?: {
     enabled: boolean;
@@ -137,4 +146,14 @@ export interface UpdateOrganizationData {
   billingEmail?: string;
   billingAddress?: BillingAddress;
   vatId?: string;
+}
+
+/** Eintrag im Verlauf des bargeldlosen Modus. */
+export interface CashlessChange {
+  id: string;
+  createdAt: string;
+  /** Neuer Zustand ab diesem Zeitpunkt. */
+  cashless: boolean;
+  /** „Vorname Nachname (E-Mail)“ zum Zeitpunkt der Änderung. */
+  changedByName: string | null;
 }

@@ -334,6 +334,27 @@
         "UPDATE_RENTAL_HARDWARE": "Rental hardware updated",
         "ASSIGN_RENTAL": "Rental assigned",
         "RETURN_RENTAL": "Rental returned",
+        "view_organization": "Organization viewed",
+        "impersonate_start": "Signed in as organization",
+        "impersonate_end": "Organization view ended",
+        "credit_adjustment": "Credits adjusted",
+        "edit_organization": "Organization edited",
+        "delete_organization": "Organization deleted",
+        "edit_user": "User edited",
+        "unlock_user": "User unlocked",
+        "mark_invoice_paid": "Invoice marked as paid",
+        "complete_purchase": "Purchase completed",
+        "set_discount": "Discount set",
+        "remove_discount": "Discount removed",
+        "create_rental_hardware": "Rental hardware added",
+        "assign_rental": "Rental assigned",
+        "return_rental": "Rental returned",
+        "event_checkout_released": "Activation: payment not completed",
+        "event_billing_cancelled": "Activation cancelled",
+        "event_billing_goodwill_refund": "Goodwill refund",
+        "event_payment_dispute_opened": "Dispute opened",
+        "event_payment_dispute_closed": "Dispute closed",
+        "event_duplicate_payment": "Payment without activation",
         "unknown": "Unknown action"
       }
     },
@@ -875,6 +896,41 @@
       "sourceText": "The complete source code of this installation is available here:",
       "copyright": "Copyright © 2026 LUXCODE by Lukas Lukic-Spitznagel and contributors",
       "thirdParty": "Bundled third-party components and their licenses are listed in NOTICE and THIRD_PARTY_NOTICES.md in the source code."
+    },
+    "organizationPayments": {
+      "tab": "Payments",
+      "title": "Payments",
+      "description": "How payments can be taken at your tills.",
+      "cashless": {
+        "label": "Cashless mode",
+        "hint": "Your tills don’t accept cash – card payments via SumUp as well as online and prepaid payments keep working, including tips, split and combined payments. OpenEOS then blocks cash on the server too, not just in the interface. Without cash, your till needs no TSE. Every change is logged with time and person.",
+        "effects": {
+          "pay": "No cash button, no quick amounts and no change at checkout.",
+          "refund": "Refunds only go back to the original card or online payment. Earlier cash payments can no longer be refunded through OpenEOS.",
+          "pfand": "Deposits are not paid out in cash. You offset returned deposits against new deposits in the same sale; a deposit return on its own is blocked.",
+          "drawer": "The cash drawer does not open."
+        }
+      },
+      "adminOnly": "Only admins of the organization can change this mode.",
+      "noSumup": {
+        "title": "SumUp is not switched on",
+        "text": "Without SumUp, the till cannot take payments in cashless mode – only orders paid online or in advance can be completed.",
+        "action": "Set up SumUp"
+      },
+      "savedOn": "Cashless mode is on. The tills switch over right away.",
+      "savedOff": "Cashless mode is off. The tills accept cash again.",
+      "confirmOff": {
+        "title": "Allow cash again?",
+        "text": "Your tills can then accept cash again. For tills that take cash, the Kassensicherungsverordnung requires a TSE (technical security system) – the TSE integration for OpenEOS is still in progress. The change is recorded in the history.",
+        "faqLink": "Learn more in the FAQ",
+        "confirm": "Allow cash"
+      },
+      "since": "Cashless since {date}",
+      "history": {
+        "title": "History",
+        "on": "Cashless mode switched on",
+        "off": "Cashless mode switched off (cash allowed)"
+      }
     }
   },
   "billing": {
@@ -1149,16 +1205,42 @@
         "reset": "Reset",
         "invoice": "Invoice",
         "waive": "Waive",
-        "cancelBilling": "Cancel"
+        "cancelBilling": "Cancel/refund"
       },
       "pagination": {
         "total": "{count, plural, =1 {# event total} other {# events total}}",
         "page": "Page {page} of {totalPages}"
       },
       "cancelBilling": {
-        "title": "Cancel activation",
-        "description": "Refunds the full amount via Stripe (with a credit note) or reverses the invoice order, and puts the event into test mode. The 7-day deadline does not apply here; events with real orders cannot be cancelled.",
-        "submit": "Cancel activation"
+        "title": "Cancel or refund",
+        "facts": {
+          "paidStripe": "Paid (Stripe)",
+          "orderedInvoice": "Ordered (on invoice)",
+          "refundedSoFar": "Already refunded",
+          "refundable": "Still refundable",
+          "realOrders": "Real orders"
+        },
+        "ordersWarning": "This event has {count, plural, one {# real order} other {# real orders}}. They stay unchanged, as do the activation and the status — the refund is a goodwill gesture.",
+        "deadlinePassed": "The deadline for free cancellation ({deadline}) has passed; it does not apply to you.",
+        "amountLabel": "Amount",
+        "modeFull": "Everything refundable ({amount})",
+        "modePartial": "Partial amount",
+        "amountInput": "Partial amount in euros",
+        "reasonLabel": "Reason (required)",
+        "reasonPlaceholder": "e.g. event cancelled because of a storm",
+        "outcomeCancellation": "Cancellation: the activation is removed, an active event switches to test mode.",
+        "outcomeGoodwill": "Goodwill: activation, status and orders stay unchanged.",
+        "refundStripe": "Stripe refunds the amount and issues a credit note.",
+        "refundInvoiceInvoiced": "On invoice: the invoice has already been issued — issue a credit note for the amount and pay back what was paid.",
+        "refundInvoiceOpen": "On invoice: the invoice has not been issued yet — take the amount into account when invoicing.",
+        "problems": {
+          "nothingRefundable": "Nothing is left to refund for this activation.",
+          "onlineRefundUnavailable": "A refund via Stripe is not possible here (no checkout session or Stripe not configured).",
+          "amountInvalid": "Enter an amount greater than 0.",
+          "amountTooHigh": "At most {max} can be refunded."
+        },
+        "submit": "Cancel activation",
+        "submitGoodwill": "Refund {amount}"
       }
     },
     "printers": {
@@ -2163,7 +2245,11 @@
       "tokensIn": "Tokens to take back",
       "returnSum": "Return total",
       "offsetButton": "Offset",
-      "offsetHint": "\"Offset\" deducts the amount from the bill. \"Pay out\" returns cash."
+      "offsetHint": "\"Offset\" deducts the amount from the bill. \"Pay out\" returns cash.",
+      "close": "Close",
+      "cashlessTitle": "Cashless: no deposit payout",
+      "cashlessOffset": "Deposits are not paid out in cash. Offset the return against new deposits in the current sale.",
+      "cashlessNoCart": "Your organization does not pay out cash. Returned deposits can only be offset against new deposits in the next sale."
     },
     "sumupCheckout": {
       "title": "Card Payment",
@@ -2380,7 +2466,9 @@
       "sumupFailedText": "The refund via SumUp failed.",
       "sumupManualHint": "Try again, or return the amount another way and book it as “refunded manually”.",
       "retry": "Try again",
-      "markManual": "Refunded manually"
+      "markManual": "Refunded manually",
+      "cashlessBlockedTitle": "No cash refund",
+      "cashlessBlocked": "In cashless mode a refund only goes back to the original card or online payment. This amount was paid (partly) in cash and cannot be refunded through OpenEOS."
     },
     "noActiveEvent": "No active event",
     "menu": {
@@ -2554,7 +2642,11 @@
       "title": "Check out · {context}",
       "unsavedText": "The card was charged {amount} (transaction {id}). Do not charge again – save the order again.",
       "unsavedTitle": "Card payment successful, order not saved",
-      "cardTestModeHint": "No real card payments in test mode"
+      "cardTestModeHint": "No real card payments in test mode",
+      "noMethod": "No payment method",
+      "cashlessNoMethodTitle": "Cashless – no payment method available",
+      "cashlessNoMethodText": "Your organization does not accept cash, and no SumUp card reader is set up on this till. Only orders paid online or in advance can be completed here.",
+      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked."
     },
     "done": {
       "change": "Change {amount}",
@@ -2875,7 +2967,9 @@
       "cancelDone": "{count, plural, =1 {1 item cancelled} other {# items cancelled}}",
       "paidNeedsRefund": "Already paid – cancel with a refund.",
       "less": "{name}: fewer",
-      "more": "{name}: more"
+      "more": "{name}: more",
+      "cashlessBlockedTitle": "No cash refund",
+      "cashlessBlocked": "In cashless mode a refund only goes back to the original card or online payment. This amount was paid (partly) in cash and cannot be refunded through OpenEOS."
     }
   },
   "device": {
@@ -3244,7 +3338,9 @@
         },
         "payment": {
           "title": "Payment",
-          "description": "Card payments via a SumUp reader."
+          "description": "Card payments via a SumUp reader.",
+          "cashless": "Cashless mode: this till does not accept cash.",
+          "cashlessLink": "Payment settings"
         }
       },
       "printer": {
@@ -3271,7 +3367,8 @@
           "description": "Select a printer with a cash drawer that will open automatically on cash payments.",
           "selectPrinter": "Printer with drawer",
           "noPrinter": "No cash drawer",
-          "noPrintersAvailable": "No printer with cash drawer configured"
+          "noPrintersAvailable": "No printer with cash drawer configured",
+          "cashless": "In cashless mode the cash drawer does not open."
         },
         "testPrint": "Test print",
         "testPrintSent": "Test print was sent",
@@ -3310,6 +3407,7 @@
     "CARD_READER_NOT_LINKED": "No card reader is linked to this device.",
     "CART_ITEM_NOT_FOUND": "The item is not in the cart.",
     "CASH_DRAWER_NOT_CONFIGURED": "No cash drawer is set up.",
+    "CASH_PAYMENTS_DISABLED": "Your organization works cashless. Cash can neither be accepted nor paid out through OpenEOS.",
     "CATEGORY_NOT_FOUND": "The category was not found.",
     "CHECKOUT_NOT_FOUND": "The checkout was not found.",
     "CONFLICT": "This conflicts with the current state. Please reload the page.",
@@ -4630,13 +4728,11 @@
         "account": "A Stripe account"
       }
     },
-    "fiskaly": {
+    "tse": {
+      "name": "TSE (fiscal security)",
       "vendor": "Fiscalisation",
-      "description": "Cloud TSE for the German cash register security regulation.",
-      "longDescription": "fiskaly provides a cloud TSE that signs POS transactions as required by the German cash register security regulation (KassenSichV).",
-      "requirements": {
-        "account": "A fiskaly account"
-      }
+      "description": "Cloud TSE for cash payments under the German KassenSichV – in preparation.",
+      "longDescription": "If you accept cash at the till, the German cash register security regulation (KassenSichV) requires a certified technical security device (TSE) that signs every transaction. A cloud TSE integration for OpenEOS is in preparation. Until then you can switch on cashless mode: without cash, no TSE is needed. Learn more in the <link>FAQ on openeos.de</link>."
     }
   },
   "onboarding": {
@@ -5044,5 +5140,12 @@
     "shifts": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. You can still publish the plan.",
     "shiftsPublished": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. The plan is already published, so please add them soon.",
     "action": "Add legal information"
+  },
+  "cashTse": {
+    "title": "Cash and TSE",
+    "text": "In Germany, anyone who accepts cash with an electronic till needs a certified TSE (technical security system) under the Kassensicherungsverordnung. The TSE integration for OpenEOS is in progress. Until then, your club decides for itself whether to record cash with OpenEOS – if in doubt, check with your tax advisor. Without cash, no TSE is needed: switch on cashless mode for that.",
+    "faqLink": "Learn more in the FAQ",
+    "settingsLink": "Go to payment settings",
+    "dismiss": "Hide notice"
   }
 }

@@ -63,8 +63,29 @@ export interface RefundFormView {
   amountValue: number;
   amountInvalid: boolean;
   nothingSelected: boolean;
+  /**
+   * Bargeldloser Modus: die Erstattung ginge (auch) auf eine Barzahlung.
+   * Die API lehnt das ab (CASH_PAYMENTS_DISABLED) — das Formular sperrt
+   * dann und erklärt es.
+   */
+  cashBlocked: boolean;
   /** Alles ausgefüllt (Grund, Auswahl/Betrag, Bestätigung). */
   ready: boolean;
+}
+
+export interface RefundFormOptions {
+  /**
+   * Bargeldloser Modus der Organisation: Barzahlungen erscheinen nicht als
+   * Rückgabeweg, erstattet wird nur auf die unbare Zahlung.
+   */
+  cashless?: boolean;
+}
+
+/** Zahlungen, über die noch etwas erstattet werden kann (bargeldlos: ohne Bar). */
+function refundablePayments(order: OrderDetail, options: RefundFormOptions): OrderDetailPayment[] {
+  return order.payments.filter(
+    (p) => p.refundable > 0 && !(options.cashless && paymentKey(p.paymentMethod) === 'cash')
+  );
 }
 
 /** „4,50“ → 4.5; leer oder ungültig → NaN. */
@@ -74,8 +95,12 @@ export function parseAmount(text: string): number {
   return Number(trimmed);
 }
 
-export function initialRefundState(order: OrderDetail, preset: RefundPreset): RefundFormState {
-  const refundable = order.payments.filter((p) => p.refundable > 0);
+export function initialRefundState(
+  order: OrderDetail,
+  preset: RefundPreset,
+  options: RefundFormOptions = {}
+): RefundFormState {
+  const refundable = refundablePayments(order, options);
   return {
     mode: preset.mode,
     cancelItems: preset.cancelItems,
@@ -100,10 +125,18 @@ export function refundMethod(
   return key;
 }
 
-export function refundFormView(order: OrderDetail, state: RefundFormState): RefundFormView {
-  const payments = order.payments.filter((p) => p.refundable > 0);
+export function refundFormView(
+  order: OrderDetail,
+  state: RefundFormState,
+  options: RefundFormOptions = {}
+): RefundFormView {
+  const payments = refundablePayments(order, options);
   const chosenPayment = payments.find((p) => p.id === state.paymentId) ?? null;
-  const maxAmount = chosenPayment ? chosenPayment.refundable : order.refundable;
+  // Bargeldlos: höchstens, was auf unbaren Zahlungen noch offen ist.
+  const orderMax = options.cashless
+    ? Math.min(order.refundable, round2(payments.reduce((s, p) => s + p.refundable, 0)))
+    : order.refundable;
+  const maxAmount = chosenPayment ? chosenPayment.refundable : orderMax;
   const methodPayment =
     chosenPayment ?? [...payments].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
 
@@ -139,10 +172,15 @@ export function refundFormView(order: OrderDetail, state: RefundFormState): Refu
   const amountInvalid =
     state.mode === 'amount' && (!(amountValue > 0) || amountValue > maxAmount + 0.001);
   const nothingSelected = state.mode === 'items' && selected.length === 0;
+  const cashBlocked =
+    !!options.cashless &&
+    order.refundable > 0 &&
+    (payments.length === 0 || (state.mode !== 'amount' && round2(preview) > orderMax + 0.001));
   const ready =
     !!state.reasonCode &&
     !nothingSelected &&
     !amountInvalid &&
+    !cashBlocked &&
     (started.length === 0 || state.confirmStarted);
 
   return {
@@ -159,6 +197,7 @@ export function refundFormView(order: OrderDetail, state: RefundFormState): Refu
     amountValue,
     amountInvalid,
     nothingSelected,
+    cashBlocked,
     ready,
   };
 }

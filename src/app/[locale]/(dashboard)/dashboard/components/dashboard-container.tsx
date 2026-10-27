@@ -21,6 +21,7 @@ import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
+import { CashTseHint } from './cash-tse-hint';
 import { useDeployment } from '@/components/providers/setup-provider';
 
 const statusBadgeClass: Record<Order['status'], string> = {
@@ -241,6 +242,9 @@ export function DashboardContainer() {
         {/* Ganz oben, solange die Einrichtung laeuft — sie blendet sich
             selbst aus, sobald alle Schritte sitzen. */}
         <QuickStartCard organizationId={organizationId} />
+
+        {/* Bargeld und TSE: einmalig, bis ein Admin es wegklickt. */}
+        <CashTseHint />
 
         <DashboardRangeProvider value={range}>
           <DashboardGrid

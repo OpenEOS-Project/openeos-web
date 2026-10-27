@@ -395,6 +395,18 @@ export const organizationsApi = {
       { enabled },
     ),
 
+  /** Bargeldloser Modus (nur Admins); jede Umschaltung wird protokolliert. */
+  setCashlessMode: (id: string, cashless: boolean) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${id}/payments/cashless`,
+      { cashless },
+    ),
+
+  getCashlessHistory: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').CashlessChange[]>>(
+      `/organizations/${id}/payments/cashless/history`,
+    ),
+
   // Members
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),
@@ -1107,9 +1119,22 @@ export const adminApi = {
   waiveEvent: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
 
-  /** Freischaltung stornieren, auch nach Ablauf der Frist (nur Plattform-Admins). */
-  cancelEventBilling: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellation>>(`/admin/events/${id}/cancel-billing`),
+  /** Was Storno bzw. Kulanzerstattung durch die Plattform gerade bewirken würde. */
+  getCancelEventBillingPreview: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').PlatformCancellationPreview>>(
+      `/admin/events/${id}/cancel-billing`,
+    ),
+
+  /**
+   * Freischaltung stornieren oder per Kulanz (teil-)erstatten — ohne Frist,
+   * auch bei echten Bestellungen (nur Plattform-Admins). `amount` null:
+   * alles noch Erstattbare.
+   */
+  cancelEventBilling: (id: string, data: { reason: string; amount: number | null }) =>
+    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellation>>(
+      `/admin/events/${id}/cancel-billing`,
+      data,
+    ),
 
   // Support Chat (Super-Admin inbox)
   getSupportThreads: () =>

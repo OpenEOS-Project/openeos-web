@@ -3374,8 +3374,11 @@ body:has(.landing) {
 }
 .landing .integration-info__title {
   display: flex;
+  /* Lange Namen wie "TSE (Kassensicherung)" schieben das Status-Badge auf
+     schmalen Bildschirmen in die naechste Zeile, statt es zu ueberdecken. */
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   min-width: 0;
   flex: 1;
 }
@@ -3395,6 +3398,12 @@ body:has(.landing) {
   font-size: 14px;
   line-height: 1.55;
   color: var(--mute);
+}
+.landing .integration-info__text a {
+  color: var(--green-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .landing .integration-info__list {
   margin: 0;
