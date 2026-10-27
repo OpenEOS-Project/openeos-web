@@ -1,7 +1,7 @@
 # Logos der Integrationen
 
 Eine Datei je Anbieter, am besten benannt nach dessen `id` in
-`src/config/integrations.ts` (`sumup.svg`, `stripe.svg`, `fiskaly.svg`).
+`src/config/integrations.ts` (`sumup.svg`, `stripe.svg`).
 Nach dem Ablegen den Pfad im Katalogeintrag als `logo` eintragen, z. B.
 `logo: '/integrations/sumup.svg'`.
 

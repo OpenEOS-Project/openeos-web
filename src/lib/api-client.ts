@@ -6,6 +6,7 @@ import {
   type ApiResponse,
 } from '@/types/api';
 import { getApiUrl } from '@/lib/runtime-config';
+import type { PublicLegalInfo } from '@/lib/legal';
 
 /* Frueher zwei Modul-Konstanten aus NEXT_PUBLIC_API_URL. Die wurden beim
    Build festgeschrieben, womit das veroeffentlichte Image immer auf die
@@ -392,6 +393,18 @@ export const organizationsApi = {
     apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
       `/organizations/${id}/integrations/${integrationId}`,
       { enabled },
+    ),
+
+  /** Bargeldloser Modus (nur Admins); jede Umschaltung wird protokolliert. */
+  setCashlessMode: (id: string, cashless: boolean) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
+      `/organizations/${id}/payments/cashless`,
+      { cashless },
+    ),
+
+  getCashlessHistory: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').CashlessChange[]>>(
+      `/organizations/${id}/payments/cashless/history`,
     ),
 
   // Members
@@ -1106,9 +1119,22 @@ export const adminApi = {
   waiveEvent: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
 
-  /** Freischaltung stornieren, auch nach Ablauf der Frist (nur Plattform-Admins). */
-  cancelEventBilling: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellation>>(`/admin/events/${id}/cancel-billing`),
+  /** Was Storno bzw. Kulanzerstattung durch die Plattform gerade bewirken würde. */
+  getCancelEventBillingPreview: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/billing').PlatformCancellationPreview>>(
+      `/admin/events/${id}/cancel-billing`,
+    ),
+
+  /**
+   * Freischaltung stornieren oder per Kulanz (teil-)erstatten — ohne Frist,
+   * auch bei echten Bestellungen (nur Plattform-Admins). `amount` null:
+   * alles noch Erstattbare.
+   */
+  cancelEventBilling: (id: string, data: { reason: string; amount: number | null }) =>
+    apiClient.post<ApiResponse<import('@/types/billing').EventUnlockCancellation>>(
+      `/admin/events/${id}/cancel-billing`,
+      data,
+    ),
 
   // Support Chat (Super-Admin inbox)
   getSupportThreads: () =>
@@ -1775,6 +1801,8 @@ export const shiftsPublicApi = {
         name: string;
         logoUrl: string | null;
       };
+      /** Impressum/Datenschutz des Vereins und Plattform-Links. */
+      legal?: PublicLegalInfo;
       event: {
         name: string;
         startDate: string;
@@ -1846,6 +1874,8 @@ export const shiftsPublicApi = {
         name: string;
         description: string | null;
         organization: { name: string; logoUrl: string | null };
+        legal?: PublicLegalInfo;
+        slug?: string;
         jobs: Array<{
           id: string;
           name: string;

@@ -14,16 +14,17 @@ import {
   Spinner,
   type ChoiceOption,
 } from '@openeos/ui';
+import { useDeviceCashlessMode } from '@/hooks/use-device-integration';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
-import type { PosCardMode } from '@/utils/pos-card-mode';
+import { initialPayMethod, type PayMethod, type PosCardMode } from '@/utils/pos-card-mode';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { useSumupCheckout } from '../hooks/use-sumup-checkout';
 import { PosSheet } from './pos-sheet';
 
-type Method = 'cash' | 'card' | 'discount';
+type Method = PayMethod;
 
 export interface PayResult {
   /** `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` = Betrag 0. */
@@ -111,6 +112,11 @@ function writeUnsaved(key: string | undefined, value: PayResult | null) {
 /**
  * Kassieren-Blatt: links der Betrag und die Zahlart, rechts die Eingabe
  * (Bar: gegeben/Rückgeld; Karte: Trinkgeld und Lesegerät; Rabatt: Bons).
+ *
+ * Im bargeldlosen Modus der Organisation gibt es keine Bar-Zahlart, keine
+ * Schnellwahl und kein Rückgeld; Karte (mit Trinkgeld), Rabatt und
+ * „Rechnung teilen“ bleiben. Gilt für jede Stelle, die dieses Blatt nutzt
+ * (Warenkorb, offene Bestellungen, Verlauf, Teilen).
  */
 export function PaySheet({
   open,
@@ -129,8 +135,14 @@ export function PaySheet({
   const t = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
   const compact = usePosCompact();
+  const cashless = useDeviceCashlessMode();
+  const firstMethod = initialPayMethod({
+    cashless,
+    card,
+    hasVouchers: !!discount && discount.vouchers.length > 0,
+  });
 
-  const [method, setMethod] = useState<Method>('cash');
+  const [method, setMethod] = useState<Method | null>(firstMethod);
   const [given, setGiven] = useState('');
   /** Nach einer Schnellwahl beginnt die nächste Ziffer einen neuen Betrag. */
   const [quickPicked, setQuickPicked] = useState(false);
@@ -166,7 +178,7 @@ export function PaySheet({
   // Beim Öffnen zurücksetzen.
   useEffect(() => {
     if (!open) return;
-    setMethod('cash');
+    setMethod(firstMethod);
     setGiven('');
     setQuickPicked(false);
     setTip(0);
@@ -183,10 +195,10 @@ export function PaySheet({
   // beim Öffnen des Bar-Dialogs) — Rückgeld lässt sich so schon während
   // der Eingabe abzählen.
   useEffect(() => {
-    if (!open || method !== 'cash' || drawerOpened.current || amount <= 0) return;
+    if (!open || cashless || method !== 'cash' || drawerOpened.current || amount <= 0) return;
     drawerOpened.current = true;
     deviceApi.openCashDrawer().catch(() => {});
-  }, [open, method, amount]);
+  }, [open, cashless, method, amount]);
 
   const givenAmount = given ? parseInt(given, 10) / 100 : 0;
   const change = givenAmount - amount;
@@ -195,8 +207,13 @@ export function PaySheet({
   const cardBusy = sumup.busy || sumup.state === 'success';
   const locked = busy || cardBusy || !!unsaved;
 
+  // Modus wechselt bei offenem Blatt (Socket): Bar nicht stehen lassen.
+  useEffect(() => {
+    if (open && cashless && method === 'cash') setMethod(firstMethod);
+  }, [open, cashless, method, firstMethod]);
+
   const methodOptions: ChoiceOption<Method>[] = [
-    { id: 'cash', label: t('cash'), icon: 'cash' },
+    ...(cashless ? [] : [{ id: 'cash' as const, label: t('cash'), icon: 'cash' as const }]),
     ...(card
       ? [
           {
@@ -333,11 +350,19 @@ export function PaySheet({
           : t('cardStart', { amount: formatPrice(amount + tip) })}
       </Button>
     );
-  } else {
+  } else if (method === 'discount' && firstMethod && firstMethod !== 'discount') {
     primary = (
-      <Button variant="primary" size="lg" className="oe-grow" onClick={() => setMethod('cash')}>
+      <Button variant="primary" size="lg" className="oe-grow" onClick={() => setMethod(firstMethod)}>
         <Icon name="arrow-right" />
         {t('continue')}
+      </Button>
+    );
+  } else {
+    // Bargeldlos ohne nutzbare Karte: nichts zu kassieren.
+    primary = (
+      <Button variant="primary" size="lg" className="oe-grow" disabled>
+        <Icon name="ban" />
+        {t('noMethod')}
       </Button>
     );
   }
@@ -464,7 +489,7 @@ export function PaySheet({
         </>
       );
     }
-  } else if (discount) {
+  } else if (method === 'discount' && discount) {
     right = manual ? (
       <>
         <div className="oe-given">
@@ -548,7 +573,7 @@ export function PaySheet({
               ))}
             </Chips>
           )}
-          {amount > 0 && !unsaved && (
+          {amount > 0 && !unsaved && methodOptions.length > 0 && (
             <ChoiceGroup
               options={methodOptions.map((o) => ({ ...o, disabled: locked || o.disabled }))}
               value={method}
@@ -567,7 +592,14 @@ export function PaySheet({
             </Button>
           )}
         </div>
-        <div className="pos-pay__r">{right}</div>
+        <div className="pos-pay__r">
+          {right ??
+            (amount > 0 && !method ? (
+              <Banner tone="warn" icon={<Icon name="alert" />} title={t('cashlessNoMethodTitle')}>
+                {card === 'sumup_test' ? t('cashlessNoMethodTest') : t('cashlessNoMethodText')}
+              </Banner>
+            ) : null)}
+        </div>
       </div>
     </PosSheet>
   );

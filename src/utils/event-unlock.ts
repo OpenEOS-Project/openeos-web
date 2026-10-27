@@ -7,8 +7,15 @@ import type { EventBilling, EventUnlockCancellationBlock } from '@/types/billing
  * Wer aus dem Urlaub nachsieht, soll dieselbe Frist sehen wie zu Hause.
  *
  * "Fr., 04.09.2026, 17:00" bzw. "Fri, 04/09/2026, 17:00".
+ *
+ * Fällt die Frist genau auf Mitternacht (Veranstaltung beginnt um 0:00),
+ * steht dort der Vortag, 23:59: "bis Sa., 00:00" lesen viele als "bis
+ * Samstagabend". Die Regel bleibt dieselbe — stornieren geht bis vor
+ * diesem Zeitpunkt, also bis einschließlich 23:59 am Vortag.
  */
 export function formatUnlockDeadline(iso: string, locale: string, timeZone: string): string {
+  const deadline = new Date(iso);
+  const shown = isLocalMidnight(deadline, timeZone) ? new Date(deadline.getTime() - 60_000) : deadline;
   return new Intl.DateTimeFormat(toIntlLocale(locale), {
     weekday: 'short',
     day: '2-digit',
@@ -18,7 +25,20 @@ export function formatUnlockDeadline(iso: string, locale: string, timeZone: stri
     minute: '2-digit',
     hourCycle: 'h23',
     timeZone,
-  }).format(new Date(iso));
+  }).format(shown);
+}
+
+/** Ob ein Zeitpunkt in dieser Zeitzone genau auf 00:00:00 fällt. */
+function isLocalMidnight(date: Date, timeZone: string): boolean {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+    timeZone,
+  }).formatToParts(date);
+  const value = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value);
+  return value('hour') === 0 && value('minute') === 0 && value('second') === 0 && date.getUTCMilliseconds() === 0;
 }
 
 /** Was der Freischaltungs-Dialog zeigt — aus den Abrechnungsdaten abgeleitet. */

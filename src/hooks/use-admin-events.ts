@@ -57,11 +57,21 @@ export function useUnmarkEventInvoiced() {
   });
 }
 
+export function useCancelEventBillingPreview(id: string | null) {
+  return useQuery({
+    queryKey: ['admin', 'events', id, 'cancel-billing'],
+    queryFn: async () => (await adminApi.getCancelEventBillingPreview(id as string)).data,
+    enabled: !!id,
+    staleTime: 0,
+  });
+}
+
 export function useCancelEventBilling() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => adminApi.cancelEventBilling(id),
+    mutationFn: ({ id, reason, amount }: { id: string; reason: string; amount: number | null }) =>
+      adminApi.cancelEventBilling(id, { reason, amount }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
     },

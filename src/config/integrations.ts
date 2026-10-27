@@ -15,6 +15,12 @@ export interface IntegrationDefinition {
   id: IntegrationId;
   /** Markenname — wird nicht übersetzt. */
   name: string;
+  /**
+   * Übersetzungsschlüssel für den Namen, falls es (noch) keinen Markennamen
+   * gibt, z. B. bei einer Integration, deren Anbieter nicht feststeht. Ist
+   * er gesetzt, zeigt die Oberfläche ihn statt `name`.
+   */
+  nameKey?: string;
   /** Übersetzungsschlüssel für die Art des Dienstes, z. B. "Kartenzahlung". */
   vendorKey: string;
   /** Hausfarbe des Anbieters für die Ersatzkachel, solange kein `logo` eingetragen ist. */
@@ -37,6 +43,11 @@ export interface IntegrationDefinition {
   /** Was beim Ausschalten wegfällt — steht in der Rückfrage auf der Konfigurationsseite. */
   deactivateEffectKey?: string;
   docsUrl?: Record<'de' | 'en', string>;
+  /**
+   * Ziel für `<link>…</link>` in der langen Beschreibung, z. B. ein Eintrag
+   * in den FAQ auf openeos.de.
+   */
+  moreInfoUrl?: Record<'de' | 'en', string>;
   screenshots: IntegrationScreenshot[];
   /** Symbol für den Eintrag in der Seitenleiste. */
   navIcon: FC<{ className?: string }>;
@@ -104,14 +115,25 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     navIcon: CreditCard,
   },
   {
-    id: 'fiskaly',
-    name: 'fiskaly',
-    vendorKey: 'fiskaly.vendor',
-    color: '#0F766E',
+    // Bewusst ohne Anbieter: welcher Cloud-TSE-Dienst angebunden wird, steht
+    // noch nicht fest.
+    id: 'tse',
+    name: 'TSE',
+    nameKey: 'tse.name',
+    vendorKey: 'tse.vendor',
+    color: '#475569',
     available: false,
-    shortDescriptionKey: 'fiskaly.description',
-    longDescriptionKey: 'fiskaly.longDescription',
-    requirementKeys: ['fiskaly.requirements.account'],
+    shortDescriptionKey: 'tse.description',
+    longDescriptionKey: 'tse.longDescription',
+    requirementKeys: [],
+    docsUrl: {
+      de: 'https://docs.openeos.de/bargeldlos#tse',
+      en: 'https://docs.openeos.de/en/bargeldlos#tse',
+    },
+    moreInfoUrl: {
+      de: 'https://openeos.de/faq#tse',
+      en: 'https://openeos.de/en/faq#tse',
+    },
     screenshots: [],
     navIcon: ShieldCheck,
   },
@@ -143,6 +165,17 @@ export function getEnabledIntegrations(
   );
 }
 
+/**
+ * Anzeigename: der übersetzte `nameKey`, sonst der Markenname. `t` ist ein
+ * Übersetzer für den Namensraum `integrations`.
+ */
+export function integrationName(
+  integration: IntegrationDefinition,
+  t: (key: string) => string,
+): string {
+  return integration.nameKey ? t(integration.nameKey) : integration.name;
+}
+
 export function integrationHref(id: IntegrationId): string {
   return `/integrations/${id}`;
 }
@@ -153,6 +186,14 @@ export function integrationDocsUrl(
 ): string | undefined {
   if (!integration.docsUrl) return undefined;
   return locale === 'en' ? integration.docsUrl.en : integration.docsUrl.de;
+}
+
+export function integrationMoreInfoUrl(
+  integration: IntegrationDefinition,
+  locale: string,
+): string | undefined {
+  if (!integration.moreInfoUrl) return undefined;
+  return locale === 'en' ? integration.moreInfoUrl.en : integration.moreInfoUrl.de;
 }
 
 export function integrationScreenshotSrc(screenshot: IntegrationScreenshot, locale: string): string {

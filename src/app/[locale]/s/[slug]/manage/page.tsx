@@ -6,8 +6,11 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { CircleCheck, Mail } from 'lucide-react';
 
+import { useQuery } from '@tanstack/react-query';
+
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { PrivacyFormHint, PublicLegalFooter } from '@/components/public-legal/public-legal-footer';
 
 /**
  * Public entry-point for the helper self-service flow. Helper enters their
@@ -18,6 +21,15 @@ import { shiftsPublicApi } from '@/lib/api-client';
 export default function HelperManageRequestPage() {
   const { slug } = useParams() as { slug: string };
   const t = useTranslations('shifts.manageRequest');
+  const tLegal = useTranslations('publicLegal');
+  // Nur fuer Impressum/Datenschutz des Vereins — dieselbe Abfrage wie die
+  // Planseite, landet also meist schon im Cache.
+  const { data: planData } = useQuery({
+    queryKey: ['public-shift-plan', slug],
+    queryFn: () => shiftsPublicApi.getPlan(slug),
+    enabled: !!slug,
+  });
+  const legal = planData?.data?.legal;
   const apiErrorMessage = useApiErrorMessage();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
@@ -43,7 +55,8 @@ export default function HelperManageRequestPage() {
   };
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--paper-2, #f4f4f5)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--paper-2, #f4f4f5)' }}>
+    <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ maxWidth: 460, width: '100%', background: 'var(--paper)', borderRadius: 14, padding: '32px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <Image src="/logo_dark.png" alt="OpenEOS" width={140} height={36} style={{ height: 28, width: 'auto' }} />
@@ -67,6 +80,9 @@ export default function HelperManageRequestPage() {
                   placeholder={t('emailPlaceholder')}
                   autoFocus
                 />
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <PrivacyFormHint legal={legal} slug={slug} purpose={tLegal('purposeMagicLink')} />
               </div>
               {error && (
                 <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>
@@ -98,5 +114,7 @@ export default function HelperManageRequestPage() {
         )}
       </div>
     </main>
+    <PublicLegalFooter legal={legal} slug={slug} />
+    </div>
   );
 }

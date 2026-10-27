@@ -10,6 +10,8 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useRefundForm } from '@/hooks/use-refund-form';
 import { ordersApi } from '@/lib/api-client';
+import { isCashlessMode } from '@/lib/cashless';
+import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import { type OrderDetail, REFUND_REASON_CODES, type RefundReasonCode, type RefundResult } from '@/types/order-history';
 import { paymentIcon, paymentKey } from '@/utils/order-history';
@@ -48,7 +50,9 @@ export function OrderRefundDialog({ organizationId, order, preset, onClose, onDo
   const { formatCurrency } = useLocaleFormat();
   const apiErrorMessage = useApiErrorMessage();
 
-  const form = useRefundForm(order, preset);
+  // Bargeldlos: nur auf die unbare Zahlung zurück, nie bar.
+  const cashless = useAuthStore((state) => isCashlessMode(state.currentOrganization?.organization?.settings));
+  const form = useRefundForm(order, preset, { cashless });
   const { mode, cancelItems, qty, amount, includeDeposit, paymentId, confirmStarted } = form.state;
   const { payments, maxAmount, methodPayment, method, items, started, hasDeposit, preview, amountInvalid } = form.view;
 
@@ -326,6 +330,15 @@ export function OrderRefundDialog({ organizationId, order, preset, onClose, onDo
                   <Icon name={methodPayment ? paymentIcon(methodPayment.paymentMethod) : 'cash'} size={16} />
                   {t(`methodHint.${method}`)}
                 </p>
+              )}
+
+              {form.view.cashBlocked && (
+                <div role="alert" className="order-action__alert">
+                  <b>
+                    <Icon name="alert" size={16} /> {t('cashlessBlockedTitle')}
+                  </b>
+                  <span>{t('cashlessBlocked')}</span>
+                </div>
               )}
 
               <ReasonFields

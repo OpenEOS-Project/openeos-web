@@ -10,6 +10,7 @@ import { Calendar, CircleAlert, CircleCheck, Clock, Plus, Trash } from 'lucide-r
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { shiftsPublicApi } from '@/lib/api-client';
+import { PublicLegalFooter } from '@/components/public-legal/public-legal-footer';
 import { toLocalDate } from '@/utils/calendar-date';
 
 const formatDateFor = (iso: string, locale: string) =>
@@ -131,7 +132,8 @@ export default function HelperManagePage() {
   }
 
   return (
-    <main style={pageStyle}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--paper-2, #f4f4f5)' }}>
+    <main style={{ ...pageStyle, minHeight: 0, flex: 1 }}>
       <div style={{ ...cardStyle, maxWidth: 640 }}>
         <div style={{ textAlign: 'center', marginBottom: 18 }}>
           <Image src="/logo_dark.png" alt="OpenEOS" width={140} height={36} style={{ height: 28, width: 'auto' }} />
@@ -262,6 +264,8 @@ export default function HelperManagePage() {
         </p>
       </div>
     </main>
+    <PublicLegalFooter legal={plan!.legal} slug={plan!.slug} />
+    </div>
   );
 }
 

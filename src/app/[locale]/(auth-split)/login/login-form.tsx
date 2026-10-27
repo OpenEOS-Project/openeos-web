@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import { isTwoFactorRequired } from '@/types/auth';
 import { useDeployment } from '@/components/providers/setup-provider';
+import { SourceCodeLink } from '@/components/shared/source-code-link';
 
 export function LoginForm() {
   const t = useTranslations('auth.login');
@@ -301,6 +302,8 @@ export function LoginForm() {
           <span>{t('displayMode')}</span>
         </Link>
       </div>
+
+      <SourceCodeLink className="auth-form__source" iconSize={13} />
     </div>
   );
 }

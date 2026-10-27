@@ -20,7 +20,15 @@ export interface RuntimeConfig {
   apiUrl: string;
   /** Oeffentliche Basis-URL des Event-Shops. */
   shopUrl: string;
+  /**
+   * Wohin der Link "Quellcode" fuehrt (AGPL-3.0 § 13). Wer eine geaenderte
+   * Fassung betreibt, muss hier auf deren Quellcode zeigen.
+   */
+  sourceUrl: string;
 }
+
+/** Quellcode des unveraenderten OpenEOS. */
+export const DEFAULT_SOURCE_URL = 'https://github.com/OpenEOS-Project';
 
 /** Name des globalen Feldes, ueber das der Server die Werte durchreicht. */
 export const RUNTIME_CONFIG_GLOBAL = '__OPENEOS_RUNTIME_CONFIG__';
@@ -28,6 +36,7 @@ export const RUNTIME_CONFIG_GLOBAL = '__OPENEOS_RUNTIME_CONFIG__';
 const BUILD_TIME_FALLBACK: RuntimeConfig = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   shopUrl: process.env.NEXT_PUBLIC_SHOP_URL || 'https://shop.openeos.de',
+  sourceUrl: process.env.NEXT_PUBLIC_SOURCE_URL || DEFAULT_SOURCE_URL,
 };
 
 /**
@@ -39,6 +48,7 @@ export function readServerRuntimeConfig(): RuntimeConfig {
   return {
     apiUrl: process.env.API_URL || BUILD_TIME_FALLBACK.apiUrl,
     shopUrl: process.env.SHOP_URL || BUILD_TIME_FALLBACK.shopUrl,
+    sourceUrl: process.env.SOURCE_URL || BUILD_TIME_FALLBACK.sourceUrl,
   };
 }
 
@@ -49,10 +59,11 @@ function initialConfig(): RuntimeConfig {
 
   const injected = (window as unknown as Record<string, unknown>)[RUNTIME_CONFIG_GLOBAL];
   if (injected && typeof injected === 'object') {
-    const { apiUrl, shopUrl } = injected as Partial<RuntimeConfig>;
+    const { apiUrl, shopUrl, sourceUrl } = injected as Partial<RuntimeConfig>;
     return {
       apiUrl: apiUrl || BUILD_TIME_FALLBACK.apiUrl,
       shopUrl: shopUrl || BUILD_TIME_FALLBACK.shopUrl,
+      sourceUrl: sourceUrl || BUILD_TIME_FALLBACK.sourceUrl,
     };
   }
 
@@ -81,4 +92,9 @@ export function getApiUrl(): string {
 
 export function getShopUrl(): string {
   return current.shopUrl.replace(/\/$/, '');
+}
+
+/** Ziel des Quellcode-Links (AGPL-3.0 § 13). */
+export function getSourceUrl(): string {
+  return current.sourceUrl.replace(/\/$/, '');
 }

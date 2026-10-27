@@ -27,6 +27,10 @@
     "noOrganization": {
       "title": "Keine Organisation ausgewählt",
       "description": "Bitte wähle zuerst eine Organisation aus."
+    },
+    "sourceCode": {
+      "label": "Quellcode (AGPL-3.0)",
+      "title": "OpenEOS ist freie Software unter der AGPL-3.0-or-later. Hier findest du den Quellcode."
     }
   },
   "auth": {
@@ -140,8 +144,8 @@
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
-          "terms": "Ich akzeptiere die AGB und die Datenschutzerklärung.",
-          "newsletter": "Ich möchte gelegentlich Updates und Neuigkeiten erhalten."
+          "terms": "Ich akzeptiere die <terms>AGB</terms> und habe die <privacy>Datenschutzerklärung</privacy> zur Kenntnis genommen.",
+          "newsletter": "Ich möchte gelegentlich Neuigkeiten zu OpenEOS per E-Mail erhalten. Abbestellen geht jederzeit."
         }
       },
       "errors": {
@@ -333,6 +337,27 @@
         "UPDATE_RENTAL_HARDWARE": "Miet-Hardware aktualisiert",
         "ASSIGN_RENTAL": "Miet-Zuweisung erstellt",
         "RETURN_RENTAL": "Miet-Rückgabe",
+        "view_organization": "Organisation angesehen",
+        "impersonate_start": "Als Organisation angemeldet",
+        "impersonate_end": "Organisationsansicht beendet",
+        "credit_adjustment": "Credits angepasst",
+        "edit_organization": "Organisation bearbeitet",
+        "delete_organization": "Organisation gelöscht",
+        "edit_user": "Benutzer bearbeitet",
+        "unlock_user": "Benutzer entsperrt",
+        "mark_invoice_paid": "Rechnung als bezahlt markiert",
+        "complete_purchase": "Kauf abgeschlossen",
+        "set_discount": "Rabatt gesetzt",
+        "remove_discount": "Rabatt entfernt",
+        "create_rental_hardware": "Miet-Hardware hinzugefügt",
+        "assign_rental": "Miet-Zuweisung erstellt",
+        "return_rental": "Miet-Rückgabe",
+        "event_checkout_released": "Freischaltung: Zahlung nicht abgeschlossen",
+        "event_billing_cancelled": "Freischaltung storniert",
+        "event_billing_goodwill_refund": "Kulanzerstattung",
+        "event_payment_dispute_opened": "Rückbuchung eröffnet",
+        "event_payment_dispute_closed": "Rückbuchung abgeschlossen",
+        "event_duplicate_payment": "Zahlung ohne Freischaltung",
         "unknown": "Unbekannte Aktion"
       }
     },
@@ -808,7 +833,108 @@
       "saved": "Einstellungen gespeichert",
       "saveFailed": "Speichern fehlgeschlagen"
     },
-    "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen"
+    "subtitle": "Verwalte deine persönlichen und Organisationseinstellungen",
+    "organizationLegal": {
+      "tab": "Rechtliche Angaben",
+      "title": "Rechtliche Angaben (Shop & Helferseiten)",
+      "description": "Impressum und Datenschutzhinweis deines Vereins. Sie erscheinen im Shop, auf den Helferseiten und direkt an den Formularen.",
+      "incompleteTitle": "Noch nicht vollständig",
+      "incompleteText": "Solange Impressum oder Datenschutzhinweis fehlen, zeigen Shop und Helferseiten an dieser Stelle einen neutralen Hinweis.",
+      "why": "Du verkaufst bzw. sammelst Helferdaten als Verein – deshalb gehören hier dein Impressum und deine Datenschutzhinweise hin. OpenEOS stellt nur die Technik bereit und steht darunter mit einem eigenen kleinen Hinweis.",
+      "templates": "Hast du noch keine Texte? Muster und Generatoren helfen beim Start, z. B. der <imprintGen>Impressum-Generator von eRecht24</imprintGen> oder der <privacyGen>Datenschutz-Generator</privacyGen>. Nenne im Datenschutzhinweis auch Shop-Bestellungen und Helferanmeldungen mit OpenEOS als Dienstleister.",
+      "noLegalAdvice": "Keine Rechtsberatung: OpenEOS prüft die Texte nicht. Im Zweifel lass sie von einer fachkundigen Stelle prüfen, etwa deinem Landessportbund oder einer Anwältin.",
+      "modeLabel": "{notice}: Link oder Text",
+      "mode": {
+        "url": "Link",
+        "text": "Text"
+      },
+      "imprint": {
+        "label": "Impressum",
+        "short": "Impressum",
+        "urlLabel": "Link zum Impressum",
+        "urlPlaceholder": "https://dein-verein.de/impressum",
+        "urlHint": "Link auf das Impressum deiner Vereinswebsite.",
+        "textLabel": "Text des Impressums",
+        "textPlaceholder": "TSV Musterstadt e.V.\nHauptstraße 1, 12345 Musterstadt\nVertreten durch den Vorstand: …\nE-Mail: info@tsv-musterstadt.de\nRegistergericht: Amtsgericht …, VR 1234"
+      },
+      "privacy": {
+        "label": "Datenschutzhinweis",
+        "short": "Datenschutz",
+        "urlLabel": "Link zum Datenschutzhinweis",
+        "urlPlaceholder": "https://dein-verein.de/datenschutz",
+        "urlHint": "Link auf die Datenschutzerklärung deiner Vereinswebsite.",
+        "textLabel": "Text des Datenschutzhinweises",
+        "textPlaceholder": "# Datenschutzhinweis\nVerantwortlich: TSV Musterstadt e.V., …\n\n## Shop-Bestellungen und Helferanmeldungen\nWir verarbeiten Name und E-Mail-Adresse, um …"
+      },
+      "textHint": "Leerzeile = neuer Absatz, # = Überschrift, **fett**; Links und E-Mail-Adressen werden automatisch klickbar.",
+      "charCount": "{count} / {max} Zeichen",
+      "showPreview": "Vorschau anzeigen",
+      "hidePreview": "Vorschau ausblenden",
+      "previewLabel": "Vorschau",
+      "contactEmail": "Kontakt für Datenschutzfragen (optional)",
+      "contactEmailPlaceholder": "datenschutz@dein-verein.de",
+      "contactEmailHint": "Erscheint neben Impressum und Datenschutz.",
+      "footerPreview": "Vorschau der Fußzeile",
+      "footerPreviewLabel": "Vorschau der Fußzeile im Shop und auf den Helferseiten",
+      "footerResponsible": "Verantwortlich: {organization}",
+      "footerPlatform": "Bereitgestellt mit OpenEOS · Impressum · Datenschutz",
+      "missing": "fehlt",
+      "saved": "Gespeichert",
+      "saving": "Speichern …",
+      "save": "Speichern",
+      "errors": {
+        "url": "Bitte gib einen vollständigen Link an, der mit https:// beginnt.",
+        "urlTooLong": "Der Link darf höchstens {max} Zeichen lang sein.",
+        "textTooLong": "Der Text darf höchstens {max} Zeichen lang sein.",
+        "email": "Bitte gib eine gültige E-Mail-Adresse an.",
+        "linkOrText": "Bitte entweder einen Link oder einen Text angeben, nicht beides.",
+        "saveFailed": "Die Angaben konnten nicht gespeichert werden."
+      }
+    },
+    "about": {
+      "title": "Über OpenEOS",
+      "version": "Version",
+      "license": "Lizenz",
+      "licenseText": "OpenEOS ist freie Software: Du darfst es unter den Bedingungen der GNU Affero General Public License, Version 3 oder (nach deiner Wahl) jeder späteren Version, nutzen, weitergeben und verändern. Es wird ohne jede Gewährleistung bereitgestellt.",
+      "sourceText": "Den vollständigen Quellcode dieser Installation findest du hier:",
+      "copyright": "Copyright © 2026 LUXCODE by Lukas Lukic-Spitznagel und Mitwirkende",
+      "thirdParty": "Enthaltene Fremdbestandteile und ihre Lizenzen stehen in NOTICE und THIRD_PARTY_NOTICES.md im Quellcode."
+    },
+    "organizationPayments": {
+      "tab": "Zahlungen",
+      "title": "Zahlungen",
+      "description": "Wie an deinen Kassen bezahlt werden kann.",
+      "cashless": {
+        "label": "Bargeldloser Modus",
+        "hint": "Deine Kassen nehmen kein Bargeld an – Kartenzahlung über SumUp sowie Online- und Vorauszahlungen laufen weiter, auch mit Trinkgeld, geteilt oder gesammelt. OpenEOS sperrt Bargeld dann auch auf dem Server, nicht nur an der Oberfläche. Ohne Bargeld braucht deine Kasse keine TSE. Jede Umschaltung wird mit Zeitpunkt und Person protokolliert.",
+        "effects": {
+          "pay": "Kein Bar-Button, keine Schnellwahl und kein Rückgeld beim Kassieren.",
+          "refund": "Erstattungen gehen nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Alte Barzahlungen lassen sich über OpenEOS nicht mehr erstatten.",
+          "pfand": "Pfand wird nicht bar ausgezahlt. Zurückgegebenes Pfand verrechnest du mit neuem Pfand im selben Verkauf; eine reine Pfand-Rückgabe ist gesperrt.",
+          "drawer": "Die Kassenlade öffnet sich nicht."
+        }
+      },
+      "adminOnly": "Nur Admins der Organisation können den Modus ändern.",
+      "noSumup": {
+        "title": "SumUp ist nicht eingeschaltet",
+        "text": "Ohne SumUp kann die Kasse im bargeldlosen Modus keine Zahlungen annehmen – abschließen lassen sich dann nur online oder vorab bezahlte Bestellungen.",
+        "action": "SumUp einrichten"
+      },
+      "savedOn": "Bargeldloser Modus ist an. Die Kassen stellen sich sofort um.",
+      "savedOff": "Bargeldloser Modus ist aus. Die Kassen nehmen wieder Bargeld an.",
+      "confirmOff": {
+        "title": "Bargeld wieder erlauben?",
+        "text": "Deine Kassen können dann wieder Bargeld annehmen. Für Kassen mit Bargeld schreibt die Kassensicherungsverordnung eine TSE vor – die TSE-Anbindung für OpenEOS ist noch in Arbeit. Die Änderung wird im Verlauf gespeichert.",
+        "faqLink": "Mehr dazu in den FAQ",
+        "confirm": "Bargeld erlauben"
+      },
+      "since": "Bargeldlos seit {date}",
+      "history": {
+        "title": "Verlauf",
+        "on": "Bargeldlosen Modus eingeschaltet",
+        "off": "Bargeldlosen Modus ausgeschaltet (Bargeld erlaubt)"
+      }
+    }
   },
   "theme": {
     "light": "Hell",
@@ -1959,16 +2085,42 @@
         "reset": "Zurücksetzen",
         "invoice": "Abrechnen",
         "waive": "Erlassen",
-        "cancelBilling": "Stornieren"
+        "cancelBilling": "Storno/Erstattung"
       },
       "pagination": {
         "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
         "page": "Seite {page} von {totalPages}"
       },
       "cancelBilling": {
-        "title": "Freischaltung stornieren",
-        "description": "Hebt die Freischaltung auf und setzt die Veranstaltung in den Testmodus. Online bezahlt: volle Erstattung über Stripe mit Stornorechnung. Auf Rechnung über Stripe: eine offene Rechnung wird storniert, eine bezahlte bekommt eine Stornorechnung mit Erstattung. Die 7-Tage-Frist gilt hier nicht; Veranstaltungen mit echten Bestellungen lassen sich nicht stornieren.",
-        "submit": "Stornieren"
+        "title": "Storno oder Erstattung",
+        "facts": {
+          "paidStripe": "Bezahlt (Stripe)",
+          "orderedInvoice": "Bestellt (auf Rechnung)",
+          "refundedSoFar": "Bereits erstattet",
+          "refundable": "Noch erstattbar",
+          "realOrders": "Echte Bestellungen"
+        },
+        "ordersWarning": "In dieser Veranstaltung gibt es {count, plural, one {# echte Bestellung} other {# echte Bestellungen}}. Sie bleiben unverändert erhalten, ebenso die Freischaltung und der Status — die Erstattung ist Kulanz.",
+        "deadlinePassed": "Die Frist für eine kostenlose Stornierung ({deadline}) ist abgelaufen; für dich gilt sie nicht.",
+        "amountLabel": "Betrag",
+        "modeFull": "Alles Erstattbare ({amount})",
+        "modePartial": "Teilbetrag",
+        "amountInput": "Teilbetrag in Euro",
+        "reasonLabel": "Grund (Pflicht)",
+        "reasonPlaceholder": "z. B. Veranstaltung wegen Unwetter abgesagt",
+        "outcomeCancellation": "Storno: Die Freischaltung wird aufgehoben, eine aktive Veranstaltung wechselt in den Testmodus.",
+        "outcomeGoodwill": "Kulanz: Freischaltung, Status und Bestellungen bleiben unverändert.",
+        "refundStripe": "Stripe erstattet den Betrag und stellt eine Gutschrift (Stornorechnung) aus.",
+        "refundInvoiceInvoiced": "Auf Rechnung: Die Rechnung ist schon gestellt — stelle eine Gutschrift über den Betrag aus und überweise Gezahltes zurück.",
+        "refundInvoiceOpen": "Auf Rechnung: Die Rechnung ist noch nicht gestellt — berücksichtige den Betrag beim Abrechnen.",
+        "problems": {
+          "nothingRefundable": "Für diese Freischaltung ist nichts mehr zu erstatten.",
+          "onlineRefundUnavailable": "Eine Erstattung über Stripe ist hier nicht möglich (keine Checkout-Sitzung oder Stripe nicht konfiguriert).",
+          "amountInvalid": "Gib einen Betrag größer 0 ein.",
+          "amountTooHigh": "Erstattbar sind höchstens {max}."
+        },
+        "submit": "Stornieren",
+        "submitGoodwill": "{amount} erstatten"
       },
       "invoiceStatus": {
         "open": "Rechnung offen",
@@ -2127,7 +2279,11 @@
       "tokensIn": "Pfandmarken zurücknehmen",
       "returnSum": "Rückgabe gesamt",
       "offsetButton": "Verrechnen",
-      "offsetHint": "„Verrechnen\" zieht den Betrag von der Rechnung ab. „Auszahlen\" gibt Bargeld zurück."
+      "offsetHint": "„Verrechnen\" zieht den Betrag von der Rechnung ab. „Auszahlen\" gibt Bargeld zurück.",
+      "close": "Schließen",
+      "cashlessTitle": "Bargeldlos: keine Pfand-Auszahlung",
+      "cashlessOffset": "Pfand wird nicht bar ausgezahlt. Verrechne die Rückgabe mit neuem Pfand im aktuellen Verkauf.",
+      "cashlessNoCart": "Deine Organisation zahlt kein Bargeld aus. Zurückgegebenes Pfand kannst du nur beim nächsten Verkauf mit neuem Pfand verrechnen."
     },
     "sumupCheckout": {
       "title": "Kartenzahlung",
@@ -2344,7 +2500,9 @@
       "sumupFailedText": "Die Erstattung über SumUp ist fehlgeschlagen.",
       "sumupManualHint": "Du kannst es erneut versuchen oder den Betrag anders zurückgeben und als „manuell erstattet“ buchen.",
       "retry": "Erneut versuchen",
-      "markManual": "Manuell erstattet"
+      "markManual": "Manuell erstattet",
+      "cashlessBlockedTitle": "Keine Bar-Erstattung",
+      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
     },
     "noActiveEvent": "Kein aktives Event",
     "menu": {
@@ -2364,7 +2522,8 @@
       "theme": "Darstellung",
       "theme_dark": "Dunkel",
       "theme_light": "Hell",
-      "theme_system": "System"
+      "theme_system": "System",
+      "sourceCode": "Quellcode (AGPL-3.0)"
     },
     "header": {
       "lock": "Kasse sperren",
@@ -2517,7 +2676,11 @@
       "title": "Kassieren · {context}",
       "unsavedText": "Die Karte wurde mit {amount} belastet (Vorgang {id}). Nicht erneut kassieren – speichere die Bestellung erneut.",
       "unsavedTitle": "Kartenzahlung erfolgreich, Bestellung nicht gespeichert",
-      "cardTestModeHint": "Im Testmodus ohne echte Kartenzahlung"
+      "cardTestModeHint": "Im Testmodus ohne echte Kartenzahlung",
+      "noMethod": "Keine Zahlart",
+      "cashlessNoMethodTitle": "Bargeldlos – keine Zahlart verfügbar",
+      "cashlessNoMethodText": "Deine Organisation nimmt kein Bargeld an, und an dieser Kasse ist kein SumUp-Lesegerät eingerichtet. Kassieren lässt sich hier nur, was online oder vorab bezahlt ist.",
+      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt."
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -2838,7 +3001,9 @@
       "cancelDone": "{count, plural, =1 {1 Position storniert} other {# Positionen storniert}}",
       "paidNeedsRefund": "Schon bezahlt – storniere mit Erstattung.",
       "less": "{name}: weniger",
-      "more": "{name}: mehr"
+      "more": "{name}: mehr",
+      "cashlessBlockedTitle": "Keine Bar-Erstattung",
+      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
     }
   },
   "device": {
@@ -3207,7 +3372,9 @@
         },
         "payment": {
           "title": "Zahlung",
-          "description": "Kartenzahlung über ein SumUp-Lesegerät."
+          "description": "Kartenzahlung über ein SumUp-Lesegerät.",
+          "cashless": "Bargeldloser Modus: Diese Kasse nimmt kein Bargeld an.",
+          "cashlessLink": "Zahlungseinstellungen"
         }
       },
       "printer": {
@@ -3234,7 +3401,8 @@
           "description": "Wähle einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
-          "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert"
+          "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert",
+          "cashless": "Im bargeldlosen Modus öffnet sich die Kassenlade nicht."
         },
         "testPrint": "Testdruck",
         "testPrintSent": "Testdruck wurde gesendet",
@@ -3273,6 +3441,7 @@
     "CARD_READER_NOT_LINKED": "Mit diesem Gerät ist kein Kartenleser verknüpft.",
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
     "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
+    "CASH_PAYMENTS_DISABLED": "Deine Organisation arbeitet bargeldlos. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
     "CATEGORY_NOT_FOUND": "Die Kategorie wurde nicht gefunden.",
     "CHECKOUT_NOT_FOUND": "Der Bezahlvorgang wurde nicht gefunden.",
     "CONFLICT": "Die Aktion steht im Konflikt mit dem aktuellen Stand. Bitte lade die Seite neu.",
@@ -3522,7 +3691,8 @@
     "USER_NOT_FOUND": "Der Benutzer wurde nicht gefunden.",
     "VALIDATION_ERROR": "Einige Angaben sind ungültig. Bitte prüfe deine Eingaben.",
     "VERIFICATION_LINK_EXPIRED": "Der Bestätigungslink ist abgelaufen.",
-    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
+    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
+    "ORGANIZATION_LEGAL_INVALID": "Bitte prüfe die rechtlichen Angaben: Links müssen mit https:// beginnen, und je Angabe gilt entweder ein Link oder ein Text."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -3670,8 +3840,7 @@
       "registerMore": "Weitere Anmeldung",
       "yourShifts": "Deine Schichten",
       "addToGoogleCalendar": "In Google Kalender eintragen",
-      "downloadICS": "Alle als Kalenderdatei herunterladen",
-      "imprint": "Impressum"
+      "downloadICS": "Alle als Kalenderdatei herunterladen"
     },
     "verify": {
       "loading": "Verifizierung läuft...",
@@ -3940,7 +4109,8 @@
       "timeRangeNextDay": "{start} – {end} (am Folgetag)",
       "spotsOfFree": "<n>{available}</n><muted>/{required} frei</muted>",
       "spotsFree": "{count} frei",
-      "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}"
+      "pillLabel": "{count, plural, =1 {Schicht ausgewählt} other {Schichten ausgewählt}}",
+      "privacyPurpose": "um deine Schichtanmeldung zu organisieren"
     },
     "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
@@ -4595,13 +4765,11 @@
         "account": "Ein Stripe-Konto"
       }
     },
-    "fiskaly": {
-      "vendor": "Kassensicherung",
-      "description": "Technische Sicherheitseinrichtung (TSE) nach Kassensicherungsverordnung.",
-      "longDescription": "fiskaly stellt eine Cloud-TSE bereit, mit der Kassenvorgänge nach der Kassensicherungsverordnung signiert werden.",
-      "requirements": {
-        "account": "Ein fiskaly-Konto"
-      }
+    "tse": {
+      "name": "TSE (Kassensicherung)",
+      "vendor": "Fiskalisierung",
+      "description": "Cloud-TSE nach KassenSichV für Barzahlungen – in Vorbereitung.",
+      "longDescription": "Wer an der Kasse Bargeld annimmt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Bis dahin kannst du den bargeldlosen Modus einschalten: Ohne Bargeld ist keine TSE nötig. Mehr dazu in den <link>FAQ auf openeos.de</link>."
     }
   },
   "onboarding": {
@@ -4980,5 +5148,41 @@
     "results": "{count, plural, one {# Treffer} other {# Treffer}}",
     "search": "Icons durchsuchen, z. B. Bier oder Pommes",
     "title": "Icon wählen"
+  },
+  "publicLegal": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "responsible": "Verantwortlich: <b>{organization}</b>",
+    "missingBoth": "Impressum und Datenschutzhinweis des Veranstalters sind hier noch nicht hinterlegt.",
+    "missingImprint": "Das Impressum des Veranstalters ist hier noch nicht hinterlegt.",
+    "missingPrivacy": "Der Datenschutzhinweis des Veranstalters ist hier noch nicht hinterlegt.",
+    "poweredBy": "Bereitgestellt mit OpenEOS",
+    "platformImprintLabel": "Impressum von OpenEOS",
+    "platformPrivacyLabel": "Datenschutzerklärung von OpenEOS",
+    "organizationFallback": "der Veranstalter",
+    "formHint": "Deine Angaben verarbeitet {organization}, {purpose}. Mehr dazu im <link>Datenschutzhinweis</link>.",
+    "formHintNoPrivacy": "Deine Angaben verarbeitet {organization}, {purpose}.",
+    "purposeMagicLink": "um dir den Link zu deinen Schichten zu schicken",
+    "imprintTitle": "Impressum",
+    "privacyTitle": "Datenschutzhinweis",
+    "backToPlan": "Zurück zum Schichtplan",
+    "notAvailable": "Diese Seite ist gerade nicht erreichbar.",
+    "externalHint": "{organization} stellt diese Angaben auf einer eigenen Seite bereit.",
+    "openExternal": "Seite öffnen",
+    "contact": "Fragen zum Datenschutz:"
+  },
+  "legalWarning": {
+    "title": "Impressum und Datenschutzhinweis fehlen noch",
+    "shop": "Im Shop verkauft dein Verein und fragt Name und E-Mail ab. Dafür brauchen Gäste dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, zeigt der Shop nur einen neutralen Hinweis. Du kannst den Shop trotzdem öffnen.",
+    "shifts": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Du kannst den Plan trotzdem veröffentlichen.",
+    "shiftsPublished": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Der Plan ist schon veröffentlicht, trag die Angaben bitte bald ein.",
+    "action": "Rechtliche Angaben eintragen"
+  },
+  "cashTse": {
+    "title": "Bargeld und TSE",
+    "text": "Wer in Deutschland mit einer elektronischen Kasse Bargeld annimmt, braucht laut Kassensicherungsverordnung eine zertifizierte TSE. Die TSE-Anbindung für OpenEOS ist in Arbeit. Bis dahin entscheidest du als Verein selbst, ob du Bargeld über OpenEOS erfasst – sprich das im Zweifel mit deinem Steuerberater ab. Ohne Bargeld ist keine TSE nötig: Schalte dafür den bargeldlosen Modus ein.",
+    "faqLink": "Mehr dazu in den FAQ",
+    "settingsLink": "Zu den Zahlungseinstellungen",
+    "dismiss": "Hinweis ausblenden"
   }
 }

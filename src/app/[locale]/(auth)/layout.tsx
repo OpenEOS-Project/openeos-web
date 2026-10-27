@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { Logo } from '@/components/foundations/logo/logo';
 import { LocaleSwitcher } from '@/components/ui/locale-switcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { SourceCodeLink } from '@/components/shared/source-code-link';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -42,6 +43,9 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
         {/* Footer */}
         <p className="auth-classic__foot mt-8 text-center">
           &copy; {new Date().getFullYear()} OpenEOS. {t('rightsReserved')}
+        </p>
+        <p className="auth-classic__foot mt-2 text-center">
+          <SourceCodeLink className="inline-flex items-center gap-1.5 hover:underline" iconSize={12} />
         </p>
       </div>
     </div>
