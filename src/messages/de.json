@@ -218,9 +218,6 @@
       "missingToken": "Dieser Aufruf enthält keinen Anmeldelink.",
       "backToLogin": "Zurück zur Anmeldung"
     },
-    "layout": {
-      "rightsReserved": "Alle Rechte vorbehalten."
-    },
     "twoFactorVerify": {
       "codeLength": "Code muss 6 Zeichen haben",
       "unknownBrowser": "Unbekannter Browser",
