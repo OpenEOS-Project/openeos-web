@@ -73,6 +73,35 @@ export interface EventUnlockCancellation {
   refundStatus: EventRefundStatus | null;
   /** Nummer der Stornorechnung, sofern Stripe eine ausgestellt hat. */
   creditNoteNumber: string | null;
+  /**
+   * Storno (Freischaltung aufgehoben) oder Kulanz durch die Plattform
+   * (Erstattung, Freischaltung bleibt). Ältere APIs liefern das Feld nicht.
+   */
+  kind?: 'cancellation' | 'goodwill';
+  /** Begründung der Plattform. */
+  reason?: string | null;
+}
+
+/** Vorschau für Storno/Kulanz durch den Super-Admin. */
+export interface PlatformCancellationPreview {
+  eventId: string;
+  billingStatus: string;
+  via: 'stripe' | 'invoice' | null;
+  currency: string;
+  amountCharged: number;
+  /** Seit dieser Freischaltung schon per Kulanz erstattet. */
+  refundedSoFar: number;
+  /** Höchstens noch erstattbar. */
+  refundable: number;
+  /** Echte Bestellungen (ohne Testbestellungen). */
+  realOrders: number;
+  deadline: string | null;
+  /** Zeitzone der Organisation — die Frist wird darin angezeigt. */
+  timezone: string;
+  deadlinePassed: boolean;
+  /** Kauf auf Rechnung: Rechnung schon gestellt. */
+  invoiced: boolean;
+  onlineRefundAvailable: boolean;
 }
 
 export interface EventUnlockCancellationResult {
