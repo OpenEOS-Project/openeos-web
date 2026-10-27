@@ -1,3 +1,5 @@
+import type { EventInvoiceStatus } from './billing';
+
 export interface AdminUserOrganization {
   id: string;
   role: string;
@@ -54,6 +56,16 @@ export interface AdminEventListItem {
   invoicedBy: string | null;
   invoiceNote: string | null;
   billingStatus?: 'none' | 'pending' | 'paid' | 'invoice' | 'waived';
+  /** Auf Rechnung über Stripe: die Rechnung. Fehlt bei Altfällen (manuell abgerechnet). */
+  stripeInvoiceId?: string | null;
+  invoiceNumber?: string | null;
+  invoiceStatus?: EventInvoiceStatus | 'overdue' | null;
+  invoiceDueAt?: string | null;
+  invoicePaidAt?: string | null;
+  invoiceHostedUrl?: string | null;
+  /** Ob Stripe ein PDF hat — geladen wird es über /admin/events/:id/invoice/pdf. */
+  invoiceHasPdf?: boolean;
+  priceCharged?: number | null;
 }
 
 export interface AdminEventOrderSummary {

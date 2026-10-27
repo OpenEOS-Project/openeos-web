@@ -128,6 +128,8 @@ export interface Organization {
   billingMode?: 'prepaid' | 'invoice';
   /** Individueller Preis pro Veranstaltung; leer/null = Standardpreis. */
   eventPriceOverride?: number | null;
+  /** Zahlungsziel für Rechnungen in Tagen; null = Standard der Plattform. */
+  invoiceDaysUntilDue?: number | null;
   /** Bevorzugte Bearbeitung im Support-Chat (Super-Admin-Flag). */
   prioritySupport?: boolean;
   createdAt: string;

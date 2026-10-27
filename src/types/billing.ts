@@ -39,6 +39,34 @@ export interface EventBilling {
   cancellation: EventUnlockCancellationInfo;
   /** Die letzte Stornierung dieser Veranstaltung, falls es eine gab. */
   lastCancellation: EventUnlockCancellation | null;
+  /**
+   * Auf Rechnung: ob Stripe die Rechnung ausstellt und verschickt. Fehlt
+   * Stripe, bleibt es beim alten Weg (Rechnung von Hand).
+   */
+  invoiceViaStripe?: boolean;
+  /** Zahlungsziel einer Rechnung in Tagen (Standard bzw. Wert der Organisation). */
+  invoiceDaysUntilDue?: number;
+  /** Die Stripe-Rechnung zur Freischaltung; null bei Altfällen und ohne Rechnung. */
+  invoice?: EventInvoiceSummary | null;
+}
+
+/**
+ * Zahlungsstand einer Stripe-Rechnung. `overdue` gibt es bei Stripe nicht als
+ * Status — es ist eine offene Rechnung nach dem Fälligkeitsdatum.
+ */
+export type EventInvoiceStatus = 'open' | 'paid' | 'overdue' | 'void' | 'uncollectible';
+
+/** Die Rechnung, die Stripe beim Freischalten auf Rechnung ausgestellt hat. */
+export interface EventInvoiceSummary {
+  id: string;
+  number: string | null;
+  status: EventInvoiceStatus;
+  /** Fälligkeitsdatum (ISO). */
+  dueAt: string | null;
+  /** Wann der Zahlungseingang gemeldet wurde (ISO). */
+  paidAt: string | null;
+  /** Stripes Rechnungsseite — dort lässt sich auch bezahlen. */
+  hostedUrl: string | null;
 }
 
 /** Warum die Freischaltung gerade nicht storniert werden kann. */
@@ -62,6 +90,20 @@ export interface EventUnlockCancellationInfo {
 
 export type EventRefundStatus = 'pending' | 'succeeded' | 'failed' | 'canceled' | 'requires_action';
 
+/**
+ * Wie das Geld nach Storno/Kulanz zurückgeht (siehe API):
+ * Erstattung der Checkout-Zahlung, Gutschrift mit Erstattung, Gutschrift zu
+ * einer außerhalb von Stripe bezahlten Rechnung (Betreiber überweist),
+ * Gutschrift auf eine offene Rechnung, stornierte Rechnung, Altfall von Hand.
+ */
+export type EventRefundVia =
+  | 'stripe_refund'
+  | 'credit_note_refund'
+  | 'credit_note_out_of_band'
+  | 'credit_note_open'
+  | 'void'
+  | 'manual';
+
 export interface EventUnlockCancellation {
   id: string;
   cancelledAt: string;
@@ -73,6 +115,15 @@ export interface EventUnlockCancellation {
   refundStatus: EventRefundStatus | null;
   /** Nummer der Stornorechnung, sofern Stripe eine ausgestellt hat. */
   creditNoteNumber: string | null;
+  /** Auf Rechnung, noch nicht bezahlt: die Stripe-Rechnung wurde storniert (void). */
+  invoiceVoided?: boolean;
+  /**
+   * Die Rückzahlung braucht noch jemanden: Stripe fragt die Bankverbindung ab
+   * (Überweisung) oder der Betreiber überweist selbst zurück.
+   */
+  manualRefundRequired?: boolean;
+  /** Wie das Geld zurückgeht; null bei Altfällen (Rechnung von Hand). */
+  refundVia?: EventRefundVia | null;
   /**
    * Storno (Freischaltung aufgehoben) oder Kulanz durch die Plattform
    * (Erstattung, Freischaltung bleibt). Ältere APIs liefern das Feld nicht.
@@ -102,6 +153,10 @@ export interface PlatformCancellationPreview {
   /** Kauf auf Rechnung: Rechnung schon gestellt. */
   invoiced: boolean;
   onlineRefundAvailable: boolean;
+  /** Auf Rechnung über Stripe: die Rechnung zur Freischaltung. */
+  invoice?: EventInvoiceSummary | null;
+  /** Bisherige Stornos und Kulanzen, neueste zuerst — mit Gutschriften. */
+  history?: EventUnlockCancellation[];
 }
 
 export interface EventUnlockCancellationResult {
@@ -146,8 +201,11 @@ export interface OrganizationInvoice {
   issuedAt: string | null;
   total: number;
   currency: string;
+  /** Stripes Status; zusätzlich `overdue` für offene Rechnungen nach dem Fälligkeitsdatum. */
   status: string;
   paid: boolean;
+  /** Fälligkeitsdatum (nur Rechnungen mit Zahlungsziel). */
+  dueAt?: string | null;
   description: string | null;
   hostedUrl: string | null;
   hasPdf: boolean;

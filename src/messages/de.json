@@ -355,6 +355,14 @@
         "event_payment_dispute_opened": "Rückbuchung eröffnet",
         "event_payment_dispute_closed": "Rückbuchung abgeschlossen",
         "event_duplicate_payment": "Zahlung ohne Freischaltung",
+        "event_invoice_issued": "Rechnung gestellt (Stripe)",
+        "event_invoice_paid": "Rechnung bezahlt",
+        "event_invoice_payment_failed": "Zahlung der Rechnung fehlgeschlagen",
+        "event_invoice_voided": "Rechnung storniert (Stripe)",
+        "event_invoice_uncollectible": "Rechnung uneinbringlich",
+        "event_invoice_credit_note": "Gutschrift (Stripe)",
+        "event_invoice_resent": "Rechnung erneut gesendet",
+        "event_invoice_marked_paid": "Rechnung als bezahlt markiert",
         "unknown": "Unbekannte Aktion"
       }
     },
@@ -1066,7 +1074,8 @@
       "paymentPending": "Die Zahlung wird noch verarbeitet. Bitte in einem Moment erneut nachsehen.",
       "cancellationUntil": "Kostenlos stornierbar bis {deadline} (7 Tage vor Beginn).",
       "cancellationTooLate": "Die Veranstaltung beginnt in weniger als 7 Tagen. Nach dem Bezahlen ist keine kostenlose Stornierung mehr möglich.",
-      "cancellationRule": "Kostenlos stornierbar bis 7 Tage vor Beginn."
+      "cancellationRule": "Kostenlos stornierbar bis 7 Tage vor Beginn.",
+      "invoiceNoticeStripe": "Die Veranstaltung ist sofort freigeschaltet. Du bekommst die Rechnung per E-Mail, zahlbar innerhalb von {days} Tagen – per Überweisung oder online."
     },
     "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
     "editTitle": "Veranstaltung bearbeiten",
@@ -1106,12 +1115,30 @@
         "consequenceEmail": "Eine Bestätigung geht an {email}.",
         "back": "Zurück",
         "submit": "Jetzt stornieren",
-        "submitting": "Wird storniert …"
+        "submitting": "Wird storniert …",
+        "amountLabelInvoiceOpen": "Rechnungsbetrag, der entfällt",
+        "wayBackInvoiceOpen": "Die Rechnung ist noch nicht bezahlt. Sie wird storniert, du musst nichts mehr zahlen.",
+        "wayBackInvoicePaid": "Die Rechnung ist schon bezahlt. Du bekommst eine Stornorechnung und den vollen Betrag zurück: bei Karte oder Lastschrift automatisch, bei Überweisung schickt dir Stripe eine E-Mail, in der du die Bankverbindung für die Rücküberweisung angibst."
       },
       "toast": {
         "refunded": "Freischaltung storniert – {amount} werden erstattet.",
-        "cancelled": "Freischaltung storniert."
-      }
+        "cancelled": "Freischaltung storniert.",
+        "invoiceVoided": "Freischaltung storniert – die Rechnung ist aufgehoben."
+      },
+      "invoice": {
+        "line": "Rechnung {number}",
+        "status": {
+          "open": "offen",
+          "overdue": "überfällig",
+          "paid": "bezahlt",
+          "void": "storniert",
+          "uncollectible": "uneinbringlich"
+        },
+        "dueOn": "fällig am {date}",
+        "pay": "Rechnung bezahlen"
+      },
+      "invoiceVoided": "Die Rechnung wurde storniert.",
+      "bankRefund": "Für die Rücküberweisung hat dir Stripe eine E-Mail geschickt, in der du deine Bankverbindung angibst."
     }
   },
   "categories": {
@@ -1752,7 +1779,10 @@
       "eventPriceOverride": "Preis pro Veranstaltung",
       "eventPriceOverrideHint": "Leer = Standardpreis",
       "prioritySupport": "Priority-Support",
-      "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln."
+      "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln.",
+      "invoiceDaysUntilDue": "Zahlungsziel (Tage)",
+      "invoiceDaysUntilDueHint": "Leer = Standard der Plattform",
+      "invoiceDaysUntilDueInvalid": "Bitte eine ganze Zahl zwischen 1 und 90 eingeben"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -1954,7 +1984,10 @@
         "reset": "Zurücksetzen",
         "invoice": "Abrechnen",
         "waive": "Erlassen",
-        "cancelBilling": "Storno/Erstattung"
+        "cancelBilling": "Storno/Erstattung",
+        "resendInvoice": "Rechnung erneut senden",
+        "markInvoicePaid": "Als bezahlt markieren",
+        "invoicePdf": "Rechnungs-PDF herunterladen"
       },
       "pagination": {
         "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
@@ -1982,6 +2015,22 @@
         "refundStripe": "Stripe erstattet den Betrag und stellt eine Gutschrift (Stornorechnung) aus.",
         "refundInvoiceInvoiced": "Auf Rechnung: Die Rechnung ist schon gestellt — stelle eine Gutschrift über den Betrag aus und überweise Gezahltes zurück.",
         "refundInvoiceOpen": "Auf Rechnung: Die Rechnung ist noch nicht gestellt — berücksichtige den Betrag beim Abrechnen.",
+        "refundInvoiceStripeOpen": "Auf Rechnung über Stripe: Die Rechnung ist noch offen — sie wird storniert, es ist nichts zu erstatten.",
+        "refundInvoiceStripeOpenGoodwill": "Auf Rechnung über Stripe: Die Rechnung ist noch offen — Stripe schreibt den Betrag auf der Rechnung gut, der offene Betrag sinkt.",
+        "refundInvoiceStripePaid": "Auf Rechnung über Stripe: Die Rechnung ist bezahlt — Stripe stellt eine Gutschrift (Stornorechnung) aus und erstattet auf dem Zahlweg; bei Überweisung fragt Stripe die Bankverbindung ab. War die Rechnung außerhalb von Stripe bezahlt, überweist du selbst zurück.",
+        "refundInvoiceStripeClosed": "Auf Rechnung über Stripe: Die Rechnung ist bereits storniert bzw. abgeschrieben — es fließt kein Geld.",
+        "invoice": {
+          "title": "Stripe-Rechnung",
+          "open": "Rechnungsseite"
+        },
+        "history": {
+          "title": "Bisherige Stornos und Erstattungen",
+          "cancellation": "Storno",
+          "goodwill": "Kulanz",
+          "creditNote": "Gutschrift {number}",
+          "voided": "Rechnung storniert",
+          "manualRefund": "Rücküberweisung ausstehend"
+        },
         "problems": {
           "nothingRefundable": "Für diese Freischaltung ist nichts mehr zu erstatten.",
           "onlineRefundUnavailable": "Eine Erstattung über Stripe ist hier nicht möglich (keine Checkout-Sitzung oder Stripe nicht konfiguriert).",
@@ -1990,6 +2039,26 @@
         },
         "submit": "Stornieren",
         "submitGoodwill": "{amount} erstatten"
+      },
+      "invoiceStatus": {
+        "open": "Rechnung offen",
+        "overdue": "Überfällig",
+        "paid": "Rechnung bezahlt",
+        "void": "Rechnung storniert",
+        "uncollectible": "Uneinbringlich"
+      },
+      "invoiceDue": "fällig {date}",
+      "manualInvoice": "manuell abgerechnet",
+      "invoicePaid": "bezahlt {date}",
+      "markInvoicePaid": {
+        "title": "Rechnung als bezahlt markieren",
+        "description": "Nur, wenn das Geld außerhalb von Stripe eingegangen ist, zum Beispiel per Überweisung auf das eigene Konto. Stripe setzt die Rechnung auf bezahlt; eine spätere Erstattung musst du dann selbst zurücküberweisen.",
+        "submit": "Als bezahlt markieren"
+      },
+      "toasts": {
+        "invoiceResent": "Stripe hat die Rechnung erneut verschickt.",
+        "invoiceMarkedPaid": "Die Rechnung ist als bezahlt verbucht.",
+        "downloadFailed": "Das PDF konnte nicht geladen werden."
       }
     },
     "printers": {
@@ -4593,7 +4662,8 @@
       "draft": "Entwurf",
       "uncollectible": "Uneinbringlich",
       "void": "Storniert",
-      "issued": "Ausgestellt"
+      "issued": "Ausgestellt",
+      "overdue": "Überfällig"
     },
     "download": "PDF",
     "downloadFailed": "Das PDF konnte nicht geladen werden.",
@@ -4601,13 +4671,15 @@
     "noNumber": "ohne Nummer",
     "empty": {
       "title": "Noch keine Rechnungen",
-      "description": "Sobald eine Veranstaltung online bezahlt wurde, erscheint die Rechnung hier. Belege zu Bestellungen auf Rechnung werden per E-Mail zugestellt und stehen nicht in dieser Liste."
+      "description": "Sobald eine Veranstaltung online oder auf Rechnung freigeschaltet wurde, erscheint die Rechnung hier. Früher von Hand gestellte Rechnungen kamen per E-Mail und stehen nicht in dieser Liste."
     },
     "issuerNote": "Rechnungen werden über unseren Zahlungsdienstleister Stripe ausgestellt.",
     "creditNote": {
       "badge": "Stornorechnung",
       "description": "Stornorechnung zu {number}"
-    }
+    },
+    "pay": "Bezahlen",
+    "dueOn": "fällig {date}"
   },
   "integrations": {
     "title": "Integrationen",

@@ -12,6 +12,7 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { formatCurrency } from '@/utils/format';
 import { describeEventUnlock, formatUnlockDeadline } from '@/utils/event-unlock';
+import { invoiceCancellationPath, invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import type { Event } from '@/types/event';
 
 interface EventUnlockDialogProps {
@@ -60,6 +61,9 @@ export function EventUnlockDialog({ event, organizationId, onClose }: EventUnloc
   if (!event) return null;
 
   const view = billing ? describeEventUnlock(billing) : null;
+  // Auf Rechnung: offene Stripe-Rechnung, bezahlte Stripe-Rechnung oder Altfall.
+  const invoicePath = billing && view && 'via' in view && view.via === 'invoice' ? invoiceCancellationPath(billing) : null;
+  const invoiceStatus = billing?.invoice ? invoiceDisplayStatus(billing.invoice.status, billing.invoice.dueAt) : null;
   const amount = billing ? formatCurrency(billing.priceCharged ?? billing.finalPrice, locale) : '';
   const deadlineLabel = (iso: string | null) =>
     iso && billing ? formatUnlockDeadline(iso, locale, billing.cancellation.timezone) : '';
@@ -71,9 +75,12 @@ export function EventUnlockDialog({ event, organizationId, onClose }: EventUnloc
       const result = await cancelUnlock.mutateAsync({ organizationId, id: event.id });
       const refunded = formatCurrency(result.cancellation.amount, locale);
       toast.success(
-        result.cancellation.previousBillingStatus === 'paid'
+        result.cancellation.previousBillingStatus === 'paid' ||
+          (result.cancellation.previousBillingStatus === 'invoice' && result.cancellation.creditNoteNumber)
           ? t('toast.refunded', { amount: refunded })
-          : t('toast.cancelled'),
+          : result.cancellation.invoiceVoided
+            ? t('toast.invoiceVoided')
+            : t('toast.cancelled'),
       );
       onClose();
     } catch (err) {
@@ -159,6 +166,30 @@ export function EventUnlockDialog({ event, organizationId, onClose }: EventUnloc
                       : t(view.via === 'stripe' ? 'paidAmount' : 'orderedAmount', { amount })}
                   </div>
                 )}
+                {billing.invoice && invoiceStatus && (view.kind === 'cancellable' || view.kind === 'locked') && (
+                  <div
+                    style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink)' }}
+                    data-testid="unlock-invoice"
+                  >
+                    <span>
+                      {t('invoice.line', { number: billing.invoice.number ?? '–' })}
+                      {' · '}
+                      {t.has(`invoice.status.${invoiceStatus}`) ? t(`invoice.status.${invoiceStatus}`) : invoiceStatus}
+                      {billing.invoice.dueAt && isInvoicePayable(invoiceStatus) &&
+                        ` · ${t('invoice.dueOn', { date: dateFormat.format(new Date(billing.invoice.dueAt)) })}`}
+                    </span>
+                    {billing.invoice.hostedUrl && isInvoicePayable(invoiceStatus) && (
+                      <a
+                        className="btn btn--ghost btn--sm"
+                        href={billing.invoice.hostedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('invoice.pay')}
+                      </a>
+                    )}
+                  </div>
+                )}
                 {view.kind === 'not_unlocked' && billing.lastCancellation && (
                   <div style={{ fontSize: 13, color: 'var(--ink)' }}>
                     {t('lastCancellation', {
@@ -167,6 +198,8 @@ export function EventUnlockDialog({ event, organizationId, onClose }: EventUnloc
                     })}
                     {billing.lastCancellation.creditNoteNumber &&
                       ` ${t('creditNote', { number: billing.lastCancellation.creditNoteNumber })}`}
+                    {billing.lastCancellation.invoiceVoided && ` ${t('invoiceVoided')}`}
+                    {billing.lastCancellation.manualRefundRequired && ` ${t('bankRefund')}`}
                   </div>
                 )}
               </div>
@@ -204,13 +237,21 @@ export function EventUnlockDialog({ event, organizationId, onClose }: EventUnloc
           {billing && view?.kind === 'cancellable' && confirming && (
             <>
               <div style={panelStyle}>
-                <div style={{ fontSize: 13, color: MUTED }}>{t('confirm.amountLabel')}</div>
+                <div style={{ fontSize: 13, color: MUTED }}>
+                  {invoicePath === 'invoice_open' ? t('confirm.amountLabelInvoiceOpen') : t('confirm.amountLabel')}
+                </div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)' }}>{amount}</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{t('confirm.wayBackTitle')}</strong>
                 <p style={{ fontSize: 13, color: 'var(--ink)', margin: 0 }}>
-                  {view.via === 'stripe' ? t('confirm.wayBackStripe') : t('confirm.wayBackInvoice')}
+                  {view.via === 'stripe'
+                    ? t('confirm.wayBackStripe')
+                    : invoicePath === 'invoice_open'
+                      ? t('confirm.wayBackInvoiceOpen')
+                      : invoicePath === 'invoice_paid'
+                        ? t('confirm.wayBackInvoicePaid')
+                        : t('confirm.wayBackInvoice')}
                 </p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>

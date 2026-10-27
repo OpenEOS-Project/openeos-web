@@ -9,7 +9,9 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { formatCurrency } from '@/utils/format';
 import { formatUnlockDeadline } from '@/utils/event-unlock';
 import { planPlatformRefund, type PlatformRefundMode } from '@/utils/platform-refund';
+import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import type { AdminEventListItem } from '@/types/admin';
+import type { EventUnlockCancellation, PlatformCancellationPreview } from '@/types/billing';
 
 const MUTED = 'color-mix(in oklab, var(--ink) 55%, transparent)';
 
@@ -42,6 +44,21 @@ export function CancelBillingModal({ event, onClose }: CancelBillingModalProps) 
   const data = preview.data;
   const money = (value: number) => formatCurrency(value, locale);
   const plan = data ? planPlatformRefund(data, { mode, amountText, reason }) : null;
+  const dateFormat = new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const invoiceStatus = data?.invoice ? invoiceDisplayStatus(data.invoice.status, data.invoice.dueAt) : null;
+
+  /* Was auf der Stripe-Seite passiert: hängt am Zahlweg (Checkout, Stripe-Rechnung
+     offen/bezahlt, Altfall von Hand) und daran, ob Storno oder Kulanz. */
+  const refundText = (() => {
+    if (!data || !plan) return '';
+    if (data.via !== 'invoice') return t('refundStripe');
+    if (data.invoice) {
+      if (invoiceStatus === 'paid') return t('refundInvoiceStripePaid');
+      if (invoiceStatus === 'void' || invoiceStatus === 'uncollectible') return t('refundInvoiceStripeClosed');
+      return plan.keepsUnlock ? t('refundInvoiceStripeOpenGoodwill') : t('refundInvoiceStripeOpen');
+    }
+    return t(data.invoiced ? 'refundInvoiceInvoiced' : 'refundInvoiceOpen');
+  })();
 
   function handleConfirm() {
     if (!plan || plan.problem) return;
@@ -116,6 +133,14 @@ export function CancelBillingModal({ event, onClose }: CancelBillingModalProps) 
                 <Fact label={t('facts.refundable')} value={money(data.refundable)} testId="cancel-billing-refundable" />
                 <Fact label={t('facts.realOrders')} value={String(data.realOrders)} />
               </div>
+
+              {data.invoice && invoiceStatus && (
+                <InvoiceFacts invoice={data.invoice} status={invoiceStatus} dateFormat={dateFormat} />
+              )}
+
+              {data.history && data.history.length > 0 && (
+                <CancellationHistory history={data.history} money={money} dateFormat={dateFormat} />
+              )}
 
               {data.realOrders > 0 && (
                 <div
@@ -210,10 +235,7 @@ export function CancelBillingModal({ event, onClose }: CancelBillingModalProps) 
               >
                 <CircleAlert size={16} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }} />
                 <span>
-                  {plan.keepsUnlock ? t('outcomeGoodwill') : t('outcomeCancellation')}{' '}
-                  {data.via === 'invoice'
-                    ? t(data.invoiced ? 'refundInvoiceInvoiced' : 'refundInvoiceOpen')
-                    : t('refundStripe')}
+                  {plan.keepsUnlock ? t('outcomeGoodwill') : t('outcomeCancellation')} {refundText}
                 </span>
               </div>
 
@@ -249,6 +271,89 @@ export function CancelBillingModal({ event, onClose }: CancelBillingModalProps) 
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Die Stripe-Rechnung zur Freischaltung: Nummer, Stand, Fälligkeit, Links. */
+function InvoiceFacts({
+  invoice,
+  status,
+  dateFormat,
+}: {
+  invoice: NonNullable<PlatformCancellationPreview['invoice']>;
+  status: string;
+  dateFormat: Intl.DateTimeFormat;
+}) {
+  const t = useTranslations('admin.events');
+  const badge: Record<string, string> = {
+    open: 'badge badge--warning',
+    overdue: 'badge badge--error',
+    paid: 'badge badge--success',
+    void: 'badge badge--neutral',
+    uncollectible: 'badge badge--error',
+  };
+  return (
+    <div
+      data-testid="cancel-billing-invoice"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 10,
+        padding: '10px 14px',
+        borderRadius: 8,
+        border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
+        fontSize: 13,
+        color: 'var(--ink)',
+      }}
+    >
+      <span style={{ fontWeight: 600 }}>{t('cancelBilling.invoice.title')}</span>
+      <span className="mono">{invoice.number ?? invoice.id}</span>
+      <span className={badge[status] ?? 'badge badge--neutral'}>
+        {t.has(`invoiceStatus.${status}`) ? t(`invoiceStatus.${status}`) : status}
+      </span>
+      {invoice.dueAt && isInvoicePayable(status) && (
+        <span style={{ color: MUTED }}>{t('invoiceDue', { date: dateFormat.format(new Date(invoice.dueAt)) })}</span>
+      )}
+      {status === 'paid' && invoice.paidAt && (
+        <span style={{ color: MUTED }}>{t('invoicePaid', { date: dateFormat.format(new Date(invoice.paidAt)) })}</span>
+      )}
+      {invoice.hostedUrl && (
+        <a href={invoice.hostedUrl} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto' }}>
+          {t('cancelBilling.invoice.open')}
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** Bisherige Stornos und Kulanzen samt Stripe-Gutschriften, neueste zuerst. */
+function CancellationHistory({
+  history,
+  money,
+  dateFormat,
+}: {
+  history: EventUnlockCancellation[];
+  money: (value: number) => string;
+  dateFormat: Intl.DateTimeFormat;
+}) {
+  const t = useTranslations('admin.events.cancelBilling.history');
+  return (
+    <div data-testid="cancel-billing-history" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>{t('title')}</div>
+      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--ink)', display: 'grid', gap: 4 }}>
+        {history.map((row) => (
+          <li key={row.id}>
+            {dateFormat.format(new Date(row.cancelledAt))} · {t(row.kind === 'goodwill' ? 'goodwill' : 'cancellation')} ·{' '}
+            {money(row.amount)}
+            {row.creditNoteNumber && ` · ${t('creditNote', { number: row.creditNoteNumber })}`}
+            {row.invoiceVoided && ` · ${t('voided')}`}
+            {row.manualRefundRequired && ` · ${t('manualRefund')}`}
+            {row.reason && <span style={{ color: MUTED }}> — {row.reason}</span>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

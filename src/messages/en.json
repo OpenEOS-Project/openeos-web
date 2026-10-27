@@ -355,6 +355,14 @@
         "event_payment_dispute_opened": "Dispute opened",
         "event_payment_dispute_closed": "Dispute closed",
         "event_duplicate_payment": "Payment without activation",
+        "event_invoice_issued": "Invoice issued (Stripe)",
+        "event_invoice_paid": "Invoice paid",
+        "event_invoice_payment_failed": "Invoice payment failed",
+        "event_invoice_voided": "Invoice voided (Stripe)",
+        "event_invoice_uncollectible": "Invoice uncollectible",
+        "event_invoice_credit_note": "Credit note (Stripe)",
+        "event_invoice_resent": "Invoice re-sent",
+        "event_invoice_marked_paid": "Invoice marked as paid",
         "unknown": "Unknown action"
       }
     },
@@ -1099,7 +1107,10 @@
         "reset": "Reset",
         "invoice": "Invoice",
         "waive": "Waive",
-        "cancelBilling": "Cancel/refund"
+        "cancelBilling": "Cancel/refund",
+        "resendInvoice": "Resend invoice",
+        "markInvoicePaid": "Mark as paid",
+        "invoicePdf": "Download invoice PDF"
       },
       "pagination": {
         "total": "{count, plural, =1 {# event total} other {# events total}}",
@@ -1127,6 +1138,22 @@
         "refundStripe": "Stripe refunds the amount and issues a credit note.",
         "refundInvoiceInvoiced": "On invoice: the invoice has already been issued — issue a credit note for the amount and pay back what was paid.",
         "refundInvoiceOpen": "On invoice: the invoice has not been issued yet — take the amount into account when invoicing.",
+        "refundInvoiceStripeOpen": "On invoice through Stripe: the invoice is still open — it is voided, there is nothing to refund.",
+        "refundInvoiceStripeOpenGoodwill": "On invoice through Stripe: the invoice is still open — Stripe credits the amount on the invoice, the amount due goes down.",
+        "refundInvoiceStripePaid": "On invoice through Stripe: the invoice is paid — Stripe issues a credit note and refunds on the payment path; for bank transfers Stripe asks for the bank details. If the invoice was paid outside Stripe, you transfer the money back yourself.",
+        "refundInvoiceStripeClosed": "On invoice through Stripe: the invoice is already void or written off — no money moves.",
+        "invoice": {
+          "title": "Stripe invoice",
+          "open": "Invoice page"
+        },
+        "history": {
+          "title": "Previous cancellations and refunds",
+          "cancellation": "Cancellation",
+          "goodwill": "Goodwill",
+          "creditNote": "Credit note {number}",
+          "voided": "Invoice voided",
+          "manualRefund": "Refund transfer pending"
+        },
         "problems": {
           "nothingRefundable": "Nothing is left to refund for this activation.",
           "onlineRefundUnavailable": "A refund via Stripe is not possible here (no checkout session or Stripe not configured).",
@@ -1135,6 +1162,26 @@
         },
         "submit": "Cancel activation",
         "submitGoodwill": "Refund {amount}"
+      },
+      "invoiceStatus": {
+        "open": "Invoice open",
+        "overdue": "Overdue",
+        "paid": "Invoice paid",
+        "void": "Invoice void",
+        "uncollectible": "Uncollectible"
+      },
+      "invoiceDue": "due {date}",
+      "manualInvoice": "invoiced manually",
+      "invoicePaid": "paid {date}",
+      "markInvoicePaid": {
+        "title": "Mark invoice as paid",
+        "description": "Only if the money arrived outside Stripe, for example by bank transfer to your own account. Stripe marks the invoice as paid; a later refund then has to be transferred back by you.",
+        "submit": "Mark as paid"
+      },
+      "toasts": {
+        "invoiceResent": "Stripe has sent the invoice again.",
+        "invoiceMarkedPaid": "The invoice is recorded as paid.",
+        "downloadFailed": "The PDF could not be loaded."
       }
     },
     "printers": {
@@ -1310,7 +1357,8 @@
       "paymentPending": "The payment is still being processed. Please check again in a moment.",
       "cancellationUntil": "Free cancellation until {deadline} (7 days before the start).",
       "cancellationTooLate": "The event starts in less than 7 days. Once you have paid, free cancellation is no longer possible.",
-      "cancellationRule": "Free cancellation up to 7 days before the start."
+      "cancellationRule": "Free cancellation up to 7 days before the start.",
+      "invoiceNoticeStripe": "The event is activated right away. You get the invoice by email, payable within {days} days – by bank transfer or online."
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
     "editTitle": "Edit event",
@@ -1350,12 +1398,30 @@
         "consequenceEmail": "A confirmation goes to {email}.",
         "back": "Back",
         "submit": "Cancel now",
-        "submitting": "Cancelling …"
+        "submitting": "Cancelling …",
+        "amountLabelInvoiceOpen": "Invoice amount you no longer owe",
+        "wayBackInvoiceOpen": "The invoice has not been paid yet. It is cancelled and you don’t owe anything.",
+        "wayBackInvoicePaid": "The invoice has already been paid. You get a credit note and the full amount back: automatically for card or direct debit; for a bank transfer, Stripe sends you an email asking for the bank account to transfer it back to."
       },
       "toast": {
         "refunded": "Activation cancelled – {amount} will be refunded.",
-        "cancelled": "Activation cancelled."
-      }
+        "cancelled": "Activation cancelled.",
+        "invoiceVoided": "Activation cancelled – the invoice is void."
+      },
+      "invoice": {
+        "line": "Invoice {number}",
+        "status": {
+          "open": "open",
+          "overdue": "overdue",
+          "paid": "paid",
+          "void": "cancelled",
+          "uncollectible": "uncollectible"
+        },
+        "dueOn": "due {date}",
+        "pay": "Pay invoice"
+      },
+      "invoiceVoided": "The invoice was cancelled.",
+      "bankRefund": "For the transfer back, Stripe sent you an email asking for your bank account."
     }
   },
   "categories": {
@@ -1996,7 +2062,10 @@
       "eventPriceOverride": "Price per event",
       "eventPriceOverrideHint": "Leave empty for default price",
       "prioritySupport": "Priority support",
-      "prioritySupportHint": "Prioritize this organization's requests in the support chat."
+      "prioritySupportHint": "Prioritize this organization's requests in the support chat.",
+      "invoiceDaysUntilDue": "Payment term (days)",
+      "invoiceDaysUntilDueHint": "Leave empty for the platform default",
+      "invoiceDaysUntilDueInvalid": "Please enter a whole number between 1 and 90"
     },
     "actions": {
       "edit": "Edit",
@@ -4593,7 +4662,8 @@
       "draft": "Draft",
       "uncollectible": "Uncollectible",
       "void": "Voided",
-      "issued": "Issued"
+      "issued": "Issued",
+      "overdue": "Overdue"
     },
     "download": "PDF",
     "downloadFailed": "The PDF could not be loaded.",
@@ -4601,13 +4671,15 @@
     "noNumber": "no number",
     "empty": {
       "title": "No invoices yet",
-      "description": "Once an event has been paid for online, its invoice appears here. Documents for orders placed on account arrive by email and are not listed here."
+      "description": "As soon as an event is activated online or by invoice, the invoice shows up here. Invoices that used to be issued by hand were sent by email and are not in this list."
     },
     "issuerNote": "Invoices are issued through our payment provider, Stripe.",
     "creditNote": {
       "badge": "Credit note",
       "description": "Credit note for {number}"
-    }
+    },
+    "pay": "Pay",
+    "dueOn": "due {date}"
   },
   "integrations": {
     "title": "Integrations",
