@@ -78,6 +78,28 @@ export function useCancelEventBilling() {
   });
 }
 
+export function useResendEventInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.resendEventInvoice(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+    },
+  });
+}
+
+export function useMarkEventInvoicePaid() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.markEventInvoicePaid(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+    },
+  });
+}
+
 export function useWaiveEvent() {
   const queryClient = useQueryClient();
 

@@ -358,6 +358,14 @@
         "event_payment_dispute_opened": "Rückbuchung eröffnet",
         "event_payment_dispute_closed": "Rückbuchung abgeschlossen",
         "event_duplicate_payment": "Zahlung ohne Freischaltung",
+        "event_invoice_issued": "Rechnung gestellt (Stripe)",
+        "event_invoice_paid": "Rechnung bezahlt",
+        "event_invoice_payment_failed": "Zahlung der Rechnung fehlgeschlagen",
+        "event_invoice_voided": "Rechnung storniert (Stripe)",
+        "event_invoice_uncollectible": "Rechnung uneinbringlich",
+        "event_invoice_credit_note": "Gutschrift (Stripe)",
+        "event_invoice_resent": "Rechnung erneut gesendet",
+        "event_invoice_marked_paid": "Rechnung als bezahlt markiert",
         "unknown": "Unbekannte Aktion"
       }
     },
@@ -2085,7 +2093,10 @@
         "reset": "Zurücksetzen",
         "invoice": "Abrechnen",
         "waive": "Erlassen",
-        "cancelBilling": "Storno/Erstattung"
+        "cancelBilling": "Storno/Erstattung",
+        "resendInvoice": "Rechnung erneut senden",
+        "markInvoicePaid": "Als bezahlt markieren",
+        "invoicePdf": "Rechnungs-PDF herunterladen"
       },
       "pagination": {
         "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
@@ -2113,6 +2124,22 @@
         "refundStripe": "Stripe erstattet den Betrag und stellt eine Gutschrift (Stornorechnung) aus.",
         "refundInvoiceInvoiced": "Auf Rechnung: Die Rechnung ist schon gestellt — stelle eine Gutschrift über den Betrag aus und überweise Gezahltes zurück.",
         "refundInvoiceOpen": "Auf Rechnung: Die Rechnung ist noch nicht gestellt — berücksichtige den Betrag beim Abrechnen.",
+        "refundInvoiceStripeOpen": "Auf Rechnung über Stripe: Die Rechnung ist noch offen — sie wird storniert, es ist nichts zu erstatten.",
+        "refundInvoiceStripeOpenGoodwill": "Auf Rechnung über Stripe: Die Rechnung ist noch offen — Stripe schreibt den Betrag auf der Rechnung gut, der offene Betrag sinkt.",
+        "refundInvoiceStripePaid": "Auf Rechnung über Stripe: Die Rechnung ist bezahlt — Stripe stellt eine Gutschrift (Stornorechnung) aus und erstattet auf dem Zahlweg; bei Überweisung fragt Stripe die Bankverbindung ab. War die Rechnung außerhalb von Stripe bezahlt, überweist du selbst zurück.",
+        "refundInvoiceStripeClosed": "Auf Rechnung über Stripe: Die Rechnung ist bereits storniert bzw. abgeschrieben — es fließt kein Geld.",
+        "invoice": {
+          "title": "Stripe-Rechnung",
+          "open": "Rechnungsseite"
+        },
+        "history": {
+          "title": "Bisherige Stornos und Erstattungen",
+          "cancellation": "Storno",
+          "goodwill": "Kulanz",
+          "creditNote": "Gutschrift {number}",
+          "voided": "Rechnung storniert",
+          "manualRefund": "Rücküberweisung ausstehend"
+        },
         "problems": {
           "nothingRefundable": "Für diese Freischaltung ist nichts mehr zu erstatten.",
           "onlineRefundUnavailable": "Eine Erstattung über Stripe ist hier nicht möglich (keine Checkout-Sitzung oder Stripe nicht konfiguriert).",
@@ -2130,7 +2157,18 @@
         "uncollectible": "Uneinbringlich"
       },
       "invoiceDue": "fällig {date}",
-      "manualInvoice": "manuell abgerechnet"
+      "manualInvoice": "manuell abgerechnet",
+      "invoicePaid": "bezahlt {date}",
+      "markInvoicePaid": {
+        "title": "Rechnung als bezahlt markieren",
+        "description": "Nur, wenn das Geld außerhalb von Stripe eingegangen ist, zum Beispiel per Überweisung auf das eigene Konto. Stripe setzt die Rechnung auf bezahlt; eine spätere Erstattung musst du dann selbst zurücküberweisen.",
+        "submit": "Als bezahlt markieren"
+      },
+      "toasts": {
+        "invoiceResent": "Stripe hat die Rechnung erneut verschickt.",
+        "invoiceMarkedPaid": "Die Rechnung ist als bezahlt verbucht.",
+        "downloadFailed": "Das PDF konnte nicht geladen werden."
+      }
     },
     "printers": {
       "metaTitle": "Drucker · Super-Admin",

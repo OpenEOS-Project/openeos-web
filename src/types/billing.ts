@@ -90,6 +90,20 @@ export interface EventUnlockCancellationInfo {
 
 export type EventRefundStatus = 'pending' | 'succeeded' | 'failed' | 'canceled' | 'requires_action';
 
+/**
+ * Wie das Geld nach Storno/Kulanz zurückgeht (siehe API):
+ * Erstattung der Checkout-Zahlung, Gutschrift mit Erstattung, Gutschrift zu
+ * einer außerhalb von Stripe bezahlten Rechnung (Betreiber überweist),
+ * Gutschrift auf eine offene Rechnung, stornierte Rechnung, Altfall von Hand.
+ */
+export type EventRefundVia =
+  | 'stripe_refund'
+  | 'credit_note_refund'
+  | 'credit_note_out_of_band'
+  | 'credit_note_open'
+  | 'void'
+  | 'manual';
+
 export interface EventUnlockCancellation {
   id: string;
   cancelledAt: string;
@@ -103,8 +117,13 @@ export interface EventUnlockCancellation {
   creditNoteNumber: string | null;
   /** Auf Rechnung, noch nicht bezahlt: die Stripe-Rechnung wurde storniert (void). */
   invoiceVoided?: boolean;
-  /** Per Überweisung bezahlt: die Rücküberweisung braucht die Bankverbindung des Kunden. */
+  /**
+   * Die Rückzahlung braucht noch jemanden: Stripe fragt die Bankverbindung ab
+   * (Überweisung) oder der Betreiber überweist selbst zurück.
+   */
   manualRefundRequired?: boolean;
+  /** Wie das Geld zurückgeht; null bei Altfällen (Rechnung von Hand). */
+  refundVia?: EventRefundVia | null;
   /**
    * Storno (Freischaltung aufgehoben) oder Kulanz durch die Plattform
    * (Erstattung, Freischaltung bleibt). Ältere APIs liefern das Feld nicht.
@@ -134,6 +153,10 @@ export interface PlatformCancellationPreview {
   /** Kauf auf Rechnung: Rechnung schon gestellt. */
   invoiced: boolean;
   onlineRefundAvailable: boolean;
+  /** Auf Rechnung über Stripe: die Rechnung zur Freischaltung. */
+  invoice?: EventInvoiceSummary | null;
+  /** Bisherige Stornos und Kulanzen, neueste zuerst — mit Gutschriften. */
+  history?: EventUnlockCancellation[];
 }
 
 export interface EventUnlockCancellationResult {

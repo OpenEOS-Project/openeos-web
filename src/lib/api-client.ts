@@ -1119,6 +1119,27 @@ export const adminApi = {
   waiveEvent: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
 
+  /** Auf Rechnung über Stripe: Stripes Rechnungsmail erneut verschicken. */
+  resendEventInvoice: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/admin').AdminEventDetail>>(`/admin/events/${id}/invoice/resend`),
+
+  /** Auf Rechnung über Stripe: als außerhalb von Stripe bezahlt verbuchen. */
+  markEventInvoicePaid: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/admin').AdminEventDetail>>(`/admin/events/${id}/invoice/mark-paid`),
+
+  /** Das Rechnungs-PDF mit angehängtem JWT — ein nackter Link liefe in ein 401. */
+  eventInvoicePdf: async (id: string): Promise<Blob> => {
+    const token = apiClient.getAccessToken();
+    const res = await fetch(`${API_URL}/admin/events/${id}/invoice/pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      throw await apiExceptionFromResponse(res);
+    }
+    return res.blob();
+  },
+
   /** Was Storno bzw. Kulanzerstattung durch die Plattform gerade bewirken würde. */
   getCancelEventBillingPreview: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/billing').PlatformCancellationPreview>>(

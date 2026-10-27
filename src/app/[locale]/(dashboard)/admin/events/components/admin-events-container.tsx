@@ -1,17 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
+import { FileDown, MailCheck, Send } from 'lucide-react';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import {
   useAdminEvents,
   useMarkEventInvoiced,
+  useMarkEventInvoicePaid,
+  useResendEventInvoice,
   useUnmarkEventInvoiced,
   useWaiveEvent,
 } from '@/hooks/use-admin-events';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
+import { toast } from '@/components/shared/toast';
+import { adminApi } from '@/lib/api-client';
 import type { AdminEventListItem } from '@/types/admin';
 import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import { CancelBillingModal } from './cancel-billing-modal';
@@ -84,6 +90,148 @@ function StripeInvoiceCell({ event }: { event: AdminEventListItem }) {
           {t('invoiceDue', { date: formatDate(event.invoiceDueAt) })}
         </span>
       )}
+      {status === 'paid' && event.invoicePaidAt && (
+        <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+          {t('invoicePaid', { date: formatDate(event.invoicePaidAt) })}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Was der Super-Admin mit einer Stripe-Rechnung tun kann: Mail erneut
+ * senden, als außerhalb bezahlt verbuchen (beides nur solange offen), PDF.
+ */
+function StripeInvoiceActions({
+  event,
+  onMarkPaid,
+}: {
+  event: AdminEventListItem;
+  onMarkPaid: () => void;
+}) {
+  const t = useTranslations('admin.events');
+  const tRoot = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
+  const resend = useResendEventInvoice();
+  const [downloading, setDownloading] = useState(false);
+  const status = invoiceDisplayStatus(event.invoiceStatus ?? 'open', event.invoiceDueAt);
+  const open = isInvoicePayable(status);
+
+  const handleResend = () => {
+    resend.mutate(event.id, {
+      onSuccess: () => toast.success(t('toasts.invoiceResent')),
+      onError: (err) => toast.error(apiErrorMessage(err, tRoot('errors.generic'))),
+    });
+  };
+
+  const handlePdf = async () => {
+    setDownloading(true);
+    try {
+      const blob = await adminApi.eventInvoicePdf(event.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${event.invoiceNumber ?? event.stripeInvoiceId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t('toasts.downloadFailed'));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  /* Nur Symbole mit Beschriftung im Tooltip bzw. für Screenreader: die
+     Spalte trägt sonst drei lange Knöpfe und drängt die Tabelle aus dem Bild. */
+  const iconButton = (
+    label: string,
+    onClick: () => void,
+    icon: ReactNode,
+    testId: string,
+    disabled = false,
+  ) => (
+    <button
+      type="button"
+      className="btn btn--ghost btn--icon"
+      style={{ fontSize: 12 }}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      data-testid={testId}
+    >
+      {icon}
+    </button>
+  );
+
+  return (
+    <>
+      {event.invoiceHasPdf &&
+        iconButton(t('actions.invoicePdf'), () => void handlePdf(), <FileDown size={15} aria-hidden="true" />, 'admin-event-invoice-pdf', downloading)}
+      {open &&
+        iconButton(t('actions.resendInvoice'), handleResend, <Send size={15} aria-hidden="true" />, 'admin-event-invoice-resend', resend.isPending)}
+      {open &&
+        iconButton(t('actions.markInvoicePaid'), onMarkPaid, <MailCheck size={15} aria-hidden="true" />, 'admin-event-invoice-mark-paid')}
+    </>
+  );
+}
+
+/** Rechnung als außerhalb von Stripe bezahlt verbuchen — mit Rückfrage, weil es Stripe schreibt. */
+function MarkInvoicePaidModal({ event, onClose }: { event: AdminEventListItem; onClose: () => void }) {
+  const t = useTranslations();
+  const { formatCurrency } = useLocaleFormat();
+  const apiErrorMessage = useApiErrorMessage();
+  const markPaid = useMarkEventInvoicePaid();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleConfirm() {
+    setError(null);
+    markPaid.mutate(event.id, {
+      onSuccess: () => {
+        toast.success(t('admin.events.toasts.invoiceMarkedPaid'));
+        onClose();
+      },
+      onError: (err) => setError(apiErrorMessage(err, t('errors.generic'))),
+    });
+  }
+
+  return (
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box modal__panel--sm" data-testid="mark-invoice-paid-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('admin.events.markInvoicePaid.title')}</div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
+
+        <div className="modal__body">
+          <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)' }}>
+            {t('admin.events.markInvoicePaid.description')}
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>
+            {event.name} — {event.organizationName}
+            {event.invoiceNumber ? ` · ${event.invoiceNumber}` : ''}
+            {typeof event.priceCharged === 'number' ? ` · ${formatCurrency(event.priceCharged)}` : ''}
+          </p>
+          {error && (
+            <p role="alert" style={{ fontSize: 13, color: 'var(--danger)', marginTop: 8 }}>{error}</p>
+          )}
+        </div>
+
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
+          <button
+            className="btn btn--primary"
+            onClick={handleConfirm}
+            disabled={markPaid.isPending}
+            data-testid="mark-invoice-paid-submit"
+          >
+            {markPaid.isPending ? t('common.saving') : t('admin.events.markInvoicePaid.submit')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,6 +409,7 @@ export function AdminEventsContainer() {
   const [unmarkEvent, setUnmarkEvent] = useState<AdminEventListItem | null>(null);
   const [waiveEvent, setWaiveEventTarget] = useState<AdminEventListItem | null>(null);
   const [cancelBillingEvent, setCancelBillingEvent] = useState<AdminEventListItem | null>(null);
+  const [markPaidEvent, setMarkPaidEvent] = useState<AdminEventListItem | null>(null);
 
   const invoicedParam =
     invoicedFilter === 'yes' ? true : invoicedFilter === 'no' ? false : undefined;
@@ -400,8 +549,10 @@ export function AdminEventsContainer() {
                       )}
                     </td>
                     <td className="text-right">
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        {event.stripeInvoiceId ? null : event.invoicedAt ? (
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        {event.stripeInvoiceId ? (
+                          <StripeInvoiceActions event={event} onMarkPaid={() => setMarkPaidEvent(event)} />
+                        ) : event.invoicedAt ? (
                           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
                             {t('actions.reset')}
                           </button>
@@ -471,6 +622,9 @@ export function AdminEventsContainer() {
 
       {cancelBillingEvent && (
         <CancelBillingModal event={cancelBillingEvent} onClose={() => setCancelBillingEvent(null)} />
+      )}
+      {markPaidEvent && (
+        <MarkInvoicePaidModal event={markPaidEvent} onClose={() => setMarkPaidEvent(null)} />
       )}
     </>
   );
