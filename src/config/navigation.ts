@@ -3,7 +3,6 @@ import {
   Calendar,
   ChartLine,
   ClipboardCheck,
-  HardDrive,
   Inbox,
   LayoutDashboard,
   LayoutGrid,
@@ -43,12 +42,6 @@ export const superAdminNavItems: NavItemType[] = [
     labelKey: 'users',
     href: '/users',
     icon: Users,
-  },
-  {
-    labelKey: 'rentalHardware',
-    href: '/admin/rental-hardware',
-    saasOnly: true,
-    icon: HardDrive,
   },
   {
     labelKey: 'printers',

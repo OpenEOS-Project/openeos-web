@@ -31,7 +31,7 @@ export function SuperAdminDashboard() {
         </div>
         <div className="stat-card stat-card--accent">
           <div className="stat-card__label">{t('stats.totalRevenue')}</div>
-          <div className="stat-card__value">{isLoading ? '—' : formatCurrency(revenue?.totalRevenue ?? 0)}</div>
+          <div className="stat-card__value">{isLoading ? '—' : formatCurrency(revenue?.eventRevenue ?? revenue?.totalRevenue ?? 0)}</div>
           <div className="stat-card__sub">{t('stats.totalRevenueSubtitle')}</div>
         </div>
         <div className="stat-card">

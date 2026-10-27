@@ -2,8 +2,6 @@
 export type ContactRequestKind =
   | 'demo'
   | 'contact'
-  | 'hardware'
-  | 'gateway'
   | 'feedback'
   | 'feature';
 

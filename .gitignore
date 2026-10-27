@@ -57,3 +57,4 @@ Thumbs.db
 
 # Screenshots aus Browser-Tests (nicht einchecken)
 screenshots/
+.printer-agent-sim.json

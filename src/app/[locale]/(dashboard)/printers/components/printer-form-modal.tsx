@@ -2,177 +2,189 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery } from '@tanstack/react-query';
-import { devicesApi } from '@/lib/api-client';
-import { useCreatePrinter, useUpdatePrinter } from '@/hooks/use-printers';
+
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
-import type { Printer, CreatePrinterData, UpdatePrinterData } from '@/types/printer';
-import type { Device } from '@/types/device';
+import { ModalPanel } from '@/components/shared/modal-panel';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { toast } from '@/components/shared/toast';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useCreatePrinter, useUpdatePrinter } from '@/hooks/use-printers';
+import type { Printer, PrinterPaperWidth } from '@/types/printer';
+import { isConnectionEditable } from '@/utils/printer-connection';
+
+import { FormRow, PrinterSettingsFields, type PrinterSettings } from './printer-settings-fields';
 
 interface PrinterFormModalProps {
   organizationId: string;
+  /** Agent the printer hangs on — required when creating. */
+  deviceId: string;
+  /** Edit an existing printer; without it the dialog creates a network printer by hand. */
   printer?: Printer | null;
   onClose: () => void;
 }
 
-function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="auth-field">
-      <span>{label}</span>
-      {children}
-    </label>
-  );
+const DEFAULT_PORT = 9100;
+
+function parsePort(value: string): number | null {
+  if (value.trim() === '') return DEFAULT_PORT;
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) return null;
+  return port;
 }
 
-export function PrinterFormModal({ organizationId, printer, onClose }: PrinterFormModalProps) {
+/**
+ * Printer by hand (network only — USB and Windows printers come from the
+ * agent's discovery) or edit an existing one. The agent itself can't be
+ * changed: a printer stays with the machine it was found on.
+ */
+export function PrinterFormModal({ organizationId, deviceId, printer, onClose }: PrinterFormModalProps) {
   const t = useTranslations('printers');
   const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
   const isEdit = !!printer;
+  const showConnection = !printer || isConnectionEditable(printer.connectionType);
 
   const [name, setName] = useState(printer?.name ?? '');
-  const [type, setType] = useState<'receipt' | 'kitchen' | 'label'>(printer?.type ?? 'receipt');
-  const [connectionType, setConnectionType] = useState<'network' | 'usb' | 'bluetooth'>(printer?.connectionType ?? 'network');
-  const [ipAddress, setIpAddress] = useState((printer?.connectionConfig?.host as string) ?? '');
-  const [port, setPort] = useState(String((printer?.connectionConfig?.port as number) ?? 9100));
-  const [usbVendorId, setUsbVendorId] = useState((printer?.connectionConfig?.vendorId as string) ?? '');
-  const [usbProductId, setUsbProductId] = useState((printer?.connectionConfig?.productId as string) ?? '');
-  const [paperWidth, setPaperWidth] = useState<number>(printer?.paperWidth ?? 80);
-  const [hasCashDrawer, setHasCashDrawer] = useState(printer?.hasCashDrawer ?? false);
-  const [deviceId, setDeviceId] = useState<string>(printer?.deviceId ?? '');
+  const [ipAddress, setIpAddress] = useState(printer?.connectionConfig?.ipAddress ?? '');
+  const [port, setPort] = useState(
+    printer?.connectionConfig?.port ? String(printer.connectionConfig.port) : String(DEFAULT_PORT),
+  );
+  const [settings, setSettings] = useState<PrinterSettings>({
+    type: printer?.type ?? 'receipt',
+    paperWidth: (printer?.paperWidth === 58 ? 58 : 80) as PrinterPaperWidth,
+    hasCashDrawer: printer?.hasCashDrawer ?? false,
+  });
+  const [isActive, setIsActive] = useState(printer?.isActive ?? true);
 
   const createMutation = useCreatePrinter(organizationId);
   const updateMutation = useUpdatePrinter(organizationId);
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const { data: devicesData } = useQuery({
-    queryKey: ['devices', organizationId],
-    queryFn: () => devicesApi.list(organizationId),
-    enabled: !!organizationId,
-  });
-
-  const printerAgentDevices = (devicesData?.data ?? []).filter(
-    (d: Device) => d.type === 'printer_agent' && d.status === 'verified'
-  );
-
-  function buildConnectionConfig(): Record<string, unknown> {
-    if (connectionType === 'network') return { host: ipAddress, port: parseInt(port, 10) || 9100 };
-    if (connectionType === 'usb') return { vendorId: usbVendorId, productId: usbProductId };
-    return {};
-  }
+  const parsedPort = parsePort(port);
+  const isValid =
+    name.trim().length > 0 && (!showConnection || (ipAddress.trim().length > 0 && parsedPort !== null));
 
   function handleSubmit() {
-    const connectionConfig = buildConnectionConfig();
-    if (isEdit && printer) {
-      const data: UpdatePrinterData = { name, type, connectionType, connectionConfig, paperWidth, hasCashDrawer, deviceId: deviceId || null };
-      updateMutation.mutate({ printerId: printer.id, data }, { onSuccess: () => onClose() });
-    } else {
-      const data: CreatePrinterData = { name, type, connectionType, connectionConfig, paperWidth, hasCashDrawer, deviceId: deviceId || undefined };
-      createMutation.mutate(data, { onSuccess: () => onClose() });
-    }
-  }
+    if (!isValid) return;
+    const connectionConfig = showConnection
+      ? { ipAddress: ipAddress.trim(), port: parsedPort ?? DEFAULT_PORT }
+      : undefined;
 
-  const isValid = name.trim().length > 0 && (connectionType !== 'network' || ipAddress.trim().length > 0);
+    if (isEdit && printer) {
+      updateMutation.mutate(
+        {
+          printerId: printer.id,
+          data: { name: name.trim(), ...settings, isActive, ...(connectionConfig ? { connectionConfig } : {}) },
+        },
+        {
+          onSuccess: () => {
+            toast.success(t('form.saved'));
+            onClose();
+          },
+          onError: (err) => toast.error(apiErrorMessage(err, tCommon('saveFailed'))),
+        },
+      );
+      return;
+    }
+
+    createMutation.mutate(
+      { deviceId, name: name.trim(), ...settings, connectionConfig: connectionConfig! },
+      {
+        onSuccess: () => {
+          toast.success(t('form.created'));
+          onClose();
+        },
+        onError: (err) => toast.error(apiErrorMessage(err, tCommon('saveFailed'))),
+      },
+    );
+  }
 
   return (
     <div className="modal__overlay" onClick={onClose}>
-      <div className="modal__panel modal__panel--md" onClick={(e) => e.stopPropagation()}>
+      <ModalPanel titleId="printer-form-title" className="modal__panel--md">
         <div className="modal__head">
-          <h2>{isEdit ? t('editPrinter') : t('addPrinter')}</h2>
+          <h2 id="printer-form-title">{isEdit ? t('editPrinter') : t('addManual.title')}</h2>
           <DialogCloseButton onClick={onClose} />
         </div>
 
-        <div className="modal__body">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormRow label={t('form.name')}>
-              <input
-                className="input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t('form.namePlaceholder')}
-              />
-            </FormRow>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <div className="modal__body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {!isEdit && (
+                <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
+                  {t('addManual.description')}
+                </p>
+              )}
 
-            <FormRow label={t('form.type')}>
-              <select className="select" value={type} onChange={(e) => setType(e.target.value as typeof type)}>
-                <option value="receipt">{t('types.receipt')}</option>
-                <option value="kitchen">{t('types.kitchen')}</option>
-                <option value="label">{t('types.label')}</option>
-              </select>
-            </FormRow>
+              <FormRow label={t('form.name')}>
+                <input
+                  className="input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t('form.namePlaceholder')}
+                  autoFocus
+                />
+              </FormRow>
 
-            <FormRow label={t('form.connectionType')}>
-              <select className="select" value={connectionType} onChange={(e) => setConnectionType(e.target.value as typeof connectionType)}>
-                <option value="network">{t('connectionTypes.network')}</option>
-                <option value="usb">{t('connectionTypes.usb')}</option>
-                <option value="bluetooth">{t('connectionTypes.bluetooth')}</option>
-              </select>
-            </FormRow>
+              {showConnection && (
+                <div className="field-row field-row--narrow-end">
+                  <FormRow label={t('form.ipAddress')}>
+                    <input
+                      className="input"
+                      value={ipAddress}
+                      onChange={(e) => setIpAddress(e.target.value)}
+                      placeholder="192.168.1.100"
+                      inputMode="decimal"
+                      autoComplete="off"
+                    />
+                  </FormRow>
+                  <FormRow label={t('form.port')}>
+                    <input
+                      className="input"
+                      value={port}
+                      onChange={(e) => setPort(e.target.value)}
+                      placeholder={String(DEFAULT_PORT)}
+                      inputMode="numeric"
+                      aria-invalid={parsedPort === null}
+                    />
+                  </FormRow>
+                </div>
+              )}
 
-            {connectionType === 'network' && (
-              <div className="field-row field-row--narrow-end">
-                <FormRow label={t('form.ipAddress')}>
-                  <input className="input" value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} placeholder="192.168.1.100" />
-                </FormRow>
-                <FormRow label={t('form.port')}>
-                  <input className="input" value={port} onChange={(e) => setPort(e.target.value)} placeholder="9100" />
-                </FormRow>
-              </div>
-            )}
+              {isEdit && printer && !showConnection && (
+                <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
+                  {t('form.connectionFixed', { kind: t(`connectionTypes.${printer.connectionType}`) })}
+                </p>
+              )}
 
-            {connectionType === 'usb' && (
-              <div className="field-row">
-                <FormRow label={t('form.usbVendorId')}>
-                  <input className="input" value={usbVendorId} onChange={(e) => setUsbVendorId(e.target.value)} placeholder="0x04b8" />
-                </FormRow>
-                <FormRow label={t('form.usbProductId')}>
-                  <input className="input" value={usbProductId} onChange={(e) => setUsbProductId(e.target.value)} placeholder="0x0202" />
-                </FormRow>
-              </div>
-            )}
+              <PrinterSettingsFields value={settings} onChange={setSettings} />
 
-            <FormRow label={t('form.paperWidth')}>
-              <select className="select" value={String(paperWidth)} onChange={(e) => setPaperWidth(Number(e.target.value))}>
-                <option value="58">58mm</option>
-                <option value="80">80mm</option>
-              </select>
-            </FormRow>
-
-            <SettingToggle
-              label={t('form.hasCashDrawer')}
-              checked={hasCashDrawer}
-              onChange={setHasCashDrawer}
-            />
-
-            <FormRow label={t('form.device')}>
-              <select
-                className="select"
-                value={deviceId || '__none__'}
-                onChange={(e) => setDeviceId(e.target.value === '__none__' ? '' : e.target.value)}
-              >
-                <option value="__none__">{t('form.deviceNone')}</option>
-                {printerAgentDevices.map((device: Device) => (
-                  <option key={device.id} value={device.id}>{device.name}</option>
-                ))}
-              </select>
-            </FormRow>
+              {isEdit && (
+                <SettingToggle
+                  label={t('form.isActive')}
+                  hint={t('form.isActiveHint')}
+                  checked={isActive}
+                  onChange={setIsActive}
+                />
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="modal__foot">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>
-            {tCommon('cancel')}
-          </button>
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={handleSubmit}
-            disabled={!isValid || isPending}
-          >
-            {isPending ? tCommon('saving') : tCommon('save')}
-          </button>
-        </div>
-      </div>
+          <div className="modal__foot">
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {tCommon('cancel')}
+            </button>
+            <button type="submit" className="btn btn--primary" disabled={!isValid || isPending}>
+              {isPending ? tCommon('saving') : isEdit ? tCommon('save') : t('addManual.submit')}
+            </button>
+          </div>
+        </form>
+      </ModalPanel>
     </div>
   );
 }

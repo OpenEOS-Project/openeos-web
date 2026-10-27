@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { useProductionStations, useCreateProductionStation, useUpdateProductionStation } from '@/hooks/use-production-stations';
 import { usePrinters } from '@/hooks/use-printers';
+import { selectablePrinters } from '@/utils/printer-connection';
 import type { ProductionStation } from '@/types/production-station';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { SettingToggle } from '@/components/shared/setting-toggle';
@@ -208,7 +209,7 @@ export function ProductionStationFormModal({
                   <FormRow label={t('form.printer')}>
                     <select className="select" value={field.value || ''} onChange={field.onChange} onBlur={field.onBlur}>
                       <option value="">{t('form.noPrinter')}</option>
-                      {printers?.map((p) => (
+                      {selectablePrinters(printers, field.value).map((p) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
                       ))}
                     </select>

@@ -24,6 +24,12 @@ interface DeviceLinkFlowProps {
   codeAusUrl?: string;
   /** Nach dem Verknuepfen — Dialog schliessen oder weiterleiten. */
   onFertig?: () => void;
+  /**
+   * Nur Geraete dieses Typs annehmen und den Typ nicht zur Wahl stellen —
+   * die Druckerseite verbindet Drucker-Agents; ein dort eingegebener
+   * Kassen-Code darf die Kasse nicht in einen Agent verwandeln.
+   */
+  fixedType?: DeviceClass;
 }
 
 /**
@@ -34,7 +40,7 @@ interface DeviceLinkFlowProps {
  * den QR-Code vom Bildschirm abscannt. Zwei Fassungen desselben Ablaufs
  * würden beim nächsten neuen Feld auseinanderlaufen.
  */
-export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
+export function DeviceLinkFlow({ codeAusUrl, onFertig, fixedType }: DeviceLinkFlowProps) {
   const t = useTranslations('devices');
   const tCommon = useTranslations('common');
   const queryClient = useQueryClient();
@@ -47,7 +53,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
 
   const [orgId, setOrgId] = useState('');
   const [name, setName] = useState('');
-  const [typ, setTyp] = useState<DeviceClass>('pos');
+  const [typ, setTyp] = useState<DeviceClass>(fixedType ?? 'pos');
 
   // Bei genau einer Organisation gibt es nichts zu wählen.
   useEffect(() => {
@@ -58,9 +64,13 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
     mutationFn: (wert: string) => devicesApi.lookup(wert),
     onSuccess: (antwort) => {
       const geraet = antwort.data;
+      if (fixedType && geraet.deviceType !== fixedType) {
+        setFehler(t('verify.wrongType', { type: t(`class.${fixedType}`) }));
+        return;
+      }
       setGefunden(geraet);
       setName(geraet.suggestedName || '');
-      setTyp(geraet.deviceType || 'pos');
+      setTyp(fixedType ?? geraet.deviceType ?? 'pos');
       setSchritt('einrichten');
       setFehler(null);
     },
@@ -72,6 +82,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
       devicesApi.link({ code, organizationId: orgId, name, deviceType: typ }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['printer-agents'] });
       setSchritt('fertig');
     },
     onError: () => setFehler(t('verify.linkFailed')),
@@ -92,7 +103,9 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
           <CircleCheck />
         </span>
         <h3 className="device-link__title">{t('verify.success')}</h3>
-        <p className="device-link__lead">{t('verify.successDescription')}</p>
+        <p className="device-link__lead">
+          {fixedType === 'printer_agent' ? t('verify.successDescriptionPrinterAgent') : t('verify.successDescription')}
+        </p>
         <button type="button" className="btn btn--primary btn--block" onClick={onFertig}>
           {tCommon('close')}
         </button>
@@ -127,16 +140,18 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
           <Input id="name" value={name} onChange={setName} placeholder={t('verify.namePlaceholder')} />
         </div>
 
-        <div className="device-link__field">
-          <Label htmlFor="typ">{t('verify.deviceType')}</Label>
-          <Select selectedKey={typ} onSelectionChange={(wert) => setTyp(wert as DeviceClass)}>
-            {GERAETETYPEN.map((wert) => (
-              <Select.Item key={wert} id={wert}>
-                {t(`class.${wert}`)}
-              </Select.Item>
-            ))}
-          </Select>
-        </div>
+        {!fixedType && (
+          <div className="device-link__field">
+            <Label htmlFor="typ">{t('verify.deviceType')}</Label>
+            <Select selectedKey={typ} onSelectionChange={(wert) => setTyp(wert as DeviceClass)}>
+              {GERAETETYPEN.map((wert) => (
+                <Select.Item key={wert} id={wert}>
+                  {t(`class.${wert}`)}
+                </Select.Item>
+              ))}
+            </Select>
+          </div>
+        )}
 
         {fehler && <p className="device-link__error">{fehler}</p>}
 
@@ -179,7 +194,9 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig }: DeviceLinkFlowProps) {
         suchen.mutate(code);
       }}
     >
-      <p className="device-link__lead">{t('verify.enterCodeDescription')}</p>
+      <p className="device-link__lead">
+        {fixedType === 'printer_agent' ? t('verify.enterCodeDescriptionPrinterAgent') : t('verify.enterCodeDescription')}
+      </p>
 
       <div className="device-link__field">
         <Label htmlFor="code">{t('verify.code')}</Label>

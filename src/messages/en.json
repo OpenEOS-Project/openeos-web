@@ -294,7 +294,7 @@
         "totalUsers": "Users",
         "totalUsersSubtitle": "Registered users",
         "totalRevenue": "Total Revenue",
-        "totalRevenueSubtitle": "Revenue in current year",
+        "totalRevenueSubtitle": "Unlocked events",
         "activeEvents": "Active Events",
         "activeEventsSubtitle": "Currently running events",
         "newUsersThisMonth": "New Users",
@@ -500,7 +500,6 @@
     "shifts": "Shift Plans",
     "users": "Users",
     "admin": "Admin",
-    "rentalHardware": "Rental Hardware",
     "productionStations": "Stations",
     "templates": "Templates",
     "invoices": "Invoices",
@@ -1008,109 +1007,6 @@
         "stripeLinked": "Linked with Stripe"
       }
     },
-    "rental": {
-      "hardware": {
-        "title": "Rental Hardware",
-        "description": "Manage the hardware pool for rentals.",
-        "add": "Add Hardware",
-        "edit": "Edit Hardware",
-        "delete": "Delete Hardware",
-        "deleteConfirm": "Are you sure you want to delete the hardware \"{name}\"?",
-        "table": {
-          "name": "Name",
-          "type": "Type",
-          "serial": "Serial Number",
-          "model": "Model",
-          "rate": "Daily Rate",
-          "status": "Status",
-          "device": "Device",
-          "actions": "Actions"
-        },
-        "types": {
-          "printer": "Printer",
-          "display": "Display"
-        },
-        "status": {
-          "available": "Available",
-          "rented": "Rented",
-          "maintenance": "Maintenance",
-          "retired": "Retired"
-        },
-        "form": {
-          "type": "Type",
-          "name": "Name",
-          "namePlaceholder": "e.g. Epson TM-T20III",
-          "serial": "Serial Number",
-          "serialPlaceholder": "e.g. SN-12345678",
-          "model": "Model",
-          "modelPlaceholder": "e.g. Epson TM-T20III",
-          "description": "Description",
-          "descriptionPlaceholder": "Optional description",
-          "dailyRate": "Daily Rate (EUR)",
-          "device": "Printer Agent (Device)",
-          "deviceNone": "No device assigned",
-          "printerConfig": "Printer Configuration",
-          "printerType": "Printer Type",
-          "connectionType": "Connection Type",
-          "paperWidth": "Paper Width",
-          "ipAddress": "IP Address",
-          "port": "Port",
-          "usbVendorId": "USB Vendor ID",
-          "usbProductId": "USB Product ID",
-          "printerTypes": {
-            "receipt": "Receipt",
-            "kitchen": "Kitchen",
-            "label": "Label"
-          },
-          "connectionTypes": {
-            "network": "Network",
-            "usb": "USB",
-            "bluetooth": "Bluetooth"
-          },
-          "notes": "Notes",
-          "notesPlaceholder": "Internal notes"
-        },
-        "count": "{count, plural, =1 {# rental hardware item} other {# rental hardware items}}"
-      },
-      "assignments": {
-        "title": "Assignments",
-        "add": "Create Assignment",
-        "activate": "Activate",
-        "return": "Return",
-        "days": "days",
-        "noAssignments": "No assignments yet.",
-        "table": {
-          "hardware": "Hardware",
-          "organization": "Organization",
-          "period": "Period",
-          "amount": "Amount",
-          "status": "Status",
-          "actions": "Actions"
-        },
-        "status": {
-          "pending": "Pending",
-          "confirmed": "Confirmed",
-          "active": "Active",
-          "returned": "Returned",
-          "cancelled": "Cancelled"
-        },
-        "form": {
-          "hardware": "Hardware",
-          "hardwarePlaceholder": "Select hardware",
-          "organization": "Organization",
-          "organizationPlaceholder": "Select organization",
-          "startDate": "Start Date",
-          "endDate": "End Date",
-          "notes": "Notes",
-          "notesPlaceholder": "Optional notes",
-          "totalDays": "Total Days",
-          "totalAmount": "Total Amount",
-          "hardwareOption": "{name} ({serial}) — {rate}/day"
-        },
-        "count": "{count, plural, =1 {# assignment} other {# assignments}}",
-        "daysCount": "{count, plural, =1 {# day} other {# days}}"
-      }
-    },
     "support": {
       "title": "Support requests",
       "subtitle": "Support chats across all organizations.",
@@ -1131,9 +1027,7 @@
         "feature": "Ideas",
         "feedback": "Feedback",
         "demo": "Demo",
-        "contact": "Contact",
-        "hardware": "Hardware",
-        "gateway": "Gateway"
+        "contact": "Contact"
       },
       "showingOpen": "Open only",
       "showingAll": "Show all",
@@ -1244,80 +1138,41 @@
       }
     },
     "printers": {
-      "metaTitle": "Printers · Super admin",
+      "metaTitle": "Printers · Super Admin",
       "title": "Printers",
-      "description": "Overview of all printers and unassigned printer agents across all organizations.",
+      "description": "All printer agents and their printers per organisation — read-only. Pairing, adopting and editing is done by the organisation itself under \"Printers\".",
       "online": "Online",
       "offline": "Offline",
-      "types": {
-        "kitchen": "Kitchen",
-        "label": "Labels",
-        "receipt": "Receipt"
+      "summary": {
+        "title": "Overview",
+        "agents": "{count, plural, =1 {# agent} other {# agents}}, {online} online"
+      },
+      "searchPlaceholder": "Search organisation, agent or printer",
+      "noMatches": "Nothing found.",
+      "noOrganization": "Without organisation (not paired yet)",
+      "noAgentInfo": "No details from the agent yet",
+      "lastSeen": "last seen {when}",
+      "discoveredCount": "{count, plural, =1 {# discovered printer} other {# discovered printers}}",
+      "noPrinters": "No printer adopted yet.",
+      "empty": {
+        "title": "No printer agents yet",
+        "description": "As soon as an organisation pairs a printer agent, it shows up here."
+      },
+      "table": {
+        "printer": "Printer",
+        "type": "Type",
+        "connection": "Connection",
+        "online": "Status",
+        "lastSeen": "Last seen",
+        "actions": "Actions"
+      },
+      "actions": {
+        "testPrint": "Test print"
       },
       "toast": {
         "testPrintSent": "Test print was sent to the printer.",
         "testPrintNotPossible": "Test print not possible.",
-        "testPrintFailed": "Test print failed: {message}",
-        "unassigned": "Assignment was removed.",
-        "unassignFailed": "Removing assignment failed: {message}",
-        "deviceDeleted": "Device was deleted.",
-        "deleteFailed": "Deleting failed: {message}",
-        "assigned": "Printer was assigned to the organization."
-      },
-      "unassigned": {
-        "title": "Unassigned printer agents ({count})",
-        "description": "Printers that have registered with the backend but are not yet assigned to an organization.",
-        "empty": "No waiting printer agents. As soon as an RPi agent registers, it will appear here.",
-        "onlineWaiting": "Online · awaiting assignment",
-        "waiting": "Awaiting assignment"
-      },
-      "assigned": {
-        "title": "Assigned printers ({count})",
-        "description": "All printers across all organizations.",
-        "empty": "No printers assigned to an organization yet."
-      },
-      "table": {
-        "name": "Name",
-        "status": "Status",
-        "lastSeen": "Last seen",
-        "action": "Action",
-        "organization": "Organization",
-        "printer": "Printer",
-        "type": "Type",
-        "online": "Online",
-        "actions": "Actions"
-      },
-      "actions": {
-        "assign": "Assign",
-        "testPrint": "Test print",
-        "unassign": "Remove assignment"
-      },
-      "confirm": {
-        "deleteDevice": "Permanently delete device “{name}”?",
-        "unassign": "Really remove printer “{name}” from “{organization}”?"
-      },
-      "assignModal": {
-        "title": "Assign printer",
-        "description": "Links the printer agent device to an organization. Hardware values (name, type, connection, USB ID, paper width) are taken from the local agent configuration on the RPi.",
-        "name": "Name",
-        "type": "Type",
-        "connection": "Connection",
-        "paperWidth": "Paper width",
-        "types": {
-          "kitchen": "Kitchen printer",
-          "label": "Labels",
-          "receipt": "Receipt"
-        },
-        "organization": "Organization *",
-        "orgsLoading": "Loading organizations …",
-        "orgsError": "Error while loading",
-        "orgsEmpty": "No organizations available",
-        "orgsPlaceholder": "Please select…",
-        "hasCashDrawer": "A cash drawer is connected to this printer",
-        "submit": "Assign",
-        "organizationRequired": "Please select an organization.",
-        "defaultName": "Printer",
-        "assignFailed": "Assignment failed"
+        "testPrintFailed": "Test print failed: {message}"
       }
     }
   },
@@ -3096,7 +2951,8 @@
     "class": {
       "pos": "POS",
       "display": "Display",
-      "admin": "Admin"
+      "admin": "Admin",
+      "printer_agent": "Printer agent"
     },
     "displayMode": {
       "label": "Display Mode",
@@ -3202,7 +3058,10 @@
       "loginRequired": "Please sign in to continue",
       "login": "Sign In",
       "cta": "Connect device",
-      "namePlaceholder": "e.g. Bar till 1"
+      "namePlaceholder": "e.g. Bar till 1",
+      "wrongType": "This code does not belong to a {type}. For tills and displays use \"Connect device\" under Devices.",
+      "enterCodeDescriptionPrinterAgent": "Enter the six-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
+      "successDescriptionPrinterAgent": "The printer agent now belongs to your organisation. It will show up in the list in a moment and report the printers it finds."
     },
     "detail": {
       "tabs": {
@@ -3428,6 +3287,7 @@
     "DEVICE_WRONG_ORGANIZATION": "The device does not belong to this organization.",
     "DISCOUNT_VOUCHER_AMOUNT_REQUIRED": "A fixed discount voucher needs an amount.",
     "DISCOUNT_VOUCHER_NOT_FOUND": "The discount voucher was not found.",
+    "DISCOVERED_PRINTER_NOT_FOUND": "The discovered printer is gone. Let the agent search again.",
     "EMAIL_IN_USE": "This email address is already in use.",
     "EMAIL_NOT_VERIFIED": "Please confirm your email address first.",
     "EMAIL_TWO_FACTOR_NOT_ENABLED": "Two-factor authentication by email is not enabled.",
@@ -3448,9 +3308,6 @@
     "FILE_NOT_FOUND": "The file was not found.",
     "FORBIDDEN": "You do not have permission to do this.",
     "HANDOFF_STATION_NOT_FOUND": "The handoff station was not found or belongs to a different event.",
-    "HARDWARE_HAS_ACTIVE_ASSIGNMENTS": "The hardware has active assignments and cannot be deleted.",
-    "HARDWARE_NOT_AVAILABLE": "The hardware is not available.",
-    "HARDWARE_NOT_FOUND": "The hardware was not found.",
     "INSUFFICIENT_CREDITS": "Not enough credits.",
     "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
     "INSUFFICIENT_STOCK": "Not enough stock available.",
@@ -3524,6 +3381,7 @@
     "ORDER_SESSION_EXPIRED": "The ordering session has expired.",
     "ORDER_SESSION_NOT_FOUND": "The ordering session was not found.",
     "ORGANIZATION_ACCESS_DENIED": "You do not have access to this organization.",
+    "ORGANIZATION_LEGAL_INVALID": "Please check the legal information: links must start with https://, and each notice is either a link or a text.",
     "ORGANIZATION_NAME_REQUIRED": "Please enter a name for the organization.",
     "ORGANIZATION_NOT_FOUND": "The organization was not found.",
     "ORGANIZATION_NOT_SPECIFIED": "No organization selected.",
@@ -3544,8 +3402,14 @@
     "PERMISSIONS_EXCEED_OWN": "You can only grant permissions you have yourself.",
     "PIN_ALREADY_IN_USE": "This PIN is already used by another member.",
     "PIN_INVALID": "The PIN is invalid.",
+    "PRINTER_AGENT_NOT_FOUND": "The printer agent was not found.",
+    "PRINTER_AGENT_OFFLINE": "The printer agent is not connected. Check that the agent is running on the machine.",
+    "PRINTER_ALREADY_ADOPTED": "This printer has already been adopted.",
+    "PRINTER_CONNECTION_TYPE_NOT_ALLOWED": "Only network printers can be added manually. USB and Windows printers are found by the agent.",
+    "PRINTER_FINGERPRINT_TAKEN": "This agent already has that printer.",
     "PRINTER_HAS_NO_CASH_DRAWER": "This printer has no cash drawer.",
     "PRINTER_INACTIVE": "The printer is deactivated.",
+    "PRINTER_IP_ADDRESS_REQUIRED": "A network printer needs an IP address.",
     "PRINTER_NOT_FOUND": "The printer was not found.",
     "PRINTER_OFFLINE": "The printer is not reachable.",
     "PRINT_JOB_COMPLETED": "Completed print jobs cannot be cancelled.",
@@ -3580,8 +3444,6 @@
     "REFUND_PROVIDER_FAILED": "SumUp declined the refund. Try again or book it as refunded manually.",
     "REFUND_QUANTITY_EXCEEDED": "Only {max} of {product} can still be refunded.",
     "REFUND_REASON_REQUIRED": "Give a reason (e.g. waste).",
-    "RENTAL_ASSIGNMENT_NOT_FOUND": "The rental was not found.",
-    "RENTAL_ASSIGNMENT_NOT_PENDING": "This is only possible for a pending rental.",
     "RESET_TOKEN_EXPIRED": "The reset link has expired.",
     "RESET_TOKEN_INVALID": "The reset link is invalid or has expired.",
     "SELF_REGISTRATION_DISABLED": "Self-registration is not available on this installation. Please contact your administrator.",
@@ -3657,8 +3519,7 @@
     "USER_NOT_FOUND": "The user was not found.",
     "VALIDATION_ERROR": "Some entries are invalid. Please check your input.",
     "VERIFICATION_LINK_EXPIRED": "The confirmation link has expired.",
-    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired.",
-    "ORGANIZATION_LEGAL_INVALID": "Please check the legal information: links must start with https://, and each notice is either a link or a text."
+    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -4133,50 +3994,133 @@
       "templates": "Templates",
       "orderFlow": "Print Workflows"
     },
-    "addPrinter": "Add Printer",
-    "editPrinter": "Edit Printer",
-    "deletePrinter": "Delete Printer",
-    "deleteConfirm": "Are you sure you want to delete the printer \"{name}\"?",
-    "testPrint": "Test Print",
-    "testPrintSuccess": "Test print sent",
+    "editPrinter": "Edit printer",
+    "deletePrinter": "Remove printer",
+    "deleteConfirm": "Do you really want to remove the printer \"{name}\"?",
+    "deleteHint": "Assignments in stations, print workflows and tills are cleared. If the agent still finds the printer, you can adopt it again later.",
+    "deleted": "\"{name}\" has been removed.",
+    "deleteFailed": "The printer could not be removed.",
+    "testPrint": "Test print",
+    "testPrintSuccess": "Test print sent to \"{name}\".",
+    "testPrintFailed": "Test print failed.",
     "table": {
       "name": "Name",
       "type": "Type",
       "connection": "Connection",
-      "device": "Device",
       "status": "Status",
       "actions": "Actions"
     },
     "types": {
       "receipt": "Receipt",
-      "kitchen": "Kitchen",
+      "kitchen": "Kitchen ticket",
       "label": "Label"
     },
     "connectionTypes": {
       "network": "Network",
       "usb": "USB",
-      "bluetooth": "Bluetooth"
+      "windows": "Windows"
     },
     "form": {
-      "name": "Printer Name",
-      "namePlaceholder": "e.g. Receipt Printer 1",
-      "type": "Printer Type",
-      "connectionType": "Connection Type",
-      "ipAddress": "IP Address",
+      "name": "Printer name",
+      "namePlaceholder": "e.g. Kitchen left",
+      "type": "Printer type",
+      "ipAddress": "IP address",
       "port": "Port",
-      "usbVendorId": "USB Vendor ID",
-      "usbProductId": "USB Product ID",
-      "paperWidth": "Paper Width",
-      "device": "Printer Agent (Device)",
-      "devicePlaceholder": "No device assigned",
-      "deviceNone": "No Device",
-      "hasCashDrawer": "Cash drawer connected"
+      "paperWidth": "Paper width",
+      "hasCashDrawer": "Cash drawer connected",
+      "hasCashDrawerHint": "The till can then open the drawer through this printer.",
+      "isActive": "Printer active",
+      "isActiveHint": "Deactivated printers receive no tickets and can no longer be assigned.",
+      "connectionFixed": "Connection: {kind} — detected by the agent. Only network printers have an editable IP address and port.",
+      "saved": "Printer saved.",
+      "created": "Printer created."
+    },
+    "addManual": {
+      "title": "Add printer manually",
+      "description": "For network printers the scan does not find. The agent reaches it via IP address and port (usually 9100). USB and Windows printers are found by the agent itself.",
+      "submit": "Create"
+    },
+    "adopt": {
+      "title": "Adopt printer",
+      "description": "Give the printer a name and say what it prints. The agent takes the connection from the scan.",
+      "success": "\"{name}\" is ready to use.",
+      "failed": "The printer could not be adopted."
+    },
+    "discovered": {
+      "title": "Discovered printers",
+      "empty": "The agent has not found anything yet. Start \"Search again\" — with network scan for network printers — or add the printer manually.",
+      "emptyOffline": "The agent is offline. Once it runs, it reports the printers it finds.",
+      "via": "Found via",
+      "viaKinds": {
+        "usb": "USB",
+        "mdns": "mDNS",
+        "portscan": "Network scan",
+        "spooler": "Windows spooler",
+        "manual": "Manual"
+      },
+      "lastSeen": "Last seen",
+      "adopt": "Adopt",
+      "adopted": "Adopted:"
+    },
+    "agents": {
+      "title": "Printer agents",
+      "count": "{count, plural, =1 {# agent} other {# agents}}",
+      "noInfo": "No details from the agent yet",
+      "lastSeen": "last seen {when}",
+      "actions": {
+        "discover": "Search again",
+        "addManual": "Add printer manually",
+        "remove": "Remove agent"
+      },
+      "printers": {
+        "title": "Printers",
+        "empty": "No printer adopted yet. Adopt a discovered printer or add a network printer manually."
+      },
+      "empty": {
+        "title": "No printer agent connected yet",
+        "description": "The printer agent runs on a Windows or Linux PC (Raspberry Pi included) in your network, finds USB and network printers by itself and prints the tickets. Here is how to start:"
+      },
+      "connect": {
+        "title": "Connect printer agent",
+        "cta": "Connect printer agent",
+        "stepsTitle": "How it works",
+        "steps": {
+          "download": "Download the agent for Windows or Linux.",
+          "install": "Install and start it on the PC (Windows: as a service, Linux: install.sh).",
+          "code": "On start-up the agent shows a six-digit code.",
+          "enter": "Enter the code here — the agent then appears in the list."
+        },
+        "downloadWindows": "Download for Windows",
+        "downloadLinux": "Download for Linux",
+        "docs": "Documentation"
+      },
+      "discover": {
+        "title": "Search for printers",
+        "description": "\"{name}\" searches for USB printers, printers on the network (mDNS) and — on Windows — the spooler. Discovered printers appear within a few seconds.",
+        "subnetScan": "Also scan the network (port 9100)",
+        "subnetScanHint": "Checks every address in the local network. Takes a bit longer but finds printers without mDNS.",
+        "offlineHint": "The agent is offline right now — searching only works once it is connected again.",
+        "start": "Search",
+        "started": "Search started — discovered printers will show up shortly.",
+        "failed": "The search could not be started."
+      },
+      "remove": {
+        "title": "Remove agent",
+        "confirm": "Do you really want to remove \"{name}\"? {count, plural, =0 {No printer is attached to it.} =1 {Its printer will be removed as well.} other {Its # printers will be removed as well.}}",
+        "hint": "Assignments in stations, print workflows, tills and products are cleared. The agent has to be paired again before it can print.",
+        "submit": "Remove agent",
+        "success": "\"{name}\" has been removed.",
+        "failed": "The agent could not be removed."
+      }
+    },
+    "orphans": {
+      "title": "Printers without agent",
+      "description": "These printers are not attached to a connected agent and cannot print."
     },
     "online": "Online",
     "offline": "Offline",
-    "noPrinters": "No printers registered yet",
-    "noPrintersDescription": "Registered printers will be shown here. Connect a printer agent to get started.",
-    "noPrintersAssigned": "Printers are added by the platform administrator and assigned to your organization.",
+    "inactive": "Deactivated",
+    "cashDrawer": "Cash drawer",
     "printerCount": "{count, plural, =1 {# printer} other {# printers}}",
     "kitchenTicketMode": {
       "title": "Kitchen ticket printing mode",
