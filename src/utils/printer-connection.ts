@@ -94,14 +94,17 @@ export function formatDiscoveredConnection(discovered: Pick<DiscoveredPrinter, '
 }
 
 /**
- * Does the agent think this is something it can print on? Receipt and
- * label printers by kind, plus anything that answered the ESC/POS model
- * query. Entries from agents that do not classify yet (no `kind`, no
- * `escpos`) count as usable so nothing disappears after an upgrade.
+ * Does the agent think this is something it can print on? Anything that
+ * answered the ESC/POS model query, plus receipt and label printers by
+ * kind — unless the device was asked and stayed silent (`escpos: 'no'`):
+ * a Brother QL is a label printer, but not one the agent can drive.
+ * Entries from agents that do not classify yet (no `kind`, no `escpos`)
+ * count as usable so nothing disappears after an upgrade.
  */
 export function isLikelyReceiptPrinter(discovered: Pick<DiscoveredPrinter, 'details'>): boolean {
   const d = discovered.details ?? {};
   if (d.escpos === 'yes') return true;
+  if (d.escpos === 'no') return false;
   if (d.kind === 'receipt' || d.kind === 'label') return true;
   if (d.kind === undefined && d.escpos === undefined) return true;
   return false;

@@ -150,6 +150,9 @@ test.describe('isLikelyReceiptPrinter / partitionDiscoveredPrinters', () => {
 
   test('Bürodrucker und stumme Geräte werden ausgeblendet', () => {
     expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'office', kindReason: 'Treiber Brother' } })).toBe(false);
+    // sieht nach Drucker aus, hat aber auf die ESC/POS-Abfrage geschwiegen (Brother QL, TM-T88 ausgeschaltet)
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'label' } })).toBe(false);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'receipt' } })).toBe(false);
     expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'office' } })).toBe(false);
     expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'unknown' } })).toBe(false);
     expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'unknown' } })).toBe(false);
