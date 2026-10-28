@@ -4113,11 +4113,12 @@
       "title": "Drucker übernehmen",
       "description": "Gib dem Drucker einen Namen und sag, was er druckt. Die Verbindung übernimmt der Agent aus der Suche.",
       "success": "„{name}“ ist jetzt einsatzbereit.",
-      "failed": "Der Drucker konnte nicht übernommen werden."
+      "failed": "Der Drucker konnte nicht übernommen werden.",
+      "notReceiptWarning": "Dieses Gerät antwortet nicht wie ein Bondrucker – Übernahme auf eigenes Risiko."
     },
     "discovered": {
       "title": "Gefundene Drucker",
-      "empty": "Der Agent hat noch nichts gefunden. Starte „Neu suchen“ — bei Netzwerkdruckern mit Netzwerksuche — oder lege den Drucker manuell an.",
+      "empty": "Der Agent hat noch nichts gefunden. Starte „Neu suchen“ — bei Netzwerkdruckern mit Netzwerksuche — oder lege den Drucker manuell an. Es funktionieren nur ESC/POS-Bondrucker (Epson, Star, Bixolon und die meisten No-Name-Geräte); Bürodrucker werden ausgeblendet.",
       "emptyOffline": "Der Agent ist offline. Sobald er läuft, meldet er die Drucker, die er findet.",
       "via": "Gefunden per",
       "viaKinds": {
@@ -4129,7 +4130,12 @@
       },
       "lastSeen": "Zuletzt gesehen",
       "adopt": "Übernehmen",
-      "adopted": "Übernommen:"
+      "adopted": "Übernommen:",
+      "emptyFiltered": "{count, plural, =1 {Ein gefundenes Gerät ist ausgeblendet, weil es nicht wie ein Bondrucker antwortet.} other {# gefundene Geräte sind ausgeblendet, weil sie nicht wie Bondrucker antworten.}} Es funktionieren nur ESC/POS-Bondrucker.",
+      "showAll": "Alle gefundenen Geräte anzeigen",
+      "hiddenCount": "{count, plural, =1 {# weiteres Gerät ausgeblendet} other {# weitere Geräte ausgeblendet}}",
+      "notReceipt": "Kein Bondrucker",
+      "notReceiptHint": "Dieses Gerät antwortet nicht wie ein ESC/POS-Bondrucker."
     },
     "agents": {
       "title": "Drucker-Agents",

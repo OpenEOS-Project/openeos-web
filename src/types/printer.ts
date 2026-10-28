@@ -90,6 +90,12 @@ export interface PrinterAgent {
 
 export type DiscoveredVia = 'usb' | 'mdns' | 'portscan' | 'spooler' | 'manual';
 
+/** Did the device answer the agent's ESC/POS model query (`GS I`)? */
+export type DiscoveredEscpos = 'yes' | 'no' | 'unknown';
+
+/** The agent's guess what kind of device it found. Only `receipt` (and ESC/POS `label`) printers work. */
+export type DiscoveredKind = 'receipt' | 'label' | 'office' | 'unknown';
+
 /** What the agent knows about a discovered printer — everything optional. */
 export interface DiscoveredPrinterDetails {
   manufacturer?: string;
@@ -104,6 +110,10 @@ export interface DiscoveredPrinterDetails {
   macAddress?: string;
   windowsPrinterName?: string;
   driverName?: string;
+  escpos?: DiscoveredEscpos;
+  kind?: DiscoveredKind;
+  /** One line explaining `kind`, e.g. "antwortet auf ESC/POS-Modellabfrage". */
+  kindReason?: string;
   [key: string]: unknown;
 }
 

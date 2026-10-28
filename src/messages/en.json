@@ -4113,11 +4113,12 @@
       "title": "Adopt printer",
       "description": "Give the printer a name and say what it prints. The agent takes the connection from the scan.",
       "success": "\"{name}\" is ready to use.",
-      "failed": "The printer could not be adopted."
+      "failed": "The printer could not be adopted.",
+      "notReceiptWarning": "This device does not respond like a receipt printer – adopt it at your own risk."
     },
     "discovered": {
       "title": "Discovered printers",
-      "empty": "The agent has not found anything yet. Start \"Search again\" — with network scan for network printers — or add the printer manually.",
+      "empty": "The agent has not found anything yet. Start \"Search again\" — with network scan for network printers — or add the printer manually. Only ESC/POS receipt printers work (Epson, Star, Bixolon and most no-name devices); office printers are hidden.",
       "emptyOffline": "The agent is offline. Once it runs, it reports the printers it finds.",
       "via": "Found via",
       "viaKinds": {
@@ -4129,7 +4130,12 @@
       },
       "lastSeen": "Last seen",
       "adopt": "Adopt",
-      "adopted": "Adopted:"
+      "adopted": "Adopted:",
+      "emptyFiltered": "{count, plural, =1 {One discovered device is hidden because it does not respond like a receipt printer.} other {# discovered devices are hidden because they do not respond like receipt printers.}} Only ESC/POS receipt printers work.",
+      "showAll": "Show all discovered devices",
+      "hiddenCount": "{count, plural, =1 {# more device hidden} other {# more devices hidden}}",
+      "notReceipt": "Not a receipt printer",
+      "notReceiptHint": "This device does not respond like an ESC/POS receipt printer."
     },
     "agents": {
       "title": "Printer agents",
