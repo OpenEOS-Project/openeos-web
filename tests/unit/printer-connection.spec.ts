@@ -8,6 +8,8 @@ import {
   formatPrinterConnection,
   formatUsbId,
   isConnectionEditable,
+  isLikelyReceiptPrinter,
+  partitionDiscoveredPrinters,
   selectablePrinters,
 } from '@/utils/printer-connection';
 
@@ -134,5 +136,39 @@ test.describe('isConnectionEditable / selectablePrinters', () => {
     expect(selectablePrinters(printers, 'b').map((p) => p.id)).toEqual(['a', 'b']);
     expect(selectablePrinters(printers, 'zzz').map((p) => p.id)).toEqual(['a']);
     expect(selectablePrinters(undefined, 'a')).toEqual([]);
+  });
+});
+
+test.describe('isLikelyReceiptPrinter / partitionDiscoveredPrinters', () => {
+  test('Bondrucker nach kind oder ESC/POS-Antwort', () => {
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'yes', kind: 'receipt' } })).toBe(true);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'receipt' } })).toBe(true);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'label' } })).toBe(true);
+    // antwortet auf GS I, auch wenn der Agent die Art nicht kennt
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'yes', kind: 'unknown' } })).toBe(true);
+  });
+
+  test('Bürodrucker und stumme Geräte werden ausgeblendet', () => {
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'office', kindReason: 'Treiber Brother' } })).toBe(false);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'office' } })).toBe(false);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'no', kind: 'unknown' } })).toBe(false);
+    expect(isLikelyReceiptPrinter({ details: { escpos: 'unknown', kind: 'unknown' } })).toBe(false);
+  });
+
+  test('Einträge alter Agents ohne Einstufung bleiben sichtbar', () => {
+    expect(isLikelyReceiptPrinter({ details: {} })).toBe(true);
+    expect(isLikelyReceiptPrinter({ details: { ipAddress: '10.0.0.5' } })).toBe(true);
+    expect(isLikelyReceiptPrinter({ details: null as never })).toBe(true);
+  });
+
+  test('teilt die Liste und behält Übernommene immer sichtbar', () => {
+    const epson = { id: 'a', printerId: null, details: { escpos: 'yes' as const, kind: 'receipt' as const } };
+    const brother = { id: 'b', printerId: null, details: { escpos: 'no' as const, kind: 'office' as const } };
+    const adoptedOffice = { id: 'c', printerId: 'p1', details: { escpos: 'no' as const, kind: 'office' as const } };
+    const silent = { id: 'd', printerId: null, details: { escpos: 'no' as const, kind: 'unknown' as const } };
+    const { shown, hidden } = partitionDiscoveredPrinters([epson, brother, adoptedOffice, silent]);
+    expect(shown.map((p) => p.id)).toEqual(['a', 'c']);
+    expect(hidden.map((p) => p.id)).toEqual(['b', 'd']);
+    expect(partitionDiscoveredPrinters(undefined)).toEqual({ shown: [], hidden: [] });
   });
 });

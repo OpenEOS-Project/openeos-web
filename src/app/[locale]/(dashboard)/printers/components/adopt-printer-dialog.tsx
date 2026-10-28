@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { TriangleAlert } from 'lucide-react';
 
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
@@ -9,7 +10,7 @@ import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAdoptDiscoveredPrinter } from '@/hooks/use-printers';
 import type { DiscoveredPrinter } from '@/types/printer';
-import { formatDiscoveredConnection, formatDiscoveredModel } from '@/utils/printer-connection';
+import { formatDiscoveredConnection, formatDiscoveredModel, isLikelyReceiptPrinter } from '@/utils/printer-connection';
 
 import { FormRow, PrinterSettingsFields, type PrinterSettings } from './printer-settings-fields';
 
@@ -41,6 +42,7 @@ export function AdoptPrinterDialog({ organizationId, deviceId, discovered, onClo
 
   const model = formatDiscoveredModel(discovered.details);
   const connection = formatDiscoveredConnection(discovered);
+  const likelyPrinter = isLikelyReceiptPrinter(discovered);
 
   function handleSubmit() {
     if (!isValid) return;
@@ -92,6 +94,28 @@ export function AdoptPrinterDialog({ organizationId, deviceId, discovered, onClo
                   {model && model !== discovered.displayName ? ` · ${model}` : ''}
                 </span>
               </div>
+
+              {!likelyPrinter && (
+                <p
+                  role="alert"
+                  title={discovered.details?.kindReason}
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    alignItems: 'flex-start',
+                    fontSize: 13,
+                    margin: 0,
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    border: '1px solid color-mix(in oklab, var(--warn) 45%, transparent)',
+                    background: 'color-mix(in oklab, var(--warn) 12%, transparent)',
+                    color: 'var(--warn-ink)',
+                  }}
+                >
+                  <TriangleAlert aria-hidden="true" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+                  <span>{t('adopt.notReceiptWarning')}</span>
+                </p>
+              )}
 
               <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
                 {t('adopt.description')}

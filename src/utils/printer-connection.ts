@@ -93,6 +93,37 @@ export function formatDiscoveredConnection(discovered: Pick<DiscoveredPrinter, '
   }
 }
 
+/**
+ * Does the agent think this is something it can print on? Receipt and
+ * label printers by kind, plus anything that answered the ESC/POS model
+ * query. Entries from agents that do not classify yet (no `kind`, no
+ * `escpos`) count as usable so nothing disappears after an upgrade.
+ */
+export function isLikelyReceiptPrinter(discovered: Pick<DiscoveredPrinter, 'details'>): boolean {
+  const d = discovered.details ?? {};
+  if (d.escpos === 'yes') return true;
+  if (d.kind === 'receipt' || d.kind === 'label') return true;
+  if (d.kind === undefined && d.escpos === undefined) return true;
+  return false;
+}
+
+/**
+ * Splits the discovered list into what is shown by default (likely
+ * receipt printers and everything already adopted) and what hides behind
+ * "show all devices" (office printers and silent devices).
+ */
+export function partitionDiscoveredPrinters<T extends Pick<DiscoveredPrinter, 'details' | 'printerId'>>(
+  discovered: readonly T[] | null | undefined,
+): { shown: T[]; hidden: T[] } {
+  const shown: T[] = [];
+  const hidden: T[] = [];
+  for (const item of discovered ?? []) {
+    if (item.printerId || isLikelyReceiptPrinter(item)) shown.push(item);
+    else hidden.push(item);
+  }
+  return { shown, hidden };
+}
+
 /** Manufacturer/model of a discovered printer when the agent knows it. */
 export function formatDiscoveredModel(details: DiscoveredPrinter['details'] | null | undefined): string {
   const d = details ?? {};

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, SettingToggle } from '@openeos/ui';
 
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
@@ -14,6 +14,8 @@ import {
   formatDiscoveredConnection,
   formatDiscoveredModel,
   formatPrinterConnection,
+  isLikelyReceiptPrinter,
+  partitionDiscoveredPrinters,
 } from '@/utils/printer-connection';
 import { formatTimeAgo } from '@/utils/time-ago';
 
@@ -73,9 +75,12 @@ export function PrinterAgentCard({ organizationId, agent, printers }: PrinterAge
   const apiErrorMessage = useApiErrorMessage();
   const { locale, formatDateTime } = useLocaleFormat();
   const [dialog, setDialog] = useState<Dialog>(null);
+  // Office printers and silent devices stay hidden until asked for.
+  const [showAllDiscovered, setShowAllDiscovered] = useState(false);
 
   const discoveredQuery = useDiscoveredPrinters(organizationId, agent.deviceId, { live: true });
-  const discovered = discoveredQuery.data ?? [];
+  const { shown: likelyPrinters, hidden: otherDevices } = partitionDiscoveredPrinters(discoveredQuery.data);
+  const discovered = showAllDiscovered ? [...likelyPrinters, ...otherDevices] : likelyPrinters;
   const printerById = new Map(printers.map((p) => [p.id, p]));
 
   const testPrintMutation = useTestPrint(organizationId);
@@ -252,14 +257,33 @@ export function PrinterAgentCard({ organizationId, agent, printers }: PrinterAge
 
       {/* Discovered printers */}
       <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', paddingTop: 14 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: '0 20px 8px', textTransform: 'uppercase', letterSpacing: '.04em' }}>
-          {t('discovered.title')} ({discovered.length})
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, margin: '0 20px 8px' }}>
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: 0, textTransform: 'uppercase', letterSpacing: '.04em' }}>
+            {t('discovered.title')} ({discovered.length})
+          </h3>
+          {otherDevices.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {!showAllDiscovered && (
+                <span style={{ fontSize: 12, color: MUTED }}>{t('discovered.hiddenCount', { count: otherDevices.length })}</span>
+              )}
+              <SettingToggle
+                flush
+                label={<span style={{ fontSize: 13 }}>{t('discovered.showAll')}</span>}
+                checked={showAllDiscovered}
+                onChange={setShowAllDiscovered}
+              />
+            </div>
+          )}
+        </div>
         {discoveredQuery.isLoading ? (
           <p style={{ fontSize: 13, color: MUTED, margin: '0 20px 16px' }}>{tCommon('loading')}</p>
         ) : discovered.length === 0 ? (
           <p style={{ fontSize: 13, color: MUTED, margin: '0 20px 16px' }}>
-            {agent.isOnline ? t('discovered.empty') : t('discovered.emptyOffline')}
+            {otherDevices.length > 0
+              ? t('discovered.emptyFiltered', { count: otherDevices.length })
+              : agent.isOnline
+                ? t('discovered.empty')
+                : t('discovered.emptyOffline')}
           </p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -279,10 +303,22 @@ export function PrinterAgentCard({ organizationId, agent, printers }: PrinterAge
                   const isAdopted = !!item.printerId;
                   const model = formatDiscoveredModel(item.details);
                   const connection = formatDiscoveredConnection(item);
+                  const likelyPrinter = isLikelyReceiptPrinter(item);
                   return (
                     <tr key={item.id} style={isAdopted ? { opacity: 0.7 } : undefined}>
                       <td>
-                        <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--ink)', margin: 0 }}>{item.displayName}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--ink)', margin: 0 }}>{item.displayName}</p>
+                          {!likelyPrinter && (
+                            <span
+                              className="badge badge--neutral"
+                              title={item.details?.kindReason || t('discovered.notReceiptHint')}
+                              style={{ opacity: 0.8 }}
+                            >
+                              {t('discovered.notReceipt')}
+                            </span>
+                          )}
+                        </div>
                         {model && model !== item.displayName && (
                           <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{model}</p>
                         )}
