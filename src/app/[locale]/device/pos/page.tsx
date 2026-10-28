@@ -18,6 +18,7 @@ import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
 import type { PosTableContext } from '@/types/table';
+import { cashDrawerAvailable } from '@/utils/cash-drawer';
 import { resolveChargePfand } from '@/utils/pfand';
 import { resolvePosCardMode } from '@/utils/pos-card-mode';
 import { BroadcastToast } from './components/broadcast-toast';
@@ -308,7 +309,7 @@ function PosApp() {
     { id: 'history', icon: 'clock', label: t('menu.history'), onSelect: () => setSheet('history') },
     ...(isTab ? [{ id: 'open', icon: 'orders' as const, label: t('menu.openOrders'), onSelect: () => setSheet('openOrders') }] : []),
     ...(pfandTypes.length > 0 ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }] : []),
-    ...(settings?.cashDrawerPrinterId && !cashless
+    ...(cashDrawerAvailable({ settings, cashless })
       ? [{
           id: 'drawer',
           icon: 'drawer' as const,
