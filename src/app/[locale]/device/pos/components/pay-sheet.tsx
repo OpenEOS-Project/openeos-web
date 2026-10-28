@@ -17,8 +17,10 @@ import {
 import { useDeviceCashlessMode } from '@/hooks/use-device-integration';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
+import { useDeviceStore } from '@/stores/device-store';
 import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
+import { shouldOpenCashDrawer } from '@/utils/cash-drawer';
 import { initialPayMethod, type PayMethod, type PosCardMode } from '@/utils/pos-card-mode';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { useSumupCheckout } from '../hooks/use-sumup-checkout';
@@ -136,6 +138,7 @@ export function PaySheet({
   const formatPrice = useFormatPrice();
   const compact = usePosCompact();
   const cashless = useDeviceCashlessMode();
+  const deviceSettings = useDeviceStore((s) => s.settings);
   const firstMethod = initialPayMethod({
     cashless,
     card,
@@ -193,12 +196,24 @@ export function PaySheet({
 
   // Kassenlade beim ersten Wechsel auf Bar je Vorgang öffnen (wie bisher
   // beim Öffnen des Bar-Dialogs) — Rückgeld lässt sich so schon während
-  // der Eingabe abzählen.
+  // der Eingabe abzählen. Nur, wenn dem Gerät ein Drucker mit Lade
+  // zugeordnet ist: sonst lehnt die API jeden Aufruf ab (#85).
   useEffect(() => {
-    if (!open || cashless || method !== 'cash' || drawerOpened.current || amount <= 0) return;
+    if (
+      !shouldOpenCashDrawer({
+        open,
+        method,
+        amount,
+        cashless,
+        settings: deviceSettings,
+        alreadyOpened: drawerOpened.current,
+      })
+    ) {
+      return;
+    }
     drawerOpened.current = true;
     deviceApi.openCashDrawer().catch(() => {});
-  }, [open, cashless, method, amount]);
+  }, [open, cashless, method, amount, deviceSettings]);
 
   const givenAmount = given ? parseInt(given, 10) / 100 : 0;
   const change = givenAmount - amount;
