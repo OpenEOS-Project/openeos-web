@@ -363,6 +363,9 @@
         "event_invoice_credit_note": "Gutschrift (Stripe)",
         "event_invoice_resent": "Rechnung erneut gesendet",
         "event_invoice_marked_paid": "Rechnung als bezahlt markiert",
+        "assistant_enabled": "Assistent-Funktionen eingeschaltet",
+        "assistant_disabled": "Assistent-Funktionen ausgeschaltet",
+        "menu_import_applied": "Speisekarten-Import übernommen",
         "unknown": "Unbekannte Aktion"
       }
     },
@@ -938,6 +941,36 @@
         "on": "Bargeldlosen Modus eingeschaltet",
         "off": "Bargeldlosen Modus ausgeschaltet (Bargeld erlaubt)"
       }
+    },
+    "organizationAssistant": {
+      "tab": "Assistent",
+      "title": "Assistent",
+      "description": "Hilfen, die dir beim Einrichten Arbeit abnehmen.",
+      "toggle": {
+        "label": "Assistent-Funktionen",
+        "hint": "Lies eine Speisekarte als Foto, PDF oder Text ein und bekomme Kategorien, Produkte, Preise und Pfand als Vorschlag zum Durchsehen. Im Produktformular bekommst du zum Namen passende Produkt-Icons vorgeschlagen."
+      },
+      "features": {
+        "title": "Was der Assistent kann",
+        "menuImport": "Speisekarte importieren – aus Foto, PDF oder Text wird ein Vorschlag für Kategorien und Produkte, den du vor dem Anlegen prüfst.",
+        "icons": "Icon-Vorschläge – passende Produkt-Icons zum Produktnamen, im Formular und beim Import."
+      },
+      "privacy": "Dafür werden die hochgeladenen Inhalte (Speisekarten, Produktnamen) an einen externen Anbieter übertragen und dort nur für die Dauer der Verarbeitung gespeichert. Mehr dazu in der <link>Datenschutzerklärung</link>.",
+      "adminOnly": "Nur Admins der Organisation können die Funktionen ein- oder ausschalten.",
+      "quota": {
+        "title": "Tageskontingent",
+        "imports": "Heute noch {remaining} von {limit} Importen",
+        "importsExhausted": "Das Tageskontingent von {limit} Importen ist aufgebraucht – morgen geht es weiter.",
+        "icons": "Icon-Vorschläge: heute noch {remaining} von {limit}",
+        "iconsExhausted": "Icon-Vorschläge: das Tageskontingent von {limit} ist aufgebraucht."
+      },
+      "unavailable": {
+        "title": "Nicht eingerichtet",
+        "text": "Auf diesem Server ist kein Anbieter für die Assistent-Funktionen hinterlegt. Wer OpenEOS selbst betreibt, trägt in der API AI_PROVIDER und den passenden Schlüssel ein – siehe Dokumentation zum Selbstbetrieb."
+      },
+      "savedOn": "Assistent-Funktionen sind an.",
+      "savedOff": "Assistent-Funktionen sind aus.",
+      "loadError": "Der Status konnte nicht geladen werden."
     }
   },
   "theme": {
@@ -1297,7 +1330,15 @@
         "zero": "0 % (steuerfrei)",
         "exemptHint": "Die Organisation weist keine Umsatzsteuer aus. Umstellbar in den Organisationseinstellungen."
       },
-      "defaultStockUnit": "Stück"
+      "defaultStockUnit": "Stück",
+      "iconSuggest": {
+        "button": "Vorschlag",
+        "loading": "Wird gesucht …",
+        "title": "Vorschläge für „{name}“",
+        "none": "Kein passendes Produkt-Icon gefunden.",
+        "needName": "Gib zuerst einen Namen ein, dann schlägt OpenEOS ein Icon vor.",
+        "use": "{label} übernehmen"
+      }
     },
     "status": {
       "active": "Aktiv",
@@ -1386,6 +1427,106 @@
         "sampleFood": "Essen,Pommes Frites,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
         "sampleDrink": "Getränke,Cola 0.33 L,,2.80,2.00,cola,,Sorte: Normal | Zero,,",
         "filename": "produkt-vorlage.csv"
+      }
+    },
+    "menuImport": {
+      "trigger": "Aus Speisekarte importieren",
+      "hint": "Speisekarte importieren? Schalte dafür die Assistent-Funktionen ein.",
+      "hintAction": "Zu den Einstellungen",
+      "title": "Aus Speisekarte importieren",
+      "source": {
+        "files": "Fotos oder PDF",
+        "text": "Text"
+      },
+      "drop": {
+        "title": "Fotos oder PDF hierher ziehen",
+        "hint": "Bis zu {max} Bilder (JPG, PNG, WebP) oder eine PDF, je höchstens {maxMb} MB.",
+        "choose": "Dateien auswählen",
+        "remove": "{name} entfernen",
+        "count": "{count, plural, one {# Datei} other {# Dateien}}"
+      },
+      "text": {
+        "label": "Speisekarte als Text",
+        "placeholder": "Vom Grill\nBratwurst im Brötchen 3,50\nSteak mit Brot 8,00\n\nGetränke\nPils 0,3 l 3,00 / 0,5 l 4,00 zzgl. 2 € Pfand",
+        "count": "{count} von {max} Zeichen"
+      },
+      "fileProblems": {
+        "empty": "Bitte wähle mindestens eine Datei.",
+        "type": "„{name}“ ist kein Bild (JPG, PNG, WebP) und keine PDF.",
+        "tooMany": "Bitte höchstens {max} Bilder je Import.",
+        "tooLarge": "„{name}“ ist zu groß – höchstens {maxMb} MB je Datei.",
+        "pdfAlone": "Eine PDF-Datei kann nur allein hochgeladen werden."
+      },
+      "start": "Auswerten",
+      "progress": {
+        "title": "Speisekarte wird gelesen …",
+        "queued": "In der Warteschlange",
+        "processing": "Wird ausgewertet – das dauert meist unter einer Minute.",
+        "cancel": "Abbrechen"
+      },
+      "failed": {
+        "title": "Das hat nicht geklappt",
+        "unknown": "Die Speisekarte konnte nicht ausgewertet werden.",
+        "retry": "Erneut versuchen"
+      },
+      "preview": {
+        "caution": "Vorschläge können Fehler enthalten – bitte prüfen.",
+        "empty": "Auf der Speisekarte wurden keine Produkte erkannt.",
+        "warnings": "Hinweise",
+        "selected": "{count} von {total} ausgewählt",
+        "newCategory": "neu",
+        "existing": "bereits vorhanden",
+        "confidence": {
+          "medium": "Unsicher bei Preis oder Zuordnung",
+          "low": "Geraten – bitte besonders prüfen"
+        }
+      },
+      "table": {
+        "select": "Übernehmen",
+        "selectAll": "Alle auswählen",
+        "selectRow": "{name} übernehmen",
+        "name": "Name",
+        "category": "Kategorie",
+        "price": "Preis (€)",
+        "taxRate": "MwSt.",
+        "pfand": "Pfand",
+        "variants": "Varianten",
+        "icon": "Icon"
+      },
+      "action": {
+        "update": "Aktualisieren",
+        "create": "Neu anlegen"
+      },
+      "variants": {
+        "add": "Variante",
+        "name": "Name",
+        "modifier": "Aufpreis (€)",
+        "remove": "Variante entfernen"
+      },
+      "icon": {
+        "choose": "Produkt-Icon wählen",
+        "none": "Kein Produkt-Icon",
+        "suggestion": "Vorschlag: {label}",
+        "remove": "Produkt-Icon entfernen"
+      },
+      "pfand": {
+        "none": "— Kein Pfand —",
+        "suggested": "Auf der Karte: Pfand",
+        "suggestedAmount": "Auf der Karte: {amount} Pfand",
+        "noTypes": "Noch kein Pfand-Typ angelegt"
+      },
+      "problems": {
+        "name": "Name fehlt",
+        "price": "Preis unlesbar",
+        "category": "Kategorie fehlt",
+        "variant": "Variante unvollständig"
+      },
+      "apply": "{count, plural, =0 {Nichts ausgewählt} one {# Produkt anlegen} other {# Produkte anlegen}}",
+      "applyMixed": "{create} anlegen, {update} aktualisieren",
+      "applied": "{created, plural, one {# Produkt angelegt} other {# Produkte angelegt}}{updated, plural, =0 {} one {, # aktualisiert} other {, # aktualisiert}}{categories, plural, =0 {} one {, # neue Kategorie} other {, # neue Kategorien}}.",
+      "quota": {
+        "remaining": "Heute noch {remaining, plural, one {# Import} other {# Importe}}",
+        "exhausted": "Tageskontingent aufgebraucht – morgen geht es weiter"
       }
     },
     "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}",
@@ -3325,6 +3466,9 @@
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Nur Admins können Konten mit Startpasswort anlegen.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Nur Admins können Admins bearbeiten.",
     "ADMIN_REQUIRED_TO_GRANT_ADMIN": "Nur Admins können die Admin-Rolle vergeben.",
+    "AI_DISABLED": "Die Assistent-Funktionen sind auf diesem Server nicht eingerichtet.",
+    "AI_PROVIDER_ERROR": "Der Assistent ist gerade nicht erreichbar – bitte versuch es später noch einmal.",
+    "AI_QUOTA_EXCEEDED": "Das Tageskontingent ({used} von {limit}) ist aufgebraucht – morgen geht es weiter.",
     "ALREADY_MEMBER": "Du bist bereits Mitglied dieser Organisation.",
     "API_TOKEN_ENDPOINT_NOT_ALLOWED": "Dieser Endpunkt ist für API-Tokens nicht freigegeben.",
     "API_TOKEN_INVALID": "Der API-Token ist ungültig oder abgelaufen.",
@@ -3332,6 +3476,7 @@
     "API_TOKEN_SCOPE_MISSING": "Dem API-Token fehlt die Berechtigung „{scope}“.",
     "ASSIGNMENT_NOT_CONFIRMED": "Die Zuweisung muss bestätigt sein.",
     "ASSIGNMENT_NOT_FOUND": "Die Zuweisung wurde nicht gefunden.",
+    "ASSISTANT_DISABLED": "Die Assistent-Funktionen sind für deine Organisation ausgeschaltet.",
     "CARD_READER_NOT_LINKED": "Mit diesem Gerät ist kein Kartenleser verknüpft.",
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
     "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
@@ -3417,6 +3562,11 @@
     "MEMBER_ACCOUNT_EXISTS": "Für diese E-Mail-Adresse gibt es bereits ein Konto. Bitte füge die Person ohne Startpasswort hinzu.",
     "MEMBER_ALREADY_EXISTS": "Diese Person ist bereits Mitglied.",
     "MEMBER_NOT_FOUND": "Das Mitglied wurde nicht gefunden.",
+    "MENU_IMPORT_CATEGORY_KEY_UNKNOWN": "Ein Produkt verweist auf eine Kategorie, die es im Vorschlag nicht gibt.",
+    "MENU_IMPORT_FAILED": "Die Speisekarte konnte nicht ausgewertet werden.",
+    "MENU_IMPORT_INVALID_FILES": "Bitte lade bis zu 6 Bilder (JPG, PNG, WebP) oder eine PDF-Datei hoch – oder füge den Text ein.",
+    "MENU_IMPORT_NOT_FOUND": "Der Import wurde nicht gefunden.",
+    "MENU_IMPORT_NOT_READY": "Der Import ist noch nicht fertig oder wurde schon übernommen.",
     "MESSAGE_EMPTY": "Die Nachricht darf nicht leer sein.",
     "NAME_REQUIRED": "Bitte gib einen Namen an.",
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Bitte prüfe deine Verbindung.",

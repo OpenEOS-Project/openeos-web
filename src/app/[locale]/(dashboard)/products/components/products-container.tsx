@@ -6,13 +6,17 @@ import { Icon } from '@openeos/ui';
 import { Building } from 'lucide-react';
 import Link from 'next/link';
 
+import { useAssistantStatus } from '@/hooks/use-assistant';
 import { useDeleteProduct } from '@/hooks/use-products';
 import { useActiveEvent } from '@/hooks/use-events';
+import { usePermissions } from '@/hooks/use-permissions';
+import { assistantUsable } from '@/lib/assistant';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
 
 import { CategoriesManagementModal } from './categories-management-modal';
+import { MenuImportDialog } from './menu-import-dialog';
 import { ProductFormModal } from './product-form-modal';
 import { ProductImportModal } from './product-import-modal';
 import { ProductsList } from './products-list';
@@ -23,6 +27,7 @@ export function ProductsContainer() {
   const tCommon = useTranslations('common');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isMenuImportOpen, setIsMenuImportOpen] = useState(false);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -33,6 +38,13 @@ export function ProductsContainer() {
 
   const { data: activeEvent, isLoading: isLoadingActive } = useActiveEvent(organizationId);
   const deleteProduct = useDeleteProduct();
+  /* „Aus Speisekarte importieren“ nur mit eingeschalteten Assistent-Funktionen;
+     Admins sehen sonst einen Hinweis auf die Einstellung — aber nur, wenn
+     der Server die Funktionen überhaupt anbietet. */
+  const { data: assistant } = useAssistantStatus(organizationId || undefined);
+  const { isAdmin } = usePermissions();
+  const menuImportAvailable = assistantUsable(assistant);
+  const menuImportHint = !!assistant?.available && !assistant.enabled && isAdmin;
 
   const eventId = activeEvent?.id ?? '';
 
@@ -107,6 +119,8 @@ export function ProductsContainer() {
         eventId={eventId}
         onCreateClick={handleCreateClick}
         onImportClick={() => setIsImportModalOpen(true)}
+        onMenuImportClick={menuImportAvailable ? () => setIsMenuImportOpen(true) : undefined}
+        menuImportHint={menuImportHint}
         onManageCategoriesClick={() => setIsCategoriesModalOpen(true)}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
@@ -123,6 +137,12 @@ export function ProductsContainer() {
         isOpen={isImportModalOpen}
         eventId={eventId}
         onClose={() => setIsImportModalOpen(false)}
+      />
+
+      <MenuImportDialog
+        isOpen={isMenuImportOpen}
+        eventId={eventId}
+        onClose={() => setIsMenuImportOpen(false)}
       />
 
       <ProductFormModal

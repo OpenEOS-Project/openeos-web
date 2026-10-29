@@ -10,12 +10,16 @@ import { z } from 'zod';
 import { Button, Icon } from '@openeos/ui';
 
 import { ProductImage } from '@/components/shared/product-image';
+import { PosIconImage } from '@/components/shared/pos-icon-image';
 import { PosIconPicker } from '@/components/shared/pos-icon-picker';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
+import { toast } from '@/components/shared/toast';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/use-products';
 import { useProductionStations } from '@/hooks/use-production-stations';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
+import { useAssistantUsable, useIconSuggestions } from '@/hooks/use-assistant';
 import { uploadsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Category } from '@/types/category';
@@ -26,6 +30,8 @@ import { SettingToggle } from '@/components/shared/setting-toggle';
 import { PriceInput } from '@/components/shared/price-input';
 import { useOrganization } from '@/hooks/use-organizations';
 import { taxRatesFor } from '@/lib/tax-rates';
+import { parsePosIcon } from '@/utils/product-icon';
+import '@/styles/assistant.css';
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
 // ausserhalb der Komponente gibt es noch kein t().
@@ -62,6 +68,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
   const tIcon = useTranslations('posIconPicker');
+  const apiErrorMessage = useApiErrorMessage();
   const { formatCurrency } = useLocaleFormat();
   // Vorgabe fuer neue Produkte in der Sprache der Oberflaeche; gespeichert
   // wird der Text, den das Feld beim Absenden enthaelt.
@@ -93,6 +100,12 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   const [isUploading, setIsUploading] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  /* Icon-Vorschlag (Assistent): holt zum eingegebenen Namen bis zu drei
+     passende Produkt-Icons; nur sichtbar, wenn die Organisation die
+     Assistent-Funktionen eingeschaltet hat. */
+  const assistantUsable = useAssistantUsable(organizationId || undefined);
+  const iconSuggestions = useIconSuggestions(organizationId);
+  const [suggestedFor, setSuggestedFor] = useState<string | null>(null);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
   const categoryFieldId = useId();
 
@@ -124,6 +137,25 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
   });
 
   const trackInventory = watch('trackInventory');
+  const productName = watch('name');
+
+  const suggestIcons = () => {
+    const name = productName?.trim();
+    if (!name) {
+      toast.error(t('form.iconSuggest.needName'));
+      return;
+    }
+    setSuggestedFor(name);
+    iconSuggestions.mutate([name], {
+      onError: (err) => {
+        setSuggestedFor(null);
+        toast.error(apiErrorMessage(err, tCommon('error')));
+      },
+    });
+  };
+  const suggested = suggestedFor
+    ? (iconSuggestions.data?.find((entry) => entry.name === suggestedFor)?.suggestions ?? []).slice(0, 3)
+    : [];
   const isActiveVal = watch('isActive');
   const isAvailableVal = watch('isAvailable');
 
@@ -286,6 +318,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
     setOptionGroups([]);
     setImageUrl(null);
     setIcon(null);
+    setSuggestedFor(null);
     onClose();
   };
 
@@ -331,6 +364,11 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                         {tIcon('remove')}
                       </Button>
                     )}
+                    {assistantUsable && (
+                      <Button variant="ghost" size="sm" disabled={iconSuggestions.isPending} onClick={suggestIcons}>
+                        {iconSuggestions.isPending ? t('form.iconSuggest.loading') : t('form.iconSuggest.button')}
+                      </Button>
+                    )}
                     <Button variant="ghost" size="sm" disabled={isUploading} onClick={() => fileInputRef.current?.click()}>
                       {isUploading ? t('form.image.uploading') : t('form.image.upload')}
                     </Button>
@@ -340,6 +378,37 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                       </Button>
                     )}
                   </div>
+                  {suggestedFor && !iconSuggestions.isPending && (
+                    <div className="icon-suggest" role="group" aria-label={t('form.iconSuggest.title', { name: suggestedFor })}>
+                      <span>{suggested.length > 0 ? t('form.iconSuggest.title', { name: suggestedFor }) : t('form.iconSuggest.none')}</span>
+                      {suggested.length > 0 && (
+                        <div className="icon-suggest__options">
+                          {suggested.map((suggestion) => {
+                            const id = parsePosIcon(suggestion.icon);
+                            if (!id) return null;
+                            const label = id.replace(/-/g, ' ');
+                            const active = icon === suggestion.icon;
+                            return (
+                              <button
+                                key={suggestion.icon}
+                                type="button"
+                                className={active ? 'icon-suggest__btn is-selected' : 'icon-suggest__btn'}
+                                title={t('form.iconSuggest.use', { label })}
+                                aria-label={t('form.iconSuggest.use', { label })}
+                                aria-pressed={active}
+                                onClick={() => {
+                                  setIcon(suggestion.icon);
+                                  if (imageUrl?.startsWith('pos-icon:')) setImageUrl(null);
+                                }}
+                              >
+                                <PosIconImage id={id} />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <p className="icon-field__hint">{icon ? tIcon('iconWins') : tIcon('fromCategory')}</p>
                 </div>
               </div>

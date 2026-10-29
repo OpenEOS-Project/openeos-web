@@ -744,6 +744,81 @@ export const productsApi = {
     apiClient.post<ApiResponse<import('@/types/product').ProductImportResult>>(`/events/${eventId}/products/import`, data),
 };
 
+// Assistant (organization opt-in, quotas, icon suggestions)
+export const assistantApi = {
+  status: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/assistant').AssistantStatus>>(
+      `/organizations/${organizationId}/assistant`
+    ),
+
+  setEnabled: (organizationId: string, enabled: boolean) =>
+    apiClient.patch<ApiResponse<import('@/types/assistant').AssistantStatus>>(
+      `/organizations/${organizationId}/assistant`,
+      { enabled }
+    ),
+
+  iconSuggestions: (organizationId: string, names: string[]) =>
+    apiClient.post<ApiResponse<import('@/types/assistant').IconSuggestionResult[]>>(
+      `/organizations/${organizationId}/assistant/icon-suggestions`,
+      { names }
+    ),
+};
+
+// Menu imports (assistant, per event)
+export const menuImportsApi = {
+  /**
+   * multipart: `files` (Bilder oder eine PDF) oder `text`. Wie bei den
+   * Bild-Uploads direkt über fetch, weil der Client nur JSON kennt.
+   */
+  create: async (
+    organizationId: string,
+    eventId: string,
+    input: import('@/types/assistant').CreateMenuImportInput
+  ) => {
+    const formData = new FormData();
+    for (const file of input.files ?? []) formData.append('files', file);
+    if (input.text) formData.append('text', input.text);
+    const token = apiClient.getAccessToken();
+    const response = await fetch(
+      `${API_URL}/organizations/${organizationId}/events/${eventId}/menu-imports`,
+      {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        credentials: 'include',
+        body: formData,
+      }
+    );
+    if (!response.ok) throw await apiExceptionFromResponse(response);
+    return response.json() as Promise<ApiResponse<{ id: string; status: 'queued' }>>;
+  },
+
+  list: (organizationId: string, eventId: string) =>
+    apiClient.get<ApiResponse<import('@/types/assistant').MenuImport[]>>(
+      `/organizations/${organizationId}/events/${eventId}/menu-imports`
+    ),
+
+  get: (organizationId: string, eventId: string, id: string) =>
+    apiClient.get<ApiResponse<import('@/types/assistant').MenuImport>>(
+      `/organizations/${organizationId}/events/${eventId}/menu-imports/${id}`
+    ),
+
+  apply: (
+    organizationId: string,
+    eventId: string,
+    id: string,
+    data: import('@/types/assistant').ApplyMenuImportData
+  ) =>
+    apiClient.post<ApiResponse<import('@/types/assistant').ApplyMenuImportResult>>(
+      `/organizations/${organizationId}/events/${eventId}/menu-imports/${id}/apply`,
+      data
+    ),
+
+  remove: (organizationId: string, eventId: string, id: string) =>
+    apiClient.delete<ApiResponse<{ success: boolean }>>(
+      `/organizations/${organizationId}/events/${eventId}/menu-imports/${id}`
+    ),
+};
+
 // Tables API (organization level) — lives in its own module
 export { tablesApi } from '@/lib/tables-api';
 
