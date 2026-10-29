@@ -23,8 +23,23 @@ export const MENU_IMPORT_MAX_TEXT = 20000;
 export const MENU_IMPORT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const MENU_IMPORT_PDF_TYPE = 'application/pdf';
 export const MENU_IMPORT_ACCEPT = [...MENU_IMPORT_IMAGE_TYPES, MENU_IMPORT_PDF_TYPE].join(',');
+export const MENU_IMPORT_IMAGE_ACCEPT = MENU_IMPORT_IMAGE_TYPES.join(',');
 
-export type MenuFileProblem = 'empty' | 'type' | 'tooMany' | 'tooLarge' | 'pdfAlone';
+/**
+ * `accept` für die Dateiauswahl: PDF nur, wenn der Anbieter auf dem Server
+ * sie liest (`pdfSupported` im Assistent-Status).
+ */
+export function menuImportAccept(pdfSupported: boolean): string {
+  return pdfSupported ? MENU_IMPORT_ACCEPT : MENU_IMPORT_IMAGE_ACCEPT;
+}
+
+export type MenuFileProblem =
+  | 'empty'
+  | 'type'
+  | 'tooMany'
+  | 'tooLarge'
+  | 'pdfAlone'
+  | 'pdfUnsupported';
 
 export type MenuFilesCheck =
   | { ok: true; kind: 'images' | 'pdf' }
@@ -49,14 +64,17 @@ function mediaTypeOf(file: FileLike): string {
 
 /**
  * Prüft eine Auswahl vor dem Hochladen: 1–6 Bilder (JPG, PNG, WebP) oder
- * genau eine PDF, jede Datei höchstens `maxMb` MB.
+ * genau eine PDF, jede Datei höchstens `maxMb` MB. Liest der Anbieter keine
+ * PDF (`pdfSupported: false`), wird sie mit `pdfUnsupported` abgewiesen —
+ * dieselbe Antwort, die die API als `MENU_IMPORT_PDF_UNSUPPORTED` gäbe.
  */
 export function checkMenuFiles(
   files: readonly FileLike[],
-  limits: { max?: number; maxMb?: number } = {}
+  limits: { max?: number; maxMb?: number; pdfSupported?: boolean } = {}
 ): MenuFilesCheck {
   const max = limits.max ?? MENU_IMPORT_MAX_FILES;
   const maxMb = limits.maxMb ?? MENU_IMPORT_MAX_MB;
+  const pdfSupported = limits.pdfSupported ?? true;
   const params = { max, maxMb };
   if (files.length === 0) return { ok: false, problem: 'empty', params };
 
@@ -72,8 +90,10 @@ export function checkMenuFiles(
   if (big >= 0)
     return { ok: false, problem: 'tooLarge', params: { ...params, name: files[big].name } };
 
-  const pdfs = types.filter((type) => type === MENU_IMPORT_PDF_TYPE).length;
-  if (pdfs > 0) {
+  const pdf = types.findIndex((type) => type === MENU_IMPORT_PDF_TYPE);
+  if (pdf >= 0) {
+    if (!pdfSupported)
+      return { ok: false, problem: 'pdfUnsupported', params: { ...params, name: files[pdf].name } };
     if (files.length > 1) return { ok: false, problem: 'pdfAlone', params };
     return { ok: true, kind: 'pdf' };
   }
@@ -320,3 +340,6 @@ export function buildApplyPayload(state: PreviewState): ApplyBuild {
 export function menuImportPending(status: string | undefined): boolean {
   return status === 'queued' || status === 'processing';
 }
+
+/** Vorschlag ohne Produkte — die API meldet das als `done`, nicht als Fehler. */
+export const EMPTY_MENU_SUGGESTION: MenuSuggestion = { categories: [], products: [], warnings: [] };

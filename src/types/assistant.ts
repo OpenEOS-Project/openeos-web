@@ -19,6 +19,11 @@ export interface AssistantStatus {
   enabled: boolean;
   /** Auf dem Server ist ein Anbieter eingerichtet (`AI_PROVIDER` + Schlüssel). */
   available: boolean;
+  /**
+   * Der Anbieter liest PDF-Dateien. Sonst nimmt der Speisekarten-Import nur
+   * Fotos; eine PDF weist die API mit `MENU_IMPORT_PDF_UNSUPPORTED` ab.
+   */
+  pdfSupported: boolean;
   quotas: {
     menuImports: AssistantQuota;
     classifications: AssistantQuota;
@@ -89,18 +94,22 @@ export interface MenuImport {
   id: string;
   status: MenuImportStatus;
   source: MenuImportSource;
-  /** Ursache bei `failed`. */
+  /** Bei `failed`: Text für die Anzeige, so wie die API ihn formuliert. */
   error?: string;
   createdAt: string;
   finishedAt?: string;
   appliedAt?: string;
-  /** Nur bei `done` (und in der Liste nie). */
+  /**
+   * Nur bei `done` (und in der Liste nie). Eine Karte ohne erkennbare
+   * Produkte endet ebenfalls als `done` — mit leerem `products` und einem
+   * Hinweis in `warnings`.
+   */
   suggestion?: MenuSuggestion;
   usage?: MenuImportUsage;
 }
 
 export interface CreateMenuImportInput {
-  /** 1–6 Bilder (JPG, PNG, WebP) oder genau eine PDF. */
+  /** 1–6 Bilder (JPG, PNG, WebP) oder genau eine PDF (nur bei `pdfSupported`). */
   files?: File[];
   /** Alternativ: die Speisekarte als Text (max. 20.000 Zeichen). */
   text?: string;

@@ -1436,11 +1436,14 @@
       "title": "Aus Speisekarte importieren",
       "source": {
         "files": "Fotos oder PDF",
+        "images": "Fotos",
         "text": "Text"
       },
       "drop": {
         "title": "Fotos oder PDF hierher ziehen",
+        "titleImages": "Fotos hierher ziehen",
         "hint": "Bis zu {max} Bilder (JPG, PNG, WebP) oder eine PDF, je höchstens {maxMb} MB.",
+        "hintImages": "Fotos (JPG, PNG, WebP), bis {max} Seiten, je höchstens {maxMb} MB.",
         "choose": "Dateien auswählen",
         "remove": "{name} entfernen",
         "count": "{count, plural, one {# Datei} other {# Dateien}}"
@@ -1453,9 +1456,11 @@
       "fileProblems": {
         "empty": "Bitte wähle mindestens eine Datei.",
         "type": "„{name}“ ist kein Bild (JPG, PNG, WebP) und keine PDF.",
+        "typeImages": "„{name}“ ist kein Bild (JPG, PNG, WebP).",
         "tooMany": "Bitte höchstens {max} Bilder je Import.",
         "tooLarge": "„{name}“ ist zu groß – höchstens {maxMb} MB je Datei.",
-        "pdfAlone": "Eine PDF-Datei kann nur allein hochgeladen werden."
+        "pdfAlone": "Eine PDF-Datei kann nur allein hochgeladen werden.",
+        "pdfUnsupported": "PDF wird vom eingerichteten Anbieter nicht unterstützt – lade Fotos der Seiten hoch."
       },
       "start": "Auswerten",
       "progress": {
@@ -1472,6 +1477,10 @@
       "preview": {
         "caution": "Vorschläge können Fehler enthalten – bitte prüfen.",
         "empty": "Auf der Speisekarte wurden keine Produkte erkannt.",
+        "emptyTitle": "Keine Produkte erkannt",
+        "emptyHint": "Versuch es mit schärferen Fotos – oder füge die Speisekarte als Text ein.",
+        "retry": "Erneut versuchen",
+        "useText": "Als Text eingeben",
         "warnings": "Hinweise",
         "selected": "{count} von {total} ausgewählt",
         "newCategory": "neu",
@@ -3567,6 +3576,7 @@
     "MENU_IMPORT_INVALID_FILES": "Bitte lade bis zu 6 Bilder (JPG, PNG, WebP) oder eine PDF-Datei hoch – oder füge den Text ein.",
     "MENU_IMPORT_NOT_FOUND": "Der Import wurde nicht gefunden.",
     "MENU_IMPORT_NOT_READY": "Der Import ist noch nicht fertig oder wurde schon übernommen.",
+    "MENU_IMPORT_PDF_UNSUPPORTED": "PDF wird vom eingerichteten Anbieter nicht unterstützt – lade Fotos der Seiten hoch.",
     "MESSAGE_EMPTY": "Die Nachricht darf nicht leer sein.",
     "NAME_REQUIRED": "Bitte gib einen Namen an.",
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Bitte prüfe deine Verbindung.",
