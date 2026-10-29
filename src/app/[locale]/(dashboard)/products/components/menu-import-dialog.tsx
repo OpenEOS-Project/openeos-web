@@ -29,7 +29,7 @@ import { usePfandTypes } from '@/hooks/use-pfand-types';
 
 import { quotaLine } from '@/lib/assistant';
 import {
-  MENU_IMPORT_ACCEPT,
+  EMPTY_MENU_SUGGESTION,
   MENU_IMPORT_MAX_FILES,
   MENU_IMPORT_MAX_MB,
   MENU_IMPORT_MAX_TEXT,
@@ -38,6 +38,7 @@ import {
   buildApplyPayload,
   buildPreview,
   checkMenuFiles,
+  menuImportAccept,
   menuImportPending,
 } from '@/lib/menu-import';
 import { taxRatesFor } from '@/lib/tax-rates';
@@ -68,6 +69,13 @@ function iconLabel(icon: string): string {
  *
  * Nichts wird ohne Durchsicht gespeichert: der Vorschlag ist Vorschlag,
  * erst `apply` legt Kategorien und Produkte an.
+ *
+ * PDF gibt es nur, wenn der Anbieter auf dem Server sie liest
+ * (`pdfSupported` im Assistent-Status); sonst bietet die Dateiauswahl nur
+ * Fotos an. Eine Karte ohne erkennbare Produkte kommt als `done` ohne
+ * Produkte zurück und zeigt statt der Tabelle einen Hinweis mit dem Weg
+ * zurück zur Eingabe. `error` bei `failed` ist für Menschen formuliert und
+ * wird unverändert angezeigt.
  */
 export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogProps) {
   const t = useTranslations('products.menuImport');
@@ -88,6 +96,8 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
   const { data: pfandTypes } = usePfandTypes(organizationId || undefined);
   const { data: categories, isLoading: categoriesLoading } = useCategories(eventId);
   const status = useAssistantStatus(organizationId || undefined);
+  // Ältere API-Stände kennen das Feld nicht — dann wie bisher PDF anbieten.
+  const pdfSupported = status.data?.pdfSupported !== false;
 
   const [source, setSource] = useState<Source>('files');
   const [files, setFiles] = useState<File[]>([]);
@@ -108,12 +118,13 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
   const pending = !!importId && (!importData || menuImportPending(importData.status));
 
   // Vorschlag angekommen: Tabelle einmal aufbauen (Pfand-Typen und
-  // Kategorien der Veranstaltung fließen in die Vorbelegung ein).
+  // Kategorien der Veranstaltung fließen in die Vorbelegung ein). Ohne
+  // Produkte bleibt die Tabelle leer und der Dialog zeigt den Hinweis.
   useEffect(() => {
     if (!importId || preview || categoriesLoading) return;
-    if (importData?.status === 'done' && importData.suggestion) {
+    if (importData?.status === 'done') {
       setPreview(
-        buildPreview(importData.suggestion, {
+        buildPreview(importData.suggestion ?? EMPTY_MENU_SUGGESTION, {
           pfandTypes: pfandTypes ?? [],
           existingCategories: categories ?? [],
         })
@@ -153,10 +164,12 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
   const start = () => {
     setInputError(null);
     if (source === 'files') {
-      const check = checkMenuFiles(files);
+      const check = checkMenuFiles(files, { pdfSupported });
       if (!check.ok) {
+        // Ohne PDF-Unterstützung nennt die Fehlermeldung auch keine PDF.
+        const problem = check.problem === 'type' && !pdfSupported ? 'typeImages' : check.problem;
         setInputError(
-          t(`fileProblems.${check.problem}`, { ...check.params, name: check.params.name ?? '' })
+          t(`fileProblems.${problem}`, { ...check.params, name: check.params.name ?? '' })
         );
         return;
       }
@@ -175,6 +188,13 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
     if (importId) discardImport(importId);
     setImportId(null);
     setPreview(null);
+    setInputError(null);
+  };
+
+  /** Zurück zur Eingabe, gleich auf den Text-Reiter — wenn Fotos nichts ergaben. */
+  const retryAsText = () => {
+    retry();
+    setSource('text');
   };
 
   const updateRow = (key: string, patch: Partial<PreviewRow>) => {
@@ -192,6 +212,7 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
   const problemCount = build ? Object.keys(build.problems).length : 0;
   const selectedCount = preview ? preview.rows.filter((row) => row.selected).length : 0;
   const allSelected = !!preview && preview.rows.length > 0 && selectedCount === preview.rows.length;
+  const previewEmpty = !!preview && preview.rows.length === 0;
 
   const apply = () => {
     if (!importId || !build || problemCount > 0 || build.data.products.length === 0) return;
@@ -240,7 +261,7 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
       <Segment
         aria-label={t('title')}
         options={[
-          { id: 'files', label: t('source.files') },
+          { id: 'files', label: pdfSupported ? t('source.files') : t('source.images') },
           { id: 'text', label: t('source.text') },
         ]}
         value={source}
@@ -255,7 +276,7 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
           <input
             ref={fileInputRef}
             type="file"
-            accept={MENU_IMPORT_ACCEPT}
+            accept={menuImportAccept(pdfSupported)}
             multiple
             style={{ display: 'none' }}
             onChange={(e) => {
@@ -286,9 +307,14 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
             }}
           >
             <Icon name="download" size={28} />
-            <p className="menu-import__drop-title">{t('drop.title')}</p>
+            <p className="menu-import__drop-title">
+              {pdfSupported ? t('drop.title') : t('drop.titleImages')}
+            </p>
             <p className="menu-import__drop-hint">
-              {t('drop.hint', { max: MENU_IMPORT_MAX_FILES, maxMb: MENU_IMPORT_MAX_MB })}
+              {t(pdfSupported ? 'drop.hint' : 'drop.hintImages', {
+                max: MENU_IMPORT_MAX_FILES,
+                maxMb: MENU_IMPORT_MAX_MB,
+              })}
             </p>
             <span className="btn btn--ghost" style={{ fontSize: 12 }}>
               {t('drop.choose')}
@@ -595,10 +621,12 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
     const warnings = importData?.suggestion?.warnings ?? [];
     return (
       <>
-        <p className="menu-import__caution">
-          <Icon name="info" />
-          {t('preview.caution')}
-        </p>
+        {preview.rows.length > 0 && (
+          <p className="menu-import__caution">
+            <Icon name="info" />
+            {t('preview.caution')}
+          </p>
+        )}
         {warnings.length > 0 && (
           /* Kein Banner: der packt seinen Inhalt in ein <p>, und eine Liste
              darf dort nicht hinein. */
@@ -615,8 +643,8 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
           </div>
         )}
         {preview.rows.length === 0 ? (
-          <Banner tone="info" icon={<Icon name="info" />}>
-            {t('preview.empty')}
+          <Banner tone="info" icon={<Icon name="info" />} title={t('preview.emptyTitle')}>
+            {t('preview.empty')} {t('preview.emptyHint')}
           </Banner>
         ) : (
           <>
@@ -711,7 +739,17 @@ export function MenuImportDialog({ isOpen, eventId, onClose }: MenuImportDialogP
                 {t('failed.retry')}
               </button>
             )}
-            {step === 'preview' && (
+            {step === 'preview' && previewEmpty && (
+              <>
+                <button type="button" className="btn btn--ghost" onClick={retryAsText}>
+                  {t('preview.useText')}
+                </button>
+                <button type="button" className="btn btn--primary" onClick={retry}>
+                  {t('preview.retry')}
+                </button>
+              </>
+            )}
+            {step === 'preview' && !previewEmpty && (
               <button
                 type="button"
                 className="btn btn--primary"

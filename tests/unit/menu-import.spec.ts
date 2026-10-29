@@ -2,11 +2,15 @@ import { expect, test } from '@playwright/test';
 
 import { assistantUsable, privacyUrl, quotaLine } from '@/lib/assistant';
 import {
+  EMPTY_MENU_SUGGESTION,
+  MENU_IMPORT_ACCEPT,
+  MENU_IMPORT_IMAGE_ACCEPT,
   buildApplyPayload,
   buildPreview,
   checkMenuFiles,
   formatPriceInput,
   matchPfandType,
+  menuImportAccept,
   menuImportPending,
   parsePrice,
 } from '@/lib/menu-import';
@@ -128,6 +132,38 @@ test.describe('checkMenuFiles', () => {
       problem: 'tooLarge',
     });
   });
+
+  test('rejects PDF when the provider does not read it', () => {
+    // Same answer the API would give as MENU_IMPORT_PDF_UNSUPPORTED.
+    expect(checkMenuFiles([file('karte.pdf', 'application/pdf')], { pdfSupported: false })).toEqual(
+      {
+        ok: false,
+        problem: 'pdfUnsupported',
+        params: { max: 6, maxMb: 10, name: 'karte.pdf' },
+      }
+    );
+    // The flag wins over the "PDF only on its own" rule.
+    expect(
+      checkMenuFiles([file('b.jpg', 'image/jpeg'), file('karte.pdf', '')], { pdfSupported: false })
+    ).toMatchObject({ ok: false, problem: 'pdfUnsupported', params: { name: 'karte.pdf' } });
+    // Images are unaffected; the default keeps PDF allowed.
+    expect(checkMenuFiles([file('a.jpg', 'image/jpeg')], { pdfSupported: false })).toEqual({
+      ok: true,
+      kind: 'images',
+    });
+    expect(checkMenuFiles([file('karte.pdf', 'application/pdf')], { pdfSupported: true })).toEqual({
+      ok: true,
+      kind: 'pdf',
+    });
+  });
+
+  test('accept list offers PDF only when supported', () => {
+    expect(menuImportAccept(true)).toBe(MENU_IMPORT_ACCEPT);
+    expect(menuImportAccept(false)).toBe(MENU_IMPORT_IMAGE_ACCEPT);
+    expect(MENU_IMPORT_ACCEPT).toContain('application/pdf');
+    expect(MENU_IMPORT_IMAGE_ACCEPT).not.toContain('pdf');
+    expect(MENU_IMPORT_IMAGE_ACCEPT.split(',')).toEqual(['image/jpeg', 'image/png', 'image/webp']);
+  });
 });
 
 test.describe('prices', () => {
@@ -204,6 +240,24 @@ test.describe('buildPreview', () => {
     // Unknown category key falls back to the first category.
     expect(kaffee.categoryKey).toBe('c1');
     expect(kaffee.price).toBe('0.00');
+  });
+
+  test('yields no rows for a menu without products (done, not failed)', () => {
+    expect(buildPreview(EMPTY_MENU_SUGGESTION)).toEqual({ categories: [], rows: [] });
+    // Warnings travel alongside; existing categories still become options.
+    const state = buildPreview(
+      { categories: [], products: [], warnings: ['Nichts erkannt'] },
+      { existingCategories: [{ id: 'cat-drinks', name: 'Getränke' }] }
+    );
+    expect(state.rows).toEqual([]);
+    expect(state.categories).toEqual([
+      { key: 'e1', name: 'Getränke', existingCategoryId: 'cat-drinks' },
+    ]);
+    expect(buildApplyPayload(state)).toEqual({
+      data: { categories: [], products: [] },
+      problems: {},
+      counts: { create: 0, update: 0 },
+    });
   });
 
   test('works without pfand types and existing categories', () => {
@@ -303,9 +357,15 @@ test.describe('assistant status', () => {
         resetAt: '2026-10-30T00:00:00+01:00',
       },
     };
-    expect(assistantUsable({ enabled: true, available: true, quotas })).toBe(true);
-    expect(assistantUsable({ enabled: true, available: false, quotas })).toBe(false);
-    expect(assistantUsable({ enabled: false, available: true, quotas })).toBe(false);
+    expect(assistantUsable({ enabled: true, available: true, pdfSupported: true, quotas })).toBe(
+      true
+    );
+    expect(assistantUsable({ enabled: true, available: false, pdfSupported: true, quotas })).toBe(
+      false
+    );
+    expect(assistantUsable({ enabled: false, available: true, pdfSupported: false, quotas })).toBe(
+      false
+    );
     expect(assistantUsable(undefined)).toBe(false);
   });
 

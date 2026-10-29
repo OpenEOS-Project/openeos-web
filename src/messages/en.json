@@ -1719,11 +1719,14 @@
       "title": "Import from menu",
       "source": {
         "files": "Photos or PDF",
+        "images": "Photos",
         "text": "Text"
       },
       "drop": {
         "title": "Drag photos or a PDF here",
+        "titleImages": "Drag photos here",
         "hint": "Up to {max} images (JPG, PNG, WebP) or one PDF, at most {maxMb} MB each.",
+        "hintImages": "Photos (JPG, PNG, WebP), up to {max} pages, at most {maxMb} MB each.",
         "choose": "Choose files",
         "remove": "Remove {name}",
         "count": "{count, plural, one {# file} other {# files}}"
@@ -1736,9 +1739,11 @@
       "fileProblems": {
         "empty": "Please choose at least one file.",
         "type": "“{name}” is neither an image (JPG, PNG, WebP) nor a PDF.",
+        "typeImages": "“{name}” is not an image (JPG, PNG, WebP).",
         "tooMany": "At most {max} images per import, please.",
         "tooLarge": "“{name}” is too large – at most {maxMb} MB per file.",
-        "pdfAlone": "A PDF can only be uploaded on its own."
+        "pdfAlone": "A PDF can only be uploaded on its own.",
+        "pdfUnsupported": "PDF is not supported by the configured provider – upload photos of the pages instead."
       },
       "start": "Read menu",
       "progress": {
@@ -1755,6 +1760,10 @@
       "preview": {
         "caution": "Suggestions can contain mistakes – please check them.",
         "empty": "No products were recognised on the menu.",
+        "emptyTitle": "No products recognised",
+        "emptyHint": "Try sharper photos – or paste the menu as text.",
+        "retry": "Try again",
+        "useText": "Enter as text",
         "warnings": "Notes",
         "selected": "{count} of {total} selected",
         "newCategory": "new",
@@ -3567,6 +3576,7 @@
     "MENU_IMPORT_INVALID_FILES": "Please upload up to 6 images (JPG, PNG, WebP) or one PDF – or paste the text.",
     "MENU_IMPORT_NOT_FOUND": "The import was not found.",
     "MENU_IMPORT_NOT_READY": "The import is not finished yet or has already been applied.",
+    "MENU_IMPORT_PDF_UNSUPPORTED": "PDF is not supported by the configured provider – upload photos of the pages instead.",
     "MESSAGE_EMPTY": "The message must not be empty.",
     "NAME_REQUIRED": "Please enter a name.",
     "NETWORK_ERROR": "The server cannot be reached. Please check your connection.",
