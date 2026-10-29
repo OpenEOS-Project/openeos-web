@@ -1,0 +1,300 @@
+/* Assistent-Funktionen: Abschnitt in den Einstellungen, Speisekarten-Import
+   (products/components/menu-import-dialog.tsx) und der Icon-Vorschlag im
+   Produktformular. */
+
+.assistant-features__title,
+.assistant-quota__title {
+  font: 500 11px/16px var(--oe-f-mono, ui-monospace, monospace);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.assistant-features {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+  list-style: disc;
+}
+.assistant-quota {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.assistant-quota ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.assistant-privacy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--oe-mute);
+}
+
+/* Icon-Vorschlag im Produktformular */
+.icon-suggest {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.icon-suggest__options {
+  display: flex;
+  gap: 6px;
+}
+
+/* Speisekarten-Import */
+/* .landing .modal__panel setzt 520px; die Vorschau-Tabelle braucht Breite. */
+.landing .menu-import__panel {
+  max-width: 560px;
+}
+.landing .menu-import__panel--wide {
+  max-width: min(1180px, calc(100vw - 24px));
+}
+.menu-import__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.menu-import__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  border: 2px dashed color-mix(in oklab, var(--oe-ink) 20%, transparent);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--oe-ink);
+  background: color-mix(in oklab, var(--oe-ink) 3%, transparent);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.menu-import__drop:hover,
+.menu-import__drop.is-over {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+.menu-import__drop:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
+}
+.menu-import__drop-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+}
+.menu-import__drop-hint {
+  font-size: 12px;
+  color: var(--oe-mute);
+  margin: 0;
+}
+.menu-import__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.menu-import__textarea {
+  min-height: 220px;
+  font-family: var(--oe-f-mono, monospace);
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.menu-import__count {
+  font-size: 11px;
+  color: var(--oe-mute);
+  text-align: right;
+  margin: 0;
+}
+.menu-import__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+.menu-import__progress h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.menu-import__progress p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+.menu-import__caution {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
+}
+.menu-import__warnings {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--oe-ink);
+  background: var(--oe-warn-soft);
+  border: 1px solid color-mix(in oklab, var(--oe-warn) 35%, transparent);
+  --oe-ico: 18px;
+}
+.menu-import__warnings > .oe-icon,
+.menu-import__warnings > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--oe-warn);
+}
+.menu-import__warnings b {
+  display: block;
+  margin-bottom: 2px;
+}
+.menu-import__warnings ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.menu-import__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.menu-import__table td {
+  vertical-align: top;
+}
+.menu-import__table .input,
+.menu-import__table .select {
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.menu-import__name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+}
+.menu-import__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+.menu-import__note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--oe-mute);
+  max-width: 260px;
+}
+.menu-import__problem {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--oe-danger);
+}
+.menu-import__price {
+  width: 88px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.menu-import__select {
+  min-width: 140px;
+}
+.menu-import__variants {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 210px;
+}
+.menu-import__variant {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.menu-import__variant .input {
+  width: 104px;
+}
+.menu-import__variant .input--modifier {
+  width: 72px;
+  text-align: right;
+}
+.menu-import__icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.menu-import__icon-btn,
+.icon-suggest__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--oe-ink) 14%, transparent);
+  background: transparent;
+  color: var(--oe-mute);
+  cursor: pointer;
+  flex: none;
+}
+.menu-import__icon-btn:hover,
+.icon-suggest__btn:hover {
+  border-color: var(--oe-ink);
+}
+.menu-import__icon-btn.is-selected,
+.icon-suggest__btn.is-selected {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+.menu-import__icon-btn:focus-visible,
+.icon-suggest__btn:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 1px;
+}
+.menu-import__icon-btn .pos-icon-img,
+.icon-suggest__btn .pos-icon-img {
+  border-radius: 6px;
+}
+.menu-import__icon-sep {
+  width: 1px;
+  height: 24px;
+  margin: 0 2px;
+  background: color-mix(in oklab, var(--oe-ink) 14%, transparent);
+}
+.menu-import__quota {
+  font-size: 12px;
+  color: var(--oe-mute);
+  margin-right: auto;
+}
+.menu-import__confidence {
+  display: inline-flex;
+  align-items: center;
+}

@@ -363,6 +363,9 @@
         "event_invoice_credit_note": "Credit note (Stripe)",
         "event_invoice_resent": "Invoice re-sent",
         "event_invoice_marked_paid": "Invoice marked as paid",
+        "assistant_enabled": "Assistant features switched on",
+        "assistant_disabled": "Assistant features switched off",
+        "menu_import_applied": "Menu import applied",
         "unknown": "Unknown action"
       }
     },
@@ -938,6 +941,36 @@
         "on": "Cashless mode switched on",
         "off": "Cashless mode switched off (cash allowed)"
       }
+    },
+    "organizationAssistant": {
+      "tab": "Assistant",
+      "title": "Assistant",
+      "description": "Helpers that take work off your hands when setting things up.",
+      "toggle": {
+        "label": "Assistant features",
+        "hint": "Read in a menu as a photo, PDF or text and get categories, products, prices and deposits as a suggestion to review. In the product form you get product icons suggested to match the name."
+      },
+      "features": {
+        "title": "What the assistant can do",
+        "menuImport": "Import a menu – a photo, PDF or text becomes a suggestion for categories and products that you review before anything is created.",
+        "icons": "Icon suggestions – product icons that match the product name, in the form and during import."
+      },
+      "privacy": "For this, the uploaded content (menus, product names) is sent to an external provider and stored there only for the duration of processing. Details in the <link>privacy policy</link>.",
+      "adminOnly": "Only admins of the organization can switch the features on or off.",
+      "quota": {
+        "title": "Daily quota",
+        "imports": "{remaining} of {limit} imports left today",
+        "importsExhausted": "The daily quota of {limit} imports is used up – it resets tomorrow.",
+        "icons": "Icon suggestions: {remaining} of {limit} left today",
+        "iconsExhausted": "Icon suggestions: the daily quota of {limit} is used up."
+      },
+      "unavailable": {
+        "title": "Not set up",
+        "text": "No provider for the assistant features is configured on this server. If you host OpenEOS yourself, set AI_PROVIDER and the matching key in the API – see the self-hosting documentation."
+      },
+      "savedOn": "Assistant features are on.",
+      "savedOff": "Assistant features are off.",
+      "loadError": "The status could not be loaded."
     }
   },
   "billing": {
@@ -1580,7 +1613,15 @@
         "zero": "0% (exempt)",
         "exemptHint": "This organization does not charge VAT. Change it in the organization settings."
       },
-      "defaultStockUnit": "pcs"
+      "defaultStockUnit": "pcs",
+      "iconSuggest": {
+        "button": "Suggest",
+        "loading": "Searching …",
+        "title": "Suggestions for “{name}”",
+        "none": "No matching product icon found.",
+        "needName": "Enter a name first, then OpenEOS suggests an icon.",
+        "use": "Use {label}"
+      }
     },
     "status": {
       "active": "Active",
@@ -1669,6 +1710,106 @@
         "sampleFood": "Food,French Fries,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
         "sampleDrink": "Drinks,Cola 0.33 L,,2.80,2.00,cola,,Flavor: Regular | Zero,,",
         "filename": "product-template.csv"
+      }
+    },
+    "menuImport": {
+      "trigger": "Import from menu",
+      "hint": "Want to import a menu? Switch on the assistant features first.",
+      "hintAction": "Go to settings",
+      "title": "Import from menu",
+      "source": {
+        "files": "Photos or PDF",
+        "text": "Text"
+      },
+      "drop": {
+        "title": "Drag photos or a PDF here",
+        "hint": "Up to {max} images (JPG, PNG, WebP) or one PDF, at most {maxMb} MB each.",
+        "choose": "Choose files",
+        "remove": "Remove {name}",
+        "count": "{count, plural, one {# file} other {# files}}"
+      },
+      "text": {
+        "label": "Menu as text",
+        "placeholder": "From the grill\nBratwurst in a roll 3.50\nSteak with bread 8.00\n\nDrinks\nLager 0.3 l 3.00 / 0.5 l 4.00 plus 2 € deposit",
+        "count": "{count} of {max} characters"
+      },
+      "fileProblems": {
+        "empty": "Please choose at least one file.",
+        "type": "“{name}” is neither an image (JPG, PNG, WebP) nor a PDF.",
+        "tooMany": "At most {max} images per import, please.",
+        "tooLarge": "“{name}” is too large – at most {maxMb} MB per file.",
+        "pdfAlone": "A PDF can only be uploaded on its own."
+      },
+      "start": "Read menu",
+      "progress": {
+        "title": "Reading the menu …",
+        "queued": "Waiting in the queue",
+        "processing": "Being analysed – this usually takes less than a minute.",
+        "cancel": "Cancel"
+      },
+      "failed": {
+        "title": "That didn’t work",
+        "unknown": "The menu could not be analysed.",
+        "retry": "Try again"
+      },
+      "preview": {
+        "caution": "Suggestions can contain mistakes – please check them.",
+        "empty": "No products were recognised on the menu.",
+        "warnings": "Notes",
+        "selected": "{count} of {total} selected",
+        "newCategory": "new",
+        "existing": "already exists",
+        "confidence": {
+          "medium": "Unsure about price or category",
+          "low": "Guessed – please check carefully"
+        }
+      },
+      "table": {
+        "select": "Include",
+        "selectAll": "Select all",
+        "selectRow": "Include {name}",
+        "name": "Name",
+        "category": "Category",
+        "price": "Price (€)",
+        "taxRate": "VAT",
+        "pfand": "Deposit",
+        "variants": "Variants",
+        "icon": "Icon"
+      },
+      "action": {
+        "update": "Update",
+        "create": "Create new"
+      },
+      "variants": {
+        "add": "Variant",
+        "name": "Name",
+        "modifier": "Surcharge (€)",
+        "remove": "Remove variant"
+      },
+      "icon": {
+        "choose": "Choose product icon",
+        "none": "No product icon",
+        "suggestion": "Suggestion: {label}",
+        "remove": "Remove product icon"
+      },
+      "pfand": {
+        "none": "— No deposit —",
+        "suggested": "On the menu: deposit",
+        "suggestedAmount": "On the menu: {amount} deposit",
+        "noTypes": "No deposit type created yet"
+      },
+      "problems": {
+        "name": "Name missing",
+        "price": "Price unreadable",
+        "category": "Category missing",
+        "variant": "Variant incomplete"
+      },
+      "apply": "{count, plural, =0 {Nothing selected} one {Create # product} other {Create # products}}",
+      "applyMixed": "Create {create}, update {update}",
+      "applied": "{created, plural, one {# product created} other {# products created}}{updated, plural, =0 {} one {, # updated} other {, # updated}}{categories, plural, =0 {} one {, # new category} other {, # new categories}}.",
+      "quota": {
+        "remaining": "{remaining, plural, one {# import} other {# imports}} left today",
+        "exhausted": "Daily quota used up – it resets tomorrow"
       }
     },
     "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}",
@@ -3325,6 +3466,9 @@
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Only admins can create accounts with an initial password.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Only admins can edit admins.",
     "ADMIN_REQUIRED_TO_GRANT_ADMIN": "Only admins can assign the admin role.",
+    "AI_DISABLED": "The assistant features are not set up on this server.",
+    "AI_PROVIDER_ERROR": "The assistant is currently unavailable – please try again later.",
+    "AI_QUOTA_EXCEEDED": "The daily quota ({used} of {limit}) is used up – it resets tomorrow.",
     "ALREADY_MEMBER": "You are already a member of this organization.",
     "API_TOKEN_ENDPOINT_NOT_ALLOWED": "This endpoint is not available for API tokens.",
     "API_TOKEN_INVALID": "The API token is invalid or has expired.",
@@ -3332,6 +3476,7 @@
     "API_TOKEN_SCOPE_MISSING": "The API token lacks the permission \"{scope}\".",
     "ASSIGNMENT_NOT_CONFIRMED": "The assignment must be confirmed.",
     "ASSIGNMENT_NOT_FOUND": "The assignment was not found.",
+    "ASSISTANT_DISABLED": "The assistant features are switched off for your organization.",
     "CARD_READER_NOT_LINKED": "No card reader is linked to this device.",
     "CART_ITEM_NOT_FOUND": "The item is not in the cart.",
     "CASH_DRAWER_NOT_CONFIGURED": "No cash drawer is set up.",
@@ -3417,6 +3562,11 @@
     "MEMBER_ACCOUNT_EXISTS": "An account with this email address already exists. Please add the person without an initial password.",
     "MEMBER_ALREADY_EXISTS": "This person is already a member.",
     "MEMBER_NOT_FOUND": "The member was not found.",
+    "MENU_IMPORT_CATEGORY_KEY_UNKNOWN": "A product refers to a category that is not part of the suggestion.",
+    "MENU_IMPORT_FAILED": "The menu could not be analysed.",
+    "MENU_IMPORT_INVALID_FILES": "Please upload up to 6 images (JPG, PNG, WebP) or one PDF – or paste the text.",
+    "MENU_IMPORT_NOT_FOUND": "The import was not found.",
+    "MENU_IMPORT_NOT_READY": "The import is not finished yet or has already been applied.",
     "MESSAGE_EMPTY": "The message must not be empty.",
     "NAME_REQUIRED": "Please enter a name.",
     "NETWORK_ERROR": "The server cannot be reached. Please check your connection.",

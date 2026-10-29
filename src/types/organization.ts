@@ -55,6 +55,15 @@ export interface OrganizationSettings {
     /** Letzte Umschaltung (ISO-Zeitpunkt). */
     changedAt?: string;
   };
+  /**
+   * Assistent-Funktionen (Speisekarten-Import, Icon-Vorschläge): Opt-in
+   * der Organisation, schaltet ein Admin über `PATCH …/assistant`.
+   */
+  assistant?: {
+    enabled: boolean;
+    enabledAt?: string;
+    enabledByUserId?: string;
+  };
   onlineOrdering?: {
     enabled: boolean;
     requirePayment: boolean;

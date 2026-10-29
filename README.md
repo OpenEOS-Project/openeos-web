@@ -74,6 +74,26 @@ Der Device-Token landet in `.printer-agent-sim.json` (ignoriert von Git), ein Ne
 denselben Agent. Danach in der Web-App: Drucker → „Drucker-Agent verbinden“ → Code eingeben →
 gefundene Drucker übernehmen, Testdruck auslösen (der Simulator bestätigt Jobs nach kurzer Zeit).
 
+### Assistent ohne echtes Modell testen
+
+`scripts/dev/fake-openai.mjs` ist ein winziger OpenAI-kompatibler Server: Er beantwortet
+`POST /v1/chat/completions` mit einer festen Speisekarte (Schema `menu_extraction` der API) bzw.
+einer Icon-Auswahl, ohne ein Modell zu fragen. Damit lassen sich Einstellungen → Assistent, „Aus
+Speisekarte importieren“ und der Icon-Vorschlag im Produktformular ohne Schlüssel durchspielen.
+
+```bash
+# Fake-Anbieter starten (Port 4010; --delay 1500 verzögert die Antwort, --fail liefert 500)
+node scripts/dev/fake-openai.mjs
+
+# API (openeos-api) dagegen laufen lassen
+AI_PROVIDER=openai OPENAI_API_KEY=fake OPENAI_BASE_URL=http://localhost:4010/v1 pnpm dev
+```
+
+Zur Laufzeit: `GET /fail/on` bzw. `/fail/off` schaltet den Fehlerfall um. Enthält der eingefügte
+Text das Wort „leer“, kommt ein Vorschlag ohne Produkte zurück, „kaputt“ erzeugt einen
+Anbieterfehler (Import `failed`). PDFs lehnt der OpenAI-kompatible Anbieter der API grundsätzlich
+ab — dafür Bilder hochladen.
+
 ## Projektstruktur
 
 ```

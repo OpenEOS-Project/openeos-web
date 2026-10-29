@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Button, Icon } from '@openeos/ui';
 import { ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { ProductImage } from '@/components/shared/product-image';
@@ -16,6 +17,10 @@ interface ProductsListProps {
   eventId: string;
   onCreateClick: () => void;
   onImportClick: () => void;
+  /** Nur gesetzt, wenn die Assistent-Funktionen der Organisation an sind. */
+  onMenuImportClick?: () => void;
+  /** Admin-Hinweis auf die Einstellung, solange der Assistent aus ist. */
+  menuImportHint?: boolean;
   onManageCategoriesClick: () => void;
   onEditClick: (product: Product) => void;
   onDeleteClick: (product: Product) => void;
@@ -26,6 +31,8 @@ export function ProductsList({
   eventId,
   onCreateClick,
   onImportClick,
+  onMenuImportClick,
+  menuImportHint = false,
   onManageCategoriesClick,
   onEditClick,
   onDeleteClick,
@@ -64,9 +71,16 @@ export function ProductsList({
           <ShoppingBag size={28} />
         }
         action={
-          <button className="btn btn--primary" onClick={onCreateClick}>
-            {t('create')}
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button className="btn btn--primary" onClick={onCreateClick}>
+              {t('create')}
+            </button>
+            {onMenuImportClick && (
+              <button className="btn btn--ghost" onClick={onMenuImportClick}>
+                {t('menuImport.trigger')}
+              </button>
+            )}
+          </div>
         }
       />
     );
@@ -88,14 +102,27 @@ export function ProductsList({
           {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
               steht wie bei den Geraeten nur die Anzahl. */}
           <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: products.length })}</p>
+          {menuImportHint && (
+            <p style={{ fontSize: 12, color: 'var(--ink)', opacity: .6, margin: '4px 0 0' }}>
+              {t('menuImport.hint')}{' '}
+              <Link href="/settings?tab=org-assistant" className="cash-tse-notice__link">
+                {t('menuImport.hintAction')}
+              </Link>
+            </p>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <button className="btn btn--ghost" onClick={onManageCategoriesClick}>
             {t('manageCategories')}
           </button>
           <button className="btn btn--ghost" onClick={onImportClick}>
             {t('import.trigger')}
           </button>
+          {onMenuImportClick && (
+            <button className="btn btn--ghost" onClick={onMenuImportClick}>
+              {t('menuImport.trigger')}
+            </button>
+          )}
           <button className="btn btn--primary" onClick={onCreateClick}>
             {t('create')}
           </button>
