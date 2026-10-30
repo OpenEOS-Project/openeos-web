@@ -57,14 +57,9 @@
   gap: 6px;
 }
 
-/* Speisekarten-Import */
-/* .landing .modal__panel setzt 520px; die Vorschau-Tabelle braucht Breite. */
-.landing .menu-import__panel {
-  max-width: 560px;
-}
-.landing .menu-import__panel--wide {
-  max-width: min(1180px, calc(100vw - 24px));
-}
+/* Speisekarten-Import — Reiter „Speisekarte“ im Import-Dialog
+   (products/components/menu-import-section.tsx); Rahmen, Reiter und
+   Handy-Sheet des Dialogs stehen in products.css. */
 .menu-import__body {
   display: flex;
   flex-direction: column;
@@ -184,6 +179,21 @@
   font-size: 12px;
   color: var(--oe-mute);
 }
+/* Die Tabelle scrollt innerhalb des Dialogs, nie der Dialog selbst. */
+.menu-import__table-wrap {
+  overflow-x: auto;
+  flex: none;
+}
+/* Enger als .data-table--compact, damit alle acht Spalten auf einem
+   Desktop ohne Querscrollen Platz finden. */
+.landing .data-table.menu-import__table th,
+.landing .data-table.menu-import__table td {
+  padding: 8px 10px;
+}
+.landing .data-table.menu-import__table th:first-child,
+.landing .data-table.menu-import__table td:first-child {
+  padding-right: 4px;
+}
 .menu-import__table td {
   vertical-align: top;
 }
@@ -197,7 +207,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 200px;
+  min-width: 180px;
 }
 .menu-import__meta {
   display: flex;
@@ -225,13 +235,13 @@
   font-variant-numeric: tabular-nums;
 }
 .menu-import__select {
-  min-width: 140px;
+  min-width: 124px;
 }
 .menu-import__variants {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 210px;
+  min-width: 196px;
 }
 .menu-import__variant {
   display: flex;
@@ -239,16 +249,22 @@
   gap: 4px;
 }
 .menu-import__variant .input {
-  width: 104px;
+  width: 96px;
 }
 .menu-import__variant .input--modifier {
-  width: 72px;
+  width: 68px;
   text-align: right;
 }
 .menu-import__icon {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+/* In der Tabelle etwas kleiner als im Produktformular: vier Kacheln
+   (gewählt + drei Vorschläge) müssen nebeneinander passen. */
+.menu-import__table .menu-import__icon-btn {
+  width: 36px;
+  height: 36px;
 }
 .menu-import__icon-btn,
 .icon-suggest__btn {
@@ -274,6 +290,16 @@
   border-color: var(--oe-green-ink);
   background: var(--oe-green-soft);
 }
+/* Vermutung des Modells: gestrichelt und gedämpft, bis jemand sie wählt. */
+.menu-import__icon-btn--model:not(.is-selected),
+.icon-suggest__btn--model:not(.is-selected) {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.menu-import__icon-btn--model:hover,
+.icon-suggest__btn--model:hover {
+  opacity: 1;
+}
 .menu-import__icon-btn:focus-visible,
 .icon-suggest__btn:focus-visible {
   outline: 2px solid var(--oe-green-ink);
@@ -294,7 +320,148 @@
   color: var(--oe-mute);
   margin-right: auto;
 }
+.menu-import__action {
+  width: auto;
+  min-height: 24px;
+  padding: 2px 26px 2px 6px;
+  font-size: 11px;
+}
+.menu-import__select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
 .menu-import__confidence {
   display: inline-flex;
   align-items: center;
+}
+
+
+/* ---------- Kompakte Zeilen (Handy, unter 640 px) ----------
+   Zwei Zeilen statt acht Spalten: Haken, Name, Preis — darunter Kategorie
+   und Chips für Icon, Varianten und Pfand. Nichts scrollt quer. */
+.menu-import__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  background: var(--surface);
+}
+.menu-import__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--oe-line);
+}
+.menu-import__row:last-child {
+  border-bottom: 0;
+}
+.menu-import__row.is-off {
+  opacity: 0.55;
+}
+.menu-import__row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.menu-import__row-main .input {
+  min-height: 36px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.menu-import__row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.menu-import__row-main .menu-import__price {
+  flex: none;
+  width: 80px;
+}
+.menu-import__row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 28px;
+}
+.menu-import__row-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 28px;
+}
+.menu-import__row-cat {
+  flex: 1 1 140px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 2px 26px 2px 8px;
+  font-size: 13px;
+}
+.menu-import__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--oe-ink) 14%, transparent);
+  background: transparent;
+  font: 500 12px var(--oe-f-sans);
+  color: var(--oe-mute);
+  cursor: pointer;
+  --oe-ico: 14px;
+}
+.menu-import__chip.is-set {
+  color: var(--oe-ink);
+  border-color: color-mix(in oklab, var(--oe-ink) 28%, transparent);
+}
+.menu-import__chip:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 1px;
+}
+.menu-import__chip .pos-icon-img {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+.menu-import__chip--more {
+  padding: 2px 6px;
+}
+.menu-import__row-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 28px;
+  padding-top: 10px;
+  border-top: 1px dashed color-mix(in oklab, var(--oe-ink) 14%, transparent);
+}
+.menu-import__row-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.menu-import__row-field > span:first-child {
+  font: 500 11px/16px var(--oe-f-mono, ui-monospace, monospace);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.menu-import__row-field .menu-import__variants {
+  min-width: 0;
+  width: 100%;
+}
+.menu-import__row-field .menu-import__variant .input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+.menu-import__row-field .menu-import__variant .input--modifier {
+  flex: none;
+  width: 72px;
 }

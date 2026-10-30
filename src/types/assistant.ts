@@ -35,6 +35,12 @@ export interface IconSuggestion {
   icon: string;
   /** 0–1, höher ist besser. */
   score: number;
+  /**
+   * Woher der Treffer stammt: aus dem lexikalischen Index oder vom
+   * Klassifikationsmodell (nur ein Hinweis, wird nicht vorbelegt). Ältere
+   * API-Stände lassen das Feld weg — das zählt als lexikalisch.
+   */
+  source?: 'lexical' | 'model';
 }
 
 export interface IconSuggestionResult {

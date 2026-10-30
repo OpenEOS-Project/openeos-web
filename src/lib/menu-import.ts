@@ -185,9 +185,16 @@ export function matchPfandType(
   return active.length === 1 ? active[0].id : '';
 }
 
-/** Erste Icon-Empfehlung oder keine. */
-export function firstIcon(suggestions: readonly IconSuggestion[] | undefined): string | null {
-  return suggestions?.[0]?.icon ?? null;
+/**
+ * Icon für die Vorbelegung einer Zeile: der beste Vorschlag, wenn er aus dem
+ * lexikalischen Index stammt (ohne `source` = lexikalisch, ältere API).
+ * Modell-Treffer sind nur ein Hinweis — sie werden angeboten, aber nicht
+ * ungeprüft am Produkt vorbelegt.
+ */
+export function preselectIcon(suggestions: readonly IconSuggestion[] | undefined): string | null {
+  const best = suggestions?.[0];
+  if (!best || best.source === 'model') return null;
+  return best.icon;
 }
 
 /**
@@ -239,7 +246,7 @@ export function buildPreview(
       name: variant.name,
       priceModifier: formatPriceInput(variant.priceModifier),
     })),
-    icon: firstIcon(product.iconSuggestions),
+    icon: preselectIcon(product.iconSuggestions),
     iconSuggestions: product.iconSuggestions ?? [],
     ...(product.existingProductId ? { existingProductId: product.existingProductId } : {}),
     action: product.existingProductId ? 'update' : 'create',
