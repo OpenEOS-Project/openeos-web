@@ -185,20 +185,15 @@ export function matchPfandType(
   return active.length === 1 ? active[0].id : '';
 }
 
-/** Ab diesem Score gilt ein Modell-Treffer als sicher genug für die Vorbelegung. */
-export const MODEL_ICON_MIN_SCORE = 0.75;
-
 /**
  * Icon für die Vorbelegung einer Zeile: der beste Vorschlag, wenn er aus dem
- * lexikalischen Index stammt (ohne `source` = lexikalisch, ältere API) oder
- * das Modell ihn mit mindestens 0,75 bewertet. Sonst keins — ein unsicherer
- * Modell-Treffer soll nicht ungeprüft am Produkt landen; angeboten wird er
- * in der Tabelle trotzdem.
+ * lexikalischen Index stammt (ohne `source` = lexikalisch, ältere API).
+ * Modell-Treffer sind nur ein Hinweis — sie werden angeboten, aber nicht
+ * ungeprüft am Produkt vorbelegt.
  */
 export function preselectIcon(suggestions: readonly IconSuggestion[] | undefined): string | null {
   const best = suggestions?.[0];
-  if (!best) return null;
-  if (best.source === 'model' && best.score < MODEL_ICON_MIN_SCORE) return null;
+  if (!best || best.source === 'model') return null;
   return best.icon;
 }
 

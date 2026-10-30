@@ -628,13 +628,25 @@ export function MenuImportSection({ eventId, onClose, onWideChange }: MenuImport
           const id = parsePosIcon(suggestion.icon);
           if (!id) return null;
           const active = suggestion.icon === row.icon;
+          // Modell-Treffer sind nur eine Vermutung: gedämpft, nie vorbelegt.
+          const fromModel = suggestion.source === 'model';
+          const text = t(fromModel ? 'icon.suggestionModel' : 'icon.suggestion', {
+            label: iconLabel(id),
+          });
+          const className = [
+            'menu-import__icon-btn',
+            active ? 'is-selected' : '',
+            fromModel ? 'menu-import__icon-btn--model' : '',
+          ]
+            .filter(Boolean)
+            .join(' ');
           return (
             <button
               key={suggestion.icon}
               type="button"
-              className={active ? 'menu-import__icon-btn is-selected' : 'menu-import__icon-btn'}
-              title={t('icon.suggestion', { label: iconLabel(id) })}
-              aria-label={t('icon.suggestion', { label: iconLabel(id) })}
+              className={className}
+              title={text}
+              aria-label={text}
               aria-pressed={active}
               onClick={() => updateRow(row.key, { icon: active ? null : suggestion.icon })}
             >

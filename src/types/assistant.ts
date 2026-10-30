@@ -37,8 +37,8 @@ export interface IconSuggestion {
   score: number;
   /**
    * Woher der Treffer stammt: aus dem lexikalischen Index oder vom
-   * Klassifikationsmodell. Ältere API-Stände lassen das Feld weg — das
-   * zählt als lexikalisch.
+   * Klassifikationsmodell (nur ein Hinweis, wird nicht vorbelegt). Ältere
+   * API-Stände lassen das Feld weg — das zählt als lexikalisch.
    */
   source?: 'lexical' | 'model';
 }

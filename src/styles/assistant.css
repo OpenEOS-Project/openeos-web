@@ -290,6 +290,16 @@
   border-color: var(--oe-green-ink);
   background: var(--oe-green-soft);
 }
+/* Vermutung des Modells: gestrichelt und gedämpft, bis jemand sie wählt. */
+.menu-import__icon-btn--model:not(.is-selected),
+.icon-suggest__btn--model:not(.is-selected) {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.menu-import__icon-btn--model:hover,
+.icon-suggest__btn--model:hover {
+  opacity: 1;
+}
 .menu-import__icon-btn:focus-visible,
 .icon-suggest__btn:focus-visible {
   outline: 2px solid var(--oe-green-ink);

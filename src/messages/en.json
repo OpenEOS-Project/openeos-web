@@ -1620,7 +1620,8 @@
         "title": "Suggestions for “{name}”",
         "none": "No matching product icon found.",
         "needName": "Enter a name first, then OpenEOS suggests an icon.",
-        "use": "Use {label}"
+        "use": "Use {label}",
+        "useModel": "Use {label} (model guess)"
       }
     },
     "status": {
@@ -1803,7 +1804,8 @@
         "choose": "Choose product icon",
         "none": "No product icon",
         "suggestion": "Suggestion: {label}",
-        "remove": "Remove product icon"
+        "remove": "Remove product icon",
+        "suggestionModel": "Model guess: {label}"
       },
       "pfand": {
         "none": "— No deposit —",
@@ -3502,6 +3504,8 @@
     "CART_ITEM_NOT_FOUND": "The item is not in the cart.",
     "CASH_DRAWER_NOT_CONFIGURED": "No cash drawer is set up.",
     "CASH_PAYMENTS_DISABLED": "Your organization works cashless. Cash can neither be accepted nor paid out through OpenEOS.",
+    "CATEGORY_HAS_PRODUCTS": "The category still contains {count} products – move or delete them first.",
+    "CATEGORY_IN_USE": "The category is used in orders and cannot be deleted.",
     "CATEGORY_NOT_FOUND": "The category was not found.",
     "CHECKOUT_NOT_FOUND": "The checkout was not found.",
     "CONFLICT": "This conflicts with the current state. Please reload the page.",
@@ -3751,6 +3755,7 @@
     "TWO_FACTOR_SETUP_NOT_STARTED": "Please start the two-factor setup first.",
     "UNAUTHORIZED": "You are not signed in. Please sign in again.",
     "UNKNOWN_ERROR": "An unknown error occurred.",
+    "UPLOAD_DIR_NOT_WRITABLE": "The upload folder on the server is not writable – please inform the operator.",
     "UPLOAD_FILE_MISSING": "No file was uploaded.",
     "UPLOAD_FILE_TOO_LARGE": "The file is too large. The maximum is {maxMb} MB.",
     "UPLOAD_FILE_TYPE_INVALID": "This file type is not allowed. Allowed: {allowed}",

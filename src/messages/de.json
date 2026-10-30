@@ -1337,7 +1337,8 @@
         "title": "Vorschläge für „{name}“",
         "none": "Kein passendes Produkt-Icon gefunden.",
         "needName": "Gib zuerst einen Namen ein, dann schlägt OpenEOS ein Icon vor.",
-        "use": "{label} übernehmen"
+        "use": "{label} übernehmen",
+        "useModel": "{label} übernehmen (Vermutung des Modells)"
       }
     },
     "status": {
@@ -1520,7 +1521,8 @@
         "choose": "Produkt-Icon wählen",
         "none": "Kein Produkt-Icon",
         "suggestion": "Vorschlag: {label}",
-        "remove": "Produkt-Icon entfernen"
+        "remove": "Produkt-Icon entfernen",
+        "suggestionModel": "Vermutung des Modells: {label}"
       },
       "pfand": {
         "none": "— Kein Pfand —",
@@ -3502,6 +3504,8 @@
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
     "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
     "CASH_PAYMENTS_DISABLED": "Deine Organisation arbeitet bargeldlos. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
+    "CATEGORY_HAS_PRODUCTS": "Die Kategorie enthält noch {count} Produkte – verschiebe oder lösche sie zuerst.",
+    "CATEGORY_IN_USE": "Die Kategorie wird in Bestellungen verwendet und kann nicht gelöscht werden.",
     "CATEGORY_NOT_FOUND": "Die Kategorie wurde nicht gefunden.",
     "CHECKOUT_NOT_FOUND": "Der Bezahlvorgang wurde nicht gefunden.",
     "CONFLICT": "Die Aktion steht im Konflikt mit dem aktuellen Stand. Bitte lade die Seite neu.",
@@ -3751,6 +3755,7 @@
     "TWO_FACTOR_SETUP_NOT_STARTED": "Bitte starte zuerst die Einrichtung der Zwei-Faktor-Authentifizierung.",
     "UNAUTHORIZED": "Du bist nicht angemeldet. Bitte melde dich erneut an.",
     "UNKNOWN_ERROR": "Ein unbekannter Fehler ist aufgetreten.",
+    "UPLOAD_DIR_NOT_WRITABLE": "Der Upload-Ordner auf dem Server ist nicht beschreibbar – bitte den Betreiber informieren.",
     "UPLOAD_FILE_MISSING": "Es wurde keine Datei hochgeladen.",
     "UPLOAD_FILE_TOO_LARGE": "Die Datei ist zu groß. Erlaubt sind höchstens {maxMb} MB.",
     "UPLOAD_FILE_TYPE_INVALID": "Dieser Dateityp ist nicht erlaubt. Erlaubt: {allowed}",

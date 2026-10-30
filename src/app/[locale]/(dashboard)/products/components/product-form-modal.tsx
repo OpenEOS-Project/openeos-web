@@ -388,13 +388,21 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                             if (!id) return null;
                             const label = id.replace(/-/g, ' ');
                             const active = icon === suggestion.icon;
+                            // Modell-Treffer sind nur eine Vermutung: gedämpft dargestellt.
+                            const fromModel = suggestion.source === 'model';
+                            const text = t(fromModel ? 'form.iconSuggest.useModel' : 'form.iconSuggest.use', { label });
+                            const className = [
+                              'icon-suggest__btn',
+                              active ? 'is-selected' : '',
+                              fromModel ? 'icon-suggest__btn--model' : '',
+                            ].filter(Boolean).join(' ');
                             return (
                               <button
                                 key={suggestion.icon}
                                 type="button"
-                                className={active ? 'icon-suggest__btn is-selected' : 'icon-suggest__btn'}
-                                title={t('form.iconSuggest.use', { label })}
-                                aria-label={t('form.iconSuggest.use', { label })}
+                                className={className}
+                                title={text}
+                                aria-label={text}
                                 aria-pressed={active}
                                 onClick={() => {
                                   setIcon(suggestion.icon);

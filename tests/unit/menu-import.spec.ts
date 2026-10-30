@@ -345,21 +345,16 @@ test.describe('preselectIcon', () => {
     expect(
       preselectIcon([
         { icon: 'pos-icon:bratwurst', score: 0.6, source: 'lexical' },
-        { icon: 'pos-icon:steak', score: 0.75, source: 'model' },
+        { icon: 'pos-icon:steak', score: 0.9, source: 'model' },
       ])
     ).toBe('pos-icon:bratwurst');
   });
 
-  test('model suggestions only from 0.75 upwards', () => {
-    expect(preselectIcon([{ icon: 'pos-icon:steak', score: 0.75, source: 'model' }])).toBe(
-      'pos-icon:steak'
-    );
-    expect(preselectIcon([{ icon: 'pos-icon:steak', score: 0.9, source: 'model' }])).toBe(
-      'pos-icon:steak'
-    );
+  test('never preselects a model suggestion', () => {
+    expect(preselectIcon([{ icon: 'pos-icon:steak', score: 0.9, source: 'model' }])).toBeNull();
     expect(
       preselectIcon([
-        { icon: 'pos-icon:steak', score: 0.74, source: 'model' },
+        { icon: 'pos-icon:steak', score: 0.6, source: 'model' },
         { icon: 'pos-icon:bratwurst', score: 0.3, source: 'lexical' },
       ])
     ).toBeNull();
@@ -367,7 +362,7 @@ test.describe('preselectIcon', () => {
     expect(preselectIcon(undefined)).toBeNull();
   });
 
-  test('buildPreview leaves the icon empty for an unsure model suggestion', () => {
+  test('buildPreview leaves the icon empty for a model suggestion', () => {
     const state = buildPreview({
       categories: [{ key: 'c1', name: 'Vom Grill' }],
       products: [
@@ -378,7 +373,7 @@ test.describe('preselectIcon', () => {
           price: 5,
           taxRate: 19,
           confidence: 'high',
-          iconSuggestions: [{ icon: 'pos-icon:eintopf', score: 0.5, source: 'model' }],
+          iconSuggestions: [{ icon: 'pos-icon:eintopf', score: 0.6, source: 'model' }],
         },
       ],
       warnings: [],
