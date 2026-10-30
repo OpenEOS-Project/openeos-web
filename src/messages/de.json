@@ -1427,6 +1427,10 @@
         "sampleFood": "Essen,Pommes Frites,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
         "sampleDrink": "Getränke,Cola 0.33 L,,2.80,2.00,cola,,Sorte: Normal | Zero,,",
         "filename": "produkt-vorlage.csv"
+      },
+      "tabs": {
+        "menu": "Speisekarte",
+        "csv": "CSV"
       }
     },
     "menuImport": {
@@ -1536,6 +1540,14 @@
       "quota": {
         "remaining": "Heute noch {remaining, plural, one {# Import} other {# Importe}}",
         "exhausted": "Tageskontingent aufgebraucht – morgen geht es weiter"
+      },
+      "compact": {
+        "details": "Details einblenden",
+        "collapse": "Details ausblenden",
+        "variants": "{count, plural, =0 {Varianten} one {# Variante} other {# Varianten}}",
+        "pfand": "Pfand",
+        "icon": "Icon",
+        "taxRate": "MwSt."
       }
     },
     "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}",

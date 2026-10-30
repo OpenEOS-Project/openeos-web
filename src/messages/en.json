@@ -1710,6 +1710,10 @@
         "sampleFood": "Food,French Fries,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
         "sampleDrink": "Drinks,Cola 0.33 L,,2.80,2.00,cola,,Flavor: Regular | Zero,,",
         "filename": "product-template.csv"
+      },
+      "tabs": {
+        "menu": "Menu",
+        "csv": "CSV"
       }
     },
     "menuImport": {
@@ -1819,6 +1823,14 @@
       "quota": {
         "remaining": "{remaining, plural, one {# import} other {# imports}} left today",
         "exhausted": "Daily quota used up – it resets tomorrow"
+      },
+      "compact": {
+        "details": "Show details",
+        "collapse": "Hide details",
+        "variants": "{count, plural, =0 {Variants} one {# variant} other {# variants}}",
+        "pfand": "Deposit",
+        "icon": "Icon",
+        "taxRate": "VAT"
       }
     },
     "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}",

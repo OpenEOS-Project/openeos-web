@@ -185,9 +185,21 @@ export function matchPfandType(
   return active.length === 1 ? active[0].id : '';
 }
 
-/** Erste Icon-Empfehlung oder keine. */
-export function firstIcon(suggestions: readonly IconSuggestion[] | undefined): string | null {
-  return suggestions?.[0]?.icon ?? null;
+/** Ab diesem Score gilt ein Modell-Treffer als sicher genug für die Vorbelegung. */
+export const MODEL_ICON_MIN_SCORE = 0.75;
+
+/**
+ * Icon für die Vorbelegung einer Zeile: der beste Vorschlag, wenn er aus dem
+ * lexikalischen Index stammt (ohne `source` = lexikalisch, ältere API) oder
+ * das Modell ihn mit mindestens 0,75 bewertet. Sonst keins — ein unsicherer
+ * Modell-Treffer soll nicht ungeprüft am Produkt landen; angeboten wird er
+ * in der Tabelle trotzdem.
+ */
+export function preselectIcon(suggestions: readonly IconSuggestion[] | undefined): string | null {
+  const best = suggestions?.[0];
+  if (!best) return null;
+  if (best.source === 'model' && best.score < MODEL_ICON_MIN_SCORE) return null;
+  return best.icon;
 }
 
 /**
@@ -239,7 +251,7 @@ export function buildPreview(
       name: variant.name,
       priceModifier: formatPriceInput(variant.priceModifier),
     })),
-    icon: firstIcon(product.iconSuggestions),
+    icon: preselectIcon(product.iconSuggestions),
     iconSuggestions: product.iconSuggestions ?? [],
     ...(product.existingProductId ? { existingProductId: product.existingProductId } : {}),
     action: product.existingProductId ? 'update' : 'create',

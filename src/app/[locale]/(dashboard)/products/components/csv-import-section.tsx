@@ -1,0 +1,390 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { productsApi } from '@/lib/api-client';
+import { productKeys } from '@/hooks/use-products';
+import { categoryKeys } from '@/hooks/use-categories';
+import { toast } from '@/components/shared/toast';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
+import type { ProductImportResult, ProductImportRow } from '@/types/product';
+
+interface CsvImportSectionProps {
+  eventId: string;
+  onClose: () => void;
+}
+
+const TEMPLATE_BOM = '﻿';
+const TEMPLATE_HEADER = 'category,name,description,price,pfand,icon,ingredients,choices,extras,available';
+
+/** Spaltennamen bleiben fest (der Import liest sie), die Beispielzeilen folgen der Sprache. */
+function buildTemplateCsv(rows: string[]): string {
+  return TEMPLATE_BOM + TEMPLATE_HEADER + '\r\n' + rows.join('\r\n') + '\r\n';
+}
+
+type ImportMode = 'skip' | 'update' | 'create';
+
+function actionBadgeStyle(action: ProductImportRow['action']): React.CSSProperties {
+  const base: React.CSSProperties = {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: 4,
+    fontSize: 11,
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+  };
+  switch (action) {
+    case 'create':
+      return { ...base, background: 'color-mix(in oklab, var(--green-ink) 15%, transparent)', color: 'var(--green-ink)' };
+    case 'update':
+      return { ...base, background: 'color-mix(in oklab, var(--oe-info) 15%, transparent)', color: 'var(--info-ink)' };
+    case 'skip':
+      return { ...base, background: 'color-mix(in oklab, var(--ink) 10%, transparent)', color: 'var(--ink)', opacity: 0.7 };
+    case 'error':
+      return { ...base, background: 'color-mix(in oklab, var(--danger) 15%, transparent)', color: 'var(--danger)' };
+  }
+}
+
+/**
+ * Reiter „CSV“ im Import-Dialog: Datei oder eingefügter Text, Vorschau
+ * (dryRun) und Import. Rendert Inhalt und Fußzeile des Dialogs
+ * (`.modal__body` + `.modal__foot`); Rahmen, Kopf und Reiter stellt
+ * `ImportDialog`.
+ */
+export function CsvImportSection({ eventId, onClose }: CsvImportSectionProps) {
+  const t = useTranslations('products.import');
+  const { formatCurrency } = useLocaleFormat();
+  const tCommon = useTranslations('common');
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [csvText, setCsvText] = useState('');
+  const [mode, setMode] = useState<ImportMode>('skip');
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewResult, setPreviewResult] = useState<ProductImportResult | null>(null);
+  const [importDone, setImportDone] = useState(false);
+  const [importSummary, setImportSummary] = useState<ProductImportResult | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      // Strip BOM if present
+      setCsvText(text.startsWith('﻿') ? text.slice(1) : text);
+      setPreviewResult(null);
+      setImportDone(false);
+    } catch {
+      // Ignore read errors
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handlePreview = async () => {
+    if (!csvText.trim()) return;
+    setIsLoading(true);
+    setPreviewResult(null);
+    try {
+      const res = await productsApi.import(eventId, { csv: csvText, mode, dryRun: true });
+      setPreviewResult(res.data);
+    } catch {
+      // Non-network API errors surface via fatalError in the normal
+      // response — this catch is specifically the network-failed case,
+      // which used to fail with zero feedback (button just stopped
+      // spinning, nothing else happened).
+      toast.error(t('networkError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!csvText.trim()) return;
+    setIsLoading(true);
+    try {
+      const res = await productsApi.import(eventId, { csv: csvText, mode, dryRun: false });
+      setImportSummary(res.data);
+      setImportDone(true);
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+    } catch {
+      // A user could previously believe the import succeeded when a network
+      // error meant it never reached the server at all — no summary, no
+      // error, the button just stopped loading.
+      toast.error(t('networkError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const csv = buildTemplateCsv([t('template.sampleFood'), t('template.sampleDrink')]);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = t('template.filename');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleClose = () => {
+    setCsvText('');
+    setMode('skip');
+    setPreviewResult(null);
+    setImportDone(false);
+    setImportSummary(null);
+    onClose();
+  };
+
+  const canImport =
+    !importDone &&
+    previewResult !== null &&
+    !previewResult.fatalError &&
+    (previewResult.summary.create + previewResult.summary.update) > 0;
+
+  const chipStyle = (color: string): React.CSSProperties => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '3px 10px',
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 600,
+    background: `color-mix(in oklab, ${color} 15%, transparent)`,
+    color,
+  });
+
+  return (
+    <>
+      <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Success state */}
+        {importDone && importSummary && (
+          <div style={{ background: 'color-mix(in oklab, var(--green-ink) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--green-ink) 30%, transparent)', borderRadius: 8, padding: '12px 16px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--green-ink)', marginBottom: 6 }}>{t('success.title')}</div>
+            <div style={{ fontSize: 13, color: 'var(--green-ink)' }}>
+              {t('success.message', {
+                create: importSummary.summary.create,
+                update: importSummary.summary.update,
+                skip: importSummary.summary.skip,
+                error: importSummary.summary.error,
+              })}
+            </div>
+          </div>
+        )}
+
+        {!importDone && (
+          <>
+            {/* File input + paste */}
+            <div className="auth-field">
+              <span className="auth-field__label">{t('csvLabel')}</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12 }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {t('chooseFile')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 12 }}
+                  onClick={handleDownloadTemplate}
+                >
+                  {t('downloadTemplate')}
+                </button>
+              </div>
+              {/* .textarea bringt Rahmen und Fokusring mit; vorher stand hier
+                  outline: none ohne Ersatz — wer per Tastatur kam, sah
+                  nicht, dass das Feld aktiv war. */}
+              <textarea
+                className="textarea"
+                style={{
+                  minHeight: 100,
+                  fontSize: 12,
+                  fontFamily: 'var(--oe-f-mono, monospace)',
+                  boxSizing: 'border-box',
+                }}
+                placeholder={t('pastePlaceholder')}
+                value={csvText}
+                onChange={(e) => {
+                  setCsvText(e.target.value);
+                  setPreviewResult(null);
+                  setImportDone(false);
+                }}
+              />
+            </div>
+
+            {/* Mode */}
+            <label className="auth-field">
+              <span>{t('modeLabel')}</span>
+              <select
+                className="select"
+                value={mode}
+                onChange={(e) => {
+                  setMode(e.target.value as ImportMode);
+                  setPreviewResult(null);
+                }}
+              >
+                <option value="skip">{t('mode.skip')}</option>
+                <option value="update">{t('mode.update')}</option>
+                <option value="create">{t('mode.create')}</option>
+              </select>
+            </label>
+
+            {/* Column helper */}
+            <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.6, lineHeight: 1.6, background: 'color-mix(in oklab, var(--ink) 5%, transparent)', borderRadius: 8, padding: '10px 14px' }}>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('columnHint.title')}</div>
+              <div>{t('columnHint.body')}</div>
+            </div>
+
+            {/* Fatal error */}
+            {previewResult?.fatalError && (
+              <div role="alert" style={{ background: 'color-mix(in oklab, var(--danger) 12%, transparent)', border: '1px solid color-mix(in oklab, var(--danger) 30%, transparent)', borderRadius: 8, padding: '10px 14px', color: 'var(--danger)', fontSize: 13 }}>
+                <strong>{t('fatalError')}</strong> {previewResult.fatalError}
+              </div>
+            )}
+
+            {/* Preview results */}
+            {previewResult && !previewResult.fatalError && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Summary chips */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <span style={chipStyle('var(--green-ink)')}>
+                    +{previewResult.summary.create} {t('summary.create')}
+                  </span>
+                  <span style={chipStyle('var(--info-ink)')}>
+                    ~{previewResult.summary.update} {t('summary.update')}
+                  </span>
+                  <span style={{ ...chipStyle('var(--ink)'), opacity: 0.7 }}>
+                    {previewResult.summary.skip} {t('summary.skip')}
+                  </span>
+                  {previewResult.summary.error > 0 && (
+                    <span style={chipStyle('var(--danger)')}>
+                      {previewResult.summary.error} {t('summary.error')}
+                    </span>
+                  )}
+                </div>
+
+                {/* New categories */}
+                {previewResult.newCategories.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newCategories')}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {previewResult.newCategories.map((cat) => (
+                        <span key={cat} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: 'var(--warn-ink)' }}>
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* New pfand types */}
+                {previewResult.newPfandTypes.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', opacity: 0.6, marginBottom: 4 }}>{t('newPfandTypes')}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {previewResult.newPfandTypes.map((pt) => (
+                        <span key={pt.name} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'color-mix(in oklab, var(--warn) 15%, transparent)', color: 'var(--warn-ink)' }}>
+                          {pt.name} ({formatCurrency(pt.amount)})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rows table */}
+                {/* Gemeinsame Tabellenklasse statt Inline-Stilen — sonst
+                    folgt diese Vorschau weder Palette noch Dark-Mode. */}
+                <div className="data-table-wrap" style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto' }}>
+                  <table className="data-table data-table--compact">
+                    <thead>
+                      <tr>
+                        <th>{t('table.line')}</th>
+                        <th>{t('table.name')}</th>
+                        <th>{t('table.category')}</th>
+                        <th className="text-right">{t('table.price')}</th>
+                        <th className="text-right">{t('table.pfand')}</th>
+                        <th>{t('table.icon')}</th>
+                        <th>{t('table.action')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {previewResult.rows.map((row, i) => (
+                        <tr
+                          key={i}
+                          style={{
+                            borderTop: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+                            background: row.action === 'error' ? 'color-mix(in oklab, var(--danger) 5%, transparent)' : undefined,
+                          }}
+                        >
+                          <td style={{ padding: '5px 10px', color: 'var(--ink)', opacity: 0.5 }}>{row.line}</td>
+                          <td style={{ padding: '5px 10px' }}>{row.name}</td>
+                          <td style={{ padding: '5px 10px', opacity: 0.7 }}>{row.category}</td>
+                          <td style={{ padding: '5px 10px', textAlign: 'right' }}>{formatCurrency(row.price)}</td>
+                          <td style={{ padding: '5px 10px', textAlign: 'right', opacity: 0.7 }}>
+                            {row.pfand != null ? formatCurrency(row.pfand) : '—'}
+                          </td>
+                          <td style={{ padding: '5px 10px', opacity: 0.6 }}>{row.icon ?? '—'}</td>
+                          <td style={{ padding: '5px 10px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <span style={actionBadgeStyle(row.action)}>{t(`action.${row.action}`)}</span>
+                              {row.message && (
+                                <span style={{ fontSize: 11, color: 'var(--danger)' }}>{row.message}</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="modal__foot">
+        <button type="button" className="btn btn--ghost" onClick={handleClose}>
+          {importDone ? tCommon('close') : tCommon('cancel')}
+        </button>
+        {!importDone && (
+          <>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={handlePreview}
+              disabled={isLoading || !csvText.trim()}
+            >
+              {isLoading && !previewResult ? '...' : t('previewButton')}
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={handleImport}
+              disabled={!canImport || isLoading}
+            >
+              {isLoading && previewResult ? '...' : t('importButton')}
+            </button>
+          </>
+        )}
+      </div>
+    </>
+  );
+}

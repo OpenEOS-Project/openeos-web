@@ -16,9 +16,8 @@ import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
 
 import { CategoriesManagementModal } from './categories-management-modal';
-import { MenuImportDialog } from './menu-import-dialog';
+import { ImportDialog } from './import-dialog';
 import { ProductFormModal } from './product-form-modal';
-import { ProductImportModal } from './product-import-modal';
 import { ProductsList } from './products-list';
 import { StockAdjustmentModal } from './stock-adjustment-modal';
 
@@ -26,8 +25,7 @@ export function ProductsContainer() {
   const t = useTranslations('products');
   const tCommon = useTranslations('common');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isMenuImportOpen, setIsMenuImportOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -38,9 +36,9 @@ export function ProductsContainer() {
 
   const { data: activeEvent, isLoading: isLoadingActive } = useActiveEvent(organizationId);
   const deleteProduct = useDeleteProduct();
-  /* „Aus Speisekarte importieren“ nur mit eingeschalteten Assistent-Funktionen;
-     Admins sehen sonst einen Hinweis auf die Einstellung — aber nur, wenn
-     der Server die Funktionen überhaupt anbietet. */
+  /* Der Reiter „Speisekarte“ im Import-Dialog nur mit eingeschalteten
+     Assistent-Funktionen; Admins sehen sonst einen Hinweis auf die
+     Einstellung — aber nur, wenn der Server die Funktionen überhaupt anbietet. */
   const { data: assistant } = useAssistantStatus(organizationId || undefined);
   const { isAdmin } = usePermissions();
   const menuImportAvailable = assistantUsable(assistant);
@@ -118,8 +116,7 @@ export function ProductsContainer() {
       <ProductsList
         eventId={eventId}
         onCreateClick={handleCreateClick}
-        onImportClick={() => setIsImportModalOpen(true)}
-        onMenuImportClick={menuImportAvailable ? () => setIsMenuImportOpen(true) : undefined}
+        onImportClick={() => setIsImportOpen(true)}
         menuImportHint={menuImportHint}
         onManageCategoriesClick={() => setIsCategoriesModalOpen(true)}
         onEditClick={handleEditClick}
@@ -133,17 +130,14 @@ export function ProductsContainer() {
         onClose={() => setIsCategoriesModalOpen(false)}
       />
 
-      <ProductImportModal
-        isOpen={isImportModalOpen}
-        eventId={eventId}
-        onClose={() => setIsImportModalOpen(false)}
-      />
-
-      <MenuImportDialog
-        isOpen={isMenuImportOpen}
-        eventId={eventId}
-        onClose={() => setIsMenuImportOpen(false)}
-      />
+      {/* Nur eingehängt, solange er offen ist: jedes Öffnen startet frisch. */}
+      {isImportOpen && (
+        <ImportDialog
+          eventId={eventId}
+          menuAvailable={menuImportAvailable}
+          onClose={() => setIsImportOpen(false)}
+        />
+      )}
 
       <ProductFormModal
         isOpen={isCreateModalOpen || !!editingProduct}
