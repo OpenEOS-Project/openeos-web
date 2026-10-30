@@ -1,4 +1,5 @@
 import {
+  agentDocsUrl,
   API_TOKEN_EXPIRY_PRESETS,
   apiDocsUrl,
   apiTokenLimitReached,
@@ -72,6 +73,11 @@ test.describe('api token list', () => {
   test('docs link per language', () => {
     expect(apiDocsUrl('de')).toBe('https://docs.openeos.de/api');
     expect(apiDocsUrl('en')).toBe('https://docs.openeos.de/en/api');
+  });
+
+  test('agent guide link per language', () => {
+    expect(agentDocsUrl('de')).toBe('https://docs.openeos.de/ki-agenten');
+    expect(agentDocsUrl('en')).toBe('https://docs.openeos.de/en/ki-agenten');
   });
 });
 
