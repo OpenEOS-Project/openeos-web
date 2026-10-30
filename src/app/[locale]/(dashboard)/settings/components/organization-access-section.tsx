@@ -15,6 +15,7 @@ import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 
 import {
+  agentDocsUrl,
   apiDocsUrl,
   apiTokenLimitReached,
   apiTokenPreview,
@@ -247,7 +248,14 @@ export function OrganizationAccessSection() {
           >
             {t('docsLink')}
           </a>
-          <span style={{ fontSize: 12, color: 'var(--mute)' }}>{t('mcpSoon')}</span>
+          <a
+            href={agentDocsUrl(locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cash-tse-notice__link"
+          >
+            {t('agentDocsLink')}
+          </a>
         </div>
 
         {body}

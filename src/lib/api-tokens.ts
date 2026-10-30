@@ -100,6 +100,13 @@ export function apiDocsUrl(locale: string): string {
   return locale === 'en' ? 'https://docs.openeos.de/en/api' : 'https://docs.openeos.de/api';
 }
 
+/** Anleitung „KI-Agenten verbinden“ (MCP) in openeos-docs, je Sprache. */
+export function agentDocsUrl(locale: string): string {
+  return locale === 'en'
+    ? 'https://docs.openeos.de/en/ki-agenten'
+    : 'https://docs.openeos.de/ki-agenten';
+}
+
 /** Die Vorschau in der Liste: Präfix plus Auslassung, nie mehr vom Geheimnis. */
 export function apiTokenPreview(tokenPrefix: string): string {
   return `${tokenPrefix}…`;

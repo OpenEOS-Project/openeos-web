@@ -978,7 +978,7 @@
       "description": "Keys that let other programs manage your organization.",
       "intro": "With an access token you can use OpenEOS from other programs or with an assistant – for administration only, never for the point of sale. A token can do at most what the person who created it can do.",
       "docsLink": "API reference",
-      "mcpSoon": "Guide for assistants (MCP) coming soon.",
+      "agentDocsLink": "Connect AI agents",
       "adminOnly": "Only an admin of the organization can see and create access tokens.",
       "loadError": "The access tokens could not be loaded.",
       "count": "{active} of {limit} active tokens",

@@ -978,7 +978,7 @@
       "description": "Schlüssel, mit denen andere Programme die Verwaltung deiner Organisation bedienen.",
       "intro": "Mit einem Zugang kannst du OpenEOS aus anderen Programmen oder mit einem Assistenten bedienen – nur für die Verwaltung, nie für die Kasse. Jeder Zugang darf höchstens das, was die Person darf, die ihn angelegt hat.",
       "docsLink": "API-Referenz",
-      "mcpSoon": "Anleitung für Assistenten (MCP) folgt.",
+      "agentDocsLink": "KI-Agenten verbinden",
       "adminOnly": "Zugänge kann nur ein Admin der Organisation sehen und anlegen.",
       "loadError": "Die Zugänge konnten nicht geladen werden.",
       "count": "{active} von {limit} aktiven Zugängen",
