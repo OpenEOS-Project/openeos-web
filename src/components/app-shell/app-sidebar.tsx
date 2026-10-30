@@ -46,6 +46,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
+import { seatUsage } from '@/utils/limits';
 import { APP_VERSION } from '@/lib/version';
 import { SourceCodeLink } from '@/components/shared/source-code-link';
 import { useReleaseVersion } from '@/hooks/use-release-version';
@@ -131,6 +132,11 @@ export function AppSidebar() {
   const currentRole = currentOrganization?.role;
   const currentPermissions = currentOrganization?.permissions;
   const deployment = useDeployment();
+  /* Hoechstzahl an Organisationen je Benutzer: die wirksame Schranke
+     kommt mit /auth/me, gezaehlt wird die Liste im Store (sie waechst beim
+     Anlegen sofort). Super-Admins sind ausgenommen. */
+  const orgSeats = seatUsage(organizations.length, user?.organizationLimit);
+  const orgLimitReached = orgSeats.full && !isSuperAdmin;
 
   const canSeeNavItem = (item: NavItemType | NavItemDividerType): boolean => {
     // Fuehrt eigenstaendig ins Leere: die Endpunkte dahinter antworten mit 404.
@@ -331,16 +337,33 @@ export function AppSidebar() {
                     }}
                   />
                 )}
+                {deployment.multiTenant && orgLimitReached && (
+                  <p
+                    data-testid="org-limit-reached"
+                    style={{ margin: '4px 10px 6px', fontSize: 11, lineHeight: 1.4, color: 'var(--mute)' }}
+                  >
+                    {t('organizationLimitReached', { limit: orgSeats.limit })}
+                  </p>
+                )}
                 {deployment.multiTenant && (
                 <button
                   type="button"
                   role="menuitem"
                   className="app-sidebar__org-menu-item"
+                  disabled={orgLimitReached}
+                  aria-disabled={orgLimitReached || undefined}
+                  title={orgLimitReached ? t('organizationLimitReached', { limit: orgSeats.limit }) : undefined}
                   onClick={() => {
+                    if (orgLimitReached) return;
                     setOrgMenuOpen(false);
                     setCreateOrgOpen(true);
                   }}
-                  style={{ color: 'var(--green-ink)', fontWeight: 600 }}
+                  style={{
+                    color: 'var(--green-ink)',
+                    fontWeight: 600,
+                    opacity: orgLimitReached ? 0.5 : undefined,
+                    cursor: orgLimitReached ? 'not-allowed' : undefined,
+                  }}
                 >
                   <div
                     className="app-sidebar__org-menu-avatar"

@@ -141,6 +141,14 @@ export interface Organization {
   invoiceDaysUntilDue?: number | null;
   /** Bevorzugte Bearbeitung im Support-Chat (Super-Admin-Flag). */
   prioritySupport?: boolean;
+  /**
+   * Höchstzahl an Mitgliedern (aktive plus offene Einladungen). In
+   * GET /organizations/:id die wirksame Schranke (0 = unbegrenzt); im
+   * Adminbereich der rohe Wert, null = Standard der Installation.
+   */
+  memberLimit?: number | null;
+  /** Nur in GET /organizations/:id: belegte Plätze inkl. offener Einladungen. */
+  memberCount?: number;
   createdAt: string;
   updatedAt: string;
 }

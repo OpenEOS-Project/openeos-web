@@ -33,6 +33,18 @@ export function useUnlockUser() {
   });
 }
 
+export function useAdminUpdateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, data }: { userId: string; data: { organizationLimit?: number | null } }) =>
+      adminApi.updateUser(userId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
+}
+
 export function useAdminOrganizations(params?: { search?: string; page?: number; limit?: number }) {
   return useQuery({
     queryKey: ['admin', 'organizations', params],

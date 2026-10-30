@@ -1,14 +1,19 @@
 'use client';
 
+import { FormEvent, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
 import { Building } from 'lucide-react';
 
-import { useAdminUser, useUnlockUser } from '@/hooks/use-admin';
+import { useAdminUpdateUser, useAdminUser, useUnlockUser } from '@/hooks/use-admin';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useDeployment } from '@/components/providers/setup-provider';
 import { ListLoading } from '@/components/shared/list-states';
 import { DetailPageHead } from '@/components/shared/detail-page-head';
+import { toast } from '@/components/shared/toast';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import type { AdminUser } from '@/types/admin';
 
 const ROLE_BADGE: Record<string, string> = {
   admin: 'badge--info',
@@ -23,6 +28,8 @@ export function UserDetail() {
   const tCommon = useTranslations('common');
   const { data: user, isLoading, error } = useAdminUser(id);
   const unlockUser = useUnlockUser();
+  const deployment = useDeployment();
+  const defaultOrganizationLimit = deployment.limits?.organizationsPerUser ?? 5;
 
   // Datum mit Uhrzeit — "—" fuer fehlende Werte.
   const { formatDateTime: formatDate } = useLocaleFormat();
@@ -190,6 +197,8 @@ export function UserDetail() {
         )}
       </div>
 
+      <OrganizationLimitCard user={user} defaultLimit={defaultOrganizationLimit} />
+
       {/* Locked Account Card */}
       {isLocked && (
         <div className="app-card" style={{ borderColor: 'color-mix(in oklab, var(--red, var(--danger)) 40%, transparent)' }}>
@@ -214,6 +223,74 @@ export function UserDetail() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Eigene Hoechstzahl an Organisationen fuer diesen Benutzer (Support-Fall).
+ * Leer = Standard der Installation, 0 = unbegrenzt.
+ */
+function OrganizationLimitCard({ user, defaultLimit }: { user: AdminUser; defaultLimit: number }) {
+  const t = useTranslations('users');
+  const tCommon = useTranslations('common');
+  const apiErrorMessage = useApiErrorMessage();
+  const updateUser = useAdminUpdateUser();
+  const stored = typeof user.organizationLimit === 'number' ? String(user.organizationLimit) : '';
+  const [value, setValue] = useState(stored);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+
+  useEffect(() => setValue(stored), [stored]);
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = value.trim();
+    if (trimmed && !/^\d+$/.test(trimmed)) {
+      setFieldError(t('detail.organizationLimitInvalid'));
+      return;
+    }
+    setFieldError(null);
+    try {
+      await updateUser.mutateAsync({
+        userId: user.id,
+        data: { organizationLimit: trimmed ? Number(trimmed) : null },
+      });
+      toast.success(t('detail.organizationLimitSaved'));
+    } catch (err) {
+      toast.error(apiErrorMessage(err));
+    }
+  };
+
+  return (
+    <div className="app-card app-card--flat">
+      <div className="app-card__head">
+        <h3 className="app-card__title">{t('detail.organizationLimit')}</h3>
+      </div>
+      <form onSubmit={onSubmit} style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <label className="auth-field" style={{ maxWidth: 360 }}>
+          <span>{t('detail.organizationLimit')}</span>
+          <input
+            type="number"
+            step="1"
+            min="0"
+            inputMode="numeric"
+            className={`input${fieldError ? ' input--error' : ''}`}
+            value={value}
+            placeholder={t('detail.organizationLimitHint', { limit: defaultLimit })}
+            aria-describedby="user-organization-limit-hint"
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <span id="user-organization-limit-hint" style={{ fontSize: 12, color: 'var(--mute)' }}>
+            {t('detail.organizationLimitHint', { limit: defaultLimit })}
+          </span>
+          {fieldError && <span role="alert" className="auth-field__error">{fieldError}</span>}
+        </label>
+        <div>
+          <button type="submit" className="btn btn--primary" disabled={updateUser.isPending || value === stored}>
+            {updateUser.isPending ? tCommon('saving') : tCommon('save')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

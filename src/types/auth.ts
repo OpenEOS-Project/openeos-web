@@ -55,6 +55,10 @@ export interface User {
   updatedAt: string;
   deletedAt: string | null;
   userOrganizations: UserOrganization[];
+  /** Nur in GET /auth/me: wirksame Höchstzahl an Organisationen (0 = unbegrenzt). */
+  organizationLimit?: number;
+  /** Nur in GET /auth/me: Mitgliedschaften des Benutzers, egal welche Rolle. */
+  organizationCount?: number;
 }
 
 export interface AuthTokens {
