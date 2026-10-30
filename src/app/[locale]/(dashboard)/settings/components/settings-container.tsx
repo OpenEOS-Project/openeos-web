@@ -12,6 +12,7 @@ import { OrganizationContactSection } from './organization-contact-section';
 import { OrganizationLegalSection } from './organization-legal-section';
 import { OrganizationPaymentsSection } from './organization-payments-section';
 import { OrganizationAssistantSection } from './organization-assistant-section';
+import { OrganizationAccessSection } from './organization-access-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { AboutSection } from './about-section';
 import { useAuthStore } from '@/stores/auth-store';
@@ -56,7 +57,7 @@ export function SettingsContainer() {
      die Warnungen an Shop und Schichtplan verlinken so auf die rechtlichen
      Angaben. */
   const requestedTab = useSearchParams().get('tab');
-  const orgTabIds = ['org-general', 'org-contact', 'org-payments', 'org-assistant', 'org-legal'];
+  const orgTabIds = ['org-general', 'org-contact', 'org-payments', 'org-assistant', 'org-access', 'org-legal'];
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
@@ -78,6 +79,7 @@ export function SettingsContainer() {
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
     { id: 'org-payments', label: t('organizationPayments.tab'), children: <OrganizationPaymentsSection /> },
     { id: 'org-assistant', label: t('organizationAssistant.tab'), children: <OrganizationAssistantSection /> },
+    { id: 'org-access', label: t('organizationAccess.tab'), children: <OrganizationAccessSection /> },
     { id: 'org-legal', label: t('organizationLegal.tab'), children: <OrganizationLegalSection /> },
   ];
 
