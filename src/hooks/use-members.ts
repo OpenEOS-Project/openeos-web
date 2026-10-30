@@ -1,9 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { authApi, organizationsApi } from '@/lib/api-client';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useAuthStore } from '@/stores/auth-store';
 import type { AddMemberData, OrganizationPermissions } from '@/types/auth';
+
+/**
+ * Belegte Plaetze (Mitglieder plus offene Einladungen) kommen mit der
+ * Organisation (GET /organizations/:id). Jede Aenderung an Mitgliedern oder
+ * Einladungen macht diese Zahl alt.
+ */
+function invalidateSeats(queryClient: QueryClient, organizationId: string) {
+  queryClient.invalidateQueries({ queryKey: ['organizations', 'detail', organizationId] });
+}
 
 export function useMembers(organizationId: string | undefined) {
   return useQuery({
@@ -25,6 +34,7 @@ export function useRemoveMember(organizationId: string) {
     mutationFn: (memberId: string) => organizationsApi.removeMember(organizationId, memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
+      invalidateSeats(queryClient, organizationId);
     },
   });
 }
@@ -59,6 +69,7 @@ export function useAddMember(organizationId: string) {
     mutationFn: (data: AddMemberData) => organizationsApi.addMember(organizationId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'members'] });
+      invalidateSeats(queryClient, organizationId);
     },
   });
 }
@@ -83,6 +94,7 @@ export function useCreateInvitation(organizationId: string) {
       organizationsApi.createInvitation(organizationId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'invitations'] });
+      invalidateSeats(queryClient, organizationId);
     },
   });
 }
@@ -102,6 +114,7 @@ export function useDeleteInvitation(organizationId: string) {
       organizationsApi.deleteInvitation(organizationId, invitationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations', organizationId, 'invitations'] });
+      invalidateSeats(queryClient, organizationId);
     },
   });
 }

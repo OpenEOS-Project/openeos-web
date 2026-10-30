@@ -10,6 +10,7 @@ import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { UserOrganization } from '@/types/auth';
 import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
+import { seatUsage } from '@/utils/limits';
 
 interface Props {
   open: boolean;
@@ -33,6 +34,11 @@ export function CreateOrgModal({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const { user, organizations, setOrganizations, setCurrentOrganization } = useAuthStore();
+
+  /* Die Liste im Store waechst beim Anlegen sofort mit; /auth/me zaehlt
+     erst beim naechsten Laden nach. Super-Admins sind nicht begrenzt. */
+  const orgSeats = seatUsage(organizations.length, user?.organizationLimit);
+  const limitReached = orgSeats.full && !user?.isSuperAdmin;
 
   const total = stepOrder.length;
   const currentStep = stepOrder[step];
@@ -181,6 +187,23 @@ export function CreateOrgModal({ open, onClose }: Props) {
 
         <form onSubmit={onSubmit}>
           <div className="modal__body" style={{ display: 'grid', gap: 16 }}>
+            {limitReached && (
+              <div
+                role="status"
+                data-testid="org-limit-hint"
+                style={{
+                  background: 'color-mix(in oklab, var(--amber, #d97706) 14%, var(--paper))',
+                  color: 'var(--ink)',
+                  padding: '10px 12px',
+                  borderRadius: 'var(--r)',
+                  fontSize: 13,
+                  border: '1px solid color-mix(in oklab, var(--amber, #d97706) 30%, transparent)',
+                }}
+              >
+                {t('limitReached', { limit: orgSeats.limit })}
+              </div>
+            )}
+
             {currentStep === 'basics' && (
               <>
                 <p style={{ margin: 0, color: 'var(--mute)', fontSize: 14 }}>
@@ -307,16 +330,21 @@ export function CreateOrgModal({ open, onClose }: Props) {
               <ArrowLeft style={{ width: 16, height: 16 }} />
               <span>{tCommon('back')}</span>
             </button>
+            {/* Eigene keys: sonst macht React aus dem „Weiter“-Knopf beim
+                Schrittwechsel denselben DOM-Knoten mit type="submit", und der
+                laufende Klick schickt das Formular ab — die Organisation
+                entstand so schon auf Schritt 2, ohne Bestätigung. */}
             {step < total - 1 ? (
-              <button type="button" className="btn btn--primary" onClick={goNext}>
+              <button key="next" type="button" className="btn btn--primary" onClick={goNext} disabled={limitReached}>
                 <span>{tCommon('next')}</span>
                 <Icon name="arrow-right" size={16} />
               </button>
             ) : (
               <button
+                key="submit"
                 type="submit"
                 className="btn btn--primary"
-                disabled={submitting || name.trim().length < 2}
+                disabled={submitting || limitReached || name.trim().length < 2}
               >
                 {submitting ? (
                   <span>{t('creating')}</span>

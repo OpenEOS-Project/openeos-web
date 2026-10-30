@@ -1628,7 +1628,11 @@
       "noOrganizations": "Dieser Benutzer gehört keiner Organisation an.",
       "accountLocked": "Konto gesperrt",
       "lockedUntil": "Gesperrt bis {date}",
-      "failedAttempts": "{count} fehlgeschlagene Anmeldeversuche"
+      "failedAttempts": "{count} fehlgeschlagene Anmeldeversuche",
+      "organizationLimit": "Höchstzahl Organisationen",
+      "organizationLimitHint": "leer = Standard ({limit}), 0 = unbegrenzt; zählt alle Mitgliedschaften",
+      "organizationLimitInvalid": "Bitte eine ganze Zahl ab 0 eingeben",
+      "organizationLimitSaved": "Höchstzahl gespeichert"
     },
     "count": "{count, plural, =0 {Keine Benutzer} =1 {1 Benutzer} other {# Benutzer}}"
   },
@@ -1859,6 +1863,11 @@
     "count": "{count, plural, =0 {Keine Mitglieder} =1 {1 Mitglied} other {# Mitglieder}}",
     "list": {
       "you": "(du)"
+    },
+    "seats": {
+      "used": "{used} von {limit} Plätzen belegt (inkl. Einladungen)",
+      "unlimited": "{used} Plätze belegt (inkl. Einladungen)",
+      "fullHint": "Alle {limit} Plätze sind belegt (inkl. offener Einladungen). Entferne ein Mitglied oder ziehe eine Einladung zurück – oder frag den Support nach mehr Plätzen."
     }
   },
   "memberAdd": {
@@ -1932,7 +1941,10 @@
       "prioritySupportHint": "Anfragen dieser Organisation im Support-Chat bevorzugt behandeln.",
       "invoiceDaysUntilDue": "Zahlungsziel (Tage)",
       "invoiceDaysUntilDueHint": "Leer = Standard der Plattform",
-      "invoiceDaysUntilDueInvalid": "Bitte eine ganze Zahl zwischen 1 und 90 eingeben"
+      "invoiceDaysUntilDueInvalid": "Bitte eine ganze Zahl zwischen 1 und 90 eingeben",
+      "memberLimit": "Höchstzahl Mitglieder",
+      "memberLimitHint": "leer = Standard ({limit}), 0 = unbegrenzt; zählt Mitglieder und offene Einladungen",
+      "memberLimitInvalid": "Bitte eine ganze Zahl ab 0 eingeben"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -3748,7 +3760,9 @@
     "USER_NOT_FOUND": "Der Benutzer wurde nicht gefunden.",
     "VALIDATION_ERROR": "Einige Angaben sind ungültig. Bitte prüfe deine Eingaben.",
     "VERIFICATION_LINK_EXPIRED": "Der Bestätigungslink ist abgelaufen.",
-    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
+    "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
+    "ORGANIZATION_LIMIT_REACHED": "Du kannst höchstens {limit} Organisationen anlegen.",
+    "MEMBER_LIMIT_REACHED": "Diese Organisation hat die Höchstzahl von {limit} Mitgliedern erreicht (inklusive offener Einladungen)."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5027,7 +5041,8 @@
     "pendingInvitations": "{count, plural, one {# Einladung ausstehend} other {# Einladungen ausstehend}}",
     "language": "Sprache",
     "appearance": "Erscheinungsbild",
-    "breadcrumb": "Seitenpfad"
+    "breadcrumb": "Seitenpfad",
+    "organizationLimitReached": "Du bist in {limit} Organisationen – mehr geht nicht. Für weitere wende dich an den Support."
   },
   "createOrganization": {
     "steps": {
@@ -5046,7 +5061,8 @@
     "timezone": "Zeitzone",
     "confirmIntro": "Bitte prüfe deine Angaben. Nach dem Erstellen wechselst du automatisch zur neuen Organisation.",
     "creating": "Wird erstellt…",
-    "createFailed": "Fehler beim Erstellen der Organisation"
+    "createFailed": "Fehler beim Erstellen der Organisation",
+    "limitReached": "Du kannst höchstens {limit} Organisationen anlegen oder ihnen beitreten. Für weitere wende dich an den Support."
   },
   "validation": {
     "nameRequired": "Bitte gib einen Namen ein",

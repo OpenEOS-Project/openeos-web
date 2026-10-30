@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useAdminUpdateOrganization, useCreateOrganization } from '@/hooks/use-organizations';
+import { useDeployment } from '@/components/providers/setup-provider';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types';
 import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
@@ -31,6 +32,11 @@ function createOrganizationSchema(t: (key: string) => string) {
       .optional()
       .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 90), t('form.invoiceDaysUntilDueInvalid')),
     prioritySupport: z.boolean(),
+    // Leer = Standard der Installation, 0 = unbegrenzt.
+    memberLimit: z
+      .string()
+      .optional()
+      .refine((v) => !v || /^\d+$/.test(v), t('form.memberLimitInvalid')),
   });
 }
 
@@ -47,6 +53,8 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const uiLocale = useLocale();
   const tCommon = useTranslations('common');
   const isEditing = !!organization;
+  const deployment = useDeployment();
+  const defaultMemberLimit = deployment.limits?.membersPerOrganization ?? 10;
 
   const createOrganization = useCreateOrganization();
   const updateOrganization = useAdminUpdateOrganization();
@@ -67,6 +75,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
       eventPriceOverride: '',
       invoiceDaysUntilDue: '',
       prioritySupport: false,
+      memberLimit: '',
     },
   });
   const billingMode = watch('billingMode');
@@ -86,6 +95,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         invoiceDaysUntilDue:
           typeof organization.invoiceDaysUntilDue === 'number' ? String(organization.invoiceDaysUntilDue) : '',
         prioritySupport: organization.prioritySupport ?? false,
+        memberLimit: typeof organization.memberLimit === 'number' ? String(organization.memberLimit) : '',
       });
     } else {
       reset({
@@ -95,6 +105,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         eventPriceOverride: '',
         invoiceDaysUntilDue: '',
         prioritySupport: false,
+        memberLimit: '',
       });
     }
   }, [organization, reset]);
@@ -121,6 +132,9 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
               ? { invoiceDaysUntilDue }
               : {}),
             prioritySupport: data.prioritySupport,
+            // Leer heisst "Standard" und wird als null gespeichert, damit ein
+            // spaeter geaenderter Standard wieder greift.
+            memberLimit: data.memberLimit ? Number(data.memberLimit) : null,
           },
         });
       } else {
@@ -234,6 +248,26 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                     )}
                   </label>
                 )}
+
+                <label className="auth-field" style={{ gridColumn: '1 / -1' }}>
+                  <span>{t('form.memberLimit')}</span>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    inputMode="numeric"
+                    className="input"
+                    placeholder={t('form.memberLimitHint', { limit: defaultMemberLimit })}
+                    aria-describedby="org-member-limit-hint"
+                    {...register('memberLimit')}
+                  />
+                  <span id="org-member-limit-hint" style={{ fontSize: 12, color: 'var(--mute)' }}>
+                    {t('form.memberLimitHint', { limit: defaultMemberLimit })}
+                  </span>
+                  {errors.memberLimit && (
+                    <span role="alert" className="auth-field__error">{errors.memberLimit.message}</span>
+                  )}
+                </label>
 
                 {/* Spannt ueber beide Rasterspalten — die Zeile traegt ihren
                     eigenen Rahmen und wirkt halbbreit wie ein Bruchstueck. */}

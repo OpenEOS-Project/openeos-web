@@ -13,6 +13,11 @@ export interface DeploymentInfo {
   billingEnabled: boolean;
   /** Duerfen mehrere Organisationen nebeneinander existieren? */
   multiTenant: boolean;
+  /** Standard-Schranken dieser Installation (0 = unbegrenzt); fehlt bei aelteren Servern. */
+  limits?: {
+    organizationsPerUser: number;
+    membersPerOrganization: number;
+  };
 }
 
 export interface SetupStatus {

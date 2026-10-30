@@ -1073,6 +1073,10 @@ export const adminApi = {
   unlockUser: (userId: string) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}/unlock`),
 
+  /** Super-Admin-Felder am Benutzer, derzeit die eigene Organisationsgrenze (null = Standard). */
+  updateUser: (userId: string, data: { organizationLimit?: number | null }) =>
+    apiClient.patch<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}`, data),
+
   // Organizations (admin view)
   listOrganizations: (params?: { search?: string; page?: number; limit?: number }) =>
     apiClient.get<ApiResponse<import('@/types/organization').Organization[]> & { meta: import('@/types/api').PaginationMeta }>(

@@ -5,9 +5,11 @@ import { Icon } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useCanCreateMemberAccount, useMembers } from '@/hooks/use-members';
+import { useOrganization } from '@/hooks/use-organizations';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
+import { seatUsage } from '@/utils/limits';
 
 interface MembersListProps {
   organizationId: string;
@@ -31,6 +33,27 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
   const { user } = useAuthStore();
   const addLabel = useCanCreateMemberAccount() ? tAdd('openButton') : t('invite');
   const { data: members, isLoading, error } = useMembers(organizationId);
+  /* Belegte Plaetze (Mitglieder plus offene Einladungen) und die wirksame
+     Schranke kommen mit der Organisation; ein Super-Admin darf trotzdem
+     einladen, fuer ihn prueft die API nicht. */
+  const { data: organization } = useOrganization(organizationId);
+  const seats = seatUsage(organization?.memberCount, organization?.memberLimit);
+  const inviteBlocked = seats.full && !user?.isSuperAdmin;
+  const seatsLabel = seats.unlimited
+    ? t('seats.unlimited', { used: seats.used })
+    : t('seats.used', { used: seats.used, limit: seats.limit });
+  const inviteButton = (
+    <button
+      type="button"
+      className="btn btn--primary"
+      onClick={onInviteClick}
+      disabled={inviteBlocked}
+      title={inviteBlocked ? t('seats.fullHint', { limit: seats.limit }) : undefined}
+      aria-disabled={inviteBlocked || undefined}
+    >
+      {addLabel}
+    </button>
+  );
 
   if (isLoading) {
     return <ListLoading />;
@@ -48,11 +71,7 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
         icon={
           <Icon name="users" size={28} />
         }
-        action={
-          <button type="button" className="btn btn--primary" onClick={onInviteClick}>
-            {addLabel}
-          </button>
-        }
+        action={inviteButton}
       />
     );
   }
@@ -73,10 +92,30 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
               steht wie bei den Geraeten nur die Anzahl. */}
           <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: members.length })}</p>
         </div>
-        <button type="button" className="btn btn--primary" onClick={onInviteClick}>
-          {addLabel}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <span
+            data-testid="member-seats"
+            style={{ fontSize: 12, color: inviteBlocked ? 'var(--danger-ink, var(--danger))' : 'var(--mute)', fontFamily: 'var(--f-mono)' }}
+            title={inviteBlocked ? t('seats.fullHint', { limit: seats.limit }) : undefined}
+          >
+            {seatsLabel}
+          </span>
+          {inviteBlocked ? (
+            /* Ein ausgegrauter Knopf zeigt keinen title; der Hinweis haengt
+               deshalb an einer Huelle, damit er beim Zeigen erscheint. */
+            <span title={t('seats.fullHint', { limit: seats.limit })} style={{ display: 'inline-flex' }}>
+              {inviteButton}
+            </span>
+          ) : (
+            inviteButton
+          )}
+        </div>
       </div>
+      {inviteBlocked && (
+        <p role="status" style={{ margin: '0 20px 12px', fontSize: 12, color: 'var(--mute)' }}>
+          {t('seats.fullHint', { limit: seats.limit })}
+        </p>
+      )}
 
       <div style={{ overflowX: 'auto' }}>
         <table className="data-table">

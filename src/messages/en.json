@@ -1911,7 +1911,11 @@
       "noOrganizations": "This user does not belong to any organization.",
       "accountLocked": "Account locked",
       "lockedUntil": "Locked until {date}",
-      "failedAttempts": "{count} failed login attempts"
+      "failedAttempts": "{count} failed login attempts",
+      "organizationLimit": "Maximum organizations",
+      "organizationLimitHint": "empty = default ({limit}), 0 = unlimited; counts all memberships",
+      "organizationLimitInvalid": "Please enter a whole number of 0 or more",
+      "organizationLimitSaved": "Maximum saved"
     },
     "count": "{count, plural, =0 {No users} =1 {1 user} other {# users}}"
   },
@@ -2142,6 +2146,11 @@
     "count": "{count, plural, =0 {No members} =1 {1 member} other {# members}}",
     "list": {
       "you": "(you)"
+    },
+    "seats": {
+      "used": "{used} of {limit} seats used (incl. invitations)",
+      "unlimited": "{used} seats used (incl. invitations)",
+      "fullHint": "All {limit} seats are taken (including pending invitations). Remove a member or withdraw an invitation – or ask support for more seats."
     }
   },
   "memberAdd": {
@@ -2215,7 +2224,10 @@
       "prioritySupportHint": "Prioritize this organization's requests in the support chat.",
       "invoiceDaysUntilDue": "Payment term (days)",
       "invoiceDaysUntilDueHint": "Leave empty for the platform default",
-      "invoiceDaysUntilDueInvalid": "Please enter a whole number between 1 and 90"
+      "invoiceDaysUntilDueInvalid": "Please enter a whole number between 1 and 90",
+      "memberLimit": "Maximum members",
+      "memberLimitHint": "empty = default ({limit}), 0 = unlimited; counts members and pending invitations",
+      "memberLimitInvalid": "Please enter a whole number of 0 or more"
     },
     "actions": {
       "edit": "Edit",
@@ -3748,7 +3760,9 @@
     "USER_NOT_FOUND": "The user was not found.",
     "VALIDATION_ERROR": "Some entries are invalid. Please check your input.",
     "VERIFICATION_LINK_EXPIRED": "The confirmation link has expired.",
-    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired."
+    "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired.",
+    "ORGANIZATION_LIMIT_REACHED": "You can create at most {limit} organizations.",
+    "MEMBER_LIMIT_REACHED": "This organization has reached its maximum of {limit} members (including pending invitations)."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5027,7 +5041,8 @@
     "pendingInvitations": "{count, plural, one {# pending invitation} other {# pending invitations}}",
     "language": "Language",
     "appearance": "Appearance",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "organizationLimitReached": "You are in {limit} organizations – that is the maximum. Contact support for more."
   },
   "createOrganization": {
     "steps": {
@@ -5046,7 +5061,8 @@
     "timezone": "Time zone",
     "confirmIntro": "Please review your details. After creating it, you will be switched to the new organization automatically.",
     "creating": "Creating…",
-    "createFailed": "Failed to create the organization"
+    "createFailed": "Failed to create the organization",
+    "limitReached": "You can create or join at most {limit} organizations. Contact support for more."
   },
   "validation": {
     "nameRequired": "Please enter a name",

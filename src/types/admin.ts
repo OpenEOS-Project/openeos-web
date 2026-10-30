@@ -21,6 +21,8 @@ export interface AdminUser {
   lastLoginAt: string | null;
   lockedUntil: string | null;
   failedLoginAttempts: number;
+  /** Eigene Höchstzahl an Organisationen; null = Standard der Installation, 0 = unbegrenzt. */
+  organizationLimit?: number | null;
   createdAt: string;
   updatedAt: string;
   userOrganizations?: AdminUserOrganization[];
