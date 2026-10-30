@@ -13,6 +13,7 @@ import {
   menuImportAccept,
   menuImportPending,
   parsePrice,
+  preselectIcon,
 } from '@/lib/menu-import';
 
 import type { MenuSuggestion } from '@/types/assistant';
@@ -335,6 +336,50 @@ test.describe('buildApplyPayload', () => {
     state.rows[0].name = '';
     state.rows[0].selected = false;
     expect(buildApplyPayload(state).problems).toEqual({});
+  });
+});
+
+test.describe('preselectIcon', () => {
+  test('takes the best suggestion when it is lexical (also without source)', () => {
+    expect(preselectIcon([{ icon: 'pos-icon:bratwurst', score: 0.4 }])).toBe('pos-icon:bratwurst');
+    expect(
+      preselectIcon([
+        { icon: 'pos-icon:bratwurst', score: 0.6, source: 'lexical' },
+        { icon: 'pos-icon:steak', score: 0.9, source: 'model' },
+      ])
+    ).toBe('pos-icon:bratwurst');
+  });
+
+  test('never preselects a model suggestion', () => {
+    expect(preselectIcon([{ icon: 'pos-icon:steak', score: 0.9, source: 'model' }])).toBeNull();
+    expect(
+      preselectIcon([
+        { icon: 'pos-icon:steak', score: 0.6, source: 'model' },
+        { icon: 'pos-icon:bratwurst', score: 0.3, source: 'lexical' },
+      ])
+    ).toBeNull();
+    expect(preselectIcon([])).toBeNull();
+    expect(preselectIcon(undefined)).toBeNull();
+  });
+
+  test('buildPreview leaves the icon empty for a model suggestion', () => {
+    const state = buildPreview({
+      categories: [{ key: 'c1', name: 'Vom Grill' }],
+      products: [
+        {
+          key: 'p1',
+          categoryKey: 'c1',
+          name: 'Tagesgericht',
+          price: 5,
+          taxRate: 19,
+          confidence: 'high',
+          iconSuggestions: [{ icon: 'pos-icon:eintopf', score: 0.6, source: 'model' }],
+        },
+      ],
+      warnings: [],
+    });
+    expect(state.rows[0].icon).toBeNull();
+    expect(state.rows[0].iconSuggestions).toHaveLength(1);
   });
 });
 

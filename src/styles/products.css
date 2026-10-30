@@ -1,0 +1,99 @@
+/* Produkte-Seite: Aktionen im Kartenkopf und der gemeinsame Import-Dialog
+   (products/components/import-dialog.tsx) mit den Reitern „Speisekarte“
+   und „CSV“. Die Vorschau des Speisekarten-Imports steht in assistant.css. */
+
+/* ---------- Aktionen: nur Symbol, Beschriftung als Sprechblase ---------- */
+.page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* @openeos/ui zeigt die Sprechblase von <Tooltip> immer an und über dem
+   Element; hier erst bei Zeigen oder Tastaturfokus und darunter — über dem
+   Knopf würde der Kartenkopf sie abschneiden. aria-label trägt den Text
+   für Screenreader. */
+.page-actions .oe-tip__bubble {
+  top: calc(100% + 7px);
+  bottom: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 5;
+  transition:
+    opacity 0.12s,
+    visibility 0.12s;
+}
+.page-actions .oe-tip__bubble::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--oe-contrast);
+}
+.page-actions .oe-tip:hover .oe-tip__bubble,
+.page-actions .oe-tip:focus-within .oe-tip__bubble {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- Import-Dialog ---------- */
+/* .landing .modal__panel setzt 520px; die Vorschau-Tabelle braucht Breite. */
+.landing .import-dialog__panel {
+  max-width: 640px;
+}
+.landing .import-dialog__panel--wide {
+  max-width: min(1240px, calc(100vw - 24px));
+}
+.import-dialog__tabs {
+  flex: none;
+  padding: 0 20px;
+}
+/* Beide Reiter bleiben eingehängt (ein laufender Import geht beim Wechsel
+   nicht verloren); der inaktive ist nur ausgeblendet. Mit display: contents
+   sind Inhalt und Fußzeile des Reiters direkte Kinder des Dialogs. */
+.import-dialog__tab {
+  display: contents;
+}
+.import-dialog__tab[hidden] {
+  display: none;
+}
+/* Fußzeile: Kontingent links, Knöpfe rechts. Passt beides nicht in eine
+   Zeile, rutschen die Knöpfe darunter — statt dass der Text links aus dem
+   Dialog läuft und abgeschnitten wird. */
+.landing .import-dialog__panel .modal__foot {
+  flex-wrap: wrap;
+}
+
+/* Auf dem Handy als Sheet in voller Höhe: Kopf, Reiter und Fußzeile bleiben
+   stehen, nur der Inhalt scrollt. */
+@media (max-width: 640px) {
+  .landing .import-dialog__overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .landing .modal__panel.import-dialog__panel {
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+  .landing .import-dialog__panel .modal__head {
+    padding: 14px 16px;
+  }
+  .import-dialog__tabs {
+    padding: 0 16px;
+  }
+  .landing .import-dialog__panel .modal__body {
+    padding: 16px;
+  }
+  .landing .import-dialog__panel .modal__foot {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
+  }
+  .landing .import-dialog__panel .modal__foot .btn {
+    flex: 1 1 auto;
+  }
+}

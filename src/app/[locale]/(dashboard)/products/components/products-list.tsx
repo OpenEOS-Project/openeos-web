@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Button, Icon } from '@openeos/ui';
+import '@/styles/products.css';
+import { Button, Icon, Tooltip } from '@openeos/ui';
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
@@ -16,9 +17,8 @@ import type { Product } from '@/types/product';
 interface ProductsListProps {
   eventId: string;
   onCreateClick: () => void;
+  /** Öffnet den Import-Dialog (Speisekarte und CSV). */
   onImportClick: () => void;
-  /** Nur gesetzt, wenn die Assistent-Funktionen der Organisation an sind. */
-  onMenuImportClick?: () => void;
   /** Admin-Hinweis auf die Einstellung, solange der Assistent aus ist. */
   menuImportHint?: boolean;
   onManageCategoriesClick: () => void;
@@ -31,7 +31,6 @@ export function ProductsList({
   eventId,
   onCreateClick,
   onImportClick,
-  onMenuImportClick,
   menuImportHint = false,
   onManageCategoriesClick,
   onEditClick,
@@ -75,11 +74,9 @@ export function ProductsList({
             <button className="btn btn--primary" onClick={onCreateClick}>
               {t('create')}
             </button>
-            {onMenuImportClick && (
-              <button className="btn btn--ghost" onClick={onMenuImportClick}>
-                {t('menuImport.trigger')}
-              </button>
-            )}
+            <button className="btn btn--ghost" onClick={onImportClick}>
+              {t('import.trigger')}
+            </button>
           </div>
         }
       />
@@ -111,21 +108,29 @@ export function ProductsList({
             </p>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <button className="btn btn--ghost" onClick={onManageCategoriesClick}>
-            {t('manageCategories')}
-          </button>
-          <button className="btn btn--ghost" onClick={onImportClick}>
-            {t('import.trigger')}
-          </button>
-          {onMenuImportClick && (
-            <button className="btn btn--ghost" onClick={onMenuImportClick}>
-              {t('menuImport.trigger')}
-            </button>
-          )}
-          <button className="btn btn--primary" onClick={onCreateClick}>
-            {t('create')}
-          </button>
+        {/* Nur Symbole; die Beschriftung steht als Sprechblase (Hover/Fokus)
+            und als aria-label. Ein Import-Knopf für Speisekarte und CSV. */}
+        <div className="page-actions">
+          <Tooltip label={t('manageCategories')}>
+            <Button
+              variant="ghost"
+              iconOnly
+              aria-label={t('manageCategories')}
+              onClick={onManageCategoriesClick}
+            >
+              <Icon name="tag" />
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('import.trigger')}>
+            <Button variant="ghost" iconOnly aria-label={t('import.trigger')} onClick={onImportClick}>
+              <Icon name="download" />
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('create')}>
+            <Button variant="primary" iconOnly aria-label={t('create')} onClick={onCreateClick}>
+              <Icon name="plus" />
+            </Button>
+          </Tooltip>
         </div>
       </div>
 

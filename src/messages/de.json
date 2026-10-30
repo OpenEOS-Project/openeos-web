@@ -971,6 +971,108 @@
       "savedOn": "Assistent-Funktionen sind an.",
       "savedOff": "Assistent-Funktionen sind aus.",
       "loadError": "Der Status konnte nicht geladen werden."
+    },
+    "organizationAccess": {
+      "tab": "Zugänge",
+      "title": "Zugänge",
+      "description": "Schlüssel, mit denen andere Programme die Verwaltung deiner Organisation bedienen.",
+      "intro": "Mit einem Zugang kannst du OpenEOS aus anderen Programmen oder mit einem Assistenten bedienen – nur für die Verwaltung, nie für die Kasse. Jeder Zugang darf höchstens das, was die Person darf, die ihn angelegt hat.",
+      "docsLink": "API-Referenz",
+      "agentDocsLink": "KI-Agenten verbinden",
+      "adminOnly": "Zugänge kann nur ein Admin der Organisation sehen und anlegen.",
+      "loadError": "Die Zugänge konnten nicht geladen werden.",
+      "count": "{active} von {limit} aktiven Zugängen",
+      "create": "Zugang anlegen",
+      "empty": "Noch kein Zugang angelegt.",
+      "prefixTitle": "Anfang des Schlüssels – der Rest wird nie wieder angezeigt.",
+      "scopes": "Berechtigungen",
+      "revoke": "Widerrufen",
+      "revoked": "„{name}“ wurde widerrufen.",
+      "limit": {
+        "title": "Höchstzahl erreicht",
+        "text": "Du hast {limit} aktive Zugänge – mehr sind nicht möglich. Widerrufe einen, um einen neuen anzulegen."
+      },
+      "status": {
+        "active": "aktiv",
+        "expired": "abgelaufen",
+        "revoked": "widerrufen"
+      },
+      "meta": {
+        "createdBy": "Angelegt von",
+        "createdAt": "Angelegt",
+        "lastUsed": "Zuletzt genutzt",
+        "expires": "Läuft ab",
+        "revokedAt": "Widerrufen",
+        "never": "nie",
+        "unknownUser": "gelöschtes Konto"
+      },
+      "scopeLabels": {
+        "read": "Lesen",
+        "catalog:write": "Katalog bearbeiten",
+        "events:write": "Veranstaltungen bearbeiten",
+        "tables:write": "Tische bearbeiten",
+        "staff:write": "Schichtpläne bearbeiten",
+        "devices:write": "Bon-Vorlagen bearbeiten",
+        "settings:write": "Einstellungen ändern",
+        "monitoring:read": "Plattform-Kennzahlen"
+      },
+      "scopeDescriptions": {
+        "read": "Organisation, Veranstaltungen, Kategorien, Produkte, Pfandarten, Tische, Stationen, Bon-Vorlagen, Drucker, Schichtpläne, Geräte, Berichte und Bestellungen lesen",
+        "catalog:write": "Kategorien, Produkte und Pfandarten anlegen und ändern",
+        "events:write": "Veranstaltungen und Produktionsstationen anlegen und ändern (keine Freischaltung)",
+        "tables:write": "Bereiche, Tische und Tischplan bearbeiten",
+        "staff:write": "Schichtpläne, Jobs, Schichten und Helfer-Anmeldungen bearbeiten",
+        "devices:write": "Bon-Vorlagen anlegen und ändern",
+        "settings:write": "Organisationseinstellungen ändern",
+        "monitoring:read": "Plattform-Kennzahlen lesen (Super-Admin)"
+      },
+      "createDialog": {
+        "title": "Zugang anlegen",
+        "createdTitle": "Zugang angelegt",
+        "name": "Name",
+        "namePlaceholder": "z. B. Claude Desktop, Zapier, Vereins-Skript",
+        "nameRequired": "Gib dem Zugang einen Namen.",
+        "scopesLegend": "Berechtigungen",
+        "scopeRequired": "Wähle mindestens eine Berechtigung.",
+        "recommended": "empfohlen",
+        "writeHint": "Schreib-Berechtigungen schließen Lesen nicht ein – wer lesen und schreiben soll, braucht beides.",
+        "writeWithoutRead": "Ohne „Lesen“ kann der Zugang nur schreiben, aber nichts abrufen – meist willst du Lesen dazu.",
+        "expiry": "Ablauf",
+        "expiryPresets": "Vorgaben für den Ablauf",
+        "expiryDate": "Ablaufdatum",
+        "never": "nie",
+        "days": "{days} Tage",
+        "expiryHint": "Ohne Datum läuft der Zugang nicht ab. Du kannst ihn jederzeit widerrufen.",
+        "expiresOn": "Läuft ab am {date}",
+        "expiryPast": "Das Ablaufdatum muss in der Zukunft liegen.",
+        "neverExpires": "läuft nie ab",
+        "submit": "Zugang anlegen",
+        "pending": "Legt an…",
+        "onceTitle": "Jetzt kopieren – der Schlüssel wird nur einmal angezeigt",
+        "onceText": "Bewahre ihn sicher auf, zum Beispiel in einem Passwort-Manager. Geht er verloren, widerrufe den Zugang und lege einen neuen an.",
+        "copy": "Kopieren",
+        "copied": "Kopiert",
+        "copyFailed": "Kopieren ging nicht – markiere den Schlüssel und kopiere ihn von Hand.",
+        "usage": "Verwendung: Kopfzeile „Authorization: Bearer“ gefolgt vom Schlüssel – bei jeder Anfrage an die API.",
+        "done": "Fertig"
+      },
+      "revokeDialog": {
+        "title": "„{name}“ widerrufen?",
+        "text": "Programme, die diesen Zugang nutzen, verlieren sofort den Zugriff. Ein Widerruf lässt sich nicht zurücknehmen – du kannst jederzeit einen neuen Zugang anlegen.",
+        "confirm": "Widerrufen",
+        "pending": "Widerruft…"
+      },
+      "table": {
+        "name": "Name",
+        "key": "Schlüssel",
+        "scopes": "Berechtigungen",
+        "created": "Angelegt",
+        "lastUsed": "Zuletzt genutzt",
+        "expires": "Läuft ab",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "revokeTitle": "„{name}“ widerrufen"
     }
   },
   "theme": {
@@ -1337,7 +1439,8 @@
         "title": "Vorschläge für „{name}“",
         "none": "Kein passendes Produkt-Icon gefunden.",
         "needName": "Gib zuerst einen Namen ein, dann schlägt OpenEOS ein Icon vor.",
-        "use": "{label} übernehmen"
+        "use": "{label} übernehmen",
+        "useModel": "{label} übernehmen (Vermutung des Modells)"
       }
     },
     "status": {
@@ -1427,6 +1530,10 @@
         "sampleFood": "Essen,Pommes Frites,,3.00,,pommes,,Sauce: Ketchup | Mayonnaise,,",
         "sampleDrink": "Getränke,Cola 0.33 L,,2.80,2.00,cola,,Sorte: Normal | Zero,,",
         "filename": "produkt-vorlage.csv"
+      },
+      "tabs": {
+        "menu": "Speisekarte",
+        "csv": "CSV"
       }
     },
     "menuImport": {
@@ -1516,7 +1623,8 @@
         "choose": "Produkt-Icon wählen",
         "none": "Kein Produkt-Icon",
         "suggestion": "Vorschlag: {label}",
-        "remove": "Produkt-Icon entfernen"
+        "remove": "Produkt-Icon entfernen",
+        "suggestionModel": "Vermutung des Modells: {label}"
       },
       "pfand": {
         "none": "— Kein Pfand —",
@@ -1536,6 +1644,14 @@
       "quota": {
         "remaining": "Heute noch {remaining, plural, one {# Import} other {# Importe}}",
         "exhausted": "Tageskontingent aufgebraucht – morgen geht es weiter"
+      },
+      "compact": {
+        "details": "Details einblenden",
+        "collapse": "Details ausblenden",
+        "variants": "{count, plural, =0 {Varianten} one {# Variante} other {# Varianten}}",
+        "pfand": "Pfand",
+        "icon": "Icon",
+        "taxRate": "MwSt."
       }
     },
     "count": "{count, plural, =0 {Keine Produkte} =1 {1 Produkt} other {# Produkte}}",
@@ -3492,9 +3608,15 @@
     "AI_QUOTA_EXCEEDED": "Das Tageskontingent ({used} von {limit}) ist aufgebraucht – morgen geht es weiter.",
     "ALREADY_MEMBER": "Du bist bereits Mitglied dieser Organisation.",
     "API_TOKEN_ENDPOINT_NOT_ALLOWED": "Dieser Endpunkt ist für API-Tokens nicht freigegeben.",
-    "API_TOKEN_INVALID": "Der API-Token ist ungültig oder abgelaufen.",
-    "API_TOKEN_NOT_FOUND": "Der API-Token wurde nicht gefunden.",
-    "API_TOKEN_SCOPE_MISSING": "Dem API-Token fehlt die Berechtigung „{scope}“.",
+    "API_TOKEN_EXPIRES_IN_PAST": "Das Ablaufdatum muss in der Zukunft liegen.",
+    "API_TOKEN_INVALID": "Der Zugang ist ungültig, abgelaufen oder widerrufen.",
+    "API_TOKEN_LIMIT_REACHED": "Höchstens {limit} aktive Zugänge je Organisation – widerrufe einen, um einen neuen anzulegen.",
+    "API_TOKEN_NOT_ALLOWED": "Diese Funktion ist für Zugänge nicht freigegeben.",
+    "API_TOKEN_NOT_FOUND": "Der Zugang wurde nicht gefunden.",
+    "API_TOKEN_RATE_LIMITED": "Zu viele Anfragen über diesen Zugang – bitte warte einen Moment.",
+    "API_TOKEN_SCOPE_INVALID": "Diese Berechtigung gibt es nicht oder sie ist hier nicht erlaubt: {scopes}",
+    "API_TOKEN_SCOPE_MISSING": "Dem Zugang fehlt die Berechtigung „{scope}“.",
+    "API_TOKEN_WRONG_ORGANIZATION": "Der Zugang gehört zu einer anderen Organisation.",
     "ASSIGNMENT_NOT_CONFIRMED": "Die Zuweisung muss bestätigt sein.",
     "ASSIGNMENT_NOT_FOUND": "Die Zuweisung wurde nicht gefunden.",
     "ASSISTANT_DISABLED": "Die Assistent-Funktionen sind für deine Organisation ausgeschaltet.",
@@ -3502,6 +3624,8 @@
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
     "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
     "CASH_PAYMENTS_DISABLED": "Deine Organisation arbeitet bargeldlos. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
+    "CATEGORY_HAS_PRODUCTS": "Die Kategorie enthält noch {count} Produkte – verschiebe oder lösche sie zuerst.",
+    "CATEGORY_IN_USE": "Die Kategorie wird in Bestellungen verwendet und kann nicht gelöscht werden.",
     "CATEGORY_NOT_FOUND": "Die Kategorie wurde nicht gefunden.",
     "CHECKOUT_NOT_FOUND": "Der Bezahlvorgang wurde nicht gefunden.",
     "CONFLICT": "Die Aktion steht im Konflikt mit dem aktuellen Stand. Bitte lade die Seite neu.",
@@ -3751,6 +3875,7 @@
     "TWO_FACTOR_SETUP_NOT_STARTED": "Bitte starte zuerst die Einrichtung der Zwei-Faktor-Authentifizierung.",
     "UNAUTHORIZED": "Du bist nicht angemeldet. Bitte melde dich erneut an.",
     "UNKNOWN_ERROR": "Ein unbekannter Fehler ist aufgetreten.",
+    "UPLOAD_DIR_NOT_WRITABLE": "Der Upload-Ordner auf dem Server ist nicht beschreibbar – bitte den Betreiber informieren.",
     "UPLOAD_FILE_MISSING": "Es wurde keine Datei hochgeladen.",
     "UPLOAD_FILE_TOO_LARGE": "Die Datei ist zu groß. Erlaubt sind höchstens {maxMb} MB.",
     "UPLOAD_FILE_TYPE_INVALID": "Dieser Dateityp ist nicht erlaubt. Erlaubt: {allowed}",

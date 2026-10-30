@@ -1,0 +1,351 @@
+/* Zugänge (API-Tokens): Reiter in den Organisationseinstellungen
+   (settings/components/organization-access-section.tsx) und der Dialog
+   zum Anlegen (api-token-create-dialog.tsx). */
+
+.api-tokens__intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.api-tokens__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+}
+.api-tokens__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.api-tokens__count {
+  margin: 0;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.api-tokens__empty {
+  margin: 0;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+
+/* Dichte Tabelle ab Tablet-Breite: alles auf einen Blick, keine breiten
+   Spalten. Der Wrapper fängt Ausreißer ab, braucht aber bei 768px nicht zu
+   scrollen. */
+.api-tokens__scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.landing .data-table.api-tokens__table {
+  table-layout: auto;
+}
+.landing .data-table.api-tokens__table th,
+.landing .data-table.api-tokens__table td {
+  padding: 6px 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+/* Spaltentitel dürfen umbrechen („Zuletzt genutzt“), sonst tragen sie
+   auf 768px mehr Breite als die Daten darunter. */
+.landing .data-table.api-tokens__table th {
+  white-space: normal;
+  line-height: 1.2;
+}
+.landing .data-table.api-tokens__table th:first-child,
+.landing .data-table.api-tokens__table td:first-child {
+  padding-left: 0;
+}
+.landing .data-table.api-tokens__table th:last-child,
+.landing .data-table.api-tokens__table td:last-child {
+  padding-right: 0;
+  width: 1%;
+}
+/* Nur Name und Berechtigungen dürfen umbrechen; die Berechtigungen
+   bekommen die übrige Breite, damit die Chips nebeneinander stehen. */
+.landing .data-table.api-tokens__table td:first-child,
+.landing .data-table.api-tokens__table .api-token__scopes-cell {
+  white-space: normal;
+}
+.landing .data-table.api-tokens__table .api-token__scopes-cell {
+  width: 99%;
+}
+.api-token__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.api-token__title .api-token__name {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Tablet (768–1023px): die Tabelle muss ohne seitliches Scrollen passen —
+   der Name wird früher gekürzt, „Angelegt“ steht erst ab Desktop. */
+.api-token__stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.api-token__prefix--sub {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .landing .data-table.api-tokens__table th,
+  .landing .data-table.api-tokens__table td {
+    padding: 6px 6px;
+  }
+  .api-token__title .api-token__name {
+    max-width: 120px;
+  }
+  .api-token__prefix--sub {
+    display: block;
+  }
+  .landing .data-table.api-tokens__table th:nth-child(2),
+  .landing .data-table.api-tokens__table td:nth-child(2),
+  .landing .data-table.api-tokens__table th:nth-child(4),
+  .landing .data-table.api-tokens__table td:nth-child(4) {
+    display: none;
+  }
+}
+.api-token--inactive {
+  opacity: 0.55;
+}
+.api-token__name {
+  font-weight: 600;
+  color: var(--oe-ink);
+  overflow-wrap: anywhere;
+}
+.api-token__prefix {
+  font: 500 11.5px var(--oe-f-mono);
+  color: var(--oe-mute);
+  letter-spacing: 0.02em;
+}
+.api-token__created {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.api-token__created small {
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+.api-token__date {
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.api-token__scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.api-token__scope {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font: 500 11px/16px var(--oe-f-mono);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: color-mix(in oklab, var(--oe-ink) 80%, transparent);
+  background: color-mix(in oklab, var(--oe-ink) 7%, transparent);
+  cursor: default;
+}
+.api-token__scope--write {
+  color: var(--oe-info-ink, var(--oe-ink));
+  background: color-mix(in oklab, var(--oe-info) 12%, transparent);
+}
+.api-token__revoke {
+  color: var(--oe-danger);
+}
+
+/* Kompakte Zeilen unter Tablet-Breite: Name + Status, darunter Präfix,
+   Berechtigungen und letzte Nutzung; Aktion rechts. Kein seitliches
+   Scrollen. */
+.api-tokens__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.api-token-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.api-token-row:first-child {
+  border-top: 0;
+}
+.api-token-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.api-token-row__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.api-token-row__head .api-token__name {
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+.api-token-row__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.api-token-row__used {
+  white-space: nowrap;
+}
+.api-token-row__actions {
+  flex: none;
+}
+
+/* Dialog: Scopes als Kästchen mit Beschreibung, Ablauf mit Vorgaben. */
+.api-token-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.api-token-form__scopes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.api-token-form__scopes > legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+.api-token-form__scope {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.api-token-form__scope:hover {
+  border-color: color-mix(in oklab, var(--oe-ink) 30%, transparent);
+}
+.api-token-form__scope.is-checked {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+.api-token-form__scope input {
+  margin-top: 2px;
+  flex: none;
+  accent-color: var(--oe-green-ink);
+}
+.api-token-form__scope-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.api-token-form__scope-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oe-ink);
+}
+.api-token-form__scope-code {
+  font: 500 11px var(--oe-f-mono);
+  color: var(--oe-mute);
+}
+.api-token-form__scope-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--oe-mute);
+}
+.api-token-form__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.api-token-form__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.api-token-form__preset {
+  padding: 4px 10px;
+  border: 1px solid var(--oe-line-2);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--oe-ink);
+  font: 500 12px var(--oe-f-sans);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.api-token-form__preset:hover {
+  border-color: color-mix(in oklab, var(--oe-ink) 30%, transparent);
+}
+.api-token-form__preset.is-active {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+  color: var(--oe-green-ink);
+}
+.api-token-form__preset:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 1px;
+}
+
+/* Einmalige Anzeige des Klartexts. */
+.api-token-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.api-token-reveal__secret {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
+}
+.api-token-reveal__secret code {
+  flex: 1;
+  min-width: 0;
+  font: 500 13px/1.5 var(--oe-f-mono);
+  color: var(--oe-ink);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.api-token-reveal__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
