@@ -764,6 +764,27 @@ export const assistantApi = {
     ),
 };
 
+// Zugänge (API-Tokens) einer Organisation — nur Admins, nur mit Sitzung;
+// ein Token kann keine Tokens ausstellen.
+export const apiTokensApi = {
+  list: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/api-token').ApiToken[]>>(
+      `/organizations/${organizationId}/api-tokens`
+    ),
+
+  /** `data.token` (oeos_…) kommt genau einmal, hier. */
+  create: (organizationId: string, input: import('@/types/api-token').CreateApiTokenInput) =>
+    apiClient.post<ApiResponse<import('@/types/api-token').CreatedApiToken>>(
+      `/organizations/${organizationId}/api-tokens`,
+      input
+    ),
+
+  revoke: (organizationId: string, id: string) =>
+    apiClient.delete<ApiResponse<import('@/types/api-token').ApiToken>>(
+      `/organizations/${organizationId}/api-tokens/${id}`
+    ),
+};
+
 // Menu imports (assistant, per event)
 export const menuImportsApi = {
   /**
