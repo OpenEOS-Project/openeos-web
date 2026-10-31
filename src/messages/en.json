@@ -913,7 +913,7 @@
       "description": "How payments can be taken at your tills.",
       "cashless": {
         "label": "Cashless mode",
-        "hint": "Your tills don’t accept cash – card payments via SumUp as well as online and prepaid payments keep working, including tips, split and combined payments. OpenEOS then blocks cash on the server too, not just in the interface. Without cash, your till needs no TSE. Every change is logged with time and person.",
+        "hint": "Your tills don’t accept cash – card payments via SumUp as well as online and prepaid payments keep working, including tips, split and combined payments. OpenEOS then blocks cash on the server too. This mode alone does not exempt you from the TSE requirement, because you can switch cash back on here yourself; without a TSE, only “Order only” works, which our support switches on. Every change is logged with time and person.",
         "effects": {
           "pay": "No cash button, no quick amounts and no change at checkout.",
           "refund": "Refunds only go back to the original card or online payment. Earlier cash payments can no longer be refunded through OpenEOS.",
@@ -931,7 +931,7 @@
       "savedOff": "Cashless mode is off. The tills accept cash again.",
       "confirmOff": {
         "title": "Allow cash again?",
-        "text": "Your tills can then accept cash again. For tills that take cash, the Kassensicherungsverordnung requires a TSE (technical security system) – the TSE integration for OpenEOS is still in progress. The change is recorded in the history.",
+        "text": "Your tills will accept cash again. The TSE requirement does not depend on this switch: because you can switch cash on and off here yourself, it also applies in cashless mode. The TSE integration for OpenEOS is in progress. The change is recorded in the history.",
         "faqLink": "Learn more in the FAQ",
         "confirm": "Allow cash"
       },
@@ -5053,7 +5053,7 @@
       "name": "TSE (fiscal security)",
       "vendor": "Fiscalisation",
       "description": "Cloud TSE for cash payments under the German KassenSichV – in preparation.",
-      "longDescription": "If you accept cash at the till, the German cash register security regulation (KassenSichV) requires a certified technical security device (TSE) that signs every transaction. A cloud TSE integration for OpenEOS is in preparation. Until then you can switch on cashless mode: without cash, no TSE is needed. Learn more in the <link>FAQ on openeos.de</link>."
+      "longDescription": "A till that can accept cash needs a certified technical security device (TSE) under the German cash register security regulation (KassenSichV), which signs every transaction. A cloud TSE integration for OpenEOS is in preparation. Cashless mode alone does not exempt you from the TSE requirement, because you can switch cash back on yourself. Without a TSE, use the “Order only” operating mode, which our support switches on. Learn more in the <link>FAQ on openeos.de</link>."
     }
   },
   "onboarding": {
@@ -5466,7 +5466,7 @@
   },
   "cashTse": {
     "title": "Cash and TSE",
-    "text": "In Germany, anyone who accepts cash with an electronic till needs a certified TSE (technical security system) under the Kassensicherungsverordnung. The TSE integration for OpenEOS is in progress. Until then, your club decides for itself whether to record cash with OpenEOS – if in doubt, check with your tax advisor. Without cash, no TSE is needed: switch on cashless mode for that.",
+    "text": "In Germany, an electronic till that can accept cash needs a certified TSE (technical security system). The TSE integration for OpenEOS is in progress. Until then, your club decides for itself whether to record cash with OpenEOS – if in doubt, check with your tax advisor. Cashless mode alone does not exempt you from the TSE requirement, because you can switch cash back on yourself. Without a TSE, use <order>“Order only”</order>; our support switches it on.",
     "faqLink": "Learn more in the FAQ",
     "settingsLink": "Go to payment settings",
     "dismiss": "Hide notice"

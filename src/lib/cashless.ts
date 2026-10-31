@@ -1,10 +1,14 @@
 /**
  * Bargeldloser Modus der Organisation (`settings.payments.cashless`).
  *
- * Eine elektronische Kasse braucht eine zertifizierte TSE nur, wenn sie
- * Bargeld erfassen kann. Im bargeldlosen Modus sperrt die API jeden
- * Bargeldweg (CASH_PAYMENTS_DISABLED); Kasse und Verwaltung blenden die
+ * Im bargeldlosen Modus sperrt die API jeden Bargeldweg
+ * (CASH_PAYMENTS_DISABLED); Kasse und Verwaltung blenden die
  * Bargeld-Bedienung dann aus. Ohne Eintrag ist Bargeld erlaubt (Standard).
+ *
+ * Von der TSE-Pflicht befreit der Modus allein nicht: Der Verein kann ihn
+ * selbst wieder ausschalten, und nach Auskunft des BMF liegt eine
+ * Kassenfunktion schon vor, wenn sich Bargeld selbst einschalten lässt.
+ * TSE-frei ist nur die Betriebsart „Nur Bestellen“, die der Support schaltet.
  */
 
 /** Nur ein ausdrückliches `true` zählt — wie in der API. */
@@ -17,13 +21,17 @@ export function tseFaqUrl(locale: string): string {
   return locale === 'en' ? 'https://openeos.de/en/faq#tse' : 'https://openeos.de/faq#tse';
 }
 
+/** FAQ-Eintrag zur Betriebsart „Nur Bestellen“ auf openeos.de (je Sprache). */
+export function orderOnlyFaqUrl(locale: string): string {
+  return locale === 'en' ? 'https://openeos.de/en/faq#nur-bestellen' : 'https://openeos.de/faq#nur-bestellen';
+}
+
 /**
  * Ablauf am Schalter „Bargeldloser Modus“.
  *
- * Einschalten speichert sofort. Ausschalten erlaubt wieder Bargeld — dafür
- * schreibt die Kassensicherungsverordnung eine TSE vor —, deshalb fragt die
- * Oberfläche vorher nach. Erst die Bestätigung schickt die Änderung an die
- * API; Abbrechen schließt nur die Rückfrage, der Modus bleibt an.
+ * Einschalten speichert sofort. Ausschalten erlaubt wieder Bargeld, deshalb
+ * fragt die Oberfläche vorher nach (mit Hinweis zur TSE-Pflicht). Erst die
+ * Bestätigung schickt die Änderung an die API; Abbrechen schließt nur die Rückfrage, der Modus bleibt an.
  *
  * `confirmOff`: ob die Rückfrage offen ist. `save`: der Wert, der an die API
  * geht, oder `null`, wenn nichts gesendet wird.
