@@ -14,8 +14,8 @@ interface CashlessOffDialogProps {
 }
 
 /**
- * Rückfrage vor dem Ausschalten des bargeldlosen Modus: Mit Bargeld braucht
- * die Kasse eine TSE, die OpenEOS noch nicht anbindet. Abbrechen (Knopf,
+ * Rückfrage vor dem Ausschalten des bargeldlosen Modus, mit Hinweis zur
+ * TSE-Pflicht (die OpenEOS noch nicht anbindet). Abbrechen (Knopf,
  * Escape, Klick daneben) lässt den Modus an; während des Speicherns ist der
  * Dialog gesperrt.
  */

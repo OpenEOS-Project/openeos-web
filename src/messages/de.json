@@ -913,7 +913,7 @@
       "description": "Wie an deinen Kassen bezahlt werden kann.",
       "cashless": {
         "label": "Bargeldloser Modus",
-        "hint": "Deine Kassen nehmen kein Bargeld an – Kartenzahlung über SumUp sowie Online- und Vorauszahlungen laufen weiter, auch mit Trinkgeld, geteilt oder gesammelt. OpenEOS sperrt Bargeld dann auch auf dem Server, nicht nur an der Oberfläche. Ohne Bargeld braucht deine Kasse keine TSE. Jede Umschaltung wird mit Zeitpunkt und Person protokolliert.",
+        "hint": "Deine Kassen nehmen kein Bargeld an – Kartenzahlung über SumUp sowie Online- und Vorauszahlungen laufen weiter, auch mit Trinkgeld, geteilt oder gesammelt. OpenEOS sperrt Bargeld dann auch auf dem Server. Von der TSE-Pflicht befreit der Modus allein nicht, weil du Bargeld hier selbst wieder einschalten kannst; ohne TSE geht es nur mit „Nur Bestellen“, das unser Support umschaltet. Jede Umschaltung wird mit Zeitpunkt und Person protokolliert.",
         "effects": {
           "pay": "Kein Bar-Button, keine Schnellwahl und kein Rückgeld beim Kassieren.",
           "refund": "Erstattungen gehen nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Alte Barzahlungen lassen sich über OpenEOS nicht mehr erstatten.",
@@ -931,7 +931,7 @@
       "savedOff": "Bargeldloser Modus ist aus. Die Kassen nehmen wieder Bargeld an.",
       "confirmOff": {
         "title": "Bargeld wieder erlauben?",
-        "text": "Deine Kassen können dann wieder Bargeld annehmen. Für Kassen mit Bargeld schreibt die Kassensicherungsverordnung eine TSE vor – die TSE-Anbindung für OpenEOS ist noch in Arbeit. Die Änderung wird im Verlauf gespeichert.",
+        "text": "Deine Kassen nehmen dann wieder Bargeld an. Die TSE-Pflicht hängt nicht an diesem Schalter: Weil du Bargeld hier selbst ein- und ausschalten kannst, gilt sie auch im bargeldlosen Modus. Die TSE-Anbindung für OpenEOS ist in Arbeit. Die Änderung wird im Verlauf gespeichert.",
         "faqLink": "Mehr dazu in den FAQ",
         "confirm": "Bargeld erlauben"
       },
@@ -5119,7 +5119,7 @@
       "name": "TSE (Kassensicherung)",
       "vendor": "Fiskalisierung",
       "description": "Cloud-TSE nach KassenSichV für Barzahlungen – in Vorbereitung.",
-      "longDescription": "Wer an der Kasse Bargeld annimmt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Bis dahin kannst du den bargeldlosen Modus einschalten: Ohne Bargeld ist keine TSE nötig. Mehr dazu in den <link>FAQ auf openeos.de</link>."
+      "longDescription": "Eine Kasse, mit der sich Bargeld annehmen lässt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Der bargeldlose Modus allein befreit nicht von der TSE-Pflicht, weil du Bargeld selbst wieder einschalten kannst. Ohne TSE geht es mit der Betriebsart „Nur Bestellen“, die unser Support umschaltet. Mehr dazu in den <link>FAQ auf openeos.de</link>."
     }
   },
   "onboarding": {
@@ -5532,7 +5532,7 @@
   },
   "cashTse": {
     "title": "Bargeld und TSE",
-    "text": "Wer in Deutschland mit einer elektronischen Kasse Bargeld annimmt, braucht laut Kassensicherungsverordnung eine zertifizierte TSE. Die TSE-Anbindung für OpenEOS ist in Arbeit. Bis dahin entscheidest du als Verein selbst, ob du Bargeld über OpenEOS erfasst – sprich das im Zweifel mit deinem Steuerberater ab. Ohne Bargeld ist keine TSE nötig: Schalte dafür den bargeldlosen Modus ein.",
+    "text": "Eine elektronische Kasse, mit der sich Bargeld annehmen lässt, braucht in Deutschland eine zertifizierte TSE. Die TSE-Anbindung für OpenEOS ist in Arbeit. Bis dahin entscheidest du als Verein selbst, ob du Bargeld über OpenEOS erfasst – sprich das im Zweifel mit deiner Steuerberatung ab. Der bargeldlose Modus allein befreit nicht von der TSE-Pflicht, weil du Bargeld selbst wieder einschalten kannst. Ohne TSE geht es mit <order>„Nur Bestellen“</order>; das schaltet unser Support um.",
     "faqLink": "Mehr dazu in den FAQ",
     "settingsLink": "Zu den Zahlungseinstellungen",
     "dismiss": "Hinweis ausblenden"
