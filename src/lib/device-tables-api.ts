@@ -69,6 +69,17 @@ export const deviceTablesApi = {
       device,
     ),
 
+  /**
+   * „Nur Bestellen“: offene Bestellungen ohne Zahlung abschließen (Tisch
+   * abschließen, Thekenbestellung abgeholt). Alles oder nichts.
+   */
+  completeOrders: (orderIds: string[]) =>
+    apiClient.post<ApiResponse<{ orders: { id: string; status: string }[] }>>(
+      '/device-api/orders/complete',
+      { orderIds },
+      device,
+    ),
+
   /** Mehrere offene Bestellungen in einer Transaktion kassieren. */
   payBatch: (data: PaymentsBatchData) =>
     apiClient.post<ApiResponse<PaymentsBatchResponse>>('/device-api/payments/batch', data, device),

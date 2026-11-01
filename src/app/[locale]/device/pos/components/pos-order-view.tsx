@@ -24,6 +24,8 @@ interface PosOrderViewProps {
   chargePfand: boolean;
   contextLabel: string;
   canSend: boolean;
+  /** „Nur Bestellen“: keine Summen, kein Kassieren. */
+  orderOnly?: boolean;
   actionsDisabled: boolean;
   isSending: boolean;
   onSend: () => void;
@@ -46,6 +48,7 @@ export function PosOrderView({
   chargePfand,
   contextLabel,
   canSend,
+  orderOnly = false,
   actionsDisabled,
   isSending,
   onSend,
@@ -217,6 +220,7 @@ export function PosOrderView({
         contextLabel={contextLabel}
         chargePfand={chargePfand}
         canSend={canSend}
+        orderOnly={orderOnly}
         actionsDisabled={actionsDisabled}
         isSending={isSending}
         onSend={onSend}
@@ -236,9 +240,11 @@ export function PosOrderView({
         <CartBar
           count={count}
           countLabel={t('itemCount', { count })}
-          total={formatPrice(payable)}
+          total={orderOnly ? null : formatPrice(payable)}
           label={tCart('title')}
-          aria-label={tCart('openAria', { count, total: formatPrice(payable) })}
+          aria-label={
+            orderOnly ? tCart('openAriaCount', { count }) : tCart('openAria', { count, total: formatPrice(payable) })
+          }
           onClick={() => setCartOpen(true)}
         />
       </div>

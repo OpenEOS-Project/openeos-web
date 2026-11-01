@@ -175,6 +175,12 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-tokens b { margin-left: auto; font: 700 16px var(--oe-f-mono); }
 .pos-cart__acts { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
 .pos-cart__acts--single { grid-template-columns: 1fr; }
+.pos-cart__acts--even { grid-template-columns: 1fr 1fr; }
+.pos-cart__acts--even .oe-btn { min-width: 0; padding-inline: 10px; white-space: normal; }
+.pos-cart__hint { margin: 0 0 8px; font: 500 13px/18px var(--oe-f-sans); color: var(--oe-mute); }
+.pos-app .pos-orderonly { flex: none; margin: 8px 16px 0; padding: 6px 10px; gap: 8px; align-items: center; }
+.pos-orderonly .oe-banner__ico { width: 14px; height: 14px; margin: 0; --oe-ico: 14px; }
+.pos-orderonly p { font: 500 12px/16px var(--oe-f-sans); }
 .pos-cart__acts .oe-btn { min-height: 48px; }
 
 /* ── Blätter: gemeinsame Bausteine ──────────────────────── */
@@ -314,6 +320,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
   /* Bleibt beim Scrollen unter dem Kopf stehen (26 px) */
   .pos-app .pos-testband { position: sticky; top: 56px; z-index: 59; padding: 0 12px; }
   .pos-offline { margin: 8px 12px 0; }
+  .pos-app .pos-orderonly { margin: 6px 12px 0; }
 
   .pos-start { display: block; }
   .pos-start__main { overflow: visible; padding: 18px 14px 24px; gap: 18px; }

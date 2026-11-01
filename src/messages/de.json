@@ -940,7 +940,27 @@
         "title": "Verlauf",
         "on": "Bargeldlosen Modus eingeschaltet",
         "off": "Bargeldlosen Modus ausgeschaltet (Bargeld erlaubt)"
-      }
+      },
+      "operatingMode": {
+        "title": "Betriebsart",
+        "modes": {
+          "pos": "Kasse",
+          "order_only": "Nur Bestellen (ohne Kasse)"
+        },
+        "posText": "OpenEOS ist deine Kasse: An den Geräten wird bestellt und kassiert.",
+        "orderOnlyText": "OpenEOS nimmt nur Bestellungen auf und steuert Küche, Stationen und Ausgabe. Kassiert wird außerhalb von OpenEOS, zum Beispiel mit einer offenen Ladenkasse. Zahlungen, Erstattungen, Trinkgeld, Kassenlade und Pfand-Auszahlung gibt es an den Kassen nicht. Vorkasse im Online-Shop läuft weiter.",
+        "since": "Seit {date}",
+        "request": "Die Betriebsart kannst du nicht selbst ändern. Wechseln geht nur über den Support – jede Umschaltung wird protokolliert.",
+        "supportLink": "Support kontaktieren",
+        "docsLink": "Mehr zu „Nur Bestellen“",
+        "certificate": "Bescheinigung herunterladen",
+        "certificateHint": "Herstellerbescheinigung (PDF) für deine Verfahrensdokumentation: Das Kassen- und Zahlungsmodul ist deaktiviert und kann von deiner Organisation nicht selbst eingeschaltet werden. Lade nach jeder Änderung eine neue herunter.",
+        "certificateAdminOnly": "Die Bescheinigung können Admins der Organisation herunterladen.",
+        "certificateFailed": "Die Bescheinigung konnte nicht erstellt werden.",
+        "historyTitle": "Verlauf der Betriebsart",
+        "historyEntry": "von {from} zu {to}"
+      },
+      "orderOnlyNoCash": "In der Betriebsart „Nur Bestellen“ gibt es keine Zahlungen an den Kassen – Bargeld, Karte und der bargeldlose Modus spielen dann keine Rolle."
     },
     "organizationAssistant": {
       "tab": "Assistent",
@@ -2067,7 +2087,8 @@
       "delete": "Löschen",
       "view": "Anzeigen",
       "manageMembers": "Mitglieder verwalten",
-      "manageCredits": "Credits verwalten"
+      "manageCredits": "Credits verwalten",
+      "operatingMode": "Betriebsart"
     },
     "credits": {
       "title": "Event-Credits verwalten",
@@ -2093,7 +2114,28 @@
     "membersModal": {
       "invitationsTitle": "Ausstehende Einladungen ({count})"
     },
-    "count": "{count, plural, =0 {Keine Organisationen} =1 {1 Organisation} other {# Organisationen}}"
+    "count": "{count, plural, =0 {Keine Organisationen} =1 {1 Organisation} other {# Organisationen}}",
+    "orderOnlyBadge": "Nur Bestellen",
+    "operatingMode": {
+      "title": "Betriebsart – {name}",
+      "current": "Aktuell",
+      "currentShort": "aktuell",
+      "since": "seit {date}",
+      "modes": {
+        "pos": "Kasse",
+        "order_only": "Nur Bestellen (ohne Kasse)"
+      },
+      "explain": "„Nur Bestellen“ schaltet das Kassen- und Zahlungsmodul ab: Der Server lehnt jede Zahlung, Erstattung, Trinkgeld, Kassenlade und Pfand-Auszahlung ab. Die Organisation kann das nicht selbst ändern und lädt dafür eine Herstellerbescheinigung herunter. Schalte nur auf dokumentierten Antrag um.",
+      "newMode": "Neue Betriebsart",
+      "reason": "Grund (Pflicht)",
+      "reasonPlaceholder": "z. B. Antrag per E-Mail vom 01.11.2026, Ticket #123",
+      "reasonHint": "Erscheint im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
+      "reasonRequired": "Bitte gib einen Grund mit mindestens 5 Zeichen an.",
+      "submit": "Auf „{mode}“ umschalten",
+      "saved": "Betriebsart ist jetzt „{mode}“. Die Kassen stellen sich sofort um.",
+      "history": "Verlauf",
+      "historyEntry": "von {from} zu {to}"
+    }
   },
   "billing": {
     "title": "Abrechnung",
@@ -2402,7 +2444,14 @@
       "orders": "{count, plural, =1 {Bestellung} other {Bestellungen}}",
       "payCash": "Bar",
       "payCard": "Karte",
-      "splitBill": "Rechnung splitten"
+      "splitBill": "Rechnung splitten",
+      "titleOrderOnly": "Offene Bestellungen",
+      "noOpenOrders": "Keine offenen Bestellungen",
+      "noOpenOrdersDescription": "Alle Bestellungen sind abgeholt.",
+      "readyForPickup": "Bereit zur Ausgabe",
+      "inProduction": "{count, plural, one {# Position} other {# Positionen}} in Zubereitung",
+      "pickedUp": "Abgeholt",
+      "pickedUpDone": "Bestellung abgeschlossen"
     },
     "splitPayment": {
       "title": "Rechnung splitten",
@@ -2670,7 +2719,10 @@
       "retry": "Erneut versuchen",
       "markManual": "Manuell erstattet",
       "cashlessBlockedTitle": "Keine Bar-Erstattung",
-      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
+      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten.",
+      "complete": "Abschließen",
+      "completeBlocked": "Noch in Zubereitung",
+      "completedToast": "Bestellung abgeschlossen"
     },
     "noActiveEvent": "Kein aktives Event",
     "menu": {
@@ -2788,7 +2840,11 @@
       "tokensIn": "Pfandmarken zurücknehmen",
       "tokensOut": "Pfandmarken ausgeben",
       "total": "Gesamt",
-      "without": "ohne {option}"
+      "without": "ohne {option}",
+      "orderOnlySend": "Bestellung senden",
+      "orderOnlyCloseTable": "Tisch abschließen",
+      "orderOnlyCloseBlocked": "{count, plural, one {# Position ist} other {# Positionen sind}} noch in Zubereitung. Abschließen kannst du danach.",
+      "openAriaCount": "Warenkorb öffnen, {count, plural, one {# Artikel} other {# Artikel}}"
     },
     "pay": {
       "back": "Zurück",
@@ -2946,6 +3002,11 @@
       "zoneBlocked": "Gesperrt",
       "zoneKitchen": "Küche",
       "zoneOther": "Sonstiges"
+    },
+    "orderOnly": {
+      "banner": "Nur-Bestellen-Modus – kassiert wird außerhalb von OpenEOS.",
+      "sent": "Bestellung #{number} gesendet",
+      "tableClosed": "Tisch abgeschlossen"
     }
   },
   "orders": {
@@ -3574,7 +3635,8 @@
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert",
-          "cashless": "Im bargeldlosen Modus öffnet sich die Kassenlade nicht."
+          "cashless": "Im bargeldlosen Modus öffnet sich die Kassenlade nicht.",
+          "orderOnly": "Im Modus „Nur Bestellen“ gibt es keine Kassenlade."
         },
         "testPrint": "Testdruck",
         "testPrintSent": "Testdruck wurde gesendet",
@@ -3887,7 +3949,11 @@
     "VERIFICATION_LINK_EXPIRED": "Der Bestätigungslink ist abgelaufen.",
     "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
     "ORGANIZATION_LIMIT_REACHED": "Du kannst höchstens {limit} Organisationen anlegen.",
-    "MEMBER_LIMIT_REACHED": "Diese Organisation hat die Höchstzahl von {limit} Mitgliedern erreicht (inklusive offener Einladungen)."
+    "MEMBER_LIMIT_REACHED": "Diese Organisation hat die Höchstzahl von {limit} Mitgliedern erreicht (inklusive offener Einladungen).",
+    "ORDER_ONLY_MODE": "Deine Organisation nutzt „Nur Bestellen“. Zahlungen, Erstattungen, Trinkgeld, Kassenlade und Pfand-Auszahlung gibt es darin nicht – kassiert wird außerhalb von OpenEOS.",
+    "ORDER_ITEMS_IN_PRODUCTION": "Es ist noch etwas in Zubereitung. Schließe die Bestellung ab, wenn alles fertig ist.",
+    "OPERATING_MODE_UNCHANGED": "Die Organisation ist bereits in dieser Betriebsart.",
+    "CERTIFICATE_REQUIRES_ORDER_ONLY": "Die Bescheinigung gibt es nur in der Betriebsart „Nur Bestellen“."
   },
   "shifts": {
     "title": "Schichtpläne",

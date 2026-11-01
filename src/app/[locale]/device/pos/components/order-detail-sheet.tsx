@@ -21,6 +21,7 @@ import { useFormatPrice } from '@/hooks/use-format-price';
 
 import { deviceApi } from '@/lib/api-client';
 import { deviceTablesApi } from '@/lib/device-tables-api';
+import { canCompleteOrder } from '@/lib/operating-mode';
 
 import type { OrderDetail, OrderDetailItem } from '@/types/order-history';
 import type { PaymentMethod } from '@/types/payment';
@@ -41,6 +42,8 @@ interface OrderDetailSheetProps {
   card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
+  /** „Nur Bestellen“: keine Zahlungsangaben, statt Kassieren „Abschließen“. */
+  orderOnly?: boolean;
 }
 
 /**
@@ -55,6 +58,7 @@ export function OrderDetailSheet({
   card,
   disabled,
   onPaid,
+  orderOnly = false,
 }: OrderDetailSheetProps) {
   const t = useTranslations('pos.orderHistory');
   const locale = useLocale();
@@ -68,6 +72,22 @@ export function OrderDetailSheet({
   const [cancelOpen, setCancelOpen] = useState(false);
   const [refund, setRefund] = useState<RefundPreset | null>(null);
   const [paying, setPaying] = useState(false);
+  const [completing, setCompleting] = useState(false);
+
+  /** „Nur Bestellen“: abschließen ohne Zahlung (abgeholt/serviert). */
+  const complete = async () => {
+    if (!order) return;
+    setCompleting(true);
+    try {
+      await deviceTablesApi.completeOrders([order.id]);
+      toast(t('completedToast'));
+      invalidate();
+    } catch (error) {
+      toast(apiErrorMessage(error), 'danger');
+    } finally {
+      setCompleting(false);
+    }
+  };
 
   const reprint = useMutation({
     mutationFn: (type: 'tickets' | 'receipt') => deviceApi.reprintOrder(orderId!, type),
@@ -146,14 +166,30 @@ export function OrderDetailSheet({
   const actionsAllowed = gate.permission !== 'disabled';
   const activeItems = order?.items.filter((i) => cancellableQuantity(i) > 0) ?? [];
   const isCancelled = order?.status === 'cancelled';
-  const canPay = !!order && !isCancelled && order.remaining > 0;
-  const canRefund = !!order && order.refundable > 0;
+  const canPay = !orderOnly && !!order && !isCancelled && order.remaining > 0;
+  const canRefund = !orderOnly && !!order && order.refundable > 0;
   // Unbezahlte Positionen stornieren; bezahlte nur über „Stornieren & erstatten“.
   const canCancelItems = !!order && !isCancelled && activeItems.length > 0 && order.refundable <= 0;
-  const canCancelPaid = !!order && !isCancelled && activeItems.length > 0 && order.refundable > 0;
+  const canCancelPaid = !orderOnly && !!order && !isCancelled && activeItems.length > 0 && order.refundable > 0;
+  const canComplete =
+    orderOnly && !!order && order.status !== 'completed' && !isCancelled && order.paymentStatus !== 'paid';
+  const completeReady = !!order && canCompleteOrder(order);
 
   const footer = order ? (
     <div className="pos-oh-actions">
+      {canComplete && (
+        <Button
+          variant="primary"
+          size="lg"
+          disabled={disabled || !completeReady}
+          loading={completing}
+          title={completeReady ? undefined : t('completeBlocked')}
+          onClick={() => void complete()}
+        >
+          {!completing && <Icon name="check" />}
+          {t('complete')}
+        </Button>
+      )}
       {canPay && (
         <Button variant="primary" size="lg" disabled={disabled} onClick={() => setPaying(true)}>
           <Icon name="receipt" />
@@ -193,7 +229,7 @@ export function OrderDetailSheet({
           {t('refund')}
         </Button>
       )}
-      {order.payments.length > 0 && (
+      {order.payments.length > 0 && !orderOnly && (
         <Button
           variant="ghost"
           size="lg"
@@ -237,6 +273,7 @@ export function OrderDetailSheet({
             time={time}
             formatPrice={formatPrice}
             permissionNote={!actionsAllowed ? t('actionsDisabled') : null}
+            orderOnly={orderOnly}
             onReprintRefund={(id) => reprintRefund.mutate(id)}
             reprintBusy={reprintRefund.isPending}
           />
@@ -259,6 +296,7 @@ export function OrderDetailSheet({
               setRefund({ mode: 'items', cancelItems: true });
             }}
           />
+          {!orderOnly && (
           <OrderRefundSheet
             preset={refund}
             order={order}
@@ -266,6 +304,8 @@ export function OrderDetailSheet({
             run={gate.run}
             onDone={() => invalidate()}
           />
+          )}
+          {!orderOnly && (
           <PaySheet
             open={paying}
             onClose={() => setPaying(false)}
@@ -276,6 +316,7 @@ export function OrderDetailSheet({
             onPay={pay}
             disabled={disabled}
           />
+          )}
         </>
       )}
       <PinPromptSheet
@@ -296,6 +337,7 @@ function OrderDetailBody({
   permissionNote,
   onReprintRefund,
   reprintBusy,
+  orderOnly = false,
 }: {
   order: OrderDetail;
   time: (value: string | null) => string;
@@ -303,10 +345,14 @@ function OrderDetailBody({
   permissionNote: string | null;
   onReprintRefund: (refundId: string) => void;
   reprintBusy: boolean;
+  orderOnly?: boolean;
 }) {
   const t = useTranslations('pos.orderHistory');
   const place = orderPlace(order);
-  const timeline = buildTimeline(order, formatPrice);
+  // „Nur Bestellen“: keine Zahlungs- und Erstattungsschritte im Verlauf.
+  const timeline = buildTimeline(order, formatPrice).filter(
+    (entry) => !orderOnly || !PAYMENT_TIMELINE_TYPES.has(entry.type),
+  );
 
   return (
     <div className="pos-oh-detail">
@@ -365,6 +411,7 @@ function OrderDetailBody({
             <ItemLine key={item.id} item={item} formatPrice={formatPrice} />
           ))}
         </ul>
+        {!orderOnly && (
         <dl className="pos-sums">
           <div>
             <dt>{t('subtotal')}</dt>
@@ -412,9 +459,10 @@ function OrderDetailBody({
             </div>
           )}
         </dl>
+        )}
       </section>
 
-      {order.payments.length > 0 && (
+      {order.payments.length > 0 && !orderOnly && (
         <section className="pos-oh-sec">
           <h3>{t('sectionPayments')}</h3>
           <ul className="pos-oh-lines">
@@ -457,7 +505,7 @@ function OrderDetailBody({
         </section>
       )}
 
-      {order.refunds.length > 0 && (
+      {order.refunds.length > 0 && !orderOnly && (
         <section className="pos-oh-sec">
           <h3>{t('sectionRefunds')}</h3>
           <ul className="pos-oh-lines">
@@ -572,6 +620,9 @@ interface TimelineEntry {
 }
 
 /** Verlauf aus den Zeitstempeln und dem Protokoll der Bestellung. */
+/** Verlaufseinträge mit Zahlungsbezug (im Modus „Nur Bestellen“ ausgeblendet). */
+const PAYMENT_TIMELINE_TYPES = new Set(['paid', 'refunded', 'refund_failed', 'receipt_reprinted', 'refund_receipt_reprinted']);
+
 function buildTimeline(
   order: OrderDetail,
   formatPrice: (value: number) => string

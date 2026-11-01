@@ -14,6 +14,7 @@ import { usePosConnection } from '@/hooks/use-pos-connection';
 import { useTableStatus } from '@/hooks/use-table-status';
 import { deviceApi } from '@/lib/api-client';
 import { isCashlessMode } from '@/lib/cashless';
+import { effectiveOrderingMode, isOrderOnlyMode, tableCloseState } from '@/lib/operating-mode';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
@@ -139,6 +140,8 @@ function PosApp() {
   const isTest = activeEvent?.status === 'test';
   // Bargeldloser Modus: kein Bar, keine Kassenlade, keine Pfand-Auszahlung.
   const cashless = isCashlessMode(orgSettings);
+  // „Nur Bestellen“: kein Kassenmodul — nur senden, Küche, Ausgabe, abschließen.
+  const orderOnly = isOrderOnlyMode(orgSettings);
 
   useEffect(() => {
     if (activeEvent && eventId !== activeEvent.id) setEventId(activeEvent.id);
@@ -163,7 +166,10 @@ function PosApp() {
   const chargePfand = resolveChargePfand(orgSettings?.pfand, context?.kind === 'table' ? 'table' : 'counter');
   useCustomerDisplayBroadcast(socket, isConnected, chargePfand);
 
-  const orderingMode = activeEvent?.settings?.orderingMode || orgSettings?.pos?.orderingMode || 'immediate';
+  const orderingMode = effectiveOrderingMode(
+    activeEvent?.settings?.orderingMode || orgSettings?.pos?.orderingMode,
+    orderOnly,
+  );
   const isTab = orderingMode === 'tab';
 
   const areas = useMemo(() => sortAreas(tablesQuery.data?.areas ?? [], deviceAreaId), [tablesQuery.data, deviceAreaId]);
@@ -178,10 +184,12 @@ function PosApp() {
   // Kopf „Kasse 03 · Zelt A“: Standardbereich des Geräts, wenn freigegeben.
   const deviceAreaName = tablesEnabled ? (areas.find((a) => a.id === deviceAreaId)?.name ?? null) : null;
   const tableStatus = useTableStatus(eventId, { enabled: tablesEnabled, live: isConnected });
-  const openTables = useMemo(
-    () => (tablesEnabled ? mergeOpenTables(tableStatus.status, cart.parked, eventId, chargePfand) : []),
-    [tablesEnabled, tableStatus.status, cart.parked, eventId, chargePfand],
-  );
+  const openTables = useMemo(() => {
+    if (!tablesEnabled) return [];
+    const entries = mergeOpenTables(tableStatus.status, cart.parked, eventId, chargePfand);
+    // „Nur Bestellen“: keine offenen Beträge — der Tisch ist nur „offen“.
+    return orderOnly ? entries.map((entry) => ({ ...entry, amount: 0 })) : entries;
+  }, [tablesEnabled, tableStatus.status, cart.parked, eventId, chargePfand, orderOnly]);
 
   // Offene Bestellungen des Kontexts: Tisch → Abschnitt „Gesendet“;
   // Theke + `tab` → Zähler „Offene Bestellungen“.
@@ -193,12 +201,14 @@ function PosApp() {
   const printer = usePosDeviceStatus();
 
   // Testmodus: SumUp-Zahlart deaktiviert, keine Aufrufe am Lesegerät.
-  const card = resolvePosCardMode({
-    readerLinked: !!settings?.sumupReaderId,
-    sumupEnabled: isIntegrationEnabled(orgSettings, 'sumup'),
-    isTest,
-    cashless,
-  });
+  const card = orderOnly
+    ? null
+    : resolvePosCardMode({
+        readerLinked: !!settings?.sumupReaderId,
+        sumupEnabled: isIntegrationEnabled(orgSettings, 'sumup'),
+        isTest,
+        cashless,
+      });
   const contextLabel = !context
     ? ''
     : context.kind === 'table'
@@ -214,6 +224,7 @@ function PosApp() {
     chargePfand,
     sentOrders,
     contextLabel,
+    orderOnly,
     onTableInvalid: () => {
       if (!tablesEnabled) return;
       setCarryDefault(true);
@@ -271,6 +282,28 @@ function PosApp() {
     }
   };
 
+  // „Tisch abschließen“ (Nur Bestellen): statt „Kassieren“ — alle offenen
+  // Bestellungen des Tisches, danach zurück zur Tischwahl.
+  const [closingTable, setClosingTable] = useState(false);
+  const closeTable = async () => {
+    const { orderIds, canClose } = tableCloseState(sentOrders);
+    if (!canClose) return;
+    setClosingTable(true);
+    try {
+      await deviceTablesApi.completeOrders(orderIds);
+      toast(t('orderOnly.tableClosed'));
+      for (const key of ['device-open-orders', 'device-table-status', 'device-order-history']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+      openContext(null);
+    } catch (error) {
+      toast(apiErrorMessage(error), 'danger');
+      await refetchScope();
+    } finally {
+      setClosingTable(false);
+    }
+  };
+
   const lock = () => {
     setSheet(null);
     setSession(null);
@@ -308,8 +341,10 @@ function PosApp() {
   const menu: PosMenuAction[] = [
     { id: 'history', icon: 'clock', label: t('menu.history'), onSelect: () => setSheet('history') },
     ...(isTab ? [{ id: 'open', icon: 'orders' as const, label: t('menu.openOrders'), onSelect: () => setSheet('openOrders') }] : []),
-    ...(pfandTypes.length > 0 ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }] : []),
-    ...(cashDrawerAvailable({ settings, cashless })
+    ...(pfandTypes.length > 0 && !orderOnly
+      ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }]
+      : []),
+    ...(!orderOnly && cashDrawerAvailable({ settings, cashless })
       ? [{
           id: 'drawer',
           icon: 'drawer' as const,
@@ -327,6 +362,7 @@ function PosApp() {
   // (Gastbestellung, Rest), solange nichts Ungesendetes im Warenkorb liegt.
   // An der Theke läuft Teilen über „Offene Bestellungen“.
   const canSplit =
+    !orderOnly &&
     context?.kind === 'table' &&
     (isTab
       ? totals.openOrderIds.length > 0 || cart.items.length > 0
@@ -353,11 +389,12 @@ function PosApp() {
         chargePfand={chargePfand}
         contextLabel={contextLabel}
         canSend={isTab}
+        orderOnly={orderOnly}
         actionsDisabled={offline || checkout.isSending || !eventId}
         isSending={checkout.isSending}
         onSend={checkout.send}
         onCheckout={() => setSheet('pay')}
-        onPfandReturn={pfandTypes.length > 0 ? () => setSheet('pfand') : undefined}
+        onPfandReturn={pfandTypes.length > 0 && !orderOnly ? () => setSheet('pfand') : undefined}
         openOrders={
           isTab && context?.kind !== 'table'
             ? { count: counterOrderCount, onOpen: () => setSheet('openOrders') }
@@ -365,7 +402,13 @@ function PosApp() {
         }
         sent={
           context?.kind === 'table'
-            ? { orders: sentOrders, openAmount: totals.sentOpen, onServe: serve, serving }
+            ? {
+                orders: sentOrders,
+                openAmount: orderOnly ? 0 : totals.sentOpen,
+                onServe: serve,
+                serving,
+                ...(orderOnly ? { onClose: () => void closeTable(), closing: closingTable } : {}),
+              }
             : null
         }
       />
@@ -410,6 +453,11 @@ function PosApp() {
           onLogout={() => setSheet('logout')}
         />
         {isTest && <PosTestModeBanner />}
+        {orderOnly && (
+          <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
+            {t('orderOnly.banner')}
+          </Banner>
+        )}
         {offline && (
           <Banner tone="danger" icon={<Icon name="wifi-off" />} className="pos-offline">
             {t('offline.banner')}
@@ -436,6 +484,7 @@ function PosApp() {
             view={selectView}
           />
         )}
+        {!orderOnly && (
         <PaySheet
           open={sheet === 'pay'}
           onClose={() => setSheet(null)}
@@ -454,6 +503,7 @@ function PosApp() {
           disabled={offline}
           persistKey={UNSAVED_KEY}
         />
+        )}
         <DoneSheet
           info={done}
           title={orgName || 'OpenEOS'}
@@ -473,6 +523,7 @@ function PosApp() {
           card={card ?? 'manual'}
           disabled={offline}
           onPaid={setDone}
+          orderOnly={orderOnly}
         />
         <OpenOrdersSheet
           isOpen={sheet === 'openOrders'}
@@ -482,7 +533,9 @@ function PosApp() {
           disabled={offline}
           onSplit={() => setSheet('split')}
           onPaid={setDone}
+          orderOnly={orderOnly}
         />
+        {!orderOnly && (
         <SplitPaymentModal
           isOpen={sheet === 'split'}
           onClose={() => setSheet(null)}
@@ -491,6 +544,8 @@ function PosApp() {
           card={card ?? 'manual'}
           disabled={offline}
         />
+        )}
+        {!orderOnly && (
         <PfandReturnModal
           isOpen={sheet === 'pfand'}
           onClose={() => setSheet(null)}
@@ -505,6 +560,7 @@ function PosApp() {
           payoutDisabled={offline}
           cashless={cashless}
         />
+        )}
         <LogoutSheet open={sheet === 'logout'} onClose={() => setSheet(null)} onConfirm={handleLogout} />
       </div>
     </PosLiveProvider>

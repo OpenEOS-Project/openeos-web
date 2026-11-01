@@ -46,6 +46,8 @@ interface CheckoutContext {
   contextLabel: string;
   /** Tisch unbekannt/Pflicht (API): „Tisch wählen“ öffnen, Warenkorb mitnehmen. */
   onTableInvalid: () => void;
+  /** „Nur Bestellen“: Senden meldet die Bestellnummer (Abholung). */
+  orderOnly?: boolean;
 }
 
 export interface CheckoutTotals {
@@ -126,6 +128,7 @@ export function usePosCheckout({
   sentOrders,
   contextLabel,
   onTableInvalid,
+  orderOnly = false,
 }: CheckoutContext) {
   const t = useTranslations('pos');
   const locale = useLocale();
@@ -220,7 +223,8 @@ export function usePosCheckout({
       clearSent();
       invalidate();
       notifyCustomerDisplayOrderCompleted('tab', order.orderNumber || order.dailyNumber?.toString() || null);
-      toast(t('cartV2.sent', { count }));
+      const number = order.dailyNumber ?? order.orderNumber;
+      toast(orderOnly && number ? t('orderOnly.sent', { number: String(number) }) : t('cartV2.sent', { count }));
     } catch (error) {
       handleTableError(error);
       toast(apiErrorMessage(error), 'danger');

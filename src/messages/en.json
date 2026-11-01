@@ -940,7 +940,27 @@
         "title": "History",
         "on": "Cashless mode switched on",
         "off": "Cashless mode switched off (cash allowed)"
-      }
+      },
+      "operatingMode": {
+        "title": "Operating mode",
+        "modes": {
+          "pos": "Till",
+          "order_only": "Order only (no till)"
+        },
+        "posText": "OpenEOS is your till: orders are taken and paid on your devices.",
+        "orderOnlyText": "OpenEOS only takes orders and runs the kitchen, stations and pickup. Payment is taken outside OpenEOS, for example with an open cash box. Payments, refunds, tips, the cash drawer and deposit payouts are not available on your devices. Online shop prepayment keeps working.",
+        "since": "Since {date}",
+        "request": "You cannot change the operating mode yourself. Only support can switch it – every switch is logged.",
+        "supportLink": "Contact support",
+        "docsLink": "More about order-only mode",
+        "certificate": "Download certificate",
+        "certificateHint": "Manufacturer's certificate (PDF) for your process documentation: the till and payment module is disabled and cannot be switched on by your organization itself. Download a new one after every change.",
+        "certificateAdminOnly": "Admins of the organization can download the certificate.",
+        "certificateFailed": "The certificate could not be created.",
+        "historyTitle": "Operating mode history",
+        "historyEntry": "from {from} to {to}"
+      },
+      "orderOnlyNoCash": "In order-only mode there are no payments on your devices – cash, cards and the cashless mode do not apply."
     },
     "organizationAssistant": {
       "tab": "Assistant",
@@ -2350,7 +2370,8 @@
       "delete": "Delete",
       "view": "View",
       "manageMembers": "Manage members",
-      "manageCredits": "Manage credits"
+      "manageCredits": "Manage credits",
+      "operatingMode": "Operating mode"
     },
     "credits": {
       "title": "Manage Event Credits",
@@ -2376,7 +2397,28 @@
     "membersModal": {
       "invitationsTitle": "Pending invitations ({count})"
     },
-    "count": "{count, plural, =0 {No organizations} =1 {1 organization} other {# organizations}}"
+    "count": "{count, plural, =0 {No organizations} =1 {1 organization} other {# organizations}}",
+    "orderOnlyBadge": "Order only",
+    "operatingMode": {
+      "title": "Operating mode – {name}",
+      "current": "Current",
+      "currentShort": "current",
+      "since": "since {date}",
+      "modes": {
+        "pos": "Till",
+        "order_only": "Order only (no till)"
+      },
+      "explain": "Order-only mode switches off the till and payment module: the server rejects every payment, refund, tip, cash drawer and deposit payout. The organization cannot change this itself and downloads a manufacturer's certificate for it. Only switch on a documented request.",
+      "newMode": "New operating mode",
+      "reason": "Reason (required)",
+      "reasonPlaceholder": "e.g. request by email on 2026-11-01, ticket #123",
+      "reasonHint": "Shown in the history, the admin audit log and on the organization's certificate.",
+      "reasonRequired": "Please enter a reason with at least 5 characters.",
+      "submit": "Switch to “{mode}”",
+      "saved": "Operating mode is now “{mode}”. Devices switch over right away.",
+      "history": "History",
+      "historyEntry": "from {from} to {to}"
+    }
   },
   "pos": {
     "title": "POS",
@@ -2402,7 +2444,14 @@
       "orders": "{count, plural, =1 {order} other {orders}}",
       "payCash": "Cash",
       "payCard": "Card",
-      "splitBill": "Split bill"
+      "splitBill": "Split bill",
+      "titleOrderOnly": "Open orders",
+      "noOpenOrders": "No open orders",
+      "noOpenOrdersDescription": "All orders have been picked up.",
+      "readyForPickup": "Ready for pickup",
+      "inProduction": "{count, plural, one {# item} other {# items}} being prepared",
+      "pickedUp": "Picked up",
+      "pickedUpDone": "Order completed"
     },
     "splitPayment": {
       "title": "Split bill",
@@ -2670,7 +2719,10 @@
       "retry": "Try again",
       "markManual": "Refunded manually",
       "cashlessBlockedTitle": "No cash refund",
-      "cashlessBlocked": "In cashless mode a refund only goes back to the original card or online payment. This amount was paid (partly) in cash and cannot be refunded through OpenEOS."
+      "cashlessBlocked": "In cashless mode a refund only goes back to the original card or online payment. This amount was paid (partly) in cash and cannot be refunded through OpenEOS.",
+      "complete": "Complete",
+      "completeBlocked": "Still being prepared",
+      "completedToast": "Order completed"
     },
     "noActiveEvent": "No active event",
     "menu": {
@@ -2788,7 +2840,11 @@
       "tokensIn": "Take back deposit tokens",
       "tokensOut": "Hand out deposit tokens",
       "total": "Total",
-      "without": "without {option}"
+      "without": "without {option}",
+      "orderOnlySend": "Send order",
+      "orderOnlyCloseTable": "Close table",
+      "orderOnlyCloseBlocked": "{count, plural, one {# item is} other {# items are}} still being prepared. You can close the table afterwards.",
+      "openAriaCount": "Open cart, {count, plural, one {# item} other {# items}}"
     },
     "pay": {
       "back": "Back",
@@ -2946,6 +3002,11 @@
       "zoneBlocked": "Blocked",
       "zoneKitchen": "Kitchen",
       "zoneOther": "Other"
+    },
+    "orderOnly": {
+      "banner": "Order-only mode – payment is taken outside OpenEOS.",
+      "sent": "Order #{number} sent",
+      "tableClosed": "Table closed"
     }
   },
   "orders": {
@@ -3574,7 +3635,8 @@
           "selectPrinter": "Printer with drawer",
           "noPrinter": "No cash drawer",
           "noPrintersAvailable": "No printer with cash drawer configured",
-          "cashless": "In cashless mode the cash drawer does not open."
+          "cashless": "In cashless mode the cash drawer does not open.",
+          "orderOnly": "There is no cash drawer in order-only mode."
         },
         "testPrint": "Test print",
         "testPrintSent": "Test print was sent",
@@ -3887,7 +3949,11 @@
     "VERIFICATION_LINK_EXPIRED": "The confirmation link has expired.",
     "VERIFICATION_LINK_INVALID": "The confirmation link is invalid or has expired.",
     "ORGANIZATION_LIMIT_REACHED": "You can create at most {limit} organizations.",
-    "MEMBER_LIMIT_REACHED": "This organization has reached its maximum of {limit} members (including pending invitations)."
+    "MEMBER_LIMIT_REACHED": "This organization has reached its maximum of {limit} members (including pending invitations).",
+    "ORDER_ONLY_MODE": "Your organization uses order-only mode. Payments, refunds, tips, the cash drawer and deposit payouts are not available – payment is taken outside OpenEOS.",
+    "ORDER_ITEMS_IN_PRODUCTION": "Something is still being prepared. Complete the order once everything is ready.",
+    "OPERATING_MODE_UNCHANGED": "The organization already uses this operating mode.",
+    "CERTIFICATE_REQUIRES_ORDER_ONLY": "The certificate is only available in order-only mode."
   },
   "shifts": {
     "title": "Shift Plans",

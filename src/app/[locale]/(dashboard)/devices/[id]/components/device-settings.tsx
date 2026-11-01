@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
+import { Banner, Icon } from '@openeos/ui';
 
 import { Link } from '@/i18n/routing';
 import '@/styles/device-settings.css';
@@ -18,6 +19,7 @@ import { useTableAreas } from '@/hooks/use-tables';
 
 import { devicesApi, sumupApi } from '@/lib/api-client';
 import { isCashlessMode } from '@/lib/cashless';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -117,6 +119,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
 
   const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
   const cashless = isCashlessMode(currentOrganization?.organization?.settings);
+  const orderOnly = isOrderOnlyMode(currentOrganization?.organization?.settings);
 
   const [name, setName] = useState(device.name);
   const [type, setType] = useState<DeviceClass>(device.type);
@@ -423,6 +426,13 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
 
       {type === 'pos' && (
         <SectionCard title={s('payment.title')} description={s('payment.description')}>
+          {orderOnly ? (
+            <Banner tone="info" icon={<Icon name="info" />}>
+              {t('pos.orderOnly.banner')}{' '}
+              <Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>
+            </Banner>
+          ) : (
+          <>
           {sumupConfigured ? (
             <FormRow label={t('devices.edit.sumupReader')}>
               <select
@@ -452,6 +462,8 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
             <CashTseNotice
               action={<Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>}
             />
+          )}
+          </>
           )}
         </SectionCard>
       )}

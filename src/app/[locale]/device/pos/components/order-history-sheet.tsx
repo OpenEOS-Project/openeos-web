@@ -43,7 +43,12 @@ interface OrderHistorySheetProps {
   card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
+  /** „Nur Bestellen“: keine Zahlungsfilter, Beträge und Zahlart-Icons. */
+  orderOnly?: boolean;
 }
+
+/** „Nur Bestellen“: ohne Kasse gibt es weder „Offen“ noch „Erstattet“. */
+const ORDER_ONLY_HIDDEN_FILTERS = new Set(['unpaid', 'refunded']);
 
 const PAYMENT_FILTERS: {
   id: HistoryPaymentFilter;
@@ -68,6 +73,7 @@ export function OrderHistorySheet({
   card,
   disabled,
   onPaid,
+  orderOnly = false,
 }: OrderHistorySheetProps) {
   const t = useTranslations('pos.orderHistory');
   const locale = useLocale();
@@ -170,7 +176,7 @@ export function OrderHistorySheet({
           {t('filterAll')}
           {counts && <span className="pos-oh-count">{counts.all}</span>}
         </Chip>
-        {STATUS_FILTERS.map((f) => (
+        {STATUS_FILTERS.filter((f) => !orderOnly || !ORDER_ONLY_HIDDEN_FILTERS.has(f.id)).map((f) => (
           <Chip
             key={f.id}
             active={activeStatus === f.id}
@@ -185,6 +191,7 @@ export function OrderHistorySheet({
       </Chips>
       {showFilters && (
         <div className="pos-oh-more">
+          {!orderOnly && (
           <div className="pos-oh-more__grp">
             <small>{t('paymentFilter')}</small>
             <Chips>
@@ -210,6 +217,7 @@ export function OrderHistorySheet({
               })}
             </Chips>
           </div>
+          )}
           <div className="pos-oh-more__grp">
             <small>{t('scope')}</small>
             <Segment<'device' | 'all'>
@@ -336,6 +344,7 @@ export function OrderHistorySheet({
                               {row.isTest && <Badge tone="outline">{t('test')}</Badge>}
                             </span>
                           </span>
+                          {!orderOnly && (
                           <span className="pos-oh-row__sum">
                             <b>{formatPrice(row.total)}</b>
                             {row.refundedAmount > 0 && (
@@ -355,6 +364,7 @@ export function OrderHistorySheet({
                               ))}
                             </span>
                           </span>
+                          )}
                         </button>
                       </li>
                     );
@@ -382,6 +392,7 @@ export function OrderHistorySheet({
         onClose={() => setSelectedId(null)}
         card={card}
         disabled={disabled}
+        orderOnly={orderOnly}
         onPaid={(info) => {
           setSelectedId(null);
           onClose();

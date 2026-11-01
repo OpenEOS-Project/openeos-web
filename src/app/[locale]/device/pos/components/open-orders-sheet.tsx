@@ -7,6 +7,7 @@ import { Button, Checkbox, EmptyState, Icon, Spinner } from '@openeos/ui';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceTablesApi } from '@/lib/device-tables-api';
+import { canCompleteOrder, itemsInProduction } from '@/lib/operating-mode';
 import type { PaymentMethod } from '@/types/payment';
 import type { PosCardMode } from '@/utils/pos-card-mode';
 import { errorReason } from '../hooks/use-pos-checkout';
@@ -25,6 +26,11 @@ interface OpenOrdersSheetProps {
   disabled?: boolean;
   onSplit: () => void;
   onPaid: (info: DoneInfo) => void;
+  /**
+   * „Nur Bestellen“: keine Auswahl und kein Kassieren — jede Bestellung
+   * wird bei der Ausgabe mit „Abgeholt“ abgeschlossen.
+   */
+  orderOnly?: boolean;
 }
 
 /**
@@ -32,7 +38,16 @@ interface OpenOrdersSheetProps {
  * Auswahl einer oder mehrerer Bestellungen und gemeinsam in einer
  * Sammelzahlung kassieren, oder Rechnung teilen.
  */
-export function OpenOrdersSheet({ isOpen, onClose, eventId, card, disabled, onSplit, onPaid }: OpenOrdersSheetProps) {
+export function OpenOrdersSheet({
+  isOpen,
+  onClose,
+  eventId,
+  card,
+  disabled,
+  onSplit,
+  onPaid,
+  orderOnly = false,
+}: OpenOrdersSheetProps) {
   const t = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
   const tTables = useTranslations('pos.tables');
@@ -45,6 +60,7 @@ export function OpenOrdersSheet({ isOpen, onClose, eventId, card, disabled, onSp
 
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [paying, setPaying] = useState(false);
+  const [completing, setCompleting] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) setExcluded(new Set());
@@ -66,6 +82,84 @@ export function OpenOrdersSheet({ isOpen, onClose, eventId, card, disabled, onSp
       queryClient.invalidateQueries({ queryKey: [key] });
     }
   };
+
+  /** „Nur Bestellen“: abgeholt → abgeschlossen (ohne Zahlung). */
+  const complete = async (orderId: string) => {
+    setCompleting(orderId);
+    try {
+      await deviceTablesApi.completeOrders([orderId]);
+      toast(t('pickedUpDone'));
+    } catch (error) {
+      toast(apiErrorMessage(error), 'danger');
+    } finally {
+      setCompleting(null);
+      invalidate();
+    }
+  };
+
+  if (orderOnly) {
+    return (
+      <PosSheet
+        open={isOpen}
+        onClose={onClose}
+        size="wide"
+        icon="orders"
+        title={t('titleOrderOnly')}
+        subtitle={orders.length > 0 ? `${orders.length} ${t('orders', { count: orders.length })}` : undefined}
+      >
+        {isLoading ? (
+          <div className="pos-center">
+            <Spinner />
+          </div>
+        ) : orders.length === 0 ? (
+          <EmptyState icon={<Icon name="orders" />} title={t('noOpenOrders')} description={t('noOpenOrdersDescription')} />
+        ) : (
+          <ul className="pos-list">
+            {orders.map((order) => {
+              const items = (order.items ?? []).filter((item) => item.status !== 'cancelled');
+              const inProduction = itemsInProduction(items).reduce((n, i) => n + i.quantity, 0);
+              const ready = canCompleteOrder(order);
+              return (
+                <li key={order.id} className="pos-hist is-open">
+                  <div className="pos-hist__hd">
+                    <span className="pos-hist__main">
+                      <span className="pos-hist__badges">
+                        <b>#{order.dailyNumber || order.orderNumber}</b>
+                        {order.customerName && <span>{order.customerName}</span>}
+                      </span>
+                      <small>{ready ? t('readyForPickup') : t('inProduction', { count: inProduction })}</small>
+                    </span>
+                    <Button
+                      variant={ready ? 'primary' : 'secondary'}
+                      size="sm"
+                      disabled={!ready || disabled || completing !== null}
+                      loading={completing === order.id}
+                      onClick={() => void complete(order.id)}
+                    >
+                      {completing !== order.id && <Icon name="check" />}
+                      {t('pickedUp')}
+                    </Button>
+                  </div>
+                  {items.length > 0 && (
+                    <ul className="pos-hist__items">
+                      {items.map((item) => (
+                        <li key={item.id}>
+                          <span>
+                            {item.quantity}x {item.productName}
+                          </span>
+                          <span>{tTables(item.status === 'ready' ? 'statusReady' : item.status === 'delivered' ? 'statusDelivered' : 'statusSent')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </PosSheet>
+    );
+  }
 
   const pay = async (result: PayResult) => {
     const method: PaymentMethod =

@@ -56,6 +56,13 @@ export interface OrganizationSettings {
     changedAt?: string;
   };
   /**
+   * Betriebsmodus: `pos` (Standard) oder `order_only` („Nur Bestellen“, ohne
+   * Kassenmodul). Nur der Support schaltet um; lesend hier.
+   */
+  operatingMode?: 'pos' | 'order_only';
+  /** Letzte Umschaltung des Betriebsmodus (ISO-Zeitpunkt). */
+  operatingModeSince?: string;
+  /**
    * Assistent-Funktionen (Speisekarten-Import, Icon-Vorschläge): Opt-in
    * der Organisation, schaltet ein Admin über `PATCH …/assistant`.
    */
@@ -165,6 +172,23 @@ export interface UpdateOrganizationData {
   billingEmail?: string;
   billingAddress?: BillingAddress;
   vatId?: string;
+}
+
+/** Eintrag im Verlauf des Betriebsmodus (Umschaltung durch den Support). */
+export interface OperatingModeChange {
+  id: string;
+  createdAt: string;
+  fromMode: 'pos' | 'order_only';
+  toMode: 'pos' | 'order_only';
+  reason: string;
+  /** Im Admin-Verlauf „Name (E-Mail)“, für die Organisation „OpenEOS-Support“. */
+  changedByName: string | null;
+}
+
+export interface OperatingModeState {
+  operatingMode: 'pos' | 'order_only';
+  operatingModeSince: string | null;
+  history?: OperatingModeChange[];
 }
 
 /** Eintrag im Verlauf des bargeldlosen Modus. */

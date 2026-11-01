@@ -98,7 +98,9 @@ export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: Open
               <button
                 type="button"
                 className="pos-openrow"
-                aria-label={[title(entry.context), meta(entry), formatPrice(entry.amount)].filter(Boolean).join(', ')}
+                aria-label={[title(entry.context), meta(entry), entry.amount > 0 ? formatPrice(entry.amount) : null]
+                  .filter(Boolean)
+                  .join(', ')}
                 onClick={() => onOpen(entry.context)}
               >
                 <span className={`oe-tablechip oe-tablechip--${entry.state} pos-openrow__chip`} aria-hidden>
@@ -112,7 +114,7 @@ export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: Open
                   <b>{title(entry.context)}</b>
                   <span>{meta(entry)}</span>
                 </span>
-                <span className="pos-openrow__sum">{formatPrice(entry.amount)}</span>
+                {entry.amount > 0 && <span className="pos-openrow__sum">{formatPrice(entry.amount)}</span>}
                 <Icon name="chevron-right" size={16} />
               </button>
             </li>
