@@ -407,6 +407,34 @@ export const organizationsApi = {
       `/organizations/${id}/payments/cashless/history`,
     ),
 
+  /** Land und Bargeld-Regel mit Verlauf. */
+  getCashPolicy: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').CashPolicyState>>(`/organizations/${id}/cash-policy`),
+
+  /** Land einmalig festlegen (Admins, nur solange keins hinterlegt ist). */
+  setCountry: (id: string, country: string) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(`/organizations/${id}/country`, {
+      country,
+    }),
+
+  /** Freiwilliger Wechsel auf „Deutschland ohne Bargeld“ (Admins, nur in eine Richtung). */
+  switchCashPolicy: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/organization').CashPolicyState>>(
+      `/organizations/${id}/cash-policy/switch`,
+      {},
+    ),
+
+  /** Herstellerbescheinigung „Deutschland ohne Bargeld“ als PDF (Admins), mit JWT. */
+  cashPolicyCertificate: async (id: string): Promise<Blob> => {
+    const token = apiClient.getAccessToken();
+    const res = await fetch(`${API_URL}/organizations/${id}/cash-policy/certificate.pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) throw await apiExceptionFromResponse(res);
+    return res.blob();
+  },
+
   /** Betriebsmodus mit Verlauf (nur lesend; umschalten kann der Support). */
   getOperatingMode: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/organization').OperatingModeState>>(
@@ -1139,6 +1167,25 @@ export const adminApi = {
       `/admin/organizations/${id}/operating-mode/history`,
     ),
 
+  /** Land einer Organisation ändern (Support, Grund ist Pflicht). */
+  setOrganizationCountry: (id: string, data: { country: string; reason: string }) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(
+      `/admin/organizations/${id}/country`,
+      data,
+    ),
+
+  /** Bestandsschutz der Bargeld-Regel setzen/aufheben (Support, mit Grund). */
+  setCashPolicy: (id: string, data: { legacy: boolean; reason: string }) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(
+      `/admin/organizations/${id}/cash-policy`,
+      data,
+    ),
+
+  getCashPolicyHistory: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').CashPolicyState>>(
+      `/admin/organizations/${id}/cash-policy/history`,
+    ),
+
   // Stats
   getOverviewStats: () =>
     apiClient.get<ApiResponse<import('@/types/admin').AdminOverviewStats>>('/admin/stats/overview'),
@@ -1490,7 +1537,17 @@ export const printTemplatesApi = {
 export const deviceApi = {
   // Get organization info and settings
   getOrganization: () =>
-    apiClient.get<ApiResponse<{ id: string; name: string; settings: import('@/types/organization').OrganizationSettings }>>(
+    apiClient.get<
+      ApiResponse<{
+        id: string;
+        name: string;
+        settings: import('@/types/organization').OrganizationSettings;
+        country?: string | null;
+        cashPolicy?: import('@/lib/cash-policy').CashPolicy;
+        cashPolicyLegacy?: boolean;
+        cashPolicyReason?: import('@/lib/cash-policy').CashPolicyReason;
+      }>
+    >(
       '/device-api/organization',
       { useDeviceAuth: true }
     ),

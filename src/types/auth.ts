@@ -78,6 +78,8 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   organizationName?: string;
+  /** Pflicht: Land der Organisation (ISO 3166-1 alpha-2). */
+  country: string;
   /** Einwilligung in gelegentliche Produkt-Neuigkeiten (Checkbox). */
   newsletterOptIn?: boolean;
 }

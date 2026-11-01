@@ -82,6 +82,8 @@ export interface Order {
   estimatedReadyAt: string | null;
   readyAt: string | null;
   completedAt: string | null;
+  /** „Ohne Zahlung abgeschlossen“ (bar außerhalb von OpenEOS kassiert). */
+  closedWithoutPaymentAt?: string | null;
   cancelledAt: string | null;
   cancellationReason: string | null;
   createdByUserId: string | null;
@@ -141,6 +143,12 @@ export interface CreateOrderData {
    * offene Bestellungen, die mitbezahlt werden (die neue kommt als letzte).
    */
   payment?: Omit<import('./table').PaymentsBatchData, 'orderIds'> & { orderIds?: string[] };
+  /**
+   * „Ohne Zahlung abschließen“ (nur „Deutschland ohne Bargeld“): bar
+   * außerhalb von OpenEOS kassiert. Ersetzt `payment`; `orderIds` = weitere
+   * offene Bestellungen, die mit abgeschlossen werden.
+   */
+  closeWithoutPayment?: { orderIds?: string[] };
 }
 
 export interface UpdateOrderData {

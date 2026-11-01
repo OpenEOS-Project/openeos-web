@@ -15,6 +15,8 @@ interface OrganizationsListProps {
   onDeleteClick: (organization: Organization) => void;
   /** Betriebsart (Kasse / Nur Bestellen) umschalten — nur Support. */
   onOperatingModeClick: (organization: Organization) => void;
+  /** Land und Bargeld-Regel ändern — nur Support. */
+  onCashPolicyClick: (organization: Organization) => void;
   onManageMembersClick: (organization: Organization) => void;
 }
 
@@ -24,6 +26,7 @@ export function OrganizationsList({
   onDeleteClick,
   onManageMembersClick,
   onOperatingModeClick,
+  onCashPolicyClick,
 }: OrganizationsListProps) {
   const t = useTranslations('organizations');
   const { formatDate } = useLocaleFormat();
@@ -125,6 +128,14 @@ export function OrganizationsList({
                 <button
                   type="button"
                   className="btn btn--ghost"
+                  style={{ fontSize: 11, padding: '3px 8px' }}
+                  onClick={() => onCashPolicyClick(org)}
+                >
+                  {t('actions.cashPolicy')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
                   style={{ fontSize: 11, padding: '3px 8px', color: 'var(--red, var(--danger))' }}
                   onClick={() => onDeleteClick(org)}
                 >
@@ -213,6 +224,14 @@ export function OrganizationsList({
                         onClick={() => onOperatingModeClick(org)}
                       >
                         {t('actions.operatingMode')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() => onCashPolicyClick(org)}
+                      >
+                        {t('actions.cashPolicy')}
                       </button>
                       <button
                         type="button"

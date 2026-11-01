@@ -7,7 +7,7 @@ import { devicesApi, printersApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
 import { selectablePrinters } from '@/utils/printer-connection';
 import { toast } from '@/components/shared/toast';
-import { isCashlessMode } from '@/lib/cashless';
+import { isCashBlocked } from '@/lib/cash-policy';
 import { isOrderOnlyMode } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Device, PrinterMode } from '@/types/device';
@@ -44,7 +44,8 @@ function normalizePrinterMode(raw: PrinterMode | undefined): 'fixed' | 'dynamic'
 export function DevicePrinterConfig({ device, organizationId }: DevicePrinterConfigProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
-  const cashless = useAuthStore((state) => isCashlessMode(state.currentOrganization?.organization?.settings));
+  // Bargeld gesperrt (Schalter oder „Deutschland ohne Bargeld“): keine Kassenlade.
+  const cashless = useAuthStore((state) => isCashBlocked(state.currentOrganization?.organization));
   const orderOnly = useAuthStore((state) => isOrderOnlyMode(state.currentOrganization?.organization?.settings));
 
   const routingModes: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [

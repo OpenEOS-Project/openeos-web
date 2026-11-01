@@ -12,6 +12,7 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Organization } from '@/types';
 import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { CountrySelect } from '@/components/shared/country-select';
 
 // Schema als Factory, damit die Fehlermeldung ueber next-intl lokalisiert
 // werden kann — die Felder selbst sind ausserhalb der Komponente definiert,
@@ -19,6 +20,8 @@ import { SettingToggle } from '@/components/shared/setting-toggle';
 function createOrganizationSchema(t: (key: string) => string) {
   return z.object({
     name: z.string().min(1, t('form.nameRequired')).max(100),
+    // Nur beim Anlegen Pflicht; ändern geht über „Land und Bargeld“.
+    country: z.string(),
     settings: z.object({
       currency: z.string(),
       timezone: z.string(),
@@ -70,6 +73,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     resolver: zodResolver(createOrganizationSchema(t)),
     defaultValues: {
       name: '',
+      country: '',
       settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
       billingMode: 'prepaid',
       eventPriceOverride: '',
@@ -84,6 +88,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     if (organization) {
       reset({
         name: organization.name,
+        country: organization.country ?? '',
         settings: {
           currency: organization.settings?.currency || 'EUR',
           timezone: organization.settings?.timezone || 'Europe/Berlin',
@@ -100,6 +105,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
     } else {
       reset({
         name: '',
+        country: '',
         settings: { currency: 'EUR', timezone: 'Europe/Berlin', locale: 'de-DE' },
         billingMode: 'prepaid',
         eventPriceOverride: '',
@@ -138,7 +144,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
           },
         });
       } else {
-        await createOrganization.mutateAsync({ name: data.name, settings: data.settings });
+        await createOrganization.mutateAsync({ name: data.name, country: data.country, settings: data.settings });
       }
       onClose();
     } catch {
@@ -177,6 +183,17 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                 <span style={{ fontSize: 12, color: 'var(--red, var(--danger))' }}>{errors.name.message}</span>
               )}
             </label>
+
+            {!isEditing && (
+              <label className="auth-field">
+                <span>{t('form.country')} <span className="auth-field__req">*</span></span>
+                <Controller
+                  control={control}
+                  name="country"
+                  render={({ field }) => <CountrySelect value={field.value} onChange={field.onChange} />}
+                />
+              </label>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <label className="auth-field">
@@ -293,7 +310,11 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
             <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
               {tCommon('cancel')}
             </button>
-            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={isSubmitting || (!isEditing && !watch('country'))}
+            >
               {isSubmitting ? tCommon('saving') : (isEditing ? tCommon('save') : tCommon('create'))}
             </button>
           </div>

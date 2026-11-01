@@ -13,7 +13,7 @@ import { useDeviceTables } from '@/hooks/use-device-tables';
 import { usePosConnection } from '@/hooks/use-pos-connection';
 import { useTableStatus } from '@/hooks/use-table-status';
 import { deviceApi } from '@/lib/api-client';
-import { isCashlessMode } from '@/lib/cashless';
+import { isCashBlocked } from '@/lib/cash-policy';
 import { effectiveOrderingMode, isOrderOnlyMode, tableCloseState } from '@/lib/operating-mode';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
@@ -135,11 +135,22 @@ function PosApp() {
   const offline = connection === 'offline';
 
   // Produkte laden schon auf der Startansicht: der Tisch öffnet dann sofort.
-  const { orgName, orgSettings, activeEvent, eventsLoading, categories, products, productsLoading, vouchers, pfandTypes } =
-    usePosData(eventId, true);
+  const {
+    orgName,
+    orgSettings,
+    organization,
+    activeEvent,
+    eventsLoading,
+    categories,
+    products,
+    productsLoading,
+    vouchers,
+    pfandTypes,
+  } = usePosData(eventId, true);
   const isTest = activeEvent?.status === 'test';
-  // Bargeldloser Modus: kein Bar, keine Kassenlade, keine Pfand-Auszahlung.
-  const cashless = isCashlessMode(orgSettings);
+  // Bargeld gesperrt (bargeldloser Modus oder „Deutschland ohne Bargeld“):
+  // kein Bar, keine Kassenlade, keine Pfand-Auszahlung.
+  const cashless = isCashBlocked(organization);
   // „Nur Bestellen“: kein Kassenmodul — nur senden, Küche, Ausgabe, abschließen.
   const orderOnly = isOrderOnlyMode(orgSettings);
 

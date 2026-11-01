@@ -21,7 +21,7 @@ import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
-import { CashTseHint } from './cash-tse-hint';
+import { CashPolicyHint } from './cash-policy-hint';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useOrderOnly } from '@/hooks/use-order-only';
 
@@ -252,7 +252,7 @@ export function DashboardContainer() {
         <QuickStartCard organizationId={organizationId} />
 
         {/* Bargeld und TSE: einmalig, bis ein Admin es wegklickt. */}
-        <CashTseHint />
+        <CashPolicyHint />
 
         <DashboardRangeProvider value={range}>
           <DashboardGrid

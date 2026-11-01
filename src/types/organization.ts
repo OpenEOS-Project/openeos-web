@@ -156,13 +156,48 @@ export interface Organization {
   memberLimit?: number | null;
   /** Nur in GET /organizations/:id: belegte Plätze inkl. offener Einladungen. */
   memberCount?: number;
+  /**
+   * Land (ISO 3166-1 alpha-2), einzige Quelle — `settings.address.country`
+   * ist nur eine Kopie. Bei Bestandsorganisationen evtl. noch leer.
+   */
+  country?: string | null;
+  /** Wirksame Bargeld-Regel (siehe src/lib/cash-policy.ts). */
+  cashPolicy?: import('@/lib/cash-policy').CashPolicy;
+  /** Bestandsschutz: verhält sich wie vor der Länderregel. */
+  cashPolicyLegacy?: boolean;
+  cashPolicyReason?: import('@/lib/cash-policy').CashPolicyReason;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateOrganizationData {
   name: string;
+  /** Pflicht: Land der Organisation (ISO 3166-1 alpha-2). */
+  country: string;
   settings?: Partial<OrganizationSettings>;
+}
+
+/** Eintrag im Verlauf von Land und Bargeld-Regel. */
+export interface CashPolicyChange {
+  id: string;
+  createdAt: string;
+  kind: 'country' | 'policy';
+  /** Land (Code) bzw. `legacy` / `country`. */
+  fromValue: string | null;
+  toValue: string;
+  reason: string | null;
+  bySupport: boolean;
+  /** Für die Organisation bei Support-Änderungen „OpenEOS-Support“. */
+  changedByName: string | null;
+}
+
+export interface CashPolicyState {
+  country: string | null;
+  cashPolicy: import('@/lib/cash-policy').CashPolicy;
+  cashPolicyLegacy: boolean;
+  cashPolicyReason: import('@/lib/cash-policy').CashPolicyReason;
+  operatingMode?: 'pos' | 'order_only';
+  history?: CashPolicyChange[];
 }
 
 export interface UpdateOrganizationData {

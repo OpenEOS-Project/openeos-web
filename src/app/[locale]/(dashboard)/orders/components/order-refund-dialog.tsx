@@ -10,7 +10,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useRefundForm } from '@/hooks/use-refund-form';
 import { ordersApi } from '@/lib/api-client';
-import { isCashlessMode } from '@/lib/cashless';
+import { isCashBlocked } from '@/lib/cash-policy';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import { type OrderDetail, REFUND_REASON_CODES, type RefundReasonCode, type RefundResult } from '@/types/order-history';
@@ -50,8 +50,8 @@ export function OrderRefundDialog({ organizationId, order, preset, onClose, onDo
   const { formatCurrency } = useLocaleFormat();
   const apiErrorMessage = useApiErrorMessage();
 
-  // Bargeldlos: nur auf die unbare Zahlung zurück, nie bar.
-  const cashless = useAuthStore((state) => isCashlessMode(state.currentOrganization?.organization?.settings));
+  // Bargeld gesperrt (Schalter oder Land): nur auf die unbare Zahlung zurück, nie bar.
+  const cashless = useAuthStore((state) => isCashBlocked(state.currentOrganization?.organization));
   const form = useRefundForm(order, preset, { cashless });
   const { mode, cancelItems, qty, amount, includeDeposit, paymentId, confirmStarted } = form.state;
   const { payments, maxAmount, methodPayment, method, items, started, hasDeposit, preview, amountInvalid } = form.view;

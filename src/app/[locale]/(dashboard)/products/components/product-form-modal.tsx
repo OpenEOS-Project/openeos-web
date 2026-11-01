@@ -87,7 +87,7 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
      ein steuerbefreiter Verein bekommt nur 0 %. */
   const { data: organization } = useOrganization(organizationId);
   const taxRates = taxRatesFor(
-    organization?.settings?.address?.country,
+    organization?.country ?? organization?.settings?.address?.country ?? undefined,
     organization?.settings?.vatExempt,
   );
   const taxExempt = taxRates.length === 1 && taxRates[0].rate === 0;

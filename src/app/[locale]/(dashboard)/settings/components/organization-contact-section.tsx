@@ -1,7 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
+import { countryName } from '@/lib/countries';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +17,6 @@ function createContactSchema(t: (key: string) => string) {
     address: z.string().optional(),
     city: z.string().optional(),
     zipCode: z.string().optional(),
-    country: z.string().optional(),
     phone: z.string().optional(),
     website: z.string().url(t('invalidUrl')).optional().or(z.literal('')),
   });
@@ -30,12 +31,15 @@ export function OrganizationContactSection() {
   const queryClient = useQueryClient();
 
   const settings = (currentOrganization?.organization?.settings || {}) as OrganizationSettings;
+  const locale = useLocale();
+  const country = currentOrganization?.organization?.country ?? null;
 
   const updateOrg = useMutation({
     mutationFn: async (data: ContactFormData) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, {
-        settings: { ...settings, contact: data },
+        // Bestehende Felder (z. B. ein altes Freitext-Land) bleiben stehen.
+        settings: { ...settings, contact: { ...settings.contact, ...data } },
       });
       return response.data;
     },
@@ -56,7 +60,6 @@ export function OrganizationContactSection() {
       address: settings.contact?.address || '',
       city: settings.contact?.city || '',
       zipCode: settings.contact?.zipCode || '',
-      country: settings.contact?.country || '',
       phone: settings.contact?.phone || '',
       website: settings.contact?.website || '',
     },
@@ -88,9 +91,16 @@ export function OrganizationContactSection() {
           </div>
         </div>
 
+        {/* Das Land ist das der Organisation (organizations.country) — es
+            steuert die Bargeld-Regel und wird unter Zahlungen festgelegt. */}
         <div className="auth-field">
-          <label className="auth-field__label" htmlFor="country">{t('country')}</label>
-          <input id="country" className="input" placeholder={t('placeholders.country')} {...register('country')} />
+          <span className="auth-field__label">{t('country')}</span>
+          <p style={{ margin: 0, fontSize: 14 }} data-testid="contact-country">
+            {country ? countryName(country, locale) : t('countryMissing')}{' '}
+            <Link href="/settings?tab=org-payments" className="cash-tse-notice__link" style={{ fontSize: 12 }}>
+              {country ? t('countryLocked') : t('countrySet')}
+            </Link>
+          </p>
         </div>
 
         <div className="auth-field">

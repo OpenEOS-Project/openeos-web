@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Banner, Icon } from '@openeos/ui';
 
-import { CashTseNotice } from '@/components/shared/cash-tse-notice';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { toast } from '@/components/shared/toast';
 import { isIntegrationEnabled } from '@/config/integrations';
@@ -16,10 +15,12 @@ import { Link } from '@/i18n/routing';
 import { organizationsApi } from '@/lib/api-client';
 import { cashlessSwitchStep, isCashlessMode, type CashlessSwitchEvent } from '@/lib/cashless';
 import { isOrderOnlyMode } from '@/lib/operating-mode';
+import { isCashBlockedByPolicy } from '@/lib/cash-policy';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { CashlessOffDialog } from './cashless-off-dialog';
 import { OperatingModeInfo } from './operating-mode-info';
+import { CashPolicyInfo } from './cash-policy-info';
 
 /**
  * Zahlungen der Organisation: der bargeldlose Modus.
@@ -95,6 +96,8 @@ export function OrganizationPaymentsSection() {
   // „Nur Bestellen“: keine Zahlungen an den Kassen — Bargeld-Schalter,
   // SumUp-Hinweis und TSE-Hinweis gelten dann nicht.
   const orderOnly = isOrderOnlyMode(settings);
+  // „Deutschland ohne Bargeld“: Bargeld ist gesperrt, kein Schalter.
+  const blockedByCountry = isCashBlockedByPolicy(currentOrganization.organization);
 
   return (
     <div className="app-card">
@@ -106,10 +109,31 @@ export function OrganizationPaymentsSection() {
       </div>
 
       <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <CashPolicyInfo organization={currentOrganization.organization} isAdmin={isAdmin} />
+
         <OperatingModeInfo organizationId={organizationId} settings={settings} isAdmin={isAdmin} />
 
         {orderOnly ? (
           <p className="operating-mode__note">{t('orderOnlyNoCash')}</p>
+        ) : blockedByCountry ? (
+          <>
+            <p className="operating-mode__note">{t('blockedByCountry')}</p>
+            <ul className="cashless-effects">
+              <li>{t('cashless.effects.pay')}</li>
+              <li>{t('cashless.effects.refund')}</li>
+              <li>{t('cashless.effects.pfand')}</li>
+              <li>{t('cashless.effects.drawer')}</li>
+              <li>{t('closeWithoutPayment')}</li>
+            </ul>
+            {!sumupEnabled && (
+              <Banner tone="warn" icon={<Icon name="alert" />} title={t('noSumup.title')}>
+                {t('noSumup.textBlocked')}{' '}
+                <Link href="/integrations" className="cash-tse-notice__link">
+                  {t('noSumup.action')}
+                </Link>
+              </Banner>
+            )}
+          </>
         ) : (
         <>
         <SettingToggle
@@ -148,11 +172,10 @@ export function OrganizationPaymentsSection() {
           </Banner>
         )}
 
-        {!cashless && <CashTseNotice />}
         </>
         )}
 
-        {!orderOnly && (history.data?.length ?? 0) > 0 && (
+        {!orderOnly && !blockedByCountry && (history.data?.length ?? 0) > 0 && (
           <div className="cashless-history">
             <span className="cashless-history__title">{t('history.title')}</span>
             <ul>

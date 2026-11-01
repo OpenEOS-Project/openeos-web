@@ -10,6 +10,8 @@ import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import type { UserOrganization } from '@/types/auth';
 import { CURRENCIES, LOCALES, TIMEZONES, currencyLabel } from '@/config/org-options';
+import { CountrySelect } from '@/components/shared/country-select';
+import { countryName } from '@/lib/countries';
 import { seatUsage } from '@/utils/limits';
 
 interface Props {
@@ -27,6 +29,8 @@ export function CreateOrgModal({ open, onClose }: Props) {
   const apiErrorMessage = useApiErrorMessage();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
+  /* Pflicht: steuert die Bargeld-Regel; ändern kann es danach nur der Support. */
+  const [country, setCountry] = useState('');
   const [currency, setCurrency] = useState('EUR');
   const [locale, setLocale] = useState('de-DE');
   const [timezone, setTimezone] = useState('Europe/Berlin');
@@ -46,6 +50,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
   const reset = () => {
     setStep(0);
     setName('');
+    setCountry('');
     setCurrency('EUR');
     setLocale('de-DE');
     setTimezone('Europe/Berlin');
@@ -64,6 +69,10 @@ export function CreateOrgModal({ open, onClose }: Props) {
       setError(t('nameTooShort'));
       return;
     }
+    if (currentStep === 'basics' && !country) {
+      setError(t('countryRequired'));
+      return;
+    }
     if (step < total - 1) setStep(step + 1);
   };
 
@@ -79,6 +88,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
     try {
       const response = await organizationsApi.create({
         name: name.trim(),
+        country,
         settings: { currency, locale, timezone } as never,
       });
       const created = response.data;
@@ -220,6 +230,11 @@ export function CreateOrgModal({ open, onClose }: Props) {
                     autoFocus
                   />
                 </label>
+                <label className="auth-field">
+                  <span>{t('country')}</span>
+                  <CountrySelect value={country} onChange={setCountry} />
+                  <span style={{ fontSize: 12, color: 'var(--mute)' }}>{t('countryHint')}</span>
+                </label>
               </>
             )}
 
@@ -294,6 +309,8 @@ export function CreateOrgModal({ open, onClose }: Props) {
                       gap: 8,
                     }}
                   >
+                    <span>{country ? countryName(country, uiLocale) : '—'}</span>
+                    <span>·</span>
                     <span>{currency}</span>
                     <span>·</span>
                     <span>{locale}</span>
@@ -344,7 +361,7 @@ export function CreateOrgModal({ open, onClose }: Props) {
                 key="submit"
                 type="submit"
                 className="btn btn--primary"
-                disabled={submitting || limitReached || name.trim().length < 2}
+                disabled={submitting || limitReached || name.trim().length < 2 || !country}
               >
                 {submitting ? (
                   <span>{t('creating')}</span>

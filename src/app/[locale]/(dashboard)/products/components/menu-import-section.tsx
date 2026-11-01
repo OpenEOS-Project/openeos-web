@@ -97,7 +97,7 @@ export function MenuImportSection({ eventId, onClose, onWideChange }: MenuImport
 
   const { data: organization } = useOrganization(organizationId);
   const taxRates = taxRatesFor(
-    organization?.settings?.address?.country,
+    organization?.country ?? organization?.settings?.address?.country ?? undefined,
     organization?.settings?.vatExempt
   );
   const { data: pfandTypes } = usePfandTypes(organizationId || undefined);

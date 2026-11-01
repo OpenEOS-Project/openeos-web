@@ -192,3 +192,57 @@ input[type="search"]::-webkit-search-cancel-button {
   color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
 }
 .cashless-history time { font-variant-numeric: tabular-nums; color: var(--oe-mute); min-width: 128px; }
+/* Länderhinweis zu Bargeld und Kassenregeln
+   (components/shared/cash-policy-notice.tsx). */
+.cash-policy__content { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
+.cash-policy__content > b { margin-bottom: 0; }
+.cash-policy__p { margin: 0; line-height: 1.5; }
+.cash-policy__muted { opacity: .85; font-size: 12px; }
+.cash-policy__options {
+  margin: 0;
+  padding-left: 20px;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, currentColor 85%, var(--oe-ink));
+}
+.cash-policy__options strong { font-weight: 700; }
+.cash-policy .btn.cash-policy__switch {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: auto;
+  min-height: 34px;
+  white-space: normal;
+  text-align: left;
+  justify-content: flex-start;
+}
+.cash-policy__form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; }
+.cash-policy__field { flex: 0 1 340px; min-width: 200px; margin: 0; color: var(--oe-ink); }
+.cash-policy__dialog { display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--oe-ink); }
+.cash-policy__dialog p { margin: 0; line-height: 1.5; color: color-mix(in oklab, var(--oe-ink) 75%, transparent); }
+.cash-policy__check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; font-weight: 600; }
+.cash-policy__check input { margin-top: 3px; }
+/* Land und Bargeld-Regel, Einstellungen → Zahlungen. */
+.cash-policy-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm, 8px);
+  background: var(--oe-paper-2, transparent);
+}
+.cash-policy-info__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.cash-policy-info__label {
+  font: 500 11px/16px var(--oe-f-mono, ui-monospace, monospace);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.cash-policy-info__value { font-size: 15px; font-weight: 700; }

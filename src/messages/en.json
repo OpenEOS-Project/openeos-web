@@ -135,7 +135,9 @@
           "label": "Organization",
           "title": "Your organization",
           "copy": "Club, promoter or business. Your events, products and tills run under this name.",
-          "name": "Organization name"
+          "name": "Organization name",
+          "country": "Country",
+          "countryHint": "This decides which till rules OpenEOS applies for you – for example whether cash can be recorded. Later, only our support can change the country."
         },
         "confirm": {
           "label": "Confirmation",
@@ -145,7 +147,8 @@
           "summaryPersonal": "Personal",
           "summaryOrganization": "Organization",
           "terms": "I accept the <terms>terms and conditions</terms> and have read the <privacy>privacy policy</privacy>.",
-          "newsletter": "I'd like to receive occasional OpenEOS news by email. You can unsubscribe at any time."
+          "newsletter": "I'd like to receive occasional OpenEOS news by email. You can unsubscribe at any time.",
+          "summaryCountry": "Country"
         }
       },
       "errors": {
@@ -158,7 +161,8 @@
         "termsRequired": "Please accept the terms",
         "passwordTooShort": "Password must be at least 8 characters",
         "emailTaken": "This email is already in use",
-        "generic": "Something went wrong. Please try again."
+        "generic": "Something went wrong. Please try again.",
+        "countryRequired": "Please choose the country of your organization."
       },
       "resendCta": "Resend confirmation email",
       "resendSent": "Email has been resent.",
@@ -720,7 +724,10 @@
         "country": "Germany",
         "phone": "+49 123 456789",
         "website": "https://example.com"
-      }
+      },
+      "countryMissing": "Not set yet.",
+      "countryLocked": "Only support can change it",
+      "countrySet": "Set it under Payments"
     },
     "organizationBilling": {
       "title": "Billing Address",
@@ -934,7 +941,8 @@
       "noSumup": {
         "title": "SumUp is not switched on",
         "text": "Without SumUp, the till cannot take payments in cashless mode – only orders paid online or in advance can be completed.",
-        "action": "Set up SumUp"
+        "action": "Set up SumUp",
+        "textBlocked": "Without SumUp the till takes no card payments – orders can then only be closed without payment or if they were paid online or in advance."
       },
       "savedOn": "Cashless mode is on. The tills switch over right away.",
       "savedOff": "Cashless mode is off. The tills accept cash again.",
@@ -969,7 +977,9 @@
         "historyTitle": "Operating mode history",
         "historyEntry": "from {from} to {to}"
       },
-      "orderOnlyNoCash": "In order-only mode there are no payments on your devices – cash, cards and the cashless mode do not apply."
+      "orderOnlyNoCash": "In order-only mode there are no payments on your devices – cash, cards and the cashless mode do not apply.",
+      "blockedByCountry": "Cash is blocked for your organization by \"Germany without cash\" – there is no switch for it. At the till and in the admin area this means:",
+      "closeWithoutPayment": "Orders paid in cash outside OpenEOS are closed with \"Close without payment\" (no payment, no amount in OpenEOS)."
     },
     "organizationAssistant": {
       "tab": "Assistant",
@@ -2372,7 +2382,8 @@
       "invoiceDaysUntilDueInvalid": "Please enter a whole number between 1 and 90",
       "memberLimit": "Maximum members",
       "memberLimitHint": "empty = default ({limit}), 0 = unlimited; counts members and pending invitations",
-      "memberLimitInvalid": "Please enter a whole number of 0 or more"
+      "memberLimitInvalid": "Please enter a whole number of 0 or more",
+      "country": "Country"
     },
     "actions": {
       "edit": "Edit",
@@ -2380,7 +2391,8 @@
       "view": "View",
       "manageMembers": "Manage members",
       "manageCredits": "Manage credits",
-      "operatingMode": "Operating mode"
+      "operatingMode": "Operating mode",
+      "cashPolicy": "Country & cash"
     },
     "credits": {
       "title": "Manage Event Credits",
@@ -2427,6 +2439,30 @@
       "saved": "Operating mode is now “{mode}”. Devices switch over right away.",
       "history": "History",
       "historyEntry": "from {from} to {to}"
+    },
+    "cashPolicy": {
+      "title": "Country and cash: {name}",
+      "currentCountry": "Country",
+      "currentPolicy": "Cash rule",
+      "noCountry": "not set",
+      "policy": {
+        "legacy": "Grandfathered (as before)",
+        "blocked": "Germany without cash",
+        "allowed": "Cash allowed"
+      },
+      "explain": "The organization sets its country only once and can only switch to \"Germany without cash\". Everything else is changed here – always with a reason. Every change is listed in the history, in the admin audit log and on the organization’s certificate.",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. request of the club by email on …",
+      "reasonHint": "At least 5 characters. Applies to the next change.",
+      "country": "New country",
+      "saveCountry": "Change country",
+      "endLegacy": "End grandfathering (country rule)",
+      "restoreLegacy": "Restore grandfathering (cash as before)",
+      "countrySaved": "Country changed: {country}",
+      "policySaved": "Cash rule changed",
+      "history": "History",
+      "historyCountry": "Country {from} → {to}",
+      "historyPolicy": "Rule {from} → {to}"
     }
   },
   "pos": {
@@ -2913,7 +2949,12 @@
       "noMethod": "No payment method",
       "cashlessNoMethodTitle": "Cashless – no payment method available",
       "cashlessNoMethodText": "Your organization does not accept cash, and no SumUp card reader is set up on this till. Only orders paid online or in advance can be completed here.",
-      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked."
+      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked.",
+      "outside": "Close without payment",
+      "outsideHint": "open cash box",
+      "outsideComplete": "Close without payment",
+      "outsideTitle": "Cash outside OpenEOS",
+      "outsideText": "Take {amount} in your open cash box. The order is closed without payment – OpenEOS records no amount."
     },
     "done": {
       "change": "Change {amount}",
@@ -2923,7 +2964,8 @@
         "card": "Card",
         "cash": "Cash",
         "free": "no payment",
-        "sumup": "Card · SumUp"
+        "sumup": "Card · SumUp",
+        "outside": "without payment (open cash box)"
       },
       "next": "Next receipt",
       "pfand": "Deposit",
@@ -2934,7 +2976,8 @@
       "sum": "Total",
       "testReceipt": "Test receipt",
       "tip": "Tip",
-      "title": "Paid"
+      "title": "Paid",
+      "titleOutside": "Closed"
     },
     "offline": {
       "banner": "No connection – sending and checkout work again once the register is online."
@@ -3962,7 +4005,18 @@
     "ORDER_ONLY_MODE": "Your organization uses order-only mode. Payments, refunds, tips, the cash drawer and deposit payouts are not available – payment is taken outside OpenEOS.",
     "ORDER_ITEMS_IN_PRODUCTION": "Something is still being prepared. Complete the order once everything is ready.",
     "OPERATING_MODE_UNCHANGED": "The organization already uses this operating mode.",
-    "CERTIFICATE_REQUIRES_ORDER_ONLY": "The certificate is only available in order-only mode."
+    "CERTIFICATE_REQUIRES_ORDER_ONLY": "The certificate is only available in order-only mode.",
+    "CASH_NOT_ALLOWED_IN_COUNTRY": "Your organization cannot record cash in OpenEOS: in Germany a till that takes cash needs a TSE, which OpenEOS does not offer yet. Card and online payments keep working; close orders paid in cash with \"Close without payment\".",
+    "COUNTRY_ALREADY_SET": "The country of your organization is already set. Only OpenEOS support can change it.",
+    "COUNTRY_INVALID": "Please choose a country from the list.",
+    "COUNTRY_UNCHANGED": "The organization already has this country.",
+    "CASH_POLICY_ALREADY_ACTIVE": "The rule of your country already applies to your organization.",
+    "CASH_POLICY_SWITCH_REQUIRES_DE": "Switching to \"Germany without cash\" is only available for organizations in Germany.",
+    "CASH_POLICY_UNCHANGED": "This does not change the cash rule.",
+    "CASHLESS_TOGGLE_NOT_AVAILABLE": "\"Germany without cash\" applies to your organization: cash is blocked in OpenEOS, so there is no switch for it.",
+    "CERTIFICATE_REQUIRES_CASH_POLICY": "The certificate is only available with \"Germany without cash\".",
+    "CLOSE_WITHOUT_PAYMENT_NOT_AVAILABLE": "\"Close without payment\" is only available if your organization cannot record cash in OpenEOS. Please take the payment.",
+    "ORDER_CLOSED_WITHOUT_PAYMENT": "This order was already closed without payment (paid outside OpenEOS). Reload the open orders."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5282,7 +5336,10 @@
     "confirmIntro": "Please review your details. After creating it, you will be switched to the new organization automatically.",
     "creating": "Creating…",
     "createFailed": "Failed to create the organization",
-    "limitReached": "You can create or join at most {limit} organizations. Contact support for more."
+    "limitReached": "You can create or join at most {limit} organizations. Contact support for more.",
+    "country": "Country",
+    "countryHint": "This decides which till rules OpenEOS applies – for example whether cash can be recorded. Later, only our support can change the country.",
+    "countryRequired": "Please choose the country of the organization."
   },
   "validation": {
     "nameRequired": "Please enter a name",
@@ -5565,5 +5622,89 @@
     "faqLink": "Learn more in the FAQ",
     "settingsLink": "Go to payment settings",
     "dismiss": "Hide notice"
+  },
+  "countrySelect": {
+    "placeholder": "Choose a country",
+    "frequent": "Frequent",
+    "all": "All countries"
+  },
+  "cashPolicy": {
+    "dismiss": "Hide notice",
+    "settingsLink": "Go to payment settings",
+    "docsLink": "More in the docs",
+    "faqLink": "FAQ",
+    "noTaxAdvice": "This is not tax advice.",
+    "setCountry": {
+      "title": "Country of your organization",
+      "text": "Please set the country of your organization. It decides which till rules OpenEOS applies for you – for example whether cash can be recorded. You set the country once yourself; afterwards only our support can change it.",
+      "adminOnly": "An admin of your organization can set the country.",
+      "label": "Country",
+      "submit": "Set country",
+      "confirmTitle": "Set the country?",
+      "confirmText": "You are setting {country} as the country of your organization. Afterwards only OpenEOS support can change it.",
+      "confirm": "Set",
+      "saved": "Country set: {country}"
+    },
+    "deLegacy": {
+      "title": "Cash and TSE in Germany",
+      "text": "According to the German Federal Ministry of Finance, a till that can record cash needs a certified TSE – even if you could only switch cash on yourselves. The cashless mode you can switch yourself therefore does not exempt you from the TSE requirement on its own. OpenEOS does not have a TSE yet. You have three options:",
+      "keep": {
+        "title": "Keep working as before.",
+        "text": "Your organization keeps its current behaviour: cash is possible and you switch the cashless mode yourself. Whether that is permissible for you is your own responsibility."
+      },
+      "switch": {
+        "title": "Switch to \"Germany without cash\".",
+        "text": "Cash is then blocked in OpenEOS and you cannot switch it back on yourselves. Card and online payments keep working; you take cash in an open cash box and close the order with \"Close without payment\". You get a manufacturer certificate for your records. The switch is one-way – only our support can switch back.",
+        "button": "Switch to \"Germany without cash\"",
+        "adminOnly": "An admin of your organization can switch."
+      },
+      "wait": {
+        "title": "Wait for the TSE.",
+        "text": "The TSE integration for OpenEOS is in progress. Once it is available you can record cash with a TSE."
+      },
+      "confirmTitle": "Switch to \"Germany without cash\"?",
+      "confirmText": "Afterwards your organization can no longer record cash in OpenEOS: no cash payments, no cash refunds, no cash deposit payouts and no cash drawer. The cashless switch goes away. Card and online payments keep working; orders paid in cash are closed with \"Close without payment\". You cannot undo the switch yourself – only OpenEOS support can switch back.",
+      "confirmCheck": "I understand that I cannot undo the switch myself.",
+      "confirm": "Switch for good",
+      "switched": "\"Germany without cash\" now applies to your organization."
+    },
+    "deBlocked": {
+      "title": "Germany without cash",
+      "text": "\"Germany without cash\" applies to your organization: in Germany a till that can record cash needs a certified TSE – and OpenEOS does not offer one yet. That is why OpenEOS does not record cash for you, and you cannot switch it on yourselves. Card and online payments work as usual. If you take cash, you handle it outside OpenEOS (open cash box) and close the order at the till with \"Close without payment\". A manufacturer certificate is available for your records. Once the TSE integration is available, you can record cash in OpenEOS again.",
+      "certificate": "Download certificate",
+      "certificateFailed": "Could not load the certificate."
+    },
+    "at": {
+      "title": "Cash register obligation in Austria",
+      "text": "In Austria the cash register obligation (RKSV) applies from €15,000 annual turnover per business if more than €7,500 of it is cash turnover. Note: card payments count as cash turnover in Austria. OpenEOS currently creates no RKSV signature. Exemptions exist, for example, for small festivals of non-profit clubs of up to 72 hours per calendar year and for canteens of non-profit clubs up to €45,000 annual turnover (net, on at most 52 days a year; limit since 2026). Check the rules for your club yourself or with your tax advisor.",
+      "sourceLink": "Austrian business service portal (USP)"
+    },
+    "ch": {
+      "title": "Note for Switzerland",
+      "text": "To our knowledge, Switzerland has no general cash register or fiscalisation obligation. Record-keeping and VAT rules still apply to clubs. Check yourself or with your fiduciary or tax advisor what applies to your club."
+    },
+    "other": {
+      "title": "Till rules in your country",
+      "text": "Many countries have their own rules for tills (e.g. Italy, France, Poland, Czechia). Check yourself whether OpenEOS is permissible for you there."
+    },
+    "info": {
+      "title": "Country and cash",
+      "country": "Country",
+      "noCountry": "Not set yet",
+      "countryLocked": "Only support can change it",
+      "policyLabel": "Cash",
+      "policy": {
+        "legacy": "As before (grandfathered)",
+        "blocked": "Germany without cash – blocked",
+        "allowed": "Allowed"
+      },
+      "history": {
+        "title": "History",
+        "countrySet": "Country set: {country}",
+        "countryChanged": "Country changed: {from} → {to}",
+        "switched": "Switched to \"Germany without cash\"",
+        "legacyRestored": "Grandfathering restored"
+      }
+    }
   }
 }

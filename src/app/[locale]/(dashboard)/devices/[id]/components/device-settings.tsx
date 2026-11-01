@@ -18,7 +18,7 @@ import { useProductionStations } from '@/hooks/use-production-stations';
 import { useTableAreas } from '@/hooks/use-tables';
 
 import { devicesApi, sumupApi } from '@/lib/api-client';
-import { isCashlessMode } from '@/lib/cashless';
+import { cashNoticeKind, isCashBlocked } from '@/lib/cash-policy';
 import { isOrderOnlyMode } from '@/lib/operating-mode';
 
 import { useAuthStore } from '@/stores/auth-store';
@@ -118,7 +118,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const { currentOrganization } = useAuthStore();
 
   const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
-  const cashless = isCashlessMode(currentOrganization?.organization?.settings);
+  // Bargeld gesperrt: bargeldloser Schalter oder „Deutschland ohne Bargeld“.
+  const cashless = isCashBlocked(currentOrganization?.organization);
+  // TSE-Hinweis nur für Bestandsorganisationen in Deutschland (und ohne Land).
+  const tseNotice = ['de_legacy', 'set_country'].includes(cashNoticeKind(currentOrganization?.organization) ?? '');
   const orderOnly = isOrderOnlyMode(currentOrganization?.organization?.settings);
 
   const [name, setName] = useState(device.name);
@@ -458,11 +461,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
               {s('payment.cashless')}{' '}
               <Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>
             </p>
-          ) : (
+          ) : tseNotice ? (
             <CashTseNotice
               action={<Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>}
             />
-          )}
+          ) : null}
           </>
           )}
         </SectionCard>

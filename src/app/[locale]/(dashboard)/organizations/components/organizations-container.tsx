@@ -8,6 +8,7 @@ import type { Organization } from '@/types';
 
 import { MembersModal } from './members-modal';
 import { OperatingModeModal } from './operating-mode-modal';
+import { CashPolicyModal } from './cash-policy-modal';
 import { OrganizationFormModal } from './organization-form-modal';
 import { OrganizationsList } from './organizations-list';
 
@@ -19,6 +20,7 @@ export function OrganizationsContainer() {
   const [deletingOrganization, setDeletingOrganization] = useState<Organization | null>(null);
   const [membersOrganization, setMembersOrganization] = useState<Organization | null>(null);
   const [modeOrganization, setModeOrganization] = useState<Organization | null>(null);
+  const [cashPolicyOrganization, setCashPolicyOrganization] = useState<Organization | null>(null);
 
   const deleteOrganization = useDeleteOrganization();
 
@@ -50,6 +52,7 @@ export function OrganizationsContainer() {
         onDeleteClick={handleDeleteClick}
         onManageMembersClick={handleManageMembersClick}
         onOperatingModeClick={setModeOrganization}
+        onCashPolicyClick={setCashPolicyOrganization}
       />
 
       <OrganizationFormModal
@@ -59,6 +62,8 @@ export function OrganizationsContainer() {
       />
 
       <OperatingModeModal organization={modeOrganization} onClose={() => setModeOrganization(null)} />
+
+      <CashPolicyModal organization={cashPolicyOrganization} onClose={() => setCashPolicyOrganization(null)} />
 
       <MembersModal
         isOpen={!!membersOrganization}

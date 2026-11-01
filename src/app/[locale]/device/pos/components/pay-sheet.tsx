@@ -14,7 +14,7 @@ import {
   Spinner,
   type ChoiceOption,
 } from '@openeos/ui';
-import { useDeviceCashlessMode } from '@/hooks/use-device-integration';
+import { useDeviceCashlessMode, useDeviceCloseWithoutPayment } from '@/hooks/use-device-integration';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import { useDeviceStore } from '@/stores/device-store';
@@ -29,8 +29,12 @@ import { PosSheet } from './pos-sheet';
 type Method = PayMethod;
 
 export interface PayResult {
-  /** `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` = Betrag 0. */
-  method: 'cash' | 'card' | 'sumup' | 'free';
+  /**
+   * `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` =
+   * Betrag 0, `outside` = ohne Zahlung abgeschlossen (bar außerhalb von
+   * OpenEOS kassiert, nur „Deutschland ohne Bargeld“).
+   */
+  method: 'cash' | 'card' | 'sumup' | 'free' | 'outside';
   amountReceived?: number;
   tip: number;
   transactionId?: string | null;
@@ -71,6 +75,12 @@ interface PaySheetProps {
    * speichern“ erreichbar statt erneut zu kassieren.
    */
   persistKey?: string;
+  /**
+   * „Ohne Zahlung abschließen“ anbieten, wenn die Organisation kein Bargeld
+   * erfassen kann (Standard). Aus beim Teilen einer Rechnung: dort entstehen
+   * Teilzahlungen, ein Teil „außerhalb“ ließe sich nicht abbilden.
+   */
+  allowCloseWithoutPayment?: boolean;
 }
 
 const TIP_PRESETS = [0.5, 1, 2] as const;
@@ -133,16 +143,19 @@ export function PaySheet({
   onPay,
   disabled = false,
   persistKey,
+  allowCloseWithoutPayment = true,
 }: PaySheetProps) {
   const t = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
   const compact = usePosCompact();
   const cashless = useDeviceCashlessMode();
+  const closeWithoutPayment = useDeviceCloseWithoutPayment() && allowCloseWithoutPayment;
   const deviceSettings = useDeviceStore((s) => s.settings);
   const firstMethod = initialPayMethod({
     cashless,
     card,
     hasVouchers: !!discount && discount.vouchers.length > 0,
+    outside: closeWithoutPayment,
   });
 
   const [method, setMethod] = useState<Method | null>(firstMethod);
@@ -246,6 +259,11 @@ export function PaySheet({
           },
         ]
       : []),
+    // „Deutschland ohne Bargeld“: bar außerhalb kassiert (offene
+    // Ladenkasse) — die Bestellung wird ohne Zahlung abgeschlossen.
+    ...(closeWithoutPayment
+      ? [{ id: 'outside' as const, label: t('outside'), icon: 'check-circle' as const, hint: t('outsideHint') }]
+      : []),
     ...(discount && discount.vouchers.length > 0
       ? [{ id: 'discount' as const, label: t('discount'), icon: 'ticket' as const }]
       : []),
@@ -328,6 +346,21 @@ export function PaySheet({
       >
         {!busy && <Icon name="check" />}
         {t('complete')}
+      </Button>
+    );
+  } else if (method === 'outside') {
+    primary = (
+      <Button
+        variant="primary"
+        size="lg"
+        className="oe-grow"
+        loading={busy}
+        disabled={disabled}
+        onClick={() => run({ method: 'outside', tip: 0 })}
+        data-testid="pay-close-without-payment"
+      >
+        {!busy && <Icon name="check" />}
+        {t('outsideComplete')}
       </Button>
     );
   } else if (method === 'card' && card === 'manual') {
@@ -429,6 +462,8 @@ export function PaySheet({
         />
       </>
     );
+  } else if (method === 'outside') {
+    right = <Prompt icon="check-circle" title={t('outsideTitle')} text={t('outsideText', { amount: formatPrice(amount) })} />;
   } else if (method === 'card' && card === 'manual') {
     right = <Prompt icon="card" title={t('cardManualTitle')} text={t('cardManualText', { amount: formatPrice(amount) })} />;
   } else if (method === 'card' && card === 'sumup') {
