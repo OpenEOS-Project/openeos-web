@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { isIntegrationEnabled } from '@/config/integrations';
 import { deviceApi } from '@/lib/api-client';
 import { isCashlessMode } from '@/lib/cashless';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 import type { IntegrationId } from '@/types/organization';
 
 /**
@@ -33,4 +34,17 @@ export function useDeviceCashlessMode(): boolean {
     queryFn: () => deviceApi.getOrganization(),
   });
   return isCashlessMode(data?.data?.settings);
+}
+
+/**
+ * Betriebsmodus „Nur Bestellen“ der Organisation des Geräts — gleiche
+ * Abfrage. Ohne Antwort gilt der Kassenbetrieb; die API sperrt Zahlungen im
+ * Modus „Nur Bestellen“ ohnehin (403 ORDER_ONLY_MODE).
+ */
+export function useDeviceOrderOnlyMode(): boolean {
+  const { data } = useQuery({
+    queryKey: ['device-organization'],
+    queryFn: () => deviceApi.getOrganization(),
+  });
+  return isOrderOnlyMode(data?.data?.settings);
 }

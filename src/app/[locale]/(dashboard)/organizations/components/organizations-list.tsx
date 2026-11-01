@@ -6,16 +6,25 @@ import { Building } from 'lucide-react';
 import { useAdminOrganizations } from '@/hooks/use-organizations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 import type { Organization } from '@/types';
 
 interface OrganizationsListProps {
   onCreateClick: () => void;
   onEditClick: (organization: Organization) => void;
   onDeleteClick: (organization: Organization) => void;
+  /** Betriebsart (Kasse / Nur Bestellen) umschalten — nur Support. */
+  onOperatingModeClick: (organization: Organization) => void;
   onManageMembersClick: (organization: Organization) => void;
 }
 
-export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, onManageMembersClick }: OrganizationsListProps) {
+export function OrganizationsList({
+  onCreateClick,
+  onEditClick,
+  onDeleteClick,
+  onManageMembersClick,
+  onOperatingModeClick,
+}: OrganizationsListProps) {
   const t = useTranslations('organizations');
   const { formatDate } = useLocaleFormat();
   const { data, isLoading, error } = useAdminOrganizations();
@@ -84,6 +93,7 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                 <p className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px' }}>{org.slug}</p>
                 <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--ink-faint)' }}>
                   <span>{org.settings?.currency || 'EUR'}</span>
+                  {isOrderOnlyMode(org.settings) && <span>{t('orderOnlyBadge')}</span>}
                   <span>{formatDate(org.createdAt)}</span>
                 </div>
               </div>
@@ -103,6 +113,14 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                   onClick={() => onManageMembersClick(org)}
                 >
                   {t('actions.manageMembers')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  style={{ fontSize: 11, padding: '3px 8px' }}
+                  onClick={() => onOperatingModeClick(org)}
+                >
+                  {t('actions.operatingMode')}
                 </button>
                 <button
                   type="button"
@@ -161,7 +179,10 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                       </div>
                       <div>
                         <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{org.name}</p>
-                        <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>{org.settings?.currency || 'EUR'}</p>
+                        <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>
+                          {org.settings?.currency || 'EUR'}
+                          {isOrderOnlyMode(org.settings) ? ` · ${t('orderOnlyBadge')}` : ''}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -184,6 +205,14 @@ export function OrganizationsList({ onCreateClick, onEditClick, onDeleteClick, o
                         onClick={() => onManageMembersClick(org)}
                       >
                         {t('actions.manageMembers')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() => onOperatingModeClick(org)}
+                      >
+                        {t('actions.operatingMode')}
                       </button>
                       <button
                         type="button"

@@ -8,6 +8,7 @@ import { usePrinters } from '@/hooks/use-printers';
 import { selectablePrinters } from '@/utils/printer-connection';
 import { toast } from '@/components/shared/toast';
 import { isCashlessMode } from '@/lib/cashless';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Device, PrinterMode } from '@/types/device';
 
@@ -44,6 +45,7 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
   const t = useTranslations();
   const queryClient = useQueryClient();
   const cashless = useAuthStore((state) => isCashlessMode(state.currentOrganization?.organization?.settings));
+  const orderOnly = useAuthStore((state) => isOrderOnlyMode(state.currentOrganization?.organization?.settings));
 
   const routingModes: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [
     {
@@ -209,9 +211,9 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
           )}
           {/* Bargeldlos sperrt die API die Kassenlade; die Zuordnung
               bleibt stehen, falls der Modus wieder ausgeschaltet wird. */}
-          {cashless && (
+          {(cashless || orderOnly) && (
             <p style={{ fontSize: 12, color: 'var(--warn-ink)', margin: '6px 0 0' }}>
-              {t('devices.detail.printer.cashDrawer.cashless')}
+              {t(orderOnly ? 'devices.detail.printer.cashDrawer.orderOnly' : 'devices.detail.printer.cashDrawer.cashless')}
             </p>
           )}
         </div>

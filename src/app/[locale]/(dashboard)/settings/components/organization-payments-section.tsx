@@ -15,9 +15,11 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { Link } from '@/i18n/routing';
 import { organizationsApi } from '@/lib/api-client';
 import { cashlessSwitchStep, isCashlessMode, type CashlessSwitchEvent } from '@/lib/cashless';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { CashlessOffDialog } from './cashless-off-dialog';
+import { OperatingModeInfo } from './operating-mode-info';
 
 /**
  * Zahlungen der Organisation: der bargeldlose Modus.
@@ -90,6 +92,9 @@ export function OrganizationPaymentsSection() {
   const cashless = isCashlessMode(settings);
   const changedAt = settings?.payments?.changedAt;
   const sumupEnabled = isIntegrationEnabled(settings, 'sumup');
+  // „Nur Bestellen“: keine Zahlungen an den Kassen — Bargeld-Schalter,
+  // SumUp-Hinweis und TSE-Hinweis gelten dann nicht.
+  const orderOnly = isOrderOnlyMode(settings);
 
   return (
     <div className="app-card">
@@ -101,6 +106,12 @@ export function OrganizationPaymentsSection() {
       </div>
 
       <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <OperatingModeInfo organizationId={organizationId} settings={settings} isAdmin={isAdmin} />
+
+        {orderOnly ? (
+          <p className="operating-mode__note">{t('orderOnlyNoCash')}</p>
+        ) : (
+        <>
         <SettingToggle
           label={t('cashless.label')}
           hint={t('cashless.hint')}
@@ -138,8 +149,10 @@ export function OrganizationPaymentsSection() {
         )}
 
         {!cashless && <CashTseNotice />}
+        </>
+        )}
 
-        {(history.data?.length ?? 0) > 0 && (
+        {!orderOnly && (history.data?.length ?? 0) > 0 && (
           <div className="cashless-history">
             <span className="cashless-history__title">{t('history.title')}</span>
             <ul>

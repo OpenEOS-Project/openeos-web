@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Banner, Button, CartLine, EmptyState, Icon, IconBox, Spinner, useSwipeToClose } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { useCartHydration, useCartStore, type CartItem } from '@/stores/cart-store';
+import { tableCloseState } from '@/lib/operating-mode';
 import type { Order, OrderItem } from '@/types/order';
 import { PosCartLine } from './pos-cart-line';
 import { PosSheet } from './pos-sheet';
@@ -18,6 +19,11 @@ interface PosCartProps {
   chargePfand: boolean;
   /** „Senden“ nur im Modus Offene Rechnungen (`tab`). */
   canSend: boolean;
+  /**
+   * „Nur Bestellen“: keine Summen und kein „Kassieren“ — „Bestellung
+   * senden“, am Tisch zusätzlich „Tisch abschließen“.
+   */
+  orderOnly?: boolean;
   /** Offline, oder eine Anfrage läuft: Senden/Kassieren gesperrt. */
   actionsDisabled: boolean;
   isSending: boolean;
@@ -42,6 +48,9 @@ export interface SentOrders {
   /** Fertige Positionen als serviert markieren. */
   onServe: (itemIds: string[]) => void;
   serving: boolean;
+  /** „Nur Bestellen“: alle offenen Bestellungen des Tisches abschließen. */
+  onClose?: () => void;
+  closing?: boolean;
 }
 
 const isGuestOrder = (order: Order) => order.source === 'online' || order.source === 'qr_order';
@@ -71,6 +80,7 @@ export function PosCart({
   contextLabel,
   chargePfand,
   canSend,
+  orderOnly = false,
   actionsDisabled,
   isSending,
   onSend,
@@ -155,6 +165,7 @@ export function PosCart({
   const total = sentOpen + payable;
   const canCheckout = items.length > 0 || sentOpen > 0.0001;
   const meta = t('meta', { context: contextLabel, count });
+  const tableClose = orderOnly && sent?.onClose ? tableCloseState(sentOrders) : null;
 
   const sentLine = (item: OrderItem) => {
     const paid = Math.min(item.paidQuantity || 0, item.quantity);
@@ -322,6 +333,7 @@ export function PosCart({
         </div>
 
         <div className="pos-cart__ft">
+          {orderOnly ? null : (
           <dl className="pos-sums">
             {sentOpen > 0.0001 && (
               <div>
@@ -358,6 +370,7 @@ export function PosCart({
               <dd>{formatPrice(total)}</dd>
             </div>
           </dl>
+          )}
           {tokensShown && (
             <div className="pos-tokens" role="status">
               <Icon name="deposit" />
@@ -365,6 +378,44 @@ export function PosCart({
               <b>{Math.abs(netTokens)}</b>
             </div>
           )}
+          {orderOnly ? (
+            <>
+              {tableClose && tableClose.blocked > 0 && sentOrders.length > 0 && (
+                <p className="pos-cart__hint" role="status">
+                  {t('orderOnlyCloseBlocked', { count: tableClose.blocked })}
+                </p>
+              )}
+              <div
+                className={
+                  tableClose && sentOrders.length > 0
+                    ? 'pos-cart__acts pos-cart__acts--even'
+                    : 'pos-cart__acts pos-cart__acts--single'
+                }
+              >
+                {tableClose && sentOrders.length > 0 && (
+                  <Button
+                    variant="secondary"
+                    disabled={!tableClose.canClose || items.length > 0 || actionsDisabled}
+                    loading={sent?.closing}
+                    onClick={sent?.onClose}
+                  >
+                    {!sent?.closing && <Icon name="check" />}
+                    {t('orderOnlyCloseTable')}
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  size="lg"
+                  disabled={items.length === 0 || actionsDisabled}
+                  loading={isSending}
+                  onClick={onSend}
+                >
+                  {!isSending && <Icon name="send" />}
+                  {t('orderOnlySend')}
+                </Button>
+              </div>
+            </>
+          ) : (
           <div className={canSend ? 'pos-cart__acts' : 'pos-cart__acts pos-cart__acts--single'}>
             {canSend && (
               <Button
@@ -387,6 +438,7 @@ export function PosCart({
               {t('checkout')}
             </Button>
           </div>
+          )}
         </div>
       </aside>
       <button

@@ -7,6 +7,7 @@ import { CashTseNotice } from '@/components/shared/cash-tse-notice';
 import { usePermissions } from '@/hooks/use-permissions';
 import { Link } from '@/i18n/routing';
 import { isCashlessMode } from '@/lib/cashless';
+import { isOrderOnlyMode } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 
 /** Wo die Einstellung liegt (Einstellungen → Organisation → Zahlungen). */
@@ -42,7 +43,9 @@ export function CashTseHint() {
     }
   }, [key]);
 
-  if (!key || !isAdmin || dismissed || isCashlessMode(currentOrganization?.organization?.settings)) {
+  const settings = currentOrganization?.organization?.settings;
+  // Ohne Bargeld bzw. ohne Kassenmodul („Nur Bestellen“) kein TSE-Hinweis.
+  if (!key || !isAdmin || dismissed || isCashlessMode(settings) || isOrderOnlyMode(settings)) {
     return null;
   }
 

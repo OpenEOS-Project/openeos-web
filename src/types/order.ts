@@ -43,6 +43,8 @@ export interface OrderItem {
   pfandTypeId: string | null;
   depositAmount: number;
   isRefill: boolean;
+  /** Produktionsstandort (Station); null = ohne Station, direkt ausgegeben. */
+  productionStationId?: string | null;
   preparedAt: string | null;
   readyAt: string | null;
   deliveredAt: string | null;

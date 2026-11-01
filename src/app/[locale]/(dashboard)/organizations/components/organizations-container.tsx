@@ -7,6 +7,7 @@ import { useDeleteOrganization } from '@/hooks/use-organizations';
 import type { Organization } from '@/types';
 
 import { MembersModal } from './members-modal';
+import { OperatingModeModal } from './operating-mode-modal';
 import { OrganizationFormModal } from './organization-form-modal';
 import { OrganizationsList } from './organizations-list';
 
@@ -17,6 +18,7 @@ export function OrganizationsContainer() {
   const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
   const [deletingOrganization, setDeletingOrganization] = useState<Organization | null>(null);
   const [membersOrganization, setMembersOrganization] = useState<Organization | null>(null);
+  const [modeOrganization, setModeOrganization] = useState<Organization | null>(null);
 
   const deleteOrganization = useDeleteOrganization();
 
@@ -47,6 +49,7 @@ export function OrganizationsContainer() {
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
         onManageMembersClick={handleManageMembersClick}
+        onOperatingModeClick={setModeOrganization}
       />
 
       <OrganizationFormModal
@@ -54,6 +57,8 @@ export function OrganizationsContainer() {
         organization={editingOrganization}
         onClose={handleModalClose}
       />
+
+      <OperatingModeModal organization={modeOrganization} onClose={() => setModeOrganization(null)} />
 
       <MembersModal
         isOpen={!!membersOrganization}

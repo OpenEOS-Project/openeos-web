@@ -407,6 +407,23 @@ export const organizationsApi = {
       `/organizations/${id}/payments/cashless/history`,
     ),
 
+  /** Betriebsmodus mit Verlauf (nur lesend; umschalten kann der Support). */
+  getOperatingMode: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').OperatingModeState>>(
+      `/organizations/${id}/operating-mode`,
+    ),
+
+  /** Herstellerbescheinigung „Nur Bestellen“ als PDF (Admins), mit JWT. */
+  operatingModeCertificate: async (id: string): Promise<Blob> => {
+    const token = apiClient.getAccessToken();
+    const res = await fetch(`${API_URL}/organizations/${id}/operating-mode/certificate.pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) throw await apiExceptionFromResponse(res);
+    return res.blob();
+  },
+
   // Members
   getMembers: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/auth').UserOrganization[]>>(`/organizations/${id}/members`),
@@ -1109,6 +1126,18 @@ export const adminApi = {
 
   updateOrganization: (id: string, data: Partial<import('@/types/organization').Organization>) =>
     apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(`/admin/organizations/${id}`, data),
+
+  /** Betriebsmodus umschalten (nur Support), Grund ist Pflicht und wird protokolliert. */
+  setOperatingMode: (id: string, data: { mode: 'pos' | 'order_only'; reason: string }) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(
+      `/admin/organizations/${id}/operating-mode`,
+      data,
+    ),
+
+  getOperatingModeHistory: (id: string) =>
+    apiClient.get<ApiResponse<import('@/types/organization').OperatingModeState>>(
+      `/admin/organizations/${id}/operating-mode/history`,
+    ),
 
   // Stats
   getOverviewStats: () =>
