@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useTranslations } from 'next-intl';
 
+import { useOrderOnly } from '@/hooks/use-order-only';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { DashboardTile } from './dashboard-tile';
 import type { WidgetDefinition } from './widgets/widget-registry';
@@ -49,6 +50,7 @@ export function DashboardGrid({
   onRemove,
 }: Props) {
   const t = useTranslations('dashboard');
+  const orderOnly = useOrderOnly();
 
   const sensors = useSensors(
     // Erst ab acht Pixeln greift das Ziehen — sonst wird jeder Klick
@@ -81,7 +83,7 @@ export function DashboardGrid({
               <DashboardTile
                 key={widget.id}
                 id={widget.id}
-                label={t(widget.labelKey)}
+                label={t(orderOnly && widget.orderOnlyLabelKey ? widget.orderOnlyLabelKey : widget.labelKey)}
                 width={size.w}
                 height={size.h}
                 editing={editing}

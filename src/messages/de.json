@@ -493,6 +493,15 @@
       "size": "{label}: {width} mal {height}",
       "remove": "{label} entfernen",
       "resize": "Größe von {label} ändern"
+    },
+    "orderOnly": {
+      "orderValue": "Bestellwert (nicht kassiert)",
+      "hourlyLabel": "Bestellungen nach Stunde",
+      "hourlySubtitle": "Bestellungen je Stunde · {period}",
+      "hourlyValueLabel": "Bestellungen",
+      "hourlyLegendBars": "Bestellungen je Stunde",
+      "hourlyPeak": "Spitze {hour} — {count, plural, one {# Bestellung} other {# Bestellungen}}",
+      "topProductsSubtitle": "Die 5 meistbestellten Produkte · {period}"
     }
   },
   "navigation": {
@@ -4920,6 +4929,26 @@
       "rounding": "Rundung (Rabatt anteilig)",
       "netRevenue": "Umsatz netto",
       "note": "Netto: Stornos und erstattete Mengen sind abgezogen, Rabatte anteilig verteilt, Pfand ist nicht enthalten. Kulanz-Erstattungen ohne Positionsbezug stehen als eigene Zeile – sie lassen sich keinem Produkt zuordnen."
+    },
+    "orderOnly": {
+      "pageSubtitle": "Bestellungen, Artikel und Produktanalysen im Überblick",
+      "banner": "Nur-Bestellen-Modus: Die Auswertung zählt Bestellungen und Artikel. Beträge sind Bestellwerte – kassiert wird außerhalb von OpenEOS.",
+      "orderValue": "Bestellwert (nicht kassiert)",
+      "kpi": {
+        "orderValueSub": "Summe der Bestellungen ohne Storno",
+        "itemsOrdered": "{count} Artikel bestellt"
+      },
+      "productsSubtitle": "Nach Menge sortiert",
+      "categoriesSubtitle": "Nach Menge sortiert",
+      "channelsTitle": "Bestellungen nach Kanal",
+      "devicesTitle": "Bestellungen je Gerät",
+      "hourlySubtitle": "Bestellungen pro Stunde (0–23 Uhr)",
+      "paymentsSubtitle": "Nur Online-Vorkasse im Shop – vor Ort wird außerhalb von OpenEOS kassiert",
+      "pdf": {
+        "hourlyTitle": "Bestellungen je Stunde",
+        "hourlyEmpty": "Keine Bestellungen im gewählten Zeitraum",
+        "items": "Bestellte Artikel"
+      }
     }
   },
   "inventory": {

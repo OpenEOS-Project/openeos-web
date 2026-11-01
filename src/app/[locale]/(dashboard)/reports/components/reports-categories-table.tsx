@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { CategoryReport, NetSalesSummary } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { netReconciliation } from '@/utils/report-net';
+import { rankByMode } from '@/lib/operating-mode';
 import { downloadCsv } from './csv-export';
 import { ReportsNetFooter } from './reports-net-footer';
 
@@ -14,19 +15,27 @@ interface ReportsCategoriesTableProps {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   isLoading: boolean;
+  /** „Nur Bestellen“: nach Menge, Betrag als Bestellwert (nicht kassiert), ohne Abgleich. */
+  orderOnly?: boolean;
 }
 
-export function ReportsCategoriesTable({ data, net, isLoading }: ReportsCategoriesTableProps) {
+export function ReportsCategoriesTable({ data: raw, net, isLoading, orderOnly = false }: ReportsCategoriesTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
-  const netLines = useMemo(
-    () => (net && data?.length ? netReconciliation(data.map((c) => c.revenue), net) : []),
-    [net, data],
+  const data = useMemo(
+    () => (raw && orderOnly ? rankByMode(raw, true, (c) => c.quantity, (c) => c.revenue) : raw),
+    [raw, orderOnly],
   );
+  // Abgleich (Erstattungen, Trinkgeld, Umsatz netto) gibt es nur mit Kasse.
+  const netLines = useMemo(
+    () => (!orderOnly && net && data?.length ? netReconciliation(data.map((c) => c.revenue), net) : []),
+    [net, data, orderOnly],
+  );
+  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('categories.columns.revenue');
 
   const handleExport = () => {
     if (!data?.length) return;
-    const headers = [t('categories.columns.category'), t('categories.columns.quantity'), t('categories.columns.revenue')];
+    const headers = [t('categories.columns.category'), t('categories.columns.quantity'), amountLabel];
     const rows: (string | number)[][] = data.map((c) => [c.name, c.quantity, c.revenue]);
     for (const line of netLines) {
       rows.push([line.key === 'items' ? t('net.categoryItems') : t(`net.${line.key}`), '', line.amount]);
@@ -39,7 +48,7 @@ export function ReportsCategoriesTable({ data, net, isLoading }: ReportsCategori
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('categories.title')}</h2>
-          <p className="app-card__sub">{t('categories.subtitle')}</p>
+          <p className="app-card__sub">{orderOnly ? t('orderOnly.categoriesSubtitle') : t('categories.subtitle')}</p>
         </div>
         <button
           type="button"
@@ -67,7 +76,7 @@ export function ReportsCategoriesTable({ data, net, isLoading }: ReportsCategori
               <tr>
                 <th>{t('categories.columns.category')}</th>
                 <th className="text-right">{t('categories.columns.quantity')}</th>
-                <th className="text-right">{t('categories.columns.revenue')}</th>
+                <th className="text-right">{amountLabel}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +94,7 @@ export function ReportsCategoriesTable({ data, net, isLoading }: ReportsCategori
               <ReportsNetFooter lines={netLines} labelSpan={2} itemsLabel={t('net.categoryItems')} />
             )}
           </table>
-          <p className="report-net__note">{t('net.note')}</p>
+          {!orderOnly && <p className="report-net__note">{t('net.note')}</p>}
         </div>
       )}
     </div>

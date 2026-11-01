@@ -29,6 +29,8 @@ interface PdfExportButtonProps {
   categories?: CategoryReport[];
   net?: NetSalesSummary;
   devices?: DeviceReport[];
+  /** „Nur Bestellen“: Mengen und Bestellwerte (nicht kassiert) statt Umsatz. */
+  orderOnly?: boolean;
 }
 
 export function PdfExportButton(props: PdfExportButtonProps) {

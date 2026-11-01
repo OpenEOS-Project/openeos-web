@@ -7,6 +7,11 @@ export interface WidgetDefinition {
   /** If set, user needs this permission (or admin role) to see this widget */
   requiredPermission?: 'reports';
   /**
+   * „Nur Bestellen“: andere Beschriftung (kein Umsatz) bzw. `false` =
+   * Widget gibt es in dem Modus nicht (z. B. Zahlarten).
+   */
+  orderOnlyLabelKey?: string | false;
+  /**
    * 'stat' erscheint im Kachelraster, 'card' als Karte darunter,
    * 'strip' als durchgehende Leiste ueber die volle Breite — die
    * Statusleiste traegt bewusst keine Kartenhuelle.

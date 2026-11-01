@@ -20,6 +20,8 @@ import { formatReportDay } from './report-labels';
 interface ReportsHourlyChartProps {
   data: HourlyReport[] | undefined;
   isLoading: boolean;
+  /** „Nur Bestellen“: Balken zeigen Bestellungen, der Betrag heißt Bestellwert (nicht kassiert). */
+  orderOnly?: boolean;
 }
 
 interface TooltipPayload {
@@ -31,9 +33,10 @@ interface CustomTooltipProps {
   active?: boolean;
   payload?: TooltipPayload[];
   label?: string | number;
+  orderOnly?: boolean;
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, label, orderOnly = false }: CustomTooltipProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
   if (!active || !payload || !payload.length) return null;
@@ -52,14 +55,23 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     >
       <div style={{ fontWeight: 700, marginBottom: 6 }}>{t('hourly.tooltipHour', { hour: String(label ?? '') })}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <span>{t('hourly.tooltipRevenue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
-        <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
+        {orderOnly ? (
+          <>
+            <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
+            <span>{t('orderOnly.orderValue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
+          </>
+        ) : (
+          <>
+            <span>{t('hourly.tooltipRevenue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
+            <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps) {
+export function ReportsHourlyChart({ data, isLoading, orderOnly = false }: ReportsHourlyChartProps) {
   const t = useTranslations('reports');
   const locale = useIntlLocale();
 
@@ -90,7 +102,7 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
       t('hourly.columns.date'),
       t('hourly.columns.hour'),
       t('hourly.columns.orders'),
-      t('hourly.columns.revenue'),
+      orderOnly ? t('orderOnly.orderValue') : t('hourly.columns.revenue'),
     ];
     const rows = days.flatMap((day) =>
       day.rows.map((r) => [day.date, `${r.hour}:00`, r.orders, r.revenue]),
@@ -119,9 +131,10 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
           axisLine={false}
           tickLine={false}
           width={48}
+          allowDecimals={!orderOnly}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-        <Bar dataKey="revenue" fill="#12B76A" radius={[3, 3, 0, 0]} maxBarSize={32} />
+        <Tooltip content={<CustomTooltip orderOnly={orderOnly} />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+        <Bar dataKey={orderOnly ? 'orders' : 'revenue'} fill="#12B76A" radius={[3, 3, 0, 0]} maxBarSize={32} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -131,7 +144,7 @@ export function ReportsHourlyChart({ data, isLoading }: ReportsHourlyChartProps)
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('hourly.title')}</h2>
-          <p className="app-card__sub">{t('hourly.subtitle')}</p>
+          <p className="app-card__sub">{orderOnly ? t('orderOnly.hourlySubtitle') : t('hourly.subtitle')}</p>
         </div>
         <button
           type="button"

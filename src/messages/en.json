@@ -493,6 +493,15 @@
       "size": "{label}: {width} by {height}",
       "remove": "Remove {label}",
       "resize": "Resize {label}"
+    },
+    "orderOnly": {
+      "orderValue": "Order value (not collected)",
+      "hourlyLabel": "Orders by hour",
+      "hourlySubtitle": "Orders per hour · {period}",
+      "hourlyValueLabel": "Orders",
+      "hourlyLegendBars": "Orders per hour",
+      "hourlyPeak": "Peak {hour} — {count, plural, one {# order} other {# orders}}",
+      "topProductsSubtitle": "The five most ordered products · {period}"
     }
   },
   "navigation": {
@@ -4920,6 +4929,26 @@
       "rounding": "Rounding (discount spread)",
       "netRevenue": "Net revenue",
       "note": "Net: cancellations and refunded quantities are deducted, discounts spread proportionally, deposits excluded. Goodwill refunds without an item are shown as a separate line – they cannot be assigned to a product."
+    },
+    "orderOnly": {
+      "pageSubtitle": "Orders, items and product analytics at a glance",
+      "banner": "Order-only mode: this report counts orders and items. Amounts are order values – payment is collected outside OpenEOS.",
+      "orderValue": "Order value (not collected)",
+      "kpi": {
+        "orderValueSub": "Sum of orders without cancellations",
+        "itemsOrdered": "{count} items ordered"
+      },
+      "productsSubtitle": "Sorted by quantity",
+      "categoriesSubtitle": "Sorted by quantity",
+      "channelsTitle": "Orders by channel",
+      "devicesTitle": "Orders by device",
+      "hourlySubtitle": "Orders per hour (0–23)",
+      "paymentsSubtitle": "Online prepayment in the shop only – on site, payment is collected outside OpenEOS",
+      "pdf": {
+        "hourlyTitle": "Orders per hour",
+        "hourlyEmpty": "No orders in the selected period",
+        "items": "Items ordered"
+      }
     }
   },
   "inventory": {

@@ -10,21 +10,29 @@ import { getChannelLabel } from './report-labels';
 interface ReportsChannelsTableProps {
   data: ChannelReport[] | undefined;
   isLoading: boolean;
+  /** „Nur Bestellen“: Bestellungen und Bestellwert (nicht kassiert), kein Ø Bon. */
+  orderOnly?: boolean;
 }
 
-export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTableProps) {
+export function ReportsChannelsTable({ data, isLoading, orderOnly = false }: ReportsChannelsTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
+  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('channels.columns.revenue');
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [
       t('channels.columns.channel'),
       t('channels.columns.orders'),
-      t('channels.columns.revenue'),
-      t('channels.columns.avgReceipt'),
+      amountLabel,
+      ...(orderOnly ? [] : [t('channels.columns.avgReceipt')]),
     ];
-    const rows = data.map((c) => [getChannelLabel(c.channel, t), c.orders, c.revenue, c.avgReceipt]);
+    const rows = data.map((c) => [
+      getChannelLabel(c.channel, t),
+      c.orders,
+      c.revenue,
+      ...(orderOnly ? [] : [c.avgReceipt]),
+    ]);
     downloadCsv(t('export.filenames.channels'), headers, rows);
   };
 
@@ -32,7 +40,7 @@ export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTablePr
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div>
-          <h2 className="app-card__title">{t('channels.title')}</h2>
+          <h2 className="app-card__title">{orderOnly ? t('orderOnly.channelsTitle') : t('channels.title')}</h2>
           <p className="app-card__sub">{t('channels.subtitle')}</p>
         </div>
         <button
@@ -61,8 +69,8 @@ export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTablePr
               <tr>
                 <th>{t('channels.columns.channel')}</th>
                 <th className="text-right">{t('channels.columns.orders')}</th>
-                <th className="text-right">{t('channels.columns.revenue')}</th>
-                <th className="text-right">{t('channels.columns.avgReceipt')}</th>
+                <th className="text-right">{amountLabel}</th>
+                {!orderOnly && <th className="text-right">{t('channels.columns.avgReceipt')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -75,7 +83,7 @@ export function ReportsChannelsTable({ data, isLoading }: ReportsChannelsTablePr
                   </td>
                   <td className="mono text-right">{c.orders}</td>
                   <td className="mono text-right">{formatCurrency(c.revenue)}</td>
-                  <td className="mono text-right">{formatCurrency(c.avgReceipt)}</td>
+                  {!orderOnly && <td className="mono text-right">{formatCurrency(c.avgReceipt)}</td>}
                 </tr>
               ))}
             </tbody>

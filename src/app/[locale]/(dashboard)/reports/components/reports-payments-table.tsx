@@ -10,9 +10,11 @@ import { getMethodLabel } from './report-labels';
 interface ReportsPaymentsTableProps {
   data: PaymentReport[] | undefined;
   isLoading: boolean;
+  /** „Nur Bestellen“: hier stehen nur Online-Vorauszahlungen aus dem Shop. */
+  orderOnly?: boolean;
 }
 
-export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTableProps) {
+export function ReportsPaymentsTable({ data, isLoading, orderOnly = false }: ReportsPaymentsTableProps) {
   const t = useTranslations('reports');
   const locale = useLocale();
 
@@ -38,7 +40,7 @@ export function ReportsPaymentsTable({ data, isLoading }: ReportsPaymentsTablePr
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('payments.title')}</h2>
-          <p className="app-card__sub">{t('payments.subtitle')}</p>
+          <p className="app-card__sub">{orderOnly ? t('orderOnly.paymentsSubtitle') : t('payments.subtitle')}</p>
         </div>
         <button
           type="button"

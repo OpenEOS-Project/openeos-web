@@ -23,6 +23,7 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
   {
     id: 'revenueToday',
     labelKey: 'widgets.revenueToday.label',
+    orderOnlyLabelKey: 'orderOnly.orderValue',
     type: 'stat',
     Component: RevenueTodayWidget,
   },
@@ -48,6 +49,7 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
   {
     id: 'hourlyRevenue',
     labelKey: 'widgets.hourlyRevenue.label',
+    orderOnlyLabelKey: 'orderOnly.hourlyLabel',
     requiredPermission: 'reports',
     type: 'card',
     Component: HourlyRevenueWidget,
@@ -55,6 +57,8 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
   {
     id: 'paymentMethods',
     labelKey: 'widgets.paymentMethods.label',
+    // Ohne Kasse gibt es vor Ort keine Zahlarten (nur Online-Vorkasse, siehe Auswertung).
+    orderOnlyLabelKey: false,
     requiredPermission: 'reports',
     type: 'card',
     Component: PaymentMethodsWidget,

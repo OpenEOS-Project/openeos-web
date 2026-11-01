@@ -164,7 +164,7 @@ function PosApp() {
   const inOrderView = !modeLoading && !!context;
 
   const chargePfand = resolveChargePfand(orgSettings?.pfand, context?.kind === 'table' ? 'table' : 'counter');
-  useCustomerDisplayBroadcast(socket, isConnected, chargePfand);
+  useCustomerDisplayBroadcast(socket, isConnected, chargePfand, orderOnly);
 
   const orderingMode = effectiveOrderingMode(
     activeEvent?.settings?.orderingMode || orgSettings?.pos?.orderingMode,
