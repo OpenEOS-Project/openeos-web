@@ -1,4 +1,4 @@
-import { cashlessSwitchStep, isCashlessMode, tseFaqUrl } from '@/lib/cashless';
+import { cashlessSwitchStep, isCashlessMode, orderOnlyFaqUrl, tseFaqUrl } from '@/lib/cashless';
 import { initialPayMethod, resolvePosCardMode } from '@/utils/pos-card-mode';
 import { initialRefundState, refundFormView } from '@/utils/refund-form';
 import { expect, test } from '@playwright/test';
@@ -69,6 +69,8 @@ test.describe('cashless mode', () => {
   test('FAQ link per language', () => {
     expect(tseFaqUrl('de')).toBe('https://openeos.de/faq#tse');
     expect(tseFaqUrl('en')).toBe('https://openeos.de/en/faq#tse');
+    expect(orderOnlyFaqUrl('de')).toBe('https://openeos.de/faq#nur-bestellen');
+    expect(orderOnlyFaqUrl('en')).toBe('https://openeos.de/en/faq#nur-bestellen');
   });
 
   test('pay sheet starts with cash, cashless with the card', () => {
