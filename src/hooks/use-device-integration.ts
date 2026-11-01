@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { isIntegrationEnabled } from '@/config/integrations';
 import { deviceApi } from '@/lib/api-client';
-import { isCashlessMode } from '@/lib/cashless';
+import { isCashBlocked, offersCloseWithoutPayment } from '@/lib/cash-policy';
 import { isOrderOnlyMode } from '@/lib/operating-mode';
 import type { IntegrationId } from '@/types/organization';
 
@@ -23,17 +23,31 @@ export function useDeviceIntegrationEnabled(id: IntegrationId): boolean {
 }
 
 /**
- * Bargeldloser Modus der Organisation des Geräts — gleiche Abfrage wie
- * oben. Die Kasse lädt sie bei `organizationSettingsUpdated` neu und stellt
- * sich so ohne Neuladen um. Solange die Antwort fehlt, gilt Bargeld als
- * erlaubt (Standard); die API weist es im bargeldlosen Modus ohnehin ab.
+ * Ist Bargeld an dieser Kasse gesperrt? Bargeldloser Modus der Organisation
+ * oder „Deutschland ohne Bargeld“ (Landesregel) — gleiche Abfrage wie oben.
+ * Die Kasse lädt sie bei `organizationSettingsUpdated` neu und stellt sich
+ * so ohne Neuladen um. Solange die Antwort fehlt, gilt Bargeld als erlaubt
+ * (Standard); die API weist es, wo gesperrt, ohnehin ab.
  */
 export function useDeviceCashlessMode(): boolean {
   const { data } = useQuery({
     queryKey: ['device-organization'],
     queryFn: () => deviceApi.getOrganization(),
   });
-  return isCashlessMode(data?.data?.settings);
+  return isCashBlocked(data?.data);
+}
+
+/**
+ * „Ohne Zahlung abschließen“ an der Kasse anbieten? Nur bei „Deutschland
+ * ohne Bargeld“: Bargeld läuft dann außerhalb von OpenEOS (offene
+ * Ladenkasse), die Bestellung wird ohne Zahlung abgeschlossen.
+ */
+export function useDeviceCloseWithoutPayment(): boolean {
+  const { data } = useQuery({
+    queryKey: ['device-organization'],
+    queryFn: () => deviceApi.getOrganization(),
+  });
+  return offersCloseWithoutPayment(data?.data);
 }
 
 /**

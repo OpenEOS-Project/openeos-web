@@ -166,6 +166,10 @@ export function OpenOrdersSheet({
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     const paidIds = selected.map((o) => o.id);
     try {
+      if (result.method === 'outside') {
+        // „Ohne Zahlung abschließen“: bar außerhalb kassiert, keine Zahlung.
+        await deviceTablesApi.completeOrders(paidIds);
+      } else
       // Alles oder nichts: eine Sammelzahlung statt einer Schleife je Bestellung.
       await deviceTablesApi.payBatch({
         orderIds: paidIds,

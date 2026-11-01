@@ -125,6 +125,10 @@ export function OrderDetailSheet({
     const method: PaymentMethod =
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     try {
+      if (result.method === 'outside') {
+        // „Ohne Zahlung abschließen“: bar außerhalb kassiert, keine Zahlung.
+        await deviceTablesApi.completeOrders([order.id]);
+      } else
       await deviceTablesApi.payBatch({
         orderIds: [order.id],
         paymentMethod: method,

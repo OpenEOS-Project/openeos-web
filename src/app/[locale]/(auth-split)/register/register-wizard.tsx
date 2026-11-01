@@ -10,6 +10,8 @@ import { Link } from '@/i18n/routing';
 import { authApi } from '@/lib/api-client';
 import { localizePlatformUrl } from '@/lib/legal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { CountrySelect } from '@/components/shared/country-select';
+import { countryName } from '@/lib/countries';
 import { ApiException } from '@/types/api';
 
 type StepKey = 'account' | 'personal' | 'organization' | 'confirm';
@@ -25,6 +27,9 @@ interface FormState {
   firstName: string;
   lastName: string;
   organizationName: string;
+  /* Land der Organisation (Pflicht): steuert die Bargeld-Regel, ändern
+     kann es danach nur der Support. */
+  country: string;
   terms: boolean;
   newsletter: boolean;
 }
@@ -42,6 +47,7 @@ const initial: FormState = {
   firstName: '',
   lastName: '',
   organizationName: '',
+  country: '',
   terms: false,
   newsletter: false,
 };
@@ -106,6 +112,7 @@ export function RegisterWizard() {
       if (!data.organizationName) next.organizationName = tErr('required');
       else if (data.organizationName.trim().length < 2)
         next.organizationName = tErr('nameShort');
+      if (!data.country) next.country = tErr('countryRequired');
     } else if (current === 'confirm') {
       if (!data.terms) next.terms = tErr('termsRequired');
     }
@@ -137,6 +144,7 @@ export function RegisterWizard() {
         // gleich einen Anmeldelink statt der Bestaetigungsmail.
         password: data.mitPasswort ? data.password : undefined,
         organizationName: data.organizationName,
+        country: data.country,
         // Frueher nur abgefragt, aber nie mitgeschickt — die API kannte das
         // Feld nicht. Gespeichert wird der Zeitpunkt der Einwilligung.
         newsletterOptIn: data.newsletter,
@@ -323,6 +331,20 @@ export function RegisterWizard() {
               value={data.organizationName}
               onChange={(v) => update('organizationName', v)}
             />
+            <label className={`auth-field ${errors.country ? 'auth-field--error' : ''}`}>
+              <span>{t('steps.organization.country')}</span>
+              <CountrySelect
+                value={data.country}
+                onChange={(v) => update('country', v)}
+                invalid={!!errors.country}
+                className=""
+              />
+              {errors.country ? (
+                <span className="auth-error">{errors.country}</span>
+              ) : (
+                <span className="auth-hint">{t('steps.organization.countryHint')}</span>
+              )}
+            </label>
           </div>
         )}
 
@@ -339,6 +361,10 @@ export function RegisterWizard() {
             <SummaryRow
               label={t('steps.confirm.summaryOrganization')}
               value={data.organizationName}
+            />
+            <SummaryRow
+              label={t('steps.confirm.summaryCountry')}
+              value={data.country ? countryName(data.country, locale) : ''}
             />
 
             <label className="auth-check auth-check--block">

@@ -159,7 +159,11 @@ export function usePosCheckout({
     });
   };
 
-  const createOrder = async (discount: number, payment?: CreateOrderData['payment']): Promise<Order> => {
+  const createOrder = async (
+    discount: number,
+    payment?: CreateOrderData['payment'],
+    closeWithoutPayment?: CreateOrderData['closeWithoutPayment'],
+  ): Promise<Order> => {
     if (!eventId) throw new Error('No event selected');
     const cart = useCartStore.getState();
     const items = buildItems();
@@ -189,6 +193,7 @@ export function usePosCheckout({
       items,
       ...(discount > 0 ? { discountAmount: discount, discountReason: reason } : {}),
       ...(payment ? { payment } : {}),
+      ...(closeWithoutPayment ? { closeWithoutPayment } : {}),
     });
     return response.data;
   };
@@ -269,6 +274,41 @@ export function usePosCheckout({
       discount: totals.discount,
       time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
     };
+
+    // „Ohne Zahlung abschließen“ (Deutschland ohne Bargeld): bar außerhalb
+    // kassiert. Neue Positionen und offene Bestellungen des Kontexts werden
+    // ohne Zahlung abgeschlossen — keine Zahlung, kein Betrag in OpenEOS.
+    if (result.method === 'outside') {
+      let created: Order | null = null;
+      try {
+        if (cart.items.length > 0) {
+          created = await createOrder(totals.discount, undefined, {
+            ...(hasOpen ? { orderIds: totals.openOrderIds } : {}),
+          });
+        } else if (hasOpen) {
+          await deviceTablesApi.completeOrders(totals.openOrderIds);
+        }
+      } catch (error) {
+        handleTableError(error);
+        invalidate();
+        toast(apiErrorMessage(error, t('pay.orderFailed')), 'danger');
+        throw error;
+      }
+      const orderIds = Array.from(new Set([...totals.openOrderIds, ...(created ? [created.id] : [])]));
+      clearSent();
+      invalidate();
+      const number = created ? created.orderNumber || String(created.dailyNumber) : null;
+      notifyCustomerDisplayOrderCompleted('paid', number);
+      const single = orderIds.length === 1;
+      return {
+        ...snapshot,
+        change: 0,
+        tip: 0,
+        orderIds,
+        orderNumber: single ? (number ?? sentOrders.find((o) => o.id === orderIds[0])?.orderNumber ?? null) : null,
+        heading: single ? null : t('tables.doneHeading', { context: contextLabel, count: orderIds.length }),
+      };
+    }
 
     const charged = totals.due > 0 && result.method !== 'free';
     const reason = cart.appliedVouchers.map((v) => v.name).join(', ');
