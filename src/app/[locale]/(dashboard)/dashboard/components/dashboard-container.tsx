@@ -23,6 +23,7 @@ import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
 import { CashTseHint } from './cash-tse-hint';
 import { useDeployment } from '@/components/providers/setup-provider';
+import { useOrderOnly } from '@/hooks/use-order-only';
 
 const statusBadgeClass: Record<Order['status'], string> = {
   open: 'badge badge--warning',
@@ -40,6 +41,8 @@ export function DashboardContainer() {
   const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const deployment = useDeployment();
+  /* „Nur Bestellen“: keine Umsatz-Kacheln, keine Zahlarten (siehe Registry). */
+  const orderOnly = useOrderOnly();
 
   /* Griffe erscheinen nur hier — sonst verschiebt jeder Scrollversuch
      die Anordnung. */
@@ -73,9 +76,14 @@ export function DashboardContainer() {
 
   // Available widgets for this user (all registry entries they have permission for)
   const availableWidgets = useMemo(
-    () => WIDGET_REGISTRY.filter((w) => canSeeWidget(w.requiredPermission)),
-    [role, permissions],
+    () =>
+      WIDGET_REGISTRY.filter(
+        (w) => canSeeWidget(w.requiredPermission) && !(orderOnly && w.orderOnlyLabelKey === false),
+      ),
+    [role, permissions, orderOnly],
   );
+  const widgetLabelKey = (w: (typeof WIDGET_REGISTRY)[number]) =>
+    orderOnly && w.orderOnlyLabelKey ? w.orderOnlyLabelKey : w.labelKey;
 
   // Widgets to render: in saved order, filtered to available
   const activeWidgets = useMemo(() => {
@@ -201,7 +209,7 @@ export function DashboardContainer() {
                     key={w.id}
                     onClick={() => persist({ widgets: [...enabledIds, w.id] })}
                   >
-                    {t(w.labelKey)}
+                    {t(widgetLabelKey(w))}
                   </DropdownOption>
                 ))
               )}

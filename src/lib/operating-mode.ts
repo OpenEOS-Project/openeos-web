@@ -92,3 +92,72 @@ export function operatingModeSwitchError(
   if (trimmed.length > OPERATING_MODE_REASON_MAX) return 'reasonTooLong';
   return null;
 }
+
+/* ── Kundenanzeige ─────────────────────────────────────────────────── */
+
+type CartLike = {
+  items: { unitPrice: number; lineTotal: number; pfandAmount: number }[];
+  totals: { subtotal: number; discount: number; pfand: number; payable: number };
+  vouchers: { name: string; amount: number }[];
+  orderOnly?: boolean;
+};
+
+/**
+ * Warenkorb für die Kundenanzeige im Modus „Nur Bestellen“: Positionen und
+ * Mengen bleiben, jeder Betrag wird 0 und `orderOnly` gesetzt. Die Kasse
+ * sendet so gar keine Preise; die Anzeige blendet Beträge ohnehin aus.
+ */
+export function stripCartPrices<T extends CartLike>(cart: T): T {
+  return {
+    ...cart,
+    items: cart.items.map((item) => ({ ...item, unitPrice: 0, lineTotal: 0, pfandAmount: 0 })),
+    totals: { subtotal: 0, discount: 0, pfand: 0, payable: 0 },
+    vouchers: cart.vouchers.map((v) => ({ ...v, amount: 0 })),
+    orderOnly: true,
+  };
+}
+
+/**
+ * Zeigt die Kundenanzeige Beträge? Nicht, wenn die Organisation „Nur
+ * Bestellen“ nutzt oder die Kasse den Warenkorb ohne Preise schickt.
+ */
+export function customerDisplayShowsPrices(
+  orgSettings: { operatingMode?: unknown } | null | undefined,
+  cart: { orderOnly?: boolean } | null | undefined,
+): boolean {
+  return !isOrderOnlyMode(orgSettings) && !cart?.orderOnly;
+}
+
+/* ── Auswertung und Dashboard ──────────────────────────────────────── */
+
+/**
+ * Rangfolge der Produkte/Kategorien. Im Modus „Nur Bestellen“ gibt es
+ * keinen Umsatz, nur Bestellwerte — dort zählt die Menge (bei Gleichstand
+ * der Bestellwert), sonst der Umsatz.
+ */
+export function rankByMode<T>(
+  rows: T[],
+  orderOnly: boolean,
+  quantity: (row: T) => number,
+  amount: (row: T) => number,
+): T[] {
+  return [...rows].sort((a, b) =>
+    orderOnly ? quantity(b) - quantity(a) || amount(b) - amount(a) : amount(b) - amount(a),
+  );
+}
+
+/**
+ * Kachel „Umsatz“ bzw. im Modus „Nur Bestellen“ „Bestellwert (nicht
+ * kassiert)“: Umsatz = bezahlte Beträge, Bestellwert = Summe der
+ * Bestellungen ohne Storno (bezahlt wird außerhalb von OpenEOS).
+ */
+export function dashboardAmount(
+  orders: { status: string; paymentStatus: string; paidAmount: number; total: number }[],
+  orderOnly: boolean,
+): number {
+  const active = orders.filter((o) => o.status !== 'cancelled');
+  if (orderOnly) return active.reduce((sum, o) => sum + Number(o.total), 0);
+  return active
+    .filter((o) => o.paymentStatus === 'paid' || o.paymentStatus === 'partly_paid')
+    .reduce((sum, o) => sum + o.paidAmount, 0);
+}

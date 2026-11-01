@@ -13,6 +13,7 @@ import type {
 } from '@/types/report';
 import { formatCurrency, formatPercent } from '@/utils/format';
 import { netReconciliation } from '@/utils/report-net';
+import { rankByMode } from '@/lib/operating-mode';
 import type { ReportsFilter } from './reports-filter-bar';
 import { formatReportDay, getChannelLabel, getMethodLabel, type ReportsT } from './report-labels';
 import { addDays, todayKey, toLocalDate } from '@/utils/calendar-date';
@@ -30,6 +31,8 @@ export interface PdfExportInput {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   devices?: DeviceReport[];
+  /** „Nur Bestellen“: Mengen und Bestellwerte (nicht kassiert) statt Umsatz. */
+  orderOnly?: boolean;
 }
 
 /** Sprache des Berichts: t = useTranslations('reports') und die UI-Sprache. */
@@ -168,21 +171,39 @@ async function drawHeader(doc: jsPDF, input: PdfExportInput, i18n: PdfExportI18n
   return afterHeaderY + 8;
 }
 
+/** Hinweis unter dem Kopf im Modus „Nur Bestellen“: Beträge sind Bestellwerte. */
+function drawOrderOnlyNote(doc: jsPDF, cursorY: number, { t }: PdfExportI18n): number {
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(70, 70, 70);
+  const lines = doc.splitTextToSize(t('orderOnly.banner'), CONTENT_WIDTH) as string[];
+  doc.text(lines, MARGIN, cursorY);
+  return cursorY + lines.length * 4.5 + 4;
+}
+
 function drawKpiBoxes(
   doc: jsPDF,
   cursorY: number,
   sales: SalesReport | undefined,
   { t, locale }: PdfExportI18n,
+  orderOnly = false,
 ): number {
   cursorY = ensureSpace(doc, cursorY, 26);
 
-  const boxes: { label: string; value: string }[] = [
-    { label: t('pdf.kpi.revenue'), value: sales ? formatCurrency(sales.totalRevenue, locale) : '–' },
-    { label: t('pdf.kpi.orders'), value: sales ? String(sales.totalOrders) : '–' },
-    { label: t('pdf.kpi.avgReceipt'), value: sales ? formatCurrency(sales.averageOrderValue, locale) : '–' },
-    { label: t('pdf.kpi.pfand'), value: sales ? formatCurrency(sales.pfandBalance, locale) : '–' },
-    { label: t('pdf.kpi.cancellationRate'), value: sales ? formatPercent(sales.cancellationRate, locale) : '–' },
-  ];
+  const boxes: { label: string; value: string }[] = orderOnly
+    ? [
+        { label: t('pdf.kpi.orders'), value: sales ? String(sales.totalOrders) : '–' },
+        { label: t('orderOnly.pdf.items'), value: sales ? String(sales.totalItemsSold) : '–' },
+        { label: t('orderOnly.orderValue'), value: sales ? formatCurrency(sales.totalRevenue, locale) : '–' },
+        { label: t('pdf.kpi.cancellationRate'), value: sales ? formatPercent(sales.cancellationRate, locale) : '–' },
+      ]
+    : [
+        { label: t('pdf.kpi.revenue'), value: sales ? formatCurrency(sales.totalRevenue, locale) : '–' },
+        { label: t('pdf.kpi.orders'), value: sales ? String(sales.totalOrders) : '–' },
+        { label: t('pdf.kpi.avgReceipt'), value: sales ? formatCurrency(sales.averageOrderValue, locale) : '–' },
+        { label: t('pdf.kpi.pfand'), value: sales ? formatCurrency(sales.pfandBalance, locale) : '–' },
+        { label: t('pdf.kpi.cancellationRate'), value: sales ? formatPercent(sales.cancellationRate, locale) : '–' },
+      ];
 
   const gap = 4;
   const boxWidth = (CONTENT_WIDTH - gap * (boxes.length - 1)) / boxes.length;
@@ -208,14 +229,17 @@ function drawKpiBoxes(
   return cursorY + boxHeight + 10;
 }
 
+/** Wert eines Balkens: Umsatz bzw. im Modus „Nur Bestellen“ die Bestellungen. */
+type HourMetric = 'revenue' | 'orders';
+
 // Zeichnet ein 24h-Balkendiagramm für genau einen Tag ab cursorY.
-function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[]): number {
+function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[], metric: HourMetric): number {
   const chartHeight = 40;
   const chartTop = cursorY;
   const chartBottom = chartTop + chartHeight;
 
   const hours = Array.from({ length: 24 }, (_, h) => rows.find((r) => r.hour === h) ?? { date: '', hour: h, orders: 0, revenue: 0 });
-  const maxRevenue = Math.max(...hours.map((h) => h.revenue), 1);
+  const maxRevenue = Math.max(...hours.map((h) => h[metric]), 1);
   const barGap = 0.6;
   const barWidth = CONTENT_WIDTH / 24 - barGap;
 
@@ -224,7 +248,7 @@ function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[]): 
   doc.line(MARGIN, chartBottom, MARGIN + CONTENT_WIDTH, chartBottom);
 
   hours.forEach((h, i) => {
-    const barHeight = (h.revenue / maxRevenue) * (chartHeight - 4);
+    const barHeight = (h[metric] / maxRevenue) * (chartHeight - 4);
     if (barHeight <= 0) return;
     const x = MARGIN + i * (barWidth + barGap);
     doc.setFillColor(...GREEN_BAR);
@@ -242,21 +266,28 @@ function drawSingleDayChart(doc: jsPDF, cursorY: number, rows: HourlyReport[]): 
   return chartBottom + 10;
 }
 
-function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[], { t, locale }: PdfExportI18n): number {
+function drawHourlyChart(
+  doc: jsPDF,
+  cursorY: number,
+  hourly: HourlyReport[],
+  { t, locale }: PdfExportI18n,
+  orderOnly = false,
+): number {
   cursorY = ensureSpace(doc, cursorY, 58);
+  const metric: HourMetric = orderOnly ? 'orders' : 'revenue';
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(20, 20, 20);
-  doc.text(t('pdf.hourlyTitle'), MARGIN, cursorY);
+  doc.text(orderOnly ? t('orderOnly.pdf.hourlyTitle') : t('pdf.hourlyTitle'), MARGIN, cursorY);
   cursorY += 6;
 
-  const hasData = hourly.length > 0 && hourly.some((h) => h.revenue > 0);
+  const hasData = hourly.length > 0 && hourly.some((h) => h[metric] > 0);
   if (!hasData) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
-    doc.text(t('pdf.hourlyEmpty'), MARGIN, cursorY + 20);
+    doc.text(orderOnly ? t('orderOnly.pdf.hourlyEmpty') : t('pdf.hourlyEmpty'), MARGIN, cursorY + 20);
     return cursorY + 50;
   }
 
@@ -280,7 +311,7 @@ function drawHourlyChart(doc: jsPDF, cursorY: number, hourly: HourlyReport[], { 
       doc.text(formatReportDay(date, locale), MARGIN, cursorY);
       cursorY += 5;
     }
-    cursorY = drawSingleDayChart(doc, cursorY, byDate.get(date)!);
+    cursorY = drawSingleDayChart(doc, cursorY, byDate.get(date)!, metric);
   }
 
   return cursorY;
@@ -362,11 +393,21 @@ function addFooters(doc: jsPDF, { t, locale }: PdfExportI18n): void {
  */
 export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI18n): Promise<void> {
   const { t, locale } = i18n;
+  const orderOnly = input.orderOnly ?? false;
   const money = (amount: number) => formatCurrency(amount, locale);
+  /* „Nur Bestellen“: Betrag = Bestellwert (nicht kassiert), Rangfolge nach
+     Menge, kein Abgleich mit Erstattungen/Trinkgeld, kein Ø Bon. */
+  const amountLabel = (key: string) => (orderOnly ? t('orderOnly.orderValue') : t(key));
+  const products = orderOnly
+    ? rankByMode(input.products ?? [], true, (p) => p.quantitySold, (p) => p.revenue)
+    : (input.products ?? []);
+  const categories = orderOnly
+    ? rankByMode(input.categories ?? [], true, (c) => c.quantity, (c) => c.revenue)
+    : (input.categories ?? []);
   // Abgleichzeilen unter Produkten/Kategorien: Summe, Erstattungen ohne
   // Position, Trinkgeld, Umsatz netto (wie in der Tabelle der Auswertung).
   const netFoot = (revenues: number[] | undefined, itemsLabel: string, labelCols: number, trailing: number) =>
-    input.net && revenues?.length
+    !orderOnly && input.net && revenues?.length
       ? netReconciliation(revenues, input.net).map((line) => [
           line.key === 'items' ? itemsLabel : t(`net.${line.key}`),
           ...Array.from({ length: labelCols - 1 }, () => ''),
@@ -377,8 +418,9 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
   let cursorY = await drawHeader(doc, input, i18n);
-  cursorY = drawKpiBoxes(doc, cursorY, input.sales, i18n);
-  cursorY = drawHourlyChart(doc, cursorY, input.hourly ?? [], i18n);
+  if (orderOnly) cursorY = drawOrderOnlyNote(doc, cursorY, i18n);
+  cursorY = drawKpiBoxes(doc, cursorY, input.sales, i18n, orderOnly);
+  cursorY = drawHourlyChart(doc, cursorY, input.hourly ?? [], i18n, orderOnly);
 
   cursorY = addTableSection(
     doc,
@@ -408,10 +450,10 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
       t('products.columns.product'),
       t('products.columns.category'),
       t('products.columns.quantity'),
-      t('products.columns.revenue'),
+      amountLabel('products.columns.revenue'),
       t('products.columns.avgPrice'),
     ],
-    (input.products ?? []).map((p) => [
+    products.map((p) => [
       p.productName,
       p.categoryName,
       String(p.quantitySold),
@@ -420,45 +462,45 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
     ]),
     t('products.empty'),
     [2, 3, 4],
-    netFoot(input.products?.map((p) => p.revenue), t('net.items'), 3, 1),
+    netFoot(products.map((p) => p.revenue), t('net.items'), 3, 1),
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    t('channels.title'),
+    orderOnly ? t('orderOnly.channelsTitle') : t('channels.title'),
     [
       t('channels.columns.channel'),
       t('channels.columns.orders'),
-      t('channels.columns.revenue'),
-      t('channels.columns.avgReceipt'),
+      amountLabel('channels.columns.revenue'),
+      ...(orderOnly ? [] : [t('channels.columns.avgReceipt')]),
     ],
     (input.channels ?? []).map((c) => [
       getChannelLabel(c.channel, t),
       String(c.orders),
       money(c.revenue),
-      money(c.avgReceipt),
+      ...(orderOnly ? [] : [money(c.avgReceipt)]),
     ]),
     t('channels.empty'),
-    [1, 2, 3],
+    orderOnly ? [1, 2] : [1, 2, 3],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
     t('categories.title'),
-    [t('categories.columns.category'), t('categories.columns.quantity'), t('categories.columns.revenue')],
-    (input.categories ?? []).map((c) => [c.name, String(c.quantity), money(c.revenue)]),
+    [t('categories.columns.category'), t('categories.columns.quantity'), amountLabel('categories.columns.revenue')],
+    categories.map((c) => [c.name, String(c.quantity), money(c.revenue)]),
     t('categories.empty'),
     [1, 2],
-    netFoot(input.categories?.map((c) => c.revenue), t('net.categoryItems'), 2, 0),
+    netFoot(categories.map((c) => c.revenue), t('net.categoryItems'), 2, 0),
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
-    t('devices.title'),
-    [t('devices.columns.device'), t('devices.columns.orders'), t('devices.columns.revenue')],
+    orderOnly ? t('orderOnly.devicesTitle') : t('devices.title'),
+    [t('devices.columns.device'), t('devices.columns.orders'), amountLabel('devices.columns.revenue')],
     (input.devices ?? []).map((d) => [d.name, String(d.orders), money(d.revenue)]),
     t('devices.empty'),
     [1, 2],

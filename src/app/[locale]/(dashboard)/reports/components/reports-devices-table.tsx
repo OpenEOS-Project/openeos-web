@@ -9,15 +9,18 @@ import { downloadCsv } from './csv-export';
 interface ReportsDevicesTableProps {
   data: DeviceReport[] | undefined;
   isLoading: boolean;
+  /** „Nur Bestellen“: Betrag als Bestellwert (nicht kassiert). */
+  orderOnly?: boolean;
 }
 
-export function ReportsDevicesTable({ data, isLoading }: ReportsDevicesTableProps) {
+export function ReportsDevicesTable({ data, isLoading, orderOnly = false }: ReportsDevicesTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
+  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('devices.columns.revenue');
 
   const handleExport = () => {
     if (!data?.length) return;
-    const headers = [t('devices.columns.device'), t('devices.columns.orders'), t('devices.columns.revenue')];
+    const headers = [t('devices.columns.device'), t('devices.columns.orders'), amountLabel];
     const rows = data.map((d) => [d.name, d.orders, d.revenue]);
     downloadCsv(t('export.filenames.devices'), headers, rows);
   };
@@ -26,7 +29,7 @@ export function ReportsDevicesTable({ data, isLoading }: ReportsDevicesTableProp
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div>
-          <h2 className="app-card__title">{t('devices.title')}</h2>
+          <h2 className="app-card__title">{orderOnly ? t('orderOnly.devicesTitle') : t('devices.title')}</h2>
           <p className="app-card__sub">{t('devices.subtitle')}</p>
         </div>
         <button
@@ -55,7 +58,7 @@ export function ReportsDevicesTable({ data, isLoading }: ReportsDevicesTableProp
               <tr>
                 <th>{t('devices.columns.device')}</th>
                 <th className="text-right">{t('devices.columns.orders')}</th>
-                <th className="text-right">{t('devices.columns.revenue')}</th>
+                <th className="text-right">{amountLabel}</th>
               </tr>
             </thead>
             <tbody>

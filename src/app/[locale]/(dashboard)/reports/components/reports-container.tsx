@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Building } from 'lucide-react';
+import { Banner, Icon } from '@openeos/ui';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { useEvents, useActiveEvent } from '@/hooks/use-events';
@@ -17,6 +18,7 @@ import {
   useNetSalesSummary,
 } from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
+import { useOrderOnly } from '@/hooks/use-order-only';
 
 import { ReportsFilterBar, type ReportsFilter, type TimeRange } from './reports-filter-bar';
 import { ReportsKpiCards } from './reports-kpi-cards';
@@ -36,6 +38,9 @@ function getTodayRange(): { startDate: string; endDate: string } {
 
 export function ReportsContainer() {
   const tCommon = useTranslations('common');
+  const t = useTranslations('reports');
+  /* „Nur Bestellen“: kein Umsatz — Mengen und Bestellwerte (nicht kassiert). */
+  const orderOnly = useOrderOnly();
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId ?? '';
@@ -108,23 +113,40 @@ export function ReportsContainer() {
             categories={categoriesReport.data}
             net={netSummary.data}
             devices={devicesReport.data}
+            orderOnly={orderOnly}
           />
         }
       />
 
-      <ReportsKpiCards data={salesReport.data} isLoading={salesReport.isLoading} />
+      {orderOnly && (
+        <Banner tone="info" icon={<Icon name="info" />}>
+          {t('orderOnly.banner')}
+        </Banner>
+      )}
 
-      <ReportsProductsTable data={productsReport.data} net={netSummary.data} isLoading={productsReport.isLoading} />
+      <ReportsKpiCards data={salesReport.data} isLoading={salesReport.isLoading} orderOnly={orderOnly} />
 
-      <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
+      <ReportsProductsTable
+        data={productsReport.data}
+        net={netSummary.data}
+        isLoading={productsReport.isLoading}
+        orderOnly={orderOnly}
+      />
 
-      <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} />
+      <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} orderOnly={orderOnly} />
 
-      <ReportsCategoriesTable data={categoriesReport.data} net={netSummary.data} isLoading={categoriesReport.isLoading} />
+      <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} orderOnly={orderOnly} />
 
-      <ReportsDevicesTable data={devicesReport.data} isLoading={devicesReport.isLoading} />
+      <ReportsCategoriesTable
+        data={categoriesReport.data}
+        net={netSummary.data}
+        isLoading={categoriesReport.isLoading}
+        orderOnly={orderOnly}
+      />
 
-      <ReportsHourlyChart data={hourlyReport.data} isLoading={hourlyReport.isLoading} />
+      <ReportsDevicesTable data={devicesReport.data} isLoading={devicesReport.isLoading} orderOnly={orderOnly} />
+
+      <ReportsHourlyChart data={hourlyReport.data} isLoading={hourlyReport.isLoading} orderOnly={orderOnly} />
     </div>
   );
 }

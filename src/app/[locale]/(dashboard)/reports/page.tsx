@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { ModuleGuard } from '@/components/shared/module-guard';
 
 import { ReportsContainer } from './components/reports-container';
+import { ReportsSubtitle } from './components/reports-subtitle';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('reports');
@@ -22,7 +23,7 @@ export default async function ReportsPage() {
         <div className="app-page-head">
           <div className="app-page-head__copy">
             <h1 className="app-page-head__title">{t('title')}</h1>
-            <p className="app-page-head__sub">{t('subtitle')}</p>
+            <ReportsSubtitle />
           </div>
         </div>
 

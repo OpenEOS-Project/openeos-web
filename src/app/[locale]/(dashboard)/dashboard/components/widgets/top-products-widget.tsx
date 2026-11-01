@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProductsReport } from '@/hooks/use-reports';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useOrderOnly } from '@/hooks/use-order-only';
+import { rankByMode } from '@/lib/operating-mode';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -14,24 +16,32 @@ export function TopProductsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
+  /* „Nur Bestellen“: die meistbestellten Produkte, Menge statt Umsatz. */
+  const orderOnly = useOrderOnly();
 
   const { data, isLoading } = useProductsReport(organizationId, range.query);
 
   const top5 = useMemo(() => {
     if (!data) return [];
     // Netto: ganz erstattete Produkte (Menge 0) gehören nicht in die Rangliste.
-    return [...data]
-      .filter((p) => p.quantitySold > 0)
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-  }, [data]);
+    return rankByMode(
+      data.filter((p) => p.quantitySold > 0),
+      orderOnly,
+      (p) => p.quantitySold,
+      (p) => p.revenue,
+    ).slice(0, 5);
+  }, [data, orderOnly]);
 
   return (
     <div className="app-card app-card--flat">
       <div className="app-card__head">
         <div>
           <h2 className="app-card__title">{t('widgets.topProducts.label')}</h2>
-          <p className="app-card__sub">{t('widgets.topProducts.subtitle', { period: t(`range.period.${range.key}`) })}</p>
+          <p className="app-card__sub">
+            {t(orderOnly ? 'orderOnly.topProductsSubtitle' : 'widgets.topProducts.subtitle', {
+              period: t(`range.period.${range.key}`),
+            })}
+          </p>
         </div>
       </div>
 
@@ -54,11 +64,15 @@ export function TopProductsWidget({ organizationId }: Props) {
               <div className="oe-list__main">
                 <b>{row.productName}</b>
                 <span>
-                  {t('widgets.topProducts.soldCount', { count: row.quantitySold })}
-                  {row.categoryName ? ` · ${row.categoryName}` : ''}
+                  {orderOnly
+                    ? row.categoryName
+                    : t('widgets.topProducts.soldCount', { count: row.quantitySold })}
+                  {!orderOnly && row.categoryName ? ` · ${row.categoryName}` : ''}
                 </span>
               </div>
-              <span className="oe-mono">{formatCurrency(row.revenue)}</span>
+              <span className="oe-mono">
+                {orderOnly ? `${row.quantitySold}×` : formatCurrency(row.revenue)}
+              </span>
             </div>
           ))}
         </div>

@@ -10,6 +10,7 @@ import { useDeviceSocket } from '@/hooks/use-device-socket';
 import { useDisplayAppearance } from '@/hooks/use-display-appearance';
 import { deviceApi } from '@/lib/api-client';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { customerDisplayShowsPrices } from '@/lib/operating-mode';
 import type { CustomerCartPayload } from '@/hooks/use-customer-display-broadcast';
 
 interface PosCartUpdatedEvent extends CustomerCartPayload {
@@ -81,23 +82,30 @@ export default function DeviceCustomerDisplayPage() {
     });
   }, []);
 
+  /* Der Server meldet `connected`, sobald er das Gerät angemeldet hat. Ein
+     `watchPosCart` direkt nach dem Socket-`connect` kam davor an und wurde
+     mit „Not a device connection“ abgewiesen — die Anzeige blieb leer. */
+  const [serverReady, setServerReady] = useState(0);
+  const handleServerConnected = useCallback(() => setServerReady((n) => n + 1), []);
+
   const socketEvents = useMemo(() => ({
+    connected: handleServerConnected,
     posCartUpdated: handleCartUpdated,
     deviceSettingsUpdated: refreshDeviceStatus,
     deviceConfigUpdated: refreshDeviceStatus,
     deviceStatusChanged: handleDeviceStatusChanged,
-  }), [handleCartUpdated, refreshDeviceStatus, handleDeviceStatusChanged]);
+  }), [handleServerConnected, handleCartUpdated, refreshDeviceStatus, handleDeviceStatusChanged]);
 
   const { socket, isConnected } = useDeviceSocket({ on: socketEvents });
 
   // Subscribe to the paired POS device's live cart
   useEffect(() => {
-    if (!socket || !isConnected || !posDeviceId) return;
+    if (!socket || !isConnected || !posDeviceId || !serverReady) return;
     socket.emit('watchPosCart', { posDeviceId });
     return () => {
       socket.emit('unwatchPosCart', { posDeviceId });
     };
-  }, [socket, isConnected, posDeviceId]);
+  }, [socket, isConnected, posDeviceId, serverReady]);
 
   // Drop stale carts from a previously paired POS device
   useEffect(() => {
@@ -132,6 +140,9 @@ export default function DeviceCustomerDisplayPage() {
   const organizationName = orgData?.data?.name;
   const hasItems = !!cart && cart.items.length > 0;
   const isCompleted = cart?.status === 'completed';
+  /* „Nur Bestellen“: kein Geld auf der Kundenanzeige — nur Positionen und
+     Mengen. Kassiert wird außerhalb von OpenEOS. */
+  const showPrices = customerDisplayShowsPrices(orgData?.data?.settings, cart);
 
   return (
     <div className={`flex h-screen flex-col bg-secondary ${design.klasse}`}>
@@ -177,7 +188,7 @@ export default function DeviceCustomerDisplayPage() {
           <div className="text-center">
             <p className="text-4xl font-bold text-primary">{t('thankYou')}</p>
             <p className="mt-2 text-xl text-tertiary">
-              {cart.kind === 'paid'
+              {cart.kind === 'paid' && showPrices
                 ? t('paidTotal', { total: formatCurrency(cart.totals.payable) })
                 : t('orderPlaced')}
             </p>
@@ -226,53 +237,57 @@ export default function DeviceCustomerDisplayPage() {
                       {item.isRefill && (
                         <p className="mt-1 text-base text-tertiary">{t('refill')}</p>
                       )}
-                      {item.pfandAmount > 0 && (
+                      {showPrices && item.pfandAmount > 0 && (
                         <p className="mt-1 text-base text-tertiary">
                           + {formatCurrency(item.pfandAmount * item.quantity)} {t('pfand')}
                         </p>
                       )}
                     </div>
                   </div>
-                  <span className="text-2xl font-semibold tabular-nums text-primary">
-                    {formatCurrency(item.lineTotal)}
-                  </span>
+                  {showPrices && (
+                    <span className="text-2xl font-semibold tabular-nums text-primary">
+                      {formatCurrency(item.lineTotal)}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Totals */}
-          <div className="border-t border-secondary bg-primary px-6 py-5">
-            <div className="flex flex-col gap-2">
-              {(cart.totals.discount > 0 || cart.totals.pfand > 0) && (
-                <div className="flex items-center justify-between text-lg text-tertiary">
-                  <span>{t('subtotal')}</span>
-                  <span className="tabular-nums">{formatCurrency(cart.totals.subtotal)}</span>
-                </div>
-              )}
-              {cart.totals.discount > 0 && (
-                <div className="flex items-center justify-between text-lg text-success-600 dark:text-success-400">
-                  <span>
-                    {t('discount')}
-                    {cart.vouchers.length > 0 && ` (${cart.vouchers.map((v) => v.name).join(', ')})`}
+          {/* Totals — im Modus „Nur Bestellen“ ohne Beträge */}
+          {showPrices && (
+            <div className="border-t border-secondary bg-primary px-6 py-5">
+              <div className="flex flex-col gap-2">
+                {(cart.totals.discount > 0 || cart.totals.pfand > 0) && (
+                  <div className="flex items-center justify-between text-lg text-tertiary">
+                    <span>{t('subtotal')}</span>
+                    <span className="tabular-nums">{formatCurrency(cart.totals.subtotal)}</span>
+                  </div>
+                )}
+                {cart.totals.discount > 0 && (
+                  <div className="flex items-center justify-between text-lg text-success-600 dark:text-success-400">
+                    <span>
+                      {t('discount')}
+                      {cart.vouchers.length > 0 && ` (${cart.vouchers.map((v) => v.name).join(', ')})`}
+                    </span>
+                    <span className="tabular-nums">-{formatCurrency(cart.totals.discount)}</span>
+                  </div>
+                )}
+                {cart.totals.pfand > 0 && (
+                  <div className="flex items-center justify-between text-lg text-tertiary">
+                    <span>{t('pfand')}</span>
+                    <span className="tabular-nums">{formatCurrency(cart.totals.pfand)}</span>
+                  </div>
+                )}
+                <div className="mt-1 flex items-center justify-between border-t border-secondary pt-3">
+                  <span className="text-3xl font-bold text-primary">{t('total')}</span>
+                  <span className="text-4xl font-bold tabular-nums text-primary">
+                    {formatCurrency(cart.totals.payable)}
                   </span>
-                  <span className="tabular-nums">-{formatCurrency(cart.totals.discount)}</span>
                 </div>
-              )}
-              {cart.totals.pfand > 0 && (
-                <div className="flex items-center justify-between text-lg text-tertiary">
-                  <span>{t('pfand')}</span>
-                  <span className="tabular-nums">{formatCurrency(cart.totals.pfand)}</span>
-                </div>
-              )}
-              <div className="mt-1 flex items-center justify-between border-t border-secondary pt-3">
-                <span className="text-3xl font-bold text-primary">{t('total')}</span>
-                <span className="text-4xl font-bold tabular-nums text-primary">
-                  {formatCurrency(cart.totals.payable)}
-                </span>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

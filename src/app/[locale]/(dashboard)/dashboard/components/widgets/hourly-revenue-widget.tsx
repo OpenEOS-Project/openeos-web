@@ -15,6 +15,7 @@ import {
 
 import { useHourlyReport } from '@/hooks/use-reports';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useOrderOnly } from '@/hooks/use-order-only';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -53,6 +54,10 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
+  /* „Nur Bestellen“: kein Umsatz — der Verlauf zählt Bestellungen je Stunde. */
+  const orderOnly = useOrderOnly();
+  const metric = orderOnly ? 'orders' : 'revenue';
+  const formatValue = (v: number) => (orderOnly ? String(Math.round(v)) : formatCurrency(v));
 
   const { data, isLoading } = useHourlyReport(organizationId, range.query);
 
@@ -63,7 +68,7 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
        aufsummieren, sonst stünde jede Stunde doppelt auf der Achse. */
     const proStunde = new Map<number, number>();
     for (const row of data) {
-      proStunde.set(row.hour, (proStunde.get(row.hour) ?? 0) + row.revenue);
+      proStunde.set(row.hour, (proStunde.get(row.hour) ?? 0) + row[metric]);
     }
 
     /* Auf die Stunden mit Umsatz eingrenzen. Die API liefert den
@@ -117,7 +122,7 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
     }
 
     return reihe;
-  }, [data]);
+  }, [data, metric]);
 
   const spitze = useMemo(() => {
     if (chartData.length === 0) return null;
@@ -128,8 +133,14 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
     <div className="app-card app-card--flat chart-card">
       <div className="app-card__head">
         <div>
-          <h2 className="app-card__title">{t('widgets.hourlyRevenue.label')}</h2>
-          <p className="app-card__sub">{t('widgets.hourlyRevenue.subtitle', { period: t(`range.period.${range.key}`) })}</p>
+          <h2 className="app-card__title">
+            {orderOnly ? t('orderOnly.hourlyLabel') : t('widgets.hourlyRevenue.label')}
+          </h2>
+          <p className="app-card__sub">
+            {t(orderOnly ? 'orderOnly.hourlySubtitle' : 'widgets.hourlyRevenue.subtitle', {
+              period: t(`range.period.${range.key}`),
+            })}
+          </p>
         </div>
       </div>
 
@@ -162,7 +173,8 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
                   minTickGap={16}
                 />
                 <YAxis
-                  tickFormatter={(v: number) => formatCurrency(v)}
+                  tickFormatter={(v: number) => formatValue(v)}
+                  allowDecimals={!orderOnly}
                   tick={{ fontSize: 11, fill: 'var(--mute)' }}
                   axisLine={false}
                   tickLine={false}
@@ -170,10 +182,12 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
                 />
                 <Tooltip
                   formatter={(value, name) => [
-                    formatCurrency(Number(value)),
+                    formatValue(Number(value)),
                     name === 'forecast'
                       ? t('widgets.hourlyRevenue.forecastLabel')
-                      : t('widgets.hourlyRevenue.revenueLabel'),
+                      : orderOnly
+                        ? t('orderOnly.hourlyValueLabel')
+                        : t('widgets.hourlyRevenue.revenueLabel'),
                   ]}
                   contentStyle={{
                     background: 'var(--surface)',
@@ -217,7 +231,7 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
           <div className="chart-card__legend">
             <span>
               <i style={{ background: 'var(--oe-green-soft)' }} />
-              {t('widgets.hourlyRevenue.legendBars')}
+              {orderOnly ? t('orderOnly.hourlyLegendBars') : t('widgets.hourlyRevenue.legendBars')}
             </span>
             <span>
               <i style={{ background: 'var(--ink)' }} />
@@ -232,10 +246,12 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
           {spitze && (spitze.revenue ?? 0) > 0 && (
             <div className="app-card__foot">
               <span className="oe-small">
-                {t('widgets.hourlyRevenue.peak', {
-                  hour: spitze.hour,
-                  amount: formatCurrency(spitze.revenue ?? 0),
-                })}
+                {orderOnly
+                  ? t('orderOnly.hourlyPeak', { hour: spitze.hour, count: spitze.revenue ?? 0 })
+                  : t('widgets.hourlyRevenue.peak', {
+                      hour: spitze.hour,
+                      amount: formatCurrency(spitze.revenue ?? 0),
+                    })}
               </span>
             </div>
           )}
