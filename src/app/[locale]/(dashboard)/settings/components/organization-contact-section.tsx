@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { OrganizationSettings } from '@/types/organization';
+import { SettingsSectionHead } from './settings-section-head';
 
 function createContactSchema(t: (key: string) => string) {
   return z.object({
@@ -70,10 +71,7 @@ export function OrganizationContactSection() {
 
   return (
     <div className="app-card">
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h2>
-        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('description')}</p>
-      </div>
+      <SettingsSectionHead icon="contact-round" title={t('title')} description={t('description')} />
 
       <form onSubmit={handleSubmit((data) => updateOrg.mutateAsync(data))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div className="auth-field">

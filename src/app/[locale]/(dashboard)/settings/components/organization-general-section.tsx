@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { SettingsSectionHead } from './settings-section-head';
 
 function createOrgGeneralSchema(t: (key: string) => string) {
   return z.object({
@@ -147,13 +148,10 @@ export function OrganizationGeneralSection() {
 
   return (
     <div className="app-card">
-      <div className="app-card__head" style={{ display: 'block' }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{t('title')}</h2>
-        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>{t('description')}</p>
-      </div>
+      <SettingsSectionHead icon="building-2" title={t('title')} description={t('description')} />
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div
@@ -231,7 +229,8 @@ export function OrganizationGeneralSection() {
         <div style={{
           display: 'flex',
           justifyContent: 'flex-end',
-          padding: '14px 20px',
+          marginTop: 20,
+          paddingTop: 12,
           borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
         }}>
           <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>

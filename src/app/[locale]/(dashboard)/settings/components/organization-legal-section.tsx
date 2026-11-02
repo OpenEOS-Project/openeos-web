@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Scale } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { organizationsApi } from '@/lib/api-client';
@@ -17,6 +17,8 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationSettings } from '@/types/organization';
 import { ApiException } from '@/types/api';
+
+import { SettingsSectionHead } from './settings-section-head';
 
 type Mode = 'url' | 'text';
 type Kind = 'imprint' | 'privacy';
@@ -280,17 +282,7 @@ export function OrganizationLegalSection() {
 
   return (
     <div className="app-card" id="org-legal">
-      <div style={{ marginBottom: 16, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <span className="detail-head__icon" aria-hidden="true" style={{ flexShrink: 0 }}>
-          <Scale />
-        </span>
-        <div>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h2>
-          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)', margin: 0 }}>
-            {t('description')}
-          </p>
-        </div>
-      </div>
+      <SettingsSectionHead icon="scale" title={t('title')} description={t('description')} />
 
       {!complete && (
         <div className="legal-warning" role="status" style={{ marginBottom: 16 }}>

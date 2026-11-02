@@ -1,0 +1,124 @@
+/* Kopf der Einstellungskarten (settings/components/settings-section-head.tsx):
+   Symbolkachel links, Titel und Untertitel daneben, keine Trennlinie
+   darunter. Steht als erstes Kind einer gepolsterten .app-card. */
+
+.settings-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+/* Karte nur mit Kopf (z. B. „Rundgang“): kein Abstand nach unten. */
+.settings-head:last-child {
+  margin-bottom: 0;
+}
+
+.settings-head__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.settings-head__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+}
+.settings-head__icon svg {
+  width: 22px;
+  height: 22px;
+}
+.settings-head--danger .settings-head__icon {
+  background: color-mix(in oklab, var(--oe-danger-soft) 70%, var(--oe-paper));
+  color: color-mix(in oklab, var(--oe-danger) 75%, var(--oe-ink));
+}
+
+.settings-head__text {
+  min-width: 0;
+  /* Titel optisch zur Kachel mitteln, solange er einzeilig ist. */
+  padding-top: 2px;
+}
+.settings-head__title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--oe-ink);
+  overflow-wrap: anywhere;
+}
+.settings-head--danger .settings-head__title {
+  color: color-mix(in oklab, var(--oe-danger) 75%, var(--oe-ink));
+}
+.settings-head__sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: color-mix(in oklab, var(--oe-ink) 60%, transparent);
+}
+
+.settings-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Schmal bleibt die Kachel links oben stehen, nur etwas kleiner; der
+   Text bricht daneben um. Aktionen rutschen unter den Text, buendig mit
+   ihm. */
+@media (max-width: 640px) {
+  .settings-head__icon {
+    width: 40px;
+    height: 40px;
+  }
+  .settings-head__icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .settings-head__actions {
+    margin-left: 52px;
+  }
+}
+
+/* Zeilenlisten unter einem Kopf (Sitzungen, vertrauenswuerdige Geraete):
+   Linien nur zwischen den Zeilen, nicht unter dem Kopf. */
+.settings-rows {
+  display: flex;
+  flex-direction: column;
+}
+.settings-rows > * {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+.settings-rows > * + * {
+  border-top: 1px solid var(--oe-line);
+}
+.settings-rows > :first-child {
+  padding-top: 0;
+}
+.settings-rows > :last-child {
+  padding-bottom: 0;
+}
+
+/* Schalterliste direkt unter dem Kopf: die Karte polstert, nicht die
+   erste und letzte Zeile. */
+.settings-head ~ .oe-setting-list > .oe-setting--flush:first-child {
+  padding-top: 0;
+}
+.settings-head ~ .oe-setting-list > .oe-setting--flush:last-child {
+  padding-bottom: 0;
+}

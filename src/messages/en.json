@@ -662,17 +662,20 @@
       "description": "Customize your app experience",
       "theme": {
         "title": "Appearance",
+        "description": "Light, dark or whatever your device is set to.",
         "light": "Light",
         "dark": "Dark",
         "system": "System"
       },
       "language": {
         "title": "Language",
+        "description": "The language of the interface.",
         "de": "German",
         "en": "English"
       },
       "notifications": {
         "title": "Notifications",
+        "description": "What we tell you about, and how.",
         "email": "Email notifications",
         "emailDescription": "Receive important updates via email",
         "push": "Push notifications",
@@ -915,6 +918,7 @@
     },
     "about": {
       "title": "About OpenEOS",
+      "description": "Version, license and source code of this installation.",
       "version": "Version",
       "license": "License",
       "licenseText": "OpenEOS is free software: you can use, redistribute and modify it under the terms of the GNU Affero General Public License, version 3 or (at your option) any later version. It comes without any warranty.",

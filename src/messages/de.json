@@ -662,17 +662,20 @@
       "description": "Passe deine App-Erfahrung an",
       "theme": {
         "title": "Erscheinungsbild",
+        "description": "Hell, dunkel oder so wie dein Gerät eingestellt ist.",
         "light": "Hell",
         "dark": "Dunkel",
         "system": "System"
       },
       "language": {
         "title": "Sprache",
+        "description": "Die Sprache der Oberfläche.",
         "de": "Deutsch",
         "en": "English"
       },
       "notifications": {
         "title": "Benachrichtigungen",
+        "description": "Worüber und auf welchem Weg wir dich informieren.",
         "email": "E-Mail-Benachrichtigungen",
         "emailDescription": "Wichtige Updates per E-Mail erhalten",
         "push": "Push-Benachrichtigungen",
@@ -915,6 +918,7 @@
     },
     "about": {
       "title": "Über OpenEOS",
+      "description": "Version, Lizenz und Quellcode dieser Installation.",
       "version": "Version",
       "license": "Lizenz",
       "licenseText": "OpenEOS ist freie Software: Du darfst es unter den Bedingungen der GNU Affero General Public License, Version 3 oder (nach deiner Wahl) jeder späteren Version, nutzen, weitergeben und verändern. Es wird ohne jede Gewährleistung bereitgestellt.",

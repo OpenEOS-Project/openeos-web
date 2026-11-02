@@ -7,6 +7,7 @@ import { adminApi } from '@/lib/api-client';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { toast } from '@/components/shared/toast';
 import type { AdminNotifyOnSettings } from '@/types/admin';
+import { SettingsSectionHead } from './settings-section-head';
 
 const DEFAULT_NOTIFY_ON: AdminNotifyOnSettings = {
   userRegistered: true,
@@ -71,10 +72,7 @@ export function PlatformNotificationsSection() {
 
   return (
     <div className="app-card">
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h2>
-        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('description')}</p>
-      </div>
+      <SettingsSectionHead icon="bell-ring" title={t('title')} description={t('description')} />
 
       <div className="auth-field" style={{ marginBottom: 20 }}>
         <label className="auth-field__label" htmlFor="platformNotifyEmail">{t('email')}</label>
