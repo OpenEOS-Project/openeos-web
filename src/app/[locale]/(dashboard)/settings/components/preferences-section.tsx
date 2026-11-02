@@ -7,6 +7,7 @@ import { useRouter, usePathname } from '@/i18n/routing';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { ListLoading } from '@/components/shared/list-states';
+import { SettingsSectionHead } from './settings-section-head';
 
 export function PreferencesSection() {
   const t = useTranslations('settings.preferences');
@@ -55,9 +56,7 @@ export function PreferencesSection() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Theme */}
       <div className="app-card">
-        <div style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('theme.title')}</h3>
-        </div>
+        <SettingsSectionHead icon="palette" title={t('theme.title')} description={t('theme.description')} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {themes.map((opt) => {
             const isActive = theme === opt.id;
@@ -90,10 +89,8 @@ export function PreferencesSection() {
 
       {/* Language */}
       <div className="app-card">
-        <div style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('language.title')}</h3>
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <SettingsSectionHead icon="languages" title={t('language.title')} description={t('language.description')} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {languages.map((lang) => {
             const isActive = locale === lang.id;
             return (
@@ -122,12 +119,10 @@ export function PreferencesSection() {
       </div>
 
       {/* Notifications */}
-      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('notifications.title')}</h3>
-        </div>
+      <div className="app-card">
+        <SettingsSectionHead icon="bell" title={t('notifications.title')} description={t('notifications.description')} />
 
-        <div className="oe-setting-list" style={{ padding: '0 20px' }}>
+        <div className="oe-setting-list">
           {(['email', 'push'] as const).map((type) => {
             const isChecked = type === 'email'
               ? (preferences?.notifications?.email ?? true)
@@ -147,26 +142,23 @@ export function PreferencesSection() {
       </div>
 
       {/* Der Rundgang verspricht in seinem letzten Schritt, dass man ihn
-          hier erneut starten kann — dieser Knopf loest das ein. Die Polsterung
-          sitzt am inneren Block; die der Karte selbst wird abgeschaltet, sonst
-          stand der Inhalt doppelt eingerueckt. */}
-      <div className="app-card" style={{ padding: 0 }}>
-        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600 }}>{t('tour.title')}</h3>
-            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 4 }}>
-              {t('tour.description')}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn btn--ghost btn--sm"
-            disabled={updatePreferences.isPending}
-            onClick={() => updatePreferences.mutate({ onboarding: { tourVersion: 0 } })}
-          >
-            {t('tour.restart')}
-          </button>
-        </div>
+          hier erneut starten kann — dieser Knopf loest das ein. */}
+      <div className="app-card">
+        <SettingsSectionHead
+          icon="signpost"
+          title={t('tour.title')}
+          description={t('tour.description')}
+          actions={
+            <button
+              type="button"
+              className="btn btn--ghost btn--sm"
+              disabled={updatePreferences.isPending}
+              onClick={() => updatePreferences.mutate({ onboarding: { tourVersion: 0 } })}
+            >
+              {t('tour.restart')}
+            </button>
+          }
+        />
       </div>
     </div>
   );

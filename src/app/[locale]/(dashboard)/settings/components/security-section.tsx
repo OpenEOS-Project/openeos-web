@@ -21,6 +21,7 @@ import {
 import type { TotpSetupResult } from '@/types/settings';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { parseUserAgent } from '@/utils/parse-user-agent';
+import { SettingsSectionHead } from './settings-section-head';
 
 type SetupStep = 'select' | 'totp-scan' | 'totp-verify' | 'email-verify' | 'recovery-codes';
 
@@ -103,10 +104,7 @@ export function SecuritySection() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* 2FA */}
       <div className="app-card">
-        <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('twoFactor.title')}</h2>
-          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('twoFactor.description')}</p>
-        </div>
+        <SettingsSectionHead icon="shield-check" title={t('twoFactor.title')} description={t('twoFactor.description')} />
 
         {is2FALoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
@@ -114,7 +112,7 @@ export function SecuritySection() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : twoFactorStatus?.enabled ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, #22c55e 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="check" size={16} style={{ color: 'var(--green-ink)' }} />
@@ -131,7 +129,7 @@ export function SecuritySection() {
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'color-mix(in oklab, var(--warn) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="alert" size={16} style={{ color: 'var(--warn-ink, var(--warn))' }} />
@@ -150,79 +148,85 @@ export function SecuritySection() {
 
       {/* Trusted Devices */}
       {twoFactorStatus?.enabled && (
-        <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{t('trustedDevices.title')}</h3>
-            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('trustedDevices.description')}</p>
-          </div>
+        <div className="app-card">
+          <SettingsSectionHead
+            icon="laptop-minimal-check"
+            title={t('trustedDevices.title')}
+            description={t('trustedDevices.description')}
+          />
           {trustedDevices && trustedDevices.length > 0 ? (
-            trustedDevices.map((device) => (
-              <div key={device.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{device.deviceName}</div>
-                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                    {t('trustedDevices.lastUsed')}: {formatDate(device.lastUsedAt)}
+            <div className="settings-rows">
+              {trustedDevices.map((device) => (
+                <div key={device.id}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{device.deviceName}</div>
+                    <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                      {t('trustedDevices.lastUsed')}: {formatDate(device.lastUsedAt)}
+                    </div>
                   </div>
+                  <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--red, var(--danger))' }} onClick={() => removeTrustedDevice.mutate(device.id)}>
+                    {t('sessions.revoke')}
+                  </button>
                 </div>
-                <button className="btn btn--ghost" style={{ fontSize: 12, color: 'var(--red, var(--danger))' }} onClick={() => removeTrustedDevice.mutate(device.id)}>
-                  {t('sessions.revoke')}
-                </button>
-              </div>
-            ))
-          ) : (
-            <div style={{ padding: '24px 20px', textAlign: 'center', color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontSize: 13 }}>
-              {t('trustedDevices.empty')}
+              ))}
             </div>
+          ) : (
+            <p style={{ margin: 0, padding: '4px 0', textAlign: 'center', color: 'color-mix(in oklab, var(--ink) 45%, transparent)', fontSize: 13 }}>
+              {t('trustedDevices.empty')}
+            </p>
           )}
         </div>
       )}
 
       {/* Sessions */}
-      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{t('sessions.title')}</h3>
-            <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('sessions.description')}</p>
-          </div>
-          {sessions && sessions.length > 1 && (
-            <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeAllOtherSessions.mutate()} disabled={revokeAllOtherSessions.isPending}>
-              {t('sessions.revokeAll')}
-            </button>
-          )}
-        </div>
-        {sessions?.map((session) => {
-          // deviceInfo ist der rohe User-Agent-String aus der API; daraus wird
-          // hier eine lesbare Browser/OS-Kombination gemacht. Der rohe String
-          // bleibt als Titel/Tooltip erreichbar, falls die Kurzform mal nicht
-          // passt (unbekannter Browser, Bot, o.ae.).
-          const parsedUa = session.deviceInfo ? parseUserAgent(session.deviceInfo) : null;
-          const deviceLabel = parsedUa
-            ? t('sessions.deviceLabel', {
-                // parseUserAgent liefert fuer Unbekanntes das Literal 'Unknown'.
-                browser: parsedUa.browser === 'Unknown' ? t('sessions.unknownBrowser') : parsedUa.browser,
-                os: parsedUa.os === 'Unknown' ? t('sessions.unknownOs') : parsedUa.os,
-              })
-            : t('sessions.unknownDevice');
-          const metaParts = [session.ipAddress, `${t('sessions.lastActive')}: ${formatDate(session.lastActiveAt)}`].filter((part): part is string => Boolean(part));
-          return (
-            <div key={session.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 5%, transparent)' }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                  <span style={{ fontWeight: 600, fontSize: 14 }} title={session.deviceInfo || undefined}>{deviceLabel}</span>
-                  {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
+      <div className="app-card">
+        <SettingsSectionHead
+          icon="monitor-smartphone"
+          title={t('sessions.title')}
+          description={t('sessions.description')}
+          actions={
+            sessions && sessions.length > 1 ? (
+              <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeAllOtherSessions.mutate()} disabled={revokeAllOtherSessions.isPending}>
+                {t('sessions.revokeAll')}
+              </button>
+            ) : undefined
+          }
+        />
+        <div className="settings-rows">
+          {sessions?.map((session) => {
+            // deviceInfo ist der rohe User-Agent-String aus der API; daraus wird
+            // hier eine lesbare Browser/OS-Kombination gemacht. Der rohe String
+            // bleibt als Titel/Tooltip erreichbar, falls die Kurzform mal nicht
+            // passt (unbekannter Browser, Bot, o.ae.).
+            const parsedUa = session.deviceInfo ? parseUserAgent(session.deviceInfo) : null;
+            const deviceLabel = parsedUa
+              ? t('sessions.deviceLabel', {
+                  // parseUserAgent liefert fuer Unbekanntes das Literal 'Unknown'.
+                  browser: parsedUa.browser === 'Unknown' ? t('sessions.unknownBrowser') : parsedUa.browser,
+                  os: parsedUa.os === 'Unknown' ? t('sessions.unknownOs') : parsedUa.os,
+                })
+              : t('sessions.unknownDevice');
+            const metaParts = [session.ipAddress, `${t('sessions.lastActive')}: ${formatDate(session.lastActiveAt)}`].filter((part): part is string => Boolean(part));
+            return (
+              <div key={session.id}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 600, fontSize: 14 }} title={session.deviceInfo || undefined}>{deviceLabel}</span>
+                    {session.isCurrent && <span className="badge badge--success" style={{ fontSize: 11 }}>{t('sessions.current')}</span>}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
+                    {metaParts.join(' · ')}
+                  </div>
                 </div>
-                <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                  {metaParts.join(' · ')}
-                </div>
+                {!session.isCurrent && (
+                  <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeSession.mutate(session.id)}>
+                    {t('sessions.revoke')}
+                  </button>
+                )}
               </div>
-              {!session.isCurrent && (
-                <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => revokeSession.mutate(session.id)}>
-                  {t('sessions.revoke')}
-                </button>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* 2FA Setup Modal */}

@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { useAuthStore } from '@/stores/auth-store';
 import { useRequestEmailChange, useChangePassword } from '@/hooks/use-user-settings';
 import { toast } from '@/components/shared/toast';
+import { SettingsSectionHead } from './settings-section-head';
 
 // Factories, damit die Meldungen ueber next-intl uebersetzt werden (t = settings.account.errors).
 function createEmailChangeSchema(t: (key: string) => string) {
@@ -64,12 +65,11 @@ export function AccountSection() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Email change */}
       <div className="app-card">
-        <div style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('changeEmail')}</h2>
-          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-            {t('changeEmailDescription', { email: user?.email || '' })}
-          </p>
-        </div>
+        <SettingsSectionHead
+          icon="at-sign"
+          title={t('changeEmail')}
+          description={t('changeEmailDescription', { email: user?.email || '' })}
+        />
 
         <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="auth-field">
@@ -98,10 +98,7 @@ export function AccountSection() {
 
       {/* Password change */}
       <div className="app-card">
-        <div style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{t('changePassword')}</h2>
-          <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>{t('changePasswordDescription')}</p>
-        </div>
+        <SettingsSectionHead icon="key-round" title={t('changePassword')} description={t('changePasswordDescription')} />
 
         <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="auth-field">

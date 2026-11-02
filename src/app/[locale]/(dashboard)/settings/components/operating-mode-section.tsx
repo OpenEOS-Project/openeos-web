@@ -37,6 +37,7 @@ import {
   type OperatingModeOrg,
 } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
+import { SettingsSectionHead } from './settings-section-head';
 
 /** Was sich je Betriebsart ändert (Reihenfolge der Punkte in der Rückfrage). */
 const EFFECTS: Record<OperatingMode, string[]> = {
@@ -148,14 +149,9 @@ export function OperatingModeSection() {
 
   return (
     <div className="app-card" data-testid="operating-mode-section">
-      <div className="app-card__head" style={{ display: 'block' }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{t('section.title')}</h2>
-        <p style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', margin: '4px 0 0' }}>
-          {t('section.description')}
-        </p>
-      </div>
+      <SettingsSectionHead icon="sliders-horizontal" title={t('section.title')} description={t('section.description')} />
 
-      <div className="app-card__body mode-section">
+      <div className="mode-section">
         {!view.country && <SetCountryNotice isAdmin={isAdmin} />}
         {legacyKind && <LegacyNotice kind={legacyKind} hasCountry={!!view.country} isAdmin={isAdmin} />}
 

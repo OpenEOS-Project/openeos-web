@@ -17,6 +17,7 @@ import { privacyUrl, quotaLine } from '@/lib/assistant';
 import { useAuthStore } from '@/stores/auth-store';
 
 import type { AssistantQuota } from '@/types/assistant';
+import { SettingsSectionHead } from './settings-section-head';
 
 /**
  * Assistent-Funktionen der Organisation (ki-plan.md 6.6): Opt-in-Schalter
@@ -93,20 +94,9 @@ export function OrganizationAssistantSection() {
 
   return (
     <div className="app-card">
-      <div className="app-card__head" style={{ display: 'block' }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{t('title')}</h2>
-        <p
-          style={{
-            fontSize: 13,
-            color: 'color-mix(in oklab, var(--ink) 50%, transparent)',
-            margin: '4px 0 0',
-          }}
-        >
-          {t('description')}
-        </p>
-      </div>
+      <SettingsSectionHead icon="lightbulb" title={t('title')} description={t('description')} />
 
-      <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {body}
 
         <div>

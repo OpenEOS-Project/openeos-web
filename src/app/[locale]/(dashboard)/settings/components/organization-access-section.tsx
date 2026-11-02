@@ -31,6 +31,7 @@ import type { ApiToken, ApiTokenScope } from '@/types/api-token';
 
 import { ApiTokenCreateDialog } from './api-token-create-dialog';
 import { ApiTokenRevokeDialog } from './api-token-revoke-dialog';
+import { SettingsSectionHead } from './settings-section-head';
 
 /**
  * Zugänge der Organisation (ki-plan.md Abschnitt 8): API-Tokens, mit denen
@@ -224,20 +225,9 @@ export function OrganizationAccessSection() {
 
   return (
     <div className="app-card">
-      <div className="app-card__head" style={{ display: 'block' }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{t('title')}</h2>
-        <p
-          style={{
-            fontSize: 13,
-            color: 'color-mix(in oklab, var(--ink) 50%, transparent)',
-            margin: '4px 0 0',
-          }}
-        >
-          {t('description')}
-        </p>
-      </div>
+      <SettingsSectionHead icon="key-square" title={t('title')} description={t('description')} />
 
-      <div className="app-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <p className="api-tokens__intro">{t('intro')}</p>
         <div className="api-tokens__links">
           <a
