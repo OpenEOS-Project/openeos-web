@@ -211,6 +211,7 @@ export interface CountryChange {
   fromValue: string | null;
   toValue: string;
   reason: string | null;
+  bySupport?: boolean;
   changedByName: string | null;
 }
 

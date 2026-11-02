@@ -410,7 +410,9 @@ export const organizationsApi = {
 
   /** Land einmalig festlegen (Admins, nur solange keins hinterlegt ist). */
   setCountry: (id: string, country: string) =>
-    apiClient.patch<ApiResponse<unknown>>(`/organizations/${id}/country`, { country }),
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(`/organizations/${id}/country`, {
+      country,
+    }),
 
   /** Herstellerbescheinigung (Deutschland, „Nur Bons“/„Bargeldlos“) als PDF, mit JWT. */
   operatingModeCertificate: async (id: string): Promise<Blob> => {
@@ -1141,7 +1143,10 @@ export const adminApi = {
 
   /** Land einer Organisation ändern (Support, Grund ist Pflicht). */
   setOrganizationCountry: (id: string, data: { country: string; reason: string }) =>
-    apiClient.patch<ApiResponse<unknown>>(`/admin/organizations/${id}/country`, data),
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(
+      `/admin/organizations/${id}/country`,
+      data,
+    ),
 
   // Stats
   getOverviewStats: () =>
