@@ -10,7 +10,7 @@ import { PreferencesSection } from './preferences-section';
 import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
 import { OrganizationLegalSection } from './organization-legal-section';
-import { OrganizationPaymentsSection } from './organization-payments-section';
+import { OperatingModeSection } from './operating-mode-section';
 import { OrganizationAssistantSection } from './organization-assistant-section';
 import { OrganizationAccessSection } from './organization-access-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
@@ -56,8 +56,10 @@ export function SettingsContainer() {
   /* ?tab=org-legal (und die anderen Reiter-IDs) oeffnet direkt den Reiter —
      die Warnungen an Shop und Schichtplan verlinken so auf die rechtlichen
      Angaben. */
-  const requestedTab = useSearchParams().get('tab');
-  const orgTabIds = ['org-general', 'org-contact', 'org-payments', 'org-assistant', 'org-access', 'org-legal'];
+  // Alter Reiter „Zahlungen“ (org-payments): steckt jetzt in „Betriebsart“.
+  const rawTab = useSearchParams().get('tab');
+  const requestedTab = rawTab === 'org-payments' ? 'org-mode' : rawTab;
+  const orgTabIds = ['org-general', 'org-contact', 'org-mode', 'org-assistant', 'org-access', 'org-legal'];
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
@@ -77,7 +79,7 @@ export function SettingsContainer() {
   const organizationTabs: SettingsTab[] = [
     { id: 'org-general', label: t('organizationGeneral.title'), children: <OrganizationGeneralSection /> },
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
-    { id: 'org-payments', label: t('organizationPayments.tab'), children: <OrganizationPaymentsSection /> },
+    { id: 'org-mode', label: t('organizationMode.tab'), children: <OperatingModeSection /> },
     { id: 'org-assistant', label: t('organizationAssistant.tab'), children: <OrganizationAssistantSection /> },
     { id: 'org-access', label: t('organizationAccess.tab'), children: <OrganizationAccessSection /> },
     { id: 'org-legal', label: t('organizationLegal.tab'), children: <OrganizationLegalSection /> },

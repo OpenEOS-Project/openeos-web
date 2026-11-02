@@ -70,7 +70,7 @@ export const deviceTablesApi = {
     ),
 
   /**
-   * „Nur Bestellen“: offene Bestellungen ohne Zahlung abschließen (Tisch
+   * „Nur Bons“: offene Bestellungen ohne Zahlung abschließen (Tisch
    * abschließen, Thekenbestellung abgeholt). Alles oder nichts.
    */
   completeOrders: (orderIds: string[]) =>

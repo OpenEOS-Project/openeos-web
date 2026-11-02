@@ -13,7 +13,7 @@ export interface DoneInfo {
   /** Kopf bei mehreren Bestellungen, z. B. „Tisch A05 · 3 Bestellungen“. */
   heading?: string | null;
   amount: number;
-  method: 'cash' | 'card' | 'sumup' | 'free' | 'outside';
+  method: 'cash' | 'card' | 'sumup' | 'free';
   change: number;
   tip: number;
   lines: ReceiptLine[];
@@ -80,7 +80,7 @@ export function DoneSheet({
         <span className="pos-done__ico">
           <Icon name="check-circle" size={44} />
         </span>
-        <h3>{info.method === 'outside' ? t('titleOutside') : t('title')}</h3>
+        <h3>{t('title')}</h3>
         <p>
           {formatPrice(info.amount + info.tip)} · {methodLabel}
           {hasChange && (

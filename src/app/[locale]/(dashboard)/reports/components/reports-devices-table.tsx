@@ -9,19 +9,24 @@ import { downloadCsv } from './csv-export';
 interface ReportsDevicesTableProps {
   data: DeviceReport[] | undefined;
   isLoading: boolean;
-  /** „Nur Bestellen“: Betrag als Bestellwert (nicht kassiert). */
+  /** „Nur Bons“: nur Bestellungen je Gerät — kein Umsatz. */
   orderOnly?: boolean;
 }
 
 export function ReportsDevicesTable({ data, isLoading, orderOnly = false }: ReportsDevicesTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
-  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('devices.columns.revenue');
+  // „Nur Bons“: OpenEOS erfasst kein Geld — die Umsatzspalte entfällt.
+  const showAmounts = !orderOnly;
 
   const handleExport = () => {
     if (!data?.length) return;
-    const headers = [t('devices.columns.device'), t('devices.columns.orders'), amountLabel];
-    const rows = data.map((d) => [d.name, d.orders, d.revenue]);
+    const headers = [
+      t('devices.columns.device'),
+      t('devices.columns.orders'),
+      ...(showAmounts ? [t('devices.columns.revenue')] : []),
+    ];
+    const rows: (string | number)[][] = data.map((d) => [d.name, d.orders, ...(showAmounts ? [d.revenue] : [])]);
     downloadCsv(t('export.filenames.devices'), headers, rows);
   };
 
@@ -58,7 +63,7 @@ export function ReportsDevicesTable({ data, isLoading, orderOnly = false }: Repo
               <tr>
                 <th>{t('devices.columns.device')}</th>
                 <th className="text-right">{t('devices.columns.orders')}</th>
-                <th className="text-right">{amountLabel}</th>
+                {showAmounts && <th className="text-right">{t('devices.columns.revenue')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -68,7 +73,7 @@ export function ReportsDevicesTable({ data, isLoading, orderOnly = false }: Repo
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{d.name}</div>
                   </td>
                   <td className="mono text-right">{d.orders}</td>
-                  <td className="mono text-right">{formatCurrency(d.revenue)}</td>
+                  {showAmounts && <td className="mono text-right">{formatCurrency(d.revenue)}</td>}
                 </tr>
               ))}
             </tbody>

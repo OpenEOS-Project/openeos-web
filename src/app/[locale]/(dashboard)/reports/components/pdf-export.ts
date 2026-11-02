@@ -31,7 +31,7 @@ export interface PdfExportInput {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   devices?: DeviceReport[];
-  /** „Nur Bestellen“: Mengen und Bestellwerte (nicht kassiert) statt Umsatz. */
+  /** „Nur Bons“: nur Bestellungen und Mengen — keine Beträge, keine Zahlarten. */
   orderOnly?: boolean;
 }
 
@@ -171,7 +171,7 @@ async function drawHeader(doc: jsPDF, input: PdfExportInput, i18n: PdfExportI18n
   return afterHeaderY + 8;
 }
 
-/** Hinweis unter dem Kopf im Modus „Nur Bestellen“: Beträge sind Bestellwerte. */
+/** Hinweis unter dem Kopf im Modus „Nur Bons“: OpenEOS erfasst kein Geld. */
 function drawOrderOnlyNote(doc: jsPDF, cursorY: number, { t }: PdfExportI18n): number {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
@@ -194,7 +194,6 @@ function drawKpiBoxes(
     ? [
         { label: t('pdf.kpi.orders'), value: sales ? String(sales.totalOrders) : '–' },
         { label: t('orderOnly.pdf.items'), value: sales ? String(sales.totalItemsSold) : '–' },
-        { label: t('orderOnly.orderValue'), value: sales ? formatCurrency(sales.totalRevenue, locale) : '–' },
         { label: t('pdf.kpi.cancellationRate'), value: sales ? formatPercent(sales.cancellationRate, locale) : '–' },
       ]
     : [
@@ -229,7 +228,7 @@ function drawKpiBoxes(
   return cursorY + boxHeight + 10;
 }
 
-/** Wert eines Balkens: Umsatz bzw. im Modus „Nur Bestellen“ die Bestellungen. */
+/** Wert eines Balkens: Umsatz bzw. im Modus „Nur Bons“ die Bestellungen. */
 type HourMetric = 'revenue' | 'orders';
 
 // Zeichnet ein 24h-Balkendiagramm für genau einen Tag ab cursorY.
@@ -395,9 +394,9 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
   const { t, locale } = i18n;
   const orderOnly = input.orderOnly ?? false;
   const money = (amount: number) => formatCurrency(amount, locale);
-  /* „Nur Bestellen“: Betrag = Bestellwert (nicht kassiert), Rangfolge nach
-     Menge, kein Abgleich mit Erstattungen/Trinkgeld, kein Ø Bon. */
-  const amountLabel = (key: string) => (orderOnly ? t('orderOnly.orderValue') : t(key));
+  /* „Nur Bons“: OpenEOS erfasst kein Geld — keine Beträge (Umsatz, Ø-Preis,
+     Ø Bon), keine Zahlarten, kein Abgleich; Rangfolge nach Menge. */
+  const showAmounts = !orderOnly;
   const products = orderOnly
     ? rankByMode(input.products ?? [], true, (p) => p.quantitySold, (p) => p.revenue)
     : (input.products ?? []);
@@ -422,25 +421,27 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
   cursorY = drawKpiBoxes(doc, cursorY, input.sales, i18n, orderOnly);
   cursorY = drawHourlyChart(doc, cursorY, input.hourly ?? [], i18n, orderOnly);
 
-  cursorY = addTableSection(
-    doc,
-    cursorY,
-    t('payments.title'),
-    [
-      t('payments.columns.method'),
-      t('payments.columns.count'),
-      t('payments.columns.total'),
-      t('payments.columns.percentage'),
-    ],
-    (input.payments ?? []).map((p) => [
-      getMethodLabel(p.method, t),
-      String(p.count),
-      money(p.total),
-      formatPercent(p.percentage, locale),
-    ]),
-    t('payments.empty'),
-    [1, 2, 3],
-  );
+  if (showAmounts) {
+    cursorY = addTableSection(
+      doc,
+      cursorY,
+      t('payments.title'),
+      [
+        t('payments.columns.method'),
+        t('payments.columns.count'),
+        t('payments.columns.total'),
+        t('payments.columns.percentage'),
+      ],
+      (input.payments ?? []).map((p) => [
+        getMethodLabel(p.method, t),
+        String(p.count),
+        money(p.total),
+        formatPercent(p.percentage, locale),
+      ]),
+      t('payments.empty'),
+      [1, 2, 3],
+    );
+  }
 
   cursorY = addTableSection(
     doc,
@@ -450,18 +451,16 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
       t('products.columns.product'),
       t('products.columns.category'),
       t('products.columns.quantity'),
-      amountLabel('products.columns.revenue'),
-      t('products.columns.avgPrice'),
+      ...(showAmounts ? [t('products.columns.revenue'), t('products.columns.avgPrice')] : []),
     ],
     products.map((p) => [
       p.productName,
       p.categoryName,
       String(p.quantitySold),
-      money(p.revenue),
-      money(p.averagePrice),
+      ...(showAmounts ? [money(p.revenue), money(p.averagePrice)] : []),
     ]),
     t('products.empty'),
-    [2, 3, 4],
+    showAmounts ? [2, 3, 4] : [2],
     netFoot(products.map((p) => p.revenue), t('net.items'), 3, 1),
   );
 
@@ -472,38 +471,44 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
     [
       t('channels.columns.channel'),
       t('channels.columns.orders'),
-      amountLabel('channels.columns.revenue'),
-      ...(orderOnly ? [] : [t('channels.columns.avgReceipt')]),
+      ...(showAmounts ? [t('channels.columns.revenue'), t('channels.columns.avgReceipt')] : []),
     ],
     (input.channels ?? []).map((c) => [
       getChannelLabel(c.channel, t),
       String(c.orders),
-      money(c.revenue),
-      ...(orderOnly ? [] : [money(c.avgReceipt)]),
+      ...(showAmounts ? [money(c.revenue), money(c.avgReceipt)] : []),
     ]),
     t('channels.empty'),
-    orderOnly ? [1, 2] : [1, 2, 3],
+    showAmounts ? [1, 2, 3] : [1],
   );
 
   cursorY = addTableSection(
     doc,
     cursorY,
     t('categories.title'),
-    [t('categories.columns.category'), t('categories.columns.quantity'), amountLabel('categories.columns.revenue')],
-    categories.map((c) => [c.name, String(c.quantity), money(c.revenue)]),
+    [
+      t('categories.columns.category'),
+      t('categories.columns.quantity'),
+      ...(showAmounts ? [t('categories.columns.revenue')] : []),
+    ],
+    categories.map((c) => [c.name, String(c.quantity), ...(showAmounts ? [money(c.revenue)] : [])]),
     t('categories.empty'),
-    [1, 2],
+    showAmounts ? [1, 2] : [1],
     netFoot(categories.map((c) => c.revenue), t('net.categoryItems'), 2, 0),
   );
 
-  cursorY = addTableSection(
+  addTableSection(
     doc,
     cursorY,
     orderOnly ? t('orderOnly.devicesTitle') : t('devices.title'),
-    [t('devices.columns.device'), t('devices.columns.orders'), amountLabel('devices.columns.revenue')],
-    (input.devices ?? []).map((d) => [d.name, String(d.orders), money(d.revenue)]),
+    [
+      t('devices.columns.device'),
+      t('devices.columns.orders'),
+      ...(showAmounts ? [t('devices.columns.revenue')] : []),
+    ],
+    (input.devices ?? []).map((d) => [d.name, String(d.orders), ...(showAmounts ? [money(d.revenue)] : [])]),
     t('devices.empty'),
-    [1, 2],
+    showAmounts ? [1, 2] : [1],
   );
 
   addFooters(doc, i18n);

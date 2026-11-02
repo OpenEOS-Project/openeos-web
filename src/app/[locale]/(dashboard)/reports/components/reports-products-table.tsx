@@ -15,7 +15,7 @@ interface ReportsProductsTableProps {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   isLoading: boolean;
-  /** „Nur Bestellen“: nach Menge, Betrag als Bestellwert (nicht kassiert), ohne Abgleich. */
+  /** „Nur Bons“: nach Menge sortiert, nur Mengen — keine Beträge, kein Abgleich. */
   orderOnly?: boolean;
 }
 
@@ -32,7 +32,8 @@ export function ReportsProductsTable({ data, net, isLoading, orderOnly = false }
     () => (!orderOnly && net && sorted.length ? netReconciliation(sorted.map((p) => p.revenue), net) : []),
     [net, sorted, orderOnly],
   );
-  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('products.columns.revenue');
+  // „Nur Bons“: OpenEOS erfasst kein Geld — Umsatz und Ø-Preis entfallen.
+  const showAmounts = !orderOnly;
 
   const handleExport = () => {
     if (!sorted.length) return;
@@ -40,15 +41,13 @@ export function ReportsProductsTable({ data, net, isLoading, orderOnly = false }
       t('products.columns.product'),
       t('products.columns.category'),
       t('products.columns.quantity'),
-      amountLabel,
-      t('products.columns.avgPrice'),
+      ...(showAmounts ? [t('products.columns.revenue'), t('products.columns.avgPrice')] : []),
     ];
-    const rows = sorted.map((p) => [
+    const rows: (string | number)[][] = sorted.map((p) => [
       p.productName,
       p.categoryName,
       p.quantitySold,
-      p.revenue,
-      p.averagePrice,
+      ...(showAmounts ? [p.revenue, p.averagePrice] : []),
     ]);
     // Abgleichzeilen wie in der Tabelle (Summe, Erstattungen ohne Position, Trinkgeld, Umsatz netto).
     for (const line of netLines) {
@@ -91,8 +90,8 @@ export function ReportsProductsTable({ data, net, isLoading, orderOnly = false }
                 <th>{t('products.columns.product')}</th>
                 <th>{t('products.columns.category')}</th>
                 <th className="text-right">{t('products.columns.quantity')}</th>
-                <th className="text-right">{amountLabel}</th>
-                <th className="text-right">{t('products.columns.avgPrice')}</th>
+                {showAmounts && <th className="text-right">{t('products.columns.revenue')}</th>}
+                {showAmounts && <th className="text-right">{t('products.columns.avgPrice')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -103,8 +102,8 @@ export function ReportsProductsTable({ data, net, isLoading, orderOnly = false }
                   </td>
                   <td style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>{p.categoryName}</td>
                   <td className="mono text-right">{p.quantitySold}</td>
-                  <td className="mono text-right">{formatCurrency(p.revenue)}</td>
-                  <td className="mono text-right">{formatCurrency(p.averagePrice)}</td>
+                  {showAmounts && <td className="mono text-right">{formatCurrency(p.revenue)}</td>}
+                  {showAmounts && <td className="mono text-right">{formatCurrency(p.averagePrice)}</td>}
                 </tr>
               ))}
             </tbody>

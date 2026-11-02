@@ -15,7 +15,7 @@ export function resolvePosCardMode(options: {
   readerLinked: boolean;
   sumupEnabled: boolean;
   isTest: boolean;
-  /** Bargeldloser Modus der Organisation. */
+  /** Kein Bargeld in der Organisation (Betriebsart). */
   cashless?: boolean;
 }): PosCardMode {
   if (!options.readerLinked || !options.sumupEnabled) return null;
@@ -23,27 +23,20 @@ export function resolvePosCardMode(options: {
   return options.cashless ? 'manual' : 'sumup_test';
 }
 
-/**
- * Zahlarten im Kassieren-Blatt. `outside` = „Ohne Zahlung abschließen“
- * (nur „Deutschland ohne Bargeld“: bar außerhalb von OpenEOS kassiert).
- */
-export type PayMethod = 'cash' | 'card' | 'discount' | 'outside';
+/** Zahlarten im Kassieren-Blatt. */
+export type PayMethod = 'cash' | 'card' | 'discount';
 
 /**
  * Erste Zahlart beim Öffnen des Kassieren-Blatts: Bar, ohne Bargeld die
- * Karte (sofern nutzbar), sonst „Ohne Zahlung abschließen“ (falls
- * angeboten), sonst Rabatt-Bons; `null` = keine Zahlart verfügbar.
+ * Karte (sofern nutzbar), sonst Rabatt-Bons; `null` = keine Zahlart verfügbar.
  */
 export function initialPayMethod(options: {
   cashless: boolean;
   card: PosCardMode;
   hasVouchers: boolean;
-  /** „Ohne Zahlung abschließen“ wird angeboten. */
-  outside?: boolean;
 }): PayMethod | null {
   if (!options.cashless) return 'cash';
   if (options.card && options.card !== 'sumup_test') return 'card';
-  if (options.outside) return 'outside';
   if (options.hasVouchers) return 'discount';
   return null;
 }

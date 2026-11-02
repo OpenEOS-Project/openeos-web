@@ -1,4 +1,3 @@
-import { cashlessSwitchStep, isCashlessMode, orderOnlyFaqUrl, tseFaqUrl } from '@/lib/cashless';
 import { initialPayMethod, resolvePosCardMode } from '@/utils/pos-card-mode';
 import { initialRefundState, refundFormView } from '@/utils/refund-form';
 import { expect, test } from '@playwright/test';
@@ -6,8 +5,9 @@ import { expect, test } from '@playwright/test';
 import type { OrderDetail, OrderDetailPayment } from '@/types/order-history';
 
 /*
- * Bargeldloser Modus: Erkennung, erste Zahlart im Kassieren-Blatt,
- * Kartenmodus im Testmodus und Erstattung nur auf unbare Zahlungen.
+ * Ohne Bargeld („Bargeldlos“ oder „Alle Funktionen“ ohne TSE in
+ * Deutschland): erste Zahlart im Kassieren-Blatt, Kartenmodus im Testmodus
+ * und Erstattung nur auf unbare Zahlungen.
  */
 
 function payment(id: string, method: string, refundable: number, createdAt: string): OrderDetailPayment {
@@ -38,41 +38,7 @@ function order(payments: OrderDetailPayment[]): OrderDetail {
   } as unknown as OrderDetail;
 }
 
-test.describe('cashless mode', () => {
-  test('only an explicit true counts', () => {
-    expect(isCashlessMode(undefined)).toBe(false);
-    expect(isCashlessMode({})).toBe(false);
-    expect(isCashlessMode({ payments: {} })).toBe(false);
-    expect(isCashlessMode({ payments: { cashless: true } })).toBe(true);
-  });
-
-  test('switching on saves right away', () => {
-    expect(cashlessSwitchStep(false, { type: 'toggle', checked: true })).toEqual({ confirmOff: false, save: true });
-  });
-
-  test('switching off asks first and sends nothing yet', () => {
-    expect(cashlessSwitchStep(false, { type: 'toggle', checked: false })).toEqual({ confirmOff: true, save: null });
-  });
-
-  test('cancelling the question keeps cashless mode on and sends nothing', () => {
-    const asked = cashlessSwitchStep(false, { type: 'toggle', checked: false });
-    expect(cashlessSwitchStep(asked.confirmOff, { type: 'cancel' })).toEqual({ confirmOff: false, save: null });
-  });
-
-  test('confirming allows cash; the question stays open until saved', () => {
-    const asked = cashlessSwitchStep(false, { type: 'toggle', checked: false });
-    expect(cashlessSwitchStep(asked.confirmOff, { type: 'confirm' })).toEqual({ confirmOff: true, save: false });
-    // Ohne offene Rückfrage bewirkt eine Bestätigung nichts.
-    expect(cashlessSwitchStep(false, { type: 'confirm' })).toEqual({ confirmOff: false, save: null });
-  });
-
-  test('FAQ link per language', () => {
-    expect(tseFaqUrl('de')).toBe('https://openeos.de/faq#tse');
-    expect(tseFaqUrl('en')).toBe('https://openeos.de/en/faq#tse');
-    expect(orderOnlyFaqUrl('de')).toBe('https://openeos.de/faq#nur-bestellen');
-    expect(orderOnlyFaqUrl('en')).toBe('https://openeos.de/en/faq#nur-bestellen');
-  });
-
+test.describe('without cash', () => {
   test('pay sheet starts with cash, cashless with the card', () => {
     expect(initialPayMethod({ cashless: false, card: 'sumup', hasVouchers: true })).toBe('cash');
     expect(initialPayMethod({ cashless: true, card: 'sumup', hasVouchers: true })).toBe('card');

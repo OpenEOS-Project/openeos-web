@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Chip, Chips, Field, Icon, Stepper } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { useDeviceOperatingMode } from '@/hooks/use-operating-mode';
 import type { CartItem } from '@/stores/cart-store';
 import type { SelectedOption } from '@/types/order';
 import type { ProductOptionGroup } from '@/types/product';
@@ -72,6 +73,7 @@ function selectionsFromItem(groups: ProductOptionGroup[], stored: SelectedOption
 export function OptionsSheet({ target, chargePfand, onClose, onConfirm }: OptionsSheetProps) {
   const t = useTranslations('pos.order');
   const formatPrice = useFormatPrice();
+  const { pricesVisible } = useDeviceOperatingMode();
   const product = target?.product ?? null;
   const item = target?.item;
   const groups = useMemo(() => product?.options?.groups ?? [], [product]);
@@ -160,7 +162,7 @@ export function OptionsSheet({ target, chargePfand, onClose, onConfirm }: Option
       onClose={onClose}
       icon={sheetIconOf(product)}
       title={product.name}
-      subtitle={[sub, formatPrice(product.price)].filter(Boolean).join(' · ')}
+      subtitle={[sub, pricesVisible ? formatPrice(product.price) : null].filter(Boolean).join(' · ')}
       footer={
         <>
           <Stepper
@@ -179,9 +181,11 @@ export function OptionsSheet({ target, chargePfand, onClose, onConfirm }: Option
             onClick={confirm}
           >
             <Icon name={item ? 'check' : 'cart-plus'} />
-            {item
-              ? t('optionsApply', { price: formatPrice(unitPrice * quantity) })
-              : t('optionsAdd', { price: formatPrice(unitPrice * quantity) })}
+            {!pricesVisible
+              ? t(item ? 'optionsApplyNoPrice' : 'optionsAddNoPrice')
+              : item
+                ? t('optionsApply', { price: formatPrice(unitPrice * quantity) })
+                : t('optionsAdd', { price: formatPrice(unitPrice * quantity) })}
           </Button>
         </>
       }
@@ -202,7 +206,7 @@ export function OptionsSheet({ target, chargePfand, onClose, onConfirm }: Option
                 >
                   {on && <Icon name="check" />}
                   {off ? <s>{t('optionsWithout', { option: option.name })}</s> : option.name}
-                  {option.priceModifier > 0 && !off && (
+                  {pricesVisible && option.priceModifier > 0 && !off && (
                     <span className="pos-chip__price">+{formatPrice(option.priceModifier)}</span>
                   )}
                 </Chip>

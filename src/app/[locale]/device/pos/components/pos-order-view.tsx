@@ -24,7 +24,7 @@ interface PosOrderViewProps {
   chargePfand: boolean;
   contextLabel: string;
   canSend: boolean;
-  /** „Nur Bestellen“: keine Summen, kein Kassieren. */
+  /** „Nur Bons“: keine Summen, kein Kassieren. */
   orderOnly?: boolean;
   actionsDisabled: boolean;
   isSending: boolean;

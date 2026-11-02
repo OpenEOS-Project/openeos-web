@@ -20,7 +20,7 @@ import { formatReportDay } from './report-labels';
 interface ReportsHourlyChartProps {
   data: HourlyReport[] | undefined;
   isLoading: boolean;
-  /** „Nur Bestellen“: Balken zeigen Bestellungen, der Betrag heißt Bestellwert (nicht kassiert). */
+  /** „Nur Bons“: Balken, Tooltip und CSV zeigen nur Bestellungen — keine Beträge. */
   orderOnly?: boolean;
 }
 
@@ -56,10 +56,7 @@ function CustomTooltip({ active, payload, label, orderOnly = false }: CustomTool
       <div style={{ fontWeight: 700, marginBottom: 6 }}>{t('hourly.tooltipHour', { hour: String(label ?? '') })}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {orderOnly ? (
-          <>
-            <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
-            <span>{t('orderOnly.orderValue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
-          </>
+          <span>{t('hourly.tooltipOrders')}: <strong>{entry.orders}</strong></span>
         ) : (
           <>
             <span>{t('hourly.tooltipRevenue')}: <strong>{formatCurrency(entry.revenue)}</strong></span>
@@ -102,10 +99,10 @@ export function ReportsHourlyChart({ data, isLoading, orderOnly = false }: Repor
       t('hourly.columns.date'),
       t('hourly.columns.hour'),
       t('hourly.columns.orders'),
-      orderOnly ? t('orderOnly.orderValue') : t('hourly.columns.revenue'),
+      ...(orderOnly ? [] : [t('hourly.columns.revenue')]),
     ];
-    const rows = days.flatMap((day) =>
-      day.rows.map((r) => [day.date, `${r.hour}:00`, r.orders, r.revenue]),
+    const rows: (string | number)[][] = days.flatMap((day) =>
+      day.rows.map((r) => [day.date, `${r.hour}:00`, r.orders, ...(orderOnly ? [] : [r.revenue])]),
     );
     downloadCsv(t('export.filenames.hourly'), headers, rows);
   };

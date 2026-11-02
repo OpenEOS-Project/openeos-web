@@ -10,28 +10,27 @@ import { getChannelLabel } from './report-labels';
 interface ReportsChannelsTableProps {
   data: ChannelReport[] | undefined;
   isLoading: boolean;
-  /** „Nur Bestellen“: Bestellungen und Bestellwert (nicht kassiert), kein Ø Bon. */
+  /** „Nur Bons“: nur Bestellungen je Kanal — kein Umsatz, kein Ø Bon. */
   orderOnly?: boolean;
 }
 
 export function ReportsChannelsTable({ data, isLoading, orderOnly = false }: ReportsChannelsTableProps) {
   const t = useTranslations('reports');
   const { formatCurrency } = useLocaleFormat();
-  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('channels.columns.revenue');
+  // „Nur Bons“: OpenEOS erfasst kein Geld — Umsatz und Ø Bon entfallen.
+  const showAmounts = !orderOnly;
 
   const handleExport = () => {
     if (!data?.length) return;
     const headers = [
       t('channels.columns.channel'),
       t('channels.columns.orders'),
-      amountLabel,
-      ...(orderOnly ? [] : [t('channels.columns.avgReceipt')]),
+      ...(showAmounts ? [t('channels.columns.revenue'), t('channels.columns.avgReceipt')] : []),
     ];
-    const rows = data.map((c) => [
+    const rows: (string | number)[][] = data.map((c) => [
       getChannelLabel(c.channel, t),
       c.orders,
-      c.revenue,
-      ...(orderOnly ? [] : [c.avgReceipt]),
+      ...(showAmounts ? [c.revenue, c.avgReceipt] : []),
     ]);
     downloadCsv(t('export.filenames.channels'), headers, rows);
   };
@@ -69,8 +68,8 @@ export function ReportsChannelsTable({ data, isLoading, orderOnly = false }: Rep
               <tr>
                 <th>{t('channels.columns.channel')}</th>
                 <th className="text-right">{t('channels.columns.orders')}</th>
-                <th className="text-right">{amountLabel}</th>
-                {!orderOnly && <th className="text-right">{t('channels.columns.avgReceipt')}</th>}
+                {showAmounts && <th className="text-right">{t('channels.columns.revenue')}</th>}
+                {showAmounts && <th className="text-right">{t('channels.columns.avgReceipt')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -82,8 +81,8 @@ export function ReportsChannelsTable({ data, isLoading, orderOnly = false }: Rep
                     </div>
                   </td>
                   <td className="mono text-right">{c.orders}</td>
-                  <td className="mono text-right">{formatCurrency(c.revenue)}</td>
-                  {!orderOnly && <td className="mono text-right">{formatCurrency(c.avgReceipt)}</td>}
+                  {showAmounts && <td className="mono text-right">{formatCurrency(c.revenue)}</td>}
+                  {showAmounts && <td className="mono text-right">{formatCurrency(c.avgReceipt)}</td>}
                 </tr>
               ))}
             </tbody>

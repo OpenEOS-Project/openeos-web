@@ -42,7 +42,7 @@ interface OrderDetailSheetProps {
   card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
-  /** „Nur Bestellen“: keine Zahlungsangaben, statt Kassieren „Abschließen“. */
+  /** „Nur Bons“: keine Preise und Zahlungen, statt Kassieren „Abgeholt“ bzw. „Abschließen“. */
   orderOnly?: boolean;
 }
 
@@ -74,7 +74,7 @@ export function OrderDetailSheet({
   const [paying, setPaying] = useState(false);
   const [completing, setCompleting] = useState(false);
 
-  /** „Nur Bestellen“: abschließen ohne Zahlung (abgeholt/serviert). */
+  /** „Nur Bons“: abschließen ohne Zahlung (abgeholt/serviert). */
   const complete = async () => {
     if (!order) return;
     setCompleting(true);
@@ -125,10 +125,6 @@ export function OrderDetailSheet({
     const method: PaymentMethod =
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     try {
-      if (result.method === 'outside') {
-        // „Ohne Zahlung abschließen“: bar außerhalb kassiert, keine Zahlung.
-        await deviceTablesApi.completeOrders([order.id]);
-      } else
       await deviceTablesApi.payBatch({
         orderIds: [order.id],
         paymentMethod: method,
@@ -191,7 +187,7 @@ export function OrderDetailSheet({
           onClick={() => void complete()}
         >
           {!completing && <Icon name="check" />}
-          {t('complete')}
+          {order.tableNumber ? t('complete') : t('pickedUp')}
         </Button>
       )}
       {canPay && (
@@ -353,7 +349,7 @@ function OrderDetailBody({
 }) {
   const t = useTranslations('pos.orderHistory');
   const place = orderPlace(order);
-  // „Nur Bestellen“: keine Zahlungs- und Erstattungsschritte im Verlauf.
+  // „Nur Bons“: keine Zahlungs- und Erstattungsschritte im Verlauf.
   const timeline = buildTimeline(order, formatPrice).filter(
     (entry) => !orderOnly || !PAYMENT_TIMELINE_TYPES.has(entry.type),
   );
@@ -412,7 +408,7 @@ function OrderDetailBody({
         <h3>{t('sectionItems')}</h3>
         <ul className="pos-oh-items">
           {order.items.map((item) => (
-            <ItemLine key={item.id} item={item} formatPrice={formatPrice} />
+            <ItemLine key={item.id} item={item} formatPrice={formatPrice} showPrice={!orderOnly} />
           ))}
         </ul>
         {!orderOnly && (
@@ -456,10 +452,17 @@ function OrderDetailBody({
               <dd className="pos-oh-neg">{formatPrice(-order.refundedAmount)}</dd>
             </div>
           )}
-          {order.remaining > 0 && order.status !== 'cancelled' && (
+          {order.remaining > 0 && order.status !== 'cancelled' && !order.closedWithoutPaymentAt && (
             <div className="pos-oh-due">
               <dt>{t('remaining')}</dt>
               <dd>{formatPrice(order.remaining)}</dd>
+            </div>
+          )}
+          {/* Früher „Ohne Zahlung abschließen“ — nur noch als Historie. */}
+          {order.closedWithoutPaymentAt && (
+            <div>
+              <dt>{t('closedWithoutPayment')}</dt>
+              <dd />
             </div>
           )}
         </dl>
@@ -581,9 +584,12 @@ function OrderDetailBody({
 function ItemLine({
   item,
   formatPrice,
+  showPrice = true,
 }: {
   item: OrderDetailItem;
   formatPrice: (value: number) => string;
+  /** „Nur Bons“: ohne Betrag. */
+  showPrice?: boolean;
 }) {
   const t = useTranslations('pos.orderHistory');
   const options = item.options ?? [];
@@ -609,7 +615,7 @@ function ItemLine({
         )}
       </span>
       <Badge tone={ITEM_STATUS_TONE[item.status]}>{t(`itemStatus.${item.status}`)}</Badge>
-      <span className="pos-oh-item__sum">{formatPrice(item.totalPrice)}</span>
+      {showPrice && <span className="pos-oh-item__sum">{formatPrice(item.totalPrice)}</span>}
     </li>
   );
 }
@@ -624,7 +630,7 @@ interface TimelineEntry {
 }
 
 /** Verlauf aus den Zeitstempeln und dem Protokoll der Bestellung. */
-/** Verlaufseinträge mit Zahlungsbezug (im Modus „Nur Bestellen“ ausgeblendet). */
+/** Verlaufseinträge mit Zahlungsbezug (in „Nur Bons“ ausgeblendet). */
 const PAYMENT_TIMELINE_TYPES = new Set(['paid', 'refunded', 'refund_failed', 'receipt_reprinted', 'refund_receipt_reprinted']);
 
 function buildTimeline(

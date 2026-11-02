@@ -395,53 +395,26 @@ export const organizationsApi = {
       { enabled },
     ),
 
-  /** Bargeldloser Modus (nur Admins); jede Umschaltung wird protokolliert. */
-  setCashlessMode: (id: string, cashless: boolean) =>
-    apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(
-      `/organizations/${id}/payments/cashless`,
-      { cashless },
-    ),
-
-  getCashlessHistory: (id: string) =>
-    apiClient.get<ApiResponse<import('@/types/organization').CashlessChange[]>>(
-      `/organizations/${id}/payments/cashless/history`,
-    ),
-
-  /** Land und Bargeld-Regel mit Verlauf. */
-  getCashPolicy: (id: string) =>
-    apiClient.get<ApiResponse<import('@/types/organization').CashPolicyState>>(`/organizations/${id}/cash-policy`),
-
-  /** Land einmalig festlegen (Admins, nur solange keins hinterlegt ist). */
-  setCountry: (id: string, country: string) =>
-    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(`/organizations/${id}/country`, {
-      country,
-    }),
-
-  /** Freiwilliger Wechsel auf „Deutschland ohne Bargeld“ (Admins, nur in eine Richtung). */
-  switchCashPolicy: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/organization').CashPolicyState>>(
-      `/organizations/${id}/cash-policy/switch`,
-      {},
-    ),
-
-  /** Herstellerbescheinigung „Deutschland ohne Bargeld“ als PDF (Admins), mit JWT. */
-  cashPolicyCertificate: async (id: string): Promise<Blob> => {
-    const token = apiClient.getAccessToken();
-    const res = await fetch(`${API_URL}/organizations/${id}/cash-policy/certificate.pdf`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
-    if (!res.ok) throw await apiExceptionFromResponse(res);
-    return res.blob();
-  },
-
-  /** Betriebsmodus mit Verlauf (nur lesend; umschalten kann der Support). */
+  /** Betriebsart mit Optionen und Verlauf (Mitglieder). */
   getOperatingMode: (id: string) =>
     apiClient.get<ApiResponse<import('@/types/organization').OperatingModeState>>(
       `/organizations/${id}/operating-mode`,
     ),
 
-  /** Herstellerbescheinigung „Nur Bestellen“ als PDF (Admins), mit JWT. */
+  /** Betriebsart wechseln (Admins); die Kassen stellen sich per Socket um. */
+  setOperatingMode: (id: string, operatingMode: import('@/lib/operating-mode').OperatingMode) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(
+      `/organizations/${id}/operating-mode`,
+      { operatingMode },
+    ),
+
+  /** Land einmalig festlegen (Admins, nur solange keins hinterlegt ist). */
+  setCountry: (id: string, country: string) =>
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(`/organizations/${id}/country`, {
+      country,
+    }),
+
+  /** Herstellerbescheinigung (Deutschland, „Nur Bons“/„Bargeldlos“) als PDF, mit JWT. */
   operatingModeCertificate: async (id: string): Promise<Blob> => {
     const token = apiClient.getAccessToken();
     const res = await fetch(`${API_URL}/organizations/${id}/operating-mode/certificate.pdf`, {
@@ -1155,35 +1128,24 @@ export const adminApi = {
   updateOrganization: (id: string, data: Partial<import('@/types/organization').Organization>) =>
     apiClient.patch<ApiResponse<import('@/types/organization').Organization>>(`/admin/organizations/${id}`, data),
 
-  /** Betriebsmodus umschalten (nur Support), Grund ist Pflicht und wird protokolliert. */
-  setOperatingMode: (id: string, data: { mode: 'pos' | 'order_only'; reason: string }) =>
+  /** Betriebsart umschalten (Support), Grund ist Pflicht und wird protokolliert. */
+  setOperatingMode: (id: string, data: { mode: import('@/lib/operating-mode').OperatingMode; reason: string }) =>
     apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(
       `/admin/organizations/${id}/operating-mode`,
       data,
     ),
 
+  /** Zustand, Verlauf der Betriebsart (echte Namen) und Verlauf des Landes. */
   getOperatingModeHistory: (id: string) =>
-    apiClient.get<ApiResponse<import('@/types/organization').OperatingModeState>>(
+    apiClient.get<ApiResponse<import('@/types/organization').AdminOperatingModeHistory>>(
       `/admin/organizations/${id}/operating-mode/history`,
     ),
 
   /** Land einer Organisation ändern (Support, Grund ist Pflicht). */
   setOrganizationCountry: (id: string, data: { country: string; reason: string }) =>
-    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(
+    apiClient.patch<ApiResponse<import('@/types/organization').OperatingModeState>>(
       `/admin/organizations/${id}/country`,
       data,
-    ),
-
-  /** Bestandsschutz der Bargeld-Regel setzen/aufheben (Support, mit Grund). */
-  setCashPolicy: (id: string, data: { legacy: boolean; reason: string }) =>
-    apiClient.patch<ApiResponse<import('@/types/organization').CashPolicyState>>(
-      `/admin/organizations/${id}/cash-policy`,
-      data,
-    ),
-
-  getCashPolicyHistory: (id: string) =>
-    apiClient.get<ApiResponse<import('@/types/organization').CashPolicyState>>(
-      `/admin/organizations/${id}/cash-policy/history`,
     ),
 
   // Stats
@@ -1543,9 +1505,12 @@ export const deviceApi = {
         name: string;
         settings: import('@/types/organization').OrganizationSettings;
         country?: string | null;
-        cashPolicy?: import('@/lib/cash-policy').CashPolicy;
-        cashPolicyLegacy?: boolean;
-        cashPolicyReason?: import('@/lib/cash-policy').CashPolicyReason;
+        operatingMode?: import('@/lib/operating-mode').OperatingMode;
+        operatingModeLegacy?: boolean;
+        operatingModeSince?: string | null;
+        tseActive?: boolean;
+        cashAllowed?: boolean;
+        pricesVisible?: boolean;
       }>
     >(
       '/device-api/organization',

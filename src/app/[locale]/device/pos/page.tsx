@@ -13,8 +13,7 @@ import { useDeviceTables } from '@/hooks/use-device-tables';
 import { usePosConnection } from '@/hooks/use-pos-connection';
 import { useTableStatus } from '@/hooks/use-table-status';
 import { deviceApi } from '@/lib/api-client';
-import { isCashBlocked } from '@/lib/cash-policy';
-import { effectiveOrderingMode, isOrderOnlyMode, tableCloseState } from '@/lib/operating-mode';
+import { effectiveOrderingMode, resolveOperatingMode, tableCloseState } from '@/lib/operating-mode';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
@@ -148,11 +147,12 @@ function PosApp() {
     pfandTypes,
   } = usePosData(eventId, true);
   const isTest = activeEvent?.status === 'test';
-  // Bargeld gesperrt (bargeldloser Modus oder „Deutschland ohne Bargeld“):
-  // kein Bar, keine Kassenlade, keine Pfand-Auszahlung.
-  const cashless = isCashBlocked(organization);
-  // „Nur Bestellen“: kein Kassenmodul — nur senden, Küche, Ausgabe, abschließen.
-  const orderOnly = isOrderOnlyMode(orgSettings);
+  // Betriebsart (lädt bei `organizationSettingsUpdated` neu, siehe use-pos-live):
+  // ohne Bargeld kein Bar, keine Kassenlade, keine Pfand-Auszahlung;
+  // „Nur Bons“ ohne Preise und Zahlungen — senden, Küche, Ausgabe, abschließen.
+  const operating = resolveOperatingMode(organization);
+  const cashless = !operating.cashAllowed;
+  const orderOnly = operating.ordersOnly;
 
   useEffect(() => {
     if (activeEvent && eventId !== activeEvent.id) setEventId(activeEvent.id);
@@ -174,7 +174,9 @@ function PosApp() {
   const context: PosTableContext | null = tablesEnabled ? storedTable : COUNTER;
   const inOrderView = !modeLoading && !!context;
 
-  const chargePfand = resolveChargePfand(orgSettings?.pfand, context?.kind === 'table' ? 'table' : 'counter');
+  // „Nur Bons“: kein Pfand (keine Beträge, keine Auszahlung).
+  const chargePfand =
+    !orderOnly && resolveChargePfand(orgSettings?.pfand, context?.kind === 'table' ? 'table' : 'counter');
   useCustomerDisplayBroadcast(socket, isConnected, chargePfand, orderOnly);
 
   const orderingMode = effectiveOrderingMode(
@@ -198,7 +200,7 @@ function PosApp() {
   const openTables = useMemo(() => {
     if (!tablesEnabled) return [];
     const entries = mergeOpenTables(tableStatus.status, cart.parked, eventId, chargePfand);
-    // „Nur Bestellen“: keine offenen Beträge — der Tisch ist nur „offen“.
+    // „Nur Bons“: keine offenen Beträge — der Tisch ist nur „offen“.
     return orderOnly ? entries.map((entry) => ({ ...entry, amount: 0 })) : entries;
   }, [tablesEnabled, tableStatus.status, cart.parked, eventId, chargePfand, orderOnly]);
 
@@ -293,7 +295,7 @@ function PosApp() {
     }
   };
 
-  // „Tisch abschließen“ (Nur Bestellen): statt „Kassieren“ — alle offenen
+  // „Tisch abschließen“ (Nur Bons): statt „Kassieren“ — alle offenen
   // Bestellungen des Tisches, danach zurück zur Tischwahl.
   const [closingTable, setClosingTable] = useState(false);
   const closeTable = async () => {
@@ -467,6 +469,11 @@ function PosApp() {
         {orderOnly && (
           <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
             {t('orderOnly.banner')}
+          </Banner>
+        )}
+        {operating.cashBlockedWithoutTse && (
+          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly">
+            {t('cashBlocked.banner')}
           </Banner>
         )}
         {offline && (

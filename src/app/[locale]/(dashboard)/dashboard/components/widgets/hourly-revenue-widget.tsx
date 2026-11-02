@@ -15,7 +15,7 @@ import {
 
 import { useHourlyReport } from '@/hooks/use-reports';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { useOrderOnly } from '@/hooks/use-order-only';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -54,8 +54,8 @@ export function HourlyRevenueWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
-  /* „Nur Bestellen“: kein Umsatz — der Verlauf zählt Bestellungen je Stunde. */
-  const orderOnly = useOrderOnly();
+  /* „Nur Bons“: kein Umsatz — der Verlauf zählt Bestellungen je Stunde. */
+  const orderOnly = useOperatingMode().ordersOnly;
   const metric = orderOnly ? 'orders' : 'revenue';
   const formatValue = (v: number) => (orderOnly ? String(Math.round(v)) : formatCurrency(v));
 

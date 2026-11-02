@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProductsReport } from '@/hooks/use-reports';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { useOrderOnly } from '@/hooks/use-order-only';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 import { rankByMode } from '@/lib/operating-mode';
 import { useDashboardRange } from '../dashboard-range';
 
@@ -16,8 +16,8 @@ export function TopProductsWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
-  /* „Nur Bestellen“: die meistbestellten Produkte, Menge statt Umsatz. */
-  const orderOnly = useOrderOnly();
+  /* „Nur Bons“: die meistbestellten Produkte, Menge statt Umsatz. */
+  const orderOnly = useOperatingMode().ordersOnly;
 
   const { data, isLoading } = useProductsReport(organizationId, range.query);
 

@@ -235,7 +235,7 @@ export interface OrderDetail {
   refundable: number;
   /** Noch offen (Summe minus bezahlt). */
   remaining: number;
-  /** „Ohne Zahlung abgeschlossen“ (bar außerhalb von OpenEOS kassiert). */
+  /** Früher „Ohne Zahlung abgeschlossen“ (nur noch Historie, entsteht nicht mehr). */
   closedWithoutPaymentAt?: string | null;
   tipAmount: number;
   discountAmount: number;

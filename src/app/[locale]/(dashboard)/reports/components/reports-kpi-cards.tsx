@@ -8,7 +8,7 @@ import { formatCurrency, formatPercent } from '@/utils/format';
 interface ReportsKpiCardsProps {
   data: SalesReport | undefined;
   isLoading: boolean;
-  /** „Nur Bestellen“: Bestellungen, Bestellwert (nicht kassiert), Storno — kein Umsatz, Bon oder Pfand. */
+  /** „Nur Bons“: nur Bestellungen, Artikel und Storno — keine Beträge (kein Umsatz, Bon oder Pfand). */
   orderOnly?: boolean;
 }
 
@@ -38,12 +38,6 @@ export function ReportsKpiCards({ data, isLoading, orderOnly = false }: ReportsK
           <div className="stat-card__label">{t('kpi.orders')}</div>
           <div className="stat-card__value">{numVal(data?.totalOrders)}</div>
           <div className="stat-card__sub">{t('orderOnly.kpi.itemsOrdered', { count: data?.totalItemsSold ?? 0 })}</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-card__label">{t('orderOnly.orderValue')}</div>
-          <div className="stat-card__value">{val(data?.totalRevenue)}</div>
-          <div className="stat-card__sub">{t('orderOnly.kpi.orderValueSub')}</div>
         </div>
 
         {cancellationCard}

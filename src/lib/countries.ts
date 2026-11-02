@@ -3,8 +3,8 @@
  * src/common/constants/countries.ts). Namen liefert der Browser über
  * `Intl.DisplayNames` in der Sprache der Oberfläche.
  *
- * Das Land einer Organisation steuert die Bargeld-Regel (siehe
- * cash-policy.ts) und die wählbaren Steuersätze.
+ * Das Land einer Organisation steuert die wählbaren Betriebsarten (siehe
+ * operating-mode.ts) und die wählbaren Steuersätze.
  */
 // prettier-ignore
 export const COUNTRY_CODES = [

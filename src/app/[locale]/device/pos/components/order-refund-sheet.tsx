@@ -23,7 +23,7 @@ import {
 } from '@openeos/ui';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
-import { useDeviceCashlessMode } from '@/hooks/use-device-integration';
+import { useDeviceOperatingMode } from '@/hooks/use-operating-mode';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { useRefundForm } from '@/hooks/use-refund-form';
 
@@ -73,7 +73,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
   const open = preset !== null;
 
   // Bargeldlos: nur auf die unbare Zahlung zurück, nie aus der Kasse.
-  const cashless = useDeviceCashlessMode();
+  const cashless = !useDeviceOperatingMode().cashAllowed;
   const form = useRefundForm(order, preset, { cashless });
   const { mode, cancelItems, qty, amount, includeDeposit, paymentId, reasonCode, reasonText, confirmStarted } =
     form.state;

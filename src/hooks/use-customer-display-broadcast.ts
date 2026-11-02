@@ -30,8 +30,8 @@ export interface CustomerCartPayload {
     payable: number;
   };
   vouchers: { name: string; amount: number }[];
-  /** „Nur Bestellen“: ohne Preise gesendet, die Anzeige zeigt keine Beträge. */
-  orderOnly?: boolean;
+  /** „Nur Bons“: ohne Preise gesendet, die Anzeige zeigt nur Artikel und Mengen. */
+  hidePrices?: boolean;
   updatedAt: number;
 }
 
@@ -61,7 +61,7 @@ export function notifyCustomerDisplayOrderCompleted(
   useOrderCompletedSignal.getState().notify(kind, orderNumber);
 }
 
-function buildSnapshot(chargePfand: boolean, orderOnly: boolean): CustomerCartPayload {
+function buildSnapshot(chargePfand: boolean, hidePrices: boolean): CustomerCartPayload {
   const state = useCartStore.getState();
 
   const items: CustomerCartItem[] = state.items.map((item) => ({
@@ -93,8 +93,8 @@ function buildSnapshot(chargePfand: boolean, orderOnly: boolean): CustomerCartPa
     vouchers: state.appliedVouchers.map((v) => ({ name: v.name, amount: v.amount })),
     updatedAt: Date.now(),
   };
-  // „Nur Bestellen“: kein Geld auf der Kundenanzeige — Preise gar nicht erst senden.
-  return orderOnly ? stripCartPrices(snapshot) : snapshot;
+  // „Nur Bons“: kein Geld auf der Kundenanzeige — Preise gar nicht erst senden.
+  return hidePrices ? stripCartPrices(snapshot) : snapshot;
 }
 
 const EMIT_THROTTLE_MS = 150;
@@ -108,7 +108,7 @@ export function useCustomerDisplayBroadcast(
   socket: Socket | null,
   isConnected: boolean,
   chargePfand: boolean,
-  orderOnly = false,
+  hidePrices = false,
 ) {
   const lastSnapshotRef = useRef<CustomerCartPayload | null>(null);
 
@@ -125,7 +125,7 @@ export function useCustomerDisplayBroadcast(
 
     const emitCartThrottled = () => {
       const send = () => {
-        const snapshot = buildSnapshot(chargePfand, orderOnly);
+        const snapshot = buildSnapshot(chargePfand, hidePrices);
         lastSnapshotRef.current = snapshot;
         emit(snapshot);
       };
@@ -145,7 +145,7 @@ export function useCustomerDisplayBroadcast(
     // doesn't stay blank until the next cart mutation.
     const handleSnapshotRequest = () => {
       if (timer) clearTimeout(timer);
-      const snapshot = buildSnapshot(chargePfand, orderOnly);
+      const snapshot = buildSnapshot(chargePfand, hidePrices);
       lastSnapshotRef.current = snapshot;
       emit(snapshot);
     };
@@ -157,7 +157,7 @@ export function useCustomerDisplayBroadcast(
       if (state.seq === prev.seq) return;
       // Send the final cart (signal fires before clearCart) as a completed order
       if (timer) clearTimeout(timer);
-      const fresh = buildSnapshot(chargePfand, orderOnly);
+      const fresh = buildSnapshot(chargePfand, hidePrices);
       const base = fresh.items.length > 0 ? fresh : (lastSnapshotRef.current ?? fresh);
       emit({
         ...base,
@@ -174,5 +174,5 @@ export function useCustomerDisplayBroadcast(
       unsubCart();
       unsubCompleted();
     };
-  }, [socket, isConnected, chargePfand, orderOnly]);
+  }, [socket, isConnected, chargePfand, hidePrices]);
 }

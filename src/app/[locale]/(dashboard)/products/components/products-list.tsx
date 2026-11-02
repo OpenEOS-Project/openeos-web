@@ -102,7 +102,7 @@ export function ProductsList({
           {menuImportHint && (
             <p style={{ fontSize: 12, color: 'var(--ink)', opacity: .6, margin: '4px 0 0' }}>
               {t('menuImport.hint')}{' '}
-              <Link href="/settings?tab=org-assistant" className="cash-tse-notice__link">
+              <Link href="/settings?tab=org-assistant" className="notice-link">
                 {t('menuImport.hintAction')}
               </Link>
             </p>

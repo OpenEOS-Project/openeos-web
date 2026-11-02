@@ -124,7 +124,7 @@ export function OrganizationAssistantSection() {
                 href={privacyUrl(locale)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cash-tse-notice__link"
+                className="notice-link"
               >
                 {chunks}
               </a>

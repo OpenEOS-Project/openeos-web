@@ -7,9 +7,7 @@ import { devicesApi, printersApi } from '@/lib/api-client';
 import { usePrinters } from '@/hooks/use-printers';
 import { selectablePrinters } from '@/utils/printer-connection';
 import { toast } from '@/components/shared/toast';
-import { isCashBlocked } from '@/lib/cash-policy';
-import { isOrderOnlyMode } from '@/lib/operating-mode';
-import { useAuthStore } from '@/stores/auth-store';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 import type { Device, PrinterMode } from '@/types/device';
 
 interface DevicePrinterConfigProps {
@@ -44,9 +42,10 @@ function normalizePrinterMode(raw: PrinterMode | undefined): 'fixed' | 'dynamic'
 export function DevicePrinterConfig({ device, organizationId }: DevicePrinterConfigProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
-  // Bargeld gesperrt (Schalter oder „Deutschland ohne Bargeld“): keine Kassenlade.
-  const cashless = useAuthStore((state) => isCashBlocked(state.currentOrganization?.organization));
-  const orderOnly = useAuthStore((state) => isOrderOnlyMode(state.currentOrganization?.organization?.settings));
+  // Ohne Bargeld (Betriebsart) gibt es keine Kassenlade.
+  const operating = useOperatingMode();
+  const cashless = !operating.cashAllowed;
+  const orderOnly = operating.ordersOnly;
 
   const routingModes: { value: 'fixed' | 'dynamic'; label: string; description: string }[] = [
     {
@@ -210,8 +209,8 @@ export function DevicePrinterConfig({ device, organizationId }: DevicePrinterCon
               ))}
             </select>
           )}
-          {/* Bargeldlos sperrt die API die Kassenlade; die Zuordnung
-              bleibt stehen, falls der Modus wieder ausgeschaltet wird. */}
+          {/* Ohne Bargeld sperrt die API die Kassenlade; die Zuordnung
+              bleibt stehen, falls die Betriebsart wieder wechselt. */}
           {(cashless || orderOnly) && (
             <p style={{ fontSize: 12, color: 'var(--warn-ink)', margin: '6px 0 0' }}>
               {t(orderOnly ? 'devices.detail.printer.cashDrawer.orderOnly' : 'devices.detail.printer.cashDrawer.cashless')}

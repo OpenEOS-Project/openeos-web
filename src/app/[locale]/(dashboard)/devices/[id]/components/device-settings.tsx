@@ -9,7 +9,6 @@ import { Link } from '@/i18n/routing';
 import '@/styles/device-settings.css';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { CashTseNotice } from '@/components/shared/cash-tse-notice';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { toast } from '@/components/shared/toast';
 
@@ -18,8 +17,8 @@ import { useProductionStations } from '@/hooks/use-production-stations';
 import { useTableAreas } from '@/hooks/use-tables';
 
 import { devicesApi, sumupApi } from '@/lib/api-client';
-import { cashNoticeKind, isCashBlocked } from '@/lib/cash-policy';
-import { isOrderOnlyMode } from '@/lib/operating-mode';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
+import { OPERATING_MODE_SETTINGS_HREF } from '@/lib/operating-mode';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -118,11 +117,10 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const { currentOrganization } = useAuthStore();
 
   const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
-  // Bargeld gesperrt: bargeldloser Schalter oder „Deutschland ohne Bargeld“.
-  const cashless = isCashBlocked(currentOrganization?.organization);
-  // TSE-Hinweis nur für Bestandsorganisationen in Deutschland (und ohne Land).
-  const tseNotice = ['de_legacy', 'set_country'].includes(cashNoticeKind(currentOrganization?.organization) ?? '');
-  const orderOnly = isOrderOnlyMode(currentOrganization?.organization?.settings);
+  // Betriebsart der Organisation: ohne Bargeld bzw. „Nur Bons“ ohne Zahlungen.
+  const operating = useOperatingMode();
+  const cashless = !operating.cashAllowed;
+  const orderOnly = operating.ordersOnly;
 
   const [name, setName] = useState(device.name);
   const [type, setType] = useState<DeviceClass>(device.type);
@@ -432,7 +430,7 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           {orderOnly ? (
             <Banner tone="info" icon={<Icon name="info" />}>
               {t('pos.orderOnly.banner')}{' '}
-              <Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>
+              <Link href={OPERATING_MODE_SETTINGS_HREF} className="notice-link">{s('payment.modeLink')}</Link>
             </Banner>
           ) : (
           <>
@@ -454,18 +452,14 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           ) : (
             <p className="device-settings__hint">{t('devices.edit.sumupNotConfigured')}</p>
           )}
-          {/* Bargeld gilt für die ganze Organisation (Einstellungen →
-              Zahlungen); hier nur, was das für diese Kasse heißt. */}
-          {cashless ? (
+          {/* Bargeld hängt an der Betriebsart der Organisation (Einstellungen →
+              Betriebsart); hier nur, was das für diese Kasse heißt. */}
+          {cashless && (
             <p className="device-settings__hint">
-              {s('payment.cashless')}{' '}
-              <Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>
+              {s('payment.noCash')}{' '}
+              <Link href={OPERATING_MODE_SETTINGS_HREF} className="notice-link">{s('payment.modeLink')}</Link>
             </p>
-          ) : tseNotice ? (
-            <CashTseNotice
-              action={<Link href="/settings?tab=org-payments" className="cash-tse-notice__link">{s('payment.cashlessLink')}</Link>}
-            />
-          ) : null}
+          )}
           </>
           )}
         </SectionCard>
