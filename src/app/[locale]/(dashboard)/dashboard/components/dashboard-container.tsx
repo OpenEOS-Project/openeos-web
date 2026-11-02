@@ -21,9 +21,9 @@ import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
-import { CashPolicyHint } from './cash-policy-hint';
+import { OperatingModeHint } from './operating-mode-hint';
 import { useDeployment } from '@/components/providers/setup-provider';
-import { useOrderOnly } from '@/hooks/use-order-only';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 
 const statusBadgeClass: Record<Order['status'], string> = {
   open: 'badge badge--warning',
@@ -41,8 +41,9 @@ export function DashboardContainer() {
   const user = useAuthStore((state) => state.user);
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const deployment = useDeployment();
-  /* „Nur Bestellen“: keine Umsatz-Kacheln, keine Zahlarten (siehe Registry). */
-  const orderOnly = useOrderOnly();
+  /* „Nur Bons“: keine Beträge — keine Umsatz-Kachel, keine Zahlarten (siehe
+     Registry), keine Summen in den letzten Bestellungen. */
+  const orderOnly = useOperatingMode().ordersOnly;
 
   /* Griffe erscheinen nur hier — sonst verschiebt jeder Scrollversuch
      die Anordnung. */
@@ -251,8 +252,8 @@ export function DashboardContainer() {
             selbst aus, sobald alle Schritte sitzen. */}
         <QuickStartCard organizationId={organizationId} />
 
-        {/* Bargeld und TSE: einmalig, bis ein Admin es wegklickt. */}
-        <CashPolicyHint />
+        {/* Land und Bestand: bis ein Admin Land bzw. Betriebsart festgelegt hat. */}
+        <OperatingModeHint />
 
         <DashboardRangeProvider value={range}>
           <DashboardGrid
@@ -313,9 +314,11 @@ export function DashboardContainer() {
                           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
                             {formatTime(order.createdAt)} · {itemCountLabel(order)}
                           </div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>
-                            {formatCurrency(order.total)}
-                          </div>
+                          {!orderOnly && (
+                            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>
+                              {formatCurrency(order.total)}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
@@ -332,7 +335,7 @@ export function DashboardContainer() {
                       <th>{tOrders('columns.orderNumber')}</th>
                       <th>{tOrders('columns.createdAt')}</th>
                       <th>{tOrders('columns.items')}</th>
-                      <th className="text-right">{tOrders('columns.total')}</th>
+                      {!orderOnly && <th className="text-right">{tOrders('columns.total')}</th>}
                       <th>{tOrders('columns.status')}</th>
                     </tr>
                   </thead>
@@ -344,7 +347,7 @@ export function DashboardContainer() {
                           <td className="mono">#{order.dailyNumber}</td>
                           <td className="mono">{formatTime(order.createdAt)}</td>
                           <td>{itemCountLabel(order)}</td>
-                          <td className="mono text-right">{formatCurrency(order.total)}</td>
+                          {!orderOnly && <td className="mono text-right">{formatCurrency(order.total)}</td>}
                           <td>
                             <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
                           </td>

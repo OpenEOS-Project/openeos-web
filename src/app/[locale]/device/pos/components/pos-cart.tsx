@@ -20,7 +20,7 @@ interface PosCartProps {
   /** „Senden“ nur im Modus Offene Rechnungen (`tab`). */
   canSend: boolean;
   /**
-   * „Nur Bestellen“: keine Summen und kein „Kassieren“ — „Bestellung
+   * „Nur Bons“: keine Summen und kein „Kassieren“ — „Bestellung
    * senden“, am Tisch zusätzlich „Tisch abschließen“.
    */
   orderOnly?: boolean;
@@ -48,7 +48,7 @@ export interface SentOrders {
   /** Fertige Positionen als serviert markieren. */
   onServe: (itemIds: string[]) => void;
   serving: boolean;
-  /** „Nur Bestellen“: alle offenen Bestellungen des Tisches abschließen. */
+  /** „Nur Bons“: alle offenen Bestellungen des Tisches abschließen. */
   onClose?: () => void;
   closing?: boolean;
 }
@@ -194,7 +194,7 @@ export function PosCart({
           </>
         }
         qtyText={tTables('qtyText', { count: item.quantity })}
-        total={formatPrice(Number(item.totalPrice))}
+        total={orderOnly ? undefined : formatPrice(Number(item.totalPrice))}
       />
     );
   };

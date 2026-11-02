@@ -23,7 +23,8 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
   {
     id: 'revenueToday',
     labelKey: 'widgets.revenueToday.label',
-    orderOnlyLabelKey: 'orderOnly.orderValue',
+    // „Nur Bons“: keine Beträge, nur Bestellungen (Kachel „Bestellungen“).
+    orderOnlyLabelKey: false,
     type: 'stat',
     Component: RevenueTodayWidget,
   },
@@ -57,7 +58,7 @@ export const WIDGET_REGISTRY: WidgetDefinition[] = [
   {
     id: 'paymentMethods',
     labelKey: 'widgets.paymentMethods.label',
-    // Ohne Kasse gibt es vor Ort keine Zahlarten (nur Online-Vorkasse, siehe Auswertung).
+    // „Nur Bons“: keine Zahlungen in OpenEOS, also auch keine Zahlarten.
     orderOnlyLabelKey: false,
     requiredPermission: 'reports',
     type: 'card',

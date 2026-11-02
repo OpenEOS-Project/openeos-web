@@ -45,7 +45,7 @@ export function usePosData(eventId: string | null, inOrderView: boolean) {
   return {
     orgName: orgData?.data?.name ?? null,
     orgSettings: orgData?.data?.settings,
-    /** Organisation mit Land und Bargeld-Regel (siehe cash-policy.ts). */
+    /** Organisation mit Land und Betriebsart (siehe operating-mode.ts). */
     organization: orgData?.data,
     activeEvent,
     eventsLoading,

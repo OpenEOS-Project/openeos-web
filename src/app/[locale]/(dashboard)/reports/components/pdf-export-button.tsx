@@ -29,7 +29,7 @@ interface PdfExportButtonProps {
   categories?: CategoryReport[];
   net?: NetSalesSummary;
   devices?: DeviceReport[];
-  /** „Nur Bestellen“: Mengen und Bestellwerte (nicht kassiert) statt Umsatz. */
+  /** „Nur Bons“: nur Bestellungen und Mengen — keine Beträge, keine Zahlarten. */
   orderOnly?: boolean;
 }
 

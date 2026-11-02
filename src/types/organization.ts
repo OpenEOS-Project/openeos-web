@@ -47,22 +47,6 @@ export interface OrganizationSettings {
     counterPickup?: boolean;
   };
   /**
-   * Zahlungsarten. `cashless: true` = bargeldloser Modus: die API sperrt
-   * jede Barzahlung, Bar-Erstattung und Pfand-Auszahlung (keine TSE nötig).
-   */
-  payments?: {
-    cashless?: boolean;
-    /** Letzte Umschaltung (ISO-Zeitpunkt). */
-    changedAt?: string;
-  };
-  /**
-   * Betriebsmodus: `pos` (Standard) oder `order_only` („Nur Bestellen“, ohne
-   * Kassenmodul). Nur der Support schaltet um; lesend hier.
-   */
-  operatingMode?: 'pos' | 'order_only';
-  /** Letzte Umschaltung des Betriebsmodus (ISO-Zeitpunkt). */
-  operatingModeSince?: string;
-  /**
    * Assistent-Funktionen (Speisekarten-Import, Icon-Vorschläge): Opt-in
    * der Organisation, schaltet ein Admin über `PATCH …/assistant`.
    */
@@ -161,11 +145,18 @@ export interface Organization {
    * ist nur eine Kopie. Bei Bestandsorganisationen evtl. noch leer.
    */
   country?: string | null;
-  /** Wirksame Bargeld-Regel (siehe src/lib/cash-policy.ts). */
-  cashPolicy?: import('@/lib/cash-policy').CashPolicy;
-  /** Bestandsschutz: verhält sich wie vor der Länderregel. */
-  cashPolicyLegacy?: boolean;
-  cashPolicyReason?: import('@/lib/cash-policy').CashPolicyReason;
+  /** Betriebsart (siehe src/lib/operating-mode.ts). */
+  operatingMode?: import('@/lib/operating-mode').OperatingMode;
+  /** Bestand: läuft als „Alle Funktionen“ ohne TSE, bis eine Betriebsart gewählt ist. */
+  operatingModeLegacy?: boolean;
+  /** Letzter Wechsel der Betriebsart (ISO). */
+  operatingModeSince?: string | null;
+  /** Cloud-TSE aktiv (bis zur Anbindung immer false). */
+  tseActive?: boolean;
+  /** Bargeld an den Kassen erlaubt (vom Server abgeleitet). */
+  cashAllowed?: boolean;
+  /** Preise sichtbar (alles außer „Nur Bons“). */
+  pricesVisible?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -177,29 +168,6 @@ export interface CreateOrganizationData {
   settings?: Partial<OrganizationSettings>;
 }
 
-/** Eintrag im Verlauf von Land und Bargeld-Regel. */
-export interface CashPolicyChange {
-  id: string;
-  createdAt: string;
-  kind: 'country' | 'policy';
-  /** Land (Code) bzw. `legacy` / `country`. */
-  fromValue: string | null;
-  toValue: string;
-  reason: string | null;
-  bySupport: boolean;
-  /** Für die Organisation bei Support-Änderungen „OpenEOS-Support“. */
-  changedByName: string | null;
-}
-
-export interface CashPolicyState {
-  country: string | null;
-  cashPolicy: import('@/lib/cash-policy').CashPolicy;
-  cashPolicyLegacy: boolean;
-  cashPolicyReason: import('@/lib/cash-policy').CashPolicyReason;
-  operatingMode?: 'pos' | 'order_only';
-  history?: CashPolicyChange[];
-}
-
 export interface UpdateOrganizationData {
   name?: string;
   logoUrl?: string | null;
@@ -209,29 +177,46 @@ export interface UpdateOrganizationData {
   vatId?: string;
 }
 
-/** Eintrag im Verlauf des Betriebsmodus (Umschaltung durch den Support). */
+/** Eintrag im Verlauf der Betriebsart. */
 export interface OperatingModeChange {
   id: string;
   createdAt: string;
-  fromMode: 'pos' | 'order_only';
-  toMode: 'pos' | 'order_only';
-  reason: string;
-  /** Im Admin-Verlauf „Name (E-Mail)“, für die Organisation „OpenEOS-Support“. */
+  fromMode: import('@/lib/operating-mode').OperatingModeHistoryValue | null;
+  toMode: import('@/lib/operating-mode').OperatingModeHistoryValue;
+  reason: string | null;
+  /** Durch den Support (oder die Umstellung auf Betriebsarten). */
+  bySupport: boolean;
+  /** Für die Organisation bei Support-Änderungen „OpenEOS-Support“, im Adminbereich der echte Name. */
   changedByName: string | null;
 }
 
+/** GET/PATCH /organizations/:id/operating-mode. */
 export interface OperatingModeState {
-  operatingMode: 'pos' | 'order_only';
+  country: string | null;
+  operatingMode: import('@/lib/operating-mode').OperatingMode;
+  operatingModeLegacy: boolean;
   operatingModeSince: string | null;
-  history?: OperatingModeChange[];
+  tseActive: boolean;
+  cashAllowed: boolean;
+  pricesVisible: boolean;
+  options: import('@/lib/operating-mode').OperatingModeOption[];
+  certificateAvailable: boolean;
+  history: OperatingModeChange[];
 }
 
-/** Eintrag im Verlauf des bargeldlosen Modus. */
-export interface CashlessChange {
+/** Eintrag im Verlauf des Landes (Adminbereich). */
+export interface CountryChange {
   id: string;
   createdAt: string;
-  /** Neuer Zustand ab diesem Zeitpunkt. */
-  cashless: boolean;
-  /** „Vorname Nachname (E-Mail)“ zum Zeitpunkt der Änderung. */
+  fromValue: string | null;
+  toValue: string;
+  reason: string | null;
   changedByName: string | null;
+}
+
+/** GET /admin/organizations/:id/operating-mode/history. */
+export interface AdminOperatingModeHistory {
+  state: OperatingModeState;
+  history: OperatingModeChange[];
+  countryHistory: CountryChange[];
 }

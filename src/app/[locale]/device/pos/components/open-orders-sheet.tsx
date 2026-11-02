@@ -27,7 +27,7 @@ interface OpenOrdersSheetProps {
   onSplit: () => void;
   onPaid: (info: DoneInfo) => void;
   /**
-   * „Nur Bestellen“: keine Auswahl und kein Kassieren — jede Bestellung
+   * „Nur Bons“: keine Auswahl und kein Kassieren — jede Bestellung
    * wird bei der Ausgabe mit „Abgeholt“ abgeschlossen.
    */
   orderOnly?: boolean;
@@ -83,7 +83,7 @@ export function OpenOrdersSheet({
     }
   };
 
-  /** „Nur Bestellen“: abgeholt → abgeschlossen (ohne Zahlung). */
+  /** „Nur Bons“: abgeholt → abgeschlossen (ohne Zahlung). */
   const complete = async (orderId: string) => {
     setCompleting(orderId);
     try {
@@ -166,10 +166,6 @@ export function OpenOrdersSheet({
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     const paidIds = selected.map((o) => o.id);
     try {
-      if (result.method === 'outside') {
-        // „Ohne Zahlung abschließen“: bar außerhalb kassiert, keine Zahlung.
-        await deviceTablesApi.completeOrders(paidIds);
-      } else
       // Alles oder nichts: eine Sammelzahlung statt einer Schleife je Bestellung.
       await deviceTablesApi.payBatch({
         orderIds: paidIds,

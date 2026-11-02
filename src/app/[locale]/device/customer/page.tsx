@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CircleCheck, ShoppingBag, Wifi, WifiOff } from 'lucide-react';
 import { useDeviceStore, useDeviceHydration } from '@/stores/device-store';
 import { useDeviceSocket } from '@/hooks/use-device-socket';
@@ -88,13 +88,20 @@ export default function DeviceCustomerDisplayPage() {
   const [serverReady, setServerReady] = useState(0);
   const handleServerConnected = useCallback(() => setServerReady((n) => n + 1), []);
 
+  /* Wechsel der Betriebsart: Organisation neu laden (Preise an/aus). */
+  const queryClient = useQueryClient();
+  const handleOrganizationUpdated = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['device-organization'] });
+  }, [queryClient]);
+
   const socketEvents = useMemo(() => ({
     connected: handleServerConnected,
+    organizationSettingsUpdated: handleOrganizationUpdated,
     posCartUpdated: handleCartUpdated,
     deviceSettingsUpdated: refreshDeviceStatus,
     deviceConfigUpdated: refreshDeviceStatus,
     deviceStatusChanged: handleDeviceStatusChanged,
-  }), [handleServerConnected, handleCartUpdated, refreshDeviceStatus, handleDeviceStatusChanged]);
+  }), [handleServerConnected, handleOrganizationUpdated, handleCartUpdated, refreshDeviceStatus, handleDeviceStatusChanged]);
 
   const { socket, isConnected } = useDeviceSocket({ on: socketEvents });
 
@@ -140,9 +147,9 @@ export default function DeviceCustomerDisplayPage() {
   const organizationName = orgData?.data?.name;
   const hasItems = !!cart && cart.items.length > 0;
   const isCompleted = cart?.status === 'completed';
-  /* „Nur Bestellen“: kein Geld auf der Kundenanzeige — nur Positionen und
+  /* „Nur Bons“: kein Geld auf der Kundenanzeige — nur Positionen und
      Mengen. Kassiert wird außerhalb von OpenEOS. */
-  const showPrices = customerDisplayShowsPrices(orgData?.data?.settings, cart);
+  const showPrices = customerDisplayShowsPrices(orgData?.data, cart);
 
   return (
     <div className={`flex h-screen flex-col bg-secondary ${design.klasse}`}>
@@ -254,7 +261,7 @@ export default function DeviceCustomerDisplayPage() {
             </div>
           </div>
 
-          {/* Totals — im Modus „Nur Bestellen“ ohne Beträge */}
+          {/* Totals — in „Nur Bons“ ohne Beträge */}
           {showPrices && (
             <div className="border-t border-secondary bg-primary px-6 py-5">
               <div className="flex flex-col gap-2">

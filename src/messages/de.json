@@ -137,7 +137,7 @@
           "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später deine Veranstaltungen, Produkte und Kassen.",
           "name": "Name der Organisation",
           "country": "Land",
-          "countryHint": "Davon hängt ab, welche Kassenregeln OpenEOS für dich anwendet – zum Beispiel, ob Bargeld erfasst werden kann. Ändern kann das Land später nur unser Support."
+          "countryHint": "Davon hängt ab, welche Betriebsarten du wählen kannst – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support."
         },
         "confirm": {
           "label": "Bestätigung",
@@ -499,7 +499,6 @@
       "resize": "Größe von {label} ändern"
     },
     "orderOnly": {
-      "orderValue": "Bestellwert (nicht kassiert)",
       "hourlyLabel": "Bestellungen nach Stunde",
       "hourlySubtitle": "Bestellungen je Stunde · {period}",
       "hourlyValueLabel": "Bestellungen",
@@ -727,7 +726,7 @@
       },
       "countryMissing": "Noch nicht hinterlegt.",
       "countryLocked": "Ändern nur über den Support",
-      "countrySet": "Unter Zahlungen festlegen"
+      "countrySet": "Unter „Betriebsart“ festlegen"
     },
     "organizationBilling": {
       "title": "Rechnungsadresse",
@@ -923,64 +922,6 @@
       "copyright": "Copyright © 2026 LUXCODE by Lukas Lukic-Spitznagel und Mitwirkende",
       "thirdParty": "Enthaltene Fremdbestandteile und ihre Lizenzen stehen in NOTICE und THIRD_PARTY_NOTICES.md im Quellcode."
     },
-    "organizationPayments": {
-      "tab": "Zahlungen",
-      "title": "Zahlungen",
-      "description": "Wie an deinen Kassen bezahlt werden kann.",
-      "cashless": {
-        "label": "Bargeldloser Modus",
-        "hint": "Deine Kassen nehmen kein Bargeld an – Kartenzahlung über SumUp sowie Online- und Vorauszahlungen laufen weiter, auch mit Trinkgeld, geteilt oder gesammelt. OpenEOS sperrt Bargeld dann auch auf dem Server. Von der TSE-Pflicht befreit der Modus allein nicht, weil du Bargeld hier selbst wieder einschalten kannst; ohne TSE geht es nur mit „Nur Bestellen“, das unser Support umschaltet. Jede Umschaltung wird mit Zeitpunkt und Person protokolliert.",
-        "effects": {
-          "pay": "Kein Bar-Button, keine Schnellwahl und kein Rückgeld beim Kassieren.",
-          "refund": "Erstattungen gehen nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Alte Barzahlungen lassen sich über OpenEOS nicht mehr erstatten.",
-          "pfand": "Pfand wird nicht bar ausgezahlt. Zurückgegebenes Pfand verrechnest du mit neuem Pfand im selben Verkauf; eine reine Pfand-Rückgabe ist gesperrt.",
-          "drawer": "Die Kassenlade öffnet sich nicht."
-        }
-      },
-      "adminOnly": "Nur Admins der Organisation können den Modus ändern.",
-      "noSumup": {
-        "title": "SumUp ist nicht eingeschaltet",
-        "text": "Ohne SumUp kann die Kasse im bargeldlosen Modus keine Zahlungen annehmen – abschließen lassen sich dann nur online oder vorab bezahlte Bestellungen.",
-        "action": "SumUp einrichten",
-        "textBlocked": "Ohne SumUp nimmt die Kasse keine Kartenzahlung an – abschließen lassen sich Bestellungen dann nur ohne Zahlung oder online bzw. vorab bezahlt."
-      },
-      "savedOn": "Bargeldloser Modus ist an. Die Kassen stellen sich sofort um.",
-      "savedOff": "Bargeldloser Modus ist aus. Die Kassen nehmen wieder Bargeld an.",
-      "confirmOff": {
-        "title": "Bargeld wieder erlauben?",
-        "text": "Deine Kassen nehmen dann wieder Bargeld an. Die TSE-Pflicht hängt nicht an diesem Schalter: Weil du Bargeld hier selbst ein- und ausschalten kannst, gilt sie auch im bargeldlosen Modus. Die TSE-Anbindung für OpenEOS ist in Arbeit. Die Änderung wird im Verlauf gespeichert.",
-        "faqLink": "Mehr dazu in den FAQ",
-        "confirm": "Bargeld erlauben"
-      },
-      "since": "Bargeldlos seit {date}",
-      "history": {
-        "title": "Verlauf",
-        "on": "Bargeldlosen Modus eingeschaltet",
-        "off": "Bargeldlosen Modus ausgeschaltet (Bargeld erlaubt)"
-      },
-      "operatingMode": {
-        "title": "Betriebsart",
-        "modes": {
-          "pos": "Kasse",
-          "order_only": "Nur Bestellen (ohne Kasse)"
-        },
-        "posText": "OpenEOS ist deine Kasse: An den Geräten wird bestellt und kassiert.",
-        "orderOnlyText": "OpenEOS nimmt nur Bestellungen auf und steuert Küche, Stationen und Ausgabe. Kassiert wird außerhalb von OpenEOS, zum Beispiel mit einer offenen Ladenkasse. Zahlungen, Erstattungen, Trinkgeld, Kassenlade und Pfand-Auszahlung gibt es an den Kassen nicht. Vorkasse im Online-Shop läuft weiter.",
-        "since": "Seit {date}",
-        "request": "Die Betriebsart kannst du nicht selbst ändern. Wechseln geht nur über den Support – jede Umschaltung wird protokolliert.",
-        "supportLink": "Support kontaktieren",
-        "docsLink": "Mehr zu „Nur Bestellen“",
-        "certificate": "Bescheinigung herunterladen",
-        "certificateHint": "Herstellerbescheinigung (PDF) für deine Verfahrensdokumentation: Das Kassen- und Zahlungsmodul ist deaktiviert und kann von deiner Organisation nicht selbst eingeschaltet werden. Lade nach jeder Änderung eine neue herunter.",
-        "certificateAdminOnly": "Die Bescheinigung können Admins der Organisation herunterladen.",
-        "certificateFailed": "Die Bescheinigung konnte nicht erstellt werden.",
-        "historyTitle": "Verlauf der Betriebsart",
-        "historyEntry": "von {from} zu {to}"
-      },
-      "orderOnlyNoCash": "In der Betriebsart „Nur Bestellen“ gibt es keine Zahlungen an den Kassen – Bargeld, Karte und der bargeldlose Modus spielen dann keine Rolle.",
-      "blockedByCountry": "Bargeld ist für deine Organisation durch „Deutschland ohne Bargeld“ gesperrt – einen Schalter dafür gibt es nicht. Das heißt an der Kasse und in der Verwaltung:",
-      "closeWithoutPayment": "Bar außerhalb von OpenEOS kassierte Bestellungen schließt du mit „Ohne Zahlung abschließen“ ab (keine Zahlung, kein Betrag in OpenEOS)."
-    },
     "organizationAssistant": {
       "tab": "Assistent",
       "title": "Assistent",
@@ -1112,6 +1053,9 @@
         "actions": "Aktionen"
       },
       "revokeTitle": "„{name}“ widerrufen"
+    },
+    "organizationMode": {
+      "tab": "Betriebsart"
     }
   },
   "theme": {
@@ -2108,8 +2052,7 @@
       "view": "Anzeigen",
       "manageMembers": "Mitglieder verwalten",
       "manageCredits": "Credits verwalten",
-      "operatingMode": "Betriebsart",
-      "cashPolicy": "Land & Bargeld"
+      "operatingMode": "Betriebsart & Land"
     },
     "credits": {
       "title": "Event-Credits verwalten",
@@ -2136,50 +2079,33 @@
       "invitationsTitle": "Ausstehende Einladungen ({count})"
     },
     "count": "{count, plural, =0 {Keine Organisationen} =1 {1 Organisation} other {# Organisationen}}",
-    "orderOnlyBadge": "Nur Bestellen",
     "operatingMode": {
-      "title": "Betriebsart – {name}",
+      "title": "Betriebsart und Land – {name}",
       "current": "Aktuell",
       "currentShort": "aktuell",
       "since": "seit {date}",
-      "modes": {
-        "pos": "Kasse",
-        "order_only": "Nur Bestellen (ohne Kasse)"
-      },
-      "explain": "„Nur Bestellen“ schaltet das Kassen- und Zahlungsmodul ab: Der Server lehnt jede Zahlung, Erstattung, Trinkgeld, Kassenlade und Pfand-Auszahlung ab. Die Organisation kann das nicht selbst ändern und lädt dafür eine Herstellerbescheinigung herunter. Schalte nur auf dokumentierten Antrag um.",
+      "country": "Land",
+      "noCountry": "nicht hinterlegt",
+      "tse": "TSE",
+      "tseActive": "aktiv",
+      "tseInactive": "nicht aktiv",
+      "explain": "Hier wechselst du Betriebsart und Land einer Organisation – immer mit Grund. Es gelten dieselben Regeln wie für den Verein: „Alle Funktionen“ in Deutschland nur mit aktiver TSE. Jede Änderung steht im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
+      "modeTitle": "Betriebsart",
       "newMode": "Neue Betriebsart",
       "reason": "Grund (Pflicht)",
       "reasonPlaceholder": "z. B. Antrag per E-Mail vom 01.11.2026, Ticket #123",
-      "reasonHint": "Erscheint im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
+      "reasonHint": "Mindestens 5 Zeichen. Erscheint im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
       "reasonRequired": "Bitte gib einen Grund mit mindestens 5 Zeichen an.",
       "submit": "Auf „{mode}“ umschalten",
       "saved": "Betriebsart ist jetzt „{mode}“. Die Kassen stellen sich sofort um.",
-      "history": "Verlauf",
-      "historyEntry": "von {from} zu {to}"
-    },
-    "cashPolicy": {
-      "title": "Land und Bargeld: {name}",
-      "currentCountry": "Land",
-      "currentPolicy": "Bargeld-Regel",
-      "noCountry": "nicht hinterlegt",
-      "policy": {
-        "legacy": "Bestandsschutz (wie bisher)",
-        "blocked": "Deutschland ohne Bargeld",
-        "allowed": "Bargeld erlaubt"
-      },
-      "explain": "Die Organisation legt ihr Land nur einmal selbst fest und kann nur zu „Deutschland ohne Bargeld“ wechseln. Alles andere änderst du hier – immer mit Grund. Jede Änderung steht im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
-      "reason": "Grund",
-      "reasonPlaceholder": "z. B. Antrag des Vereins per E-Mail vom …",
-      "reasonHint": "Mindestens 5 Zeichen. Gilt für die nächste Änderung.",
-      "country": "Neues Land",
+      "countryTitle": "Land",
+      "newCountry": "Neues Land",
       "saveCountry": "Land ändern",
-      "endLegacy": "Bestandsschutz aufheben (Regel des Landes)",
-      "restoreLegacy": "Bestandsschutz wiederherstellen (Bargeld wie bisher)",
       "countrySaved": "Land geändert: {country}",
-      "policySaved": "Bargeld-Regel geändert",
-      "history": "Verlauf",
-      "historyCountry": "Land {from} → {to}",
-      "historyPolicy": "Regel {from} → {to}"
+      "history": "Verlauf der Betriebsart",
+      "countryHistory": "Verlauf des Landes",
+      "historyEntry": "{from} → {to}",
+      "bySupport": "Support"
     }
   },
   "billing": {
@@ -2543,7 +2469,7 @@
       "offsetButton": "Verrechnen",
       "offsetHint": "„Verrechnen\" zieht den Betrag von der Rechnung ab. „Auszahlen\" gibt Bargeld zurück.",
       "close": "Schließen",
-      "cashlessTitle": "Bargeldlos: keine Pfand-Auszahlung",
+      "cashlessTitle": "Ohne Bargeld: keine Pfand-Auszahlung",
       "cashlessOffset": "Pfand wird nicht bar ausgezahlt. Verrechne die Rückgabe mit neuem Pfand im aktuellen Verkauf.",
       "cashlessNoCart": "Deine Organisation zahlt kein Bargeld aus. Zurückgegebenes Pfand kannst du nur beim nächsten Verkauf mit neuem Pfand verrechnen."
     },
@@ -2764,10 +2690,12 @@
       "retry": "Erneut versuchen",
       "markManual": "Manuell erstattet",
       "cashlessBlockedTitle": "Keine Bar-Erstattung",
-      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten.",
+      "cashlessBlocked": "Ohne Bargeld geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten.",
       "complete": "Abschließen",
       "completeBlocked": "Noch in Zubereitung",
-      "completedToast": "Bestellung abgeschlossen"
+      "completedToast": "Bestellung abgeschlossen",
+      "pickedUp": "Abgeholt",
+      "closedWithoutPayment": "Ohne Zahlung abgeschlossen (früher)"
     },
     "noActiveEvent": "Kein aktives Event",
     "menu": {
@@ -2849,7 +2777,9 @@
       "startTitle": "Tisch öffnen",
       "stockLeft": "noch {count}",
       "tableNumber": "Tischnummer",
-      "unavailable": "Nicht verfügbar"
+      "unavailable": "Nicht verfügbar",
+      "optionsAddNoPrice": "Hinzufügen",
+      "optionsApplyNoPrice": "Übernehmen"
     },
     "cartV2": {
       "added": "{name} im Warenkorb",
@@ -2947,14 +2877,9 @@
       "unsavedTitle": "Kartenzahlung erfolgreich, Bestellung nicht gespeichert",
       "cardTestModeHint": "Im Testmodus ohne echte Kartenzahlung",
       "noMethod": "Keine Zahlart",
-      "cashlessNoMethodTitle": "Bargeldlos – keine Zahlart verfügbar",
+      "cashlessNoMethodTitle": "Keine Zahlart verfügbar",
       "cashlessNoMethodText": "Deine Organisation nimmt kein Bargeld an, und an dieser Kasse ist kein SumUp-Lesegerät eingerichtet. Kassieren lässt sich hier nur, was online oder vorab bezahlt ist.",
-      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt.",
-      "outside": "Ohne Zahlung abschließen",
-      "outsideHint": "offene Ladenkasse",
-      "outsideComplete": "Ohne Zahlung abschließen",
-      "outsideTitle": "Bar außerhalb von OpenEOS",
-      "outsideText": "Kassiere {amount} in deiner offenen Ladenkasse. Die Bestellung wird ohne Zahlung abgeschlossen – OpenEOS erfasst dabei keinen Betrag."
+      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt."
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -2964,8 +2889,7 @@
         "card": "Karte",
         "cash": "Bar",
         "free": "ohne Zahlung",
-        "sumup": "Karte · SumUp",
-        "outside": "ohne Zahlung (offene Ladenkasse)"
+        "sumup": "Karte · SumUp"
       },
       "next": "Nächster Bon",
       "pfand": "Pfand",
@@ -2976,8 +2900,7 @@
       "sum": "Summe",
       "testReceipt": "Testbon",
       "tip": "Trinkgeld",
-      "title": "Bezahlt",
-      "titleOutside": "Abgeschlossen"
+      "title": "Bezahlt"
     },
     "offline": {
       "banner": "Keine Verbindung – Senden und Kassieren gehen erst wieder, wenn die Kasse online ist."
@@ -3056,9 +2979,12 @@
       "zoneOther": "Sonstiges"
     },
     "orderOnly": {
-      "banner": "Nur-Bestellen-Modus – kassiert wird außerhalb von OpenEOS.",
+      "banner": "Nur Bons – hier wird nicht kassiert. Bezahlt wird außerhalb von OpenEOS.",
       "sent": "Bestellung #{number} gesendet",
       "tableClosed": "Tisch abgeschlossen"
+    },
+    "cashBlocked": {
+      "banner": "Bargeld gesperrt – ohne aktive TSE nimmt diese Kasse kein Bargeld an. Karte und online gehen weiter."
     }
   },
   "orders": {
@@ -3284,7 +3210,7 @@
       "less": "{name}: weniger",
       "more": "{name}: mehr",
       "cashlessBlockedTitle": "Keine Bar-Erstattung",
-      "cashlessBlocked": "Im bargeldlosen Modus geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
+      "cashlessBlocked": "Ohne Bargeld geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
     }
   },
   "device": {
@@ -3658,8 +3584,8 @@
         "payment": {
           "title": "Zahlung",
           "description": "Kartenzahlung über ein SumUp-Lesegerät.",
-          "cashless": "Bargeldloser Modus: Diese Kasse nimmt kein Bargeld an.",
-          "cashlessLink": "Zahlungseinstellungen"
+          "noCash": "In der Betriebsart deiner Organisation nimmt diese Kasse kein Bargeld an.",
+          "modeLink": "Betriebsart"
         }
       },
       "printer": {
@@ -3687,8 +3613,8 @@
           "selectPrinter": "Drucker mit Schublade",
           "noPrinter": "Keine Kassenschublade",
           "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert",
-          "cashless": "Im bargeldlosen Modus öffnet sich die Kassenlade nicht.",
-          "orderOnly": "Im Modus „Nur Bestellen“ gibt es keine Kassenlade."
+          "cashless": "Ohne Bargeld (Betriebsart) öffnet sich die Kassenlade nicht.",
+          "orderOnly": "In „Nur Bons“ gibt es keine Kassenlade."
         },
         "testPrint": "Testdruck",
         "testPrintSent": "Testdruck wurde gesendet",
@@ -3737,7 +3663,7 @@
     "CARD_READER_NOT_LINKED": "Mit diesem Gerät ist kein Kartenleser verknüpft.",
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
     "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
-    "CASH_PAYMENTS_DISABLED": "Deine Organisation arbeitet bargeldlos. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
+    "CASH_PAYMENTS_DISABLED": "Deine Organisation nutzt „Bargeldlos“. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
     "CATEGORY_HAS_PRODUCTS": "Die Kategorie enthält noch {count} Produkte – verschiebe oder lösche sie zuerst.",
     "CATEGORY_IN_USE": "Die Kategorie wird in Bestellungen verwendet und kann nicht gelöscht werden.",
     "CATEGORY_NOT_FOUND": "Die Kategorie wurde nicht gefunden.",
@@ -4002,21 +3928,17 @@
     "VERIFICATION_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
     "ORGANIZATION_LIMIT_REACHED": "Du kannst höchstens {limit} Organisationen anlegen.",
     "MEMBER_LIMIT_REACHED": "Diese Organisation hat die Höchstzahl von {limit} Mitgliedern erreicht (inklusive offener Einladungen).",
-    "ORDER_ONLY_MODE": "Deine Organisation nutzt „Nur Bestellen“. Zahlungen, Erstattungen, Trinkgeld, Kassenlade und Pfand-Auszahlung gibt es darin nicht – kassiert wird außerhalb von OpenEOS.",
+    "ORDER_ONLY_MODE": "Deine Organisation nutzt „Nur Bons“. Zahlungen, Erstattungen, Trinkgeld, Rabatte, Kassenlade, Pfand und Online-Bestellungen gibt es darin nicht – kassiert wird außerhalb von OpenEOS.",
     "ORDER_ITEMS_IN_PRODUCTION": "Es ist noch etwas in Zubereitung. Schließe die Bestellung ab, wenn alles fertig ist.",
     "OPERATING_MODE_UNCHANGED": "Die Organisation ist bereits in dieser Betriebsart.",
-    "CERTIFICATE_REQUIRES_ORDER_ONLY": "Die Bescheinigung gibt es nur in der Betriebsart „Nur Bestellen“.",
-    "CASH_NOT_ALLOWED_IN_COUNTRY": "Bargeld kann deine Organisation in OpenEOS nicht erfassen: In Deutschland braucht eine Kasse mit Bargeld eine TSE, und die bietet OpenEOS noch nicht an. Karte und Online-Zahlung gehen weiter; bar kassierte Bestellungen schließt du mit „Ohne Zahlung abschließen“ ab.",
     "COUNTRY_ALREADY_SET": "Das Land deiner Organisation ist schon festgelegt. Ändern kann es nur der OpenEOS-Support.",
     "COUNTRY_INVALID": "Bitte wähle ein Land aus der Liste.",
     "COUNTRY_UNCHANGED": "Die Organisation hat dieses Land schon.",
-    "CASH_POLICY_ALREADY_ACTIVE": "Für deine Organisation gilt die Regel deines Landes schon.",
-    "CASH_POLICY_SWITCH_REQUIRES_DE": "Den Wechsel auf „Deutschland ohne Bargeld“ gibt es nur für Organisationen in Deutschland.",
-    "CASH_POLICY_UNCHANGED": "An der Bargeld-Regel ändert sich dadurch nichts.",
-    "CASHLESS_TOGGLE_NOT_AVAILABLE": "Für deine Organisation gilt „Deutschland ohne Bargeld“: Bargeld ist in OpenEOS gesperrt, ein Schalter dafür entfällt.",
-    "CERTIFICATE_REQUIRES_CASH_POLICY": "Die Bescheinigung gibt es nur mit der Regel „Deutschland ohne Bargeld“.",
-    "CLOSE_WITHOUT_PAYMENT_NOT_AVAILABLE": "„Ohne Zahlung abschließen“ gibt es nur, wenn deine Organisation in OpenEOS kein Bargeld erfassen kann. Kassiere die Bestellung bitte.",
-    "ORDER_CLOSED_WITHOUT_PAYMENT": "Diese Bestellung wurde schon ohne Zahlung abgeschlossen (außerhalb von OpenEOS bezahlt). Lade die offenen Bestellungen neu."
+    "ORDER_CLOSED_WITHOUT_PAYMENT": "Diese Bestellung wurde schon ohne Zahlung abgeschlossen (außerhalb von OpenEOS bezahlt). Lade die offenen Bestellungen neu.",
+    "TSE_REQUIRED_FOR_CASH": "Bargeld geht in Deutschland nur mit einer aktiven Cloud-TSE. Kassiere per Karte oder online.",
+    "OPERATING_MODE_FULL_REQUIRES_TSE": "„Alle Funktionen“ gibt es in Deutschland nur mit einer aktiven Cloud-TSE.",
+    "COUNTRY_REQUIRED": "Lege zuerst das Land deiner Organisation fest.",
+    "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland in den Betriebsarten „Nur Bons“ und „Bargeldlos“."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -4986,10 +4908,8 @@
     },
     "orderOnly": {
       "pageSubtitle": "Bestellungen, Artikel und Produktanalysen im Überblick",
-      "banner": "Nur-Bestellen-Modus: Die Auswertung zählt Bestellungen und Artikel. Beträge sind Bestellwerte – kassiert wird außerhalb von OpenEOS.",
-      "orderValue": "Bestellwert (nicht kassiert)",
+      "banner": "Nur Bons: OpenEOS erfasst kein Geld. Die Auswertung zählt nur Bestellungen und Artikel – kassiert wird außerhalb von OpenEOS.",
       "kpi": {
-        "orderValueSub": "Summe der Bestellungen ohne Storno",
         "itemsOrdered": "{count} Artikel bestellt"
       },
       "productsSubtitle": "Nach Menge sortiert",
@@ -4997,7 +4917,6 @@
       "channelsTitle": "Bestellungen nach Kanal",
       "devicesTitle": "Bestellungen je Gerät",
       "hourlySubtitle": "Bestellungen pro Stunde (0–23 Uhr)",
-      "paymentsSubtitle": "Nur Online-Vorkasse im Shop – vor Ort wird außerhalb von OpenEOS kassiert",
       "pdf": {
         "hourlyTitle": "Bestellungen je Stunde",
         "hourlyEmpty": "Keine Bestellungen im gewählten Zeitraum",
@@ -5202,7 +5121,7 @@
       "name": "TSE (Kassensicherung)",
       "vendor": "Fiskalisierung",
       "description": "Cloud-TSE nach KassenSichV für Barzahlungen – in Vorbereitung.",
-      "longDescription": "Eine Kasse, mit der sich Bargeld annehmen lässt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Der bargeldlose Modus allein befreit nicht von der TSE-Pflicht, weil du Bargeld selbst wieder einschalten kannst. Ohne TSE geht es mit der Betriebsart „Nur Bestellen“, die unser Support umschaltet. Mehr dazu in den <link>FAQ auf openeos.de</link>."
+      "longDescription": "Eine Kasse, mit der sich Bargeld annehmen lässt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Bis dahin nutzt du in Deutschland die Betriebsart „Nur Bons“ oder „Bargeldlos“ – „Alle Funktionen“ mit Bargeld gibt es dort nur mit aktiver TSE. Mehr dazu in den <link>FAQ auf openeos.de</link>."
     }
   },
   "onboarding": {
@@ -5338,7 +5257,7 @@
     "createFailed": "Fehler beim Erstellen der Organisation",
     "limitReached": "Du kannst höchstens {limit} Organisationen anlegen oder ihnen beitreten. Für weitere wende dich an den Support.",
     "country": "Land",
-    "countryHint": "Davon hängt ab, welche Kassenregeln OpenEOS anwendet – zum Beispiel, ob Bargeld erfasst werden kann. Ändern kann das Land später nur unser Support.",
+    "countryHint": "Davon hängt ab, welche Betriebsarten die Organisation wählen kann – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support.",
     "countryRequired": "Bitte wähle das Land der Organisation."
   },
   "validation": {
@@ -5616,27 +5535,126 @@
     "shiftsPublished": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Der Plan ist schon veröffentlicht, trag die Angaben bitte bald ein.",
     "action": "Rechtliche Angaben eintragen"
   },
-  "cashTse": {
-    "title": "Bargeld und TSE",
-    "text": "Eine elektronische Kasse, mit der sich Bargeld annehmen lässt, braucht in Deutschland eine zertifizierte TSE. Die TSE-Anbindung für OpenEOS ist in Arbeit. Bis dahin entscheidest du als Verein selbst, ob du Bargeld über OpenEOS erfasst – sprich das im Zweifel mit deiner Steuerberatung ab. Der bargeldlose Modus allein befreit nicht von der TSE-Pflicht, weil du Bargeld selbst wieder einschalten kannst. Ohne TSE geht es mit <order>„Nur Bestellen“</order>; das schaltet unser Support um.",
-    "faqLink": "Mehr dazu in den FAQ",
-    "settingsLink": "Zu den Zahlungseinstellungen",
-    "dismiss": "Hinweis ausblenden"
-  },
   "countrySelect": {
     "placeholder": "Land wählen",
     "frequent": "Häufig",
     "all": "Alle Länder"
   },
-  "cashPolicy": {
+  "operatingMode": {
     "dismiss": "Hinweis ausblenden",
-    "settingsLink": "Zu den Zahlungseinstellungen",
-    "docsLink": "Mehr in der Doku",
-    "faqLink": "FAQ",
-    "noTaxAdvice": "Das ist keine Steuerberatung.",
+    "settingsLink": "Betriebsart wählen",
+    "names": {
+      "orders_only": "Nur Bons",
+      "cashless": "Bargeldlos",
+      "full": "Alle Funktionen",
+      "full_legacy": "Alle Funktionen (Bestand)"
+    },
+    "descriptions": {
+      "orders_only": "Bestellungen aufnehmen, Küche, Ausgabe und Bons – ohne Preise und ohne Zahlungen. Kassiert wird außerhalb von OpenEOS, z. B. mit offener Ladenkasse oder Wertmarken.",
+      "cashless": "Alle Funktionen mit Kartenzahlung (SumUp) und Online-Vorkasse. Bargeld gibt es in OpenEOS nicht.",
+      "full": "Bargeld, Karte und Online-Zahlung."
+    },
+    "fullDeHint": "In Deutschland nur mit aktiver Cloud-TSE.",
+    "availability": {
+      "current": "Aktiv",
+      "legacy": "Aktiv (Bestand)",
+      "available": "Verfügbar",
+      "tse_required": "benötigt eine Cloud-TSE – in Vorbereitung",
+      "country_required": "Lege zuerst das Land fest"
+    },
+    "section": {
+      "title": "Betriebsart",
+      "description": "Legt fest, wie deine Organisation mit Geld umgeht – für alle Kassen, den Shop, die Bons und die Auswertung.",
+      "current": "Aktuell",
+      "since": "seit {date}",
+      "choose": "Betriebsart wählen",
+      "switchButton": "Zu „{mode}“ wechseln",
+      "confirmLegacyButton": "„Alle Funktionen“ bestätigen",
+      "adminOnly": "Die Betriebsart können nur Admins deiner Organisation ändern.",
+      "saved": "Betriebsart ist jetzt „{mode}“. Die Kassen stellen sich sofort um.",
+      "docsLink": "Mehr zu den Betriebsarten",
+      "country": "Land",
+      "noCountry": "Noch nicht hinterlegt",
+      "countryLocked": "Ändern nur über den Support",
+      "cashBlocked": {
+        "title": "Bargeld ist gesperrt",
+        "text": "Deine Organisation nutzt „Alle Funktionen“, aber es ist keine Cloud-TSE aktiv. In Deutschland nehmen die Kassen deshalb kein Bargeld an, bis die TSE wieder aktiv ist – Karte und Online-Zahlung gehen weiter."
+      },
+      "noSumup": {
+        "title": "SumUp ist nicht eingeschaltet",
+        "text": "Ohne SumUp nehmen deine Kassen in „Bargeldlos“ keine Zahlungen an – abschließen lassen sich dann nur online oder vorab bezahlte Bestellungen.",
+        "action": "SumUp einrichten"
+      }
+    },
+    "confirm": {
+      "title": {
+        "orders_only": "Zu „Nur Bons“ wechseln?",
+        "cashless": "Zu „Bargeldlos“ wechseln?",
+        "full": "Zu „Alle Funktionen“ wechseln?"
+      },
+      "titleLegacy": "„Alle Funktionen“ bestätigen?",
+      "legacyText": "Deine Organisation arbeitet weiter mit allen Funktionen. Der Bestand-Status endet damit.",
+      "intro": "Das gilt dann für deine Organisation:",
+      "effects": {
+        "orders_only": {
+          "pos": "Kasse: keine Preise, keine Summen, kein Kassieren. Bestellungen schließt du mit „Abgeholt“ (Theke) oder „Tisch abschließen“ ab.",
+          "money": "Kein Bargeld, keine Kartenzahlung, kein Trinkgeld, keine Kassenlade und keine Erstattungen in OpenEOS. Kassiert wird außerhalb, z. B. mit offener Ladenkasse oder Wertmarken.",
+          "receipts": "Küchen- und Bestellbons ohne Preise, keine Kassenbons. Das Kundendisplay zeigt nur Artikel und Mengen.",
+          "shop": "Online-Shop und QR-Bestellung nehmen keine Bestellungen an – der Shop zeigt „Bestellungen nur vor Ort“.",
+          "extras": "Pfand, Rabatte und Gutscheine sind aus.",
+          "reports": "Die Auswertung zählt nur Bestellungen und Mengen."
+        },
+        "cashless": {
+          "pos": "Kasse: Kartenzahlung über SumUp sowie online oder vorab bezahlte Bestellungen – auch geteilt, gesammelt und mit Trinkgeld.",
+          "cash": "Kein Bargeld: kein Bar-Button, kein Rückgeld, keine Kassenlade.",
+          "refunds": "Erstattungen gehen nur auf die ursprüngliche Karten- oder Online-Zahlung zurück.",
+          "pfand": "Pfand wird nicht bar ausgezahlt, sondern nur mit neuem Pfand verrechnet.",
+          "rest": "Preise, Bons, Shop, Rabatte und Gutscheine bleiben wie gewohnt."
+        },
+        "full": {
+          "pos": "Kasse: Bargeld mit Rückgeld und Kassenlade, Karte (SumUp) und Online-Zahlung.",
+          "pfand": "Pfand und Erstattungen gehen auch in bar.",
+          "rest": "Preise, Bons, Shop, Rabatte und Gutscheine wie gewohnt.",
+          "countryDe": "In Deutschland nimmt die Kasse Bargeld nur mit aktiver Cloud-TSE an.",
+          "countryOther": "Für Bargeld gelten die Kassenregeln deines Landes – prüfe sie selbst. Das ist keine Steuerberatung."
+        }
+      },
+      "oneWay": "Achtung: In Deutschland kommst du ohne aktive Cloud-TSE nicht zurück zu „Alle Funktionen“. Bargeld kann OpenEOS dann erst wieder mit TSE erfassen.",
+      "oneWayLegacy": "Achtung: Den Bestand kannst du nicht wiederherstellen. In Deutschland geht es ohne aktive Cloud-TSE nicht zurück zu „Alle Funktionen“ – Bargeld kann OpenEOS dann erst wieder mit TSE erfassen.",
+      "oneWayCheck": "Ich habe verstanden, dass ich ohne TSE nicht zu „Alle Funktionen“ zurückwechseln kann.",
+      "logged": "Die Kassen stellen sich sofort um. Der Wechsel wird mit Zeitpunkt und deinem Namen im Verlauf gespeichert.",
+      "button": "Wechseln",
+      "buttonOneWay": "Verbindlich wechseln",
+      "buttonLegacy": "Bestätigen"
+    },
+    "certificate": {
+      "title": "Herstellerbescheinigung",
+      "hint": "Für deine Unterlagen (Verfahrensdokumentation): Bargeld kann in deiner Organisation in OpenEOS nicht erfasst werden – Bargeld ist ausschließlich mit aktiver zertifizierter TSE möglich. Lade nach jedem Wechsel eine neue herunter.",
+      "adminOnly": "Die Bescheinigung können Admins deiner Organisation herunterladen.",
+      "download": "Bescheinigung herunterladen",
+      "failed": "Die Bescheinigung konnte nicht erstellt werden."
+    },
+    "history": {
+      "title": "Verlauf",
+      "entry": "{from} → {to}"
+    },
+    "legacy": {
+      "de": {
+        "title": "Bargeld braucht in Deutschland eine TSE – bitte wähle deine Betriebsart",
+        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE; die Cloud-TSE für OpenEOS ist in Vorbereitung. Wähle deshalb „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
+        "noCountry": "Lege dafür zuerst das Land deiner Organisation fest."
+      },
+      "confirm": {
+        "title": "Bitte bestätige deine Betriebsart",
+        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“. Bestätige „Alle Funktionen“ oder wähle eine andere Betriebsart – bis dahin bleibt alles wie bisher."
+      },
+      "adminOnly": "Wählen kann ein Admin deiner Organisation.",
+      "noTaxAdvice": "Das ist keine Steuerberatung.",
+      "faqLink": "Mehr dazu in den FAQ"
+    },
     "setCountry": {
       "title": "Land deiner Organisation",
-      "text": "Bitte hinterlege das Land deiner Organisation. Davon hängt ab, welche Kassenregeln OpenEOS für dich anwendet – zum Beispiel, ob Bargeld erfasst werden kann. Du legst das Land einmal selbst fest; ändern kann es danach nur unser Support.",
+      "text": "Bitte hinterlege das Land deiner Organisation. Davon hängt ab, welche Betriebsarten du wählen kannst – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Du legst das Land einmal selbst fest; ändern kann es danach nur unser Support.",
       "adminOnly": "Das Land kann ein Admin deiner Organisation festlegen.",
       "label": "Land",
       "submit": "Land festlegen",
@@ -5645,65 +5663,26 @@
       "confirm": "Festlegen",
       "saved": "Land festgelegt: {country}"
     },
-    "deLegacy": {
-      "title": "Bargeld und TSE in Deutschland",
-      "text": "Nach Auskunft des Bundesfinanzministeriums braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE – auch dann, wenn ihr Bargeld nur selbst einschalten könntet. Der bargeldlose Modus, den du selbst umschalten kannst, befreit deshalb allein nicht von der TSE-Pflicht. OpenEOS hat noch keine TSE. Du hast drei Möglichkeiten:",
-      "keep": {
-        "title": "So weiterarbeiten wie bisher.",
-        "text": "Deine Organisation behält das bisherige Verhalten: Bargeld ist möglich, den bargeldlosen Modus schaltest du selbst. Ob das für dich zulässig ist, verantwortest du selbst."
+    "countryNotice": {
+      "noTaxAdvice": "Das ist keine Steuerberatung.",
+      "docsLink": "Mehr in der Doku",
+      "faqLink": "FAQ",
+      "de": {
+        "title": "Kassenregeln in Deutschland",
+        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE – die Anbindung ist in Vorbereitung. In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen."
       },
-      "switch": {
-        "title": "Zu „Deutschland ohne Bargeld“ wechseln.",
-        "text": "Bargeld ist dann in OpenEOS gesperrt, und ihr könnt es nicht selbst wieder einschalten. Karte und Online-Zahlung gehen weiter; Bargeld nimmst du in einer offenen Ladenkasse an und schließt die Bestellung mit „Ohne Zahlung abschließen“ ab. Für deine Unterlagen bekommst du eine Herstellerbescheinigung. Der Wechsel gilt nur in eine Richtung – zurück geht es nur über unseren Support.",
-        "button": "Zu „Deutschland ohne Bargeld“ wechseln",
-        "adminOnly": "Wechseln kann ein Admin deiner Organisation."
+      "at": {
+        "title": "Registrierkassenpflicht in Österreich",
+        "text": "In Österreich gilt die Registrierkassenpflicht (RKSV) ab 15.000 € Jahresumsatz je Betrieb, wenn davon mehr als 7.500 € Barumsätze sind. Achtung: Kartenzahlungen zählen in Österreich als Barumsätze – das gilt auch in „Bargeldlos“. OpenEOS erstellt derzeit keine RKSV-Signatur. Ausnahmen gibt es zum Beispiel für kleine Feste gemeinnütziger Vereine bis zu 72 Stunden im Kalenderjahr und für Kantinen gemeinnütziger Vereine bis 45.000 € Jahresumsatz (netto, an höchstens 52 Tagen im Jahr; Grenze seit 2026). Prüfe die Regeln für deinen Verein selbst bzw. mit deiner Steuerberatung – egal, welche Betriebsart du wählst.",
+        "sourceLink": "Unternehmensserviceportal (USP)"
       },
-      "wait": {
-        "title": "Auf die TSE warten.",
-        "text": "Die TSE-Anbindung für OpenEOS ist in Arbeit. Sobald sie da ist, kannst du Bargeld mit TSE erfassen."
+      "ch": {
+        "title": "Hinweis für die Schweiz",
+        "text": "In der Schweiz gibt es nach unserem Kenntnisstand keine allgemeine Registrierkassen- oder Fiskalisierungspflicht. Alle drei Betriebsarten stehen dir offen. Aufbewahrungs- und Mehrwertsteuerregeln gelten aber auch für Vereine. Prüfe selbst bzw. mit deiner Treuhand oder Steuerberatung, was für deinen Verein gilt."
       },
-      "confirmTitle": "Zu „Deutschland ohne Bargeld“ wechseln?",
-      "confirmText": "Danach kann deine Organisation in OpenEOS kein Bargeld mehr erfassen: keine Barzahlung, keine Erstattung in bar, keine Pfand-Auszahlung in bar und keine Kassenlade. Der bargeldlose Schalter entfällt. Karte und Online-Zahlung gehen weiter; bar kassierte Bestellungen schließt du mit „Ohne Zahlung abschließen“ ab. Den Wechsel kannst du nicht selbst rückgängig machen – zurück geht es nur über den OpenEOS-Support.",
-      "confirmCheck": "Ich habe verstanden, dass ich den Wechsel nicht selbst rückgängig machen kann.",
-      "confirm": "Verbindlich wechseln",
-      "switched": "Für deine Organisation gilt jetzt „Deutschland ohne Bargeld“."
-    },
-    "deBlocked": {
-      "title": "Deutschland ohne Bargeld",
-      "text": "Für deine Organisation gilt „Deutschland ohne Bargeld“: In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE – und die gibt es in OpenEOS noch nicht. Deshalb erfasst OpenEOS für dich kein Bargeld, und ihr könnt es auch nicht selbst einschalten. Karte und Online-Zahlung funktionieren wie gewohnt. Nimmst du Bargeld an, kassierst du es außerhalb von OpenEOS (offene Ladenkasse) und schließt die Bestellung an der Kasse mit „Ohne Zahlung abschließen“ ab. Für deine Unterlagen gibt es eine Herstellerbescheinigung. Sobald die TSE-Anbindung da ist, kannst du Bargeld wieder in OpenEOS erfassen.",
-      "certificate": "Bescheinigung herunterladen",
-      "certificateFailed": "Bescheinigung konnte nicht geladen werden."
-    },
-    "at": {
-      "title": "Registrierkassenpflicht in Österreich",
-      "text": "In Österreich gilt die Registrierkassenpflicht (RKSV) ab 15.000 € Jahresumsatz je Betrieb, wenn davon mehr als 7.500 € Barumsätze sind. Achtung: Kartenzahlungen zählen in Österreich als Barumsätze. OpenEOS erstellt derzeit keine RKSV-Signatur. Ausnahmen gibt es zum Beispiel für kleine Feste gemeinnütziger Vereine bis zu 72 Stunden im Kalenderjahr und für Kantinen gemeinnütziger Vereine bis 45.000 € Jahresumsatz (netto, an höchstens 52 Tagen im Jahr; Grenze seit 2026). Prüfe die Regeln für deinen Verein selbst bzw. mit deiner Steuerberatung.",
-      "sourceLink": "Unternehmensserviceportal (USP)"
-    },
-    "ch": {
-      "title": "Hinweis für die Schweiz",
-      "text": "In der Schweiz gibt es nach unserem Kenntnisstand keine allgemeine Registrierkassen- oder Fiskalisierungspflicht. Aufbewahrungs- und Mehrwertsteuerregeln gelten aber auch für Vereine. Prüfe selbst bzw. mit deiner Treuhand oder Steuerberatung, was für deinen Verein gilt."
-    },
-    "other": {
-      "title": "Kassenregeln in deinem Land",
-      "text": "Viele Länder haben eigene Kassenvorschriften (z. B. Italien, Frankreich, Polen, Tschechien). Prüfe selbst, ob OpenEOS dort für dich zulässig ist."
-    },
-    "info": {
-      "title": "Land und Bargeld",
-      "country": "Land",
-      "noCountry": "Noch nicht hinterlegt",
-      "countryLocked": "Ändern nur über den Support",
-      "policyLabel": "Bargeld",
-      "policy": {
-        "legacy": "Wie bisher (Bestandsschutz)",
-        "blocked": "Deutschland ohne Bargeld – gesperrt",
-        "allowed": "Erlaubt"
-      },
-      "history": {
-        "title": "Verlauf",
-        "countrySet": "Land festgelegt: {country}",
-        "countryChanged": "Land geändert: {from} → {to}",
-        "switched": "Gewechselt zu „Deutschland ohne Bargeld“",
-        "legacyRestored": "Bestandsschutz wiederhergestellt"
+      "other": {
+        "title": "Kassenregeln in deinem Land",
+        "text": "Viele Länder haben eigene Kassenvorschriften (z. B. Italien, Frankreich, Polen, Tschechien). Alle drei Betriebsarten stehen dir offen – prüfe selbst, ob OpenEOS und die gewählte Betriebsart dort für dich zulässig sind."
       }
     }
   }

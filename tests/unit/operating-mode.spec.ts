@@ -4,23 +4,34 @@ import type { CustomerCartPayload } from '@/hooks/use-customer-display-broadcast
 
 import {
   canCompleteOrder,
+  canSwitchTo,
+  certificateAvailable,
+  countryNoticeKind,
   customerDisplayShowsPrices,
-  dashboardAmount,
+  dashboardNoticeKind,
   effectiveOrderingMode,
   getOperatingMode,
-  isOrderOnlyMode,
   itemsInProduction,
+  legacyNoticeKind,
+  operatingModeDocsUrl,
+  operatingModeLabelValue,
+  operatingModeOption,
+  operatingModeOptions,
   operatingModeSwitchError,
-  orderOnlyDocsUrl,
   rankByMode,
+  resolveOperatingMode,
   stripCartPrices,
+  switchIsOneWay,
   tableCloseState,
+  type OperatingMode,
+  type OperatingModeOrg,
 } from '@/lib/operating-mode';
 
 /*
- * Betriebsart „Nur Bestellen“: Erkennung wie in der API, Kassiermodus,
- * Abschluss ohne Zahlung (nicht, solange eine Station arbeitet) und die
- * Prüfung beim Umschalten durch den Support.
+ * Betriebsarten „Nur Bons“ (orders_only), „Bargeldlos“ (cashless) und
+ * „Alle Funktionen“ (full): Regeln wie in der API, Matrix über Land,
+ * Betriebsart, Bestand und TSE; dazu Kasse („Abgeholt“, „Tisch
+ * abschließen“), Kundenanzeige ohne Preise und die Auswertung.
  */
 
 type Status = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
@@ -30,17 +41,124 @@ const item = (status: Status, productionStationId: string | null = null, quantit
   quantity,
 });
 
+const COUNTRIES = ['DE', 'AT', 'CH', 'FR'] as const;
+const MODES: OperatingMode[] = ['orders_only', 'cashless', 'full'];
+
+/** Erwartung wie in der API (contract): Bargeld nur in `full`, in DE nur mit Bestand oder TSE. */
+function expectedCash(country: string, mode: OperatingMode, legacy: boolean, tse: boolean): boolean {
+  return mode === 'full' && (country !== 'DE' || legacy || tse);
+}
+
+test.describe('operating mode matrix (country × mode × legacy × TSE)', () => {
+  for (const country of COUNTRIES) {
+    for (const mode of MODES) {
+      for (const legacy of [false, true]) {
+        for (const tseActive of [false, true]) {
+          // Bestand gibt es nur als `full`.
+          if (legacy && mode !== 'full') continue;
+          test(`${country} ${mode}${legacy ? ' legacy' : ''}${tseActive ? ' TSE' : ''}`, () => {
+            const org: OperatingModeOrg = { country, operatingMode: mode, operatingModeLegacy: legacy, tseActive };
+            const view = resolveOperatingMode(org);
+            const cash = expectedCash(country, mode, legacy, tseActive);
+
+            expect(view.mode).toBe(mode);
+            expect(view.cashAllowed).toBe(cash);
+            expect(view.pricesVisible).toBe(mode !== 'orders_only');
+            expect(view.paymentsEnabled).toBe(mode !== 'orders_only');
+            expect(view.ordersOnly).toBe(mode === 'orders_only');
+            expect(view.cashBlockedWithoutTse).toBe(mode === 'full' && !cash);
+
+            // Wählbar: `orders_only` und `cashless` immer, `full` außerhalb DE oder mit TSE.
+            const fullSelectable = country !== 'DE' || tseActive;
+            expect(operatingModeOption(org, 'orders_only').available).toBe(true);
+            expect(operatingModeOption(org, 'cashless').available).toBe(true);
+            expect(operatingModeOption(org, 'full')).toEqual({
+              mode: 'full',
+              available: fullSelectable,
+              unavailableReason: fullSelectable ? null : 'tse_required',
+            });
+
+            // Wechsel: auf eine andere wählbare Betriebsart; `full` noch einmal nur im Bestand.
+            for (const target of MODES) {
+              const available = target !== 'full' || fullSelectable;
+              const expected = available && (target !== mode || legacy);
+              expect(canSwitchTo(org, target)).toBe(expected);
+            }
+
+            // Ohne TSE in DE gibt es aus `full` keinen Weg zurück.
+            expect(switchIsOneWay(org, 'cashless')).toBe(country === 'DE' && !tseActive && mode === 'full');
+            expect(switchIsOneWay(org, 'full')).toBe(false);
+
+            expect(certificateAvailable(org)).toBe(country === 'DE' && mode !== 'full');
+            expect(legacyNoticeKind(org)).toBe(legacy ? (country === 'DE' ? 'de' : 'confirm') : null);
+            expect(dashboardNoticeKind(org)).toBe(legacy && country === 'DE' ? 'legacy_de' : null);
+            expect(operatingModeLabelValue(org)).toBe(legacy ? 'full_legacy' : mode);
+          });
+        }
+      }
+    }
+  }
+});
+
 test.describe('operating mode', () => {
-  test('only an explicit order_only counts', () => {
-    expect(getOperatingMode(undefined)).toBe('pos');
-    expect(getOperatingMode({})).toBe('pos');
-    expect(getOperatingMode({ operatingMode: 'ORDER_ONLY' })).toBe('pos');
-    expect(getOperatingMode({ operatingMode: 'order_only' })).toBe('order_only');
-    expect(isOrderOnlyMode({ operatingMode: 'order_only' })).toBe(true);
-    expect(isOrderOnlyMode({ operatingMode: 'pos' })).toBe(false);
+  test('without a valid value the legacy behaviour applies (full)', () => {
+    expect(getOperatingMode(undefined)).toBe('full');
+    expect(getOperatingMode({})).toBe('full');
+    expect(getOperatingMode({ operatingMode: 'order_only' })).toBe('full');
+    expect(getOperatingMode({ operatingMode: 'ORDERS_ONLY' })).toBe('full');
+    expect(getOperatingMode({ operatingMode: 'orders_only' })).toBe('orders_only');
   });
 
-  test('order-only always sends (tab), never checks out immediately', () => {
+  test('values from the API win over the fallback rule', () => {
+    const org: OperatingModeOrg = { country: 'DE', operatingMode: 'full', operatingModeLegacy: false };
+    expect(resolveOperatingMode(org).cashAllowed).toBe(false);
+    expect(resolveOperatingMode({ ...org, cashAllowed: true }).cashAllowed).toBe(true);
+    expect(resolveOperatingMode({ ...org, pricesVisible: false }).pricesVisible).toBe(false);
+  });
+
+  test('no organization yet: no cash, prices visible, no hint', () => {
+    const view = resolveOperatingMode(undefined);
+    expect(view.cashAllowed).toBe(false);
+    expect(view.pricesVisible).toBe(true);
+    expect(view.cashBlockedWithoutTse).toBe(false);
+    expect(dashboardNoticeKind(undefined)).toBeNull();
+  });
+
+  test('without a country nothing can be chosen and the dashboard asks for it', () => {
+    const legacy: OperatingModeOrg = { country: null, operatingMode: 'full', operatingModeLegacy: true };
+    expect(operatingModeOptions(legacy).map((o) => o.unavailableReason)).toEqual([
+      'country_required',
+      'country_required',
+      'country_required',
+    ]);
+    expect(canSwitchTo(legacy, 'cashless')).toBe(false);
+    expect(dashboardNoticeKind(legacy)).toBe('set_country');
+    // Bestand ohne Land wird wie Deutschland behandelt: deutlicher Hinweis.
+    expect(legacyNoticeKind(legacy)).toBe('de');
+    expect(resolveOperatingMode(legacy).cashAllowed).toBe(true);
+    expect(countryNoticeKind(legacy)).toBeNull();
+  });
+
+  test('options from the API are used in fixed order', () => {
+    const org: OperatingModeOrg = { country: 'DE', operatingMode: 'cashless' };
+    const options = operatingModeOptions(org, [
+      { mode: 'full', available: true, unavailableReason: null },
+      { mode: 'orders_only', available: false, unavailableReason: 'country_required' },
+    ]);
+    expect(options.map((o) => o.mode)).toEqual(['orders_only', 'cashless', 'full']);
+    expect(options[0].available).toBe(false);
+    expect(options[1].available).toBe(true);
+    expect(options[2].available).toBe(true);
+  });
+
+  test('country notices', () => {
+    expect(countryNoticeKind({ country: 'de' })).toBe('de');
+    expect(countryNoticeKind({ country: 'AT' })).toBe('at');
+    expect(countryNoticeKind({ country: 'CH' })).toBe('ch');
+    expect(countryNoticeKind({ country: 'IT' })).toBe('other');
+  });
+
+  test('"Tickets only" always sends (tab), never checks out immediately', () => {
     expect(effectiveOrderingMode('immediate', true)).toBe('tab');
     expect(effectiveOrderingMode(undefined, true)).toBe('tab');
     expect(effectiveOrderingMode(undefined, false)).toBe('immediate');
@@ -49,12 +167,12 @@ test.describe('operating mode', () => {
   });
 
   test('docs link per language', () => {
-    expect(orderOnlyDocsUrl('de')).toBe('https://docs.openeos.de/nur-bestellen');
-    expect(orderOnlyDocsUrl('en')).toBe('https://docs.openeos.de/en/nur-bestellen');
+    expect(operatingModeDocsUrl('de')).toBe('https://docs.openeos.de/betriebsarten');
+    expect(operatingModeDocsUrl('en')).toBe('https://docs.openeos.de/en/betriebsarten');
   });
 });
 
-test.describe('closing without payment', () => {
+test.describe('"Picked up" and "Close table"', () => {
   test('items still at a station block closing; items without a station do not', () => {
     const items = [item('pending'), item('preparing', 's1', 2), item('ready', 's1'), item('cancelled', 's1')];
     expect(itemsInProduction(items)).toHaveLength(1);
@@ -77,12 +195,21 @@ test.describe('closing without payment', () => {
 });
 
 test.describe('switch by support', () => {
-  test('needs a different mode and a reason of at least 5 characters', () => {
-    expect(operatingModeSwitchError('pos', 'pos', 'Antrag vom 01.11.')).toBe('unchanged');
-    expect(operatingModeSwitchError('pos', 'order_only', '  abc  ')).toBe('reasonTooShort');
-    expect(operatingModeSwitchError('pos', 'order_only', 'x'.repeat(501))).toBe('reasonTooLong');
-    expect(operatingModeSwitchError('pos', 'order_only', 'Antrag per E-Mail')).toBeNull();
-    expect(operatingModeSwitchError('order_only', 'pos', 'Verein kassiert wieder')).toBeNull();
+  const de: OperatingModeOrg = { country: 'DE', operatingMode: 'cashless', operatingModeLegacy: false };
+
+  test('needs another selectable mode and a reason of at least 5 characters', () => {
+    expect(operatingModeSwitchError(de, 'cashless', 'Antrag vom 01.11.')).toBe('unchanged');
+    expect(operatingModeSwitchError(de, 'full', 'Antrag vom 01.11.')).toBe('unavailable');
+    expect(operatingModeSwitchError({ ...de, tseActive: true }, 'full', 'TSE ist aktiv')).toBeNull();
+    expect(operatingModeSwitchError(de, 'orders_only', '  abc  ')).toBe('reasonTooShort');
+    expect(operatingModeSwitchError(de, 'orders_only', 'x'.repeat(501))).toBe('reasonTooLong');
+    expect(operatingModeSwitchError(de, 'orders_only', 'Antrag per E-Mail')).toBeNull();
+  });
+
+  test('legacy outside Germany can confirm "All features"', () => {
+    const at: OperatingModeOrg = { country: 'AT', operatingMode: 'full', operatingModeLegacy: true };
+    expect(operatingModeSwitchError(at, 'full', 'Bestätigt am Telefon')).toBeNull();
+    expect(operatingModeSwitchError({ ...at, operatingModeLegacy: false }, 'full', 'Bestätigt')).toBe('unchanged');
   });
 });
 
@@ -100,7 +227,7 @@ test.describe('customer display without money', () => {
 
   test('the POS sends items and quantities but no amounts', () => {
     const stripped = stripCartPrices(cart);
-    expect(stripped.orderOnly).toBe(true);
+    expect(stripped.hidePrices).toBe(true);
     expect(stripped.items.map((i) => [i.name, i.quantity])).toEqual([
       ['Bratwurst', 2],
       ['Bier', 1],
@@ -112,11 +239,14 @@ test.describe('customer display without money', () => {
     expect(cart.totals.payable).toBe(12);
   });
 
-  test('prices only in till mode and only for carts with prices', () => {
-    expect(customerDisplayShowsPrices({}, cart)).toBe(true);
+  test('prices only outside "Tickets only" and only for carts with prices', () => {
+    expect(customerDisplayShowsPrices({ operatingMode: 'full' }, cart)).toBe(true);
+    expect(customerDisplayShowsPrices({ operatingMode: 'cashless' }, cart)).toBe(true);
     expect(customerDisplayShowsPrices(undefined, null)).toBe(true);
-    expect(customerDisplayShowsPrices({ operatingMode: 'order_only' }, cart)).toBe(false);
-    expect(customerDisplayShowsPrices({}, { orderOnly: true })).toBe(false);
+    expect(customerDisplayShowsPrices({ operatingMode: 'orders_only' }, cart)).toBe(false);
+    // Wert der API gewinnt
+    expect(customerDisplayShowsPrices({ operatingMode: 'full', pricesVisible: false }, cart)).toBe(false);
+    expect(customerDisplayShowsPrices({ operatingMode: 'full' }, { hidePrices: true })).toBe(false);
   });
 });
 
@@ -127,21 +257,11 @@ test.describe('reports and dashboard without revenue', () => {
     { name: 'Wasser', qty: 10, amount: 20 },
   ];
 
-  test('order-only ranks by quantity, till mode by revenue', () => {
+  test('"Tickets only" ranks by quantity, the other modes by revenue', () => {
     const qty = (r: (typeof rows)[number]) => r.qty;
     const amount = (r: (typeof rows)[number]) => r.amount;
     expect(rankByMode(rows, true, qty, amount).map((r) => r.name)).toEqual(['Bier', 'Wasser', 'Steak']);
     expect(rankByMode(rows, false, qty, amount).map((r) => r.name)).toEqual(['Bier', 'Steak', 'Wasser']);
     expect(rows[0].name).toBe('Steak');
-  });
-
-  test('tile amount: revenue = paid, order value = all orders without cancellations', () => {
-    const orders = [
-      { status: 'completed', paymentStatus: 'paid', paidAmount: 10, total: 10 },
-      { status: 'completed', paymentStatus: 'unpaid', paidAmount: 0, total: 7.5 },
-      { status: 'cancelled', paymentStatus: 'unpaid', paidAmount: 0, total: 99 },
-    ];
-    expect(dashboardAmount(orders, false)).toBe(10);
-    expect(dashboardAmount(orders, true)).toBe(17.5);
   });
 });

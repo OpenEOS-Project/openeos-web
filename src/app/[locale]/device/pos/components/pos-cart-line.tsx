@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CartLine, Stepper } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { useDeviceOperatingMode } from '@/hooks/use-operating-mode';
 import type { CartItem } from '@/stores/cart-store';
 
 interface PosCartLineProps {
@@ -17,6 +18,7 @@ interface PosCartLineProps {
 export function PosCartLine({ item, chargePfand, onIncrement, onDecrement, onEdit }: PosCartLineProps) {
   const t = useTranslations('pos.cartV2');
   const formatPrice = useFormatPrice();
+  const { pricesVisible } = useDeviceOperatingMode();
 
   const options = item.selectedOptions.map((o) =>
     o.excluded ? t('without', { option: o.option }) : o.option,
@@ -34,7 +36,7 @@ export function PosCartLine({ item, chargePfand, onIncrement, onDecrement, onEdi
       name={item.product.name}
       sub={sub || undefined}
       meta={meta || undefined}
-      total={formatPrice(item.unitPrice * item.quantity)}
+      total={pricesVisible ? formatPrice(item.unitPrice * item.quantity) : undefined}
       onClick={onEdit}
       stepper={
         <Stepper

@@ -244,7 +244,7 @@ export function OrganizationAccessSection() {
             href={apiDocsUrl(locale)}
             target="_blank"
             rel="noopener noreferrer"
-            className="cash-tse-notice__link"
+            className="notice-link"
           >
             {t('docsLink')}
           </a>
@@ -252,7 +252,7 @@ export function OrganizationAccessSection() {
             href={agentDocsUrl(locale)}
             target="_blank"
             rel="noopener noreferrer"
-            className="cash-tse-notice__link"
+            className="notice-link"
           >
             {t('agentDocsLink')}
           </a>

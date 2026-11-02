@@ -257,7 +257,6 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
       </PosSheet>
 
       <PaySheet
-        allowCloseWithoutPayment={false}
         open={paying}
         onClose={() => setPaying(false)}
         title={t('title')}

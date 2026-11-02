@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Badge, Icon, Tile } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { useDeviceOperatingMode } from '@/hooks/use-operating-mode';
 import type { Category } from '@/types/category';
 import { categoryTint, IconVisual, productIconSource, type PosProduct } from './product-visual';
 
@@ -31,6 +32,8 @@ export function PosProductGrid({
 }: PosProductGridProps) {
   const t = useTranslations('pos.order');
   const formatPrice = useFormatPrice();
+  // „Nur Bons“: keine Preise auf den Kacheln.
+  const { pricesVisible } = useDeviceOperatingMode();
   const categoryById = new Map(categories.map((c) => [c.id, c]));
 
   return (
@@ -63,7 +66,7 @@ export function PosProductGrid({
             variant="product"
             name={product.name}
             sub={sub}
-            price={formatPrice(product.price)}
+            price={pricesVisible ? formatPrice(product.price) : undefined}
             {...tint}
             icon={<IconVisual source={source} />}
             qty={qty}

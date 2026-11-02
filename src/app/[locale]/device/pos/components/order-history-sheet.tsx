@@ -43,11 +43,11 @@ interface OrderHistorySheetProps {
   card: PosCardMode;
   disabled?: boolean;
   onPaid: (info: DoneInfo) => void;
-  /** „Nur Bestellen“: keine Zahlungsfilter, Beträge und Zahlart-Icons. */
+  /** „Nur Bons“: keine Zahlungsfilter, Beträge und Zahlart-Icons. */
   orderOnly?: boolean;
 }
 
-/** „Nur Bestellen“: ohne Kasse gibt es weder „Offen“ noch „Erstattet“. */
+/** „Nur Bons“: ohne Kasse gibt es weder „Offen“ noch „Erstattet“. */
 const ORDER_ONLY_HIDDEN_FILTERS = new Set(['unpaid', 'refunded']);
 
 const PAYMENT_FILTERS: {

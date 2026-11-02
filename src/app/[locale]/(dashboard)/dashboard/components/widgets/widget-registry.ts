@@ -7,7 +7,7 @@ export interface WidgetDefinition {
   /** If set, user needs this permission (or admin role) to see this widget */
   requiredPermission?: 'reports';
   /**
-   * „Nur Bestellen“: andere Beschriftung (kein Umsatz) bzw. `false` =
+   * „Nur Bons“: andere Beschriftung (kein Umsatz) bzw. `false` =
    * Widget gibt es in dem Modus nicht (z. B. Zahlarten).
    */
   orderOnlyLabelKey?: string | false;

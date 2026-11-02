@@ -15,7 +15,7 @@ interface ReportsCategoriesTableProps {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   isLoading: boolean;
-  /** „Nur Bestellen“: nach Menge, Betrag als Bestellwert (nicht kassiert), ohne Abgleich. */
+  /** „Nur Bons“: nach Menge sortiert, nur Mengen — keine Beträge, kein Abgleich. */
   orderOnly?: boolean;
 }
 
@@ -31,12 +31,21 @@ export function ReportsCategoriesTable({ data: raw, net, isLoading, orderOnly = 
     () => (!orderOnly && net && data?.length ? netReconciliation(data.map((c) => c.revenue), net) : []),
     [net, data, orderOnly],
   );
-  const amountLabel = orderOnly ? t('orderOnly.orderValue') : t('categories.columns.revenue');
+  // „Nur Bons“: OpenEOS erfasst kein Geld — die Umsatzspalte entfällt.
+  const showAmounts = !orderOnly;
 
   const handleExport = () => {
     if (!data?.length) return;
-    const headers = [t('categories.columns.category'), t('categories.columns.quantity'), amountLabel];
-    const rows: (string | number)[][] = data.map((c) => [c.name, c.quantity, c.revenue]);
+    const headers = [
+      t('categories.columns.category'),
+      t('categories.columns.quantity'),
+      ...(showAmounts ? [t('categories.columns.revenue')] : []),
+    ];
+    const rows: (string | number)[][] = data.map((c) => [
+      c.name,
+      c.quantity,
+      ...(showAmounts ? [c.revenue] : []),
+    ]);
     for (const line of netLines) {
       rows.push([line.key === 'items' ? t('net.categoryItems') : t(`net.${line.key}`), '', line.amount]);
     }
@@ -76,7 +85,7 @@ export function ReportsCategoriesTable({ data: raw, net, isLoading, orderOnly = 
               <tr>
                 <th>{t('categories.columns.category')}</th>
                 <th className="text-right">{t('categories.columns.quantity')}</th>
-                <th className="text-right">{amountLabel}</th>
+                {showAmounts && <th className="text-right">{t('categories.columns.revenue')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -86,7 +95,7 @@ export function ReportsCategoriesTable({ data: raw, net, isLoading, orderOnly = 
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{c.name}</div>
                   </td>
                   <td className="mono text-right">{c.quantity}</td>
-                  <td className="mono text-right">{formatCurrency(c.revenue)}</td>
+                  {showAmounts && <td className="mono text-right">{formatCurrency(c.revenue)}</td>}
                 </tr>
               ))}
             </tbody>

@@ -18,7 +18,7 @@ import {
   useNetSalesSummary,
 } from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
-import { useOrderOnly } from '@/hooks/use-order-only';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 
 import { ReportsFilterBar, type ReportsFilter, type TimeRange } from './reports-filter-bar';
 import { ReportsKpiCards } from './reports-kpi-cards';
@@ -39,8 +39,8 @@ function getTodayRange(): { startDate: string; endDate: string } {
 export function ReportsContainer() {
   const tCommon = useTranslations('common');
   const t = useTranslations('reports');
-  /* „Nur Bestellen“: kein Umsatz — Mengen und Bestellwerte (nicht kassiert). */
-  const orderOnly = useOrderOnly();
+  /* „Nur Bons“: OpenEOS erfasst kein Geld — nur Bestellungen und Mengen, keine Beträge und keine Zahlarten. */
+  const orderOnly = useOperatingMode().ordersOnly;
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId ?? '';
@@ -133,7 +133,9 @@ export function ReportsContainer() {
         orderOnly={orderOnly}
       />
 
-      <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} orderOnly={orderOnly} />
+      {!orderOnly && (
+        <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
+      )}
 
       <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} orderOnly={orderOnly} />
 

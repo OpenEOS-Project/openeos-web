@@ -5,8 +5,6 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { ordersApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { useOrderOnly } from '@/hooks/use-order-only';
-import { dashboardAmount } from '@/lib/operating-mode';
 import { useDashboardRange } from '../dashboard-range';
 
 interface Props {
@@ -17,9 +15,6 @@ export function RevenueTodayWidget({ organizationId }: Props) {
   const t = useTranslations('dashboard');
   const { formatCurrency } = useLocaleFormat();
   const range = useDashboardRange();
-  /* „Nur Bestellen“: OpenEOS kassiert nicht — statt Umsatz der Bestellwert
-     (Summe der Bestellungen, nicht kassiert). */
-  const orderOnly = useOrderOnly();
 
   const { data: ordersResponse, isLoading } = useQuery({
     queryKey: ['orders', organizationId, 'range', range.query.startDate, range.query.endDate],
@@ -30,11 +25,20 @@ export function RevenueTodayWidget({ organizationId }: Props) {
     enabled: !!organizationId,
   });
 
-  const revenue = useMemo(() => dashboardAmount(ordersResponse || [], orderOnly), [ordersResponse, orderOnly]);
+  /* Umsatz = bezahlte Beträge ohne Storno. In „Nur Bons“ gibt es die
+     Kachel nicht (siehe Registry) — dort zählen nur Bestellungen. */
+  const revenue = useMemo(
+    () =>
+      (ordersResponse || [])
+        .filter((o) => o.status !== 'cancelled')
+        .filter((o) => o.paymentStatus === 'paid' || o.paymentStatus === 'partly_paid')
+        .reduce((sum, o) => sum + o.paidAmount, 0),
+    [ordersResponse],
+  );
 
   return (
     <div className="stat-card stat-card--accent">
-      <div className="stat-card__label">{orderOnly ? t('orderOnly.orderValue') : t('stats.revenue')}</div>
+      <div className="stat-card__label">{t('stats.revenue')}</div>
       <div className="stat-card__value">{isLoading ? '—' : formatCurrency(revenue)}</div>
       {/* Zuvor stand hier "vs. gestern" — ohne dass je ein Vergleichswert
           berechnet wurde. Der Zeitraum ist die Angabe, die hier wirklich

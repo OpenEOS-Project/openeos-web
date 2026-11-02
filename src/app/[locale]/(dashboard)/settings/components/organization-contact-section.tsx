@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { countryName } from '@/lib/countries';
+import { OPERATING_MODE_SETTINGS_HREF } from '@/lib/operating-mode';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -92,12 +93,13 @@ export function OrganizationContactSection() {
         </div>
 
         {/* Das Land ist das der Organisation (organizations.country) — es
-            steuert die Bargeld-Regel und wird unter Zahlungen festgelegt. */}
+            steuert die wählbaren Betriebsarten und wird unter „Betriebsart“
+            festgelegt. */}
         <div className="auth-field">
           <span className="auth-field__label">{t('country')}</span>
           <p style={{ margin: 0, fontSize: 14 }} data-testid="contact-country">
             {country ? countryName(country, locale) : t('countryMissing')}{' '}
-            <Link href="/settings?tab=org-payments" className="cash-tse-notice__link" style={{ fontSize: 12 }}>
+            <Link href={OPERATING_MODE_SETTINGS_HREF} className="notice-link" style={{ fontSize: 12 }}>
               {country ? t('countryLocked') : t('countrySet')}
             </Link>
           </p>
