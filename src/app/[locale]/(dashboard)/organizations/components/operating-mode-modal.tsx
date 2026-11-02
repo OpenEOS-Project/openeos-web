@@ -202,7 +202,9 @@ export function OperatingModeModal({ organization, onClose }: OperatingModeModal
               >
                 {saveMode.isPending
                   ? tCommon('saving')
-                  : t('submit', { mode: tMode(`names.${mode ?? current}`) })}
+                  : mode
+                    ? t('submit', { mode: tMode(`names.${mode}`) })
+                    : t('submitEmpty')}
               </button>
             </div>
           </section>

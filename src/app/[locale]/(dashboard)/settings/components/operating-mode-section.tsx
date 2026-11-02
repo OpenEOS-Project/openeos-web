@@ -94,7 +94,9 @@ export function OperatingModeSection() {
 
   if (!organization) return null;
 
-  const legacyKind = legacyNoticeKind(org);
+  // Eigene Installation: der Verein betreibt den Server selbst und startet
+  // mit „Alle Funktionen (Bestand)“ — dort keine Bitte um einen Wechsel.
+  const legacyKind = selfHosted ? null : legacyNoticeKind(org);
   const countryKind = countryNoticeKind(org);
   const showCertificate = !selfHosted && (state.data?.certificateAvailable ?? certificateAvailable(org));
   const sumupEnabled = isIntegrationEnabled(organization.settings, 'sumup');
@@ -229,9 +231,11 @@ export function OperatingModeSection() {
               onClick={() => target && setConfirming(target)}
               data-testid="operating-mode-switch"
             >
-              {target && target === current && view.legacy
-                ? t('section.confirmLegacyButton')
-                : t('section.switchButton', { mode: t(`names.${target ?? current}`) })}
+              {!target
+                ? t('section.switchButtonEmpty')
+                : target === current && view.legacy
+                  ? t('section.confirmLegacyButton')
+                  : t('section.switchButton', { mode: t(`names.${target}`) })}
             </button>
             <a href={operatingModeDocsUrl(locale)} target="_blank" rel="noopener noreferrer" className="notice-link">
               {t('section.docsLink')}
