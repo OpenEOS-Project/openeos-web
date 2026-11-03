@@ -2994,6 +2994,19 @@
     "tseOutage": {
       "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet.",
       "training": "Trainingsbuchung – nimm kein echtes Geld an."
+    },
+    "tse": {
+      "pill": "TSE",
+      "pillState": {
+        "ok": "Cloud-TSE bereit – Belege werden signiert",
+        "error": "Cloud-TSE gestört – Belege werden als „TSE ausgefallen“ gekennzeichnet",
+        "creating": "Cloud-TSE wird eingerichtet",
+        "inactive": "Cloud-TSE nicht aktiv – kein Bargeld"
+      },
+      "splitDone": "Teilzahlung gebucht",
+      "pfandDone": "Pfand ausgezahlt",
+      "sectionTitle": "TSE-Daten ({count})",
+      "done": "Fertig"
     }
   },
   "orders": {

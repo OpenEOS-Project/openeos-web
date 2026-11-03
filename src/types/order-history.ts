@@ -291,6 +291,8 @@ export interface RefundResult {
     paymentMethod: PaymentMethod;
     status: RefundStatus;
     printed: boolean;
+    /** Gegenbeleg der Cloud-TSE; null ohne aktive TSE. */
+    tse?: import('@/types/tse').TseReceiptView | null;
   }[];
   order: OrderDetail;
 }

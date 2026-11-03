@@ -22,6 +22,9 @@ export interface PosPrinterStatus {
   isOnline: boolean;
 }
 
+/** Cloud-TSE aus Sicht der Kasse (`error` auch bei eigenem Ausfall). */
+export type PosTseState = 'ok' | 'error' | 'creating' | 'inactive';
+
 export interface PosMenuAction {
   id: string;
   icon: IconName;
@@ -42,6 +45,8 @@ interface PosHeaderProps {
   connection: PosConnectionState;
   /** Bondrucker des Geräts — nur gesetzt, wenn die API einen Zustand liefert. */
   printer: PosPrinterStatus | null;
+  /** Cloud-TSE: nur mit eingeschalteter Integration gesetzt. */
+  tse?: PosTseState | null;
   user: { firstName: string; lastName: string } | null;
   onLock?: () => void;
   menu: PosMenuAction[];
@@ -58,6 +63,13 @@ const THEMES: Array<{ id: PosTheme; icon: IconName }> = [
   { id: 'system', icon: 'monitor' },
 ];
 
+const TSE_DOT: Record<PosTseState, 'live' | 'warn' | 'danger'> = {
+  ok: 'live',
+  error: 'danger',
+  creating: 'warn',
+  inactive: 'warn',
+};
+
 const CONNECTION_TONE: Record<PosConnectionState, 'default' | 'warn' | 'danger'> = {
   online: 'default',
   connecting: 'warn',
@@ -72,6 +84,7 @@ export function PosHeader({
   table,
   connection,
   printer,
+  tse = null,
   user,
   onLock,
   menu,
@@ -143,6 +156,15 @@ export function PosHeader({
                 ? t('status.printer', { name: printer.name })
                 : t('status.printerOffline', { name: printer.name })
             }
+          />
+        )}
+        {tse && (
+          <StatusPill
+            className="pos-head__tse"
+            dot={TSE_DOT[tse]}
+            tone={tse === 'error' ? 'danger' : 'default'}
+            label={t('tse.pill')}
+            title={t(`tse.pillState.${tse}`)}
           />
         )}
         <PosClock />

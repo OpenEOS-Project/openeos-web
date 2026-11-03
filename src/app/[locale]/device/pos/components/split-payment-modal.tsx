@@ -16,6 +16,8 @@ import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
 import { reportTse } from '../hooks/use-pos-tse';
+import type { TseReceiptView } from '@/types/tse';
+import { PosTseSheet } from './pos-tse-receipts';
 
 interface SplitPaymentModalProps {
   isOpen: boolean;
@@ -47,6 +49,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
   const tTabs = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
   const tCart = useTranslations('pos.cartV2');
+  const tTse = useTranslations('pos.tse');
   const formatPrice = useFormatPrice();
   const queryClient = useQueryClient();
   const toast = usePosToast();
@@ -55,6 +58,8 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
   const [selection, setSelection] = useState<Record<string, number>>({});
   const [groupBy, setGroupBy] = useState<GroupBy>('order');
   const [paying, setPaying] = useState(false);
+  // TSE-Belege der letzten Teilzahlung (Cloud-TSE aktiv): digitaler Beleg.
+  const [receipt, setReceipt] = useState<{ title: string; subtitle: string; views: TseReceiptView[] } | null>(null);
 
   const { orders, isLoading } = useOpenOrders(eventId, scope, isOpen);
 
@@ -128,6 +133,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
     const payments = [...byOrder.entries()];
     const amounts = payments.map(([, p]) => p.amount);
     const method: PaymentMethod = result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
+    const tseViews: Array<TseReceiptView | null | undefined> = [];
     try {
       for (const [index, [orderId, p]] of payments.entries()) {
         const received = method === 'cash' ? amountReceivedFor(index, amounts, result.amountReceived) : undefined;
@@ -138,19 +144,24 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
           items: p.items,
           ...(received !== undefined ? { amountReceived: received } : {}),
         });
-        reportTse([split.data?.tse]);
+        tseViews.push(split.data?.tse);
       }
     } catch (error) {
+      // Schon gebuchte Teilzahlungen zählen für den Ausfall-Hinweis mit.
+      reportTse(tseViews);
       toast(apiErrorMessage(error), 'danger');
       invalidate();
       throw error;
     }
     const changeAmount = result.amountReceived ? result.amountReceived - selectedTotal : 0;
-    toast(
+    const message =
       changeAmount > 0.0001
         ? tPay('splitPaidChange', { amount: formatPrice(selectedTotal), change: formatPrice(changeAmount) })
-        : tPay('splitPaid', { amount: formatPrice(selectedTotal) }),
-    );
+        : tPay('splitPaid', { amount: formatPrice(selectedTotal) });
+    const receipts = reportTse(tseViews);
+    // Mit Cloud-TSE den Beleg zeigen (Belegausgabe), sonst nur der Hinweis.
+    if (receipts.length > 0) setReceipt({ title: tTse('splitDone'), subtitle: message, views: receipts });
+    else toast(message);
     setSelection({});
     setPaying(false);
     await invalidate();
@@ -267,6 +278,8 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
         onPay={pay}
         disabled={disabled}
       />
+
+      <PosTseSheet receipt={receipt} onClose={() => setReceipt(null)} />
     </>
   );
 }

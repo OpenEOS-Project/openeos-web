@@ -471,6 +471,15 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-oh-result { display: grid; gap: 10px; justify-items: center; text-align: center; }
 .pos-oh-result p { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; }
 .pos-oh-result__amount { font: 800 36px var(--oe-f-display); letter-spacing: -.035em; color: var(--oe-danger-ink); }
+/* Cloud-TSE: Belege im Dialog (Teilzahlung, Erstattung, Pfand, Bestellung) */
+.pos-tse { display: grid; gap: 12px; width: 100%; margin-top: 14px; text-align: left; }
+.pos-tse__item { display: grid; gap: 6px; }
+.pos-tse__kind { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; font-weight: 700; color: var(--oe-mute); }
+.pos-tse-details > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; font-size: 14px; list-style: none; min-height: 40px; }
+.pos-tse-details > summary::-webkit-details-marker { display: none; }
+.pos-tse-details > summary::after { content: '▸'; margin-left: auto; color: var(--oe-mute); }
+.pos-tse-details[open] > summary::after { content: '▾'; }
+.pos-tse-details .pos-tse { margin-top: 6px; }
 
 @media (max-width: 820px) {
   .pos-oh-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px 2px; }

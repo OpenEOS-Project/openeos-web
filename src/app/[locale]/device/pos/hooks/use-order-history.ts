@@ -80,6 +80,21 @@ export function useOrderDetail(orderId: string | null) {
   });
 }
 
+/**
+ * TSE-Vorgänge einer Bestellung (Kassenbelege auch von Teil- und
+ * Sammelzahlungen, Gegenbelege, Bestellvorgang). Hängt am Schlüssel der
+ * Bestellhistorie, damit Zahlung und Erstattung ihn mit auffrischen.
+ */
+export function useOrderTse(orderId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ['device-order-history', 'tse', orderId],
+    queryFn: async () => (await deviceApi.getOrderTse(orderId!)).data ?? [],
+    enabled: !!orderId && enabled,
+    // Ältere API ohne Endpunkt: kein Abschnitt, kein erneuter Versuch.
+    retry: false,
+  });
+}
+
 export function useInvalidateOrders() {
   const queryClient = useQueryClient();
   return useCallback(() => {

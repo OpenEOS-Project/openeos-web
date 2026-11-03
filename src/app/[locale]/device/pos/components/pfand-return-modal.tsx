@@ -8,8 +8,11 @@ import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
 import type { PfandType } from '@/types/pfand';
 import type { CartPfandReturnLine } from '@/stores/cart-store';
+import type { TseReceiptView } from '@/types/tse';
+import { reportTse } from '../hooks/use-pos-tse';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
+import { PosTseSheet } from './pos-tse-receipts';
 
 interface PfandReturnModalProps {
   isOpen: boolean;
@@ -48,11 +51,14 @@ export function PfandReturnModal({
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
   const tCart = useTranslations('pos.cartV2');
+  const tTse = useTranslations('pos.tse');
   const formatPrice = useFormatPrice();
   const toast = usePosToast();
   const apiErrorMessage = useApiErrorMessage();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
+  // Kassenbeleg der Auszahlung mit Cloud-TSE (bleibt nach dem Schließen offen).
+  const [receipt, setReceipt] = useState<{ title: string; subtitle: string; views: TseReceiptView[] } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -73,8 +79,10 @@ export function PfandReturnModal({
     if (lines.length === 0) return;
     setSubmitting(true);
     try {
-      await deviceApi.createPfandReturn({ ...(eventId ? { eventId } : {}), lines });
-      toast(tCart('pfandPaidOut', { amount: formatPrice(total) }));
+      const res = await deviceApi.createPfandReturn({ ...(eventId ? { eventId } : {}), lines });
+      const receipts = reportTse([res.data?.tse]);
+      if (receipts.length > 0) setReceipt({ title: tTse('pfandDone'), subtitle: formatPrice(total), views: receipts });
+      else toast(tCart('pfandPaidOut', { amount: formatPrice(total) }));
       onClose();
     } catch (error) {
       toast(apiErrorMessage(error), 'danger');
@@ -97,71 +105,74 @@ export function PfandReturnModal({
   };
 
   return (
-    <PosSheet
-      open={isOpen}
-      onClose={onClose}
-      icon="deposit"
-      title={t('returnTitle')}
-      subtitle={`${t('returnSum')}: ${formatPrice(total)}`}
-      footer={
-        <>
-          {cashless ? (
-            !allowOffset && (
-              <Button variant="secondary" className="oe-grow" onClick={onClose}>
-                {t('close')}
+    <>
+      <PosSheet
+        open={isOpen}
+        onClose={onClose}
+        icon="deposit"
+        title={t('returnTitle')}
+        subtitle={`${t('returnSum')}: ${formatPrice(total)}`}
+        footer={
+          <>
+            {cashless ? (
+              !allowOffset && (
+                <Button variant="secondary" className="oe-grow" onClick={onClose}>
+                  {t('close')}
+                </Button>
+              )
+            ) : (
+              <Button
+                variant={allowOffset ? 'secondary' : 'primary'}
+                className={allowOffset ? undefined : 'oe-grow'}
+                disabled={total <= 0 || submitting || payoutDisabled}
+                loading={submitting}
+                onClick={payout}
+              >
+                {!submitting && <Icon name="cash" />}
+                {t('payoutButton')}
               </Button>
-            )
-          ) : (
-            <Button
-              variant={allowOffset ? 'secondary' : 'primary'}
-              className={allowOffset ? undefined : 'oe-grow'}
-              disabled={total <= 0 || submitting || payoutDisabled}
-              loading={submitting}
-              onClick={payout}
-            >
-              {!submitting && <Icon name="cash" />}
-              {t('payoutButton')}
-            </Button>
-          )}
-          {allowOffset && (
-            <Button variant="primary" className="oe-grow" disabled={total <= 0} onClick={offset}>
-              <Icon name="check" />
-              {t('offsetButton')}
-            </Button>
-          )}
-        </>
-      }
-    >
-      {cashless && (
-        <Banner tone="info" icon={<Icon name="info" />} title={t('cashlessTitle')}>
-          {allowOffset ? t('cashlessOffset') : t('cashlessNoCart')}
-        </Banner>
-      )}
-      {/* Ohne Warenkorb gäbe es bargeldlos nichts zu zählen. */}
-      {cashless && !allowOffset ? null : pfandTypes.length === 0 ? (
-        <EmptyState icon={<Icon name="deposit" />} title={t('empty')} />
-      ) : (
-        <ul className="pos-list">
-          {pfandTypes.map((pt) => {
-            const qty = counts[pt.id] || 0;
-            return (
-              <li key={pt.id} className="pos-list__row">
-                <span className="pos-list__main">
-                  <b>{pt.name}</b>
-                  <small>{formatPrice(Number(pt.amount))}</small>
-                </span>
-                <Stepper
-                  value={qty}
-                  onDecrement={() => setQty(pt.id, qty - 1)}
-                  onIncrement={() => setQty(pt.id, qty + 1)}
-                  labels={{ decrease: t('decrease'), increase: t('increase') }}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {allowOffset && !cashless && <p className="pos-hint">{t('offsetHint')}</p>}
-    </PosSheet>
+            )}
+            {allowOffset && (
+              <Button variant="primary" className="oe-grow" disabled={total <= 0} onClick={offset}>
+                <Icon name="check" />
+                {t('offsetButton')}
+              </Button>
+            )}
+          </>
+        }
+      >
+        {cashless && (
+          <Banner tone="info" icon={<Icon name="info" />} title={t('cashlessTitle')}>
+            {allowOffset ? t('cashlessOffset') : t('cashlessNoCart')}
+          </Banner>
+        )}
+        {/* Ohne Warenkorb gäbe es bargeldlos nichts zu zählen. */}
+        {cashless && !allowOffset ? null : pfandTypes.length === 0 ? (
+          <EmptyState icon={<Icon name="deposit" />} title={t('empty')} />
+        ) : (
+          <ul className="pos-list">
+            {pfandTypes.map((pt) => {
+              const qty = counts[pt.id] || 0;
+              return (
+                <li key={pt.id} className="pos-list__row">
+                  <span className="pos-list__main">
+                    <b>{pt.name}</b>
+                    <small>{formatPrice(Number(pt.amount))}</small>
+                  </span>
+                  <Stepper
+                    value={qty}
+                    onDecrement={() => setQty(pt.id, qty - 1)}
+                    onIncrement={() => setQty(pt.id, qty + 1)}
+                    labels={{ decrease: t('decrease'), increase: t('increase') }}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {allowOffset && !cashless && <p className="pos-hint">{t('offsetHint')}</p>}
+      </PosSheet>
+      <PosTseSheet receipt={receipt} onClose={() => setReceipt(null)} />
+    </>
   );
 }

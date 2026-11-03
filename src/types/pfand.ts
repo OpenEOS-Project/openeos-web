@@ -39,6 +39,8 @@ export interface PfandReturn {
   totalAmount: number;
   lines: PfandReturnLine[];
   createdAt: string;
+  /** Kassenbeleg der Cloud-TSE (Auszahlung); null ohne aktive TSE. */
+  tse?: import('@/types/tse').TseReceiptView | null;
 }
 
 /** Input line for recording a deposit payout at the POS. */

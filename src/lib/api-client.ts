@@ -1690,6 +1690,13 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
+  // TSE-Vorgänge einer Bestellung (Kassenbelege, Gegenbelege, Bestellvorgang) mit QR-Inhalt
+  getOrderTse: (orderId: string) =>
+    apiClient.get<ApiResponse<import('@/types/tse').TseReceiptView[]>>(
+      `/device-api/orders/${orderId}/tse`,
+      { useDeviceAuth: true }
+    ),
+
   reprintRefund: (orderId: string, refundId: string) =>
     apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
       `/device-api/orders/${orderId}/refunds/${refundId}/reprint`,

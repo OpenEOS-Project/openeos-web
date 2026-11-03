@@ -59,9 +59,10 @@ export function useSetIntegrationEnabled() {
       // dazwischen kann sich die Organisation geändert haben.
       const { currentOrganization: latest, organizations, setOrganizations } =
         useAuthStore.getState();
-      // Zusammenführen statt ersetzen: die Antwort ist die nackte
-      // Organisation, ohne die abgeleiteten Felder von GET /organizations/:id
-      // (Betriebsart, Cloud-TSE).
+      // Die Antwort trägt dieselben abgeleiteten Felder wie
+      // GET /organizations/:id (Betriebsart, tseActive, cashAllowed, tse).
+      // Zusammengeführt wird trotzdem: ältere API-Versionen lieferten die
+      // nackte Organisation.
       if (latest && latest.organizationId === organization.id) {
         setCurrentOrganization({ ...latest, organization: { ...latest.organization, ...organization } });
       }
@@ -82,8 +83,9 @@ export function useSetIntegrationEnabled() {
 
 /**
  * Organisation für Katalog und Integrationsseiten: Schalter aus dem
- * Auth-Store (ändern sich sofort), Land und Cloud-TSE aus
- * GET /organizations/:id — die Liste beim Anmelden liefert `tse` nicht mit.
+ * Auth-Store (ändern sich sofort), Land und Cloud-TSE bevorzugt aus
+ * GET /organizations/:id (frischer als die Liste beim Anmelden, die seit
+ * der API mit einheitlicher Organisations-Antwort `tse` ebenfalls trägt).
  */
 export function useIntegrationOrganization(): Partial<Organization> | undefined {
   const stored = useAuthStore((state) => state.currentOrganization?.organization);
