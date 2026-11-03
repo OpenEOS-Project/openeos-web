@@ -1,0 +1,274 @@
+/* Kassenbuch in der Verwaltung (app/[locale]/(dashboard)/cashbook). Mobil
+   zuerst: alles untereinander, ab Tablet Soll-Bestand und Buchungen
+   nebeneinander, die Buchungsliste ab Tablet als Tabelle. */
+
+.cb {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cb-h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.cb-muted {
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.cb-toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.cb-toolbar__date {
+  flex: 0 1 200px;
+}
+.cb-toolbar__hint {
+  font-size: 12px;
+  color: var(--oe-mute);
+  padding-bottom: 8px;
+}
+
+.cb-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+@media (min-width: 900px) {
+  .cb-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.cb-total {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cb-total__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cb-total__value {
+  font: 800 34px/1.1 var(--oe-f-display, var(--oe-f-sans));
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.cb-sums {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+.cb-sums > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.cb-sums dt,
+.cb-sums dd {
+  margin: 0;
+}
+.cb-sums dd {
+  font: 500 13px var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--oe-ink);
+  white-space: nowrap;
+}
+.cb-sums--compact {
+  gap: 3px;
+  font-size: 12px;
+}
+.cb-sums--compact dd {
+  font-size: 12px;
+}
+
+.cb-actions__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.cb-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 64px;
+  padding: 12px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-surface, var(--oe-paper));
+  color: var(--oe-ink);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.cb-action:hover:not(:disabled) {
+  border-color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+.cb-action:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
+}
+.cb-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.cb-action svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--oe-green-ink);
+}
+.cb-action span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cb-action b {
+  font-size: 14px;
+}
+.cb-action small {
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+@media (max-width: 480px) {
+  .cb-actions__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .cb-action {
+    min-height: 52px;
+    padding: 10px 12px;
+  }
+}
+
+.cb-devices {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.cb-device {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+}
+.cb-device__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.cb-device__head .mono {
+  font-weight: 700;
+}
+
+.cb-amount[data-tone='plus'] {
+  color: var(--oe-green-ink);
+}
+.cb-amount[data-tone='minus'] {
+  color: var(--oe-danger-ink, var(--oe-danger));
+}
+.cb-note {
+  font-size: 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cb-table-wrap {
+  overflow-x: auto;
+}
+.landing .data-table.cb-table th,
+.landing .data-table.cb-table td {
+  padding: 6px 8px;
+  font-size: 13px;
+  vertical-align: top;
+}
+.landing .data-table.cb-table td {
+  white-space: nowrap;
+}
+.landing .data-table.cb-table td.cb-note {
+  white-space: normal;
+  min-width: 140px;
+}
+.cb-cards {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cb-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.cb-card:first-child {
+  border-top: 0;
+}
+.cb-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.cb-card__amount {
+  font-weight: 600;
+}
+@media (max-width: 767px) {
+  .cb-table-wrap {
+    display: none;
+  }
+  .cb-cards {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Kassensturz: Soll und Differenz (Dialog) */
+.cb-diff {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-paper-2);
+  font-size: 13px;
+}
+.cb-diff > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cb-diff dt,
+.cb-diff dd {
+  margin: 0;
+}
+.cb-diff dd {
+  font: 600 13px var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+}
+.cb-diff__result dd {
+  font-size: 16px;
+}
+.cb-diff[data-tone='zero'] .cb-diff__result {
+  color: var(--oe-green-ink);
+}
+.cb-diff[data-tone='plus'] .cb-diff__result {
+  color: var(--oe-warn-ink);
+}
+.cb-diff[data-tone='minus'] .cb-diff__result {
+  color: var(--oe-danger-ink, var(--oe-danger));
+}

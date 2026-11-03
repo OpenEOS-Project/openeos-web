@@ -681,3 +681,27 @@ body:has(.pos-root) { overscroll-behavior: none; }
   height: 18px;
   flex: 0 0 auto;
 }
+
+/* Kassenbuch (cashbook-sheet.tsx) */
+.pos-cb { display: grid; gap: 16px; }
+.pos-cb__total { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--oe-line); border-radius: var(--oe-r); background: var(--oe-paper); }
+.pos-cb__expected { display: grid; gap: 2px; }
+.pos-cb__expected b { font: 800 34px/1.1 var(--oe-f-display); letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.pos-cb__expected small { font-size: 12.5px; color: var(--oe-mute); }
+.pos-cb__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pos-cb__action { min-height: 56px; justify-content: center; }
+@media (min-width: 720px) {
+  .pos-cb__actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pos-cb__total { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; }
+}
+.pos-cb__entry { padding-right: 14px; }
+.pos-cb__amount { font: 600 14px var(--oe-f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pos-cb__amount[data-tone='plus'] { color: var(--oe-green-ink); }
+.pos-cb__amount[data-tone='minus'] { color: var(--oe-danger-ink, var(--oe-danger)); }
+.pos-cb__last { display: grid; gap: 8px; }
+.pos-cb-entry { display: grid; gap: 12px; }
+.pos-cb-diff { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: var(--oe-r-sm); background: var(--oe-paper-2); font-size: 14px; }
+.pos-cb-diff b { font: 800 22px var(--oe-f-mono); font-variant-numeric: tabular-nums; }
+.pos-cb-diff[data-tone='zero'] { background: var(--oe-green-soft); color: var(--oe-green-ink); }
+.pos-cb-diff[data-tone='plus'] { background: var(--oe-warn-soft); color: var(--oe-warn-ink); }
+.pos-cb-diff[data-tone='minus'] { background: var(--oe-danger-soft); color: var(--oe-danger-ink, var(--oe-danger)); }

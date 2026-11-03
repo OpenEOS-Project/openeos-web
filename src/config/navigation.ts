@@ -1,4 +1,5 @@
 import {
+  BookOpenText,
   Building,
   Calendar,
   ChartLine,
@@ -86,6 +87,15 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     labelKey: 'orders',
     href: '/orders',
     icon: ReceiptText,
+  },
+  {
+    // Bargeld der Kasse (Anfangsbestand, Einlagen, Entnahmen, Kassensturz).
+    // Nur mit Bargeld — sonst gibt es nichts zu buchen.
+    labelKey: 'cashbook',
+    href: '/cashbook',
+    icon: BookOpenText,
+    adminOnly: true,
+    cashOnly: true,
   },
   { divider: true },
   {

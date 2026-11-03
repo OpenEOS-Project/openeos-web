@@ -41,6 +41,7 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   discounts: 'discounts',
   pfand: 'pfand',
   reports: 'reports',
+  cashbook: 'cashbook',
   invoices: 'invoices',
   support: 'support',
 };
