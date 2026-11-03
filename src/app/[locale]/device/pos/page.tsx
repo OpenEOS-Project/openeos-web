@@ -43,6 +43,7 @@ import { usePosData } from './hooks/use-pos-data';
 import { usePosTheme } from './hooks/use-pos-theme';
 import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents, usePosTseStatus } from './hooks/use-pos-live';
 import { usePosTseOutage } from './hooks/use-pos-tse';
+import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 
 type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'logout' | 'table' | null;
@@ -464,6 +465,7 @@ function PosApp() {
           }
           connection={connection}
           printer={printer}
+          tse={posTseState(tseStatus, tseOutage)}
           user={requirePin ? session : null}
           onLock={lock}
           menu={menu}

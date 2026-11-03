@@ -38,6 +38,8 @@ import {
 } from '@/types/order-history';
 
 import { isPinError } from '../hooks/use-order-history';
+import { reportTse } from '../hooks/use-pos-tse';
+import { PosTseReceipts } from './pos-tse-receipts';
 import { errorReason } from '../hooks/use-pos-checkout';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
@@ -105,6 +107,8 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
       setFailure(null);
       try {
         const res = await deviceApi.createRefund(order.id, { ...body, ...actor, clientRequestId });
+        // Gegenbelege der Cloud-TSE: Ausfall-Hinweis nachführen.
+        reportTse((res.data?.refunds ?? []).map((r) => r.tse));
         setResult(res.data);
         onDone();
       } catch (error) {
@@ -135,6 +139,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
     const total = result.refunds.reduce((s, r) => s + r.amount, 0);
     const cash = result.refunds.some((r) => r.paymentMethod === 'cash');
     const printed = result.refunds.every((r) => r.printed);
+    const tseViews = result.refunds.flatMap((r) => (r.tse ? [r.tse] : []));
     return (
       <PosSheet
         open={open}
@@ -175,6 +180,7 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
             {printed ? t('receiptPrinted') : t('noPrinter')}
           </p>
         </div>
+        <PosTseReceipts views={tseViews} />
       </PosSheet>
     );
   }

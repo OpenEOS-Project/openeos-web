@@ -132,6 +132,11 @@ export interface TseReceiptView {
   qrCode: string | null;
   errorCode: string | null;
   terminal: string | null;
+  /** Bezug des Vorgangs (ältere API-Versionen liefern ihn nicht). */
+  orderId?: string | null;
+  paymentId?: string | null;
+  refundId?: string | null;
+  pfandReturnId?: string | null;
   createdAt: string;
 }
 

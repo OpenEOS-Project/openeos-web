@@ -213,7 +213,8 @@ function generateField(el: TemplateElement, cols: number): string | null {
     case 'payment_method':
       return wrapCondition(
         'payment_method',
-        formatText(`${label || 'Zahlungsart: '}{{ payment_method }}`, el),
+        // Anzeigename von der API („Bar“, „Karte (SumUp)“), Rohwert als Rückfall.
+        formatText(`${label || 'Zahlungsart: '}{{ payment_label|default(payment_method) }}`, el),
         el.condition ?? 'payment_method',
       );
 

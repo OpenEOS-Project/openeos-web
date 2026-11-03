@@ -6,6 +6,7 @@ import {
   isV0QrPayload,
   outageFromViews,
   percentOf,
+  posTseState,
   processDataTotal,
   receiptTseViews,
   shortSerial,
@@ -13,6 +14,7 @@ import {
   tseSetupStep,
 } from '@/lib/tse';
 import type { TseReceiptView, TseStatus, TseUnit } from '@/types/tse';
+import { generateTemplate } from '@/app/[locale]/(dashboard)/printers/templates/[id]/utils/template-generator';
 
 const unit = (state: TseUnit['state'], extra: Partial<TseUnit> = {}): TseUnit => ({
   id: 'u1',
@@ -196,5 +198,34 @@ test.describe('integration availability', () => {
   test('SumUp stays available everywhere', () => {
     const sumup = INTEGRATIONS.find((i) => i.id === 'sumup')!;
     expect(integrationAvailability(sumup, { country: 'AT' })).toBe('available');
+  });
+});
+
+test.describe('POS TSE pill', () => {
+  test('hidden without the integration', () => {
+    expect(posTseState(null, false)).toBeNull();
+    expect(posTseState(undefined, true)).toBeNull();
+  });
+
+  test('follows the server state', () => {
+    expect(posTseState({ state: 'ok' }, false)).toBe('ok');
+    expect(posTseState({ state: 'creating' }, false)).toBe('creating');
+    expect(posTseState({ state: 'inactive' }, false)).toBe('inactive');
+    expect(posTseState({ state: 'error' }, false)).toBe('error');
+  });
+
+  test('an unsigned transaction of this till turns it red before the server reports it', () => {
+    expect(posTseState({ state: 'ok' }, true)).toBe('error');
+  });
+});
+
+test.describe('receipt designer', () => {
+  test('prints the payment label from the API, raw method as fallback', () => {
+    const source = generateTemplate({
+      paperWidth: 80,
+      elements: [{ id: 'e1', type: 'field', field: 'payment_method', condition: 'payment_method' }],
+    });
+    expect(source).toContain('Zahlungsart: {{ payment_label|default(payment_method) }}');
+    expect(source).not.toMatch(/\{\{\s*payment_method\s*\}\}/);
   });
 });

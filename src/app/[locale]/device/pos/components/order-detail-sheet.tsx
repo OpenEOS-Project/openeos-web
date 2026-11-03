@@ -27,10 +27,11 @@ import type { OrderDetail, OrderDetailItem } from '@/types/order-history';
 import type { PaymentMethod } from '@/types/payment';
 import type { PosCardMode } from '@/utils/pos-card-mode';
 
-import { useInvalidateOrders, useOrderDetail, useRefundGate } from '../hooks/use-order-history';
+import { useInvalidateOrders, useOrderDetail, useOrderTse, useRefundGate } from '../hooks/use-order-history';
 import type { DoneInfo } from './done-sheet';
 import { reportTse } from '../hooks/use-pos-tse';
 import type { TseReceiptView } from '@/types/tse';
+import { PosTseReceipts } from './pos-tse-receipts';
 import { OrderCancelSheet } from './order-cancel-sheet';
 import { OrderRefundSheet, type RefundPreset } from './order-refund-sheet';
 import { type PayResult, PaySheet } from './pay-sheet';
@@ -70,6 +71,8 @@ export function OrderDetailSheet({
   const invalidate = useInvalidateOrders();
   const gate = useRefundGate();
   const { data: order, isLoading } = useOrderDetail(orderId);
+  // „Nur Bons“ hat keine Belege und keine TSE.
+  const { data: tseViews } = useOrderTse(orderId, !orderOnly);
 
   const [cancelOpen, setCancelOpen] = useState(false);
   const [refund, setRefund] = useState<RefundPreset | null>(null);
@@ -281,6 +284,7 @@ export function OrderDetailSheet({
             orderOnly={orderOnly}
             onReprintRefund={(id) => reprintRefund.mutate(id)}
             reprintBusy={reprintRefund.isPending}
+            tse={orderOnly ? [] : (tseViews ?? [])}
           />
         )}
       </PosSheet>
@@ -343,6 +347,7 @@ function OrderDetailBody({
   onReprintRefund,
   reprintBusy,
   orderOnly = false,
+  tse,
 }: {
   order: OrderDetail;
   time: (value: string | null) => string;
@@ -351,8 +356,11 @@ function OrderDetailBody({
   onReprintRefund: (refundId: string) => void;
   reprintBusy: boolean;
   orderOnly?: boolean;
+  /** TSE-Vorgänge der Bestellung (leer ohne Cloud-TSE). */
+  tse: TseReceiptView[];
 }) {
   const t = useTranslations('pos.orderHistory');
+  const tTse = useTranslations('pos.tse');
   const place = orderPlace(order);
   // „Nur Bons“: keine Zahlungs- und Erstattungsschritte im Verlauf.
   const timeline = buildTimeline(order, formatPrice).filter(
@@ -565,6 +573,20 @@ function OrderDetailBody({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {tse.length > 0 && (
+        <section className="pos-oh-sec">
+          {/* Zugeklappt: Signatur und Seriennummer sind lang; aufgeklappt
+              zum Vorzeigen oder Abscannen (digitaler Beleg). */}
+          <details className="pos-tse-details">
+            <summary>
+              <Icon name="shield" />
+              {tTse('sectionTitle', { count: tse.length })}
+            </summary>
+            <PosTseReceipts views={tse} />
+          </details>
         </section>
       )}
 

@@ -2994,6 +2994,19 @@
     "tseOutage": {
       "banner": "TSE failed – you can keep selling, the receipt will be marked.",
       "training": "Training transaction – don't accept real money."
+    },
+    "tse": {
+      "pill": "TSE",
+      "pillState": {
+        "ok": "Cloud TSE ready – receipts are signed",
+        "error": "Cloud TSE disrupted – receipts are marked “TSE failed”",
+        "creating": "Cloud TSE is being set up",
+        "inactive": "Cloud TSE not active – no cash"
+      },
+      "splitDone": "Partial payment booked",
+      "pfandDone": "Deposit paid out",
+      "sectionTitle": "TSE data ({count})",
+      "done": "Done"
     }
   },
   "orders": {

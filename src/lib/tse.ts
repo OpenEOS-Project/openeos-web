@@ -2,7 +2,7 @@
  * Cloud-TSE: reine Hilfen für die Integrationsseite, die Kasse und die
  * Bestellansicht (Vertrag: tse-swissbit-plan.md §8).
  */
-import type { TseReceiptView, TseStatus } from '@/types/tse';
+import type { DeviceTseStatus, TseReceiptView, TseStatus } from '@/types/tse';
 
 /**
  * Schritt der Einrichtung, wie ihn die Seite zeigt:
@@ -145,4 +145,17 @@ export function processDataTotal(processType: string, processData: string | null
     total += amount;
   }
   return Math.round(total * 100) / 100;
+}
+
+/**
+ * Zustand der TSE-Pille im Kopf der Kasse: `null` ohne Integration (keine
+ * Pille), sonst der Server-Zustand — ein eigener Ausfall (letzter Vorgang
+ * ohne Signatur) zählt als `error`, auch bevor der Server ihn meldet.
+ */
+export function posTseState(
+  tse: Pick<DeviceTseStatus, 'state'> | null | undefined,
+  outage: boolean,
+): DeviceTseStatus['state'] | null {
+  if (!tse) return null;
+  return outage ? 'error' : tse.state;
 }
