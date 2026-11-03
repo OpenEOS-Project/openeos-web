@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
-import { getIntegration } from '@/config/integrations';
+import { getIntegration, integrationName } from '@/config/integrations';
 import { Link } from '@/i18n/routing';
 
 /**
@@ -62,6 +62,7 @@ export function AppBreadcrumbs() {
   const pathname = usePathname();
   const tNav = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const tIntegrations = useTranslations('integrations');
   const tShell = useTranslations('shell');
 
   const labelFor = (seg: string, path: string): string => {
@@ -102,7 +103,10 @@ export function AppBreadcrumbs() {
     // Unter /integrations steht der Markenname aus dem Katalog ("SumUp"),
     // nicht der aus der Adresse geratene ("Sumup").
     const integration = current === `/integrations/${seg}` ? getIntegration(seg) : undefined;
-    crumbs.push({ label: integration?.name ?? labelFor(seg, current), href: current });
+    crumbs.push({
+      label: integration ? integrationName(integration, tIntegrations) : labelFor(seg, current),
+      href: current,
+    });
   }
 
   // Die letzte Krume ist die aktuelle Seite und deshalb kein Link.

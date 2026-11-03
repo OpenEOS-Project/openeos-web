@@ -273,6 +273,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-done > p { margin: 0 0 14px; color: var(--oe-mute); font-size: 14px; }
 .pos-done > p b { color: var(--oe-ink); }
 .pos-done__receipt { width: 100%; max-width: 280px; text-align: left; }
+.pos-done__tse { display: flex; flex-direction: column; gap: 8px; text-align: left; color: var(--oe-receipt-ink); }
 .pos-done__act { display: flex; gap: 8px; width: 100%; margin-top: 18px; }
 .pos-done__act .oe-btn { min-height: 46px; }
 

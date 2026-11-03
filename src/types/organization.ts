@@ -151,8 +151,10 @@ export interface Organization {
   operatingModeLegacy?: boolean;
   /** Letzter Wechsel der Betriebsart (ISO). */
   operatingModeSince?: string | null;
-  /** Cloud-TSE aktiv (bis zur Anbindung immer false). */
+  /** Cloud-TSE aktiv (Integration an und TSE `active`). */
   tseActive?: boolean;
+  /** Zustand der Cloud-TSE (Integration, Anlage, Seriennummer). */
+  tse?: import('@/types/tse').OrganizationTseSummary | null;
   /** Bargeld an den Kassen erlaubt (vom Server abgeleitet). */
   cashAllowed?: boolean;
   /** Preise sichtbar (alles außer „Nur Bons“). */

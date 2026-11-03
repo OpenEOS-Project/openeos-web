@@ -1,0 +1,537 @@
+/* Cloud-TSE: Integrationsseite (components/integrations/tse-*.tsx), der
+   TSE-Block auf Bon-Vorschau und Bestellung (components/tse/). */
+
+.tse-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.tse-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+.tse-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--oe-ink) 78%, transparent);
+}
+.tse-muted {
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.tse-mono {
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.tse-empty {
+  margin: 0;
+  padding: 16px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+
+/* Fortschritt (Anlage, Export) */
+.tse-spinner {
+  display: inline-block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--oe-green-ink);
+  border-top-color: transparent;
+  animation: tse-spin 0.75s linear infinite;
+}
+@keyframes tse-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tse-spinner {
+    animation-duration: 2.5s;
+  }
+}
+.tse-progress {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+}
+.tse-progress b {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.tse-progress p {
+  margin: 0;
+  color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.tse-progress--inline {
+  align-items: center;
+  margin: 12px 0 0;
+  color: var(--oe-mute);
+}
+
+/* Einrichtung */
+.tse-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tse-checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tse-check {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+.tse-check__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+}
+.tse-check--ok .tse-check__icon {
+  color: var(--oe-green-ink);
+  background: var(--oe-green-soft);
+}
+.tse-check--pending .tse-check__icon {
+  color: var(--oe-warn-ink);
+  background: var(--oe-warn-soft);
+}
+.tse-check--missing .tse-check__icon {
+  color: var(--oe-danger-ink);
+  background: var(--oe-danger-soft);
+}
+.tse-check__label {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.tse-auto {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-paper-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.tse-auto svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--oe-green-ink);
+}
+.tse-setup__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.tse-override {
+  padding-top: 12px;
+  border-top: 1px dashed var(--oe-line);
+}
+.tse-override__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tse-override__form p {
+  margin: 0;
+}
+.tse-override__form textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+/* Zustand */
+.tse-status {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tse-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+}
+@media (max-width: 1023px) {
+  .tse-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .tse-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.tse-fact {
+  min-width: 0;
+}
+.tse-fact dt {
+  font-size: 11px;
+  color: var(--oe-mute);
+  margin-bottom: 2px;
+}
+.tse-fact dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.tse-serial {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.tse-serial__copy {
+  padding: 2px 6px;
+  min-height: 0;
+}
+.tse-meters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+@media (max-width: 640px) {
+  .tse-meters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.tse-history summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+.tse-history ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.tse-history li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+/* Ausfallprotokoll und Exporte: Listen */
+.tse-outages,
+.tse-exports {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.tse-outage,
+.tse-export {
+  display: flex;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--oe-line);
+  font-size: 13px;
+}
+.tse-outage:first-child,
+.tse-export:first-child {
+  border-top: 0;
+}
+.tse-outage {
+  flex-direction: column;
+  gap: 2px;
+}
+.tse-outage__head,
+.tse-export__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.tse-outage__msg {
+  font-size: 11.5px;
+}
+.tse-export {
+  align-items: center;
+  justify-content: space-between;
+}
+.tse-export__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tse-export__sha {
+  font-size: 11px;
+}
+@media (max-width: 520px) {
+  .tse-export__dl-text {
+    display: none;
+  }
+}
+
+/* Vorgänge: Tabelle ab Tablet, darunter zweizeilige Zeilen */
+.tse-tx__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tse-tx__table-wrap {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.landing .data-table.tse-tx__table {
+  table-layout: auto;
+}
+.landing .data-table.tse-tx__table th,
+.landing .data-table.tse-tx__table td {
+  padding: 6px 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.landing .data-table.tse-tx__table th:first-child,
+.landing .data-table.tse-tx__table td:first-child {
+  padding-left: 0;
+}
+.landing .data-table.tse-tx__table th:last-child,
+.landing .data-table.tse-tx__table td:last-child {
+  padding-right: 0;
+}
+.tse-tx__row {
+  cursor: pointer;
+}
+.tse-tx__row.is-open td {
+  background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
+}
+.tse-tx__link {
+  all: unset;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.tse-tx__link:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.landing .data-table.tse-tx__table tr.tse-tx__detail td {
+  white-space: normal;
+  padding: 8px 0 14px;
+}
+.tse-tx__detail-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+.tse-tx__detail-body .tse-block {
+  flex: 1 1 360px;
+}
+.tse-tx__process {
+  flex: 1 1 220px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  font-size: 12px;
+}
+.tse-tx__process dt {
+  color: var(--oe-mute);
+}
+.tse-tx__process dd {
+  margin: 0;
+}
+.tse-tx__rows {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tse-tx-row {
+  border-top: 1px solid var(--oe-line);
+}
+.tse-tx-row:first-child {
+  border-top: 0;
+}
+.tse-tx-row__main {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.tse-tx-row__main:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 2px;
+}
+.tse-tx-row__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.tse-tx-row__amount {
+  margin-left: auto;
+  font-weight: 600;
+}
+.tse-tx-row .tse-tx__detail-body {
+  padding-bottom: 12px;
+}
+@media (max-width: 767px) {
+  .tse-tx__table-wrap {
+    display: none;
+  }
+  .tse-tx__rows {
+    display: flex;
+    flex-direction: column;
+  }
+}
+.tse-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Gefahrenzone */
+.tse-danger {
+  border-color: color-mix(in oklab, var(--oe-danger) 35%, var(--oe-line));
+}
+.tse-danger__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.tse-danger__row .tse-text {
+  flex: 1 1 320px;
+}
+
+/* TSE-Block (Bon-Vorschau, Bestellung, Vorgänge) */
+.tse-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tse-block--receipt {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--oe-receipt-line, var(--oe-line));
+  font-family: var(--oe-f-mono);
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--oe-receipt-ink, var(--oe-ink));
+}
+.tse-block--panel {
+  padding: 10px 12px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  font-size: 12px;
+}
+.tse-block__notice {
+  margin: 0;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.tse-block__notice--failed {
+  color: var(--oe-danger-ink, var(--oe-danger));
+}
+.tse-block--receipt .tse-block__notice--failed {
+  color: inherit;
+}
+.tse-block__rows {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+}
+.tse-block__row {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 6px;
+}
+.tse-block--receipt .tse-block__row {
+  grid-template-columns: 9.5em minmax(0, 1fr);
+}
+.tse-block__row dt {
+  color: var(--oe-receipt-mute, var(--oe-mute));
+}
+.tse-block__row dd {
+  margin: 0;
+  font-family: var(--oe-f-mono);
+  word-break: break-all;
+}
+/* Seriennummer und Signatur ungekürzt: Bezeichnung über dem Wert. */
+.tse-block .tse-block__row--long {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.tse-block__error {
+  margin: 0;
+  font-family: var(--oe-f-mono);
+  color: var(--oe-receipt-mute, var(--oe-mute));
+}
+.tse-block__qr {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+.tse-block__qr svg {
+  /* QR immer schwarz auf weiß, auch im dunklen Design. */
+  background: #fff;
+  padding: 0;
+  border-radius: 2px;
+}
+.tse-block--panel .tse-block__qr {
+  justify-content: flex-start;
+}
+
+/* Bestellung (Verwaltung) */
+.order-tse {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.order-tse__item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.order-tse__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 13px;
+}

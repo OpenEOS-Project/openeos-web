@@ -2990,6 +2990,10 @@
     },
     "cashBlocked": {
       "banner": "Bargeld gesperrt – ohne aktive TSE nimmt diese Kasse kein Bargeld an. Karte und online gehen weiter."
+    },
+    "tseOutage": {
+      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet.",
+      "training": "Trainingsbuchung – nimm kein echtes Geld an."
     }
   },
   "orders": {
@@ -3058,7 +3062,13 @@
       "discount": "Rabatt",
       "pfand": "Pfand",
       "tip": "Trinkgeld",
-      "total": "Gesamt"
+      "total": "Gesamt",
+      "tse": {
+        "title": "Cloud-TSE",
+        "show": "TSE-Angaben zeigen",
+        "hide": "TSE-Angaben ausblenden",
+        "number": "TA {number}"
+      }
     },
     "pagination": {
       "prev": "Zurück",
@@ -3943,7 +3953,19 @@
     "TSE_REQUIRED_FOR_CASH": "Bargeld geht in Deutschland nur mit einer aktiven Cloud-TSE. Kassiere per Karte oder online.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "„Alle Funktionen“ gibt es in Deutschland nur mit einer aktiven Cloud-TSE.",
     "COUNTRY_REQUIRED": "Lege zuerst das Land deiner Organisation fest.",
-    "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland in den Betriebsarten „Nur Bons“ und „Bargeldlos“."
+    "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland in den Betriebsarten „Nur Bons“ und „Bargeldlos“.",
+    "TSE_NOT_AVAILABLE": "Auf diesem Server ist keine Cloud-TSE eingerichtet.",
+    "TSE_COUNTRY_NOT_SUPPORTED": "Die Cloud-TSE gibt es nur für Organisationen in Deutschland.",
+    "TSE_REQUIRES_PAID_EVENT": "Eine Cloud-TSE kostet ab dem Anlegen jeden Monat. Sie wird deshalb erst eingerichtet, wenn eine bezahlte Veranstaltung ansteht – schalte zuerst eine Veranstaltung frei.",
+    "TSE_TOO_EARLY": "Die Cloud-TSE kannst du frühestens ab dem {availableFrom} einrichten – im Monat deiner Veranstaltung „{eventName}“. So zahlst du keinen Monat ohne Veranstaltung.",
+    "TSE_OVERRIDE_REASON_REQUIRED": "Bitte gib einen Grund für die Ausnahme an.",
+    "TSE_NOT_FOUND": "Für deine Organisation gibt es keine Cloud-TSE.",
+    "TSE_NOT_ACTIVE": "Die Cloud-TSE ist nicht aktiv.",
+    "TSE_DEACTIVATION_CONFIRM_REQUIRED": "Das Deaktivieren der TSE ist endgültig – bitte bestätige es ausdrücklich.",
+    "TSE_ACTIVE_DEACTIVATE_FIRST": "Deine Cloud-TSE ist eingerichtet. Deaktiviere sie zuerst auf der Seite „Cloud-TSE“ in der Gefahrenzone – danach wird die Integration automatisch ausgeschaltet.",
+    "TSE_PROVIDER_ERROR": "Der TSE-Dienst antwortet gerade nicht. Bitte versuche es gleich noch einmal.",
+    "TSE_EXPORT_NOT_FOUND": "Diesen Export gibt es nicht (mehr).",
+    "TSE_EXPORT_NOT_READY": "Der Export ist noch nicht fertig. Bitte versuche es gleich noch einmal."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5068,12 +5090,15 @@
       "activate": "Aktivieren",
       "deactivate": "Deaktivieren",
       "activating": "Wird aktiviert …",
-      "deactivating": "Wird deaktiviert …"
+      "deactivating": "Wird deaktiviert …",
+      "toDangerZone": "Zur Gefahrenzone"
     },
     "status": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
-      "comingSoon": "Bald verfügbar"
+      "comingSoon": "Bald verfügbar",
+      "notInCountry": "Nur für Deutschland",
+      "notOnServer": "Nicht verfügbar"
     },
     "info": {
       "whatItDoes": "Was die Integration leistet",
@@ -5081,7 +5106,9 @@
       "docs": "Zur Dokumentation",
       "settingsKept": "Beim Deaktivieren bleiben deine Einstellungen erhalten.",
       "activateHint": "Nach dem Aktivieren erscheint die Integration in der Seitenleiste; dort richtest du sie ein.",
-      "comingSoonHint": "Diese Integration ist in Vorbereitung und kann noch nicht aktiviert werden."
+      "comingSoonHint": "Diese Integration ist in Vorbereitung und kann noch nicht aktiviert werden.",
+      "notInCountryHint": "Diese Integration gibt es für das Land deiner Organisation nicht.",
+      "notOnServerHint": "Diese Integration ist auf diesem Server nicht eingerichtet."
     },
     "gallery": {
       "label": "Screenshots",
@@ -5123,10 +5150,208 @@
       }
     },
     "tse": {
-      "name": "TSE (Kassensicherung)",
-      "vendor": "Fiskalisierung",
-      "description": "Cloud-TSE nach KassenSichV für Barzahlungen – in Vorbereitung.",
-      "longDescription": "Eine Kasse, mit der sich Bargeld annehmen lässt, braucht nach der Kassensicherungsverordnung (KassenSichV) eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Kassenvorgang signiert. Eine Anbindung an eine Cloud-TSE ist für OpenEOS in Vorbereitung. Bis dahin nutzt du in Deutschland die Betriebsart „Nur Bons“ oder „Bargeldlos“ – „Alle Funktionen“ mit Bargeld gibt es dort nur mit aktiver TSE. Mehr dazu in den <link>FAQ auf openeos.de</link>."
+      "name": "Cloud-TSE",
+      "vendor": "Kassensicherung",
+      "description": "Signiert jeden Kassenvorgang nach KassenSichV – Voraussetzung für Bargeld in Deutschland.",
+      "longDescription": "Eine Kasse, mit der du Bargeld annimmst, braucht in Deutschland eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Vorgang signiert. OpenEOS bindet dafür die Swissbit Cloud-TSE 2 an: eine TSE je Organisation, deine Geräte laufen als Terminals einer gemeinsamen Kasse. Sobald eine bezahlte Veranstaltung ansteht, wird die TSE automatisch eingerichtet; Bons und Belege tragen dann die TSE-Angaben mit QR-Code, die Daten werden jede Nacht exportiert und archiviert. Mit aktiver TSE kannst du die Betriebsart „Alle Funktionen“ mit Bargeld wählen. Mehr dazu in den <link>FAQ auf openeos.de</link>.",
+      "requirements": {
+        "country": "Eine Organisation in Deutschland",
+        "paidEvent": "Eine bezahlte Veranstaltung – erst dann wird die TSE angelegt (sie kostet ab dann jeden Monat)",
+        "internet": "Internet an den Kassen (bei einem Ausfall kassierst du weiter, die Bons tragen dann einen Vermerk)"
+      },
+      "deactivateEffect": "Ohne die Integration richtet OpenEOS keine Cloud-TSE ein; Bargeld bleibt in Deutschland gesperrt.",
+      "deactivateBlocked": "Deine Cloud-TSE ist eingerichtet. Ausschalten kannst du die Integration erst, wenn du die TSE in der Gefahrenzone unten endgültig deaktiviert hast – danach geschieht es automatisch.",
+      "onlyGermany": "Die Cloud-TSE nach KassenSichV gibt es nur für Organisationen in Deutschland. Hinweise für dein Land findest du in den Einstellungen unter „Betriebsart“.",
+      "serverUnavailable": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation.",
+      "loading": "Cloud-TSE wird geladen …",
+      "loadFailed": "Der Zustand der Cloud-TSE konnte nicht geladen werden.",
+      "setup": {
+        "title": "Einrichtung",
+        "description": "Eine TSE für deine Organisation – alle Kassen signieren über sie.",
+        "requirements": "Voraussetzungen",
+        "unavailable": {
+          "title": "Nicht verfügbar",
+          "text": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation."
+        },
+        "country": {
+          "title": "Nur für Deutschland",
+          "text": "Die Cloud-TSE gibt es nur für Organisationen in Deutschland."
+        },
+        "creating": {
+          "title": "Die TSE wird eingerichtet …",
+          "text": "Das dauert meist nur wenige Sekunden. Du kannst die Seite offen lassen – sie aktualisiert sich von selbst.",
+          "retrying": "Letzter Versuch um {time} gescheitert ({code}) – es geht automatisch weiter."
+        },
+        "failed": {
+          "title": "Einrichtung fehlgeschlagen",
+          "text": "Die TSE konnte am {date} nicht eingerichtet werden."
+        },
+        "deactivated": {
+          "title": "TSE deaktiviert",
+          "text": "Die TSE {serial} wurde am {date} endgültig deaktiviert. Für eine neue Veranstaltung richtest du eine neue TSE ein."
+        },
+        "check": {
+          "country": "Organisation in Deutschland",
+          "paidEvent": "Bezahlte Veranstaltung",
+          "paidEventNamed": "Bezahlte Veranstaltung: „{name}“ ab {date}",
+          "toEvents": "Zu den Veranstaltungen",
+          "month": "Im Monat des Veranstaltungsbeginns",
+          "monthFrom": "Frühestens ab {date}"
+        },
+        "paidEventRequired": "Eine Cloud-TSE kostet ab dem Anlegen jeden Monat. Wir richten sie deshalb erst ein, wenn eine bezahlte Veranstaltung ansteht – schalte zuerst eine Veranstaltung frei.",
+        "tooEarly": "Deine Veranstaltung „{name}“ beginnt später. Die TSE lässt sich frühestens ab dem {date} einrichten – so zahlst du keinen Monat ohne Veranstaltung.",
+        "autoNote": "Wir richten die TSE am ersten Veranstaltungstag automatisch ein – du musst nichts weiter tun. Wenn du vorher testen willst, kannst du sie im Monat der Veranstaltung auch selbst einrichten.",
+        "createNow": "Jetzt einrichten",
+        "retry": "Erneut versuchen",
+        "starting": "Wird gestartet …",
+        "createDisabled": "Geht, sobald alle Voraussetzungen erfüllt sind.",
+        "costNote": "Ab dem Einrichten fällt die TSE-Gebühr für jeden angefangenen Monat an.",
+        "started": "Die TSE wird eingerichtet.",
+        "failedToStart": "Die Einrichtung konnte nicht gestartet werden.",
+        "override": {
+          "open": "Support: Ausnahme",
+          "title": "TSE trotzdem einrichten (Support)",
+          "text": "Übergeht die Bedingungen „bezahlte Veranstaltung“ und „Monat des Veranstaltungsbeginns“. Die Kosten trägt OpenEOS; der Grund wird protokolliert.",
+          "reason": "Grund",
+          "placeholder": "z. B. Test vor dem Fest, Absprache mit dem Verein",
+          "submit": "Trotzdem einrichten"
+        }
+      },
+      "status": {
+        "title": "Cloud-TSE",
+        "description": "Alle Kassen deiner Organisation signieren über diese TSE.",
+        "badge": {
+          "ok": "Aktiv",
+          "error": "Gestört"
+        },
+        "outage": {
+          "title": "TSE gestört seit {time}",
+          "text": "{count, plural, one {# Vorgang blieb} other {# Vorgänge blieben}} ohne Signatur. Kassieren geht weiter, die Bons tragen den Vermerk „TSE ausgefallen“. Der Ausfall endet mit dem nächsten signierten Vorgang."
+        },
+        "serial": "Seriennummer",
+        "client": "Kasse (Client-ID)",
+        "product": "Produkt",
+        "activeSince": "Aktiv seit",
+        "trigger": {
+          "manual": "von Hand eingerichtet",
+          "auto": "automatisch eingerichtet",
+          "super_admin": "vom Support eingerichtet"
+        },
+        "certificate": "Zertifikat",
+        "validUntil": "gültig bis {date}",
+        "lastExport": "Letzter Export",
+        "noExportYet": "noch keiner",
+        "exportsPending": "{count} in Arbeit",
+        "storage": "Speicher",
+        "storageHint": "{used} von {max}",
+        "signatures": "Signaturen diesen Monat",
+        "signaturesOf": "{count} von {limit}",
+        "counts": "Letzte 30 Tage: {signed} signiert · {training} Training · {failed} ohne Signatur",
+        "liveError": "Live-Werte gerade nicht abrufbar ({code}) – die TSE signiert trotzdem.",
+        "history": "{count, plural, one {Frühere TSE} other {# frühere TSEs}}",
+        "unitState": {
+          "creating": "wird eingerichtet",
+          "active": "aktiv",
+          "failed": "fehlgeschlagen",
+          "deactivated": "deaktiviert"
+        },
+        "copySerial": "Seriennummer kopieren",
+        "copied": "Kopiert"
+      },
+      "outages": {
+        "title": "Ausfallprotokoll",
+        "description": "Zeiträume, in denen die TSE nicht signiert hat. Bons aus dieser Zeit tragen den Vermerk „TSE ausgefallen“.",
+        "empty": "Keine Ausfälle.",
+        "loading": "Wird geladen …",
+        "ongoing": "andauernd",
+        "open": "Offen",
+        "closed": "Beendet",
+        "failedCount": "{count, plural, one {# Vorgang} other {# Vorgänge}} ohne Signatur"
+      },
+      "transactions": {
+        "title": "Vorgänge",
+        "description": "Signierte, ausgefallene und Trainingsbuchungen, neueste zuerst. Ein Klick zeigt die TSE-Angaben mit QR-Code.",
+        "filterLabel": "Vorgänge filtern",
+        "filter": {
+          "all": "Alle",
+          "signed": "Signiert",
+          "failed": "Ausgefallen",
+          "training": "Training"
+        },
+        "count": "{count, plural, one {# Vorgang} other {# Vorgänge}}",
+        "col": {
+          "time": "Zeit",
+          "kind": "Vorgang",
+          "status": "Status",
+          "number": "TA-Nr.",
+          "counter": "Sig.-Zähler",
+          "amount": "Betrag"
+        },
+        "shortNumber": "TA {number}",
+        "shortCounter": "Sig. {counter}",
+        "empty": "Noch keine Vorgänge.",
+        "loading": "Wird geladen …",
+        "loadFailed": "Die Vorgänge konnten nicht geladen werden.",
+        "previous": "Zurück",
+        "next": "Weiter",
+        "page": "Seite {page} von {pages}",
+        "processType": "Vorgangstyp",
+        "processData": "Vorgangsdaten",
+        "terminal": "Terminal"
+      },
+      "exports": {
+        "title": "Exporte",
+        "description": "Die TSE-Daten (TAR nach TR-03153) holt OpenEOS jede Nacht ab und archiviert sie zehn Jahre.",
+        "nachschau": "Für eine Kassen-Nachschau oder Prüfung lädst du hier die Exporte herunter. Brauchst du die Daten bis eben, starte vorher einen Export.",
+        "start": "Export jetzt starten",
+        "starting": "Wird gestartet …",
+        "started": "Der Export läuft. Er erscheint gleich in der Liste.",
+        "startFailed": "Der Export konnte nicht gestartet werden.",
+        "running": "Export läuft – das kann ein paar Minuten dauern.",
+        "empty": "Noch keine Exporte. Der erste kommt in der Nacht nach dem ersten Vorgang.",
+        "loading": "Wird geladen …",
+        "status": {
+          "downloaded": "Archiviert",
+          "pending": "In Arbeit",
+          "failed": "Fehlgeschlagen"
+        },
+        "trigger": {
+          "scheduled": "Nächtlich",
+          "manual": "Von Hand",
+          "deactivation": "Abschluss",
+          "swissbit": "Automatisch (Swissbit)"
+        },
+        "archivedAt": "archiviert {date}",
+        "download": "Herunterladen",
+        "downloading": "Lädt …",
+        "downloadLabel": "Export {period} herunterladen",
+        "downloadFailed": "Der Export konnte nicht heruntergeladen werden."
+      },
+      "danger": {
+        "title": "Gefahrenzone",
+        "description": "Endgültige Schritte – sie lassen sich nicht rückgängig machen.",
+        "text": "TSE außer Betrieb nehmen, z. B. wenn deine Organisation OpenEOS nicht mehr mit Bargeld nutzt. Eine Pause gibt es nicht: Eine deaktivierte TSE kann nie wieder signieren.",
+        "button": "TSE deaktivieren",
+        "done": "Die TSE ist deaktiviert. Der Abschlussexport wird abgeholt.",
+        "failed": "Die TSE konnte nicht deaktiviert werden.",
+        "dialog": {
+          "title": "TSE endgültig deaktivieren?",
+          "intro": "Du nimmst die TSE {serial} außer Betrieb. Das bedeutet:",
+          "effects": {
+            "permanent": "Die TSE kann danach nie wieder signieren – das lässt sich nicht rückgängig machen.",
+            "export": "Die restlichen Daten werden automatisch exportiert und archiviert (Abschlussexport).",
+            "cash": "In Deutschland nehmen deine Kassen sofort kein Bargeld mehr an.",
+            "integration": "Die Integration „Cloud-TSE“ wird ausgeschaltet.",
+            "new": "Für eine spätere Veranstaltung richtest du eine neue TSE mit neuer Seriennummer ein."
+          },
+          "warning": "Nur deaktivieren, wenn gerade keine Veranstaltung läuft. Bons und Exporte der alten TSE bleiben zehn Jahre abrufbar.",
+          "reason": "Grund (optional, fürs Protokoll)",
+          "reasonPlaceholder": "z. B. Saison beendet, Verein nutzt keine Kasse mehr",
+          "check": "Ich habe verstanden, dass die TSE endgültig deaktiviert wird.",
+          "submit": "Endgültig deaktivieren",
+          "pending": "Wird deaktiviert …"
+        }
+      }
     }
   },
   "onboarding": {
@@ -5564,7 +5789,7 @@
       "current": "Aktiv",
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
-      "tse_required": "benötigt eine Cloud-TSE – in Vorbereitung",
+      "tse_required": "benötigt eine aktive Cloud-TSE",
       "country_required": "Lege zuerst das Land fest"
     },
     "section": {
@@ -5647,7 +5872,7 @@
     "legacy": {
       "de": {
         "title": "Bargeld braucht in Deutschland eine TSE – bitte wähle deine Betriebsart",
-        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE; die Cloud-TSE für OpenEOS ist in Vorbereitung. Wähle deshalb „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
+        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Wähle deshalb „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online) – oder schalte unter Integrationen die Cloud-TSE ein, dann bleibt „Alle Funktionen“ mit Bargeld möglich. Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
         "noCountry": "Lege dafür zuerst das Land deiner Organisation fest."
       },
       "confirm": {
@@ -5675,7 +5900,7 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Kassenregeln in Deutschland",
-        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE – die Anbindung ist in Vorbereitung. In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen."
+        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE (Integrationen → Cloud-TSE). In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen."
       },
       "at": {
         "title": "Registrierkassenpflicht in Österreich",
@@ -5690,6 +5915,47 @@
         "title": "Kassenregeln in deinem Land",
         "text": "Viele Länder haben eigene Kassenvorschriften (z. B. Italien, Frankreich, Polen, Tschechien). Alle drei Betriebsarten stehen dir offen – prüfe selbst, ob OpenEOS und die gewählte Betriebsart dort für dich zulässig sind."
       }
+    },
+    "tseBadge": {
+      "active": "Cloud-TSE aktiv",
+      "creating": "Cloud-TSE wird eingerichtet",
+      "error": "Cloud-TSE gestört",
+      "off": "Keine Cloud-TSE",
+      "link": "Zur Cloud-TSE",
+      "setup": "Cloud-TSE einrichten"
+    }
+  },
+  "tse": {
+    "receipt": {
+      "client": "Kasse",
+      "serial": "TSE-Seriennummer",
+      "transaction": "Transaktion",
+      "counter": "Signaturzähler",
+      "start": "Start",
+      "finish": "Ende",
+      "algorithm": "Algorithmus",
+      "timeFormat": "Zeitformat",
+      "signature": "Signatur",
+      "notice": {
+        "failed": "TSE ausgefallen",
+        "training": "TRAININGSBUCHUNG – KEIN VERKAUF"
+      },
+      "errorCode": "Fehler: {code}",
+      "qrLabel": "QR-Code mit den TSE-Daten (DSFinV-K)"
+    },
+    "kind": {
+      "receipt": "Kassenbeleg",
+      "refund": "Gegenbeleg",
+      "deposit_return": "Pfand-Auszahlung",
+      "order": "Bestellung",
+      "order_cancellation": "Bestellstorno",
+      "abort": "Abbruch"
+    },
+    "status": {
+      "signed": "Signiert",
+      "training": "Training",
+      "failed": "Ausgefallen",
+      "pending": "Offen"
     }
   }
 }

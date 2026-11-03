@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import {
+  Activity,
+  Archive,
   AtSign,
   Bell,
   BellRing,
@@ -13,6 +15,7 @@ import {
   Lightbulb,
   MonitorSmartphone,
   Palette,
+  ReceiptText,
   Scale,
   ShieldCheck,
   Signpost,
@@ -34,6 +37,8 @@ import '@/styles/settings-section.css';
  * und mit dessen Strichstaerke. Nur was hier steht, landet im Bundle.
  */
 const SECTION_ICONS = {
+  activity: Activity,
+  archive: Archive,
   'at-sign': AtSign,
   bell: Bell,
   'bell-ring': BellRing,
@@ -47,6 +52,7 @@ const SECTION_ICONS = {
   lightbulb: Lightbulb,
   'monitor-smartphone': MonitorSmartphone,
   palette: Palette,
+  'receipt-text': ReceiptText,
   scale: Scale,
   'shield-check': ShieldCheck,
   signpost: Signpost,

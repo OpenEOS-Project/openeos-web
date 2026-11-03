@@ -16,6 +16,10 @@ import type { OrderDetail, OrderDisplayStatus } from '@/types/order-history';
 import { cancellableQuantity, paymentIcon, paymentKey } from '@/utils/order-history';
 import type { RefundPreset } from '@/utils/refund-form';
 
+import { TseReceiptBlock } from '@/components/tse/tse-receipt-block';
+import { useOrderTse } from '@/hooks/use-tse';
+import type { TseReceiptView } from '@/types/tse';
+
 import { OrderCancelItemsDialog } from './order-cancel-items-dialog';
 import { OrderRefundDialog } from './order-refund-dialog';
 
@@ -64,7 +68,11 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
     enabled: !!organizationId && !!order,
   });
   const queryClient = useQueryClient();
-  const { hasPermission } = usePermissions();
+  const { hasPermission, isAdmin } = usePermissions();
+  // Cloud-TSE je Bestellung (nur Admins, nur Deutschland): Kassenbelege,
+  // Gegenbelege, Bestellvorgänge — mit QR-Code wie auf dem Bon.
+  const isGermany = (currentOrganization?.organization?.country ?? '').toUpperCase() === 'DE';
+  const orderTse = useOrderTse(organizationId, order?.id, isAdmin && isGermany);
   const mayRefund = hasPermission('orders');
   const [cancelOpen, setCancelOpen] = useState(false);
   const [refund, setRefund] = useState<RefundPreset | null>(null);
@@ -176,6 +184,8 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
             </div>
 
             {detail && <HistorySections detail={detail} onReprint={(id) => reprint.mutate(id)} reprinting={reprint.isPending} />}
+
+            {orderTse.data && orderTse.data.length > 0 && <OrderTseSection views={orderTse.data} />}
           </div>
 
           <div className="modal__foot" style={{ flexWrap: 'wrap' }}>
@@ -421,5 +431,50 @@ function HistorySections({
         </div>
       )}
     </>
+  );
+}
+
+/** TSE-Vorgänge der Bestellung; die Angaben samt QR-Code klappen auf. */
+function OrderTseSection({ views }: { views: TseReceiptView[] }) {
+  const t = useTranslations();
+  const { formatDateTime } = useLocaleFormat();
+  const [open, setOpen] = useState<string | null>(null);
+  const muted = 'color-mix(in oklab, var(--ink) 50%, transparent)';
+  const badge: Record<TseReceiptView['status'], string> = {
+    signed: 'badge badge--success',
+    training: 'badge badge--info',
+    failed: 'badge badge--error',
+    pending: 'badge badge--warning',
+  };
+  return (
+    <div className="order-tse" data-testid="order-tse">
+      <div style={{ fontSize: 12, fontWeight: 600, color: muted, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+        {t('orders.detail.tse.title')}
+      </div>
+      {views.map((view) => (
+        <div key={view.id} className="order-tse__item">
+          <div className="order-tse__head">
+            <b>{t(`tse.kind.${view.kind}`)}</b>
+            <span className={badge[view.status]}>{t(`tse.status.${view.status}`)}</span>
+            {view.transactionNumber !== null && (
+              <span className="mono" style={{ color: muted }}>
+                {t('orders.detail.tse.number', { number: view.transactionNumber })}
+              </span>
+            )}
+            <span style={{ color: muted }}>{formatDateTime(view.createdAt)}</span>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              style={{ fontSize: 12, marginLeft: 'auto' }}
+              onClick={() => setOpen(open === view.id ? null : view.id)}
+              aria-expanded={open === view.id}
+            >
+              <Icon name="qr" size={14} /> {open === view.id ? t('orders.detail.tse.hide') : t('orders.detail.tse.show')}
+            </button>
+          </div>
+          {open === view.id && <TseReceiptBlock view={view} variant="panel" qrSize={148} />}
+        </div>
+      ))}
+    </div>
   );
 }

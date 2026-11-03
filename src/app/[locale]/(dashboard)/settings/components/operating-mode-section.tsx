@@ -17,6 +17,7 @@ import { toast } from '@/components/shared/toast';
 import { isIntegrationEnabled } from '@/config/integrations';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useOrganization } from '@/hooks/use-organizations';
 import { usePermissions } from '@/hooks/use-permissions';
 import { Link } from '@/i18n/routing';
 import { organizationsApi } from '@/lib/api-client';
@@ -37,6 +38,7 @@ import {
   type OperatingModeOrg,
 } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
+import type { OrganizationTseSummary } from '@/types/tse';
 import { SettingsSectionHead } from './settings-section-head';
 
 /** Was sich je Betriebsart ändert (Reihenfolge der Punkte in der Rückfrage). */
@@ -66,6 +68,11 @@ export function OperatingModeSection() {
   const currentOrganization = useAuthStore((s) => s.currentOrganization);
   const organization = currentOrganization?.organization;
   const organizationId = currentOrganization?.organizationId ?? '';
+
+  // Cloud-TSE (nur GET /organizations/:id liefert `tse`): Pille an „Alle
+  // Funktionen“ in Deutschland, mit Link zur Integrationsseite.
+  const { data: organizationDetail } = useOrganization(organizationId);
+  const tse = organizationDetail?.tse ?? null;
 
   const state = useQuery({
     queryKey: ['operating-mode', organizationId],
@@ -210,7 +217,12 @@ export function OperatingModeSection() {
                   </span>
                   <span className="mode-card__text">{t(`descriptions.${option.mode}`)}</span>
                   {option.mode === 'full' && view.country === 'DE' && (
-                    <span className="mode-card__text mode-card__text--muted">{t('fullDeHint')}</span>
+                    <>
+                      <span className="mode-card__text mode-card__text--muted">{t('fullDeHint')}</span>
+                      {!selfHosted || tse?.available ? (
+                        <TseModeBadge tse={tse} tseActive={view.tseActive} isAdmin={isAdmin} />
+                      ) : null}
+                    </>
                   )}
                 </span>
               </label>
@@ -327,5 +339,42 @@ export function OperatingModeSection() {
         </ConfirmDialog>
       )}
     </div>
+  );
+}
+
+/**
+ * Zustand der Cloud-TSE an der Karte „Alle Funktionen“ (Deutschland) mit
+ * Link: zur Integrationsseite, sonst in den Katalog zum Einschalten.
+ */
+function TseModeBadge({
+  tse,
+  tseActive,
+  isAdmin,
+}: {
+  tse: OrganizationTseSummary | null;
+  tseActive: boolean;
+  isAdmin: boolean;
+}) {
+  const t = useTranslations('operatingMode.tseBadge');
+  const active = tse ? tse.active : tseActive;
+  const kind = active ? 'active' : tse?.state === 'creating' ? 'creating' : 'off';
+  const badge = kind === 'active' ? 'badge badge--success' : kind === 'creating' ? 'badge badge--info' : 'badge badge--neutral';
+  const enabled = tse?.integrationEnabled ?? false;
+  return (
+    <span className="mode-card__tse" data-testid="operating-mode-tse">
+      <span className={badge}>
+        <Icon name="shield" size={12} />
+        {t(kind)}
+      </span>
+      {isAdmin && (
+        <Link
+          href={(enabled ? '/integrations/tse' : '/integrations') as never}
+          className="notice-link"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {enabled ? t('link') : t('setup')}
+        </Link>
+      )}
+    </span>
   );
 }

@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import type { ComponentType, FC } from 'react';
 import { CreditCard, ShieldCheck } from 'lucide-react';
 
-import type { IntegrationId, OrganizationSettings } from '@/types/organization';
+import type { IntegrationId, Organization, OrganizationSettings } from '@/types/organization';
 
 export interface IntegrationScreenshot {
   /** Pfad unter /public; `{locale}` wird durch die aktuelle Sprache ersetzt. */
@@ -53,6 +53,25 @@ export interface IntegrationDefinition {
   navIcon: FC<{ className?: string }>;
   /** Inhalt der Konfigurationsseite /integrations/<id>. */
   ConfigComponent?: ComponentType;
+  /**
+   * Nur in diesen Ländern einschaltbar (ISO 3166-1 alpha-2). Andere
+   * Organisationen sehen die Karte mit dem Hinweis `countryHintKey`.
+   */
+  countries?: string[];
+  /** Hinweis für Organisationen außerhalb von `countries`. */
+  countryHintKey?: string;
+  /**
+   * Bietet dieser Server die Integration an? Ohne Angabe: ja. `false`
+   * zeigt die Karte mit `serverUnavailableKey` statt des Schalters.
+   */
+  serverAvailable?: (organization: Partial<Organization> | null | undefined) => boolean;
+  serverUnavailableKey?: string;
+  /**
+   * Ausschalten gerade nicht möglich (z. B. Cloud-TSE aktiv: erst
+   * endgültig deaktivieren). Die Rückfrage erklärt es mit `deactivateBlockedKey`.
+   */
+  deactivateBlocked?: (organization: Partial<Organization> | null | undefined) => boolean;
+  deactivateBlockedKey?: string;
 }
 
 /**
@@ -115,20 +134,21 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     navIcon: CreditCard,
   },
   {
-    // Bewusst ohne Anbieter: welcher Cloud-TSE-Dienst angebunden wird, steht
-    // noch nicht fest.
+    // Name ohne Anbieter („Cloud-TSE“); Swissbit steht nur in der langen
+    // Beschreibung, wie SumUp bei der Kartenzahlung.
     id: 'tse',
-    name: 'TSE',
+    name: 'Cloud-TSE',
     nameKey: 'tse.name',
     vendorKey: 'tse.vendor',
     color: '#475569',
-    available: false,
+    available: true,
     shortDescriptionKey: 'tse.description',
     longDescriptionKey: 'tse.longDescription',
-    requirementKeys: [],
+    requirementKeys: ['tse.requirements.country', 'tse.requirements.paidEvent', 'tse.requirements.internet'],
+    deactivateEffectKey: 'tse.deactivateEffect',
     docsUrl: {
-      de: 'https://docs.openeos.de/bargeldlos#tse',
-      en: 'https://docs.openeos.de/en/bargeldlos#tse',
+      de: 'https://docs.openeos.de/integrationen/cloud-tse',
+      en: 'https://docs.openeos.de/en/integrationen/cloud-tse',
     },
     moreInfoUrl: {
       de: 'https://openeos.de/faq#tse',
@@ -136,6 +156,16 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     },
     screenshots: [],
     navIcon: ShieldCheck,
+    countries: ['DE'],
+    countryHintKey: 'tse.onlyGermany',
+    serverAvailable: (organization) => organization?.tse?.available !== false,
+    serverUnavailableKey: 'tse.serverUnavailable',
+    deactivateBlocked: (organization) =>
+      organization?.tse?.state === 'active' || organization?.tse?.state === 'creating',
+    deactivateBlockedKey: 'tse.deactivateBlocked',
+    ConfigComponent: dynamic(() =>
+      import('@/components/integrations/tse-integration').then((m) => m.TseIntegration),
+    ),
   },
 ];
 
@@ -174,6 +204,28 @@ export function integrationName(
   t: (key: string) => string,
 ): string {
   return integration.nameKey ? t(integration.nameKey) : integration.name;
+}
+
+/**
+ * Kann die Organisation die Integration einschalten?
+ * - `available`: ja,
+ * - `comingSoon`: noch in Vorbereitung,
+ * - `country`: nicht im Land der Organisation,
+ * - `server`: dieser Server bietet sie nicht an.
+ */
+export type IntegrationAvailability = 'available' | 'comingSoon' | 'country' | 'server';
+
+export function integrationAvailability(
+  integration: IntegrationDefinition,
+  organization: Partial<Organization> | null | undefined,
+): IntegrationAvailability {
+  if (!integration.available) return 'comingSoon';
+  if (integration.countries) {
+    const country = (organization?.country ?? '').trim().toUpperCase();
+    if (!integration.countries.includes(country)) return 'country';
+  }
+  if (integration.serverAvailable && !integration.serverAvailable(organization)) return 'server';
+  return 'available';
 }
 
 export function integrationHref(id: IntegrationId): string {

@@ -29,6 +29,8 @@ import type { PosCardMode } from '@/utils/pos-card-mode';
 
 import { useInvalidateOrders, useOrderDetail, useRefundGate } from '../hooks/use-order-history';
 import type { DoneInfo } from './done-sheet';
+import { reportTse } from '../hooks/use-pos-tse';
+import type { TseReceiptView } from '@/types/tse';
 import { OrderCancelSheet } from './order-cancel-sheet';
 import { OrderRefundSheet, type RefundPreset } from './order-refund-sheet';
 import { type PayResult, PaySheet } from './pay-sheet';
@@ -124,8 +126,9 @@ export function OrderDetailSheet({
     if (!order) return;
     const method: PaymentMethod =
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
+    let tse: TseReceiptView[] = [];
     try {
-      await deviceTablesApi.payBatch({
+      const batch = await deviceTablesApi.payBatch({
         orderIds: [order.id],
         paymentMethod: method,
         ...(method === 'cash' && result.amountReceived !== undefined
@@ -136,6 +139,7 @@ export function OrderDetailSheet({
           ? { providerTransactionId: result.transactionId }
           : {}),
       });
+      tse = reportTse((batch.data?.payments ?? []).map((p) => p.tse));
     } catch (error) {
       toast(apiErrorMessage(error), 'danger');
       invalidate();
@@ -160,6 +164,7 @@ export function OrderDetailSheet({
       pfand: 0,
       discount: 0,
       time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+      tse,
     });
   };
 

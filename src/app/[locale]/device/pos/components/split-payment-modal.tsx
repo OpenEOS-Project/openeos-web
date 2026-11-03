@@ -15,6 +15,7 @@ import { useOpenOrders, type OpenOrdersScope } from '../hooks/use-open-orders';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
+import { reportTse } from '../hooks/use-pos-tse';
 
 interface SplitPaymentModalProps {
   isOpen: boolean;
@@ -130,13 +131,14 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
     try {
       for (const [index, [orderId, p]] of payments.entries()) {
         const received = method === 'cash' ? amountReceivedFor(index, amounts, result.amountReceived) : undefined;
-        await deviceApi.createSplitPayment({
+        const split = await deviceApi.createSplitPayment({
           orderId,
           amount: p.amount,
           paymentMethod: method,
           items: p.items,
           ...(received !== undefined ? { amountReceived: received } : {}),
         });
+        reportTse([split.data?.tse]);
       }
     } catch (error) {
       toast(apiErrorMessage(error), 'danger');

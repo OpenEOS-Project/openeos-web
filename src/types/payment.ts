@@ -14,6 +14,8 @@ export interface PaymentMetadata {
 // Payment
 export interface Payment {
   id: string;
+  /** Nur in Antworten auf neue Zahlungen: Kassenbeleg der Cloud-TSE (null ohne TSE). */
+  tse?: import('@/types/tse').TseReceiptView | null;
   orderId: string;
   amount: number;
   paymentMethod: PaymentMethod;

@@ -8,11 +8,12 @@ import { IntegrationLogo } from '@/components/integrations/integration-logo';
 import { IntegrationStatusBadge } from '@/components/integrations/integration-status-badge';
 import {
   INTEGRATIONS,
+  integrationAvailability,
   integrationName,
   isIntegrationEnabled,
   type IntegrationDefinition,
 } from '@/config/integrations';
-import { useAuthStore } from '@/stores/auth-store';
+import { useIntegrationOrganization } from '@/hooks/use-integrations';
 
 /**
  * Katalog der Integrationen.
@@ -24,7 +25,8 @@ import { useAuthStore } from '@/stores/auth-store';
  */
 export function IntegrationsContainer() {
   const t = useTranslations('integrations');
-  const settings = useAuthStore((state) => state.currentOrganization?.organization?.settings);
+  const organization = useIntegrationOrganization();
+  const settings = organization?.settings;
   const [selected, setSelected] = useState<IntegrationDefinition | null>(null);
 
   return (
@@ -49,7 +51,7 @@ export function IntegrationsContainer() {
                 <span className="integration-card__vendor">{t(integration.vendorKey)}</span>
               </span>
               <IntegrationStatusBadge
-                available={integration.available}
+                availability={integrationAvailability(integration, organization)}
                 enabled={isIntegrationEnabled(settings, integration.id)}
               />
             </span>

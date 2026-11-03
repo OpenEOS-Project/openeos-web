@@ -14,6 +14,8 @@ import { errorReason } from '../hooks/use-pos-checkout';
 import { useOpenOrders } from '../hooks/use-open-orders';
 import { remainingOf } from '../utils/tables';
 import type { DoneInfo } from './done-sheet';
+import { reportTse } from '../hooks/use-pos-tse';
+import type { TseReceiptView } from '@/types/tse';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
@@ -165,15 +167,17 @@ export function OpenOrdersSheet({
     const method: PaymentMethod =
       result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     const paidIds = selected.map((o) => o.id);
+    let tse: TseReceiptView[] = [];
     try {
       // Alles oder nichts: eine Sammelzahlung statt einer Schleife je Bestellung.
-      await deviceTablesApi.payBatch({
+      const batch = await deviceTablesApi.payBatch({
         orderIds: paidIds,
         paymentMethod: method,
         ...(method === 'cash' && result.amountReceived !== undefined ? { amountReceived: result.amountReceived } : {}),
         ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
         ...(result.method === 'sumup' && result.transactionId ? { providerTransactionId: result.transactionId } : {}),
       });
+      tse = reportTse((batch.data?.payments ?? []).map((p) => p.tse));
     } catch (error) {
       toast(errorReason(error) === 'ORDER_ALREADY_PAID' ? tTables('alreadyPaidOrders') : apiErrorMessage(error), 'danger');
       invalidate();
@@ -200,7 +204,7 @@ export function OpenOrdersSheet({
       ),
       pfand: 0,
       discount: 0,
-      time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),      tse,
     });
   };
 

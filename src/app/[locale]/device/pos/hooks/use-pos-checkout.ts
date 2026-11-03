@@ -23,6 +23,8 @@ import type { DoneInfo } from '../components/done-sheet';
 import type { PayResult } from '../components/pay-sheet';
 import { usePosToast } from '../components/pos-toast';
 import { billOf, contextId } from '../utils/tables';
+import { reportTse } from './use-pos-tse';
+import type { TseReceiptView } from '@/types/tse';
 
 /** Kennzeichnung einer To-go-Bestellung (F3: Notiz statt eigenem Abholtyp). */
 export const TOGO_NOTE = 'To-go';
@@ -303,6 +305,8 @@ export function usePosCheckout({
     //    scheitert die Zahlung, gibt es auch keine Bestellung (kein
     //    Küchenbon). Offene Bestellungen des Kontexts zahlen mit.
     let created: Order | null = null;
+    // TSE-Angaben der Belege (Bestellung mit Zahlung bzw. Sammelzahlung).
+    const tseViews: Array<TseReceiptView | null | undefined> = [];
     if (cart.items.length > 0) {
       const withPayment = hasOpen || charged;
       try {
@@ -312,11 +316,13 @@ export function usePosCheckout({
         );
         // Ältere API ohne Zahlung bei der Anlage: die Bestellung kam
         // unbezahlt an — dann wie früher hinterher kassieren.
+        tseViews.push(...(created.tseTransactions ?? []));
         if (withPayment && created.paymentStatus !== 'paid') {
-          await deviceTablesApi.payBatch({
+          const batch = await deviceTablesApi.payBatch({
             ...payment,
             orderIds: Array.from(new Set([...totals.openOrderIds, created.id])),
           });
+          tseViews.push(...(batch.data?.payments ?? []).map((p) => p.tse));
         }
       } catch (error) {
         handleTableError(error);
@@ -327,7 +333,8 @@ export function usePosCheckout({
       // 2. Nur offene Bestellungen (Gastbestellung, Teilzahlungsrest, `tab`):
       //    eine Sammelzahlung über alle (atomar).
       try {
-        await deviceTablesApi.payBatch({ ...payment, orderIds: totals.openOrderIds });
+        const batch = await deviceTablesApi.payBatch({ ...payment, orderIds: totals.openOrderIds });
+        tseViews.push(...(batch.data?.payments ?? []).map((p) => p.tse));
       } catch (error) {
         failed(error);
         throw error;
@@ -343,6 +350,7 @@ export function usePosCheckout({
     const single = orderIds.length === 1;
     return {
       ...snapshot,
+      tse: reportTse(tseViews),
       orderIds,
       orderNumber: single ? (number ?? sentOrders.find((o) => o.id === orderIds[0])?.orderNumber ?? null) : null,
       heading: single ? null : t('tables.doneHeading', { context: contextLabel, count: orderIds.length }),
