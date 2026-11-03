@@ -6204,6 +6204,7 @@
       "devices": "Per device",
       "register": "Admin (whole register)",
       "unknownDevice": "Deleted device",
+      "noDevice": "Admin (no device)",
       "entries": "Bookings"
     }
   }

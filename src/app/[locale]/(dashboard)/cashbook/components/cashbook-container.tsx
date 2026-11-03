@@ -67,10 +67,9 @@ export function CashbookContainer() {
     });
 
   const entries = sortEntriesNewestFirst(data.entries);
-  // Nur echte Geräte: die Zeile ohne Gerät liefert die API derzeit mit dem
-  // Soll der ganzen Kasse (wie `total`) — Buchungen der Verwaltung stehen
-  // in der Liste unten.
-  const devices = data.devices.filter((d) => !!d.deviceId);
+  // Je Gerät (Schublade); die Zeile ohne Gerät enthält nur Buchungen der
+  // Verwaltung (Barzahlungen, Kassenbuch ohne Gerät) und steht am Ende.
+  const devices = [...data.devices].sort((a, b) => Number(!a.deviceId) - Number(!b.deviceId));
 
   return (
     <div className="cb" data-testid="cashbook-admin">
@@ -139,9 +138,9 @@ export function CashbookContainer() {
           <h2 id="cb-devices-title" className="cb-h2">{t('admin.devices')}</h2>
           <ul className="cb-devices">
             {devices.map((d) => (
-              <li key={d.deviceId} className="cb-device">
+              <li key={d.deviceId ?? 'none'} className="cb-device">
                 <div className="cb-device__head">
-                  <b>{d.deviceName ?? t('admin.unknownDevice')}</b>
+                  <b>{d.deviceId ? (d.deviceName ?? t('admin.unknownDevice')) : t('admin.noDevice')}</b>
                   <span className="mono">{formatCurrency(d.summary.expected)}</span>
                 </div>
                 <SummaryList summary={d.summary} compact />

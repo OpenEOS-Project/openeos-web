@@ -6204,6 +6204,7 @@
       "devices": "Je Gerät",
       "register": "Verwaltung (ganze Kasse)",
       "unknownDevice": "Gelöschtes Gerät",
+      "noDevice": "Verwaltung (ohne Gerät)",
       "entries": "Buchungen"
     }
   }
