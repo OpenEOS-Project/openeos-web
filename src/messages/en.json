@@ -5196,6 +5196,12 @@
       "vendor": "Fiscal security",
       "description": "Signs every till transaction under the German KassenSichV – required for cash in Germany.",
       "longDescription": "In Germany, a till that accepts cash needs a certified technical security device (TSE) that signs every transaction. OpenEOS connects the Swissbit Cloud TSE 2 for this: one TSE per organization, your devices act as terminals of one shared till. As soon as a paid event is coming up, the TSE is set up automatically; receipts then carry the TSE data with a QR code, and the data is exported and archived every night. With an active TSE you can choose the operating mode “All features” with cash. More in the <link>FAQ on openeos.de</link>.",
+      "screenshots": {
+        "status": "Cloud TSE with serial number, signatures and last export",
+        "posReceipt": "Receipt at the till with TSE data and QR code",
+        "printedReceipt": "Printed receipt with TSE block and QR code",
+        "inspection": "Transactions and exports for a cash register inspection (Kassen-Nachschau)"
+      },
       "requirements": {
         "country": "An organization in Germany",
         "paidEvent": "A paid event – the TSE is only created then (it costs a monthly fee from that point on)",
