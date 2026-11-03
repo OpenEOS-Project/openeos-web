@@ -12,6 +12,17 @@ export interface OrganizationSettings {
   timezone: string;
   locale: string;
   taxId?: string;
+  /** Offizieller Name (Kassenabschluss, DSFinV-K); leer = Name der Organisation. */
+  legalName?: string;
+  /** Steuernummer (Finanzamt). Für die Cloud-TSE: diese oder `vatId`. */
+  taxNumber?: string;
+  /** Umsatzsteuer-Identifikationsnummer (z. B. DE123456789). */
+  vatId?: string;
+  /** Einstellungen für den DSFinV-K-Export. */
+  dsfinvk?: {
+    /** Trinkgeld an den Verein (TrinkgeldAG, Standard) oder die Helfer (TrinkgeldAN). */
+    tipRecipient?: 'employer' | 'employee';
+  };
   description?: string;
   address?: {
     street: string;

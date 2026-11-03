@@ -5,9 +5,11 @@ import { useDeployment } from '@/components/providers/setup-provider';
 import { isIntegrationEnabled } from '@/config/integrations';
 import { useEvents } from '@/hooks/use-events';
 import { useIntegrationOrganization } from '@/hooks/use-integrations';
+import { missingMasterData } from '@/lib/dsfinvk';
 import {
   tseEventCheckFromEligibility,
   tseEventCheckFromEvents,
+  tseMasterDataMissingFromEligibility,
   tseRequirements,
   tseSetupStepFrom,
   tseUnlockCandidate,
@@ -151,7 +153,8 @@ export function useTseSetup(organizationId: string | undefined) {
     const data = status.data;
     // Der Schalter ändert sich im Store sofort, GET …/tse erst beim nächsten Abruf.
     const enabled = isIntegrationEnabled(organization?.settings, 'tse');
-    const fromApi = data && data.integrationEnabled === enabled ? tseEventCheckFromEligibility(data.eligibility) : undefined;
+    const fromApiState = !!data && data.integrationEnabled === enabled;
+    const fromApi = fromApiState ? tseEventCheckFromEligibility(data.eligibility) : undefined;
     const eventCheck =
       fromApi ?? (events.data ? tseEventCheckFromEvents(events.data, { selfHosted }) : undefined);
     const input: TseSetupInput = {
@@ -159,6 +162,11 @@ export function useTseSetup(organizationId: string | undefined) {
       integrationEnabled: enabled,
       country: data?.country ?? organization?.country,
       events: eventCheck,
+      // Stammdaten prüft die API erst bei eingeschalteter Integration; sonst
+      // dieselbe Regel aus den Einstellungen.
+      masterDataMissing:
+        (fromApiState ? tseMasterDataMissingFromEligibility(data?.eligibility) : undefined) ??
+        missingMasterData(organization?.settings),
       unitState: data ? data.unit?.state : organization?.tse?.state,
     };
     const step = tseSetupStepFrom(input);

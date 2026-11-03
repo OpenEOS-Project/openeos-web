@@ -39,6 +39,8 @@ export function TseChecklist({ requirements, input, step, variant = 'full' }: Ts
           return t('check.countryOther', { country: countryName(input.country, locale) });
         }
         return t('check.country');
+      case 'masterData':
+        return t('check.masterData');
       case 'paidEvent':
         return event && !compact
           ? t('check.paidEventNamed', { name: event.name, date: formatDate(event.startDate) })

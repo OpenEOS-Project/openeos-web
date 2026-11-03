@@ -5,6 +5,7 @@
 import type {
   DeviceTseStatus,
   TseEligibility,
+  TseMasterDataField,
   TseReceiptView,
   TseStatus,
   TseUnitState,
@@ -19,6 +20,7 @@ import type {
  * - `paid_event_required`: keine bezahlte (freigeschaltete) Veranstaltung —
  *   zuerst, weil ohne sie auch Einschalten nichts anlegt,
  * - `integration_disabled`: Integration ausgeschaltet,
+ * - `master_data`: Steuernummer/USt-IdNr. oder Anschrift fehlen (DSFinV-K),
  * - `too_early`: Veranstaltung beginnt erst in einem späteren Monat,
  * - `failed`: Anlage gescheitert, neuer Versuch möglich,
  * - `ready`: kann jetzt angelegt werden (sonst automatisch am ersten
@@ -32,8 +34,10 @@ export type TseSetupStep =
   | 'unavailable'
   | 'country_missing'
   | 'country'
+  | 'master_data'
   | 'paid_event_required'
   | 'integration_disabled'
+  | 'master_data'
   | 'too_early'
   | 'failed'
   | 'ready'
@@ -57,6 +61,8 @@ export interface TseSetupInput {
   country: string | null | undefined;
   /** `undefined`, solange sich Veranstaltung und Monat nicht sagen lassen. */
   events: TseEventCheck | undefined;
+  /** Fehlende DSFinV-K-Stammdaten (leer = vollständig). */
+  masterDataMissing: TseMasterDataField[];
   unitState: TseUnitState | null | undefined;
 }
 
@@ -71,6 +77,23 @@ export function tseEventCheckFromEligibility(eligibility: TseEligibility | null 
   }
   if (eligibility.reason === 'TSE_REQUIRES_PAID_EVENT') return { event: null, availableFrom: null };
   return undefined;
+}
+
+const ALL_MASTER_DATA: TseMasterDataField[] = ['taxNumber', 'street', 'zip', 'city'];
+
+/**
+ * Fehlende Stammdaten laut GET …/tse: die Liste bei
+ * `TSE_MASTER_DATA_REQUIRED`, leer, wenn die API schon weiter war
+ * (Veranstaltung/Monat/ok), sonst `undefined` (nicht geprüft).
+ */
+export function tseMasterDataMissingFromEligibility(
+  eligibility: TseEligibility | null | undefined,
+): TseMasterDataField[] | undefined {
+  if (!eligibility) return undefined;
+  if (eligibility.reason === 'TSE_MASTER_DATA_REQUIRED') {
+    return eligibility.missing && eligibility.missing.length > 0 ? eligibility.missing : ALL_MASTER_DATA;
+  }
+  return tseEventCheckFromEligibility(eligibility) ? [] : undefined;
 }
 
 /** Freigeschaltet wie in der API (EVENT_UNLOCKED_BILLING_STATUSES). */
@@ -150,6 +173,7 @@ export function tseSetupStepFrom(input: TseSetupInput): TseSetupStep | null {
   if (country !== 'DE') return 'country';
   if (input.events && !input.events.event) return 'paid_event_required';
   if (!input.integrationEnabled) return 'integration_disabled';
+  if (input.masterDataMissing.length > 0) return 'master_data';
   if (!input.events) return null;
   if (input.events.availableFrom) return 'too_early';
   if (input.unitState === 'failed') return 'failed';
@@ -165,13 +189,14 @@ export function tseSetupStep(status: TseStatus | null | undefined): TseSetupStep
       integrationEnabled: status.integrationEnabled,
       country: status.country,
       events: tseEventCheckFromEligibility(status.eligibility),
+      masterDataMissing: tseMasterDataMissingFromEligibility(status.eligibility) ?? [],
       unitState: status.unit?.state,
     }) ?? 'ready'
   );
 }
 
 /** Was der Hinweis zum Schritt anbietet. */
-export type TseHintAction = 'set_country' | 'enable' | 'unlock_event' | 'setup' | 'retry' | null;
+export type TseHintAction = 'set_country' | 'enable' | 'master_data' | 'unlock_event' | 'setup' | 'retry' | null;
 
 export interface TseHint {
   /** Schlüssel unter `integrations.tse.hint` (mit `.title`, `.text`, ggf. `.short`/`.action`). */
@@ -193,6 +218,8 @@ export function tseHint(step: TseSetupStep): TseHint {
       return { key: 'paidEventRequired', tone: 'warn', action: 'unlock_event' };
     case 'integration_disabled':
       return { key: 'integrationDisabled', tone: 'info', action: 'enable' };
+    case 'master_data':
+      return { key: 'masterData', tone: 'warn', action: 'master_data' };
     case 'too_early':
       return { key: 'tooEarly', tone: 'info', action: null };
     case 'failed':
@@ -206,7 +233,7 @@ export function tseHint(step: TseSetupStep): TseHint {
   }
 }
 
-export type TseRequirementId = 'server' | 'country' | 'paidEvent' | 'integration' | 'setup';
+export type TseRequirementId = 'server' | 'country' | 'masterData' | 'paidEvent' | 'integration' | 'setup';
 
 /**
  * Checkliste der Voraussetzungen (✓ erfüllt, • offen); `current` ist die,
@@ -226,6 +253,7 @@ const STEP_REQUIREMENT: Record<TseSetupStep, TseRequirementId | null> = {
   country: 'country',
   paid_event_required: 'paidEvent',
   integration_disabled: 'integration',
+  master_data: 'masterData',
   too_early: 'setup',
   failed: 'setup',
   ready: 'setup',
@@ -239,6 +267,7 @@ export function tseRequirements(input: TseSetupInput, step: TseSetupStep): TseRe
   const items: Array<{ id: TseRequirementId; ok: boolean }> = [
     { id: 'server', ok: input.available },
     { id: 'country', ok: country === 'DE' },
+    { id: 'masterData', ok: input.masterDataMissing.length === 0 },
     { id: 'paidEvent', ok: !!input.events?.event },
     { id: 'integration', ok: input.integrationEnabled },
     { id: 'setup', ok: input.unitState === 'active' },
@@ -277,11 +306,16 @@ export function percentOf(used: number | null | undefined, max: number | null | 
 }
 
 /**
- * Vorgänge, die als Beleg zählen (Kassenbeleg, Gegenbeleg, Pfand) — nicht
+ * Vorgänge, die als Beleg zählen (Kassenbeleg, Gegenbeleg, Pfand, Kassenbuch) — nicht
  * der Bestellvorgang (`Bestellung-V1`) und kein Abbruch.
  */
 export function isReceiptTse(view: TseReceiptView): boolean {
-  return view.kind === 'receipt' || view.kind === 'refund' || view.kind === 'deposit_return';
+  return (
+    view.kind === 'receipt' ||
+    view.kind === 'refund' ||
+    view.kind === 'deposit_return' ||
+    view.kind === 'cashbook'
+  );
 }
 
 /** Belege aus den TSE-Vorgängen einer Antwort, ohne Doppelte. */

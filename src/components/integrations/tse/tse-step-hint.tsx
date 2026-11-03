@@ -62,6 +62,12 @@ export function TseStepHint({ step, eventCheck, unlockEvent, variant, actions = 
         {t('countryMissing.action')}
       </Link>
     ),
+    master_data: (
+      <Link href="/integrations/tse" className={linkClass} onClick={onNavigate} data-testid="tse-hint-master-data">
+        <Icon name="edit" size={14} />
+        {t('masterData.action')}
+      </Link>
+    ),
     unlock_event: (
       <Link
         href={unlockEvent ? `/events?unlock=${unlockEvent.id}` : '/events?create=1'}

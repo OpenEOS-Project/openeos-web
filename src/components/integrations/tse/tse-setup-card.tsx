@@ -12,11 +12,13 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { ToggleSwitch } from '@/components/shared/toggle-switch';
 import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/use-integrations';
 import { useCreateTse, type useTseSetup } from '@/hooks/use-tse';
+import { ApiException } from '@/types/api';
 import { reasonError } from '@/lib/operating-mode';
 import { shortSerial, type TseSetupStep } from '@/lib/tse';
-import type { TseStatus } from '@/types/tse';
+import type { TseMasterDataField, TseStatus } from '@/types/tse';
 
 import { TseChecklist } from './tse-checklist';
+import { TseMasterDataForm } from './tse-master-data-form';
 import { TseStepHint } from './tse-step-hint';
 
 interface TseSetupCardProps {
@@ -47,13 +49,20 @@ export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProp
   const create = useCreateTse(organizationId);
   const [overrideOpen, setOverrideOpen] = useState(false);
   const [reason, setReason] = useState('');
+  // 409 TSE_MASTER_DATA_REQUIRED beim Anlegen (Status war noch nicht neu geladen).
+  const [missingFromCreate, setMissingFromCreate] = useState<TseMasterDataField[] | null>(null);
 
   const unit = status.unit;
-  const canCreate = status.eligibility.ok && (step === 'ready' || step === 'failed');
+  const canCreate =
+    status.eligibility.ok && missingFromCreate === null && (step === 'ready' || step === 'failed');
   const showOverride =
     isSuperAdmin && setup.input.integrationEnabled && (step === 'paid_event_required' || step === 'too_early');
   // Vor Server, Land und Schalter ist „Jetzt einrichten“ kein Thema.
   const showCreate = step !== 'unavailable' && step !== 'country_missing' && step !== 'country' && step !== 'integration_disabled';
+  // Stammdaten-Formular: wenn die API sie anmahnt (oder das Anlegen mit 409 scheiterte).
+  const needsMasterData = step === 'master_data' || missingFromCreate !== null;
+  const missing: TseMasterDataField[] =
+    missingFromCreate ?? (setup.input.masterDataMissing.length > 0 ? setup.input.masterDataMissing : ['taxNumber', 'street', 'zip', 'city']);
   const reasonProblem = reasonError(reason);
 
   const enableSwitch = (
@@ -82,7 +91,14 @@ export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProp
         setOverrideOpen(false);
         setReason('');
       },
-      onError: (error) => toast.error(apiErrorMessage(error, t('failedToStart'))),
+      onError: (error) => {
+        if (error instanceof ApiException && (error.reason ?? error.code) === 'TSE_MASTER_DATA_REQUIRED') {
+          const raw = error.params?.missing;
+          const list = typeof raw === 'string' ? raw.split(',').map((v) => v.trim()).filter(Boolean) : [];
+          setMissingFromCreate((list.length > 0 ? list : ['taxNumber', 'street', 'zip', 'city']) as TseMasterDataField[]);
+        }
+        toast.error(apiErrorMessage(error, t('failedToStart')));
+      },
     });
   };
 
@@ -142,12 +158,20 @@ export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProp
             eventCheck={setup.eventCheck}
             unlockEvent={setup.unlockEvent}
             variant="banner"
-            // „Jetzt einrichten“ steht als Knopf unten.
-            actions={{ enable: enableSwitch, setup: null, retry: null }}
+            // „Jetzt einrichten“ und die Stammdaten stehen unten.
+            actions={{ enable: enableSwitch, master_data: null, setup: null, retry: null }}
           />
         )}
 
         <TseChecklist requirements={setup.requirements} input={setup.input} step={step} />
+
+        {needsMasterData && (
+          <TseMasterDataForm
+            organizationId={organizationId}
+            missing={missing}
+            onSaved={() => setMissingFromCreate(null)}
+          />
+        )}
 
         {showCreate && (
           <>

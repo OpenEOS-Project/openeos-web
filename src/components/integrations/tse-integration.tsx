@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth-store';
 
 import { TseDangerZone } from './tse/tse-danger-zone';
 import { TseExportsCard } from './tse/tse-exports-card';
+import { TseClosingsCard, TseNachschauCard } from './tse/tse-nachschau-card';
 import { TseOutagesCard } from './tse/tse-outages-card';
 import { TseSetupCard } from './tse/tse-setup-card';
 import { TseStatusCard } from './tse/tse-status-card';
@@ -21,8 +22,9 @@ import '@/styles/tse.css';
 
 /**
  * Seite /integrations/tse: Einrichtung (Grund + Checkliste der
- * Voraussetzungen, Anlage, Fortschritt) — auch bei ausgeschalteter Integration,
- * danach Zustand, Ausfallprotokoll, Vorgänge, Exporte und Gefahrenzone.
+ * Voraussetzungen, Stammdaten, Anlage, Fortschritt) — auch bei
+ * ausgeschalteter Integration —, danach Zustand, Kassen-Nachschau, Kassenabschlüsse,
+ * Ausfallprotokoll, Vorgänge, Exporte und Gefahrenzone.
  * Vertrag: tse-swissbit-plan.md §8.
  */
 export function TseIntegration() {
@@ -79,6 +81,10 @@ export function TseIntegration() {
 
       {hasData && (
         <>
+          {/* Kassen-Nachschau und Kassenabschlüsse: sobald es eine TSE gibt
+              (auch eine deaktivierte — deren Tage bleiben exportierbar). */}
+          <TseNachschauCard organizationId={organizationId} active={step === 'active'} />
+          <TseClosingsCard organizationId={organizationId} />
           <TseOutagesCard organizationId={organizationId} />
           <TseTransactionsCard organizationId={organizationId} />
           <TseExportsCard organizationId={organizationId} active={step === 'active'} />

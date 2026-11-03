@@ -13,7 +13,9 @@ export type TseTransactionKind =
   | 'deposit_return'
   | 'order'
   | 'order_cancellation'
-  | 'abort';
+  | 'abort'
+  /** Kassenbuch: Anfangsbestand, Einlage, Entnahme, Kassensturz-Differenz. */
+  | 'cashbook';
 
 /** Warum die TSE (noch) nicht angelegt werden kann; `null` = geht. */
 export type TseEligibilityReason =
@@ -21,7 +23,12 @@ export type TseEligibilityReason =
   | 'TSE_COUNTRY_NOT_SUPPORTED'
   | 'INTEGRATION_DISABLED'
   | 'TSE_REQUIRES_PAID_EVENT'
-  | 'TSE_TOO_EARLY';
+  | 'TSE_TOO_EARLY'
+  /** Steuernummer/USt-IdNr. oder Anschrift fehlen (DSFinV-K-Stammdaten). */
+  | 'TSE_MASTER_DATA_REQUIRED';
+
+/** Fehlende Stammdaten bei `TSE_MASTER_DATA_REQUIRED`. */
+export type TseMasterDataField = 'taxNumber' | 'street' | 'zip' | 'city';
 
 export interface TseEligibility {
   ok: boolean;
@@ -29,6 +36,8 @@ export interface TseEligibility {
   /** Frühester Tag der Anlage (YYYY-MM-DD, Berlin) bei `TSE_TOO_EARLY`. */
   availableFrom: string | null;
   event: { id: string; name: string; startDate: string } | null;
+  /** Bei `TSE_MASTER_DATA_REQUIRED`: was noch fehlt. */
+  missing?: TseMasterDataField[];
 }
 
 export interface TseUnit {
@@ -137,6 +146,8 @@ export interface TseReceiptView {
   paymentId?: string | null;
   refundId?: string | null;
   pfandReturnId?: string | null;
+  /** Beleg-Nr. der Kasse (DSFinV-K BON_NR), fortlaufend je Organisation. */
+  bonNumber?: number | null;
   createdAt: string;
 }
 

@@ -634,3 +634,139 @@
   gap: 6px 10px;
   font-size: 13px;
 }
+
+/* Stammdaten vor dem Anlegen (DSFinV-K) */
+.tse-masterdata {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-paper-2);
+}
+.tse-masterdata b {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.tse-masterdata__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.tse-masterdata__grid--zip {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+@media (max-width: 520px) {
+  .tse-masterdata__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tse-masterdata__grid--zip {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+}
+
+/* Kassen-Nachschau */
+.nachschau {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nachschau__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.nachschau__docs {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.45;
+}
+.nachschau__intro .notice-link {
+  align-self: flex-start;
+  font-size: 13px;
+}
+.nachschau__range {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.nachschau__range .auth-field {
+  flex: 1 1 150px;
+  max-width: 220px;
+}
+.nachschau__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.nachschau__banner-action {
+  display: block;
+  margin-top: 8px;
+}
+.nachschau__tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--oe-line);
+  font-size: 13px;
+}
+.nachschau__tip > div {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+@media (max-width: 520px) {
+  .nachschau__range .auth-field {
+    max-width: none;
+  }
+  .nachschau__actions .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* Kassenabschlüsse */
+.closings__open {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: color-mix(in oklab, var(--oe-ink) 78%, transparent);
+}
+.closings__open svg {
+  flex: none;
+  color: var(--oe-mute);
+}
+.closings__count {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.closings__card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+.closings__card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nachschau__tip > :last-child {
+  flex: 0 0 auto;
+  width: auto;
+}

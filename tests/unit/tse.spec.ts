@@ -132,6 +132,19 @@ test.describe('Cloud-TSE setup step', () => {
         }),
       ),
     ).toBe('too_early');
+    expect(
+      tseSetupStep(
+        status({
+          eligibility: {
+            ok: false,
+            reason: 'TSE_MASTER_DATA_REQUIRED',
+            availableFrom: null,
+            event: null,
+            missing: ['taxNumber', 'city'],
+          },
+        }),
+      ),
+    ).toBe('master_data');
     expect(tseSetupStep(status())).toBe('ready');
   });
 
@@ -141,6 +154,7 @@ test.describe('Cloud-TSE setup step', () => {
       integrationEnabled: true,
       country: 'DE',
       events: { event: { id: 'e', name: 'Sommerfest', startDate: '2026-11-16T10:00:00.000Z' }, availableFrom: null },
+      masterDataMissing: [],
       unitState: null,
       ...extra,
     });
@@ -158,6 +172,13 @@ test.describe('Cloud-TSE setup step', () => {
     // Integration aus, Veranstaltungen noch nicht geladen: Schalter reicht als Grund.
     expect(tseSetupStepFrom(input({ integrationEnabled: false, events: undefined }))).toBe('integration_disabled');
     expect(tseSetupStepFrom(input({ events: undefined }))).toBeNull();
+    // Stammdaten (DSFinV-K) nach dem Schalter, vor dem Monat.
+    expect(tseSetupStepFrom(input({ masterDataMissing: ['taxNumber'] }))).toBe('master_data');
+    expect(tseSetupStepFrom(input({ masterDataMissing: ['city'], events: undefined }))).toBe('master_data');
+    expect(tseSetupStepFrom(input({ integrationEnabled: false, masterDataMissing: ['city'] }))).toBe('integration_disabled');
+    expect(
+      tseSetupStepFrom(input({ masterDataMissing: ['city'], events: { event: null, availableFrom: null } })),
+    ).toBe('paid_event_required');
     expect(tseSetupStepFrom(input({ events: { event: input().events!.event, availableFrom: '2026-12-01' } }))).toBe('too_early');
     expect(tseSetupStepFrom(input())).toBe('ready');
     expect(tseSetupStepFrom(input({ available: false, country: null, unitState: 'active' }))).toBe('active');
@@ -253,6 +274,7 @@ test.describe('Cloud-TSE reason → message', () => {
     'country',
     'paid_event_required',
     'integration_disabled',
+    'master_data',
     'too_early',
     'failed',
     'ready',
@@ -266,6 +288,7 @@ test.describe('Cloud-TSE reason → message', () => {
     expect(tseHint('unavailable')).toEqual({ key: 'unavailable', tone: 'info', action: null });
     expect(tseHint('paid_event_required')).toEqual({ key: 'paidEventRequired', tone: 'warn', action: 'unlock_event' });
     expect(tseHint('integration_disabled')).toEqual({ key: 'integrationDisabled', tone: 'info', action: 'enable' });
+    expect(tseHint('master_data')).toEqual({ key: 'masterData', tone: 'warn', action: 'master_data' });
     expect(tseHint('too_early')).toEqual({ key: 'tooEarly', tone: 'info', action: null });
     expect(tseHint('ready')).toEqual({ key: 'ready', tone: 'ok', action: 'setup' });
     expect(tseHint('failed')).toEqual({ key: 'failed', tone: 'danger', action: 'retry' });
@@ -277,7 +300,7 @@ test.describe('Cloud-TSE reason → message', () => {
       for (const step of steps) {
         const { key, action } = tseHint(step);
         for (const field of ['short', 'title', 'text']) expect(hints[key]?.[field], `${key}.${field}`).toBeTruthy();
-        if (action === 'set_country' || action === 'enable' || action === 'setup' || action === 'retry') {
+        if (action && action !== 'unlock_event') {
           expect(hints[key]?.action, `${key}.action`).toBeTruthy();
         }
       }
@@ -306,6 +329,7 @@ test.describe('Cloud-TSE reason → message', () => {
       integrationEnabled: false,
       country: 'DE',
       events: { event: { id: 'e', name: 'Fest', startDate: '2026-11-16T09:00:00.000Z' }, availableFrom: null },
+      masterDataMissing: [],
       unitState: null,
     };
     const view = (input: TseSetupInput) => {
@@ -313,22 +337,38 @@ test.describe('Cloud-TSE reason → message', () => {
       return tseRequirements(input, step).map((r) => `${r.id}:${r.ok ? 'ok' : r.current ? 'current' : 'open'}`);
     };
     // KjG: Land ✓, Veranstaltung ✓, Integration • (hier hängt es), Einrichtung •.
-    expect(view(base)).toEqual(['country:ok', 'paidEvent:ok', 'integration:current', 'setup:open']);
+    expect(view(base)).toEqual(['country:ok', 'masterData:ok', 'paidEvent:ok', 'integration:current', 'setup:open']);
     expect(view({ ...base, country: null, events: { event: null, availableFrom: null } })).toEqual([
       'country:current',
+      'masterData:ok',
       'paidEvent:open',
       'integration:open',
       'setup:open',
     ]);
     expect(view({ ...base, events: { event: null, availableFrom: null } })).toEqual([
       'country:ok',
+      'masterData:ok',
       'paidEvent:current',
       'integration:open',
       'setup:open',
     ]);
-    expect(view({ ...base, integrationEnabled: true })).toEqual(['country:ok', 'paidEvent:ok', 'integration:ok', 'setup:current']);
+    expect(view({ ...base, integrationEnabled: true })).toEqual([
+      'country:ok',
+      'masterData:ok',
+      'paidEvent:ok',
+      'integration:ok',
+      'setup:current',
+    ]);
+    expect(view({ ...base, integrationEnabled: true, masterDataMissing: ['taxNumber'] })).toEqual([
+      'country:ok',
+      'masterData:current',
+      'paidEvent:ok',
+      'integration:ok',
+      'setup:open',
+    ]);
     expect(view({ ...base, integrationEnabled: true, unitState: 'active' })).toEqual([
       'country:ok',
+      'masterData:ok',
       'paidEvent:ok',
       'integration:ok',
       'setup:ok',

@@ -40,11 +40,13 @@ export function TseReceiptBlock({
 
   const rows: Array<[string, string | number | null, boolean?]> = failed
     ? [
+        [t('bon'), view.bonNumber ?? null],
         [t('client'), view.clientId],
         [t('serial'), view.serialNumber, true],
         [t('start'), view.startTime],
       ]
     : [
+        [t('bon'), view.bonNumber ?? null],
         [t('client'), view.clientId],
         [t('serial'), view.serialNumber, true],
         [t('transaction'), view.transactionNumber],
