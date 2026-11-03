@@ -39,6 +39,8 @@ export type NavItemType = {
     saasOnly?: boolean;
     /** Untereintrag des vorherigen Eintrags (z. B. eine aktive Integration); leicht eingerückt. */
     nested?: boolean;
+    /** Nur, wenn die Organisation Bargeld annehmen darf (z. B. Kassenbuch). */
+    cashOnly?: boolean;
 };
 
 export type NavItemDividerType = Omit<NavItemType, "icon" | "label" | "divider"> & {

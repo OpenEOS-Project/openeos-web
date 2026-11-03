@@ -3,7 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { organizationsApi, adminApi } from '@/lib/api-client';
-import type { CreateOrganizationData, Organization, UpdateOrganizationData } from '@/types/organization';
+import { useAuthStore } from '@/stores/auth-store';
+import type {
+  CreateOrganizationData,
+  Organization,
+  OrganizationSettings,
+  UpdateOrganizationData,
+} from '@/types/organization';
 
 export const organizationKeys = {
   all: ['organizations'] as const,
@@ -61,6 +67,34 @@ export function useUpdateOrganization() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: organizationKeys.lists() });
       queryClient.setQueryData(organizationKeys.detail(data.id), data);
+    },
+  });
+}
+
+/**
+ * Einzelne Einstellungen der aktuellen Organisation ändern (Steuerangaben,
+ * Anschrift, DSFinV-K). Bestehende Felder bleiben stehen; danach steht die
+ * gespeicherte Organisation im Store, damit Seiten und Navigation sie sehen.
+ */
+export function useUpdateCurrentOrganizationSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (patch: Partial<OrganizationSettings>) => {
+      const current = useAuthStore.getState().currentOrganization;
+      if (!current) throw new Error('No organization');
+      const settings = (current.organization?.settings ?? {}) as OrganizationSettings;
+      const response = await organizationsApi.update(current.organizationId, {
+        settings: { ...settings, ...patch },
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      const latest = useAuthStore.getState().currentOrganization;
+      if (latest?.organization && latest.organizationId === data.id) {
+        useAuthStore.getState().setCurrentOrganization({ ...latest, organization: data });
+      }
+      queryClient.invalidateQueries({ queryKey: organizationKeys.all });
     },
   });
 }

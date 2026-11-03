@@ -8,6 +8,7 @@ import type { DeviceTseStatus, TseReceiptView, TseStatus } from '@/types/tse';
  * Schritt der Einrichtung, wie ihn die Seite zeigt:
  * - `unavailable`: dieser Server bietet keine Cloud-TSE an,
  * - `country`: Organisation nicht in Deutschland,
+ * - `master_data`: Steuernummer/USt-IdNr. oder Anschrift fehlen (DSFinV-K),
  * - `paid_event_required` / `too_early`: Voraussetzungen fehlen noch,
  * - `ready`: kann jetzt angelegt werden (sonst automatisch am ersten
  *   Veranstaltungstag),
@@ -20,6 +21,7 @@ import type { DeviceTseStatus, TseReceiptView, TseStatus } from '@/types/tse';
 export type TseSetupStep =
   | 'unavailable'
   | 'country'
+  | 'master_data'
   | 'paid_event_required'
   | 'too_early'
   | 'ready'
@@ -38,6 +40,8 @@ export function tseSetupStep(status: TseStatus | null | undefined): TseSetupStep
   if (unit?.state === 'failed') return 'failed';
   if (unit?.state === 'deactivated' && !status.eligibility.ok) return 'deactivated';
   switch (status.eligibility.reason) {
+    case 'TSE_MASTER_DATA_REQUIRED':
+      return 'master_data';
     case 'TSE_REQUIRES_PAID_EVENT':
       return 'paid_event_required';
     case 'TSE_TOO_EARLY':
@@ -80,11 +84,16 @@ export function percentOf(used: number | null | undefined, max: number | null | 
 }
 
 /**
- * Vorgänge, die als Beleg zählen (Kassenbeleg, Gegenbeleg, Pfand) — nicht
+ * Vorgänge, die als Beleg zählen (Kassenbeleg, Gegenbeleg, Pfand, Kassenbuch) — nicht
  * der Bestellvorgang (`Bestellung-V1`) und kein Abbruch.
  */
 export function isReceiptTse(view: TseReceiptView): boolean {
-  return view.kind === 'receipt' || view.kind === 'refund' || view.kind === 'deposit_return';
+  return (
+    view.kind === 'receipt' ||
+    view.kind === 'refund' ||
+    view.kind === 'deposit_return' ||
+    view.kind === 'cashbook'
+  );
 }
 
 /** Belege aus den TSE-Vorgängen einer Antwort, ohne Doppelte. */
