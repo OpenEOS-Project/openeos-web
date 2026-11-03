@@ -154,7 +154,25 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
       de: 'https://openeos.de/faq#tse',
       en: 'https://openeos.de/en/faq#tse',
     },
-    screenshots: [],
+    screenshots: [
+      {
+        src: '/integrations/screenshots/tse/{locale}/01-status.png',
+        altKey: 'tse.screenshots.status',
+      },
+      {
+        src: '/integrations/screenshots/tse/{locale}/02-kasse-beleg.png',
+        altKey: 'tse.screenshots.posReceipt',
+      },
+      {
+        // Der Bon wird immer auf Deutsch gedruckt — beide Sprachen zeigen dasselbe Bild.
+        src: '/integrations/screenshots/tse/{locale}/03-gedruckter-bon.png',
+        altKey: 'tse.screenshots.printedReceipt',
+      },
+      {
+        src: '/integrations/screenshots/tse/{locale}/04-kassen-nachschau.png',
+        altKey: 'tse.screenshots.inspection',
+      },
+    ],
     navIcon: ShieldCheck,
     countries: ['DE'],
     countryHintKey: 'tse.onlyGermany',

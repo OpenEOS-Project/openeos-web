@@ -5167,6 +5167,12 @@
       "vendor": "Kassensicherung",
       "description": "Signiert jeden Kassenvorgang nach KassenSichV – Voraussetzung für Bargeld in Deutschland.",
       "longDescription": "Eine Kasse, mit der du Bargeld annimmst, braucht in Deutschland eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Vorgang signiert. OpenEOS bindet dafür die Swissbit Cloud-TSE 2 an: eine TSE je Organisation, deine Geräte laufen als Terminals einer gemeinsamen Kasse. Sobald eine bezahlte Veranstaltung ansteht, wird die TSE automatisch eingerichtet; Bons und Belege tragen dann die TSE-Angaben mit QR-Code, die Daten werden jede Nacht exportiert und archiviert. Mit aktiver TSE kannst du die Betriebsart „Alle Funktionen“ mit Bargeld wählen. Mehr dazu in den <link>FAQ auf openeos.de</link>.",
+      "screenshots": {
+        "status": "Cloud-TSE mit Seriennummer, Signaturen und letztem Export",
+        "posReceipt": "Beleg an der Kasse mit TSE-Angaben und QR-Code",
+        "printedReceipt": "Gedruckter Bon mit TSE-Block und QR-Code",
+        "inspection": "Vorgänge und Exporte für die Kassen-Nachschau"
+      },
       "requirements": {
         "country": "Eine Organisation in Deutschland",
         "paidEvent": "Eine bezahlte Veranstaltung – erst dann wird die TSE angelegt (sie kostet ab dann jeden Monat)",
