@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Icon, Receipt, type ReceiptLine } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
+import { TseReceiptBlock } from '@/components/tse/tse-receipt-block';
+import type { TseReceiptView } from '@/types/tse';
 import { PosSheet } from './pos-sheet';
 
 export interface DoneInfo {
@@ -20,6 +22,8 @@ export interface DoneInfo {
   pfand: number;
   discount: number;
   time: string;
+  /** Kassenbelege der Cloud-TSE (signiert, Training oder ausgefallen); leer ohne TSE. */
+  tse?: TseReceiptView[];
 }
 
 interface DoneSheetProps {
@@ -99,6 +103,15 @@ export function DoneSheet({
           sumLabel={t('sum')}
           sum={formatPrice(info.amount + info.tip)}
           note={isTest ? t('testReceipt') : undefined}
+          foot={
+            info.tse && info.tse.length > 0 ? (
+              <div className="pos-done__tse">
+                {info.tse.map((view) => (
+                  <TseReceiptBlock key={view.id} view={view} qrSize={120} />
+                ))}
+              </div>
+            ) : undefined
+          }
         />
         <div className="pos-done__act">
           {canPrint && info.orderIds.length > 0 && (

@@ -58,6 +58,12 @@ export interface OrderItem {
 // Order
 export interface Order {
   id: string;
+  /**
+   * Nur in der Antwort von POST /device-api/orders: TSE-Vorgänge der
+   * Anlage (Bestellvorgang bzw. Kassenbelege der Zahlungen). Leer ohne
+   * aktive Cloud-TSE.
+   */
+  tseTransactions?: import('@/types/tse').TseReceiptView[];
   organizationId: string;
   eventId: string | null;
   orderNumber: string;

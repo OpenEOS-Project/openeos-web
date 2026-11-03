@@ -7,6 +7,7 @@ import { ExternalLink } from 'lucide-react';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import {
+  integrationAvailability,
   integrationDocsUrl,
   integrationHref,
   integrationMoreInfoUrl,
@@ -14,9 +15,12 @@ import {
   isIntegrationEnabled,
   type IntegrationDefinition,
 } from '@/config/integrations';
-import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/use-integrations';
+import {
+  useIntegrationErrorMessage,
+  useIntegrationOrganization,
+  useSetIntegrationEnabled,
+} from '@/hooks/use-integrations';
 import { Link } from '@/i18n/routing';
-import { useAuthStore } from '@/stores/auth-store';
 
 import { IntegrationGallery } from './integration-gallery';
 import { IntegrationLogo } from './integration-logo';
@@ -36,8 +40,11 @@ interface IntegrationInfoDialogProps {
 export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoDialogProps) {
   const t = useTranslations('integrations');
   const locale = useLocale();
-  const settings = useAuthStore((state) => state.currentOrganization?.organization?.settings);
+  const organization = useIntegrationOrganization();
+  const settings = organization?.settings;
   const enabled = isIntegrationEnabled(settings, integration.id);
+  const availability = integrationAvailability(integration, organization);
+  const deactivateBlocked = enabled && !!integration.deactivateBlocked?.(organization);
   const toggle = useSetIntegrationEnabled();
   const errorMessage = useIntegrationErrorMessage();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -81,7 +88,7 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
                 <h2 id={titleId}>{name}</h2>
                 <div className="integration-card__vendor">{t(integration.vendorKey)}</div>
               </div>
-              <IntegrationStatusBadge available={integration.available} enabled={enabled} />
+              <IntegrationStatusBadge availability={availability} enabled={enabled} />
             </div>
             <DialogCloseButton onClick={onClose} />
           </div>
@@ -136,7 +143,7 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
           </div>
 
           <div className="modal__foot integration-info__foot">
-            {!integration.available ? (
+            {availability === 'comingSoon' ? (
               <>
                 <p className="integration-info__hint">{t('info.comingSoonHint')}</p>
                 <button type="button" className="btn btn--ghost" onClick={onClose}>
@@ -145,15 +152,21 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
               </>
             ) : enabled ? (
               <>
-                <p className="integration-info__hint">{t('info.settingsKept')}</p>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  onClick={() => toggle.mutate({ id: integration.id, enabled: false })}
-                  disabled={toggle.isPending}
-                >
-                  {toggle.isPending ? t('actions.deactivating') : t('actions.deactivate')}
-                </button>
+                <p className="integration-info__hint">
+                  {deactivateBlocked && integration.deactivateBlockedKey
+                    ? t(integration.deactivateBlockedKey)
+                    : t('info.settingsKept')}
+                </p>
+                {!deactivateBlocked && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={() => toggle.mutate({ id: integration.id, enabled: false })}
+                    disabled={toggle.isPending}
+                  >
+                    {toggle.isPending ? t('actions.deactivating') : t('actions.deactivate')}
+                  </button>
+                )}
                 <Link
                   href={integrationHref(integration.id) as never}
                   className="btn btn--primary"
@@ -161,6 +174,17 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
                 >
                   {t('actions.configure')}
                 </Link>
+              </>
+            ) : availability !== 'available' ? (
+              <>
+                <p className="integration-info__hint" data-testid="integration-unavailable-hint">
+                  {availability === 'country'
+                    ? t(integration.countryHintKey ?? 'info.notInCountryHint')
+                    : t(integration.serverUnavailableKey ?? 'info.notOnServerHint')}
+                </p>
+                <button type="button" className="btn btn--ghost" onClick={onClose}>
+                  {t('actions.close')}
+                </button>
               </>
             ) : (
               <>

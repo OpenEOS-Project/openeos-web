@@ -1,11 +1,13 @@
+import { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useOrganization } from '@/hooks/use-organizations';
 import { organizationsApi } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
-import type { IntegrationId } from '@/types/organization';
+import type { IntegrationId, Organization } from '@/types/organization';
 
 /**
  * Fehlertexte der Integrations-Endpunkte. Übersetzt wird zentral über
@@ -57,15 +59,18 @@ export function useSetIntegrationEnabled() {
       // dazwischen kann sich die Organisation geändert haben.
       const { currentOrganization: latest, organizations, setOrganizations } =
         useAuthStore.getState();
+      // Zusammenführen statt ersetzen: die Antwort ist die nackte
+      // Organisation, ohne die abgeleiteten Felder von GET /organizations/:id
+      // (Betriebsart, Cloud-TSE).
       if (latest && latest.organizationId === organization.id) {
-        setCurrentOrganization({ ...latest, organization });
+        setCurrentOrganization({ ...latest, organization: { ...latest.organization, ...organization } });
       }
       // Auch die Liste für den Organisationswechsel, sonst käme beim
       // Zurückwechseln der alte Schalterstand wieder.
       if (organizations.some((o) => o.organizationId === organization.id)) {
         setOrganizations(
           organizations.map((o) =>
-            o.organizationId === organization.id ? { ...o, organization } : o,
+            o.organizationId === organization.id ? { ...o, organization: { ...o.organization, ...organization } } : o,
           ),
         );
       }
@@ -73,4 +78,24 @@ export function useSetIntegrationEnabled() {
       queryClient.invalidateQueries({ queryKey: ['sumup-readers', organizationId] });
     },
   });
+}
+
+/**
+ * Organisation für Katalog und Integrationsseiten: Schalter aus dem
+ * Auth-Store (ändern sich sofort), Land und Cloud-TSE aus
+ * GET /organizations/:id — die Liste beim Anmelden liefert `tse` nicht mit.
+ */
+export function useIntegrationOrganization(): Partial<Organization> | undefined {
+  const stored = useAuthStore((state) => state.currentOrganization?.organization);
+  const organizationId = useAuthStore((state) => state.currentOrganization?.organizationId) ?? '';
+  const { data: detail } = useOrganization(organizationId);
+  return useMemo(() => {
+    if (!stored) return detail;
+    return {
+      ...stored,
+      country: detail?.country ?? stored.country,
+      tse: detail?.tse ?? stored.tse,
+      tseActive: detail?.tseActive ?? stored.tseActive,
+    };
+  }, [stored, detail]);
 }

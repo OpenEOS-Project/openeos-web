@@ -41,7 +41,8 @@ import { useOpenOrders, type OpenOrdersScope } from './hooks/use-open-orders';
 import { checkoutTotals, usePosCheckout } from './hooks/use-pos-checkout';
 import { usePosData } from './hooks/use-pos-data';
 import { usePosTheme } from './hooks/use-pos-theme';
-import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents } from './hooks/use-pos-live';
+import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents, usePosTseStatus } from './hooks/use-pos-live';
+import { usePosTseOutage } from './hooks/use-pos-tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 
 type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'logout' | 'table' | null;
@@ -212,6 +213,11 @@ function PosApp() {
   const sentOrders = useMemo(() => (context?.kind === 'table' ? scopeOrders : []), [context, scopeOrders]);
   const counterOrderCount = context?.kind === 'table' ? 0 : scopeOrders.length;
   const printer = usePosDeviceStatus();
+  // Cloud-TSE: Ausfall-Hinweis (letzter Vorgang ohne Signatur oder offener
+  // Ausfall laut Server); im Testmodus mit aktiver TSE Trainingsbuchungen.
+  const tseStatus = usePosTseStatus();
+  const tseOutage = usePosTseOutage(tseStatus);
+  const tseTraining = isTest && !!tseStatus?.active;
 
   // Testmodus: SumUp-Zahlart deaktiviert, keine Aufrufe am Lesegerät.
   const card = orderOnly
@@ -474,6 +480,16 @@ function PosApp() {
         {operating.cashBlockedWithoutTse && (
           <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly">
             {t('cashBlocked.banner')}
+          </Banner>
+        )}
+        {tseOutage && (
+          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly pos-tse-outage">
+            {t('tseOutage.banner')}
+          </Banner>
+        )}
+        {tseTraining && !orderOnly && (
+          <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
+            {t('tseOutage.training')}
           </Banner>
         )}
         {offline && (

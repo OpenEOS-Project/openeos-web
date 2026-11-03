@@ -7,6 +7,7 @@ import type { BroadcastMessage } from '@/hooks/use-device-socket';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useDeviceStore } from '@/stores/device-store';
 import type { Product } from '@/types/product';
+import type { DeviceTseStatus } from '@/types/tse';
 import type { PosPrinterStatus } from '../components/pos-header';
 
 interface ProductUpdatedPayload {
@@ -149,6 +150,8 @@ export function usePosSocketEvents(eventId: string | null, onBroadcast: (message
         refreshDevice();
       },
       printerStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
+      // Cloud-TSE: Ausfall auf/zu, aktiviert, deaktiviert — Pille und Hinweis neu.
+      tseStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
     }),
     [eventId, queryClient, refreshDevice, router, ordersChanged],
   );
@@ -166,8 +169,8 @@ export function usePosSocketEvents(eventId: string | null, onBroadcast: (message
  * verpackt: `{ printer, tse }`). Ohne zugewiesenen Drucker (`printer: null`)
  * bleibt die Pille aus; bei einem Fehler wird nicht erneut gefragt.
  */
-export function usePosDeviceStatus(): PosPrinterStatus | null {
-  const { data, isError } = useQuery({
+function useDeviceStatusQuery() {
+  return useQuery({
     queryKey: ['device-status'],
     queryFn: () => deviceTablesApi.getDeviceStatus(),
     retry: false,
@@ -175,7 +178,21 @@ export function usePosDeviceStatus(): PosPrinterStatus | null {
     refetchInterval: (query) => (query.state.status === 'error' ? false : 60_000),
     refetchOnWindowFocus: false,
   });
+}
+
+export function usePosDeviceStatus(): PosPrinterStatus | null {
+  const { data, isError } = useDeviceStatusQuery();
   if (isError) return null;
   const printer = data?.data?.printer;
   return printer ? { name: printer.name, isOnline: printer.isOnline } : null;
+}
+
+/**
+ * Cloud-TSE aus derselben Abfrage: `null` ohne Integration, sonst Zustand
+ * (`ok`, `error`, `creating`, `inactive`) samt offenem Ausfall.
+ */
+export function usePosTseStatus(): DeviceTseStatus | null {
+  const { data, isError } = useDeviceStatusQuery();
+  if (isError) return null;
+  return data?.data?.tse ?? null;
 }

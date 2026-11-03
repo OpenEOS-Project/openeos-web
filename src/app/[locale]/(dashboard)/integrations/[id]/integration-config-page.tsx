@@ -10,7 +10,11 @@ import { IntegrationGuard } from '@/components/shared/integration-guard';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { getIntegration } from '@/config/integrations';
-import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/use-integrations';
+import {
+  useIntegrationErrorMessage,
+  useIntegrationOrganization,
+  useSetIntegrationEnabled,
+} from '@/hooks/use-integrations';
 import type { IntegrationId } from '@/types/organization';
 
 interface IntegrationConfigPageProps {
@@ -32,6 +36,10 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
   const toggle = useSetIntegrationEnabled();
   const errorMessage = useIntegrationErrorMessage();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const organization = useIntegrationOrganization();
+  // Cloud-TSE: Ausschalten erst nach dem endgültigen Deaktivieren der TSE
+  // (sonst 409 TSE_ACTIVE_DEACTIVATE_FIRST). Die Rückfrage sagt das vorher.
+  const blocked = !!integration?.deactivateBlocked?.(organization);
 
   useEffect(() => {
     if (!confirmOpen) return;
@@ -44,6 +52,7 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
 
   if (!integration?.ConfigComponent) return null;
   const { ConfigComponent } = integration;
+  const name = integration.nameKey ? t(integration.nameKey) : integration.name;
 
   // Kein eigener Rücksprung: der Guard sieht die ausgeschaltete Integration
   // im Store und leitet in den Katalog um. Deshalb mutateAsync statt der
@@ -51,7 +60,7 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
   const deactivate = async () => {
     try {
       await toggle.mutateAsync({ id, enabled: false });
-      toast.success(t('deactivated', { name: integration.name }));
+      toast.success(t('deactivated', { name }));
     } catch (error) {
       toast.error(errorMessage(error, t('errors.toggleFailed')));
     }
@@ -63,7 +72,7 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
         backHref="/integrations"
         backLabel={t('backToCatalog')}
         logo={<IntegrationLogo name={integration.name} color={integration.color} logo={integration.logo} />}
-        title={integration.name}
+        title={name}
         meta={t(integration.shortDescriptionKey)}
         actions={
           <button type="button" className="btn btn--ghost" onClick={() => setConfirmOpen(true)}>
@@ -79,19 +88,27 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
           <ModalPanel titleId="integration-deactivate-title" className="modal__panel--sm">
             <div className="modal__head">
               <h2 id="integration-deactivate-title">
-                {t('confirmDeactivate.title', { name: integration.name })}
+                {t('confirmDeactivate.title', { name })}
               </h2>
               <DialogCloseButton onClick={() => setConfirmOpen(false)} />
             </div>
             <div className="modal__body">
-              {integration.deactivateEffectKey && (
-                <p className="integration-info__text" style={{ marginBottom: 8 }}>
-                  {t(integration.deactivateEffectKey)}
+              {blocked && integration.deactivateBlockedKey ? (
+                <p className="integration-info__text" data-testid="integration-deactivate-blocked">
+                  {t(integration.deactivateBlockedKey)}
                 </p>
+              ) : (
+                <>
+                  {integration.deactivateEffectKey && (
+                    <p className="integration-info__text" style={{ marginBottom: 8 }}>
+                      {t(integration.deactivateEffectKey)}
+                    </p>
+                  )}
+                  <p className="integration-info__text">
+                    {t('info.settingsKept')}
+                  </p>
+                </>
               )}
-              <p className="integration-info__text">
-                {t('info.settingsKept')}
-              </p>
             </div>
             <div className="modal__foot">
               <button
@@ -102,15 +119,28 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
               >
                 {tCommon('cancel')}
               </button>
-              <button
-                type="button"
-                className="btn btn--primary"
-                style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
-                onClick={deactivate}
-                disabled={toggle.isPending}
-              >
-                {toggle.isPending ? t('actions.deactivating') : t('actions.deactivate')}
-              </button>
+              {blocked ? (
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => {
+                    setConfirmOpen(false);
+                    document.getElementById('integration-danger-zone')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                >
+                  {t('actions.toDangerZone')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
+                  onClick={deactivate}
+                  disabled={toggle.isPending}
+                >
+                  {toggle.isPending ? t('actions.deactivating') : t('actions.deactivate')}
+                </button>
+              )}
             </div>
           </ModalPanel>
         </div>

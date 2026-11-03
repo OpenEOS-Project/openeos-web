@@ -2990,6 +2990,10 @@
     },
     "cashBlocked": {
       "banner": "Cash blocked – without an active TSE this till accepts no cash. Card and online keep working."
+    },
+    "tseOutage": {
+      "banner": "TSE failed – you can keep selling, the receipt will be marked.",
+      "training": "Training transaction – don't accept real money."
     }
   },
   "orders": {
@@ -3058,7 +3062,13 @@
       "discount": "Discount",
       "pfand": "Deposit",
       "tip": "Tip",
-      "total": "Total"
+      "total": "Total",
+      "tse": {
+        "title": "Cloud TSE",
+        "show": "Show TSE data",
+        "hide": "Hide TSE data",
+        "number": "TX {number}"
+      }
     },
     "pagination": {
       "prev": "Previous",
@@ -3943,7 +3953,19 @@
     "TSE_REQUIRED_FOR_CASH": "In Germany cash is only possible with an active cloud TSE. Take card or online payment.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "In Germany “All features” is only available with an active cloud TSE.",
     "COUNTRY_REQUIRED": "Set the country of your organization first.",
-    "CERTIFICATE_NOT_AVAILABLE": "The certificate is only available in Germany in the operating modes “Orders only” and “Cashless”."
+    "CERTIFICATE_NOT_AVAILABLE": "The certificate is only available in Germany in the operating modes “Orders only” and “Cashless”.",
+    "TSE_NOT_AVAILABLE": "No cloud TSE is set up on this server.",
+    "TSE_COUNTRY_NOT_SUPPORTED": "The cloud TSE is only available for organizations in Germany.",
+    "TSE_REQUIRES_PAID_EVENT": "A cloud TSE costs a monthly fee from the moment it is created. It is therefore only set up when a paid event is coming up – unlock an event first.",
+    "TSE_TOO_EARLY": "You can set up the cloud TSE from {availableFrom} at the earliest – in the month of your event “{eventName}”. So you don't pay for a month without an event.",
+    "TSE_OVERRIDE_REASON_REQUIRED": "Please give a reason for the exception.",
+    "TSE_NOT_FOUND": "There is no cloud TSE for your organization.",
+    "TSE_NOT_ACTIVE": "The cloud TSE is not active.",
+    "TSE_DEACTIVATION_CONFIRM_REQUIRED": "Deactivating the TSE is permanent – please confirm it explicitly.",
+    "TSE_ACTIVE_DEACTIVATE_FIRST": "Your cloud TSE is set up. Deactivate it first on the “Cloud TSE” page in the danger zone – the integration is then switched off automatically.",
+    "TSE_PROVIDER_ERROR": "The TSE service is not responding right now. Please try again in a moment.",
+    "TSE_EXPORT_NOT_FOUND": "This export does not exist (anymore).",
+    "TSE_EXPORT_NOT_READY": "The export is not ready yet. Please try again in a moment."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5068,12 +5090,15 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "activating": "Activating …",
-      "deactivating": "Deactivating …"
+      "deactivating": "Deactivating …",
+      "toDangerZone": "Go to danger zone"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "notInCountry": "Germany only",
+      "notOnServer": "Not available"
     },
     "info": {
       "whatItDoes": "What it does",
@@ -5081,7 +5106,9 @@
       "docs": "Read the documentation",
       "settingsKept": "Your settings are kept when you deactivate it.",
       "activateHint": "Once activated, the integration appears in the sidebar, where you set it up.",
-      "comingSoonHint": "This integration is in preparation and cannot be activated yet."
+      "comingSoonHint": "This integration is in preparation and cannot be activated yet.",
+      "notInCountryHint": "This integration is not available for your organization's country.",
+      "notOnServerHint": "This integration is not set up on this server."
     },
     "gallery": {
       "label": "Screenshots",
@@ -5123,10 +5150,208 @@
       }
     },
     "tse": {
-      "name": "TSE (fiscal security)",
-      "vendor": "Fiscalisation",
-      "description": "Cloud TSE for cash payments under the German KassenSichV – in preparation.",
-      "longDescription": "Under the German Fiscal Code (KassenSichV), a till that can accept cash needs a certified technical security device (TSE) that signs every transaction. A cloud TSE integration for OpenEOS is in preparation. Until then, organizations in Germany use the operating mode “Orders only” or “Cashless” – “All features” with cash is only available there with an active TSE. More in the <link>FAQ on openeos.de</link>."
+      "name": "Cloud TSE",
+      "vendor": "Fiscal security",
+      "description": "Signs every till transaction under the German KassenSichV – required for cash in Germany.",
+      "longDescription": "In Germany, a till that accepts cash needs a certified technical security device (TSE) that signs every transaction. OpenEOS connects the Swissbit Cloud TSE 2 for this: one TSE per organization, your devices act as terminals of one shared till. As soon as a paid event is coming up, the TSE is set up automatically; receipts then carry the TSE data with a QR code, and the data is exported and archived every night. With an active TSE you can choose the operating mode “All features” with cash. More in the <link>FAQ on openeos.de</link>.",
+      "requirements": {
+        "country": "An organization in Germany",
+        "paidEvent": "A paid event – the TSE is only created then (it costs a monthly fee from that point on)",
+        "internet": "Internet at the tills (during an outage you keep selling, receipts then carry a note)"
+      },
+      "deactivateEffect": "Without the integration, OpenEOS does not set up a cloud TSE; cash stays blocked in Germany.",
+      "deactivateBlocked": "Your cloud TSE is set up. You can only switch the integration off after you have permanently deactivated the TSE in the danger zone below – it then happens automatically.",
+      "onlyGermany": "The cloud TSE under the German KassenSichV is only available for organizations in Germany. Notes for your country are in the settings under “Operating mode”.",
+      "serverUnavailable": "No cloud TSE is set up on this server. Ask the operator of your installation.",
+      "loading": "Loading cloud TSE …",
+      "loadFailed": "The cloud TSE status could not be loaded.",
+      "setup": {
+        "title": "Setup",
+        "description": "One TSE for your organization – all tills sign through it.",
+        "requirements": "Requirements",
+        "unavailable": {
+          "title": "Not available",
+          "text": "No cloud TSE is set up on this server. Ask the operator of your installation."
+        },
+        "country": {
+          "title": "Germany only",
+          "text": "The cloud TSE is only available for organizations in Germany."
+        },
+        "creating": {
+          "title": "Setting up the TSE …",
+          "text": "This usually takes only a few seconds. You can keep this page open – it updates by itself.",
+          "retrying": "Last attempt at {time} failed ({code}) – retrying automatically."
+        },
+        "failed": {
+          "title": "Setup failed",
+          "text": "The TSE could not be set up on {date}."
+        },
+        "deactivated": {
+          "title": "TSE deactivated",
+          "text": "The TSE {serial} was permanently deactivated on {date}. For a new event you set up a new TSE."
+        },
+        "check": {
+          "country": "Organization in Germany",
+          "paidEvent": "Paid event",
+          "paidEventNamed": "Paid event: “{name}” from {date}",
+          "toEvents": "Go to events",
+          "month": "In the month the event starts",
+          "monthFrom": "From {date} at the earliest"
+        },
+        "paidEventRequired": "A cloud TSE costs a monthly fee from the moment it is created. We therefore only set it up when a paid event is coming up – unlock an event first.",
+        "tooEarly": "Your event “{name}” starts later. The TSE can be set up from {date} at the earliest – so you don't pay for a month without an event.",
+        "autoNote": "We set up the TSE automatically on the first day of the event – you don't need to do anything else. If you want to test beforehand, you can also set it up yourself in the month of the event.",
+        "createNow": "Set up now",
+        "retry": "Try again",
+        "starting": "Starting …",
+        "createDisabled": "Possible as soon as all requirements are met.",
+        "costNote": "From setup on, the TSE fee applies for every month started.",
+        "started": "The TSE is being set up.",
+        "failedToStart": "The setup could not be started.",
+        "override": {
+          "open": "Support: exception",
+          "title": "Set up the TSE anyway (support)",
+          "text": "Skips the conditions “paid event” and “month the event starts”. OpenEOS bears the cost; the reason is logged.",
+          "reason": "Reason",
+          "placeholder": "e.g. test before the festival, agreed with the club",
+          "submit": "Set up anyway"
+        }
+      },
+      "status": {
+        "title": "Cloud TSE",
+        "description": "All tills of your organization sign through this TSE.",
+        "badge": {
+          "ok": "Active",
+          "error": "Disrupted"
+        },
+        "outage": {
+          "title": "TSE disrupted since {time}",
+          "text": "{count, plural, one {# transaction remained} other {# transactions remained}} unsigned. Selling continues, receipts carry the note “TSE ausgefallen” (TSE failed). The outage ends with the next signed transaction."
+        },
+        "serial": "Serial number",
+        "client": "Till (client ID)",
+        "product": "Product",
+        "activeSince": "Active since",
+        "trigger": {
+          "manual": "set up manually",
+          "auto": "set up automatically",
+          "super_admin": "set up by support"
+        },
+        "certificate": "Certificate",
+        "validUntil": "valid until {date}",
+        "lastExport": "Last export",
+        "noExportYet": "none yet",
+        "exportsPending": "{count} in progress",
+        "storage": "Storage",
+        "storageHint": "{used} of {max}",
+        "signatures": "Signatures this month",
+        "signaturesOf": "{count} of {limit}",
+        "counts": "Last 30 days: {signed} signed · {training} training · {failed} unsigned",
+        "liveError": "Live values currently unavailable ({code}) – the TSE still signs.",
+        "history": "{count, plural, one {Previous TSE} other {# previous TSEs}}",
+        "unitState": {
+          "creating": "being set up",
+          "active": "active",
+          "failed": "failed",
+          "deactivated": "deactivated"
+        },
+        "copySerial": "Copy serial number",
+        "copied": "Copied"
+      },
+      "outages": {
+        "title": "Outage log",
+        "description": "Periods in which the TSE did not sign. Receipts from that time carry the note “TSE ausgefallen” (TSE failed).",
+        "empty": "No outages.",
+        "loading": "Loading …",
+        "ongoing": "ongoing",
+        "open": "Open",
+        "closed": "Ended",
+        "failedCount": "{count, plural, one {# transaction} other {# transactions}} unsigned"
+      },
+      "transactions": {
+        "title": "Transactions",
+        "description": "Signed, failed and training transactions, newest first. Click one to see the TSE data with QR code.",
+        "filterLabel": "Filter transactions",
+        "filter": {
+          "all": "All",
+          "signed": "Signed",
+          "failed": "Failed",
+          "training": "Training"
+        },
+        "count": "{count, plural, one {# transaction} other {# transactions}}",
+        "col": {
+          "time": "Time",
+          "kind": "Type",
+          "status": "Status",
+          "number": "TX no.",
+          "counter": "Sig. counter",
+          "amount": "Amount"
+        },
+        "shortNumber": "TX {number}",
+        "shortCounter": "Sig. {counter}",
+        "empty": "No transactions yet.",
+        "loading": "Loading …",
+        "loadFailed": "The transactions could not be loaded.",
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page {page} of {pages}",
+        "processType": "Process type",
+        "processData": "Process data",
+        "terminal": "Terminal"
+      },
+      "exports": {
+        "title": "Exports",
+        "description": "OpenEOS collects the TSE data (TAR according to TR-03153) every night and archives it for ten years.",
+        "nachschau": "For a cash register inspection (Kassen-Nachschau) or audit, download the exports here. If you need the data up to now, start an export first.",
+        "start": "Start export now",
+        "starting": "Starting …",
+        "started": "The export is running. It will appear in the list shortly.",
+        "startFailed": "The export could not be started.",
+        "running": "Export running – this can take a few minutes.",
+        "empty": "No exports yet. The first one arrives the night after the first transaction.",
+        "loading": "Loading …",
+        "status": {
+          "downloaded": "Archived",
+          "pending": "In progress",
+          "failed": "Failed"
+        },
+        "trigger": {
+          "scheduled": "Nightly",
+          "manual": "Manual",
+          "deactivation": "Final",
+          "swissbit": "Automatic (Swissbit)"
+        },
+        "archivedAt": "archived {date}",
+        "download": "Download",
+        "downloading": "Downloading …",
+        "downloadLabel": "Download export {period}",
+        "downloadFailed": "The export could not be downloaded."
+      },
+      "danger": {
+        "title": "Danger zone",
+        "description": "Final steps – they cannot be undone.",
+        "text": "Take the TSE out of service, e.g. when your organization no longer uses OpenEOS with cash. There is no pause: a deactivated TSE can never sign again.",
+        "button": "Deactivate TSE",
+        "done": "The TSE is deactivated. The final export is being collected.",
+        "failed": "The TSE could not be deactivated.",
+        "dialog": {
+          "title": "Permanently deactivate the TSE?",
+          "intro": "You are taking the TSE {serial} out of service. This means:",
+          "effects": {
+            "permanent": "The TSE can never sign again – this cannot be undone.",
+            "export": "The remaining data is exported and archived automatically (final export).",
+            "cash": "In Germany your tills stop accepting cash immediately.",
+            "integration": "The “Cloud TSE” integration is switched off.",
+            "new": "For a later event you set up a new TSE with a new serial number."
+          },
+          "warning": "Only deactivate when no event is running. Receipts and exports of the old TSE remain available for ten years.",
+          "reason": "Reason (optional, for the log)",
+          "reasonPlaceholder": "e.g. season over, club no longer uses a till",
+          "check": "I understand that the TSE will be deactivated permanently.",
+          "submit": "Deactivate permanently",
+          "pending": "Deactivating …"
+        }
+      }
     }
   },
   "onboarding": {
@@ -5564,7 +5789,7 @@
       "current": "Active",
       "legacy": "Active (existing)",
       "available": "Available",
-      "tse_required": "requires a cloud TSE – in preparation",
+      "tse_required": "requires an active cloud TSE",
       "country_required": "Set the country first"
     },
     "section": {
@@ -5647,7 +5872,7 @@
     "legacy": {
       "de": {
         "title": "Cash requires a TSE in Germany – please choose your operating mode",
-        "text": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE; the cloud TSE for OpenEOS is in preparation. Please choose “Orders only” (no prices and payments) or “Cashless” (card and online). Until you choose, everything stays as it is – OpenEOS switches nothing automatically.",
+        "text": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. Please choose “Orders only” (no prices and payments) or “Cashless” (card and online) – or switch on the cloud TSE under Integrations to keep “All features” with cash. Until you choose, everything stays as it is – OpenEOS switches nothing automatically.",
         "noCountry": "Set the country of your organization first."
       },
       "confirm": {
@@ -5675,7 +5900,7 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Till rules in Germany",
-        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why “All features” with cash is only available with an active cloud TSE – the integration is in preparation. In “Orders only” and “Cashless” OpenEOS records no cash; you get a manufacturer certificate for your records."
+        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why “All features” with cash is only available with an active cloud TSE (Integrations → Cloud TSE). In “Orders only” and “Cashless” OpenEOS records no cash; you get a manufacturer certificate for your records."
       },
       "at": {
         "title": "Cash register obligation in Austria",
@@ -5690,6 +5915,47 @@
         "title": "Till rules in your country",
         "text": "Many countries have their own rules for tills (e.g. Italy, France, Poland, Czechia). All three operating modes are available to you – check yourself whether OpenEOS and the chosen operating mode are permissible for you there."
       }
+    },
+    "tseBadge": {
+      "active": "Cloud TSE active",
+      "creating": "Cloud TSE being set up",
+      "error": "Cloud TSE disrupted",
+      "off": "No cloud TSE",
+      "link": "Go to cloud TSE",
+      "setup": "Set up cloud TSE"
+    }
+  },
+  "tse": {
+    "receipt": {
+      "client": "Till",
+      "serial": "TSE serial number",
+      "transaction": "Transaction",
+      "counter": "Signature counter",
+      "start": "Start",
+      "finish": "End",
+      "algorithm": "Algorithm",
+      "timeFormat": "Time format",
+      "signature": "Signature",
+      "notice": {
+        "failed": "TSE failed (TSE ausgefallen)",
+        "training": "TRAINING – NOT A SALE"
+      },
+      "errorCode": "Error: {code}",
+      "qrLabel": "QR code with the TSE data (DSFinV-K)"
+    },
+    "kind": {
+      "receipt": "Receipt",
+      "refund": "Refund receipt",
+      "deposit_return": "Deposit payout",
+      "order": "Order",
+      "order_cancellation": "Order cancellation",
+      "abort": "Abort"
+    },
+    "status": {
+      "signed": "Signed",
+      "training": "Training",
+      "failed": "Failed",
+      "pending": "Open"
     }
   }
 }

@@ -1509,6 +1509,7 @@ export const deviceApi = {
         operatingModeLegacy?: boolean;
         operatingModeSince?: string | null;
         tseActive?: boolean;
+        tse?: import('@/types/tse').OrganizationTseSummary | null;
         cashAllowed?: boolean;
         pricesVisible?: boolean;
       }>
@@ -2133,6 +2134,63 @@ export const sumupApi = {
   testConnection: (organizationId: string) =>
     apiClient.post<ApiResponse<{ success: boolean }>>(
       `/organizations/${organizationId}/sumup/test-connection`
+    ),
+};
+
+// Cloud-TSE (tse-swissbit-plan.md §8). Nur Admins der Organisation.
+export const tseApi = {
+  status: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/tse').TseStatus>>(`/organizations/${organizationId}/tse`),
+
+  /** Legt die TSE an (202, asynchron). `override` + `reason` nur für Super-Admins. */
+  create: (organizationId: string, body: { override?: boolean; reason?: string } = {}) =>
+    apiClient.post<ApiResponse<import('@/types/tse').TseUnit>>(`/organizations/${organizationId}/tse`, body),
+
+  /** Endgültig deaktivieren — `confirm: true` ist Pflicht. */
+  deactivate: (organizationId: string, reason?: string) =>
+    apiClient.post<ApiResponse<import('@/types/tse').TseUnit>>(`/organizations/${organizationId}/tse/deactivate`, {
+      confirm: true,
+      ...(reason ? { reason } : {}),
+    }),
+
+  listExports: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/tse').TseExport[]>>(`/organizations/${organizationId}/tse/exports`),
+
+  requestExport: (organizationId: string) =>
+    apiClient.post<ApiResponse<{ started: boolean; unitId: string }>>(`/organizations/${organizationId}/tse/exports`),
+
+  /** TAR-Datei des Exports (`X-Checksum-SHA256` im Header). */
+  downloadExport: async (organizationId: string, exportId: string): Promise<{ blob: Blob; sha256: string | null }> => {
+    const token = apiClient.getAccessToken();
+    const res = await fetch(`${API_URL}/organizations/${organizationId}/tse/exports/${exportId}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    if (!res.ok) throw await apiExceptionFromResponse(res);
+    return { blob: await res.blob(), sha256: res.headers.get('X-Checksum-SHA256') };
+  },
+
+  transactions: (
+    organizationId: string,
+    params: { status?: import('@/types/tse').TseTransactionStatus; limit?: number; offset?: number } = {},
+  ) => {
+    const query = new URLSearchParams();
+    if (params.status) query.set('status', params.status);
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.offset) query.set('offset', String(params.offset));
+    const qs = query.toString();
+    return apiClient.get<ApiResponse<import('@/types/tse').TseTransactionList>>(
+      `/organizations/${organizationId}/tse/transactions${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  outages: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/tse').TseOutage[]>>(`/organizations/${organizationId}/tse/outages`),
+
+  /** Alle TSE-Vorgänge einer Bestellung (Bestellung, Kassenbelege, Gegenbelege). */
+  forOrder: (organizationId: string, orderId: string) =>
+    apiClient.get<ApiResponse<import('@/types/tse').TseReceiptView[]>>(
+      `/organizations/${organizationId}/tse/orders/${orderId}`,
     ),
 };
 
