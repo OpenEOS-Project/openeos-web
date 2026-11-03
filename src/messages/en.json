@@ -5133,14 +5133,18 @@
       "deactivate": "Deactivate",
       "activating": "Activating …",
       "deactivating": "Deactivating …",
-      "toDangerZone": "Go to danger zone"
+      "toDangerZone": "Go to danger zone",
+      "setCountry": "Set country"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive",
       "comingSoon": "Coming soon",
       "notInCountry": "Germany only",
-      "notOnServer": "Not available"
+      "notOnServer": "Not available",
+      "countryMissing": "Country missing",
+      "settingUp": "Setting up",
+      "notSetUp": "Not set up"
     },
     "info": {
       "whatItDoes": "What it does",
@@ -5150,7 +5154,8 @@
       "activateHint": "Once activated, the integration appears in the sidebar, where you set it up.",
       "comingSoonHint": "This integration is in preparation and cannot be activated yet.",
       "notInCountryHint": "This integration is not available for your organization's country.",
-      "notOnServerHint": "This integration is not set up on this server."
+      "notOnServerHint": "This integration is not set up on this server.",
+      "countryMissingHint": "Set your organization’s country first – it decides whether this integration is available to you."
     },
     "gallery": {
       "label": "Screenshots",
@@ -5211,20 +5216,77 @@
       "deactivateBlocked": "Your cloud TSE is set up. You can only switch the integration off after you have permanently deactivated the TSE in the danger zone below – it then happens automatically.",
       "onlyGermany": "The cloud TSE under the German KassenSichV is only available for organizations in Germany. Notes for your country are in the settings under “Operating mode”.",
       "serverUnavailable": "No cloud TSE is set up on this server. Ask the operator of your installation.",
+      "hint": {
+        "unavailable": {
+          "short": "Not set up on this server",
+          "title": "Not set up on this server",
+          "text": "This installation does not offer a cloud TSE. Ask its operator."
+        },
+        "countryMissing": {
+          "short": "Set your organization's country first",
+          "title": "Set your organization's country first",
+          "text": "The cloud TSE is only available for organizations in Germany. You set the country once in the settings under “Operating mode”.",
+          "action": "Set country"
+        },
+        "countryUnsupported": {
+          "short": "Germany only",
+          "title": "Germany only",
+          "text": "The cloud TSE under the KassenSichV is only available for organizations in Germany. You find notes for your country in the settings under “Operating mode”."
+        },
+        "paidEventRequired": {
+          "short": "Unlock an event first – the TSE is set up with your first paid event",
+          "title": "Unlock an event first",
+          "text": "The cloud TSE is set up with your first paid event. It costs a monthly fee from the moment it is created – so only once a paid event is coming up.",
+          "actionUnlock": "Unlock “{name}”",
+          "actionCreate": "Create event"
+        },
+        "integrationDisabled": {
+          "short": "Switched off – switch it on and the TSE gets set up",
+          "title": "Integration is switched off",
+          "text": "Switch on the cloud TSE and the TSE gets set up – automatically on the first day of the event, or earlier by you.",
+          "action": "Switch on cloud TSE"
+        },
+        "masterData": {
+          "short": "Add your tax number or VAT ID and address",
+          "title": "Add tax details and address",
+          "text": "The cloud TSE writes these details into every cash register closing (DSFinV-K). Without them we cannot create the TSE.",
+          "action": "Add details"
+        },
+        "tooEarly": {
+          "short": "Possible from {date} (month of “{name}”)",
+          "title": "Possible from {date} (month of the event)",
+          "text": "Your event “{name}” starts on {start}. We don't set up the TSE before then – so you don't pay for a month without an event."
+        },
+        "failed": {
+          "short": "Setup failed – try again",
+          "title": "Setup failed",
+          "text": "The last attempt didn't work. You can try again.",
+          "action": "Go to setup"
+        },
+        "ready": {
+          "short": "Ready – set it up now or automatically on the first day of the event",
+          "title": "Ready to set up",
+          "text": "Set up the TSE now – or leave it: we set it up automatically on the first day of the event.",
+          "action": "Set up now"
+        },
+        "creating": {
+          "short": "Setting up the TSE …",
+          "title": "Setting up the TSE …",
+          "text": "This usually takes only a few seconds."
+        },
+        "active": {
+          "short": "Cloud TSE active",
+          "title": "Cloud TSE active",
+          "text": "All of your organization's tills sign through this TSE."
+        },
+        "details": "All requirements"
+      },
       "loading": "Loading cloud TSE …",
       "loadFailed": "The cloud TSE status could not be loaded.",
       "setup": {
         "title": "Setup",
         "description": "One TSE for your organization – all tills sign through it.",
         "requirements": "Requirements",
-        "unavailable": {
-          "title": "Not available",
-          "text": "No cloud TSE is set up on this server. Ask the operator of your installation."
-        },
-        "country": {
-          "title": "Germany only",
-          "text": "The cloud TSE is only available for organizations in Germany."
-        },
         "creating": {
           "title": "Setting up the TSE …",
           "text": "This usually takes only a few seconds. You can keep this page open – it updates by itself.",
@@ -5239,16 +5301,21 @@
           "text": "The TSE {serial} was permanently deactivated on {date}. For a new event you set up a new TSE."
         },
         "check": {
+          "server": "Cloud TSE set up on this server",
           "country": "Organization in Germany",
+          "countryMissing": "Organization's country set",
+          "countryOther": "Organization in Germany (yours: {country})",
+          "masterData": "Tax number or VAT ID and address",
           "paidEvent": "Paid event",
           "paidEventNamed": "Paid event: “{name}” from {date}",
-          "toEvents": "Go to events",
-          "month": "In the month the event starts",
-          "monthFrom": "From {date} at the earliest",
-          "masterData": "Tax number or VAT ID and address"
+          "integration": "Integration switched on",
+          "setup": "TSE set up",
+          "setupFrom": "TSE set up – possible from {date} (month of the event)",
+          "setupReady": "TSE set up – possible now, otherwise automatically on the first day of the event",
+          "setupCreating": "Setting up the TSE …",
+          "done": "done",
+          "open": "open"
         },
-        "paidEventRequired": "A cloud TSE costs a monthly fee from the moment it is created. We therefore only set it up when a paid event is coming up – unlock an event first.",
-        "tooEarly": "Your event “{name}” starts later. The TSE can be set up from {date} at the earliest – so you don't pay for a month without an event.",
         "autoNote": "We set up the TSE automatically on the first day of the event – you don't need to do anything else. If you want to test beforehand, you can also set it up yourself in the month of the event.",
         "createNow": "Set up now",
         "retry": "Try again",

@@ -77,6 +77,8 @@ export function useSetIntegrationEnabled() {
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['sumup-readers', organizationId] });
+      // Cloud-TSE: die Voraussetzungen prüft die API erst bei eingeschalteter Integration.
+      queryClient.invalidateQueries({ queryKey: ['tse', organizationId] });
     },
   });
 }

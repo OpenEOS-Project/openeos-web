@@ -21,6 +21,7 @@ import {
   useSetIntegrationEnabled,
 } from '@/hooks/use-integrations';
 import { Link } from '@/i18n/routing';
+import { OPERATING_MODE_SETTINGS_HREF } from '@/lib/operating-mode';
 
 import { IntegrationGallery } from './integration-gallery';
 import { IntegrationLogo } from './integration-logo';
@@ -57,6 +58,7 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
   const docsUrl = integrationDocsUrl(integration, locale);
   const moreInfoUrl = integrationMoreInfoUrl(integration, locale);
   const name = integrationName(integration, t);
+  const { CatalogHint } = integration;
 
   // Escape schließt; der Fokus wandert ins Fenster und beim Schließen zurück
   // auf die Karte, von der aus es geöffnet wurde.
@@ -88,12 +90,18 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
                 <h2 id={titleId}>{name}</h2>
                 <div className="integration-card__vendor">{t(integration.vendorKey)}</div>
               </div>
-              <IntegrationStatusBadge availability={availability} enabled={enabled} />
+              <IntegrationStatusBadge
+                availability={availability}
+                enabled={enabled}
+                setupState={integration.setupState?.(organization)}
+              />
             </div>
             <DialogCloseButton onClick={onClose} />
           </div>
 
           <div className="modal__body integration-info__body">
+            {CatalogHint && availability !== 'comingSoon' && <CatalogHint placement="dialog" onNavigate={onClose} />}
+
             <IntegrationGallery screenshots={integration.screenshots} />
 
             <section>
@@ -173,6 +181,23 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
                   onClick={onClose}
                 >
                   {t('actions.configure')}
+                </Link>
+              </>
+            ) : availability === 'countryMissing' ? (
+              <>
+                <p className="integration-info__hint" data-testid="integration-unavailable-hint">
+                  {t('info.countryMissingHint')}
+                </p>
+                <button type="button" className="btn btn--ghost" onClick={onClose}>
+                  {t('actions.close')}
+                </button>
+                <Link
+                  href={OPERATING_MODE_SETTINGS_HREF}
+                  className="btn btn--primary"
+                  onClick={onClose}
+                  data-testid="integration-set-country"
+                >
+                  {t('actions.setCountry')}
                 </Link>
               </>
             ) : availability !== 'available' ? (

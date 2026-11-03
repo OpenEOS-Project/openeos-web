@@ -54,6 +54,11 @@ export interface IntegrationDefinition {
   /** Inhalt der Konfigurationsseite /integrations/<id>. */
   ConfigComponent?: ComponentType;
   /**
+   * Seite auch ausgeschaltet erreichbar (aus dem Katalog verlinkt, nicht in
+   * der Seitenleiste) — die Cloud-TSE zeigt dort ihre Voraussetzungen.
+   */
+  pageWhenDisabled?: boolean;
+  /**
    * Nur in diesen Ländern einschaltbar (ISO 3166-1 alpha-2). Andere
    * Organisationen sehen die Karte mit dem Hinweis `countryHintKey`.
    */
@@ -72,6 +77,25 @@ export interface IntegrationDefinition {
    */
   deactivateBlocked?: (organization: Partial<Organization> | null | undefined) => boolean;
   deactivateBlockedKey?: string;
+  /**
+   * Eingeschaltet heißt nicht eingerichtet (Cloud-TSE: erst mit der
+   * Anlage bei Swissbit). Ohne Angabe gilt eingeschaltet als fertig.
+   */
+  setupState?: (organization: Partial<Organization> | null | undefined) => IntegrationSetupState;
+  /**
+   * Konkreter Grund mit Aktion, warum die Integration (noch) nicht läuft —
+   * unten auf der Karte im Katalog und im Infofenster.
+   */
+  CatalogHint?: ComponentType<IntegrationCatalogHintProps>;
+}
+
+export type IntegrationSetupState = 'done' | 'creating' | 'pending';
+
+export interface IntegrationCatalogHintProps {
+  /** Karte im Katalog oder Infofenster (dort stehen Schalter und Land unten). */
+  placement: 'card' | 'dialog';
+  /** Vor dem Wechsel auf eine andere Seite, z. B. um das Infofenster zu schließen. */
+  onNavigate?: () => void;
 }
 
 /**
@@ -181,6 +205,16 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     deactivateBlocked: (organization) =>
       organization?.tse?.state === 'active' || organization?.tse?.state === 'creating',
     deactivateBlockedKey: 'tse.deactivateBlocked',
+    setupState: (organization) => {
+      const state = organization?.tse?.state;
+      if (state === 'active') return 'done';
+      if (state === 'creating') return 'creating';
+      return 'pending';
+    },
+    pageWhenDisabled: true,
+    CatalogHint: dynamic(() =>
+      import('@/components/integrations/tse/tse-catalog-hint').then((m) => m.TseCatalogHint),
+    ),
     ConfigComponent: dynamic(() =>
       import('@/components/integrations/tse-integration').then((m) => m.TseIntegration),
     ),
@@ -228,21 +262,24 @@ export function integrationName(
  * Kann die Organisation die Integration einschalten?
  * - `available`: ja,
  * - `comingSoon`: noch in Vorbereitung,
- * - `country`: nicht im Land der Organisation,
- * - `server`: dieser Server bietet sie nicht an.
+ * - `server`: dieser Server bietet sie nicht an,
+ * - `countryMissing`: nur in bestimmten Ländern, und die Organisation hat
+ *   noch kein Land (erst festlegen, dann entscheidet es sich),
+ * - `country`: nicht im Land der Organisation.
  */
-export type IntegrationAvailability = 'available' | 'comingSoon' | 'country' | 'server';
+export type IntegrationAvailability = 'available' | 'comingSoon' | 'server' | 'countryMissing' | 'country';
 
 export function integrationAvailability(
   integration: IntegrationDefinition,
   organization: Partial<Organization> | null | undefined,
 ): IntegrationAvailability {
   if (!integration.available) return 'comingSoon';
+  if (integration.serverAvailable && !integration.serverAvailable(organization)) return 'server';
   if (integration.countries) {
     const country = (organization?.country ?? '').trim().toUpperCase();
+    if (!country) return 'countryMissing';
     if (!integration.countries.includes(country)) return 'country';
   }
-  if (integration.serverAvailable && !integration.serverAvailable(organization)) return 'server';
   return 'available';
 }
 
