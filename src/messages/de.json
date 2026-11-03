@@ -5147,14 +5147,18 @@
       "deactivate": "Deaktivieren",
       "activating": "Wird aktiviert …",
       "deactivating": "Wird deaktiviert …",
-      "toDangerZone": "Zur Gefahrenzone"
+      "toDangerZone": "Zur Gefahrenzone",
+      "setCountry": "Land festlegen"
     },
     "status": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
       "comingSoon": "Bald verfügbar",
       "notInCountry": "Nur für Deutschland",
-      "notOnServer": "Nicht verfügbar"
+      "notOnServer": "Nicht verfügbar",
+      "countryMissing": "Land fehlt",
+      "settingUp": "Wird eingerichtet",
+      "notSetUp": "Nicht eingerichtet"
     },
     "info": {
       "whatItDoes": "Was die Integration leistet",
@@ -5164,7 +5168,8 @@
       "activateHint": "Nach dem Aktivieren erscheint die Integration in der Seitenleiste; dort richtest du sie ein.",
       "comingSoonHint": "Diese Integration ist in Vorbereitung und kann noch nicht aktiviert werden.",
       "notInCountryHint": "Diese Integration gibt es für das Land deiner Organisation nicht.",
-      "notOnServerHint": "Diese Integration ist auf diesem Server nicht eingerichtet."
+      "notOnServerHint": "Diese Integration ist auf diesem Server nicht eingerichtet.",
+      "countryMissingHint": "Lege zuerst das Land deiner Organisation fest – davon hängt ab, ob es diese Integration für dich gibt."
     },
     "gallery": {
       "label": "Screenshots",
@@ -5225,20 +5230,77 @@
       "deactivateBlocked": "Deine Cloud-TSE ist eingerichtet. Ausschalten kannst du die Integration erst, wenn du die TSE in der Gefahrenzone unten endgültig deaktiviert hast – danach geschieht es automatisch.",
       "onlyGermany": "Die Cloud-TSE nach KassenSichV gibt es nur für Organisationen in Deutschland. Hinweise für dein Land findest du in den Einstellungen unter „Betriebsart“.",
       "serverUnavailable": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation.",
+      "hint": {
+        "unavailable": {
+          "short": "Auf diesem Server nicht eingerichtet",
+          "title": "Auf diesem Server nicht eingerichtet",
+          "text": "Hier bietet niemand eine Cloud-TSE an. Frag den Betreiber deiner Installation."
+        },
+        "countryMissing": {
+          "short": "Lege zuerst das Land deiner Organisation fest",
+          "title": "Lege zuerst das Land deiner Organisation fest",
+          "text": "Die Cloud-TSE gibt es nur für Organisationen in Deutschland. Das Land legst du einmalig in den Einstellungen unter „Betriebsart“ fest.",
+          "action": "Land festlegen"
+        },
+        "countryUnsupported": {
+          "short": "Nur für Deutschland",
+          "title": "Nur für Deutschland",
+          "text": "Die Cloud-TSE nach KassenSichV gibt es nur für Organisationen in Deutschland. Hinweise für dein Land findest du in den Einstellungen unter „Betriebsart“."
+        },
+        "paidEventRequired": {
+          "short": "Schalte zuerst eine Veranstaltung frei – mit deiner ersten bezahlten Veranstaltung wird die TSE eingerichtet",
+          "title": "Schalte zuerst eine Veranstaltung frei",
+          "text": "Die Cloud-TSE wird mit deiner ersten bezahlten Veranstaltung eingerichtet. Sie kostet ab dem Anlegen jeden Monat – deshalb erst, wenn eine bezahlte Veranstaltung ansteht.",
+          "actionUnlock": "„{name}“ freischalten",
+          "actionCreate": "Veranstaltung anlegen"
+        },
+        "integrationDisabled": {
+          "short": "Ausgeschaltet – einschalten, dann wird die TSE eingerichtet",
+          "title": "Integration ist ausgeschaltet",
+          "text": "Schalte die Cloud-TSE ein, dann wird die TSE eingerichtet – automatisch am ersten Veranstaltungstag oder vorher von dir.",
+          "action": "Cloud-TSE einschalten"
+        },
+        "masterData": {
+          "short": "Ergänze Steuernummer oder USt-IdNr. und Anschrift",
+          "title": "Ergänze Steuerangaben und Anschrift",
+          "text": "Die Cloud-TSE schreibt diese Angaben in jeden Kassenabschluss (DSFinV-K). Ohne sie legen wir die TSE nicht an.",
+          "action": "Angaben ergänzen"
+        },
+        "tooEarly": {
+          "short": "Ab {date} möglich (Monat von „{name}“)",
+          "title": "Ab {date} möglich (Monat der Veranstaltung)",
+          "text": "Deine Veranstaltung „{name}“ beginnt am {start}. Vorher richten wir die TSE nicht ein – so zahlst du keinen Monat ohne Veranstaltung."
+        },
+        "failed": {
+          "short": "Einrichtung fehlgeschlagen – versuch es erneut",
+          "title": "Einrichtung fehlgeschlagen",
+          "text": "Der letzte Versuch hat nicht geklappt. Du kannst es erneut versuchen.",
+          "action": "Zur Einrichtung"
+        },
+        "ready": {
+          "short": "Bereit – jetzt einrichten oder automatisch am ersten Veranstaltungstag",
+          "title": "Bereit zum Einrichten",
+          "text": "Richte die TSE jetzt ein – oder lass es: Am ersten Veranstaltungstag richten wir sie automatisch ein.",
+          "action": "Jetzt einrichten"
+        },
+        "creating": {
+          "short": "Die TSE wird eingerichtet …",
+          "title": "Die TSE wird eingerichtet …",
+          "text": "Das dauert meist nur wenige Sekunden."
+        },
+        "active": {
+          "short": "Cloud-TSE aktiv",
+          "title": "Cloud-TSE aktiv",
+          "text": "Alle Kassen deiner Organisation signieren über diese TSE."
+        },
+        "details": "Alle Voraussetzungen"
+      },
       "loading": "Cloud-TSE wird geladen …",
       "loadFailed": "Der Zustand der Cloud-TSE konnte nicht geladen werden.",
       "setup": {
         "title": "Einrichtung",
         "description": "Eine TSE für deine Organisation – alle Kassen signieren über sie.",
         "requirements": "Voraussetzungen",
-        "unavailable": {
-          "title": "Nicht verfügbar",
-          "text": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation."
-        },
-        "country": {
-          "title": "Nur für Deutschland",
-          "text": "Die Cloud-TSE gibt es nur für Organisationen in Deutschland."
-        },
         "creating": {
           "title": "Die TSE wird eingerichtet …",
           "text": "Das dauert meist nur wenige Sekunden. Du kannst die Seite offen lassen – sie aktualisiert sich von selbst.",
@@ -5253,16 +5315,21 @@
           "text": "Die TSE {serial} wurde am {date} endgültig deaktiviert. Für eine neue Veranstaltung richtest du eine neue TSE ein."
         },
         "check": {
+          "server": "Cloud-TSE auf diesem Server eingerichtet",
           "country": "Organisation in Deutschland",
+          "countryMissing": "Land der Organisation festgelegt",
+          "countryOther": "Organisation in Deutschland (deine: {country})",
+          "masterData": "Steuernummer oder USt-IdNr. und Anschrift",
           "paidEvent": "Bezahlte Veranstaltung",
           "paidEventNamed": "Bezahlte Veranstaltung: „{name}“ ab {date}",
-          "toEvents": "Zu den Veranstaltungen",
-          "month": "Im Monat des Veranstaltungsbeginns",
-          "monthFrom": "Frühestens ab {date}",
-          "masterData": "Steuernummer oder USt-IdNr. und Anschrift"
+          "integration": "Integration eingeschaltet",
+          "setup": "TSE eingerichtet",
+          "setupFrom": "TSE eingerichtet – ab {date} möglich (Monat der Veranstaltung)",
+          "setupReady": "TSE eingerichtet – jetzt möglich, sonst automatisch am ersten Veranstaltungstag",
+          "setupCreating": "TSE wird eingerichtet …",
+          "done": "erfüllt",
+          "open": "offen"
         },
-        "paidEventRequired": "Eine Cloud-TSE kostet ab dem Anlegen jeden Monat. Wir richten sie deshalb erst ein, wenn eine bezahlte Veranstaltung ansteht – schalte zuerst eine Veranstaltung frei.",
-        "tooEarly": "Deine Veranstaltung „{name}“ beginnt später. Die TSE lässt sich frühestens ab dem {date} einrichten – so zahlst du keinen Monat ohne Veranstaltung.",
         "autoNote": "Wir richten die TSE am ersten Veranstaltungstag automatisch ein – du musst nichts weiter tun. Wenn du vorher testen willst, kannst du sie im Monat der Veranstaltung auch selbst einrichten.",
         "createNow": "Jetzt einrichten",
         "retry": "Erneut versuchen",

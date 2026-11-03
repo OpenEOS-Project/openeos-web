@@ -9,7 +9,7 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { IntegrationGuard } from '@/components/shared/integration-guard';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
-import { getIntegration } from '@/config/integrations';
+import { getIntegration, integrationAvailability, isIntegrationEnabled } from '@/config/integrations';
 import {
   useIntegrationErrorMessage,
   useIntegrationOrganization,
@@ -40,6 +40,10 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
   // Cloud-TSE: Ausschalten erst nach dem endgültigen Deaktivieren der TSE
   // (sonst 409 TSE_ACTIVE_DEACTIVATE_FIRST). Die Rückfrage sagt das vorher.
   const blocked = !!integration?.deactivateBlocked?.(organization);
+  // Ausgeschaltet erreichbar (pageWhenDisabled): oben „Aktivieren“ statt
+  // „Deaktivieren“ — sofern die Integration hier überhaupt geht.
+  const enabled = isIntegrationEnabled(organization?.settings, id);
+  const canEnable = !!integration && integrationAvailability(integration, organization) === 'available';
 
   useEffect(() => {
     if (!confirmOpen) return;
@@ -55,7 +59,8 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
   const name = integration.nameKey ? t(integration.nameKey) : integration.name;
 
   // Kein eigener Rücksprung: der Guard sieht die ausgeschaltete Integration
-  // im Store und leitet in den Katalog um. Deshalb mutateAsync statt der
+  // im Store und leitet in den Katalog um (bei `pageWhenDisabled` bleibt
+  // die Seite und zeigt den ausgeschalteten Zustand). Deshalb mutateAsync statt der
   // Rückrufe von mutate — die entfallen, sobald die Seite ausgehängt ist.
   const deactivate = async () => {
     try {
@@ -75,9 +80,26 @@ function IntegrationConfigContent({ id }: IntegrationConfigPageProps) {
         title={name}
         meta={t(integration.shortDescriptionKey)}
         actions={
-          <button type="button" className="btn btn--ghost" onClick={() => setConfirmOpen(true)}>
-            {t('actions.deactivate')}
-          </button>
+          enabled ? (
+            <button type="button" className="btn btn--ghost" onClick={() => setConfirmOpen(true)}>
+              {t('actions.deactivate')}
+            </button>
+          ) : canEnable ? (
+            <button
+              type="button"
+              className="btn btn--primary"
+              disabled={toggle.isPending}
+              onClick={() =>
+                toggle.mutate(
+                  { id, enabled: true },
+                  { onError: (error) => toast.error(errorMessage(error, t('errors.toggleFailed'))) },
+                )
+              }
+              data-testid="integration-activate"
+            >
+              {toggle.isPending ? t('actions.activating') : t('actions.activate')}
+            </button>
+          ) : null
         }
       />
 

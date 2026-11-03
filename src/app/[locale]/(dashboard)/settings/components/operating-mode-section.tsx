@@ -40,6 +40,8 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationTseSummary } from '@/types/tse';
 import type { OperatingModeState } from '@/types/organization';
+import { TseChecklist } from '@/components/integrations/tse/tse-checklist';
+import { useTseSetup } from '@/hooks/use-tse';
 import { SettingsSectionHead } from './settings-section-head';
 
 /** Was sich je Betriebsart ändert (Reihenfolge der Punkte in der Rückfrage). */
@@ -223,6 +225,11 @@ export function OperatingModeSection() {
                       {!selfHosted || tse?.available ? (
                         <TseModeBadge tse={tse} tseActive={view.tseActive} isAdmin={isAdmin} />
                       ) : null}
+                      {/* Woran „Alle Funktionen“ hängt: die Voraussetzungen der
+                          Cloud-TSE in kurz (GET …/tse nur für Admins). */}
+                      {isAdmin && !option.available && !view.tseActive && (
+                        <TseModeChecklist organizationId={organizationId} />
+                      )}
                       <TseFollowsHint
                         setup={state.data?.tseSetup ?? null}
                         tseActive={view.tseActive}
@@ -380,7 +387,7 @@ function TseModeBadge({
       </span>
       {isAdmin && (
         <Link
-          href={(enabled ? '/integrations/tse' : '/integrations') as never}
+          href="/integrations/tse"
           className="notice-link"
           onClick={(event) => event.stopPropagation()}
         >
@@ -430,4 +437,11 @@ function TseFollowsHint({
       )}
     </span>
   );
+}
+
+/** Kurz-Checkliste der Cloud-TSE an „Alle Funktionen“ (✓ erfüllt, • offen). */
+function TseModeChecklist({ organizationId }: { organizationId: string }) {
+  const setup = useTseSetup(organizationId);
+  if (!setup.step || setup.step === 'active' || setup.step === 'unavailable') return null;
+  return <TseChecklist requirements={setup.requirements} input={setup.input} step={setup.step} variant="compact" />;
 }

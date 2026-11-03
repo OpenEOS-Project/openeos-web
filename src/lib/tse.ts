@@ -2,57 +2,279 @@
  * Cloud-TSE: reine Hilfen für die Integrationsseite, die Kasse und die
  * Bestellansicht (Vertrag: tse-swissbit-plan.md §8).
  */
-import type { DeviceTseStatus, TseReceiptView, TseStatus } from '@/types/tse';
+import type {
+  DeviceTseStatus,
+  TseEligibility,
+  TseMasterDataField,
+  TseReceiptView,
+  TseStatus,
+  TseUnitState,
+} from '@/types/tse';
 
 /**
- * Schritt der Einrichtung, wie ihn die Seite zeigt:
+ * Schritt der Einrichtung, wie ihn Katalog, Seite und Betriebsart zeigen —
+ * immer der Grund, der die TSE gerade aufhält, mit der Aktion dazu:
  * - `unavailable`: dieser Server bietet keine Cloud-TSE an,
+ * - `country_missing`: die Organisation hat noch kein Land,
  * - `country`: Organisation nicht in Deutschland,
+ * - `paid_event_required`: keine bezahlte (freigeschaltete) Veranstaltung —
+ *   zuerst, weil ohne sie auch Einschalten nichts anlegt,
+ * - `integration_disabled`: Integration ausgeschaltet,
  * - `master_data`: Steuernummer/USt-IdNr. oder Anschrift fehlen (DSFinV-K),
- * - `paid_event_required` / `too_early`: Voraussetzungen fehlen noch,
+ * - `too_early`: Veranstaltung beginnt erst in einem späteren Monat,
+ * - `failed`: Anlage gescheitert, neuer Versuch möglich,
  * - `ready`: kann jetzt angelegt werden (sonst automatisch am ersten
  *   Veranstaltungstag),
  * - `creating`: wird bei Swissbit angelegt (Seite fragt nach),
- * - `active`: signiert,
- * - `failed`: Anlage gescheitert (neuer Versuch möglich, wenn die
- *   Voraussetzungen stimmen),
- * - `deactivated`: endgültig außer Betrieb.
+ * - `active`: signiert.
+ * Eine endgültig deaktivierte TSE ist kein eigener Schritt: danach zählt,
+ * was einer neuen im Weg steht.
  */
 export type TseSetupStep =
   | 'unavailable'
+  | 'country_missing'
   | 'country'
   | 'master_data'
   | 'paid_event_required'
+  | 'integration_disabled'
+  | 'master_data'
   | 'too_early'
+  | 'failed'
   | 'ready'
   | 'creating'
-  | 'active'
-  | 'failed'
-  | 'deactivated';
+  | 'active';
 
+/**
+ * Bezahlte Veranstaltung und Monat: `event` = früheste freigeschaltete
+ * Veranstaltung, die noch nicht vorbei ist (`null` = keine);
+ * `availableFrom` = erster Tag ihres Monats, solange der noch bevorsteht.
+ */
+export interface TseEventCheck {
+  event: { id: string; name: string; startDate: string } | null;
+  availableFrom: string | null;
+}
+
+/** Was der Schritt braucht — aus GET …/tse, ergänzt um die Veranstaltungsliste. */
+export interface TseSetupInput {
+  available: boolean;
+  integrationEnabled: boolean;
+  country: string | null | undefined;
+  /** `undefined`, solange sich Veranstaltung und Monat nicht sagen lassen. */
+  events: TseEventCheck | undefined;
+  /** Fehlende DSFinV-K-Stammdaten (leer = vollständig). */
+  masterDataMissing: TseMasterDataField[];
+  unitState: TseUnitState | null | undefined;
+}
+
+/**
+ * Veranstaltung und Monat aus der Antwort von GET …/tse — die API prüft sie
+ * aber nur bei eingeschalteter Integration in Deutschland. Sonst `undefined`.
+ */
+export function tseEventCheckFromEligibility(eligibility: TseEligibility | null | undefined): TseEventCheck | undefined {
+  if (!eligibility) return undefined;
+  if (eligibility.ok || eligibility.reason === 'TSE_TOO_EARLY') {
+    return { event: eligibility.event, availableFrom: eligibility.reason === 'TSE_TOO_EARLY' ? eligibility.availableFrom : null };
+  }
+  if (eligibility.reason === 'TSE_REQUIRES_PAID_EVENT') return { event: null, availableFrom: null };
+  return undefined;
+}
+
+const ALL_MASTER_DATA: TseMasterDataField[] = ['taxNumber', 'street', 'zip', 'city'];
+
+/**
+ * Fehlende Stammdaten laut GET …/tse: die Liste bei
+ * `TSE_MASTER_DATA_REQUIRED`, leer, wenn die API schon weiter war
+ * (Veranstaltung/Monat/ok), sonst `undefined` (nicht geprüft).
+ */
+export function tseMasterDataMissingFromEligibility(
+  eligibility: TseEligibility | null | undefined,
+): TseMasterDataField[] | undefined {
+  if (!eligibility) return undefined;
+  if (eligibility.reason === 'TSE_MASTER_DATA_REQUIRED') {
+    return eligibility.missing && eligibility.missing.length > 0 ? eligibility.missing : ALL_MASTER_DATA;
+  }
+  return tseEventCheckFromEligibility(eligibility) ? [] : undefined;
+}
+
+/** Freigeschaltet wie in der API (EVENT_UNLOCKED_BILLING_STATUSES). */
+const UNLOCKED_BILLING_STATUSES = new Set(['paid', 'invoice', 'waived']);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** YYYY-MM-DD in Berlin — die API rechnet den Monat dort. */
+function berlinDate(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
+interface TseEventLike {
+  id: string;
+  name: string;
+  startDate: string | null;
+  endDate: string | null;
+  billingStatus?: string | null;
+}
+
+function upcoming(events: ReadonlyArray<TseEventLike>, now: Date) {
+  return events
+    .filter((e): e is TseEventLike & { startDate: string } => !!e.startDate)
+    .filter((e) => {
+      const end = e.endDate ? new Date(e.endDate).getTime() : new Date(e.startDate).getTime() + DAY_MS;
+      return end > now.getTime();
+    })
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+}
+
+/**
+ * Dieselbe Prüfung wie TseUnitService.qualifyingEvents/eligibility in der
+ * API, aus der Veranstaltungsliste — für den Fall, dass die API sie nicht
+ * gemacht hat (Integration aus, kein Land). Auf einer eigenen Installation
+ * zählt jede Veranstaltung (keine Abrechnung).
+ */
+export function tseEventCheckFromEvents(
+  events: ReadonlyArray<TseEventLike>,
+  options: { selfHosted: boolean; now?: Date },
+): TseEventCheck {
+  const now = options.now ?? new Date();
+  const first = upcoming(events, now).find(
+    (e) => options.selfHosted || UNLOCKED_BILLING_STATUSES.has(e.billingStatus ?? 'none'),
+  );
+  if (!first) return { event: null, availableFrom: null };
+  const monthStart = `${berlinDate(new Date(first.startDate)).slice(0, 7)}-01`;
+  return {
+    event: { id: first.id, name: first.name, startDate: first.startDate },
+    availableFrom: berlinDate(now) < monthStart ? monthStart : null,
+  };
+}
+
+/** Nächste Veranstaltung, die sich noch freischalten lässt — Ziel des Knopfs „freischalten“. */
+export function tseUnlockCandidate<T extends TseEventLike>(
+  events: ReadonlyArray<T>,
+  now = new Date(),
+): T | null {
+  return (
+    (upcoming(events, now) as T[]).find((e) => !UNLOCKED_BILLING_STATUSES.has(e.billingStatus ?? 'none')) ?? null
+  );
+}
+
+/**
+ * Grund, der die TSE gerade aufhält. `null`, wenn er sich noch nicht sagen
+ * lässt (Veranstaltungen nicht geladen, Integration an).
+ */
+export function tseSetupStepFrom(input: TseSetupInput): TseSetupStep | null {
+  if (input.unitState === 'active') return 'active';
+  if (input.unitState === 'creating') return 'creating';
+  if (!input.available) return 'unavailable';
+  const country = (input.country ?? '').trim().toUpperCase();
+  if (!country) return 'country_missing';
+  if (country !== 'DE') return 'country';
+  if (input.events && !input.events.event) return 'paid_event_required';
+  if (!input.integrationEnabled) return 'integration_disabled';
+  if (input.masterDataMissing.length > 0) return 'master_data';
+  if (!input.events) return null;
+  if (input.events.availableFrom) return 'too_early';
+  if (input.unitState === 'failed') return 'failed';
+  return 'ready';
+}
+
+/** Schritt aus GET …/tse allein (Seite /integrations/tse ohne Veranstaltungsliste). */
 export function tseSetupStep(status: TseStatus | null | undefined): TseSetupStep {
   if (!status) return 'unavailable';
-  const unit = status.unit;
-  if (unit?.state === 'active') return 'active';
-  if (unit?.state === 'creating') return 'creating';
-  if (!status.available) return 'unavailable';
-  if ((status.country ?? '').toUpperCase() !== 'DE') return 'country';
-  if (unit?.state === 'failed') return 'failed';
-  if (unit?.state === 'deactivated' && !status.eligibility.ok) return 'deactivated';
-  switch (status.eligibility.reason) {
-    case 'TSE_MASTER_DATA_REQUIRED':
-      return 'master_data';
-    case 'TSE_REQUIRES_PAID_EVENT':
-      return 'paid_event_required';
-    case 'TSE_TOO_EARLY':
-      return 'too_early';
-    case 'TSE_NOT_AVAILABLE':
-      return 'unavailable';
-    case 'TSE_COUNTRY_NOT_SUPPORTED':
-      return 'country';
-    default:
-      return 'ready';
+  return (
+    tseSetupStepFrom({
+      available: status.available,
+      integrationEnabled: status.integrationEnabled,
+      country: status.country,
+      events: tseEventCheckFromEligibility(status.eligibility),
+      masterDataMissing: tseMasterDataMissingFromEligibility(status.eligibility) ?? [],
+      unitState: status.unit?.state,
+    }) ?? 'ready'
+  );
+}
+
+/** Was der Hinweis zum Schritt anbietet. */
+export type TseHintAction = 'set_country' | 'enable' | 'master_data' | 'unlock_event' | 'setup' | 'retry' | null;
+
+export interface TseHint {
+  /** Schlüssel unter `integrations.tse.hint` (mit `.title`, `.text`, ggf. `.short`/`.action`). */
+  key: string;
+  tone: 'ok' | 'info' | 'warn' | 'danger';
+  action: TseHintAction;
+}
+
+/** Grund → Hinweis mit direkter Aktion (Katalogkarte, Infofenster, Seite, Betriebsart). */
+export function tseHint(step: TseSetupStep): TseHint {
+  switch (step) {
+    case 'unavailable':
+      return { key: 'unavailable', tone: 'info', action: null };
+    case 'country_missing':
+      return { key: 'countryMissing', tone: 'warn', action: 'set_country' };
+    case 'country':
+      return { key: 'countryUnsupported', tone: 'info', action: null };
+    case 'paid_event_required':
+      return { key: 'paidEventRequired', tone: 'warn', action: 'unlock_event' };
+    case 'integration_disabled':
+      return { key: 'integrationDisabled', tone: 'info', action: 'enable' };
+    case 'master_data':
+      return { key: 'masterData', tone: 'warn', action: 'master_data' };
+    case 'too_early':
+      return { key: 'tooEarly', tone: 'info', action: null };
+    case 'failed':
+      return { key: 'failed', tone: 'danger', action: 'retry' };
+    case 'ready':
+      return { key: 'ready', tone: 'ok', action: 'setup' };
+    case 'creating':
+      return { key: 'creating', tone: 'info', action: null };
+    case 'active':
+      return { key: 'active', tone: 'ok', action: null };
   }
+}
+
+export type TseRequirementId = 'server' | 'country' | 'masterData' | 'paidEvent' | 'integration' | 'setup';
+
+/**
+ * Checkliste der Voraussetzungen (✓ erfüllt, • offen); `current` ist die,
+ * an der der Hinweis gerade hängt. Den Server zeigt sie nur, wenn er
+ * fehlt — sonst wäre er für jeden ein Haken ohne Aussage. `setup` heißt:
+ * TSE angelegt (der Monat der Veranstaltung steht in ihrer Beschriftung).
+ */
+export interface TseRequirement {
+  id: TseRequirementId;
+  ok: boolean;
+  current: boolean;
+}
+
+const STEP_REQUIREMENT: Record<TseSetupStep, TseRequirementId | null> = {
+  unavailable: 'server',
+  country_missing: 'country',
+  country: 'country',
+  paid_event_required: 'paidEvent',
+  integration_disabled: 'integration',
+  master_data: 'masterData',
+  too_early: 'setup',
+  failed: 'setup',
+  ready: 'setup',
+  creating: 'setup',
+  active: null,
+};
+
+export function tseRequirements(input: TseSetupInput, step: TseSetupStep): TseRequirement[] {
+  const country = (input.country ?? '').trim().toUpperCase();
+  const current = STEP_REQUIREMENT[step];
+  const items: Array<{ id: TseRequirementId; ok: boolean }> = [
+    { id: 'server', ok: input.available },
+    { id: 'country', ok: country === 'DE' },
+    { id: 'masterData', ok: input.masterDataMissing.length === 0 },
+    { id: 'paidEvent', ok: !!input.events?.event },
+    { id: 'integration', ok: input.integrationEnabled },
+    { id: 'setup', ok: input.unitState === 'active' },
+  ];
+  return items
+    .filter((item) => item.id !== 'server' || !item.ok)
+    .map((item) => ({ ...item, current: item.id === current }));
 }
 
 /** „2d38954f…162a“ — Kurzform für Tabellen; vollständig im Tooltip/Kopierknopf. */

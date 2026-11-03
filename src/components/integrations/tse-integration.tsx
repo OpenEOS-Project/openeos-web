@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useRefreshCurrentOrganization } from '@/components/shared/operating-mode-notices';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
-import { tseKeys, useTseStatus } from '@/hooks/use-tse';
+import { tseKeys, useTseSetup } from '@/hooks/use-tse';
 import { tseSetupStep } from '@/lib/tse';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -22,8 +22,9 @@ import { TseTransactionsCard } from './tse/tse-transactions-card';
 import '@/styles/tse.css';
 
 /**
- * Seite /integrations/tse: Einrichtung (Voraussetzungen, Stammdaten, Anlage,
- * Fortschritt), danach Zustand, Kassen-Nachschau, Kassenabschlüsse,
+ * Seite /integrations/tse: Einrichtung (Grund + Checkliste der
+ * Voraussetzungen, Stammdaten, Anlage, Fortschritt) — auch bei
+ * ausgeschalteter Integration —, danach Zustand, Kassen-Nachschau, Kassenabschlüsse,
  * Ausfallprotokoll, Vorgänge, Exporte und Gefahrenzone.
  * Vertrag: tse-swissbit-plan.md §8.
  */
@@ -33,8 +34,11 @@ export function TseIntegration() {
   const organizationId = useAuthStore((state) => state.currentOrganization?.organizationId);
   const queryClient = useQueryClient();
   const refreshOrganization = useRefreshCurrentOrganization();
-  const status = useTseStatus(organizationId);
-  const step = tseSetupStep(status.data);
+  const setup = useTseSetup(organizationId);
+  const status = setup.status;
+  // Bis die Veranstaltungen da sind (nur bei ausgeschalteter Integration
+  // nötig), reicht die Antwort von GET …/tse.
+  const step = setup.step ?? tseSetupStep(status.data);
 
   // Wird die TSE aktiv (oder fällt sie weg), ändern sich Bargeld und
   // Betriebsart — Organisation und Listen neu laden.
@@ -75,7 +79,7 @@ export function TseIntegration() {
   return (
     <div className="tse-page" data-testid="tse-integration" data-step={step}>
       {data.integrationEnabledAuto && <TseAutoNote auto={data.integrationEnabledAuto} />}
-      {step === 'active' && unit ? <TseStatusCard status={data} /> : <TseSetupCard organizationId={organizationId} status={data} step={step} />}
+      {step === 'active' && unit ? <TseStatusCard status={data} /> : <TseSetupCard organizationId={organizationId} status={data} setup={{ ...setup, step }} />}
 
       {hasData && (
         <>

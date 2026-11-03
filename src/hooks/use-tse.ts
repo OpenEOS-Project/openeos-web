@@ -1,4 +1,20 @@
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { useDeployment } from '@/components/providers/setup-provider';
+import { isIntegrationEnabled } from '@/config/integrations';
+import { useEvents } from '@/hooks/use-events';
+import { useIntegrationOrganization } from '@/hooks/use-integrations';
+import { missingMasterData } from '@/lib/dsfinvk';
+import {
+  tseEventCheckFromEligibility,
+  tseEventCheckFromEvents,
+  tseMasterDataMissingFromEligibility,
+  tseRequirements,
+  tseSetupStepFrom,
+  tseUnlockCandidate,
+  type TseSetupInput,
+} from '@/lib/tse';
 
 import { useRefreshCurrentOrganization } from '@/components/shared/operating-mode-notices';
 import { tseApi } from '@/lib/api-client';
@@ -119,4 +135,50 @@ export function useRequestTseExport(organizationId: string | undefined) {
     mutationFn: async () => (await tseApi.requestExport(organizationId!)).data,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: tseKeys.exports(organizationId ?? '') }),
   });
+}
+
+/**
+ * Wo steht die Cloud-TSE und woran hängt sie? Für Katalog, Seite und
+ * Betriebsart. GET …/tse prüft Veranstaltung und Monat nur bei
+ * eingeschalteter Integration in Deutschland; sonst rechnet der Haken aus
+ * der Veranstaltungsliste nach (gleiche Regel wie die API).
+ */
+export function useTseSetup(organizationId: string | undefined) {
+  const status = useTseStatus(organizationId);
+  const organization = useIntegrationOrganization();
+  const events = useEvents(organizationId ?? '');
+  const selfHosted = useDeployment().mode === 'selfhosted';
+
+  return useMemo(() => {
+    const data = status.data;
+    // Der Schalter ändert sich im Store sofort, GET …/tse erst beim nächsten Abruf.
+    const enabled = isIntegrationEnabled(organization?.settings, 'tse');
+    const fromApiState = !!data && data.integrationEnabled === enabled;
+    const fromApi = fromApiState ? tseEventCheckFromEligibility(data.eligibility) : undefined;
+    const eventCheck =
+      fromApi ?? (events.data ? tseEventCheckFromEvents(events.data, { selfHosted }) : undefined);
+    const input: TseSetupInput = {
+      available: data ? data.available : organization?.tse?.available !== false,
+      integrationEnabled: enabled,
+      country: data?.country ?? organization?.country,
+      events: eventCheck,
+      // Stammdaten prüft die API erst bei eingeschalteter Integration; sonst
+      // dieselbe Regel aus den Einstellungen.
+      masterDataMissing:
+        (fromApiState ? tseMasterDataMissingFromEligibility(data?.eligibility) : undefined) ??
+        missingMasterData(organization?.settings),
+      unitState: data ? data.unit?.state : organization?.tse?.state,
+    };
+    const step = tseSetupStepFrom(input);
+    return {
+      status,
+      input,
+      step,
+      requirements: step ? tseRequirements(input, step) : [],
+      eventCheck,
+      /** Ziel für „Veranstaltung freischalten“ (nur mit Abrechnung). */
+      unlockEvent: !selfHosted && events.data ? tseUnlockCandidate(events.data) : null,
+      selfHosted,
+    };
+  }, [status, organization, events.data, selfHosted]);
 }
