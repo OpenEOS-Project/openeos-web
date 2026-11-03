@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react';
 
-import { isIntegrationEnabled } from '@/config/integrations';
+import { getIntegration, isIntegrationEnabled } from '@/config/integrations';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/stores/auth-store';
@@ -15,7 +15,7 @@ interface IntegrationGuardProps {
 
 /**
  * Schützt die Konfigurationsseite einer Integration: nur Admins, und nur
- * solange die Integration eingeschaltet ist. Spiegelt die Seitenleiste —
+ * solange die Integration eingeschaltet ist (außer `pageWhenDisabled`). Spiegelt die Seitenleiste —
  * dort erscheint der Eintrag unter denselben Bedingungen — und deckt den
  * direkt eingegebenen Link ab. Nach dem Ausschalten auf der Seite selbst
  * führt derselbe Weg zurück in den Katalog.
@@ -24,7 +24,8 @@ export function IntegrationGuard({ id, children }: IntegrationGuardProps) {
   const router = useRouter();
   const { isLoading, isAdmin } = usePermissions();
   const settings = useAuthStore((state) => state.currentOrganization?.organization?.settings);
-  const allowed = isAdmin && isIntegrationEnabled(settings, id);
+  // Manche Seiten (Cloud-TSE) erklären ausgeschaltet, was noch fehlt.
+  const allowed = isAdmin && (isIntegrationEnabled(settings, id) || !!getIntegration(id)?.pageWhenDisabled);
 
   useEffect(() => {
     if (!isLoading && !allowed) {

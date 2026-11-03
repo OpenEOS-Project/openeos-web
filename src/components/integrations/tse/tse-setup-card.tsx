@@ -9,29 +9,38 @@ import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
-import { useCreateTse } from '@/hooks/use-tse';
-import { Link } from '@/i18n/routing';
+import { ToggleSwitch } from '@/components/shared/toggle-switch';
+import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/use-integrations';
+import { useCreateTse, type useTseSetup } from '@/hooks/use-tse';
 import { reasonError } from '@/lib/operating-mode';
 import { shortSerial, type TseSetupStep } from '@/lib/tse';
 import type { TseStatus } from '@/types/tse';
 
+import { TseChecklist } from './tse-checklist';
+import { TseStepHint } from './tse-step-hint';
+
 interface TseSetupCardProps {
   organizationId: string;
   status: TseStatus;
-  step: TseSetupStep;
+  setup: ReturnType<typeof useTseSetup> & { step: TseSetupStep };
 }
 
 /**
- * Einrichtung der Cloud-TSE, solange keine aktiv ist: Voraussetzungen
- * (Deutschland, bezahlte Veranstaltung, frühestens im Monat ihres
- * Beginns), „Jetzt einrichten“ bzw. der Hinweis auf die automatische
- * Anlage am ersten Veranstaltungstag, der Fortschritt während der Anlage
- * und ein gescheiterter Versuch. Der Support kann die Bedingungen mit
- * Grund übergehen.
+ * Einrichtung der Cloud-TSE, solange keine aktiv ist: oben der konkrete
+ * Grund, an dem es gerade hängt, mit der Aktion dazu (Land festlegen,
+ * Veranstaltung freischalten, …), darunter die Checkliste aller
+ * Voraussetzungen (✓ erfüllt, • offen), „Jetzt einrichten“ bzw. der
+ * Hinweis auf die automatische Anlage am ersten Veranstaltungstag, der
+ * Fortschritt während der Anlage und ein gescheiterter Versuch. Der
+ * Support kann Veranstaltung und Monat mit Grund übergehen.
  */
-export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps) {
+export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProps) {
+  const { step } = setup;
   const t = useTranslations('integrations.tse.setup');
   const tCommon = useTranslations('common');
+  const tIntegrations = useTranslations('integrations');
+  const toggle = useSetIntegrationEnabled();
+  const integrationErrorMessage = useIntegrationErrorMessage();
   const { formatDate, formatDateTime } = useLocaleFormat();
   const apiErrorMessage = useApiErrorMessage();
   const { isSuperAdmin } = usePermissions();
@@ -40,13 +49,31 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
   const [reason, setReason] = useState('');
 
   const unit = status.unit;
-  const event = status.eligibility.event;
-  const isGermany = (status.country ?? '').toUpperCase() === 'DE';
-  const hasPaidEvent = step !== 'paid_event_required' && !!event;
-  const inMonth = step !== 'too_early' && hasPaidEvent;
-  const canCreate = status.eligibility.ok && (step === 'ready' || step === 'failed' || step === 'deactivated');
-  const showOverride = isSuperAdmin && (step === 'paid_event_required' || step === 'too_early');
+  const canCreate = status.eligibility.ok && (step === 'ready' || step === 'failed');
+  const showOverride =
+    isSuperAdmin && setup.input.integrationEnabled && (step === 'paid_event_required' || step === 'too_early');
+  // Vor Server, Land und Schalter ist „Jetzt einrichten“ kein Thema.
+  const showCreate = step !== 'unavailable' && step !== 'country_missing' && step !== 'country' && step !== 'integration_disabled';
   const reasonProblem = reasonError(reason);
+
+  const enableSwitch = (
+    <label className="tse-hint__switch">
+      <ToggleSwitch
+        checked={setup.input.integrationEnabled}
+        disabled={toggle.isPending}
+        onChange={(checked) =>
+          toggle.mutate(
+            { id: 'tse', enabled: checked },
+            {
+              onError: (error) =>
+                toast.error(integrationErrorMessage(error, tIntegrations('errors.toggleFailed'))),
+            },
+          )
+        }
+      />
+      <span>{tIntegrations('tse.hint.integrationDisabled.action')}</span>
+    </label>
+  );
 
   const start = (override = false) => {
     create.mutate(override ? { override: true, reason: reason.trim() } : {}, {
@@ -58,17 +85,6 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
       onError: (error) => toast.error(apiErrorMessage(error, t('failedToStart'))),
     });
   };
-
-  if (step === 'unavailable' || step === 'country') {
-    return (
-      <div className="app-card" data-testid="tse-setup" data-step={step}>
-        <SettingsSectionHead icon="shield-check" title={t('title')} description={t('description')} />
-        <Banner tone="info" icon={<Icon name="info" />} title={t(`${step}.title`)}>
-          {t(`${step}.text`)}
-        </Banner>
-      </div>
-    );
-  }
 
   if (step === 'creating') {
     return (
@@ -95,7 +111,7 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
       <SettingsSectionHead icon="shield-check" title={t('title')} description={t('description')} />
 
       <div className="tse-setup">
-        {step === 'failed' && unit && (
+        {unit?.state === 'failed' && (
           <Banner tone="danger" icon={<Icon name="alert" />} title={t('failed.title')}>
             {t('failed.text', { date: formatDateTime(unit.failedAt ?? unit.createdAt) })}
             {unit.lastError && (
@@ -110,7 +126,7 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
           </Banner>
         )}
 
-        {step === 'deactivated' && unit && (
+        {unit?.state === 'deactivated' && (
           <Banner tone="info" icon={<Icon name="info" />} title={t('deactivated.title')}>
             {t('deactivated.text', {
               serial: shortSerial(unit.serialNumber),
@@ -119,62 +135,45 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
           </Banner>
         )}
 
-        <ul className="tse-checklist" aria-label={t('requirements')}>
-          <Requirement ok={isGermany} label={t('check.country')} />
-          <Requirement
-            ok={hasPaidEvent}
-            label={
-              hasPaidEvent && event
-                ? t('check.paidEventNamed', { name: event.name, date: formatDate(event.startDate) })
-                : t('check.paidEvent')
-            }
-            action={
-              !hasPaidEvent ? (
-                <Link href="/events" className="notice-link">
-                  {t('check.toEvents')}
-                </Link>
-              ) : undefined
-            }
+        {/* Ein Fehlschlag hat oben schon sein eigenes Banner. */}
+        {step !== 'failed' && (
+          <TseStepHint
+            step={step}
+            eventCheck={setup.eventCheck}
+            unlockEvent={setup.unlockEvent}
+            variant="banner"
+            // „Jetzt einrichten“ steht als Knopf unten.
+            actions={{ enable: enableSwitch, setup: null, retry: null }}
           />
-          <Requirement
-            ok={inMonth}
-            pending={step === 'too_early'}
-            label={
-              step === 'too_early' && status.eligibility.availableFrom
-                ? t('check.monthFrom', { date: formatDate(status.eligibility.availableFrom) })
-                : t('check.month')
-            }
-          />
-        </ul>
-
-        {step === 'paid_event_required' && <p className="tse-text">{t('paidEventRequired')}</p>}
-        {step === 'too_early' && status.eligibility.availableFrom && (
-          <p className="tse-text">
-            {t('tooEarly', {
-              date: formatDate(status.eligibility.availableFrom),
-              name: event?.name ?? '',
-            })}
-          </p>
         )}
 
-        <p className="tse-auto" data-testid="tse-auto-note">
-          <Icon name="clock" size={16} />
-          <span>{t('autoNote')}</span>
-        </p>
+        <TseChecklist requirements={setup.requirements} input={setup.input} step={step} />
 
-        <div className="tse-setup__actions">
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={!canCreate || create.isPending}
-            onClick={() => start(false)}
-            data-testid="tse-create"
-          >
-            {create.isPending ? t('starting') : step === 'failed' ? t('retry') : t('createNow')}
-          </button>
-          {!canCreate && <span className="tse-muted">{t('createDisabled')}</span>}
-          {canCreate && <span className="tse-muted">{t('costNote')}</span>}
-        </div>
+        {showCreate && (
+          <>
+            {/* Bei „bereit“ sagt der Hinweis oben das schon. */}
+            {step !== 'ready' && (
+              <p className="tse-auto" data-testid="tse-auto-note">
+                <Icon name="clock" size={16} />
+                <span>{t('autoNote')}</span>
+              </p>
+            )}
+
+            <div className="tse-setup__actions">
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!canCreate || create.isPending}
+                onClick={() => start(false)}
+                data-testid="tse-create"
+              >
+                {create.isPending ? t('starting') : step === 'failed' ? t('retry') : t('createNow')}
+              </button>
+              {!canCreate && <span className="tse-muted">{t('createDisabled')}</span>}
+              {canCreate && <span className="tse-muted">{t('costNote')}</span>}
+            </div>
+          </>
+        )}
 
         {showOverride && (
           <div className="tse-override">
@@ -218,28 +217,5 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
         )}
       </div>
     </div>
-  );
-}
-
-function Requirement({
-  ok,
-  pending,
-  label,
-  action,
-}: {
-  ok: boolean;
-  pending?: boolean;
-  label: string;
-  action?: React.ReactNode;
-}) {
-  const tone = ok ? 'ok' : pending ? 'pending' : 'missing';
-  return (
-    <li className={`tse-check tse-check--${tone}`}>
-      <span className="tse-check__icon" aria-hidden="true">
-        <Icon name={ok ? 'check' : pending ? 'clock' : 'x'} size={14} />
-      </span>
-      <span className="tse-check__label">{label}</span>
-      {action}
-    </li>
   );
 }

@@ -78,6 +78,65 @@
   color: var(--oe-mute);
 }
 
+/* Konkreter Grund mit Aktion (Katalogkarte: tse-step-hint.tsx) */
+.tse-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border-radius: var(--oe-r-sm);
+  background: var(--oe-paper-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.tse-hint__icon {
+  display: inline-flex;
+  flex: none;
+  margin-top: 1px;
+  color: var(--oe-info);
+}
+.tse-hint--ok .tse-hint__icon { color: var(--oe-green-ink); }
+.tse-hint--warn { background: var(--oe-warn-soft); }
+.tse-hint--warn .tse-hint__icon { color: var(--oe-warn-ink); }
+.tse-hint--danger { background: var(--oe-danger-soft); }
+.tse-hint--danger .tse-hint__icon { color: var(--oe-danger-ink); }
+.tse-hint__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.tse-hint__copy b {
+  font-weight: 650;
+  color: var(--oe-ink);
+}
+.tse-hint__copy span {
+  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
+}
+.tse-hint__action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.tse-hint .tse-hint__action {
+  /* Auf der Karte unter den Text, buendig mit ihm (Symbol 16 + Abstand 10). */
+  flex-basis: 100%;
+  padding-left: 26px;
+}
+.oe-banner .tse-hint__action {
+  margin-top: 10px;
+}
+.tse-hint__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* Einrichtung */
 .tse-setup {
   display: flex;
@@ -111,13 +170,53 @@
   color: var(--oe-green-ink);
   background: var(--oe-green-soft);
 }
-.tse-check--pending .tse-check__icon {
-  color: var(--oe-warn-ink);
-  background: var(--oe-warn-soft);
+/* Offen: ein Punkt. Hervorgehoben ist der, an dem es gerade hängt. */
+.tse-check--open,
+.tse-check--current {
+  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
 }
-.tse-check--missing .tse-check__icon {
-  color: var(--oe-danger-ink);
-  background: var(--oe-danger-soft);
+.tse-check--current {
+  color: var(--oe-ink);
+  font-weight: 600;
+}
+.tse-check--open .tse-check__icon,
+.tse-check--current .tse-check__icon {
+  background: var(--oe-paper-2);
+  color: var(--oe-mute);
+}
+.tse-check--current .tse-check__icon {
+  background: var(--oe-warn-soft);
+  color: var(--oe-warn-ink);
+}
+.tse-check__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tse-checklist--compact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.tse-checklist--compact .tse-check {
+  flex-wrap: nowrap;
+  gap: 5px;
+  font-size: 12px;
+}
+.tse-checklist--compact .tse-check--current {
+  font-weight: 600;
+}
+.tse-checklist--compact .tse-check__icon {
+  width: 16px;
+  height: 16px;
+}
+.tse-checklist--compact .tse-check__dot {
+  width: 5px;
+  height: 5px;
+}
+.tse-checklist--compact .tse-check__label {
+  flex: 0 1 auto;
 }
 .tse-check__label {
   flex: 1 1 200px;

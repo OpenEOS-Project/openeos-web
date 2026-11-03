@@ -3362,6 +3362,36 @@ body:has(.landing) {
 .landing .integration-card__vendor,
 .landing .integration-card__desc { display: block; }
 
+/* Karte mit Zusatzzeile (Cloud-TSE: konkreter Grund + Aktion). Der Rahmen
+   ist ein <div>, darin der Knopf fuers Infofenster und darunter die Zeile
+   mit eigenen Links/Schaltern — die duerfen nicht im <button> stecken. */
+.landing .integration-card--framed {
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+.landing .integration-card--framed:has(.integration-card__open:hover) {
+  border-color: color-mix(in oklab, var(--oe-green-ink) 45%, var(--oe-line));
+}
+.landing .integration-card__open {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--oe-r-sm);
+}
+.landing .integration-card__open:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 4px;
+}
+
 /* Infofenster */
 .landing .integration-info__inner {
   /* Zwischenschicht fuer den Fokus-Anker; muss das Flex-Layout des

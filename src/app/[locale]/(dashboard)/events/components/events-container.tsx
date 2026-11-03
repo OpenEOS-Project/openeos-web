@@ -10,6 +10,7 @@ import {
   useSetTestMode,
   useDeleteEvent,
   useEventBillingLookup,
+  useEvents,
   useSyncEventPayment,
 } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
@@ -86,6 +87,25 @@ export function EventsContainer() {
       }
     })();
   }, [paymentResult, paidEventId, organizationId, router, syncPayment, activateEvent, t, tErrors]);
+
+  /* Direktlinks aus den Hinweisen der Cloud-TSE: ?unlock=<id> öffnet die
+     Freischaltung dieser Veranstaltung, ?create=1 das Anlegen einer neuen. */
+  const unlockParam = searchParams.get('unlock');
+  const createParam = searchParams.get('create');
+  const { data: events } = useEvents(organizationId);
+  const handledDeepLink = useRef<string | null>(null);
+  useEffect(() => {
+    if (createParam === '1' && handledDeepLink.current !== 'create') {
+      handledDeepLink.current = 'create';
+      setIsCreateModalOpen(true);
+      return;
+    }
+    if (!unlockParam || !events || !deployment.billingEnabled) return;
+    if (handledDeepLink.current === unlockParam) return;
+    handledDeepLink.current = unlockParam;
+    const target = events.find((event) => event.id === unlockParam);
+    if (target) setUnlockEvent(target);
+  }, [unlockParam, createParam, events, deployment.billingEnabled]);
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
