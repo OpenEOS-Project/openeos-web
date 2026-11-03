@@ -61,6 +61,40 @@ export async function apiExceptionFromResponse(response: Response): Promise<ApiE
   return new ApiException(code, message, response.status, details, reason, params);
 }
 
+/** Dateiname aus `Content-Disposition` (`filename="…"` oder `filename*=UTF-8''…`). */
+export function filenameFromDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const star = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(header);
+  if (star) {
+    try {
+      return decodeURIComponent(star[1].trim().replace(/^"|"$/g, ''));
+    } catch {
+      // fällt auf filename= zurück
+    }
+  }
+  const plain = /filename="?([^";]+)"?/i.exec(header);
+  return plain ? plain[1].trim() : null;
+}
+
+/**
+ * Datei-Download mit dem Zugangstoken (fetch → Blob), wie der TSE-Export.
+ * Liefert Dateiname und Prüfsumme aus den Kopfzeilen, soweit die API sie
+ * per CORS freigibt.
+ */
+async function authorizedDownload(path: string): Promise<import('@/types/dsfinvk').DownloadedFile> {
+  const token = apiClient.getAccessToken();
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: 'include',
+  });
+  if (!res.ok) throw await apiExceptionFromResponse(res);
+  return {
+    blob: await res.blob(),
+    filename: filenameFromDisposition(res.headers.get('Content-Disposition')),
+    sha256: res.headers.get('X-Checksum-SHA256'),
+  };
+}
+
 class ApiClient {
   private accessToken: string | null = null;
   private deviceToken: string | null = null;
@@ -1571,6 +1605,21 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
+  // Kassenbuch dieses Geräts (heutiger Geschäftstag, 6–6 Uhr)
+  getCashbook: () =>
+    apiClient.get<ApiResponse<import('@/types/dsfinvk').CashbookDay>>(
+      '/device-api/cashbook',
+      { useDeviceAuth: true }
+    ),
+
+  // Anfangsbestand, Einlage, Entnahme oder Kassensturz buchen (TSE-Beleg)
+  createCashbookEntry: (data: import('@/types/dsfinvk').CreateCashbookEntryData) =>
+    apiClient.post<ApiResponse<import('@/types/dsfinvk').CashbookEntryResult>>(
+      '/device-api/cashbook',
+      data,
+      { useDeviceAuth: true }
+    ),
+
   // Create order
   createOrder: (data: import('@/types/order').CreateOrderData) =>
     apiClient.post<ApiResponse<import('@/types/order').Order>>(
@@ -2177,6 +2226,18 @@ export const tseApi = {
     return { blob: await res.blob(), sha256: res.headers.get('X-Checksum-SHA256') };
   },
 
+  /**
+   * Alle TSE-Exporte (TAR), die die Geschäftstage `from`–`to` berühren, als
+   * ZIP (Kassen-Nachschau). 404 `TSE_EXPORT_NOT_FOUND`, solange es keinen gibt.
+   */
+  downloadBundle: (organizationId: string, range: { from: string; to?: string }) =>
+    authorizedDownload(
+      `/organizations/${organizationId}/tse/exports/bundle?${new URLSearchParams({
+        from: range.from,
+        ...(range.to ? { to: range.to } : {}),
+      })}`,
+    ),
+
   transactions: (
     organizationId: string,
     params: { status?: import('@/types/tse').TseTransactionStatus; limit?: number; offset?: number } = {},
@@ -2198,6 +2259,58 @@ export const tseApi = {
   forOrder: (organizationId: string, orderId: string) =>
     apiClient.get<ApiResponse<import('@/types/tse').TseReceiptView[]>>(
       `/organizations/${organizationId}/tse/orders/${orderId}`,
+    ),
+};
+
+// DSFinV-K: Kassenabschlüsse und Export (Kassen-Nachschau). Nur Admins.
+export const dsfinvkApi = {
+  closings: (organizationId: string, params: import('@/types/dsfinvk').DsfinvkClosingsQuery = {}) => {
+    const query = new URLSearchParams();
+    if (params.from) query.set('from', params.from);
+    if (params.to) query.set('to', params.to);
+    if (params.limit) query.set('limit', String(params.limit));
+    const qs = query.toString();
+    return apiClient.get<ApiResponse<import('@/types/dsfinvk').CashPointClosingList>>(
+      `/organizations/${organizationId}/dsfinvk/closings${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  /** Schließt alle offenen Vorgänge bis jetzt ab (je Geschäftstag ein Abschluss). */
+  createClosing: (organizationId: string) =>
+    apiClient.post<ApiResponse<import('@/types/dsfinvk').CashPointClosingView[]>>(
+      `/organizations/${organizationId}/dsfinvk/closings`,
+    ),
+
+  /** DSFinV-K-Export (ZIP) für Geschäftstage `from`–`to`, nur abgeschlossene Tage. */
+  export: (organizationId: string, range: { from: string; to?: string }) =>
+    authorizedDownload(
+      `/organizations/${organizationId}/dsfinvk?${new URLSearchParams({
+        from: range.from,
+        ...(range.to ? { to: range.to } : {}),
+      })}`,
+    ),
+
+  /** ZIP eines einzelnen Abschlusses aus dem Archiv. */
+  downloadClosing: (organizationId: string, closingId: string) =>
+    authorizedDownload(`/organizations/${organizationId}/dsfinvk/closings/${closingId}/download`),
+};
+
+// Kassenbuch der ganzen Kasse (Verwaltung). Nur Admins.
+export const cashbookApi = {
+  day: (organizationId: string, params: { date?: string; deviceId?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.date) query.set('date', params.date);
+    if (params.deviceId) query.set('deviceId', params.deviceId);
+    const qs = query.toString();
+    return apiClient.get<ApiResponse<import('@/types/dsfinvk').CashbookDay>>(
+      `/organizations/${organizationId}/cashbook${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  create: (organizationId: string, data: import('@/types/dsfinvk').CreateCashbookEntryData) =>
+    apiClient.post<ApiResponse<import('@/types/dsfinvk').CashbookEntryResult>>(
+      `/organizations/${organizationId}/cashbook`,
+      data,
     ),
 };
 

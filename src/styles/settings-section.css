@@ -122,3 +122,15 @@
 .settings-head ~ .oe-setting-list > .oe-setting--flush:last-child {
   padding-bottom: 0;
 }
+
+/* Steuerangaben: Steuernummer und USt-IdNr. nebeneinander, schmal untereinander. */
+.tax-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .tax-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

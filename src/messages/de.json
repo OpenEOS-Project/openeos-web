@@ -534,7 +534,8 @@
     "adminEvents": "Events & Abrechnung",
     "adminSupport": "Support-Anfragen",
     "adminFeedback": "Zuschriften",
-    "tables": "Tische"
+    "tables": "Tische",
+    "cashbook": "Kassenbuch"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1060,6 +1061,25 @@
     },
     "organizationMode": {
       "tab": "Betriebsart"
+    },
+    "organizationTax": {
+      "tab": "Steuerangaben",
+      "title": "Steuerangaben",
+      "description": "Für Kassenabschlüsse und den DSFinV-K-Export deiner Kasse.",
+      "tseHint": "Für die Cloud-TSE (DSFinV-K-Export) brauchst du Steuernummer oder USt-IdNr. und die Anschrift (Reiter „Kontakt“).",
+      "legalName": "Offizieller Name",
+      "legalNameHint": "So, wie er beim Finanzamt bzw. im Vereinsregister steht. Leer lassen, wenn er dem Namen der Organisation entspricht.",
+      "taxNumber": "Steuernummer",
+      "taxNumberPlaceholder": "z. B. 12/345/67890",
+      "taxNumberInvalid": "Bitte gib eine gültige Steuernummer ein (10–13 Ziffern, z. B. 12/345/67890).",
+      "vatId": "USt-IdNr.",
+      "vatIdPlaceholder": "z. B. DE123456789",
+      "vatIdInvalid": "Bitte gib eine gültige USt-IdNr. ein: zwei Buchstaben und Ziffern, z. B. DE123456789.",
+      "eitherHint": "Eine der beiden Nummern genügt. Die meisten Vereine haben nur eine Steuernummer.",
+      "save": "Änderungen speichern",
+      "saving": "Speichern …",
+      "saved": "Steuerangaben gespeichert.",
+      "saveFailed": "Die Steuerangaben konnten nicht gespeichert werden."
     }
   },
   "theme": {
@@ -2721,7 +2741,8 @@
       "theme_dark": "Dunkel",
       "theme_light": "Hell",
       "theme_system": "System",
-      "sourceCode": "Quellcode (AGPL-3.0)"
+      "sourceCode": "Quellcode (AGPL-3.0)",
+      "cashbook": "Kassenbuch"
     },
     "header": {
       "lock": "Kasse sperren",
@@ -3978,7 +3999,15 @@
     "TSE_ACTIVE_DEACTIVATE_FIRST": "Deine Cloud-TSE ist eingerichtet. Deaktiviere sie zuerst auf der Seite „Cloud-TSE“ in der Gefahrenzone – danach wird die Integration automatisch ausgeschaltet.",
     "TSE_PROVIDER_ERROR": "Der TSE-Dienst antwortet gerade nicht. Bitte versuche es gleich noch einmal.",
     "TSE_EXPORT_NOT_FOUND": "Diesen Export gibt es nicht (mehr).",
-    "TSE_EXPORT_NOT_READY": "Der Export ist noch nicht fertig. Bitte versuche es gleich noch einmal."
+    "TSE_EXPORT_NOT_READY": "Der Export ist noch nicht fertig. Bitte versuche es gleich noch einmal.",
+    "TSE_MASTER_DATA_REQUIRED": "Für die Cloud-TSE brauchen wir Steuernummer oder USt-IdNr. und die Anschrift deiner Organisation. Trag sie unter Einstellungen → Organisation ein.",
+    "DSFINVK_PENDING_TRANSACTIONS": "Es laufen gerade noch TSE-Vorgänge. Bitte versuch es in einer Minute noch einmal.",
+    "DSFINVK_NOTHING_TO_CLOSE": "Seit dem letzten Kassenabschluss gab es keine Vorgänge.",
+    "DSFINVK_CLOSING_NOT_FOUND": "Diesen Kassenabschluss gibt es nicht.",
+    "DSFINVK_RANGE_INVALID": "Bitte wähle einen gültigen Zeitraum (höchstens ein Jahr).",
+    "DSFINVK_NO_CLOSINGS": "Für diesen Zeitraum gibt es noch keinen Kassenabschluss.",
+    "CASHBOOK_AMOUNT_INVALID": "Bitte gib einen gültigen Betrag an.",
+    "CASHBOOK_TYPE_INVALID": "Diese Kassenbuch-Buchung gibt es nicht."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5215,7 +5244,8 @@
           "paidEventNamed": "Bezahlte Veranstaltung: „{name}“ ab {date}",
           "toEvents": "Zu den Veranstaltungen",
           "month": "Im Monat des Veranstaltungsbeginns",
-          "monthFrom": "Frühestens ab {date}"
+          "monthFrom": "Frühestens ab {date}",
+          "masterData": "Steuernummer oder USt-IdNr. und Anschrift"
         },
         "paidEventRequired": "Eine Cloud-TSE kostet ab dem Anlegen jeden Monat. Wir richten sie deshalb erst ein, wenn eine bezahlte Veranstaltung ansteht – schalte zuerst eine Veranstaltung frei.",
         "tooEarly": "Deine Veranstaltung „{name}“ beginnt später. Die TSE lässt sich frühestens ab dem {date} einrichten – so zahlst du keinen Monat ohne Veranstaltung.",
@@ -5370,6 +5400,98 @@
           "submit": "Endgültig deaktivieren",
           "pending": "Wird deaktiviert …"
         }
+      },
+      "masterData": {
+        "title": "Steuerangaben und Anschrift",
+        "text": "Die Cloud-TSE schreibt diese Angaben in jeden Kassenabschluss (DSFinV-K). Ohne sie können wir die TSE nicht anlegen.",
+        "taxNumber": "Steuernummer",
+        "taxNumberPlaceholder": "z. B. 12/345/67890",
+        "vatId": "USt-IdNr.",
+        "vatIdPlaceholder": "z. B. DE123456789",
+        "eitherHint": "Eine der beiden Nummern genügt.",
+        "street": "Straße und Hausnummer",
+        "zip": "PLZ",
+        "city": "Ort",
+        "required": "Bitte ausfüllen.",
+        "taxRequired": "Bitte gib die Steuernummer oder die USt-IdNr. an.",
+        "taxNumberInvalid": "Bitte gib eine gültige Steuernummer ein (10–13 Ziffern).",
+        "vatIdInvalid": "Bitte gib eine gültige USt-IdNr. ein, z. B. DE123456789.",
+        "save": "Speichern",
+        "saving": "Speichern …",
+        "saved": "Gespeichert – jetzt kannst du die TSE anlegen.",
+        "saveFailed": "Die Angaben konnten nicht gespeichert werden."
+      },
+      "nachschau": {
+        "title": "Kassen-Nachschau",
+        "description": "Was du dem Finanzamt bei einer unangekündigten Prüfung gibst.",
+        "intro": "Bei einer Kassen-Nachschau übergibst du der Prüferin oder dem Prüfer drei Dinge:",
+        "items": {
+          "dsfinvk": "DSFinV-K-Export (ZIP)",
+          "dsfinvkHint": "– alle Kassenvorgänge der gewählten Tage im Format des Finanzamts.",
+          "tse": "TSE-Export (TAR)",
+          "tseHint": "– die signierten Daten der Cloud-TSE.",
+          "procedure": "Verfahrensdokumentation",
+          "procedureHint": "– beschreibt, wie du die Kasse einsetzt. Eine Vorlage findest du in der Doku."
+        },
+        "docsLink": "Anleitung zur Kassen-Nachschau",
+        "range": "Zeitraum",
+        "from": "Von",
+        "to": "Bis",
+        "today": "Heute",
+        "rangeHint": "Ein Geschäftstag geht von 6 bis 6 Uhr. Liegt heute im Zeitraum, wird der Tag vorher abgeschlossen (Kassenabschluss).",
+        "exportDsfinvk": "DSFinV-K exportieren",
+        "exportTse": "TSE-Export (TAR)",
+        "exporting": "Wird erstellt …",
+        "exported": "DSFinV-K-Export heruntergeladen.",
+        "tseExported": "TSE-Export heruntergeladen.",
+        "exportFailed": "Der Export konnte nicht erstellt werden.",
+        "closedBeforeExport": "Kassenabschluss Z{numbers} erstellt.",
+        "tseMissingTitle": "Noch kein TSE-Export für diesen Zeitraum",
+        "tseMissingText": "Die TSE-Daten holt OpenEOS jede Nacht ab. Brauchst du sie bis eben, starte jetzt einen Export und lade ihn in ein paar Minuten herunter.",
+        "tseStart": "Export jetzt starten",
+        "tseStarting": "Wird gestartet …",
+        "tseStarted": "Der TSE-Export läuft. Lade ihn in ein paar Minuten herunter.",
+        "tseStartFailed": "Der TSE-Export konnte nicht gestartet werden.",
+        "tip": {
+          "title": "Trinkgeld geht an",
+          "hint": "Bestimmt, wie Trinkgeld im Export gebucht wird. Kläre das mit deiner Steuerberatung.",
+          "employer": "Verein",
+          "employee": "Helfer",
+          "saved": "Gespeichert.",
+          "saveFailed": "Konnte nicht gespeichert werden."
+        }
+      },
+      "closings": {
+        "title": "Kassenabschlüsse",
+        "description": "Jeden Morgen um 6 Uhr schließt OpenEOS den Geschäftstag ab (Z-Bon). Abschlüsse lassen sich nicht mehr ändern.",
+        "create": "Kassenabschluss jetzt erstellen",
+        "creating": "Wird erstellt …",
+        "created": "Kassenabschluss Z{zNr} erstellt.",
+        "createdMany": "Kassenabschlüsse Z{numbers} erstellt.",
+        "createFailed": "Der Kassenabschluss konnte nicht erstellt werden.",
+        "openSince": "Offen seit {since}: {count, plural, =1 {1 Vorgang} other {# Vorgänge}}",
+        "nothingOpen": "Keine offenen Vorgänge – alles ist abgeschlossen.",
+        "loading": "Wird geladen …",
+        "loadFailed": "Die Kassenabschlüsse konnten nicht geladen werden.",
+        "empty": "Noch keine Kassenabschlüsse.",
+        "manual": "von Hand",
+        "col": {
+          "zNr": "Z-Nr.",
+          "businessDate": "Geschäftstag",
+          "gross": "Umsatz brutto",
+          "cash": "Bargeld",
+          "transactions": "Vorgänge",
+          "download": "Download",
+          "cashHint": "Alle Barzahlungen des Abschlusses, auch Anfangsbestand, Einlagen und Entnahmen"
+        },
+        "cardLine": "Bargeld {cash} · {count, plural, =1 {1 Vorgang} other {# Vorgänge}}",
+        "failed": "{count} ohne TSE",
+        "training": "{count} Training",
+        "download": "ZIP",
+        "downloading": "Lädt …",
+        "downloadLabel": "DSFinV-K-Export von Z{zNr} herunterladen",
+        "downloadFailed": "Der Export konnte nicht heruntergeladen werden.",
+        "more": "Ältere anzeigen"
       }
     }
   },
@@ -5960,7 +6082,8 @@
         "training": "TRAININGSBUCHUNG – KEIN VERKAUF"
       },
       "errorCode": "Fehler: {code}",
-      "qrLabel": "QR-Code mit den TSE-Daten (DSFinV-K)"
+      "qrLabel": "QR-Code mit den TSE-Daten (DSFinV-K)",
+      "bon": "Beleg-Nr."
     },
     "kind": {
       "receipt": "Kassenbeleg",
@@ -5968,13 +6091,127 @@
       "deposit_return": "Pfand-Auszahlung",
       "order": "Bestellung",
       "order_cancellation": "Bestellstorno",
-      "abort": "Abbruch"
+      "abort": "Abbruch",
+      "cashbook": "Kassenbuch"
     },
     "status": {
       "signed": "Signiert",
       "training": "Training",
       "failed": "Ausgefallen",
       "pending": "Offen"
+    }
+  },
+  "cashbook": {
+    "title": "Kassenbuch",
+    "businessDay": "Geschäftstag {date} (6–6 Uhr)",
+    "types": {
+      "opening_balance": "Anfangsbestand",
+      "deposit": "Einlage",
+      "withdrawal": "Entnahme",
+      "cash_count": "Kassensturz"
+    },
+    "typeHints": {
+      "opening_balance": "Wechselgeld zu Beginn",
+      "deposit": "Geld in die Kasse legen",
+      "withdrawal": "Geld abschöpfen (Tresor, Bank)",
+      "cash_count": "Bestand zählen, Differenz buchen"
+    },
+    "summary": {
+      "expected": "Soll-Bestand",
+      "expectedDevice": "Soll-Bestand dieser Kasse",
+      "openingBalance": "Anfangsbestand",
+      "deposits": "Einlagen",
+      "withdrawals": "Entnahmen",
+      "cashSales": "Barverkäufe",
+      "cashRefunds": "Bar-Erstattungen",
+      "pfandPayouts": "Pfand-Auszahlungen",
+      "differences": "Differenzen",
+      "lastCount": "Letzter Kassensturz um {time}: gezählt {counted}, Differenz {difference}",
+      "lastCountShort": "Letzter Kassensturz: {counted} gezählt, Differenz {difference}",
+      "noCount": "Heute noch kein Kassensturz"
+    },
+    "dialog": {
+      "amount": "Betrag",
+      "amountHint": "Betrag über den Ziffernblock eingeben",
+      "counted": "Gezählter Bestand",
+      "expected": "Soll-Bestand",
+      "expectedLine": "Soll-Bestand: {expected}",
+      "difference_zero": "Kasse stimmt",
+      "difference_plus": "Überschuss",
+      "difference_minus": "Fehlbetrag",
+      "differencePending": "Differenz",
+      "differenceHint": "Weicht der gezählte Bestand ab, wird die Differenz als „Differenz Soll/Ist“ gebucht.",
+      "note": "Notiz (optional)",
+      "notePlaceholder": {
+        "opening_balance": "z. B. Wechselgeld aus der Vereinskasse",
+        "deposit": "z. B. Wechselgeld nachgelegt",
+        "withdrawal": "z. B. in den Tresor",
+        "cash_count": "z. B. Schichtwechsel"
+      },
+      "text": {
+        "opening_balance": "Wie viel Wechselgeld liegt zu Beginn in der Kasse?",
+        "deposit": "Wie viel legst du in die Kasse?",
+        "withdrawal": "Wie viel nimmst du heraus?",
+        "cash_count": "Zähle das Bargeld und gib den Bestand ein."
+      },
+      "adminText": {
+        "opening_balance": "Wechselgeld zu Beginn des Tages für die ganze Kasse.",
+        "deposit": "Geld, das in die Kasse kommt – z. B. aus der Vereinskasse oder vom Konto.",
+        "withdrawal": "Geld, das aus der Kasse geht – z. B. in den Tresor oder zur Bank.",
+        "cash_count": "Zähle das Bargeld aller Kassen und gib den Bestand ein. Eine Abweichung vom Soll wird als Differenz gebucht."
+      },
+      "confirm": {
+        "opening_balance": "Anfangsbestand buchen",
+        "deposit": "Einlage buchen",
+        "withdrawal": "Entnahme buchen",
+        "cash_count": "Kassensturz buchen"
+      },
+      "cancel": "Abbrechen",
+      "booking": "Wird gebucht …"
+    },
+    "booked": "{type} gebucht: {amount}",
+    "bookedCount": "Kassensturz gebucht · Differenz {difference}",
+    "countNoDifference": "Kassensturz gebucht · Kasse stimmt",
+    "bookedShort": {
+      "opening_balance": "Anfangsbestand gebucht",
+      "deposit": "Einlage gebucht",
+      "withdrawal": "Entnahme gebucht",
+      "cash_count": "Kassensturz gebucht"
+    },
+    "bon": "Beleg-Nr. {bon}",
+    "tseSigned": "TSE-signiert · Beleg-Nr. {bon}",
+    "tseSignedNoBon": "TSE-signiert",
+    "noTse": "Ohne TSE-Signatur gebucht.",
+    "tseFailed": "TSE ausgefallen – der Beleg ist als „TSE ausgefallen“ gekennzeichnet.",
+    "tseDetails": "TSE-Daten",
+    "countedOf": "{counted} gezählt / Soll {expected}",
+    "entries": "Buchungen heute",
+    "entriesEmpty": "Heute noch keine Buchungen.",
+    "failed": "Die Buchung ist fehlgeschlagen.",
+    "loadFailed": "Das Kassenbuch konnte nicht geladen werden.",
+    "cashNotAllowed": "Bargeld ist für deine Organisation gerade nicht erlaubt – ohne Bargeld gibt es kein Kassenbuch.",
+    "col": {
+      "time": "Zeit",
+      "device": "Gerät",
+      "type": "Art",
+      "amount": "Betrag",
+      "countedExpected": "Gezählt / Soll",
+      "note": "Notiz",
+      "user": "Bediener"
+    },
+    "admin": {
+      "subtitle": "Bargeld deiner Kasse: Anfangsbestand, Einlagen, Entnahmen und Kassensturz je Geschäftstag.",
+      "date": "Geschäftstag",
+      "today": "Heute",
+      "expectedTotal": "Soll-Bestand ganze Kasse",
+      "actionsTitle": "Buchen für die ganze Kasse",
+      "actionsHint": "Jede Buchung ist ein eigener TSE-Beleg. Für eine einzelne Kasse buchst du direkt an der Kasse (Menü → Kassenbuch).",
+      "actionsPast": "Gebucht wird immer für den laufenden Geschäftstag – wechsle auf „Heute“.",
+      "devices": "Je Gerät",
+      "register": "Verwaltung (ganze Kasse)",
+      "unknownDevice": "Gelöschtes Gerät",
+      "noDevice": "Verwaltung (ohne Gerät)",
+      "entries": "Buchungen"
     }
   }
 }

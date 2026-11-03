@@ -44,6 +44,7 @@ import { useMyInvitations } from '@/hooks/use-members';
 import { useActiveEvent } from '@/hooks/use-events';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
+import { isCashAllowed } from '@/lib/operating-mode';
 import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
 import { seatUsage } from '@/utils/limits';
@@ -141,6 +142,7 @@ export function AppSidebar() {
   const canSeeNavItem = (item: NavItemType | NavItemDividerType): boolean => {
     // Fuehrt eigenstaendig ins Leere: die Endpunkte dahinter antworten mit 404.
     if (item.saasOnly && !deployment.multiTenant) return false;
+    if (item.cashOnly && !isCashAllowed(currentOrganization?.organization)) return false;
     if (item.adminOnly) return currentRole === 'admin';
     if (!item.requiredPermission) return true;
     if (currentRole === 'admin') return true;

@@ -22,6 +22,7 @@ import { cashDrawerAvailable } from '@/utils/cash-drawer';
 import { resolveChargePfand } from '@/utils/pfand';
 import { resolvePosCardMode } from '@/utils/pos-card-mode';
 import { BroadcastToast } from './components/broadcast-toast';
+import { CashbookSheet } from './components/cashbook-sheet';
 import { DoneSheet, type DoneInfo } from './components/done-sheet';
 import { LogoutSheet } from './components/logout-sheet';
 import { OpenOrdersSheet } from './components/open-orders-sheet';
@@ -46,7 +47,7 @@ import { usePosTseOutage } from './hooks/use-pos-tse';
 import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 
-type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'logout' | 'table' | null;
+type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'cashbook' | 'logout' | 'table' | null;
 
 /** Kartenzahlung ohne gespeicherte Bestellung (Kassieren-Blatt der Bestellansicht). */
 const UNSAVED_KEY = 'openeos-pos-unsaved-card';
@@ -364,6 +365,10 @@ function PosApp() {
     ...(pfandTypes.length > 0 && !orderOnly
       ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }]
       : []),
+    // Kassenbuch (Anfangsbestand, Einlage, Entnahme, Kassensturz): nur mit Bargeld.
+    ...(operating.cashAllowed && !orderOnly
+      ? [{ id: 'cashbook', icon: 'note' as const, label: t('menu.cashbook'), onSelect: () => setSheet('cashbook') }]
+      : []),
     ...(!orderOnly && cashDrawerAvailable({ settings, cashless })
       ? [{
           id: 'drawer',
@@ -596,6 +601,9 @@ function PosApp() {
           payoutDisabled={offline}
           cashless={cashless}
         />
+        )}
+        {operating.cashAllowed && !orderOnly && (
+          <CashbookSheet open={sheet === 'cashbook'} onClose={() => setSheet(null)} disabled={offline} />
         )}
         <LogoutSheet open={sheet === 'logout'} onClose={() => setSheet(null)} onConfirm={handleLogout} />
       </div>

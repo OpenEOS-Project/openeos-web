@@ -9,6 +9,7 @@ import { SecuritySection } from './security-section';
 import { PreferencesSection } from './preferences-section';
 import { OrganizationGeneralSection } from './organization-general-section';
 import { OrganizationContactSection } from './organization-contact-section';
+import { OrganizationTaxSection } from './organization-tax-section';
 import { OrganizationLegalSection } from './organization-legal-section';
 import { OperatingModeSection } from './operating-mode-section';
 import { OrganizationAssistantSection } from './organization-assistant-section';
@@ -59,7 +60,7 @@ export function SettingsContainer() {
   // Alter Reiter „Zahlungen“ (org-payments): steckt jetzt in „Betriebsart“.
   const rawTab = useSearchParams().get('tab');
   const requestedTab = rawTab === 'org-payments' ? 'org-mode' : rawTab;
-  const orgTabIds = ['org-general', 'org-contact', 'org-mode', 'org-assistant', 'org-access', 'org-legal'];
+  const orgTabIds = ['org-general', 'org-contact', 'org-tax', 'org-mode', 'org-assistant', 'org-access', 'org-legal'];
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
@@ -79,6 +80,7 @@ export function SettingsContainer() {
   const organizationTabs: SettingsTab[] = [
     { id: 'org-general', label: t('organizationGeneral.title'), children: <OrganizationGeneralSection /> },
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
+    { id: 'org-tax', label: t('organizationTax.tab'), children: <OrganizationTaxSection /> },
     { id: 'org-mode', label: t('organizationMode.tab'), children: <OperatingModeSection /> },
     { id: 'org-assistant', label: t('organizationAssistant.tab'), children: <OrganizationAssistantSection /> },
     { id: 'org-access', label: t('organizationAccess.tab'), children: <OrganizationAccessSection /> },

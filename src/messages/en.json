@@ -534,7 +534,8 @@
     "adminEvents": "Events & billing",
     "adminSupport": "Support requests",
     "adminFeedback": "Feedback",
-    "tables": "Tables"
+    "tables": "Tables",
+    "cashbook": "Cash book"
   },
   "settings": {
     "title": "Settings",
@@ -1060,6 +1061,25 @@
     },
     "organizationMode": {
       "tab": "Operating mode"
+    },
+    "organizationTax": {
+      "tab": "Tax details",
+      "title": "Tax details",
+      "description": "Used for cash register closings and the DSFinV-K export.",
+      "tseHint": "For the cloud TSE (DSFinV-K export) you need a tax number or VAT ID and the address (tab “Contact”).",
+      "legalName": "Official name",
+      "legalNameHint": "As registered with the tax office or the register of associations. Leave empty if it matches the organization name.",
+      "taxNumber": "Tax number",
+      "taxNumberPlaceholder": "e.g. 12/345/67890",
+      "taxNumberInvalid": "Please enter a valid tax number (10–13 digits, e.g. 12/345/67890).",
+      "vatId": "VAT ID",
+      "vatIdPlaceholder": "e.g. DE123456789",
+      "vatIdInvalid": "Please enter a valid VAT ID: two letters followed by digits, e.g. DE123456789.",
+      "eitherHint": "One of the two numbers is enough. Most clubs only have a tax number.",
+      "save": "Save changes",
+      "saving": "Saving …",
+      "saved": "Tax details saved.",
+      "saveFailed": "The tax details could not be saved."
     }
   },
   "billing": {
@@ -2721,7 +2741,8 @@
       "theme_dark": "Dark",
       "theme_light": "Light",
       "theme_system": "System",
-      "sourceCode": "Source code (AGPL-3.0)"
+      "sourceCode": "Source code (AGPL-3.0)",
+      "cashbook": "Cash book"
     },
     "header": {
       "lock": "Lock register",
@@ -3978,7 +3999,15 @@
     "TSE_ACTIVE_DEACTIVATE_FIRST": "Your cloud TSE is set up. Deactivate it first on the “Cloud TSE” page in the danger zone – the integration is then switched off automatically.",
     "TSE_PROVIDER_ERROR": "The TSE service is not responding right now. Please try again in a moment.",
     "TSE_EXPORT_NOT_FOUND": "This export does not exist (anymore).",
-    "TSE_EXPORT_NOT_READY": "The export is not ready yet. Please try again in a moment."
+    "TSE_EXPORT_NOT_READY": "The export is not ready yet. Please try again in a moment.",
+    "TSE_MASTER_DATA_REQUIRED": "For the cloud TSE we need the tax number or VAT ID and the address of your organization. Enter them under Settings → Organization.",
+    "DSFINVK_PENDING_TRANSACTIONS": "TSE transactions are still running. Please try again in a minute.",
+    "DSFINVK_NOTHING_TO_CLOSE": "There were no transactions since the last cash register closing.",
+    "DSFINVK_CLOSING_NOT_FOUND": "This cash register closing doesn't exist.",
+    "DSFINVK_RANGE_INVALID": "Please choose a valid period (one year at most).",
+    "DSFINVK_NO_CLOSINGS": "There is no cash register closing for this period yet.",
+    "CASHBOOK_AMOUNT_INVALID": "Please enter a valid amount.",
+    "CASHBOOK_TYPE_INVALID": "This cash book booking type doesn't exist."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5215,7 +5244,8 @@
           "paidEventNamed": "Paid event: “{name}” from {date}",
           "toEvents": "Go to events",
           "month": "In the month the event starts",
-          "monthFrom": "From {date} at the earliest"
+          "monthFrom": "From {date} at the earliest",
+          "masterData": "Tax number or VAT ID and address"
         },
         "paidEventRequired": "A cloud TSE costs a monthly fee from the moment it is created. We therefore only set it up when a paid event is coming up – unlock an event first.",
         "tooEarly": "Your event “{name}” starts later. The TSE can be set up from {date} at the earliest – so you don't pay for a month without an event.",
@@ -5370,6 +5400,98 @@
           "submit": "Deactivate permanently",
           "pending": "Deactivating …"
         }
+      },
+      "masterData": {
+        "title": "Tax details and address",
+        "text": "The cloud TSE writes these details into every cash register closing (DSFinV-K). Without them we can't set up the TSE.",
+        "taxNumber": "Tax number",
+        "taxNumberPlaceholder": "e.g. 12/345/67890",
+        "vatId": "VAT ID",
+        "vatIdPlaceholder": "e.g. DE123456789",
+        "eitherHint": "One of the two numbers is enough.",
+        "street": "Street and number",
+        "zip": "Postcode",
+        "city": "City",
+        "required": "Please fill in.",
+        "taxRequired": "Please enter the tax number or the VAT ID.",
+        "taxNumberInvalid": "Please enter a valid tax number (10–13 digits).",
+        "vatIdInvalid": "Please enter a valid VAT ID, e.g. DE123456789.",
+        "save": "Save",
+        "saving": "Saving …",
+        "saved": "Saved – you can set up the TSE now.",
+        "saveFailed": "The details could not be saved."
+      },
+      "nachschau": {
+        "title": "Cash audit (Kassen-Nachschau)",
+        "description": "What you hand to the tax office during an unannounced audit.",
+        "intro": "During a cash audit you hand three things to the auditor:",
+        "items": {
+          "dsfinvk": "DSFinV-K export (ZIP)",
+          "dsfinvkHint": "– all register transactions of the selected days in the tax office format.",
+          "tse": "TSE export (TAR)",
+          "tseHint": "– the signed data of the cloud TSE.",
+          "procedure": "Procedure documentation",
+          "procedureHint": "– describes how you use the register. You'll find a template in the docs."
+        },
+        "docsLink": "Guide to the cash audit",
+        "range": "Period",
+        "from": "From",
+        "to": "To",
+        "today": "Today",
+        "rangeHint": "A business day runs from 6 am to 6 am. If today is in the period, the day is closed first (cash register closing).",
+        "exportDsfinvk": "Export DSFinV-K",
+        "exportTse": "TSE export (TAR)",
+        "exporting": "Creating …",
+        "exported": "DSFinV-K export downloaded.",
+        "tseExported": "TSE export downloaded.",
+        "exportFailed": "The export could not be created.",
+        "closedBeforeExport": "Cash register closing Z{numbers} created.",
+        "tseMissingTitle": "No TSE export for this period yet",
+        "tseMissingText": "OpenEOS fetches the TSE data every night. If you need it up to now, start an export and download it in a few minutes.",
+        "tseStart": "Start export now",
+        "tseStarting": "Starting …",
+        "tseStarted": "The TSE export is running. Download it in a few minutes.",
+        "tseStartFailed": "The TSE export could not be started.",
+        "tip": {
+          "title": "Tips go to",
+          "hint": "Determines how tips are booked in the export. Check with your tax advisor.",
+          "employer": "Club",
+          "employee": "Helpers",
+          "saved": "Saved.",
+          "saveFailed": "Could not be saved."
+        }
+      },
+      "closings": {
+        "title": "Cash register closings",
+        "description": "Every morning at 6 am OpenEOS closes the business day (Z report). Closings can't be changed afterwards.",
+        "create": "Create closing now",
+        "creating": "Creating …",
+        "created": "Cash register closing Z{zNr} created.",
+        "createdMany": "Cash register closings Z{numbers} created.",
+        "createFailed": "The cash register closing could not be created.",
+        "openSince": "Open since {since}: {count, plural, =1 {1 transaction} other {# transactions}}",
+        "nothingOpen": "No open transactions – everything is closed.",
+        "loading": "Loading …",
+        "loadFailed": "The cash register closings could not be loaded.",
+        "empty": "No cash register closings yet.",
+        "manual": "manual",
+        "col": {
+          "zNr": "Z no.",
+          "businessDate": "Business day",
+          "gross": "Gross revenue",
+          "cash": "Cash",
+          "transactions": "Transactions",
+          "download": "Download",
+          "cashHint": "All cash movements of the closing, including opening balance, cash in and cash out"
+        },
+        "cardLine": "cash {cash} · {count, plural, =1 {1 transaction} other {# transactions}}",
+        "failed": "{count} without TSE",
+        "training": "{count} training",
+        "download": "ZIP",
+        "downloading": "Loading …",
+        "downloadLabel": "Download DSFinV-K export of Z{zNr}",
+        "downloadFailed": "The export could not be downloaded.",
+        "more": "Show older"
       }
     }
   },
@@ -5960,7 +6082,8 @@
         "training": "TRAINING – NOT A SALE"
       },
       "errorCode": "Error: {code}",
-      "qrLabel": "QR code with the TSE data (DSFinV-K)"
+      "qrLabel": "QR code with the TSE data (DSFinV-K)",
+      "bon": "Receipt no."
     },
     "kind": {
       "receipt": "Receipt",
@@ -5968,13 +6091,127 @@
       "deposit_return": "Deposit payout",
       "order": "Order",
       "order_cancellation": "Order cancellation",
-      "abort": "Abort"
+      "abort": "Abort",
+      "cashbook": "Cash book"
     },
     "status": {
       "signed": "Signed",
       "training": "Training",
       "failed": "Failed",
       "pending": "Open"
+    }
+  },
+  "cashbook": {
+    "title": "Cash book",
+    "businessDay": "Business day {date} (6 am – 6 am)",
+    "types": {
+      "opening_balance": "Opening balance",
+      "deposit": "Cash in",
+      "withdrawal": "Cash out",
+      "cash_count": "Cash count"
+    },
+    "typeHints": {
+      "opening_balance": "Change at the start",
+      "deposit": "Put money into the drawer",
+      "withdrawal": "Skim money (safe, bank)",
+      "cash_count": "Count the drawer, book the difference"
+    },
+    "summary": {
+      "expected": "Expected cash",
+      "expectedDevice": "Expected cash in this register",
+      "openingBalance": "Opening balance",
+      "deposits": "Cash in",
+      "withdrawals": "Cash out",
+      "cashSales": "Cash sales",
+      "cashRefunds": "Cash refunds",
+      "pfandPayouts": "Deposit payouts",
+      "differences": "Differences",
+      "lastCount": "Last cash count at {time}: counted {counted}, difference {difference}",
+      "lastCountShort": "Last cash count: {counted} counted, difference {difference}",
+      "noCount": "No cash count today yet"
+    },
+    "dialog": {
+      "amount": "Amount",
+      "amountHint": "Enter the amount on the keypad",
+      "counted": "Counted cash",
+      "expected": "Expected cash",
+      "expectedLine": "Expected: {expected}",
+      "difference_zero": "Register balances",
+      "difference_plus": "Surplus",
+      "difference_minus": "Shortage",
+      "differencePending": "Difference",
+      "differenceHint": "If the counted cash differs, the difference is booked as “difference expected/actual”.",
+      "note": "Note (optional)",
+      "notePlaceholder": {
+        "opening_balance": "e.g. change from the club cash box",
+        "deposit": "e.g. topped up change",
+        "withdrawal": "e.g. into the safe",
+        "cash_count": "e.g. shift change"
+      },
+      "text": {
+        "opening_balance": "How much change is in the drawer at the start?",
+        "deposit": "How much are you putting in?",
+        "withdrawal": "How much are you taking out?",
+        "cash_count": "Count the cash and enter the amount."
+      },
+      "adminText": {
+        "opening_balance": "Change at the start of the day for the whole register.",
+        "deposit": "Money going into the register – e.g. from the club cash box or the bank account.",
+        "withdrawal": "Money leaving the register – e.g. into the safe or to the bank.",
+        "cash_count": "Count the cash of all tills and enter the amount. A deviation from the expected cash is booked as a difference."
+      },
+      "confirm": {
+        "opening_balance": "Book opening balance",
+        "deposit": "Book cash in",
+        "withdrawal": "Book cash out",
+        "cash_count": "Book cash count"
+      },
+      "cancel": "Cancel",
+      "booking": "Booking …"
+    },
+    "booked": "{type} booked: {amount}",
+    "bookedCount": "Cash count booked · difference {difference}",
+    "countNoDifference": "Cash count booked · register balances",
+    "bookedShort": {
+      "opening_balance": "Opening balance booked",
+      "deposit": "Cash in booked",
+      "withdrawal": "Cash out booked",
+      "cash_count": "Cash count booked"
+    },
+    "bon": "Receipt no. {bon}",
+    "tseSigned": "TSE signed · receipt no. {bon}",
+    "tseSignedNoBon": "TSE signed",
+    "noTse": "Booked without TSE signature.",
+    "tseFailed": "TSE failed – the receipt is marked “TSE ausgefallen”.",
+    "tseDetails": "TSE data",
+    "countedOf": "{counted} counted / expected {expected}",
+    "entries": "Bookings today",
+    "entriesEmpty": "No bookings today yet.",
+    "failed": "The booking failed.",
+    "loadFailed": "The cash book could not be loaded.",
+    "cashNotAllowed": "Cash is currently not allowed for your organization – without cash there is no cash book.",
+    "col": {
+      "time": "Time",
+      "device": "Device",
+      "type": "Type",
+      "amount": "Amount",
+      "countedExpected": "Counted / expected",
+      "note": "Note",
+      "user": "Operator"
+    },
+    "admin": {
+      "subtitle": "Cash in your register: opening balance, cash in, cash out and cash count per business day.",
+      "date": "Business day",
+      "today": "Today",
+      "expectedTotal": "Expected cash, whole register",
+      "actionsTitle": "Book for the whole register",
+      "actionsHint": "Each booking is its own TSE receipt. To book for a single till, use the till itself (menu → Cash book).",
+      "actionsPast": "Bookings always go to the current business day – switch to “Today”.",
+      "devices": "Per device",
+      "register": "Admin (whole register)",
+      "unknownDevice": "Deleted device",
+      "noDevice": "Admin (no device)",
+      "entries": "Bookings"
     }
   }
 }

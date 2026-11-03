@@ -10,10 +10,13 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useCreateTse } from '@/hooks/use-tse';
+import { ApiException } from '@/types/api';
 import { Link } from '@/i18n/routing';
 import { reasonError } from '@/lib/operating-mode';
 import { shortSerial, type TseSetupStep } from '@/lib/tse';
-import type { TseStatus } from '@/types/tse';
+import type { TseMasterDataField, TseStatus } from '@/types/tse';
+
+import { TseMasterDataForm } from './tse-master-data-form';
 
 interface TseSetupCardProps {
   organizationId: string;
@@ -38,14 +41,20 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
   const create = useCreateTse(organizationId);
   const [overrideOpen, setOverrideOpen] = useState(false);
   const [reason, setReason] = useState('');
+  // 409 TSE_MASTER_DATA_REQUIRED beim Anlegen (Status war noch nicht neu geladen).
+  const [missingFromCreate, setMissingFromCreate] = useState<TseMasterDataField[] | null>(null);
 
   const unit = status.unit;
   const event = status.eligibility.event;
   const isGermany = (status.country ?? '').toUpperCase() === 'DE';
   const hasPaidEvent = step !== 'paid_event_required' && !!event;
   const inMonth = step !== 'too_early' && hasPaidEvent;
-  const canCreate = status.eligibility.ok && (step === 'ready' || step === 'failed' || step === 'deactivated');
+  const canCreate =
+    status.eligibility.ok && missingFromCreate === null && (step === 'ready' || step === 'failed' || step === 'deactivated');
   const showOverride = isSuperAdmin && (step === 'paid_event_required' || step === 'too_early');
+  const needsMasterData = step === 'master_data' || missingFromCreate !== null;
+  const missing: TseMasterDataField[] =
+    missingFromCreate ?? status.eligibility.missing ?? ['taxNumber', 'street', 'zip', 'city'];
   const reasonProblem = reasonError(reason);
 
   const start = (override = false) => {
@@ -55,7 +64,14 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
         setOverrideOpen(false);
         setReason('');
       },
-      onError: (error) => toast.error(apiErrorMessage(error, t('failedToStart'))),
+      onError: (error) => {
+        if (error instanceof ApiException && (error.reason ?? error.code) === 'TSE_MASTER_DATA_REQUIRED') {
+          const raw = error.params?.missing;
+          const list = typeof raw === 'string' ? raw.split(',').map((v) => v.trim()).filter(Boolean) : [];
+          setMissingFromCreate((list.length > 0 ? list : ['taxNumber', 'street', 'zip', 'city']) as TseMasterDataField[]);
+        }
+        toast.error(apiErrorMessage(error, t('failedToStart')));
+      },
     });
   };
 
@@ -121,15 +137,17 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
 
         <ul className="tse-checklist" aria-label={t('requirements')}>
           <Requirement ok={isGermany} label={t('check.country')} />
+          <Requirement ok={!needsMasterData} label={t('check.masterData')} />
           <Requirement
             ok={hasPaidEvent}
+            pending={needsMasterData}
             label={
               hasPaidEvent && event
                 ? t('check.paidEventNamed', { name: event.name, date: formatDate(event.startDate) })
                 : t('check.paidEvent')
             }
             action={
-              !hasPaidEvent ? (
+              !hasPaidEvent && !needsMasterData ? (
                 <Link href="/events" className="notice-link">
                   {t('check.toEvents')}
                 </Link>
@@ -138,7 +156,7 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
           />
           <Requirement
             ok={inMonth}
-            pending={step === 'too_early'}
+            pending={step === 'too_early' || needsMasterData}
             label={
               step === 'too_early' && status.eligibility.availableFrom
                 ? t('check.monthFrom', { date: formatDate(status.eligibility.availableFrom) })
@@ -146,6 +164,14 @@ export function TseSetupCard({ organizationId, status, step }: TseSetupCardProps
             }
           />
         </ul>
+
+        {needsMasterData && (
+          <TseMasterDataForm
+            organizationId={organizationId}
+            missing={missing}
+            onSaved={() => setMissingFromCreate(null)}
+          />
+        )}
 
         {step === 'paid_event_required' && <p className="tse-text">{t('paidEventRequired')}</p>}
         {step === 'too_early' && status.eligibility.availableFrom && (

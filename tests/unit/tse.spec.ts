@@ -107,6 +107,19 @@ test.describe('Cloud-TSE setup step', () => {
         }),
       ),
     ).toBe('too_early');
+    expect(
+      tseSetupStep(
+        status({
+          eligibility: {
+            ok: false,
+            reason: 'TSE_MASTER_DATA_REQUIRED',
+            availableFrom: null,
+            event: null,
+            missing: ['taxNumber', 'city'],
+          },
+        }),
+      ),
+    ).toBe('master_data');
     expect(tseSetupStep(status())).toBe('ready');
   });
 
