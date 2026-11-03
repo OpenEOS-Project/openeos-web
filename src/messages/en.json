@@ -1439,7 +1439,9 @@
         "predefined": "Predefined tables",
         "predefinedHint": "The POS only offers the tables you created, as a list and on the floor plan.",
         "tableCount": "{count, plural, =0 {no tables} one {# table} other {# tables}}"
-      }
+      },
+      "priceTse": "+ {amount} cloud TSE per event",
+      "priceTseOptional": "Optional: + {amount} cloud TSE per event"
     },
     "status": {
       "active": "Active",
@@ -1500,7 +1502,19 @@
       "cancellationUntil": "Free cancellation until {deadline} (7 days before the start).",
       "cancellationTooLate": "The event starts in less than 7 days. Once you have paid, free cancellation is no longer possible.",
       "cancellationRule": "Free cancellation up to 7 days before the start.",
-      "invoiceNoticeStripe": "The event is activated right away. You get the invoice by email, payable within {days} days – by bank transfer or online."
+      "invoiceNoticeStripe": "The event is activated right away. You get the invoice by email, payable within {days} days – by bank transfer or online.",
+      "tse": {
+        "included": "Includes the cloud TSE for cash – set up automatically",
+        "surchargeLine": "+ {amount} per event",
+        "question": "With cloud TSE (legally compliant cash)?",
+        "yes": "Yes, with cloud TSE",
+        "yesHint": "OpenEOS sets up the TSE automatically for the first event day. Your operating mode becomes “All features” – cash then works with the TSE.",
+        "no": "No, keep it as it is",
+        "noHint": "Nothing changes. In Germany, cash needs a TSE – you can add it later at any time.",
+        "missing": "The cloud TSE still needs your organization’s tax number or address – it cannot be set up without them.",
+        "missingLink": "Add them now",
+        "total": "+ {surcharge} cloud TSE · total {total}"
+      }
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
     "editTitle": "Edit event",
@@ -5486,6 +5500,10 @@
         "downloadLabel": "Download DSFinV-K export of Z{zNr}",
         "downloadFailed": "The export could not be downloaded.",
         "more": "Show older"
+      },
+      "autoEnabled": {
+        "purchase": "Switched on automatically when you bought “{name}” on {date}. The TSE is set up for the first event day – nothing to do for you.",
+        "operatingMode": "Switched on automatically when you switched to “All features” (event “{name}”). The TSE is set up for the first event day – nothing to do for you."
       }
     }
   },
@@ -5925,7 +5943,8 @@
       "legacy": "Active (existing)",
       "available": "Available",
       "tse_required": "requires an active cloud TSE",
-      "country_required": "Set the country first"
+      "country_required": "Set the country first",
+      "paid_event_required": "needs an activated event"
     },
     "section": {
       "title": "Operating mode",
@@ -6058,6 +6077,13 @@
       "off": "No cloud TSE",
       "link": "Go to cloud TSE",
       "setup": "Set up cloud TSE"
+    },
+    "tseFollows": {
+      "scheduled": "The cloud TSE will be set up automatically on {date} (“{name}”). Cash works from then on.",
+      "missing": "Add your tax number and address first.",
+      "needsEvent": "Activate an event first – the cloud TSE is then set up automatically.",
+      "toEvents": "Go to events",
+      "confirm": "The cloud TSE will be set up automatically on {date}. Until then the till accepts no cash."
     }
   },
   "tse": {

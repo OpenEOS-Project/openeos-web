@@ -179,8 +179,8 @@ export function useEventBillingLookup() {
  */
 export function useCreateEventCheckout() {
   return useMutation({
-    mutationFn: async ({ organizationId, id }: { organizationId: string; id: string }) => {
-      const response = await eventsApi.createCheckout(organizationId, id);
+    mutationFn: async ({ organizationId, id, withTse }: { organizationId: string; id: string; withTse?: boolean }) => {
+      const response = await eventsApi.createCheckout(organizationId, id, withTse === undefined ? undefined : { withTse });
       return response.data;
     },
   });

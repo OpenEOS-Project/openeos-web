@@ -12,7 +12,25 @@ export interface BillingAddressDetails {
 /** Woher der Nachlass stammt — bestimmt nur die Beschriftung. */
 export type EventDiscountReason = 'first-event' | 'organization' | null;
 
+/**
+ * Cloud-TSE beim Freischalten (Deutschland): `included` = gehört dazu
+ * („Alle Funktionen“), `optional` = der Dialog fragt (Bestand), `null` =
+ * keine TSE. `surcharge` je Veranstaltung (0 = inklusive, nichts anzeigen).
+ */
+export interface EventTseTerms {
+  offer: 'included' | 'optional' | null;
+  surcharge: number;
+  /** Fehlende Stammdaten für die TSE (`taxNumber`, `street`, `zip`, `city`). */
+  missing: string[];
+  /** Freigeschaltet: ob die TSE dazugehört. */
+  included: boolean | null;
+  /** Freigeschaltet: berechneter Zuschlag. */
+  surchargeCharged: number | null;
+}
+
 export interface EventBilling {
+  /** Cloud-TSE zur Freischaltung (fehlt bei älteren API-Ständen). */
+  tse?: EventTseTerms;
   /** Preis je Veranstaltungstag, vor Nachlass. */
   pricePerDay: number;
   /** Abgerechnete Veranstaltungstage (6 bis 6 Uhr, siehe businessDayStartHour). */
@@ -172,6 +190,8 @@ export interface OrderInvoiceData {
     zip: string;
     city: string;
   };
+  /** Bestand in Deutschland: Antwort auf „Mit Cloud-TSE?“. */
+  withTse?: boolean;
 }
 
 export interface CompanySearchResultItem {
@@ -223,4 +243,5 @@ export interface EventPricePreview {
   finalPrice: number;
   /** Bis zu so vielen Bestellungen laesst sich kostenlos testen. */
   testEventMaxOrders: number;
+  tse?: EventTseTerms;
 }

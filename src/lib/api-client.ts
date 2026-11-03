@@ -654,9 +654,10 @@ export const eventsApi = {
       data
     ),
 
-  createCheckout: (organizationId: string, id: string) =>
+  createCheckout: (organizationId: string, id: string, data?: { withTse?: boolean }) =>
     apiClient.post<ApiResponse<{ checkoutUrl: string }>>(
-      `/organizations/${organizationId}/events/${id}/checkout`
+      `/organizations/${organizationId}/events/${id}/checkout`,
+      data ?? {}
     ),
 
   syncPayment: (organizationId: string, id: string) =>
