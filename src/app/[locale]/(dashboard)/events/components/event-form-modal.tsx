@@ -355,6 +355,15 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       hour: preis.businessDayStartHour ?? DEFAULT_BUSINESS_DAY_START_HOUR,
                     })}
                   </span>
+                  {/* Cloud-TSE-Zuschlag nur, wenn einer eingestellt ist
+                      (derzeit inklusive): je Veranstaltung, nicht je Tag. */}
+                  {preis.tse?.offer && preis.tse.surcharge > 0 && (
+                    <span className="event-price-hint__calc" data-testid="event-price-tse">
+                      {t(preis.tse.offer === 'included' ? 'form.priceTse' : 'form.priceTseOptional', {
+                        amount: formatCurrency(preis.tse.surcharge),
+                      })}
+                    </span>
+                  )}
                   <span className="event-price-hint__free">
                     {t('form.priceTestFree', { max: preis.testEventMaxOrders })}
                   </span>

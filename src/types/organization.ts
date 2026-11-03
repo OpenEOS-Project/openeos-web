@@ -214,6 +214,19 @@ export interface OperatingModeState {
   pricesVisible: boolean;
   options: import('@/lib/operating-mode').OperatingModeOption[];
   certificateAvailable: boolean;
+  /**
+   * Deutschland ohne aktive TSE mit bezahlter Veranstaltung: wann die
+   * Cloud-TSE automatisch eingerichtet wird. „Alle Funktionen“ ist dann
+   * schon wählbar.
+   */
+  tseSetup?: {
+    eventId: string;
+    eventName: string;
+    eventStartDate: string;
+    /** YYYY-MM-DD (Berlin). */
+    scheduledFor: string;
+    missing: string[];
+  } | null;
   history: OperatingModeChange[];
 }
 

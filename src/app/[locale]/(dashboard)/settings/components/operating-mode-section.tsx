@@ -39,6 +39,7 @@ import {
 } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationTseSummary } from '@/types/tse';
+import type { OperatingModeState } from '@/types/organization';
 import { TseChecklist } from '@/components/integrations/tse/tse-checklist';
 import { useTseSetup } from '@/hooks/use-tse';
 import { SettingsSectionHead } from './settings-section-head';
@@ -229,6 +230,12 @@ export function OperatingModeSection() {
                       {isAdmin && !option.available && !view.tseActive && (
                         <TseModeChecklist organizationId={organizationId} />
                       )}
+                      <TseFollowsHint
+                        setup={state.data?.tseSetup ?? null}
+                        tseActive={view.tseActive}
+                        unavailableReason={option.unavailableReason}
+                        isAdmin={isAdmin}
+                      />
                     </>
                   )}
                 </span>
@@ -330,6 +337,11 @@ export function OperatingModeSection() {
             {confirming === 'full' && (
               <li>{view.country === 'DE' ? t('confirm.effects.full.countryDe') : t('confirm.effects.full.countryOther')}</li>
             )}
+            {confirming === 'full' && view.country === 'DE' && !view.tseActive && state.data?.tseSetup && (
+              <li data-testid="operating-mode-confirm-tse">
+                {t('tseFollows.confirm', { date: formatDate(state.data.tseSetup.scheduledFor) })}
+              </li>
+            )}
           </ul>
           {oneWay && (
             <>
@@ -380,6 +392,47 @@ function TseModeBadge({
           onClick={(event) => event.stopPropagation()}
         >
           {enabled ? t('link') : t('setup')}
+        </Link>
+      )}
+    </span>
+  );
+}
+
+/**
+ * „Alle Funktionen“ in Deutschland ohne aktive TSE: mit bezahlter
+ * Veranstaltung wählbar — die Cloud-TSE wird dann automatisch eingerichtet
+ * (Datum). Ohne bezahlte Veranstaltung bleibt die Karte gesperrt, mit dem
+ * Hinweis, zuerst eine Veranstaltung freizuschalten.
+ */
+function TseFollowsHint({
+  setup,
+  tseActive,
+  unavailableReason,
+  isAdmin,
+}: {
+  setup: OperatingModeState['tseSetup'] | null;
+  tseActive: boolean;
+  unavailableReason: OperatingModeOption['unavailableReason'];
+  isAdmin: boolean;
+}) {
+  const t = useTranslations('operatingMode.tseFollows');
+  const { formatDate } = useLocaleFormat();
+  if (tseActive) return null;
+  if (setup) {
+    return (
+      <span className="mode-card__text mode-card__text--muted" data-testid="operating-mode-tse-follows">
+        <Icon name="clock" size={12} /> {t('scheduled', { date: formatDate(setup.scheduledFor), name: setup.eventName })}
+        {setup.missing.length > 0 && <> {t('missing')}</>}
+      </span>
+    );
+  }
+  if (unavailableReason !== 'paid_event_required') return null;
+  return (
+    <span className="mode-card__text mode-card__text--muted" data-testid="operating-mode-tse-needs-event">
+      {t('needsEvent')}{' '}
+      {isAdmin && (
+        <Link href="/events" className="notice-link" onClick={(event) => event.stopPropagation()}>
+          {t('toEvents')}
         </Link>
       )}
     </span>

@@ -10,6 +10,7 @@ import { tseKeys, useTseSetup } from '@/hooks/use-tse';
 import { tseSetupStep } from '@/lib/tse';
 import { useAuthStore } from '@/stores/auth-store';
 
+import { TseAutoNote } from './tse/tse-auto-note';
 import { TseDangerZone } from './tse/tse-danger-zone';
 import { TseExportsCard } from './tse/tse-exports-card';
 import { TseClosingsCard, TseNachschauCard } from './tse/tse-nachschau-card';
@@ -77,6 +78,7 @@ export function TseIntegration() {
 
   return (
     <div className="tse-page" data-testid="tse-integration" data-step={step}>
+      {data.integrationEnabledAuto && <TseAutoNote auto={data.integrationEnabledAuto} />}
       {step === 'active' && unit ? <TseStatusCard status={data} /> : <TseSetupCard organizationId={organizationId} status={data} setup={{ ...setup, step }} />}
 
       {hasData && (

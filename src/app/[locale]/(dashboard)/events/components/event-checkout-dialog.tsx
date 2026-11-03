@@ -15,6 +15,8 @@ import { toast } from '@/components/shared/toast';
 import { ApiException } from '@/types/api';
 import type { Event } from '@/types/event';
 import type { CompanySearchResultItem, EventBilling } from '@/types/billing';
+import { checkoutTseSurcharge } from '@/utils/event-tse';
+import { CheckoutTseSection } from './checkout-tse-section';
 
 interface EventCheckoutDialogProps {
   event: Event | null;
@@ -43,6 +45,8 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const [city, setCity] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bestand in Deutschland: Antwort auf „Mit Cloud-TSE?“ (keine Vorauswahl).
+  const [withTse, setWithTse] = useState<boolean | null>(null);
 
   const [companyResults, setCompanyResults] = useState<CompanySearchResultItem[]>([]);
   const [companySearchEnabled, setCompanySearchEnabled] = useState(true);
@@ -58,6 +62,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     setCity(billing?.billingAddress?.city || '');
     setConfirmed(false);
     setError(null);
+    setWithTse(null);
     setCompanyResults([]);
     setShowSuggestions(false);
     setCompanySearchEnabled(true);
@@ -98,8 +103,16 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     setShowSuggestions(false);
   };
 
+  const tse = billing.tse;
+  // Im Bestand muss die Frage beantwortet sein — „Ja“ ist ein Wechsel ohne Rückweg.
+  const tseAnswered = tse?.offer !== 'optional' || withTse !== null;
+  const tseAnswer = tse?.offer === 'optional' ? (withTse ?? undefined) : undefined;
+  const tseSurcharge = checkoutTseSurcharge(tse, withTse);
+  const total = Math.round((billing.finalPrice + tseSurcharge) * 100) / 100;
+
   const emailValid = EMAIL_RE.test(email.trim());
   const formValid =
+    tseAnswered &&
     name.trim().length > 0 &&
     emailValid &&
     street.trim().length > 0 &&
@@ -117,7 +130,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const handlePayOnline = async () => {
     setError(null);
     try {
-      const { checkoutUrl } = await createCheckout.mutateAsync({ organizationId, id: event.id });
+      const { checkoutUrl } = await createCheckout.mutateAsync({ organizationId, id: event.id, withTse: tseAnswer });
       // Vollständiger Seitenwechsel statt Router-Navigation — das Ziel liegt
       // bei Stripe, nicht in dieser Anwendung.
       window.location.href = checkoutUrl;
@@ -137,6 +150,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
           billingName: name.trim(),
           billingEmail: email.trim(),
           billingAddress: { street: street.trim(), zip: zip.trim(), city: city.trim() },
+          ...(tseAnswer !== undefined ? { withTse: tseAnswer } : {}),
         },
       });
       await activateEvent.mutateAsync({ organizationId, id: event.id });
@@ -234,7 +248,26 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                 hour: billing.businessDayStartHour ?? DEFAULT_BUSINESS_DAY_START_HOUR,
               })}
             </div>
+            {/* Nur mit eingestelltem Zuschlag — derzeit ist die TSE inklusive. */}
+            {tseSurcharge > 0 && (
+              <div style={{ fontSize: 12, color: 'var(--ink)' }} data-testid="checkout-tse-total">
+                {t('tse.total', {
+                  surcharge: formatCurrency(tseSurcharge, locale),
+                  total: formatCurrency(total, locale),
+                })}
+              </div>
+            )}
           </div>
+
+          {tse?.offer && (
+            <CheckoutTseSection
+              tse={tse}
+              answer={withTse}
+              onAnswer={setWithTse}
+              locale={locale}
+              disabled={isSubmitting}
+            />
+          )}
 
           <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
             {t('noVat')}
@@ -422,7 +455,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
               type="button"
               className="btn btn--primary"
               onClick={handlePayOnline}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !tseAnswered}
             >
               {isSubmitting ? t('redirecting') : t('payOnline')}
             </button>

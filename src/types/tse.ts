@@ -100,10 +100,21 @@ export interface TseOutageSummary {
   failedCount: number;
 }
 
+/** Wie die Integration automatisch eingeschaltet wurde. */
+export interface TseAutoEnabled {
+  source: 'purchase' | 'operating_mode';
+  eventId: string | null;
+  eventName: string | null;
+  path: 'checkout' | 'invoice' | 'waived' | null;
+  at: string;
+}
+
 /** GET /organizations/:id/tse */
 export interface TseStatus {
   available: boolean;
   integrationEnabled: boolean;
+  /** Automatisch eingeschaltet (Kauf einer Veranstaltung bzw. Wechsel auf „Alle Funktionen“). */
+  integrationEnabledAuto?: TseAutoEnabled | null;
   lifecycle: 'persistent' | 'per_event';
   country: string | null;
   eligibility: TseEligibility;

@@ -1156,7 +1156,9 @@
         "predefined": "Vordefinierte Tische",
         "predefinedHint": "Die Kasse bietet nur die angelegten Tische an, als Liste und auf dem Tischplan.",
         "tableCount": "{count, plural, =0 {keine Tische} one {# Tisch} other {# Tische}}"
-      }
+      },
+      "priceTse": "+ {amount} Cloud-TSE je Veranstaltung",
+      "priceTseOptional": "Optional: + {amount} Cloud-TSE je Veranstaltung"
     },
     "status": {
       "active": "Aktiv",
@@ -1217,7 +1219,19 @@
       "cancellationUntil": "Kostenlos stornierbar bis {deadline} (7 Tage vor Beginn).",
       "cancellationTooLate": "Die Veranstaltung beginnt in weniger als 7 Tagen. Nach dem Bezahlen ist keine kostenlose Stornierung mehr möglich.",
       "cancellationRule": "Kostenlos stornierbar bis 7 Tage vor Beginn.",
-      "invoiceNoticeStripe": "Die Veranstaltung ist sofort freigeschaltet. Du bekommst die Rechnung per E-Mail, zahlbar innerhalb von {days} Tagen – per Überweisung oder online."
+      "invoiceNoticeStripe": "Die Veranstaltung ist sofort freigeschaltet. Du bekommst die Rechnung per E-Mail, zahlbar innerhalb von {days} Tagen – per Überweisung oder online.",
+      "tse": {
+        "included": "Inklusive Cloud-TSE für Bargeld – wird automatisch eingerichtet",
+        "surchargeLine": "+ {amount} je Veranstaltung",
+        "question": "Mit Cloud-TSE (Bargeld rechtssicher)?",
+        "yes": "Ja, mit Cloud-TSE",
+        "yesHint": "OpenEOS richtet die TSE zum ersten Veranstaltungstag automatisch ein. Deine Betriebsart wird „Alle Funktionen“ – Bargeld geht dann mit TSE.",
+        "no": "Nein, so lassen",
+        "noHint": "Alles bleibt wie bisher. In Deutschland braucht Bargeld eine TSE – du kannst sie später jederzeit dazunehmen.",
+        "missing": "Für die Cloud-TSE fehlen noch Steuernummer oder Anschrift deiner Organisation – ohne sie kann sie nicht eingerichtet werden.",
+        "missingLink": "Jetzt eintragen",
+        "total": "+ {surcharge} Cloud-TSE · gesamt {total}"
+      }
     },
     "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
     "editTitle": "Veranstaltung bearbeiten",
@@ -5559,6 +5573,10 @@
         "downloadLabel": "DSFinV-K-Export von Z{zNr} herunterladen",
         "downloadFailed": "Der Export konnte nicht heruntergeladen werden.",
         "more": "Ältere anzeigen"
+      },
+      "autoEnabled": {
+        "purchase": "Automatisch eingeschaltet beim Kauf von „{name}“ am {date}. Die TSE wird zum ersten Veranstaltungstag eingerichtet – du musst nichts tun.",
+        "operatingMode": "Automatisch eingeschaltet beim Wechsel auf „Alle Funktionen“ (Veranstaltung „{name}“). Die TSE wird zum ersten Veranstaltungstag eingerichtet – du musst nichts tun."
       }
     }
   },
@@ -5998,7 +6016,8 @@
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
       "tse_required": "benötigt eine aktive Cloud-TSE",
-      "country_required": "Lege zuerst das Land fest"
+      "country_required": "Lege zuerst das Land fest",
+      "paid_event_required": "braucht eine freigeschaltete Veranstaltung"
     },
     "section": {
       "title": "Betriebsart",
@@ -6131,6 +6150,13 @@
       "off": "Keine Cloud-TSE",
       "link": "Zur Cloud-TSE",
       "setup": "Cloud-TSE einrichten"
+    },
+    "tseFollows": {
+      "scheduled": "Cloud-TSE wird am {date} automatisch eingerichtet („{name}“). Bargeld geht ab dann.",
+      "missing": "Trag vorher Steuernummer und Anschrift ein.",
+      "needsEvent": "Schalte zuerst eine Veranstaltung frei – die Cloud-TSE wird dann automatisch eingerichtet.",
+      "toEvents": "Zu den Veranstaltungen",
+      "confirm": "Die Cloud-TSE wird am {date} automatisch eingerichtet. Bis dahin nimmt die Kasse kein Bargeld an."
     }
   },
   "tse": {
