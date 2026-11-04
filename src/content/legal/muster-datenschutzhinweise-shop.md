@@ -1,0 +1,53 @@
+# Muster: Datenschutzhinweise für den Online-Shop eines OpenEOS-Kunden
+
+**Stand: 4. November 2026**
+
+Dieses Muster stellt LUXCODE by Lukas Lukic-Spitznagel seinen Kunden (Vereinen und Gastronomiebetrieben) zur Verfügung, damit sie es in ihrem OpenEOS-Online-Shop, auf ihren Helferseiten und an der Kasse verwenden können. Verantwortlich für die Datenverarbeitung im Shop ist der Kunde, nicht LUXCODE. Der Kunde muss die Felder in eckigen Klammern ausfüllen und das Muster auf seine Verhältnisse prüfen. Die Felder mit geschweiften Klammern sind die Angaben der Organisation (Name, Anschrift, Kontakt-E-Mail); derzeit trägt der Kunde sie selbst ein.
+
+---
+
+# Datenschutzhinweise für Online-Bestellungen, Helferanmeldung und Kasse
+
+## 1. Verantwortlicher
+
+Verantwortlich für die Verarbeitung Ihrer Daten ist:
+
+{{kunde.name}}
+{{kunde.anschrift}}
+E-Mail: {{kunde.email}}
+[Vertretungsberechtigte Person, z. B. Vorstand nach § 26 BGB]
+
+## 2. Welche Daten wir verarbeiten und wozu
+
+**Online-Bestellung.** Wenn Sie über unseren Online-Shop bestellen, verarbeiten wir die Angaben, die Sie bei der Bestellung machen: Vor- und Nachname, E-Mail-Adresse, Ihre Bestellung, ob Sie abholen oder an den Tisch bestellen (dann die Tischnummer) sowie den Zahlungsstatus. Bestellen Sie am Tisch über einen QR-Code, verarbeiten wir Ihre Bestellung und, wenn Sie sie angeben, Ihren Namen und Ihre Anmerkungen. Wir brauchen diese Daten, um Ihre Bestellung anzunehmen, zuzubereiten, Ihnen eine Bestellbestätigung zu schicken und Sie bei Rückfragen zu erreichen. Rechtsgrundlage ist Art. 6 Abs. 1 Buchstabe b DSGVO (Vertragserfüllung).
+
+**Helferanmeldung.** Wenn Sie sich auf unserer Helferseite für eine Schicht anmelden, verarbeiten wir Ihren Namen, Ihre E-Mail-Adresse, gegebenenfalls Ihre Telefonnummer und Ihre Anmerkungen sowie die gewählten Schichten. Wir brauchen diese Daten, um die Schichten zu planen, Ihre E-Mail-Adresse zu bestätigen und Ihnen Bestätigungen, Erinnerungen und Änderungen zu schicken. Rechtsgrundlage ist [Art. 6 Abs. 1 Buchstabe b DSGVO bzw. bei Vereinsmitgliedern die Mitgliedschaft; vom Kunden zu prüfen].
+
+**Kasse und Belege.** An unserer Kasse werden Ihre Einkäufe elektronisch erfasst. Nehmen wir Bargeld an, werden sie mit einer technischen Sicherheitseinrichtung (TSE) signiert, wie es das Steuerrecht vorschreibt (§ 146a Abgabenordnung). Dabei werden der Verkaufsvorgang, Zeitpunkt, Betrag und Zahlungsart gespeichert. Ihr Name wird an der Kasse nur erfasst, wenn Sie ihn für die Ausgabe Ihrer Bestellung angeben. Rechtsgrundlage ist Art. 6 Abs. 1 Buchstabe c DSGVO (rechtliche Verpflichtung).
+
+**Zahlung.** Wenn Sie mit Karte oder online bezahlen, wird die Zahlung von unserem Zahlungsdienstleister abgewickelt: [SumUp und/oder PayPal, nicht Genutztes streichen]. Wir erhalten von dort nur die Bestätigung der Zahlung, den Betrag, eine Transaktionsnummer und gegebenenfalls Kartenmarke und letzte vier Ziffern, keine vollständigen Kartendaten. Für die Verarbeitung Ihrer Zahlungsdaten ist der Zahlungsdienstleister selbst verantwortlich; seine Datenschutzhinweise finden Sie auf seiner Website.
+
+## 3. Wer die Daten für uns verarbeitet
+
+Unser Kassensystem und der Online-Shop laufen auf der Software OpenEOS, die von LUXCODE by Lukas Lukic-Spitznagel, Brunnenstraße 6, 78112 St. Georgen im Schwarzwald, als Dienstleister für uns betrieben wird. LUXCODE verarbeitet Ihre Daten nur in unserem Auftrag und nach unseren Weisungen auf Grundlage eines Auftragsverarbeitungsvertrags. Die Server stehen in Deutschland (IONOS SE, Montabaur; Datensicherungen bei Hetzner Online GmbH, Gunzenhausen); E-Mails werden über einen Server der Hetzner Online GmbH in Finnland versandt. Nehmen wir Bargeld an, erfolgt die Signatur der Kassenvorgänge über die zertifizierte Cloud-TSE der Swissbit AG, ebenfalls in einem deutschen Rechenzentrum. Der Online-Shop und die Helferseiten sind über den Dienst Cloudflare, Inc. (USA) erreichbar, der Anfragen weiterleitet und dabei Ihre IP-Adresse verarbeitet; eine Übermittlung in die USA stützt sich auf die Standardvertragsklauseln der EU-Kommission und das EU-US Data Privacy Framework. Die vollständige Liste der Dienstleister von LUXCODE steht im Auftragsverarbeitungsvertrag.
+
+## 4. Wie lange wir die Daten speichern
+
+Ihre Angaben zu einer Online-Bestellung (Name, E-Mail-Adresse, Tischnummer, Anmerkungen) werden 30 Tage nach dem Ende der Veranstaltung gelöscht oder anonymisiert, Ihre Angaben zur Helferanmeldung 30 Tage nach der letzten Schicht des Schichtplans. Kassenbelege und die zugehörigen Aufzeichnungen müssen wir nach den steuerrechtlichen Vorschriften aufbewahren, derzeit acht Jahre für Buchungsbelege und zehn Jahre für Bücher und Aufzeichnungen (§ 147 Abgabenordnung). Diese Daten werden für die Dauer der Aufbewahrungspflicht gesperrt und danach gelöscht. Sie enthalten keine Namen von Gästen.
+
+## 5. Ihre Rechte
+
+Sie haben das Recht auf Auskunft über die zu Ihnen gespeicherten Daten (Art. 15 DSGVO), auf Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Soweit wir Daten auf Grundlage berechtigter Interessen verarbeiten, können Sie der Verarbeitung widersprechen (Art. 21 DSGVO). Wenden Sie sich dazu an die oben genannte Adresse. Außerdem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Für uns zuständig ist: [zuständige Aufsichtsbehörde des Kunden, z. B. Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg, Lautenschlagerstraße 20, 70173 Stuttgart].
+
+## 6. Cookies
+
+Der Online-Shop speichert Ihren Warenkorb nur lokal in Ihrem Browser; das ist für die Bestellung technisch erforderlich. Es findet keine Nutzungsanalyse und kein Tracking statt.
+
+---
+
+## Hinweise für den Kunden (nicht veröffentlichen)
+
+- Das Muster ersetzt keine Rechtsberatung. Jeder Verein und jeder Betrieb ist selbst für seine Datenschutzhinweise verantwortlich.
+- Den fertigen Text trägt der Kunde in OpenEOS unter Einstellungen → „Rechtliche Angaben (Shop & Helferseiten)“ als Datenschutzhinweis ein (als Text oder Link). OpenEOS zeigt ihn dann im Fußbereich des Online-Shops und der Helferseiten und verlinkt ihn neben dem E-Mail-Feld der Bestellung und der Helferanmeldung. Soweit Daten an der Kasse erfasst werden, zusätzlich als Aushang oder Link auf dem Beleg.
+- Zusätzlich braucht der Shop ein Impressum des Kunden (ebenfalls unter „Rechtliche Angaben“). Für eingetragene Vereine: Vereinsname, Anschrift, vertretungsberechtigter Vorstand, Registergericht und Vereinsregisternummer, E-Mail.
+- Wenn der Kunde Gästedaten zu anderen Zwecken nutzt, etwa für Einladungen zum nächsten Fest, braucht er dafür eine eigene Rechtsgrundlage, in der Regel eine Einwilligung.

@@ -146,9 +146,12 @@
           "summaryAccount": "Konto",
           "summaryPersonal": "Person",
           "summaryOrganization": "Organisation",
-          "terms": "Ich akzeptiere die <terms>AGB</terms> und habe die <privacy>Datenschutzerklärung</privacy> zur Kenntnis genommen.",
           "newsletter": "Ich möchte gelegentlich Neuigkeiten zu OpenEOS per E-Mail erhalten. Abbestellen geht jederzeit.",
-          "summaryCountry": "Land"
+          "summaryCountry": "Land",
+          "confirmBusiness": "Ich bestätige, dass ich als Unternehmer, juristische Person des öffentlichen Rechts oder eingetragener Verein handle und zur Vertretung der Organisation berechtigt bin.",
+          "acceptTerms": "Ich habe die <agb>AGB</agb> und den <avv>Auftragsverarbeitungsvertrag</avv> gelesen und akzeptiere sie.",
+          "privacyHint": "Wie wir deine Daten verarbeiten, steht in der <privacy>Datenschutzerklärung</privacy>.",
+          "germanNote": "Die Rechtstexte gibt es nur auf Deutsch."
         }
       },
       "errors": {
@@ -158,11 +161,12 @@
         "passwordShort": "Mindestens 8 Zeichen",
         "passwordWeak": "Mindestens ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl erforderlich",
         "passwordMismatch": "Passwörter stimmen nicht überein",
-        "termsRequired": "Bitte akzeptiere die Bedingungen",
+        "termsRequired": "Bitte akzeptiere die AGB und den Auftragsverarbeitungsvertrag.",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "emailTaken": "Diese E-Mail wird bereits verwendet",
         "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
-        "countryRequired": "Bitte wähle das Land deiner Organisation."
+        "countryRequired": "Bitte wähle das Land deiner Organisation.",
+        "businessRequired": "Bitte bestätige, dass du für eine Organisation handelst."
       },
       "resendCta": "Bestätigungs-E-Mail erneut senden",
       "resendSent": "E-Mail wurde erneut gesendet.",
@@ -535,7 +539,10 @@
     "adminSupport": "Support-Anfragen",
     "adminFeedback": "Zuschriften",
     "tables": "Tische",
-    "cashbook": "Kassenbuch"
+    "cashbook": "Kassenbuch",
+    "legal": "Rechtliches",
+    "legalElster": "ELSTER-Angaben",
+    "legalShop": "Shop-Rechtstexte"
   },
   "settings": {
     "title": "Einstellungen",
@@ -914,8 +921,12 @@
         "textTooLong": "Der Text darf höchstens {max} Zeichen lang sein.",
         "email": "Bitte gib eine gültige E-Mail-Adresse an.",
         "linkOrText": "Bitte entweder einen Link oder einen Text angeben, nicht beides.",
-        "saveFailed": "Die Angaben konnten nicht gespeichert werden."
-      }
+        "saveFailed": "Die Angaben konnten nicht gespeichert werden.",
+        "placeholders": "Im Text stehen noch Platzhalter aus der Vorlage: {placeholders}. Bitte fülle sie aus.",
+        "placeholdersApi": "Im Text stehen noch Platzhalter aus der Vorlage. Bitte fülle sie aus."
+      },
+      "useTemplate": "Vorlage für den Datenschutzhinweis verwenden",
+      "moreLegal": "Verträge mit OpenEOS und Angaben fürs Finanzamt findest du unter <link>Rechtliches</link>."
     },
     "about": {
       "title": "Über OpenEOS",
@@ -1195,7 +1206,7 @@
       "invoiceNotice": "Du erhältst eine Rechnung per E-Mail.",
       "prepaidNotice": "Online-Zahlung folgt in Kürze — bitte kontaktiere uns.",
       "companySearchHint": "Vereine (e.V.) sind meist nicht im Handelsregister gelistet — bitte in diesem Fall die Angaben manuell eintragen.",
-      "submit": "Zahlungspflichtig bestellen",
+      "submit": "Kostenpflichtig buchen",
       "errors": {
         "notPaid": "Die Veranstaltung konnte nicht aktiviert werden, da die Zahlung noch aussteht."
       },
@@ -1212,7 +1223,7 @@
       "discountFirstEvent": "{percent} % auf die erste Veranstaltung",
       "onlineNotice": "Du wirst zur gesicherten Zahlungsseite weitergeleitet. Die Rechnung erhältst du anschließend per E-Mail.",
       "unavailableNotice": "Online-Zahlung ist derzeit nicht verfügbar — bitte kontaktiere uns.",
-      "payOnline": "Zahlungspflichtig bestellen",
+      "payOnline": "Kostenpflichtig buchen",
       "redirecting": "Weiterleitung …",
       "paymentCancelled": "Zahlung abgebrochen — die Veranstaltung wurde nicht freigeschaltet.",
       "paymentPending": "Die Zahlung wird noch verarbeitet. Bitte in einem Moment erneut nachsehen.",
@@ -1231,6 +1242,24 @@
         "missing": "Für die Cloud-TSE fehlen noch Steuernummer oder Anschrift deiner Organisation – ohne sie kann sie nicht eingerichtet werden.",
         "missingLink": "Jetzt eintragen",
         "total": "+ {surcharge} Cloud-TSE · gesamt {total}"
+      },
+      "summary": {
+        "title": "Deine Buchung",
+        "event": "Veranstaltung",
+        "period": "Zeitraum",
+        "service": "Leistung",
+        "serviceText": "Freischaltung der Veranstaltung für {days, plural, one {# Event-Tag} other {# Event-Tage}}",
+        "tseIncluded": "inklusive Cloud-TSE",
+        "days": "Abgerechnete Tage",
+        "daysValue": "{days} × {pricePerDay}",
+        "discount": "Rabatt",
+        "discountPercent": "{percent} %",
+        "discountFirstEvent": "{percent} % Starter-Rabatt auf die erste Veranstaltung",
+        "discountFrom": "statt {price}",
+        "tseSurcharge": "Cloud-TSE",
+        "total": "Gesamt",
+        "noVat": "Preise ohne Umsatzsteuer nach § 19 UStG",
+        "terms": "Es gelten unsere <agb>AGB</agb>."
       }
     },
     "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
@@ -4021,7 +4050,8 @@
     "DSFINVK_RANGE_INVALID": "Bitte wähle einen gültigen Zeitraum (höchstens ein Jahr).",
     "DSFINVK_NO_CLOSINGS": "Für diesen Zeitraum gibt es noch keinen Kassenabschluss.",
     "CASHBOOK_AMOUNT_INVALID": "Bitte gib einen gültigen Betrag an.",
-    "CASHBOOK_TYPE_INVALID": "Diese Kassenbuch-Buchung gibt es nicht."
+    "CASHBOOK_TYPE_INVALID": "Diese Kassenbuch-Buchung gibt es nicht.",
+    "LEGAL_ACCEPTANCE_REQUIRED": "Bitte akzeptiere die AGB und den Auftragsverarbeitungsvertrag und bestätige, dass du für eine Organisation handelst."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -6305,6 +6335,134 @@
       "unknownDevice": "Gelöschtes Gerät",
       "noDevice": "Verwaltung (ohne Gerät)",
       "entries": "Buchungen"
+    }
+  },
+  "legal": {
+    "title": "Rechtliches",
+    "subtitle": "Verträge mit OpenEOS, Angaben fürs Finanzamt und eine Vorlage für den Datenschutzhinweis in deinem Shop.",
+    "links": {
+      "label": "Rechtliches",
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "agb": "AGB"
+    },
+    "reacceptance": {
+      "title": "Neue AGB und neuer Auftragsverarbeitungsvertrag",
+      "subtitle": "Stand {date}",
+      "subtitleNoDate": "Aktuelle Fassung",
+      "text": "Wir haben unsere AGB und den Auftragsverarbeitungsvertrag (AVV) überarbeitet. Damit du OpenEOS für deine Organisation weiter nutzen kannst, lies bitte die neuen Fassungen und bestätige sie.",
+      "documents": {
+        "agb": "Allgemeine Geschäftsbedingungen (AGB)",
+        "avv": "Auftragsverarbeitungsvertrag (AVV)"
+      },
+      "version": "Fassung vom {date}",
+      "currentVersion": "Aktuelle Fassung",
+      "pdf": "PDF",
+      "previous": "Deine bisher akzeptierte Fassung vom {date}",
+      "acceptedOn": "akzeptiert am {date}",
+      "germanNote": "Die Rechtstexte gibt es nur auf Deutsch.",
+      "checkbox": "Ich habe die AGB und den Auftragsverarbeitungsvertrag gelesen und akzeptiere sie.",
+      "accept": "Akzeptieren und weiter",
+      "saving": "Wird gespeichert …",
+      "logout": "Abmelden",
+      "error": "Das hat nicht geklappt. Bitte versuche es noch einmal."
+    },
+    "overview": {
+      "documentsTitle": "Verträge und Rechtstexte von OpenEOS",
+      "documentsText": "Für die Nutzung von OpenEOS gelten diese Texte. Ältere Fassungen bleiben unter ihrem Datum abrufbar.",
+      "documents": {
+        "agb": "Allgemeine Geschäftsbedingungen (AGB)",
+        "avv": "Auftragsverarbeitungsvertrag (AVV)",
+        "privacy": "Datenschutzerklärung",
+        "imprint": "Impressum"
+      },
+      "current": "Aktuelle Fassung (Stand {date})",
+      "currentNoDate": "Aktuelle Fassung",
+      "pdf": "PDF",
+      "acceptedBy": "Von dir akzeptiert: Fassung vom {version} am {date}",
+      "acceptedOpen": "ansehen",
+      "outdated": "nicht mehr aktuell",
+      "notAccepted": "Von dir noch nicht akzeptiert.",
+      "subprocessors": "Unterauftragsverarbeiter (AVV Anhang B)",
+      "elsterTitle": "Angaben für die Finanzamt-Meldung (ELSTER)",
+      "elsterText": "Software, Seriennummer der Kasse und TSE – die Werte, die du in ELSTER einträgst.",
+      "shopTitle": "Rechtstexte für deinen Shop",
+      "shopText": "Vorlage für den Datenschutzhinweis im Shop und auf den Helferseiten, mit deinen Angaben vorbelegt."
+    },
+    "elster": {
+      "title": "Angaben für die Finanzamt-Meldung (ELSTER)",
+      "subtitle": "Mitteilung elektronischer Aufzeichnungssysteme nach § 146a Abs. 4 AO",
+      "back": "Zurück zu Rechtliches",
+      "intro": "Seit 2025 musst du jede elektronische Kasse samt TSE deinem Finanzamt melden – über ELSTER (§ 146a Abs. 4 AO). Hier stehen die Werte, die du dort einträgst.",
+      "introDeadline": "Neue oder außer Betrieb genommene Kassen und TSE meldest du innerhalb eines Monats.",
+      "elsterLink": "Zu Mein ELSTER",
+      "loadFailed": "Die Angaben konnten nicht geladen werden.",
+      "incompleteTitle": "Angaben unvollständig",
+      "incompleteText": "Für die Meldung brauchst du die Anschrift deiner Betriebsstätte und die Steuernummer. Trag sie in den Einstellungen ein.",
+      "fixAddress": "Anschrift eintragen",
+      "fixTax": "Steuernummer eintragen",
+      "systemTitle": "Aufzeichnungssystem",
+      "softwareName": "Software",
+      "manufacturer": "Hersteller",
+      "softwareVersion": "Version",
+      "systemKind": "Art des Aufzeichnungssystems",
+      "registerSerial": "Seriennummer der Kasse",
+      "locationTitle": "Betriebsstätte",
+      "locationName": "Name",
+      "locationAddress": "Anschrift",
+      "taxNumber": "Steuernummer",
+      "vatId": "USt-IdNr.",
+      "tseTitle": "Technische Sicherheitseinrichtung (TSE)",
+      "tseText": "Melde jede TSE, auch frühere. Für eine ausgetauschte TSE gibst du das Datum der Außerbetriebnahme an.",
+      "noTse": "Für deine Organisation ist keine TSE eingerichtet. Eine Cloud-TSE gibt es in Deutschland in der Betriebsart „Alle Funktionen“; sie wird im Monat deiner ersten bezahlten Veranstaltung eingerichtet. Dann stehen ihre Angaben hier.",
+      "tseSerial": "Seriennummer der TSE",
+      "tseCertification": "Zertifizierungs-ID (BSI)",
+      "tseCertificateUntil": "Zertifikat gültig bis",
+      "tseKind": "Art der TSE",
+      "tseActivated": "Inbetriebnahme / Leihdatum",
+      "tseDeactivated": "Außerbetriebnahme",
+      "tseState": {
+        "creating": "Wird eingerichtet",
+        "active": "Aktiv",
+        "failed": "Fehlgeschlagen",
+        "deactivated": "Außer Betrieb"
+      },
+      "copy": "Kopieren",
+      "copied": "Kopiert"
+    },
+    "shop": {
+      "title": "Rechtstexte für deinen Shop",
+      "subtitle": "Vorlage für deinen Datenschutzhinweis",
+      "subtitleStand": "Vorlage für deinen Datenschutzhinweis · {stand}",
+      "back": "Zurück zu Rechtliches",
+      "guidanceTitle": "Bevor du loslegst",
+      "orgTitle": "Angaben deiner Organisation",
+      "orgText": "Aus deinen Einstellungen vorbelegt. Was du hier änderst, gilt nur für diesen Text.",
+      "choicesTitle": "Deine Angaben im Text",
+      "choicesText": "Diese Stellen musst du selbst ausfüllen. Die Beschriftung ist der Hinweis aus der Vorlage.",
+      "fields": {
+        "name": "Name der Organisation",
+        "nameHint": "So, wie er im Vereinsregister oder beim Finanzamt steht.",
+        "address": "Anschrift",
+        "addressHint": "Straße, PLZ und Ort – jede Angabe in eine eigene Zeile.",
+        "email": "E-Mail für Datenschutzfragen",
+        "emailHint": "Unter dieser Adresse erreichen dich Gäste und Helfer.",
+        "choose": "Bitte wählen"
+      },
+      "previewTitle": "Vorschau",
+      "previewText": "So erscheint der Text im Shop und auf den Helferseiten.",
+      "reviewed": "Ich habe den Text geprüft und an unseren Verein angepasst.",
+      "replaceTitle": "Bisheriger Datenschutzhinweis wird ersetzt",
+      "replaceUrl": "Derzeit verlinkt dein Shop auf {url}. Übernimmst du diesen Text, ersetzt er den Link.",
+      "replaceText": "Du hast schon einen Datenschutzhinweis als Text hinterlegt. Übernimmst du diesen Text, ersetzt er den bisherigen.",
+      "replaceConfirm": "Ja, den bisherigen Datenschutzhinweis ersetzen.",
+      "missing": "Noch offen: {fields}",
+      "tooLong": "Der Text ist zu lang (höchstens {max} Zeichen).",
+      "adminOnly": "Nur Admins deiner Organisation können den Text übernehmen.",
+      "save": "Als Datenschutzhinweis übernehmen",
+      "saving": "Wird übernommen …",
+      "saveFailed": "Der Text konnte nicht übernommen werden.",
+      "saved": "Übernommen. Du findest den Text jetzt unter <link>Einstellungen → Rechtliche Angaben (Shop & Helferseiten)</link> und kannst ihn dort weiter bearbeiten."
     }
   }
 }

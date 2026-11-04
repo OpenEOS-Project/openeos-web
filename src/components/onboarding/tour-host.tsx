@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
+import { useLegalReacceptance } from '@/components/legal/legal-reacceptance-dialog';
 import { WelcomeTour } from './welcome-tour';
 import { TOUR_VERSION } from './tour-steps';
 
@@ -24,6 +25,8 @@ export function TourHost() {
   const { data: preferences, isLoading } = usePreferences();
   const updatePreferences = useUpdatePreferences();
   const [laeuft, setLaeuft] = useState(false);
+  // Erst die neuen AGB annehmen, dann die Tour.
+  const { open: legalPending } = useLegalReacceptance();
 
   /* Die Version, die diese Komponente selbst gerade geschrieben hat.
      Nach dem Beenden haelt die Abfrage kurz noch den alten Wert — ohne
@@ -46,7 +49,7 @@ export function TourHost() {
     if (gesehen < TOUR_VERSION) setLaeuft(true);
   }, [aufDashboard, isLoading, preferences]);
 
-  if (!laeuft) return null;
+  if (!laeuft || legalPending) return null;
 
   return (
     <WelcomeTour

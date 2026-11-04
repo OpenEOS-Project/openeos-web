@@ -6,6 +6,7 @@ import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useActivateEvent, useCreateEventCheckout, useOrderInvoice } from '@/hooks/use-events';
+import { usePurchaseTermsAcceptance } from '@/hooks/use-legal';
 import { billingApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/format';
 import { DEFAULT_BUSINESS_DAY_START_HOUR } from '@/lib/event-schedule';
@@ -15,8 +16,9 @@ import { toast } from '@/components/shared/toast';
 import { ApiException } from '@/types/api';
 import type { Event } from '@/types/event';
 import type { CompanySearchResultItem, EventBilling } from '@/types/billing';
-import { checkoutTseSurcharge } from '@/utils/event-tse';
+import { checkoutIncludesTse, checkoutTseSurcharge } from '@/utils/event-tse';
 import { CheckoutTseSection } from './checkout-tse-section';
+import { PurchaseSummary } from './purchase-summary';
 
 interface EventCheckoutDialogProps {
   event: Event | null;
@@ -37,6 +39,8 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const orderInvoice = useOrderInvoice();
   const activateEvent = useActivateEvent();
   const createCheckout = useCreateEventCheckout();
+  // AGB und AVV werden mit jeder Buchung angenommen (Nachweis je Kauf).
+  const purchaseTerms = usePurchaseTermsAcceptance(organizationId);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -106,6 +110,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const tse = billing.tse;
   // Im Bestand muss die Frage beantwortet sein — „Ja“ ist ein Wechsel ohne Rückweg.
   const tseAnswered = tse?.offer !== 'optional' || withTse !== null;
+  const includesTse = checkoutIncludesTse(tse, withTse);
   const tseAnswer = tse?.offer === 'optional' ? (withTse ?? undefined) : undefined;
   const tseSurcharge = checkoutTseSurcharge(tse, withTse);
   const total = Math.round((billing.finalPrice + tseSurcharge) * 100) / 100;
@@ -120,7 +125,8 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     city.trim().length > 0 &&
     confirmed;
 
-  const isSubmitting = orderInvoice.isPending || activateEvent.isPending || createCheckout.isPending;
+  const isSubmitting =
+    orderInvoice.isPending || activateEvent.isPending || createCheckout.isPending || purchaseTerms.isPending;
 
   // Die Rechnung ist die Ausnahme, nicht der Regelweg: nur Organisationen,
   // denen sie ausdrücklich eingeräumt wurde, sehen das Adressformular.
@@ -130,6 +136,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const handlePayOnline = async () => {
     setError(null);
     try {
+      await purchaseTerms.accept();
       const { checkoutUrl } = await createCheckout.mutateAsync({ organizationId, id: event.id, withTse: tseAnswer });
       // Vollständiger Seitenwechsel statt Router-Navigation — das Ziel liegt
       // bei Stripe, nicht in dieser Anwendung.
@@ -143,6 +150,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     if (!formValid) return;
     setError(null);
     try {
+      await purchaseTerms.accept();
       await orderInvoice.mutateAsync({
         organizationId,
         id: event.id,
@@ -268,10 +276,6 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
               disabled={isSubmitting}
             />
           )}
-
-          <p style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}>
-            {t('noVat')}
-          </p>
 
           <p
             style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', margin: 0 }}
@@ -418,6 +422,18 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                 <span style={{ fontSize: 13, color: 'var(--ink)' }}>{t('form.confirm')}</span>
               </label>
             </>
+          )}
+
+          {(payByInvoice || payOnline) && (
+            <PurchaseSummary
+              eventName={event.name}
+              eventDate={eventDate}
+              billing={billing}
+              includesTse={includesTse}
+              tseSurcharge={tseSurcharge}
+              total={total}
+              locale={locale}
+            />
           )}
 
           {error && (

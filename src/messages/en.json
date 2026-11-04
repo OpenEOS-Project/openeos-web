@@ -146,9 +146,12 @@
           "summaryAccount": "Account",
           "summaryPersonal": "Personal",
           "summaryOrganization": "Organization",
-          "terms": "I accept the <terms>terms and conditions</terms> and have read the <privacy>privacy policy</privacy>.",
           "newsletter": "I'd like to receive occasional OpenEOS news by email. You can unsubscribe at any time.",
-          "summaryCountry": "Country"
+          "summaryCountry": "Country",
+          "confirmBusiness": "I confirm that I am acting as a business, a legal entity under public law or a registered association and that I am authorized to represent the organization.",
+          "acceptTerms": "I have read and accept the <agb>terms and conditions (AGB)</agb> and the <avv>data processing agreement (AVV)</avv>.",
+          "privacyHint": "How we process your data is described in our <privacy>privacy policy</privacy>.",
+          "germanNote": "The legal texts are available in German only; the German version is binding."
         }
       },
       "errors": {
@@ -158,11 +161,12 @@
         "passwordShort": "At least 8 characters",
         "passwordWeak": "Must contain an uppercase letter, a lowercase letter and a number",
         "passwordMismatch": "Passwords don't match",
-        "termsRequired": "Please accept the terms",
+        "termsRequired": "Please accept the terms and conditions and the data processing agreement.",
         "passwordTooShort": "Password must be at least 8 characters",
         "emailTaken": "This email is already in use",
         "generic": "Something went wrong. Please try again.",
-        "countryRequired": "Please choose the country of your organization."
+        "countryRequired": "Please choose the country of your organization.",
+        "businessRequired": "Please confirm that you are acting on behalf of an organization."
       },
       "resendCta": "Resend confirmation email",
       "resendSent": "Email has been resent.",
@@ -535,7 +539,10 @@
     "adminSupport": "Support requests",
     "adminFeedback": "Feedback",
     "tables": "Tables",
-    "cashbook": "Cash book"
+    "cashbook": "Cash book",
+    "legal": "Legal",
+    "legalElster": "ELSTER details",
+    "legalShop": "Shop legal texts"
   },
   "settings": {
     "title": "Settings",
@@ -914,8 +921,12 @@
         "textTooLong": "The text may be at most {max} characters long.",
         "email": "Please enter a valid email address.",
         "linkOrText": "Please enter either a link or a text, not both.",
-        "saveFailed": "The information could not be saved."
-      }
+        "saveFailed": "The information could not be saved.",
+        "placeholders": "The text still contains placeholders from the template: {placeholders}. Please fill them in.",
+        "placeholdersApi": "The text still contains placeholders from the template. Please fill them in."
+      },
+      "useTemplate": "Use the privacy notice template",
+      "moreLegal": "Contracts with OpenEOS and details for the tax office are under <link>Legal</link>."
     },
     "about": {
       "title": "About OpenEOS",
@@ -1478,7 +1489,7 @@
       "invoiceNotice": "You will receive an invoice by email.",
       "prepaidNotice": "Online payment is coming soon — please contact us.",
       "companySearchHint": "Registered associations (e.V.) are usually not listed in the commercial register — please enter the details manually in that case.",
-      "submit": "Order with obligation to pay",
+      "submit": "Book with obligation to pay",
       "errors": {
         "notPaid": "The event could not be activated because payment is still pending."
       },
@@ -1495,7 +1506,7 @@
       "discountFirstEvent": "{percent}% off your first event",
       "onlineNotice": "You will be taken to a secure payment page. The invoice follows by email.",
       "unavailableNotice": "Online payment is currently unavailable — please get in touch.",
-      "payOnline": "Place binding order",
+      "payOnline": "Book with obligation to pay",
       "redirecting": "Redirecting …",
       "paymentCancelled": "Payment cancelled — the event was not activated.",
       "paymentPending": "The payment is still being processed. Please check again in a moment.",
@@ -1514,6 +1525,24 @@
         "missing": "The cloud TSE still needs your organization’s tax number or address – it cannot be set up without them.",
         "missingLink": "Add them now",
         "total": "+ {surcharge} cloud TSE · total {total}"
+      },
+      "summary": {
+        "title": "Your booking",
+        "event": "Event",
+        "period": "Period",
+        "service": "Service",
+        "serviceText": "Activation of the event for {days, plural, one {# event day} other {# event days}}",
+        "tseIncluded": "including cloud TSE",
+        "days": "Billed days",
+        "daysValue": "{days} × {pricePerDay}",
+        "discount": "Discount",
+        "discountPercent": "{percent}%",
+        "discountFirstEvent": "{percent}% starter discount on your first event",
+        "discountFrom": "instead of {price}",
+        "tseSurcharge": "Cloud TSE",
+        "total": "Total",
+        "noVat": "Prices without VAT pursuant to § 19 UStG",
+        "terms": "Our <agb>terms and conditions</agb> apply."
       }
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
@@ -4021,7 +4050,8 @@
     "DSFINVK_RANGE_INVALID": "Please choose a valid period (one year at most).",
     "DSFINVK_NO_CLOSINGS": "There is no cash register closing for this period yet.",
     "CASHBOOK_AMOUNT_INVALID": "Please enter a valid amount.",
-    "CASHBOOK_TYPE_INVALID": "This cash book booking type doesn't exist."
+    "CASHBOOK_TYPE_INVALID": "This cash book booking type doesn't exist.",
+    "LEGAL_ACCEPTANCE_REQUIRED": "Please accept the terms and conditions and the data processing agreement and confirm that you are acting on behalf of an organization."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -6305,6 +6335,134 @@
       "unknownDevice": "Deleted device",
       "noDevice": "Admin (no device)",
       "entries": "Bookings"
+    }
+  },
+  "legal": {
+    "title": "Legal",
+    "subtitle": "Contracts with OpenEOS, details for the tax office and a template for the privacy notice in your shop.",
+    "links": {
+      "label": "Legal",
+      "imprint": "Imprint",
+      "privacy": "Privacy",
+      "agb": "Terms"
+    },
+    "reacceptance": {
+      "title": "New terms and conditions and data processing agreement",
+      "subtitle": "As of {date}",
+      "subtitleNoDate": "Current version",
+      "text": "We have revised our terms and conditions (AGB) and the data processing agreement (AVV). To keep using OpenEOS for your organization, please read the new versions and confirm them.",
+      "documents": {
+        "agb": "Terms and conditions (AGB)",
+        "avv": "Data processing agreement (AVV)"
+      },
+      "version": "Version of {date}",
+      "currentVersion": "Current version",
+      "pdf": "PDF",
+      "previous": "The version you accepted previously, dated {date}",
+      "acceptedOn": "accepted on {date}",
+      "germanNote": "The legal texts are available in German only; the German version is binding.",
+      "checkbox": "I have read and accept the terms and conditions and the data processing agreement.",
+      "accept": "Accept and continue",
+      "saving": "Saving …",
+      "logout": "Log out",
+      "error": "That did not work. Please try again."
+    },
+    "overview": {
+      "documentsTitle": "OpenEOS contracts and legal texts",
+      "documentsText": "These texts apply to your use of OpenEOS. Older versions remain available under their date. The texts are in German.",
+      "documents": {
+        "agb": "Terms and conditions (AGB)",
+        "avv": "Data processing agreement (AVV)",
+        "privacy": "Privacy policy",
+        "imprint": "Imprint"
+      },
+      "current": "Current version (as of {date})",
+      "currentNoDate": "Current version",
+      "pdf": "PDF",
+      "acceptedBy": "Accepted by you: version of {version} on {date}",
+      "acceptedOpen": "view",
+      "outdated": "outdated",
+      "notAccepted": "Not accepted by you yet.",
+      "subprocessors": "Subprocessors (AVV annex B)",
+      "elsterTitle": "Details for the tax office notification (ELSTER)",
+      "elsterText": "Software, register serial number and TSE – the values you enter in ELSTER.",
+      "shopTitle": "Legal texts for your shop",
+      "shopText": "Template for the privacy notice in your shop and on the helper pages, prefilled with your details."
+    },
+    "elster": {
+      "title": "Details for the tax office notification (ELSTER)",
+      "subtitle": "Notification of electronic recording systems under § 146a (4) AO",
+      "back": "Back to legal",
+      "intro": "Since 2025, every electronic cash register and its TSE must be reported to your tax office via ELSTER (§ 146a (4) AO). These are the values you enter there.",
+      "introDeadline": "Report new or decommissioned registers and TSEs within one month.",
+      "elsterLink": "Go to My ELSTER",
+      "loadFailed": "The details could not be loaded.",
+      "incompleteTitle": "Details incomplete",
+      "incompleteText": "The notification needs the address of your business premises and your tax number. Enter them in the settings.",
+      "fixAddress": "Enter address",
+      "fixTax": "Enter tax number",
+      "systemTitle": "Recording system",
+      "softwareName": "Software",
+      "manufacturer": "Manufacturer",
+      "softwareVersion": "Version",
+      "systemKind": "Type of recording system",
+      "registerSerial": "Register serial number",
+      "locationTitle": "Business premises",
+      "locationName": "Name",
+      "locationAddress": "Address",
+      "taxNumber": "Tax number",
+      "vatId": "VAT ID",
+      "tseTitle": "Technical security system (TSE)",
+      "tseText": "Report every TSE, including earlier ones. For a replaced TSE, enter the decommissioning date.",
+      "noTse": "No TSE has been set up for your organization. In Germany, a cloud TSE is part of the “All features” operating mode; it is set up in the month of your first paid event. Its details will then appear here.",
+      "tseSerial": "TSE serial number",
+      "tseCertification": "Certification ID (BSI)",
+      "tseCertificateUntil": "Certificate valid until",
+      "tseKind": "TSE type",
+      "tseActivated": "Commissioning / rental date",
+      "tseDeactivated": "Decommissioning",
+      "tseState": {
+        "creating": "Being set up",
+        "active": "Active",
+        "failed": "Failed",
+        "deactivated": "Decommissioned"
+      },
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "shop": {
+      "title": "Legal texts for your shop",
+      "subtitle": "Template for your privacy notice",
+      "subtitleStand": "Template for your privacy notice · {stand}",
+      "back": "Back to legal",
+      "guidanceTitle": "Before you start",
+      "orgTitle": "Your organization",
+      "orgText": "Prefilled from your settings. Changes here only apply to this text.",
+      "choicesTitle": "Your details in the text",
+      "choicesText": "You have to fill in these parts yourself. Each label is the note from the template. The template and the published text are in German.",
+      "fields": {
+        "name": "Name of the organization",
+        "nameHint": "As registered in the register of associations or with the tax office.",
+        "address": "Address",
+        "addressHint": "Street, postcode and city – one per line.",
+        "email": "Email for privacy questions",
+        "emailHint": "Guests and helpers reach you at this address.",
+        "choose": "Please choose"
+      },
+      "previewTitle": "Preview",
+      "previewText": "This is how the text appears in the shop and on the helper pages.",
+      "reviewed": "I have reviewed the text and adapted it to our club.",
+      "replaceTitle": "Your current privacy notice will be replaced",
+      "replaceUrl": "Your shop currently links to {url}. Using this text replaces the link.",
+      "replaceText": "You already saved a privacy notice as text. Using this text replaces it.",
+      "replaceConfirm": "Yes, replace the current privacy notice.",
+      "missing": "Still missing: {fields}",
+      "tooLong": "The text is too long (at most {max} characters).",
+      "adminOnly": "Only admins of your organization can use the text.",
+      "save": "Use as privacy notice",
+      "saving": "Saving …",
+      "saveFailed": "The text could not be saved.",
+      "saved": "Done. You can find the text under <link>Settings → Legal information (shop & helper pages)</link> and edit it further there."
     }
   }
 }

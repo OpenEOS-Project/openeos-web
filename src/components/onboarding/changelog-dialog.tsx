@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { changelogApi } from '@/lib/api-client';
 import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings';
 import { useAuthStore } from '@/stores/auth-store';
+import { useLegalReacceptance } from '@/components/legal/legal-reacceptance-dialog';
 import type { ChangelogArt } from '@/types/changelog';
 
 const ART_KLASSE: Record<ChangelogArt, string> = {
@@ -39,6 +40,8 @@ export function ChangelogDialog() {
   const { user } = useAuthStore();
   const updatePreferences = useUpdatePreferences();
   const [geschlossen, setGeschlossen] = useState(false);
+  // Erst die neuen AGB annehmen, dann die Neuerungen.
+  const { open: legalPending } = useLegalReacceptance();
 
   const zuletztGesehen = preferences?.onboarding?.lastSeenChangelog;
   /* JJJJ-MM-TT, wie die Einträge selbst — so vergleicht die API beides
@@ -70,7 +73,7 @@ export function ChangelogDialog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preferences, zuletztGesehen, data, neuesterStand, neuerdings.length]);
 
-  if (geschlossen || !data || neuerdings.length === 0) return null;
+  if (geschlossen || legalPending || !data || neuerdings.length === 0) return null;
 
   const schliessen = () => {
     setGeschlossen(true);

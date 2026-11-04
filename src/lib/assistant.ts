@@ -1,3 +1,4 @@
+import { localizePlatformUrl } from '@/lib/legal';
 import type { AssistantQuota, AssistantStatus } from '@/types/assistant';
 
 /**
@@ -8,9 +9,12 @@ import type { AssistantQuota, AssistantStatus } from '@/types/assistant';
  * zeigt Import-Knopf und Icon-Vorschlag.
  */
 
-/** Datenschutzerklärung auf openeos.de (je Sprache). */
-export function privacyUrl(locale: string): string {
-  return locale === 'en' ? 'https://openeos.de/en/privacy' : 'https://openeos.de/privacy';
+/**
+ * Datenschutzerklärung von OpenEOS (je Sprache). Die Adresse kommt aus
+ * `GET /legal/versions` (useLegalVersions); ohne sie gilt openeos.de.
+ */
+export function privacyUrl(locale: string, url = 'https://openeos.de/datenschutz'): string {
+  return localizePlatformUrl(url, locale);
 }
 
 /** Darf diese Organisation den Assistenten gerade benutzen? */

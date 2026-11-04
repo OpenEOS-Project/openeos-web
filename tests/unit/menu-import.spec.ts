@@ -439,7 +439,10 @@ test.describe('assistant status', () => {
   });
 
   test('privacy policy per language', () => {
-    expect(privacyUrl('de')).toBe('https://openeos.de/privacy');
-    expect(privacyUrl('en')).toBe('https://openeos.de/en/privacy');
+    expect(privacyUrl('de')).toBe('https://openeos.de/datenschutz');
+    expect(privacyUrl('en')).toBe('https://openeos.de/en/datenschutz');
+    expect(privacyUrl('en', 'https://staging.openeos.de/datenschutz')).toBe(
+      'https://staging.openeos.de/en/datenschutz',
+    );
   });
 });

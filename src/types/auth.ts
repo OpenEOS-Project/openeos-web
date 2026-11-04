@@ -59,6 +59,11 @@ export interface User {
   organizationLimit?: number;
   /** Nur in GET /auth/me: Mitgliedschaften des Benutzers, egal welche Rolle. */
   organizationCount?: number;
+  /**
+   * Nur in GET /auth/me: Admin einer Organisation, der die gültigen AGB und
+   * den AVV noch nicht angenommen hat (Hinweisfenster im Dashboard).
+   */
+  legalReacceptanceRequired?: boolean;
 }
 
 export interface AuthTokens {
@@ -82,6 +87,10 @@ export interface RegisterData {
   country: string;
   /** Einwilligung in gelegentliche Produkt-Neuigkeiten (Checkbox). */
   newsletterOptIn?: boolean;
+  /** Pflicht: AGB und Auftragsverarbeitungsvertrag angenommen. */
+  acceptTerms: true;
+  /** Pflicht: handelt als Unternehmer, juristische Person des öffentlichen Rechts oder e. V. */
+  confirmBusiness: true;
 }
 
 export interface AuthResponse {

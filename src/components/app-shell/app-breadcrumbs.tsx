@@ -44,6 +44,7 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   cashbook: 'cashbook',
   invoices: 'invoices',
   support: 'support',
+  legal: 'legal',
 };
 
 // Unter /admin heissen manche Seiten anders als ihr Gegenstueck in der
@@ -53,6 +54,8 @@ const PATH_TO_NAV_KEY: Record<string, string> = {
   '/admin/events': 'adminEvents',
   '/admin/support': 'adminSupport',
   '/admin/feedback': 'adminFeedback',
+  '/legal/elster': 'legalElster',
+  '/legal/shop': 'legalShop',
 };
 
 function humanize(seg: string): string {
