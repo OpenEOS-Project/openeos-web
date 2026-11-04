@@ -69,7 +69,8 @@ export function ShopPrivacyTemplateView() {
     },
     onSuccess: (data) => {
       if (currentOrganization?.organization) {
-        setCurrentOrganization({ ...currentOrganization, organization: data });
+        // Zusammenfuehren: die Antwort auf PATCH laesst Felder wie `name` aus.
+        setCurrentOrganization({ ...currentOrganization, organization: { ...currentOrganization.organization, ...data } });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       setSaved(true);
@@ -135,7 +136,7 @@ export function ShopPrivacyTemplateView() {
           </div>
 
           <div className="legal-template__confirm">
-            {hasExisting && (
+            {hasExisting && !saved && (
               <div className="legal-warning" role="status">
                 <p className="legal-warning__title">
                   <TriangleAlert aria-hidden="true" />
@@ -172,7 +173,7 @@ export function ShopPrivacyTemplateView() {
 
             {missing.length > 0 && (
               <p className="legal-template__missing" data-testid="shop-template-missing">
-                {t('missing', { fields: missing.map((f) => fieldLabel(f, t)).join(' · ') })}
+                {t('missing', { count: missing.length })}
               </p>
             )}
             {tooLong && <p className="auth-form__error">{t('tooLong', { max: LEGAL_LIMITS.privacyText })}</p>}

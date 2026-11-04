@@ -6456,7 +6456,7 @@
       "replaceUrl": "Derzeit verlinkt dein Shop auf {url}. Übernimmst du diesen Text, ersetzt er den Link.",
       "replaceText": "Du hast schon einen Datenschutzhinweis als Text hinterlegt. Übernimmst du diesen Text, ersetzt er den bisherigen.",
       "replaceConfirm": "Ja, den bisherigen Datenschutzhinweis ersetzen.",
-      "missing": "Noch offen: {fields}",
+      "missing": "Noch {count, plural, one {# Feld} other {# Felder}} offen (gelb markiert).",
       "tooLong": "Der Text ist zu lang (höchstens {max} Zeichen).",
       "adminOnly": "Nur Admins deiner Organisation können den Text übernehmen.",
       "save": "Als Datenschutzhinweis übernehmen",

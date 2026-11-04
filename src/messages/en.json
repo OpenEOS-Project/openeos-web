@@ -6456,7 +6456,7 @@
       "replaceUrl": "Your shop currently links to {url}. Using this text replaces the link.",
       "replaceText": "You already saved a privacy notice as text. Using this text replaces it.",
       "replaceConfirm": "Yes, replace the current privacy notice.",
-      "missing": "Still missing: {fields}",
+      "missing": "{count, plural, one {# field} other {# fields}} still open (highlighted).",
       "tooLong": "The text is too long (at most {max} characters).",
       "adminOnly": "Only admins of your organization can use the text.",
       "save": "Use as privacy notice",
