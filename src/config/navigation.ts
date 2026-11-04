@@ -17,6 +17,7 @@ import {
   Recycle,
   Scale,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   TabletSmartphone,
   Tag,
@@ -55,6 +56,12 @@ export const superAdminNavItems: NavItemType[] = [
     href: '/admin/events',
     saasOnly: true,
     icon: Calendar,
+  },
+  {
+    // Alle Cloud-TSEs mit Abmeldung zum Monatsende (Kostenkontrolle).
+    labelKey: 'adminTse',
+    href: '/admin/tse',
+    icon: ShieldCheck,
   },
   {
     // Nicht schlicht "Support": der Fusseintrag heisst schon so und

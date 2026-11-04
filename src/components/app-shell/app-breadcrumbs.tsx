@@ -54,6 +54,7 @@ const PATH_TO_NAV_KEY: Record<string, string> = {
   '/admin/events': 'adminEvents',
   '/admin/support': 'adminSupport',
   '/admin/feedback': 'adminFeedback',
+  '/admin/tse': 'adminTse',
   '/legal/elster': 'legalElster',
   '/legal/shop': 'legalShop',
 };

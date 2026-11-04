@@ -6,7 +6,7 @@ import { Banner, Icon, Meter } from '@openeos/ui';
 
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { formatBytes, percentOf, shortSerial } from '@/lib/tse';
+import { currentPostponement, formatBytes, percentOf, shortSerial } from '@/lib/tse';
 import type { TseStatus } from '@/types/tse';
 
 /** Produkttypen der Swissbit Cloud-TSE 2 (`validProductTypes`). */
@@ -41,6 +41,7 @@ export function TseStatusCard({ status }: { status: TseStatus }) {
   const limit = usage?.signatureLimit ?? null;
   const certificateExpiresAt = live?.certificateExpiresAt ?? unit.certificateExpiresAt;
   const previous = status.history.filter((u) => u.id !== unit.id);
+  const postponement = currentPostponement(unit);
 
   return (
     <div className="app-card" data-testid="tse-status">
@@ -77,6 +78,20 @@ export function TseStatusCard({ status }: { status: TseStatus }) {
             {formatDate(unit.activatedAt)}
             <span className="tse-muted"> · {t(`trigger.${unit.trigger}`)}</span>
           </Fact>
+          {status.lifecycle === 'monthly' && unit.plannedDeactivationAt && (
+            <Fact label={t('plannedDeactivation')}>
+              <span data-testid="tse-planned-deactivation">
+                {t('plannedDeactivationAt', { date: formatDateTime(unit.plannedDeactivationAt) })}
+              </span>
+              <span className="tse-muted" style={{ display: 'block' }}>
+                {postponement
+                  ? t('plannedDeactivationPostponed', {
+                      event: postponement.events.map((e) => `„${e.name}“`).join(', '),
+                    })
+                  : t('plannedDeactivationHint')}
+              </span>
+            </Fact>
+          )}
           <Fact label={t('certificate')}>
             {certificateExpiresAt ? t('validUntil', { date: formatDate(certificateExpiresAt) }) : '–'}
           </Fact>

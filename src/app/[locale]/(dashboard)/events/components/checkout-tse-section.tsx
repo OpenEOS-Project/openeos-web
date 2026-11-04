@@ -2,8 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 
-import { Link } from '@/i18n/routing';
-import { checkoutIncludesTse } from '@/utils/event-tse';
 import { formatCurrency } from '@/utils/format';
 import { Icon } from '@openeos/ui';
 
@@ -23,7 +21,9 @@ interface CheckoutTseSectionProps {
  * dass die TSE dazugehört und automatisch eingerichtet wird. Bestand
  * (Bargeld ohne TSE): die Frage „Mit Cloud-TSE?“ — „Ja“ stellt beim
  * Freischalten auf „Alle Funktionen“ um. Ein Zuschlag erscheint nur, wenn
- * der Betreiber einen eingestellt hat (derzeit inklusive).
+ * der Betreiber einen eingestellt hat (derzeit inklusive). Fehlende
+ * Steuerangaben fragt der Dialog im Schritt „Angaben zu deiner
+ * Organisation“ ab (PurchaseMasterDataStep).
  */
 export function CheckoutTseSection({
   tse,
@@ -36,7 +36,6 @@ export function CheckoutTseSection({
   if (!tse.offer) return null;
 
   const surcharge = tse.surcharge > 0 ? formatCurrency(tse.surcharge, locale) : null;
-  const showMissing = tse.missing.length > 0 && checkoutIncludesTse(tse, answer);
   const muted = {
     fontSize: 12,
     color: 'color-mix(in oklab, var(--ink) 55%, transparent)',
@@ -134,15 +133,6 @@ export function CheckoutTseSection({
             </label>
           ))}
         </fieldset>
-      )}
-
-      {showMissing && (
-        <p style={{ ...muted, margin: 0 }} data-testid="checkout-tse-missing">
-          {t('missing')}{' '}
-          <Link href="/settings" className="notice-link">
-            {t('missingLink')}
-          </Link>
-        </p>
       )}
     </div>
   );

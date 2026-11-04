@@ -7,7 +7,9 @@ import type {
   TseEligibility,
   TseMasterDataField,
   TseReceiptView,
+  TsePostponement,
   TseStatus,
+  TseUnit,
   TseUnitState,
 } from '@/types/tse';
 
@@ -389,4 +391,30 @@ export function posTseState(
 ): DeviceTseStatus['state'] | null {
   if (!tse) return null;
   return outage ? 'error' : tse.state;
+}
+
+// ── Lebenszyklus „monthly“ (Abmeldung zum Monatsende) ─────────────────
+
+/** Abmeldung durch den Monatslauf (auch der frühere Name `per_event_cycle`). */
+export function isMonthlyDeactivation(reason: string | null | undefined): boolean {
+  return reason === 'monthly_cycle' || reason === 'per_event_cycle';
+}
+
+/**
+ * Die Verschiebung, die zum aktuellen Termin geführt hat (bezahlte
+ * Veranstaltung lief zum Monatsende), sonst `null`.
+ */
+export function currentPostponement(
+  unit: Pick<TseUnit, 'plannedDeactivationAt' | 'postponements'> | null | undefined
+): TsePostponement | null {
+  const planned = unit?.plannedDeactivationAt;
+  const list = unit?.postponements ?? [];
+  if (!planned || list.length === 0) return null;
+  const last = list[list.length - 1];
+  return new Date(last.to).getTime() === new Date(planned).getTime() ? last : null;
+}
+
+/** Super-Admin-Liste: TSEs, deren Abmeldung zum Monatsende überfällig ist. */
+export function overdueUnits<T extends { deactivationOverdue: boolean }>(units: readonly T[]): T[] {
+  return units.filter((unit) => unit.deactivationOverdue);
 }

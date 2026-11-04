@@ -19,6 +19,9 @@ import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import { toast } from '@/components/shared/toast';
 import { adminApi } from '@/lib/api-client';
 import type { AdminEventListItem } from '@/types/admin';
+import { ApiException } from '@/types/api';
+import type { PurchaseMasterDataField } from '@/types/billing';
+import { parseMissingParam } from '@/utils/purchase-master-data';
 import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import { CancelBillingModal } from './cancel-billing-modal';
 
@@ -356,10 +359,28 @@ interface WaiveModalProps {
 
 function WaiveEventModal({ event, onClose }: WaiveModalProps) {
   const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
   const waiveEvent = useWaiveEvent();
+  // Pflichtangaben fehlen (400 PURCHASE_MASTER_DATA_REQUIRED): nur mit Grund erlassen.
+  const [missing, setMissing] = useState<PurchaseMasterDataField[] | null>(null);
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   function handleConfirm() {
-    waiveEvent.mutate(event.id, { onSuccess: onClose });
+    setError(null);
+    waiveEvent.mutate(
+      missing ? { id: event.id, overrideMasterData: true, overrideReason: reason.trim() } : event.id,
+      {
+        onSuccess: onClose,
+        onError: (err) => {
+          if (err instanceof ApiException && err.code === 'PURCHASE_MASTER_DATA_REQUIRED') {
+            setMissing(parseMissingParam(err.params?.missing));
+            return;
+          }
+          setError(apiErrorMessage(err, t('errors.generic')));
+        },
+      }
+    );
   }
 
   return (
@@ -375,6 +396,43 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
             {t('admin.events.waive.description')}
           </p>
           <p style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>{event.name} — {event.organizationName}</p>
+          {missing && (
+            <div
+              role="alert"
+              data-testid="waive-master-data-missing"
+              style={{
+                marginTop: 12,
+                padding: '10px 12px',
+                borderRadius: 8,
+                background: 'color-mix(in oklab, var(--danger) 8%, var(--paper))',
+                fontSize: 13,
+                color: 'var(--ink)',
+              }}
+            >
+              <b>{t('admin.events.waive.missingTitle')}</b>
+              <div>
+                {missing.map((field) => t(`admin.events.waive.fields.${field}`)).join(' · ')}
+              </div>
+              <label className="auth-field" style={{ marginTop: 10 }}>
+                <span>
+                  {t('admin.events.waive.reasonLabel')} <span className="auth-field__req">*</span>
+                </span>
+                <input
+                  className="input"
+                  value={reason}
+                  maxLength={500}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={t('admin.events.waive.reasonPlaceholder')}
+                  data-testid="waive-override-reason"
+                />
+              </label>
+            </div>
+          )}
+          {error && (
+            <p role="alert" style={{ marginTop: 8, fontSize: 13, color: 'var(--danger)' }}>
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="modal__foot">
@@ -382,9 +440,13 @@ function WaiveEventModal({ event, onClose }: WaiveModalProps) {
           <button
             className="btn btn--primary"
             onClick={handleConfirm}
-            disabled={waiveEvent.isPending}
+            disabled={waiveEvent.isPending || (!!missing && !reason.trim())}
           >
-            {waiveEvent.isPending ? t('common.saving') : t('admin.events.waive.submit')}
+            {waiveEvent.isPending
+              ? t('common.saving')
+              : missing
+                ? t('admin.events.waive.submitOverride')
+                : t('admin.events.waive.submit')}
           </button>
         </div>
       </div>
