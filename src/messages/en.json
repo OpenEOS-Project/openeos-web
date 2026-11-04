@@ -532,6 +532,7 @@
     "pfand": "Deposits",
     "support": "Support",
     "adminEvents": "Events & billing",
+    "adminTse": "Cloud-TSE",
     "adminSupport": "Support requests",
     "adminFeedback": "Feedback",
     "tables": "Tables",
@@ -1221,7 +1222,19 @@
       "waive": {
         "title": "Waive billing",
         "description": "The event can then be activated without payment or invoice.",
-        "submit": "Waive"
+        "submit": "Waive",
+        "missingTitle": "The organization is missing required details:",
+        "fields": {
+          "legalName": "legal name",
+          "street": "street",
+          "zip": "postcode",
+          "city": "city",
+          "taxNumber": "tax number/VAT ID",
+          "vatId": "VAT ID (format)"
+        },
+        "reasonLabel": "Reason for waiving without the details",
+        "reasonPlaceholder": "e.g. details will follow by email",
+        "submitOverride": "Waive anyway"
       },
       "filters": {
         "searchPlaceholder": "Search event or organization...",
@@ -1363,6 +1376,51 @@
         "testPrintNotPossible": "Test print not possible.",
         "testPrintFailed": "Test print failed: {message}"
       }
+    },
+    "tse": {
+      "metaTitle": "Cloud-TSE",
+      "title": "Cloud-TSE",
+      "description": "All organizations' TSEs with their month-end deactivation – the basis for the Swissbit costs.",
+      "overdue": {
+        "title": "{count, plural, one {One deactivation is overdue} other {# deactivations are overdue}}",
+        "text": "These TSEs should have been deactivated since 8 pm. If it does not work before midnight, Swissbit bills the next month. OpenEOS keeps trying every 15 minutes – if needed, deactivate it by hand in the organization.",
+        "item": "planned {planned}, {attempts} failed attempts"
+      },
+      "health": {
+        "title": "{count, plural, one {The check found one issue} other {The check found # issues}}",
+        "kind": {
+          "no_paid_event_this_month": "active without a paid event this month",
+          "deactivation_overdue": "deactivation overdue",
+          "no_planned_deactivation": "no planned deactivation"
+        }
+      },
+      "summary": {
+        "title": "Overview",
+        "counts": "{total, plural, one {# TSE} other {# TSEs}} · {active} active"
+      },
+      "lifecycle": {
+        "monthly": "deactivated at month end",
+        "persistent": "TSEs stay active"
+      },
+      "searchPlaceholder": "Search organization or serial number",
+      "empty": {
+        "title": "No TSE yet",
+        "description": "As soon as an organization buys an event with the Cloud-TSE, its TSE shows up here."
+      },
+      "table": {
+        "organization": "Organization",
+        "tse": "TSE",
+        "active": "Active since",
+        "planned": "Planned deactivation",
+        "billed": "Billed months"
+      },
+      "deactivatedOn": "deactivated {date}",
+      "reasonMonthly": "month end",
+      "overdueBadge": "overdue",
+      "attempts": "{count, plural, one {# failed attempt} other {# failed attempts}}",
+      "postponed": "postponed because {event} runs past the month end – {month} is billed in addition",
+      "postponedBefore": "{count, plural, one {postponed once} other {postponed # times}}",
+      "billedMonths": "{count, plural, one {# month} other {# months}}"
     }
   },
   "theme": {
@@ -1511,9 +1569,42 @@
         "yesHint": "OpenEOS sets up the TSE automatically for the first event day. Your operating mode becomes “All features” – cash then works with the TSE.",
         "no": "No, keep it as it is",
         "noHint": "Nothing changes. In Germany, cash needs a TSE – you can add it later at any time.",
-        "missing": "The cloud TSE still needs your organization’s tax number or address – it cannot be set up without them.",
-        "missingLink": "Add them now",
         "total": "+ {surcharge} cloud TSE · total {total}"
+      },
+      "masterData": {
+        "title": "About your organization",
+        "text": "Before your first purchase we need your organization's legal name and billing address. We keep them for future purchases.",
+        "textWithTse": "Before your first purchase we need your organization's legal name and billing address – and, for the Cloud-TSE, the tax number or VAT ID. We keep them for future purchases.",
+        "legalName": "Legal name",
+        "legalNamePlaceholder": "e.g. Musikverein Harmonie e.V.",
+        "street": "Street and number",
+        "zip": "Postcode",
+        "city": "City",
+        "taxTitle": "Tax number or VAT ID",
+        "taxHint": "The Cloud-TSE writes it into every cash register closing. One of the two is enough.",
+        "taxNumber": "Tax number",
+        "taxNumberPlaceholder": "e.g. 12/345/67890",
+        "vatId": "VAT ID",
+        "vatIdPlaceholder": "e.g. DE123456789",
+        "savedTo": "You can change this later under Settings → Organization.",
+        "saveAndContinue": "Save and continue",
+        "continue": "Continue",
+        "saved": "Details saved – on to payment.",
+        "saveFailed": "The details could not be saved.",
+        "noticeTitle": "One more step before you pay",
+        "noticeText": "We still need: {items}",
+        "noticeTse": "We only need the tax number because the Cloud-TSE is included.",
+        "missing": {
+          "legalName": "legal name",
+          "address": "billing address",
+          "tax": "tax number or VAT ID"
+        },
+        "errors": {
+          "required": "Please fill in.",
+          "taxRequired": "Please enter the tax number or the VAT ID.",
+          "taxNumberInvalid": "Please enter a valid tax number (10–13 digits).",
+          "vatIdInvalid": "Please enter a valid VAT ID, e.g. DE123456789."
+        }
       }
     },
     "count": "{count, plural, =0 {No events} =1 {1 event} other {# events}}",
@@ -4021,7 +4112,10 @@
     "DSFINVK_RANGE_INVALID": "Please choose a valid period (one year at most).",
     "DSFINVK_NO_CLOSINGS": "There is no cash register closing for this period yet.",
     "CASHBOOK_AMOUNT_INVALID": "Please enter a valid amount.",
-    "CASHBOOK_TYPE_INVALID": "This cash book booking type doesn't exist."
+    "CASHBOOK_TYPE_INVALID": "This cash book booking type doesn't exist.",
+    "PURCHASE_MASTER_DATA_REQUIRED": "Before you pay, we need a few details about your organization.",
+    "PURCHASE_MASTER_DATA_OVERRIDE_REASON_REQUIRED": "Please give a reason for waiving without complete details.",
+    "TAX_ID_INVALID": "The tax number or VAT ID does not have the right format."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5214,7 +5308,7 @@
       "name": "Cloud TSE",
       "vendor": "Fiscal security",
       "description": "Signs every till transaction under the German KassenSichV – required for cash in Germany.",
-      "longDescription": "In Germany, a till that accepts cash needs a certified technical security device (TSE) that signs every transaction. OpenEOS connects the Swissbit Cloud TSE 2 for this: one TSE per organization, your devices act as terminals of one shared till. As soon as a paid event is coming up, the TSE is set up automatically; receipts then carry the TSE data with a QR code, and the data is exported and archived every night. With an active TSE you can choose the operating mode “All features” with cash. More in the <link>FAQ on openeos.de</link>.",
+      "longDescription": "In Germany, a till that accepts cash needs a certified technical security device (TSE) that signs every transaction. OpenEOS connects the Swissbit Cloud TSE 2 for this: one TSE per organization, your devices act as terminals of one shared till. As soon as a paid event is coming up, the TSE is set up automatically; receipts then carry the TSE data with a QR code, and the data is exported and archived every night. With an active TSE you can choose the operating mode “All features” with cash. The TSE runs for the month of your event and is deactivated automatically at the end of the month. More in the <link>FAQ on openeos.de</link>.",
       "screenshots": {
         "status": "Cloud TSE with serial number, signatures and last export",
         "posReceipt": "Receipt at the till with TSE data and QR code",
@@ -5312,7 +5406,8 @@
         },
         "deactivated": {
           "title": "TSE deactivated",
-          "text": "The TSE {serial} was permanently deactivated on {date}. For a new event you set up a new TSE."
+          "text": "The TSE {serial} was permanently deactivated on {date}. For a new event you set up a new TSE.",
+          "monthly": "The TSE {serial} ran for the month of your event and was deactivated automatically on {date}. For your next paid event we set up a new TSE automatically."
         },
         "check": {
           "server": "Cloud TSE set up on this server",
@@ -5362,6 +5457,10 @@
         "client": "Till (client ID)",
         "product": "Product",
         "activeSince": "Active since",
+        "plannedDeactivation": "Automatic deactivation",
+        "plannedDeactivationAt": "on {date}",
+        "plannedDeactivationHint": "The TSE runs for the month of your event and is deactivated automatically at the end of the month.",
+        "plannedDeactivationPostponed": "Postponed because {event} runs past the end of the month.",
         "trigger": {
           "manual": "set up manually",
           "auto": "set up automatically",
@@ -5448,6 +5547,7 @@
         "trigger": {
           "scheduled": "Nightly",
           "manual": "Manual",
+          "final": "Before deactivation",
           "deactivation": "Final",
           "swissbit": "Automatic (Swissbit)"
         },

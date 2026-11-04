@@ -104,7 +104,13 @@ export function useWaiveEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => adminApi.waiveEvent(id),
+    mutationFn: (input: string | { id: string; overrideMasterData?: boolean; overrideReason?: string }) =>
+      typeof input === 'string'
+        ? adminApi.waiveEvent(input)
+        : adminApi.waiveEvent(input.id, {
+            overrideMasterData: input.overrideMasterData,
+            overrideReason: input.overrideReason,
+          }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
     },

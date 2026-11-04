@@ -14,7 +14,7 @@ import { useIntegrationErrorMessage, useSetIntegrationEnabled } from '@/hooks/us
 import { useCreateTse, type useTseSetup } from '@/hooks/use-tse';
 import { ApiException } from '@/types/api';
 import { reasonError } from '@/lib/operating-mode';
-import { shortSerial, type TseSetupStep } from '@/lib/tse';
+import { isMonthlyDeactivation, shortSerial, type TseSetupStep } from '@/lib/tse';
 import type { TseMasterDataField, TseStatus } from '@/types/tse';
 
 import { TseChecklist } from './tse-checklist';
@@ -144,7 +144,7 @@ export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProp
 
         {unit?.state === 'deactivated' && (
           <Banner tone="info" icon={<Icon name="info" />} title={t('deactivated.title')}>
-            {t('deactivated.text', {
+            {t(isMonthlyDeactivation(unit.deactivationReason) ? 'deactivated.monthly' : 'deactivated.text', {
               serial: shortSerial(unit.serialNumber),
               date: formatDate(unit.deactivatedAt),
             })}

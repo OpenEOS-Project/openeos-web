@@ -716,6 +716,13 @@ export const billingApi = {
     apiClient.get<ApiResponse<import('@/types/billing').CompanySearchResponse>>(
       `/organizations/${organizationId}/billing/company-search?q=${encodeURIComponent(q)}`
     ),
+
+  /** Pflichtangaben vor dem Kauf speichern (offizieller Name, Anschrift, Steuernummer/USt-IdNr.). */
+  savePurchaseMasterData: (organizationId: string, data: import('@/types/billing').PurchaseMasterDataInput) =>
+    apiClient.put<ApiResponse<import('@/types/billing').PurchaseMasterDataStatus>>(
+      `/organizations/${organizationId}/purchase-master-data`,
+      data
+    ),
 };
 
 // Categories API (now under events)
@@ -1205,6 +1212,12 @@ export const adminApi = {
     ),
 
   // Printers (Admin) — read-only overview: agents and printers per organisation
+  /** Alle Cloud-TSEs (Super-Admin) mit geplanter Abmeldung und Überfällig-Kennzeichen. */
+  listTseUnits: () => apiClient.get<ApiResponse<import('@/types/tse').AdminTseUnit[]>>('/admin/tse/units'),
+
+  /** Überfällige Abmeldungen und Ergebnisse der Gesundheitsprüfung (roter Hinweis). */
+  tseAlerts: () => apiClient.get<ApiResponse<import('@/types/tse').AdminTseAlerts>>('/admin/tse/alerts'),
+
   listPrinters: (params?: { organizationId?: string }) =>
     apiClient.get<ApiResponse<import('@/types/printer').AdminPrinterOverviewEntry[]>>(
       `/admin/printers${params?.organizationId ? `?organizationId=${encodeURIComponent(params.organizationId)}` : ''}`,
@@ -1247,8 +1260,8 @@ export const adminApi = {
   unmarkEventInvoiced: (id: string) =>
     apiClient.delete<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/invoice`),
 
-  waiveEvent: (id: string) =>
-    apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`),
+  waiveEvent: (id: string, body?: { overrideMasterData?: boolean; overrideReason?: string }) =>
+    apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`, body),
 
   /** Auf Rechnung über Stripe: Stripes Rechnungsmail erneut verschicken. */
   resendEventInvoice: (id: string) =>
