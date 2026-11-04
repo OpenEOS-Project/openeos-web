@@ -1,0 +1,563 @@
+/* ===================== RECHTLICHES (AGB, AVV, ELSTER, SHOP-VORLAGE) =====================
+   Registrierung, Hinweisfenster bei neuen AGB, Buchungsübersicht und der
+   Bereich „Rechtliches“ im Dashboard. */
+
+/* ---------- Registrierung und Anmeldung ---------- */
+.landing .wizard__legal-hint {
+  margin: 2px 0 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.landing .wizard__legal-hint a,
+.landing .platform-legal-links a {
+  color: var(--green-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.landing .platform-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  margin: 12px auto 0;
+  font-size: 12px;
+}
+.landing .platform-legal-links a {
+  color: var(--mute);
+  text-decoration: none;
+}
+.landing .platform-legal-links a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* ---------- Hinweisfenster: neue AGB und neuer AVV ---------- */
+/* Über dem Neuerungen-Fenster (60) und den Dialogen (100). */
+.landing .changelog-dialog__scrim.legal-accept__scrim {
+  z-index: 140;
+}
+.landing .changelog-dialog.legal-accept {
+  max-width: 560px;
+}
+.landing .changelog-dialog__body.legal-accept__body {
+  gap: 14px;
+  padding: 16px 22px;
+}
+.landing .legal-accept__text,
+.landing .legal-accept__note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.landing .legal-accept__note {
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .legal-accept__docs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.landing .legal-accept__doc {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--paper);
+}
+.landing .legal-accept__doc-icon,
+.landing .legal-doc__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--oe-green) 22%, transparent);
+  color: var(--green-ink);
+}
+.landing .legal-accept__doc-icon svg,
+.landing .legal-doc__icon svg {
+  width: 16px;
+  height: 16px;
+}
+.landing .legal-accept__doc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.landing .legal-accept__doc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.landing .legal-accept__doc-title svg,
+.landing .legal-doc__links svg,
+.landing .legal-card__more svg,
+.landing .legal-intro a svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.landing .legal-accept__doc-meta {
+  font-size: 12.5px;
+  color: var(--mute);
+}
+.landing .legal-accept__doc a,
+.landing .legal-doc a,
+.landing .legal-card__more a,
+.landing .legal-intro a,
+.landing .purchase-summary a,
+.landing .legal-warning__links a,
+.landing .legal-success a,
+.landing .legal-settings__template a:not(.btn) {
+  color: var(--green-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.landing .legal-accept__doc-title:hover {
+  text-decoration: underline;
+}
+.landing .legal-accept__check {
+  padding-top: 4px;
+}
+.landing .changelog-dialog__foot.legal-accept__foot {
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.landing .legal-accept__foot .btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Buchungsübersicht im Freischalt-Dialog ---------- */
+.landing .purchase-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.landing .purchase-summary__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.landing .purchase-summary__rows {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.landing .purchase-summary__rows > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 38%) 1fr;
+  gap: 10px;
+  font-size: 13px;
+}
+.landing .purchase-summary__rows dt {
+  color: var(--mute);
+}
+.landing .purchase-summary__rows dd {
+  margin: 0;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-wrap: anywhere;
+}
+.landing .purchase-summary__sub {
+  font-size: 12px;
+  color: var(--mute);
+}
+.landing .purchase-summary__total {
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+}
+.landing .purchase-summary__total dt,
+.landing .purchase-summary__total dd {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 14px;
+}
+.landing .purchase-summary__fine {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mute);
+}
+@media (max-width: 520px) {
+  .landing .purchase-summary__rows > div {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+/* ---------- Bereich „Rechtliches“ ---------- */
+.landing .legal-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.landing .legal-card__title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.landing .legal-card__title--spaced {
+  margin-top: 24px;
+}
+.landing .legal-card__text {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.landing .legal-card__more {
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+.landing .legal-card__more a,
+.landing .legal-intro a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.landing .legal-docs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.landing .legal-doc {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.landing .legal-doc:first-child {
+  border-top: 0;
+  padding-top: 4px;
+}
+.landing .legal-doc__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.landing .legal-doc__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.landing .legal-doc__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+}
+.landing .legal-doc__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.landing .legal-doc__accepted {
+  font-size: 12.5px;
+  color: var(--mute);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.landing .legal-doc__accepted .badge {
+  margin-left: 6px;
+}
+
+.landing .legal-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 760px) {
+  .landing .legal-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+.landing .legal-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+.landing .legal-tile:hover,
+.landing .legal-tile:focus-visible {
+  border-color: color-mix(in oklab, var(--green-ink) 50%, transparent);
+}
+.landing .legal-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--oe-green) 22%, transparent);
+  color: var(--green-ink);
+}
+.landing .legal-tile__icon svg {
+  width: 20px;
+  height: 20px;
+}
+.landing .legal-tile__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.landing .legal-tile__title {
+  font-weight: 650;
+  font-size: 15px;
+}
+.landing .legal-tile__text {
+  font-size: 13px;
+  color: var(--mute);
+  line-height: 1.45;
+}
+.landing .legal-tile__arrow {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--mute);
+}
+
+.landing .legal-intro p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.landing .legal-intro p:last-child {
+  margin-bottom: 0;
+}
+.landing .legal-guidance {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  list-style: disc;
+  display: grid;
+  gap: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--ink) 80%, transparent);
+}
+.landing .legal-warning__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* ---------- ELSTER ---------- */
+.landing .legal-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 8px 0 0;
+}
+@media (max-width: 760px) {
+  .landing .legal-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.landing .legal-facts__row {
+  min-width: 0;
+}
+.landing .legal-facts__row dt {
+  font-size: 12px;
+  color: var(--mute);
+  margin-bottom: 2px;
+}
+.landing .legal-facts__row dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.landing .legal-facts__empty {
+  color: var(--mute);
+}
+.landing .legal-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+.landing .legal-copy__value {
+  overflow-wrap: anywhere;
+}
+.landing .legal-copy__value--mono {
+  font-family: var(--oe-f-mono);
+  font-size: 13px;
+}
+.landing .legal-copy .legal-copy__btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--mute);
+  padding: 3px 6px;
+  min-height: 0;
+  flex-shrink: 0;
+}
+.landing .legal-copy .legal-copy__btn:hover {
+  color: var(--ink);
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+}
+.landing .legal-copy__btn svg {
+  width: 14px;
+  height: 14px;
+}
+.landing .legal-hint {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--ink) 75%, transparent);
+}
+.landing .legal-hint svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--mute);
+}
+.landing .legal-tse-list {
+  display: grid;
+  gap: 12px;
+}
+.landing .legal-tse {
+  padding: 14px 16px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm);
+  background: var(--paper);
+}
+.landing .legal-tse__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.landing .legal-tse__kind {
+  font-weight: 650;
+  font-size: 14px;
+}
+
+/* ---------- Vorlage Datenschutzhinweis ---------- */
+.landing .legal-template {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .landing .legal-template {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.landing .legal-template__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.landing .legal-template__fields .auth-field__label {
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.landing .legal-guidance li {
+  display: list-item;
+}
+.landing .auth-field.legal-template__field--empty textarea,
+.landing .auth-field.legal-template__field--empty input,
+.landing .auth-field.legal-template__field--empty select {
+  border-color: color-mix(in oklab, var(--warn) 55%, transparent);
+}
+.landing .legal-template__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--oe-line);
+}
+.landing .legal-template__missing {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--warn-ink);
+  line-height: 1.45;
+}
+.landing .legal-template__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.landing .legal-template__preview {
+  position: sticky;
+  top: 16px;
+}
+@media (max-width: 1100px) {
+  .landing .legal-template__preview {
+    position: static;
+  }
+}
+.landing .legal-template__preview-text {
+  max-height: min(75vh, 900px);
+}
+.landing .legal-success {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--oe-green) 18%, var(--paper));
+  font-size: 13px;
+  line-height: 1.5;
+}
+.landing .legal-success svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--green-ink);
+}
+
+/* Einstellungen → Rechtliche Angaben: Weg zur Vorlage */
+.landing .legal-settings__template {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-size: 13px;
+}
+.landing .legal-settings__template .btn svg {
+  width: 15px;
+  height: 15px;
+}

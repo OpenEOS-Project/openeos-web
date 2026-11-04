@@ -8,9 +8,12 @@ import { ArrowLeft, ArrowRight, Check, CircleCheck } from 'lucide-react';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
 import { authApi } from '@/lib/api-client';
-import { localizePlatformUrl } from '@/lib/legal';
+import { useLegalVersions } from '@/hooks/use-legal';
+
+import '@/styles/legal.css';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { CountrySelect } from '@/components/shared/country-select';
+import { PlatformLegalLinks } from '@/components/legal/platform-legal-links';
 import { countryName } from '@/lib/countries';
 import { ApiException } from '@/types/api';
 
@@ -30,14 +33,12 @@ interface FormState {
   /* Land der Organisation (Pflicht): steuert die Bargeld-Regel, ändern
      kann es danach nur der Support. */
   country: string;
-  terms: boolean;
+  /* Beides Pflicht: Die Registrierung schliesst den Vertrag mit OpenEOS
+     (AGB und AVV) — nur fuer Unternehmer, Koerperschaften und Vereine. */
+  confirmBusiness: boolean;
+  acceptTerms: boolean;
   newsletter: boolean;
 }
-
-/* AGB und Datenschutzerklaerung von OpenEOS — die Registrierung schliesst
-   den Vertrag mit OpenEOS, nicht mit einem Verein. */
-const TERMS_URL = 'https://openeos.de/terms';
-const PRIVACY_URL = 'https://openeos.de/privacy';
 
 const initial: FormState = {
   email: '',
@@ -48,7 +49,8 @@ const initial: FormState = {
   lastName: '',
   organizationName: '',
   country: '',
-  terms: false,
+  confirmBusiness: false,
+  acceptTerms: false,
   newsletter: false,
 };
 
@@ -62,6 +64,7 @@ export function RegisterWizard() {
   const apiErrorMessage = useApiErrorMessage();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  const legal = useLegalVersions();
   const [stepIdx, setStepIdx] = useState(0);
   const [data, setData] = useState<FormState>(() => ({
     ...initial,
@@ -114,7 +117,8 @@ export function RegisterWizard() {
         next.organizationName = tErr('nameShort');
       if (!data.country) next.country = tErr('countryRequired');
     } else if (current === 'confirm') {
-      if (!data.terms) next.terms = tErr('termsRequired');
+      if (!data.confirmBusiness) next.confirmBusiness = tErr('businessRequired');
+      if (!data.acceptTerms) next.acceptTerms = tErr('termsRequired');
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -148,6 +152,8 @@ export function RegisterWizard() {
         // Frueher nur abgefragt, aber nie mitgeschickt — die API kannte das
         // Feld nicht. Gespeichert wird der Zeitpunkt der Einwilligung.
         newsletterOptIn: data.newsletter,
+        confirmBusiness: true,
+        acceptTerms: true,
       });
       setDone(true);
     } catch (err) {
@@ -367,28 +373,54 @@ export function RegisterWizard() {
               value={data.country ? countryName(data.country, locale) : ''}
             />
 
-            <label className="auth-check auth-check--block">
+            <label className="auth-check auth-check--block" data-testid="register-confirm-business">
               <input
                 type="checkbox"
-                checked={data.terms}
-                onChange={(e) => update('terms', e.target.checked)}
+                checked={data.confirmBusiness}
+                onChange={(e) => update('confirmBusiness', e.target.checked)}
+                aria-invalid={!!errors.confirmBusiness}
+              />
+              <span>{t('steps.confirm.confirmBusiness')}</span>
+            </label>
+            {errors.confirmBusiness && <span className="auth-error">{errors.confirmBusiness}</span>}
+
+            <label className="auth-check auth-check--block" data-testid="register-accept-terms">
+              <input
+                type="checkbox"
+                checked={data.acceptTerms}
+                onChange={(e) => update('acceptTerms', e.target.checked)}
+                aria-invalid={!!errors.acceptTerms}
               />
               <span>
-                {t.rich('steps.confirm.terms', {
-                  terms: (chunks) => (
-                    <a href={localizePlatformUrl(TERMS_URL, locale)} target="_blank" rel="noopener noreferrer">
+                {/* Verlinkt ist die Fassung, die gerade angenommen wird. */}
+                {t.rich('steps.confirm.acceptTerms', {
+                  agb: (chunks) => (
+                    <a href={legal.versionUrl('agb')} target="_blank" rel="noopener noreferrer">
                       {chunks}
                     </a>
                   ),
-                  privacy: (chunks) => (
-                    <a href={localizePlatformUrl(PRIVACY_URL, locale)} target="_blank" rel="noopener noreferrer">
+                  avv: (chunks) => (
+                    <a href={legal.versionUrl('avv')} target="_blank" rel="noopener noreferrer">
                       {chunks}
                     </a>
                   ),
                 })}
               </span>
             </label>
-            {errors.terms && <span className="auth-error">{errors.terms}</span>}
+            {errors.acceptTerms && <span className="auth-error">{errors.acceptTerms}</span>}
+
+            {/* Datenschutz nur zur Kenntnis — eine Einwilligung braucht es
+                fuer die Vertragsdaten nicht. */}
+            <p className="auth-hint wizard__legal-hint">
+              {t.rich('steps.confirm.privacyHint', {
+                privacy: (chunks) => (
+                  <a href={legal.pageUrl('privacy')} target="_blank" rel="noopener noreferrer">
+                    {chunks}
+                  </a>
+                ),
+              })}
+              {locale.startsWith('en') && <> {t('steps.confirm.germanNote')}</>}
+            </p>
 
             <label className="auth-check auth-check--block">
               <input
@@ -445,6 +477,7 @@ export function RegisterWizard() {
           {t('login')} →
         </Link>
       </p>
+      <PlatformLegalLinks />
     </form>
   );
 }

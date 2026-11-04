@@ -54,16 +54,20 @@ export function isLegalInfoComplete(legal: OrganizationLegalSettings | null | un
   return has(legal.imprintUrl, legal.imprintText) && has(legal.privacyUrl, legal.privacyText);
 }
 
+const PLATFORM_HOSTS = new Set(['openeos.de', 'www.openeos.de', 'staging.openeos.de']);
+
 /**
- * Die Seiten von openeos.de gibt es auf Englisch unter `/en/...`. Andere
- * Adressen (Self-Hosting) bleiben unveraendert — deren Sprachaufteilung
- * kennen wir nicht.
+ * Die Seiten von openeos.de (und der Staging-Website) gibt es auf Englisch
+ * unter `/en/...`. Andere Adressen (Self-Hosting) bleiben unveraendert —
+ * deren Sprachaufteilung kennen wir nicht. Dateien (PDF) auch: die gibt es
+ * nur einmal.
  */
 export function localizePlatformUrl(url: string, locale: string): string {
   if (!locale.startsWith('en')) return url;
   try {
     const parsed = new URL(url);
-    if (parsed.hostname !== 'openeos.de' && parsed.hostname !== 'www.openeos.de') return url;
+    if (!PLATFORM_HOSTS.has(parsed.hostname)) return url;
+    if (/\.[a-z0-9]{2,4}$/i.test(parsed.pathname)) return url;
     if (parsed.pathname === '/en' || parsed.pathname.startsWith('/en/')) return url;
     parsed.pathname = `/en${parsed.pathname === '/' ? '' : parsed.pathname}`;
     return parsed.toString();

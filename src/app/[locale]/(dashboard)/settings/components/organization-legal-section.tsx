@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, FileText } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { Link } from '@/i18n/routing';
+import { unfilledTemplatePlaceholders } from '@/lib/shop-privacy-template';
 import { organizationsApi } from '@/lib/api-client';
 import { LegalText } from '@/components/public-legal/legal-text';
 import {
@@ -19,6 +21,8 @@ import type { OrganizationSettings } from '@/types/organization';
 import { ApiException } from '@/types/api';
 
 import { SettingsSectionHead } from './settings-section-head';
+
+import '@/styles/legal.css';
 
 type Mode = 'url' | 'text';
 type Kind = 'imprint' | 'privacy';
@@ -100,6 +104,11 @@ export function OrganizationLegalSection() {
       } else {
         const max = LEGAL_LIMITS[`${kind}Text`];
         if (n.text.trim().length > max) next[`${kind}Text`] = t('errors.textTooLong', { max });
+        // Aus der Vorlage uebernommen, aber nicht fertig ausgefuellt.
+        else if (n.text.trim()) {
+          const open = unfilledTemplatePlaceholders(n.text);
+          if (open.length) next[`${kind}Text`] = t('errors.placeholders', { placeholders: open.join(', ') });
+        }
       }
     }
     const email = state.contactEmail.trim();
@@ -152,6 +161,9 @@ export function OrganizationLegalSection() {
         return t('errors.email');
       case 'linkOrText':
         return t('errors.linkOrText');
+      case 'placeholder':
+      case 'placeholders':
+        return t('errors.placeholdersApi');
       case 'maxLength':
         return key.endsWith('Url')
           ? t('errors.urlTooLong', { max: LEGAL_LIMITS.url })
@@ -308,6 +320,13 @@ export function OrganizationLegalSection() {
               </a>
             ),
           })}
+        </p>
+        <p className="legal-settings__template">
+          <Link href="/legal/shop" className="btn btn--ghost btn--control" data-testid="legal-use-template">
+            <FileText aria-hidden="true" />
+            <span>{t('useTemplate')}</span>
+          </Link>
+          <span>{t.rich('moreLegal', { link: (chunks) => <Link href="/legal">{chunks}</Link> })}</span>
         </p>
         <p className="legal-settings__disclaimer">{t('noLegalAdvice')}</p>
       </div>

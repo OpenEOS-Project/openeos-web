@@ -10,10 +10,18 @@ import {
 
 test.describe('legal: platform links', () => {
   test('English openeos.de pages live under /en', () => {
-    expect(localizePlatformUrl('https://openeos.de/imprint', 'en')).toBe('https://openeos.de/en/imprint');
-    expect(localizePlatformUrl('https://openeos.de/privacy', 'en-GB')).toBe('https://openeos.de/en/privacy');
-    expect(localizePlatformUrl('https://openeos.de/en/privacy', 'en')).toBe('https://openeos.de/en/privacy');
-    expect(localizePlatformUrl('https://openeos.de/imprint', 'de')).toBe('https://openeos.de/imprint');
+    expect(localizePlatformUrl('https://openeos.de/impressum', 'en')).toBe('https://openeos.de/en/impressum');
+    expect(localizePlatformUrl('https://openeos.de/datenschutz', 'en-GB')).toBe('https://openeos.de/en/datenschutz');
+    expect(localizePlatformUrl('https://openeos.de/en/datenschutz', 'en')).toBe('https://openeos.de/en/datenschutz');
+    expect(localizePlatformUrl('https://openeos.de/impressum', 'de')).toBe('https://openeos.de/impressum');
+    expect(localizePlatformUrl('https://openeos.de/agb/2026-11-04', 'en')).toBe('https://openeos.de/en/agb/2026-11-04');
+  });
+
+  test('staging website is localized too, PDFs are not', () => {
+    expect(localizePlatformUrl('https://staging.openeos.de/avv', 'en')).toBe('https://staging.openeos.de/en/avv');
+    expect(localizePlatformUrl('https://openeos.de/rechtstexte/agb-2026-11-04.pdf', 'en')).toBe(
+      'https://openeos.de/rechtstexte/agb-2026-11-04.pdf',
+    );
   });
 
   test('self-hosted links stay as configured', () => {

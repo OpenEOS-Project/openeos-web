@@ -15,6 +15,7 @@ import {
   ReceiptEuro,
   ReceiptText,
   Recycle,
+  Scale,
   Settings,
   ShieldCheck,
   ShoppingBag,
@@ -211,6 +212,13 @@ export const dashboardFooterItems: NavItemType[] = [
     labelKey: 'settings',
     href: '/settings',
     icon: Settings,
+  },
+  {
+    // Rechtstexte von OpenEOS, Angaben fuers Finanzamt, Vorlage fuer den
+    // Datenschutzhinweis im Shop.
+    labelKey: 'legal',
+    href: '/legal',
+    icon: Scale,
   },
 ];
 

@@ -11,6 +11,7 @@ import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useAssistantStatus, useSetAssistantEnabled } from '@/hooks/use-assistant';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useLegalVersions } from '@/hooks/use-legal';
 
 import { privacyUrl, quotaLine } from '@/lib/assistant';
 
@@ -32,6 +33,7 @@ export function OrganizationAssistantSection() {
   const t = useTranslations('settings.organizationAssistant');
   const tCommon = useTranslations('common');
   const locale = useLocale();
+  const { versions: legalVersions } = useLegalVersions();
   const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization } = useAuthStore();
   const { isAdmin } = usePermissions();
@@ -111,7 +113,7 @@ export function OrganizationAssistantSection() {
           {t.rich('privacy', {
             link: (chunks) => (
               <a
-                href={privacyUrl(locale)}
+                href={privacyUrl(locale, legalVersions.documents.privacy.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="notice-link"

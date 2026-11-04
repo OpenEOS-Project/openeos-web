@@ -14,6 +14,7 @@ import { ApiException } from '@/types/api';
 import { isTwoFactorRequired } from '@/types/auth';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { SourceCodeLink } from '@/components/shared/source-code-link';
+import { PlatformLegalLinks } from '@/components/legal/platform-legal-links';
 
 export function LoginForm() {
   const t = useTranslations('auth.login');
@@ -304,6 +305,7 @@ export function LoginForm() {
       </div>
 
       <SourceCodeLink className="auth-form__source" iconSize={13} />
+      <PlatformLegalLinks />
     </div>
   );
 }
