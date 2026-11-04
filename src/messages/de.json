@@ -532,6 +532,7 @@
     "pfand": "Pfand",
     "support": "Support",
     "adminEvents": "Events & Abrechnung",
+    "adminTse": "Cloud-TSE",
     "adminSupport": "Support-Anfragen",
     "adminFeedback": "Zuschriften",
     "tables": "Tische",
@@ -1228,9 +1229,42 @@
         "yesHint": "OpenEOS richtet die TSE zum ersten Veranstaltungstag automatisch ein. Deine Betriebsart wird „Alle Funktionen“ – Bargeld geht dann mit TSE.",
         "no": "Nein, so lassen",
         "noHint": "Alles bleibt wie bisher. In Deutschland braucht Bargeld eine TSE – du kannst sie später jederzeit dazunehmen.",
-        "missing": "Für die Cloud-TSE fehlen noch Steuernummer oder Anschrift deiner Organisation – ohne sie kann sie nicht eingerichtet werden.",
-        "missingLink": "Jetzt eintragen",
         "total": "+ {surcharge} Cloud-TSE · gesamt {total}"
+      },
+      "masterData": {
+        "title": "Angaben zu deiner Organisation",
+        "text": "Vor dem ersten Kauf brauchen wir den offiziellen Namen und die Rechnungsanschrift deiner Organisation. Wir speichern sie für die nächsten Käufe.",
+        "textWithTse": "Vor dem ersten Kauf brauchen wir den offiziellen Namen und die Rechnungsanschrift deiner Organisation – und für die Cloud-TSE die Steuernummer oder USt-IdNr. Wir speichern sie für die nächsten Käufe.",
+        "legalName": "Offizieller Name",
+        "legalNamePlaceholder": "z. B. Musikverein Harmonie e.V.",
+        "street": "Straße und Hausnummer",
+        "zip": "PLZ",
+        "city": "Ort",
+        "taxTitle": "Steuernummer oder USt-IdNr.",
+        "taxHint": "Die Cloud-TSE schreibt sie in jeden Kassenabschluss. Eine der beiden Nummern genügt.",
+        "taxNumber": "Steuernummer",
+        "taxNumberPlaceholder": "z. B. 12/345/67890",
+        "vatId": "USt-IdNr.",
+        "vatIdPlaceholder": "z. B. DE123456789",
+        "savedTo": "Du findest die Angaben später unter Einstellungen → Organisation.",
+        "saveAndContinue": "Speichern und weiter",
+        "continue": "Weiter",
+        "saved": "Angaben gespeichert – weiter zur Zahlung.",
+        "saveFailed": "Die Angaben konnten nicht gespeichert werden.",
+        "noticeTitle": "Noch ein Schritt vor dem Bezahlen",
+        "noticeText": "Uns fehlen noch: {items}",
+        "noticeTse": "Die Steuernummer brauchen wir nur, weil die Cloud-TSE dabei ist.",
+        "missing": {
+          "legalName": "offizieller Name",
+          "address": "Rechnungsanschrift",
+          "tax": "Steuernummer oder USt-IdNr."
+        },
+        "errors": {
+          "required": "Bitte ausfüllen.",
+          "taxRequired": "Bitte gib die Steuernummer oder die USt-IdNr. an.",
+          "taxNumberInvalid": "Bitte gib eine gültige Steuernummer ein (10–13 Ziffern).",
+          "vatIdInvalid": "Bitte gib eine gültige USt-IdNr. ein, z. B. DE123456789."
+        }
       }
     },
     "count": "{count, plural, =0 {Keine Veranstaltungen} =1 {1 Veranstaltung} other {# Veranstaltungen}}",
@@ -2286,7 +2320,19 @@
       "waive": {
         "title": "Abrechnung erlassen",
         "description": "Das Event kann danach ohne Bezahlung oder Rechnung aktiviert werden.",
-        "submit": "Erlassen"
+        "submit": "Erlassen",
+        "missingTitle": "Der Organisation fehlen Pflichtangaben:",
+        "fields": {
+          "legalName": "offizieller Name",
+          "street": "Straße",
+          "zip": "PLZ",
+          "city": "Ort",
+          "taxNumber": "Steuernummer/USt-IdNr.",
+          "vatId": "USt-IdNr. (Format)"
+        },
+        "reasonLabel": "Grund für den Erlass ohne Angaben",
+        "reasonPlaceholder": "z. B. Angaben kommen per Mail nach",
+        "submitOverride": "Trotzdem erlassen"
       },
       "filters": {
         "searchPlaceholder": "Event oder Organisation suchen...",
@@ -2428,6 +2474,51 @@
         "testPrintNotPossible": "Testdruck nicht möglich.",
         "testPrintFailed": "Testdruck fehlgeschlagen: {message}"
       }
+    },
+    "tse": {
+      "metaTitle": "Cloud-TSE",
+      "title": "Cloud-TSE",
+      "description": "Alle TSEs der Organisationen mit Abmeldung zum Monatsende – Grundlage für die Swissbit-Kosten.",
+      "overdue": {
+        "title": "{count, plural, one {Eine Abmeldung ist überfällig} other {# Abmeldungen sind überfällig}}",
+        "text": "Diese TSEs sollten seit 20:00 Uhr abgemeldet sein. Klappt es nicht vor Mitternacht, berechnet Swissbit den nächsten Monat. OpenEOS versucht es weiter alle 15 Minuten – notfalls in der Organisation von Hand deaktivieren.",
+        "item": "geplant {planned}, {attempts} Fehlversuche"
+      },
+      "health": {
+        "title": "{count, plural, one {Die Prüfung hat eine Auffälligkeit gefunden} other {Die Prüfung hat # Auffälligkeiten gefunden}}",
+        "kind": {
+          "no_paid_event_this_month": "aktiv ohne bezahlte Veranstaltung in diesem Monat",
+          "deactivation_overdue": "Abmeldung überfällig",
+          "no_planned_deactivation": "kein Abmeldetermin"
+        }
+      },
+      "summary": {
+        "title": "Übersicht",
+        "counts": "{total, plural, one {# TSE} other {# TSEs}} · {active} aktiv"
+      },
+      "lifecycle": {
+        "monthly": "Abmeldung zum Monatsende",
+        "persistent": "TSEs bleiben aktiv"
+      },
+      "searchPlaceholder": "Organisation oder Seriennummer suchen",
+      "empty": {
+        "title": "Noch keine TSE",
+        "description": "Sobald eine Organisation eine Veranstaltung mit Cloud-TSE kauft, erscheint ihre TSE hier."
+      },
+      "table": {
+        "organization": "Organisation",
+        "tse": "TSE",
+        "active": "Aktiv seit",
+        "planned": "Geplante Abmeldung",
+        "billed": "Berechnete Monate"
+      },
+      "deactivatedOn": "abgemeldet {date}",
+      "reasonMonthly": "Monatsende",
+      "overdueBadge": "überfällig",
+      "attempts": "{count, plural, one {# Fehlversuch} other {# Fehlversuche}}",
+      "postponed": "verschoben, weil {event} über das Monatsende läuft – {month} wird zusätzlich berechnet",
+      "postponedBefore": "{count, plural, one {einmal verschoben} other {# mal verschoben}}",
+      "billedMonths": "{count, plural, one {# Monat} other {# Monate}}"
     }
   },
   "pos": {
@@ -4021,7 +4112,10 @@
     "DSFINVK_RANGE_INVALID": "Bitte wähle einen gültigen Zeitraum (höchstens ein Jahr).",
     "DSFINVK_NO_CLOSINGS": "Für diesen Zeitraum gibt es noch keinen Kassenabschluss.",
     "CASHBOOK_AMOUNT_INVALID": "Bitte gib einen gültigen Betrag an.",
-    "CASHBOOK_TYPE_INVALID": "Diese Kassenbuch-Buchung gibt es nicht."
+    "CASHBOOK_TYPE_INVALID": "Diese Kassenbuch-Buchung gibt es nicht.",
+    "PURCHASE_MASTER_DATA_REQUIRED": "Bevor du bezahlst, brauchen wir noch ein paar Angaben zu deiner Organisation.",
+    "PURCHASE_MASTER_DATA_OVERRIDE_REASON_REQUIRED": "Bitte gib einen Grund an, warum ohne vollständige Angaben erlassen wird.",
+    "TAX_ID_INVALID": "Steuernummer oder USt-IdNr. hat nicht das richtige Format."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5214,7 +5308,7 @@
       "name": "Cloud-TSE",
       "vendor": "Kassensicherung",
       "description": "Signiert jeden Kassenvorgang nach KassenSichV – Voraussetzung für Bargeld in Deutschland.",
-      "longDescription": "Eine Kasse, mit der du Bargeld annimmst, braucht in Deutschland eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Vorgang signiert. OpenEOS bindet dafür die Swissbit Cloud-TSE 2 an: eine TSE je Organisation, deine Geräte laufen als Terminals einer gemeinsamen Kasse. Sobald eine bezahlte Veranstaltung ansteht, wird die TSE automatisch eingerichtet; Bons und Belege tragen dann die TSE-Angaben mit QR-Code, die Daten werden jede Nacht exportiert und archiviert. Mit aktiver TSE kannst du die Betriebsart „Alle Funktionen“ mit Bargeld wählen. Mehr dazu in den <link>FAQ auf openeos.de</link>.",
+      "longDescription": "Eine Kasse, mit der du Bargeld annimmst, braucht in Deutschland eine zertifizierte technische Sicherheitseinrichtung (TSE), die jeden Vorgang signiert. OpenEOS bindet dafür die Swissbit Cloud-TSE 2 an: eine TSE je Organisation, deine Geräte laufen als Terminals einer gemeinsamen Kasse. Sobald eine bezahlte Veranstaltung ansteht, wird die TSE automatisch eingerichtet; Bons und Belege tragen dann die TSE-Angaben mit QR-Code, die Daten werden jede Nacht exportiert und archiviert. Mit aktiver TSE kannst du die Betriebsart „Alle Funktionen“ mit Bargeld wählen. Die TSE läuft für den Monat deiner Veranstaltung und wird zum Monatsende automatisch abgemeldet. Mehr dazu in den <link>FAQ auf openeos.de</link>.",
       "screenshots": {
         "status": "Cloud-TSE mit Seriennummer, Signaturen und letztem Export",
         "posReceipt": "Beleg an der Kasse mit TSE-Angaben und QR-Code",
@@ -5312,7 +5406,8 @@
         },
         "deactivated": {
           "title": "TSE deaktiviert",
-          "text": "Die TSE {serial} wurde am {date} endgültig deaktiviert. Für eine neue Veranstaltung richtest du eine neue TSE ein."
+          "text": "Die TSE {serial} wurde am {date} endgültig deaktiviert. Für eine neue Veranstaltung richtest du eine neue TSE ein.",
+          "monthly": "Die TSE {serial} lief für den Monat deiner Veranstaltung und wurde am {date} automatisch abgemeldet. Bei deiner nächsten bezahlten Veranstaltung richten wir automatisch eine neue TSE ein."
         },
         "check": {
           "server": "Cloud-TSE auf diesem Server eingerichtet",
@@ -5362,6 +5457,10 @@
         "client": "Kasse (Client-ID)",
         "product": "Produkt",
         "activeSince": "Aktiv seit",
+        "plannedDeactivation": "Automatische Abmeldung",
+        "plannedDeactivationAt": "am {date} Uhr",
+        "plannedDeactivationHint": "Die TSE läuft für den Monat deiner Veranstaltung und wird zum Monatsende automatisch abgemeldet.",
+        "plannedDeactivationPostponed": "Verschoben, weil {event} über das Monatsende läuft.",
         "trigger": {
           "manual": "von Hand eingerichtet",
           "auto": "automatisch eingerichtet",
@@ -5448,6 +5547,7 @@
         "trigger": {
           "scheduled": "Nächtlich",
           "manual": "Von Hand",
+          "final": "Vor der Abmeldung",
           "deactivation": "Abschluss",
           "swissbit": "Automatisch (Swissbit)"
         },

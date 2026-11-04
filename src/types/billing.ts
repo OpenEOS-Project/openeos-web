@@ -28,9 +28,44 @@ export interface EventTseTerms {
   surchargeCharged: number | null;
 }
 
+/** Pflichtangaben beim Kauf (offizieller Name, Rechnungsanschrift, bei Cloud-TSE Steuernummer/USt-IdNr.). */
+export type PurchaseMasterDataField = 'legalName' | 'street' | 'zip' | 'city' | 'taxNumber' | 'vatId';
+
+export interface PurchaseMasterDataValues {
+  legalName: string;
+  street: string;
+  zip: string;
+  city: string;
+  taxNumber: string;
+  vatId: string;
+}
+
+/**
+ * Was vor dem Bezahlen fehlt: `missing` ohne, `missingWithTse` mit
+ * Cloud-TSE (Bestand: je nach Antwort im Dialog).
+ */
+export interface PurchaseMasterDataStatus {
+  values: PurchaseMasterDataValues;
+  missing: PurchaseMasterDataField[];
+  missingWithTse: PurchaseMasterDataField[];
+  country: string | null;
+}
+
+/** `PUT /organizations/:id/purchase-master-data` */
+export interface PurchaseMasterDataInput {
+  legalName: string;
+  street: string;
+  zip: string;
+  city: string;
+  taxNumber?: string;
+  vatId?: string;
+}
+
 export interface EventBilling {
   /** Cloud-TSE zur Freischaltung (fehlt bei älteren API-Ständen). */
   tse?: EventTseTerms;
+  /** Pflichtangaben vor dem Bezahlen (fehlt bei älteren API-Ständen = vollständig). */
+  masterData?: PurchaseMasterDataStatus;
   /** Preis je Veranstaltungstag, vor Nachlass. */
   pricePerDay: number;
   /** Abgerechnete Veranstaltungstage (6 bis 6 Uhr, siehe businessDayStartHour). */

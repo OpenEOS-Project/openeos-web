@@ -61,6 +61,53 @@ export interface TseUnit {
   logTimeFormat: string | null;
   publicKey: string | null;
   lastError: { code: string; message: string | null; at: string | null } | null;
+  /** Lebenszyklus `monthly`: geplante Abmeldung (letzter Tag des Monats, 20:00 Berlin). */
+  plannedDeactivationAt?: string | null;
+  /** Verschiebungen, weil zum Termin eine bezahlte Veranstaltung lief. */
+  postponements?: TsePostponement[];
+}
+
+export type TseLifecycle = 'persistent' | 'monthly';
+
+/** Abmeldung verschoben (bezahlte Veranstaltung lief zum Monatsende). */
+export interface TsePostponement {
+  at: string;
+  from: string;
+  to: string;
+  reason: 'paid_event_running';
+  /** Monat, der dadurch zusätzlich berechnet wird (`YYYY-MM`). */
+  extraMonth: string;
+  events: { id: string; name: string; startDate: string; endDate: string | null }[];
+}
+
+/** Eine TSE in der Super-Admin-Liste (`GET /admin/tse/units`). */
+export interface AdminTseUnit extends Omit<TseUnit, 'publicKey'> {
+  organization: { id: string; name: string } | null;
+  billedMonths: string[];
+  deactivationAttempts: number;
+  deactivationNextAttemptAt: string | null;
+  deactivationAlertedAt: string | null;
+  /** Um 22:00 (geplant + 2 h) noch aktiv. */
+  deactivationOverdue: boolean;
+}
+
+export type TseHealthIssueKind = 'no_paid_event_this_month' | 'deactivation_overdue' | 'no_planned_deactivation';
+
+export interface TseHealthIssue {
+  unitId: string;
+  organizationId: string;
+  organizationName: string | null;
+  serialNumber: string | null;
+  kind: TseHealthIssueKind;
+  month: string;
+  plannedDeactivationAt: string | null;
+}
+
+/** `GET /admin/tse/alerts` */
+export interface AdminTseAlerts {
+  lifecycle: TseLifecycle;
+  checkedAt: string;
+  issues: TseHealthIssue[];
 }
 
 export interface TseProductTypeUsage {
@@ -115,7 +162,8 @@ export interface TseStatus {
   integrationEnabled: boolean;
   /** Automatisch eingeschaltet (Kauf einer Veranstaltung bzw. Wechsel auf „Alle Funktionen“). */
   integrationEnabledAuto?: TseAutoEnabled | null;
-  lifecycle: 'persistent' | 'per_event';
+  /** `monthly`: Abmeldung zum Monatsende (Standard), `persistent`: bleibt aktiv. */
+  lifecycle: TseLifecycle;
   country: string | null;
   eligibility: TseEligibility;
   unit: TseUnit | null;
@@ -178,7 +226,7 @@ export interface TseOutage {
 }
 
 export type TseExportStatus = 'pending' | 'downloaded' | 'failed';
-export type TseExportTrigger = 'scheduled' | 'manual' | 'deactivation' | 'swissbit';
+export type TseExportTrigger = 'scheduled' | 'manual' | 'final' | 'deactivation' | 'swissbit';
 
 export interface TseExport {
   id: string;
