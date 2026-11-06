@@ -2513,7 +2513,7 @@
     },
     "deleteConfirm": {
       "title": "Delete Organization",
-      "message": "Are you sure you want to delete this organization? This action cannot be undone.",
+      "message": "The organization is then read-only for 30 days (export), after that it is permanently deleted. The fiscal archive is kept.",
       "confirm": "Delete"
     },
     "notifications": {
@@ -4150,7 +4150,19 @@
     "PURCHASE_MASTER_DATA_REQUIRED": "Before you pay, we need a few details about your organization.",
     "PURCHASE_MASTER_DATA_OVERRIDE_REASON_REQUIRED": "Please give a reason for waiving without complete details.",
     "TAX_ID_INVALID": "The tax number or VAT ID does not have the right format.",
-    "LEGAL_ACCEPTANCE_REQUIRED": "Please accept the terms and conditions and the data processing agreement and confirm that you are acting on behalf of an organization."
+    "LEGAL_ACCEPTANCE_REQUIRED": "Please accept the terms and conditions and the data processing agreement and confirm that you are acting on behalf of an organization.",
+    "ACCOUNT_DELETION_BLOCKED": "You are the last administrator of {organizations}. Make someone else an administrator first, or leave or delete the organization.",
+    "ACCOUNT_DELETION_CODE_INVALID": "The code is invalid or expired. Request a new one.",
+    "ACCOUNT_DELETION_CONFIRMATION_REQUIRED": "Please confirm with your password or the code from the email.",
+    "ACCOUNT_DELETION_PASSWORD_INVALID": "The password is incorrect.",
+    "ACCOUNT_DELETION_SUPER_ADMIN": "Super admin accounts can't delete themselves.",
+    "ACCOUNT_DELETION_UNCLOSED_TRANSACTIONS": "You have transactions without a cash point closing. Ask your club to create the closing first.",
+    "NEWSLETTER_TOKEN_INVALID": "This unsubscribe link is invalid.",
+    "ORGANIZATION_ALREADY_PURGED": "This organization has already been permanently deleted.",
+    "ORGANIZATION_CLOSED": "This organization has been deleted.",
+    "ORGANIZATION_PURGE_BLOCKED": "The organization can't be deleted yet (active Cloud TSE, remaining TSE exports being collected or transactions without a closing).",
+    "ORGANIZATION_PURGE_CONFIRMATION_MISMATCH": "The name you entered doesn't match the organization's name.",
+    "ORGANIZATION_READ_ONLY": "This organization is being deleted and is read-only. Exports still work."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -6570,6 +6582,106 @@
       "saving": "Saving …",
       "saveFailed": "The text could not be saved.",
       "saved": "Done. You can find the text under <link>Settings → Legal information (shop & helper pages)</link> and edit it further there."
+    }
+  },
+  "privacy": {
+    "closure": {
+      "title": "This organization will be permanently deleted on {date}. You can export all data until then.",
+      "titleDue": "This organization will be permanently deleted shortly. You can export all data until then.",
+      "text": "It was deleted on {closedAt} and is read-only now: reports, orders, cash book and DSFinV-K and TSE exports stay available, changes are no longer possible. The fiscal archive is kept for ten years."
+    },
+    "newsletter": {
+      "title": "News by email",
+      "description": "Occasional news about OpenEOS. You can give or withdraw your consent at any time.",
+      "label": "Receive news by email",
+      "hint": "Optional. We store when you consented or withdrew.",
+      "subscribed": "Consent saved",
+      "unsubscribed": "Consent withdrawn",
+      "consentedAt": "Consented on {date}",
+      "withdrawnAt": "Withdrawn on {date}",
+      "unverified": "Please confirm your email address first – we won't send anything before that."
+    },
+    "accountDeletion": {
+      "title": "Delete account",
+      "description": "Deletes your account with name, email address, sign-in data and memberships. This cannot be undone.",
+      "open": "Delete account …",
+      "superAdmin": "Super admin accounts can't delete themselves. Have your super admin rights removed first.",
+      "blockedTitle": "You are the last administrator of these organizations:",
+      "blockers": {
+        "members": "It has other members.",
+        "active_events": "It has a running or paid upcoming event.",
+        "tse_active": "Its Cloud TSE is still active."
+      },
+      "blockedHint": "Make someone else an administrator first, or leave or delete the organization.",
+      "toMembers": "Go to members",
+      "unclosed": "You booked transactions that aren't part of a cash point closing yet. Ask your club to create the closing first.",
+      "dialogTitle": "Delete your account permanently?",
+      "dialogText": "What happens:",
+      "what": {
+        "account": "Name, email address, password, two-factor sign-in, sessions and API tokens are removed; you will be signed out.",
+        "memberships": "You lose access to all organizations.",
+        "fiscal": "If you booked transactions, your name stays in the organization's fiscal archive as the operator for ten years."
+      },
+      "closesTitle": "These organizations will be deleted too",
+      "closesText": "You are the only member of {names}. They are deleted with your account and permanently deleted after the export period – export what you need first.",
+      "password": "To confirm: your password",
+      "code": "To confirm: code from the email",
+      "sendCode": "Send code",
+      "resendCode": "Send new code",
+      "codeSent": "We sent you a code.",
+      "confirm": "Delete account",
+      "doneTitle": "Account deleted",
+      "done": "Your account has been deleted. You'll get a confirmation email and will be signed out shortly."
+    },
+    "organizationDeletion": {
+      "title": "Delete organization",
+      "description": "Ends the use of this organization. You can still export all data for 30 days afterwards.",
+      "open": "Delete organization …",
+      "dialogTitle": "Delete “{name}”?",
+      "steps": {
+        "readOnly": "From now on the organization is read-only: you can export all data for 30 days, registers and shop are switched off.",
+        "final": "After that we permanently delete products, orders, shift plans, devices and memberships. Admins get an email beforehand.",
+        "fiscal": "The fiscal archive (TSE exports, cash point closings, signed transactions) is kept for ten years."
+      },
+      "typeName": "Type the organization name to confirm",
+      "confirm": "Delete organization",
+      "deleted": "Organization deleted. You can export its data for 30 days."
+    },
+    "purge": {
+      "title": "Permanently delete “{name}” now?",
+      "text": "Only on the customer's request (DPA 10.2, switching under T&C 20.5). The export period is skipped, the data is gone afterwards.",
+      "keeps": "The fiscal archive (TSE exports, cash point closings, signed transactions) is kept for ten years.",
+      "rules": "Nothing is deleted while the Cloud TSE is active, remaining exports are being collected or transactions lack a closing.",
+      "log": "The action is logged with you and the reason in the deletion run log; the admins get a confirmation.",
+      "typeName": "Organization name to confirm",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. deletion request by email on 2026-11-06",
+      "reasonHint": "At least {min} characters, no names or content.",
+      "confirm": "Delete permanently",
+      "done": "“{name}” has been permanently deleted.",
+      "failed": "The deletion failed."
+    },
+    "adminList": {
+      "filter": "Status",
+      "active": "Active",
+      "closed": "Deleted",
+      "scheduled": "Final deletion on {date}",
+      "purged": "Permanently deleted",
+      "purge": "Delete permanently",
+      "emptyTitle": "No deleted organizations",
+      "emptyDescription": "Organizations in their export period and permanently deleted ones show up here."
+    },
+    "unsubscribe": {
+      "title": "No more news?",
+      "text": "One click withdraws your consent. You won't get OpenEOS news by email anymore; emails about your account continue.",
+      "confirm": "Unsubscribe",
+      "successTitle": "You're unsubscribed",
+      "successMessage": "We won't send you news anymore. You can subscribe again in your account settings at any time.",
+      "toLogin": "Go to sign-in",
+      "errorTitle": "Couldn't unsubscribe",
+      "errorHint": "You can also withdraw your consent in your account settings or email hello@openeos.de.",
+      "missingToken": "The link is incomplete.",
+      "error": "The unsubscribe link is invalid."
     }
   }
 }

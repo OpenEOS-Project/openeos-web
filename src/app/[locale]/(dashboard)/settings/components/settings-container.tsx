@@ -16,6 +16,7 @@ import { OrganizationAssistantSection } from './organization-assistant-section';
 import { OrganizationAccessSection } from './organization-access-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { AboutSection } from './about-section';
+import { OrganizationDeleteCard } from '@/components/privacy/organization-delete-card';
 import { useAuthStore } from '@/stores/auth-store';
 
 interface SettingsTab {
@@ -64,7 +65,11 @@ export function SettingsContainer() {
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
-  const [activePersonal, setActivePersonal] = useState('profile');
+  // ?tab=account öffnet Konto (Newsletter, Konto löschen) direkt.
+  const personalTabIds = ['profile', 'account', 'security', 'preferences', 'about'];
+  const [activePersonal, setActivePersonal] = useState(
+    requestedTab && personalTabIds.includes(requestedTab) ? requestedTab : 'profile',
+  );
   const [activeOrg, setActiveOrg] = useState(
     requestedTab && orgTabIds.includes(requestedTab) ? requestedTab : 'org-general',
   );
@@ -78,7 +83,16 @@ export function SettingsContainer() {
   ];
 
   const organizationTabs: SettingsTab[] = [
-    { id: 'org-general', label: t('organizationGeneral.title'), children: <OrganizationGeneralSection /> },
+    {
+      id: 'org-general',
+      label: t('organizationGeneral.title'),
+      children: (
+        <>
+          <OrganizationGeneralSection />
+          <OrganizationDeleteCard />
+        </>
+      ),
+    },
     { id: 'org-contact', label: t('organizationContact.title'), children: <OrganizationContactSection /> },
     { id: 'org-tax', label: t('organizationTax.tab'), children: <OrganizationTaxSection /> },
     { id: 'org-mode', label: t('organizationMode.tab'), children: <OperatingModeSection /> },

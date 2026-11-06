@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { useAuthStore } from '@/stores/auth-store';
 import { useRequestEmailChange, useChangePassword } from '@/hooks/use-user-settings';
 import { toast } from '@/components/shared/toast';
+import { AccountDeletionCard } from '@/components/privacy/account-deletion-card';
+import { NewsletterCard } from '@/components/privacy/newsletter-card';
 import { SettingsSectionHead } from './settings-section-head';
 
 // Factories, damit die Meldungen ueber next-intl uebersetzt werden (t = settings.account.errors).
@@ -132,6 +134,9 @@ export function AccountSection() {
           </div>
         </form>
       </div>
+
+      <NewsletterCard />
+      <AccountDeletionCard />
     </div>
   );
 }

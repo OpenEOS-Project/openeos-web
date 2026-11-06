@@ -3,6 +3,7 @@
 import { Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { OrganizationClosureBanner } from '@/components/privacy/organization-closure-banner';
 import { ToastViewport } from '@/components/shared/toast';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { AppBreadcrumbs } from './app-breadcrumbs';
@@ -40,6 +41,7 @@ export function AppShell({ children }: AppShellProps) {
       >
         <main className="app-content">
           {!isFullscreen && <AppBreadcrumbs />}
+          <OrganizationClosureBanner />
           {children}
         </main>
       </div>
