@@ -1,7 +1,5 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
-import { useEffect } from 'react';
 
 // Die globale Fehlerseite ersetzt das Root-Layout und laeuft damit
 // ausserhalb von NextIntlClientProvider — kein t() verfuegbar. Die
@@ -32,9 +30,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+  /* Bewusst kein Sentry im Browser (Datenschutzerklärung: vom Browser geht
+     nichts an Sentry). Fehler beim Rendern auf dem Server meldet
+     onRequestError in src/instrumentation.ts. */
+  void error;
 
   const lang = currentLanguage();
   const m = MESSAGES[lang];

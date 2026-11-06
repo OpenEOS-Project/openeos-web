@@ -9,6 +9,7 @@ import { useEvents } from '@/hooks/use-events';
 import { shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
 import type { Event, EventStatus } from '@/types';
 
 interface EventsListProps {
@@ -116,6 +117,14 @@ export function EventsList({
           {t('create')}
         </button>
       </div>
+
+      {/* Shop-Link in der Liste, aber noch ohne Impressum/Datenschutz: der
+          Shop nimmt dann keine Bestellungen an (auch im Testmodus). */}
+      {events.some((event) => event.settings?.shop?.enabled) && (
+        <div className="events-list__legal">
+          <LegalInfoWarning context="shopList" />
+        </div>
+      )}
 
       <div style={{ overflowX: 'auto' }}>
         <table className="data-table">

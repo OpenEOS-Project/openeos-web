@@ -18,8 +18,10 @@ import '@/styles/legal.css';
  * über das Dashboard legt (Willkommens-Tour, Neuerungen) — sonst stünde es
  * über dem Hinweis und finge die Klicks ab.
  *
- * Ob es nötig ist, meldet `/auth/me` (`legalReacceptanceRequired`). Fehlt
- * das Feld (etwa in der Antwort der Anmeldung), zählt `/legal/status`.
+ * Ob es nötig ist, meldet `/auth/me` und schon die Antwort der Anmeldung
+ * (`legalReacceptanceRequired`) — direkt nach dem Login braucht es also
+ * keinen Extra-Aufruf. Fehlt das Feld (ältere API, Antworten wie die der
+ * Profiländerung), zählt `/legal/status`.
  */
 export function useLegalReacceptance() {
   const user = useAuthStore((s) => s.user);

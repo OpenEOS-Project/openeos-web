@@ -260,7 +260,8 @@
   background: var(--oe-green-soft);
 }
 .api-token-form__scope input {
-  margin-top: 2px;
+  /* Mittig auf der ersten Zeile (13 px Schrift, 19,5 px Zeile). */
+  margin-top: 3px;
   flex: none;
   accent-color: var(--oe-green-ink);
 }

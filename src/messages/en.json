@@ -873,7 +873,7 @@
       "title": "Legal information (shop & helper pages)",
       "description": "Your club's imprint and privacy notice. They appear in the shop, on the helper pages and right next to the forms.",
       "incompleteTitle": "Not complete yet",
-      "incompleteText": "As long as the imprint or privacy notice is missing, the shop and helper pages show a neutral note in its place.",
+      "incompleteText": "As long as the imprint or privacy notice is missing, your shop does not accept orders – also in test mode. The shop and helper pages show a neutral note in its place.",
       "why": "Your club sells and collects helper data – that is why your imprint and privacy notice belong here. OpenEOS only provides the technology and is listed below with a small note of its own.",
       "templates": "No texts yet? Templates and generators help you get started, e.g. the <imprintGen>eRecht24 imprint generator</imprintGen> or the <privacyGen>privacy policy generator</privacyGen>. In the privacy notice, also mention shop orders and helper sign-ups with OpenEOS as service provider.",
       "noLegalAdvice": "Not legal advice: OpenEOS does not review the texts. If in doubt, have them checked by an expert, e.g. your sports association or a lawyer.",
@@ -6116,10 +6116,12 @@
   },
   "legalWarning": {
     "title": "Imprint and privacy notice are missing",
-    "shop": "In the shop your club sells and asks for name and email. Guests need your imprint and privacy notice for that – until you add them, the shop only shows a neutral note. You can still open the shop.",
+    "shop": "Guests can only order in your shop once you have added your imprint and privacy notice – this also applies in test mode. Until then the shop only shows the menu and a note, cart and checkout are hidden.",
+    "shopList": "Your shop only accepts orders once your imprint and privacy notice are added – also in test mode. Until then guests only see the menu and a note under the shop link.",
     "shifts": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. You can still publish the plan.",
     "shiftsPublished": "On the sign-up page helpers give their details to your club. They need your imprint and privacy notice for that – until you add them, the page only shows a neutral note. The plan is already published, so please add them soon.",
-    "action": "Add legal information"
+    "action": "Add legal information",
+    "template": "Privacy notice template"
   },
   "countrySelect": {
     "placeholder": "Choose a country",

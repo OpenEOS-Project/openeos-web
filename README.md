@@ -32,7 +32,7 @@ Diese App bedient zwei Zielgruppen aus einer Codebasis:
 - **Forms:** React Hook Form + Zod
 - **i18n:** next-intl (DE/EN)
 - **Theme:** next-themes (Dark/Light Mode)
-- **Error Tracking:** Sentry
+- **Error Tracking:** Sentry (nur serverseitig)
 - **Components:** react-aria-components
 
 ## Setup
@@ -130,8 +130,7 @@ Variablen:
 | Variable | Beschreibung |
 |----------|--------------|
 | `NEXT_PUBLIC_API_URL` | URL der OpenEOS API |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN (Client) |
-| `SENTRY_DSN` | Sentry DSN (Server) |
+| `SENTRY_DSN` | Sentry DSN (nur Server; im Browser läuft bewusst kein Sentry) |
 | `SENTRY_ORG` | Sentry Organisation |
 | `SENTRY_PROJECT` | Sentry Projekt |
 
@@ -181,7 +180,6 @@ Folgende Werte müssen im GitHub Repository konfiguriert werden:
 | Variable | Beispielwert | Beschreibung |
 |----------|--------------|--------------|
 | `NEXT_PUBLIC_API_URL` | `https://api.openeos.de` | API URL (optional, Default bereits gesetzt) |
-| `NEXT_PUBLIC_SENTRY_DSN` | `https://xxx@o123.ingest.sentry.io/456` | Sentry DSN für Client-seitiges Error Tracking |
 | `SENTRY_ORG` | `openeos` | Sentry Organisations-Slug |
 | `SENTRY_PROJECT` | `openeos-web` | Sentry Projekt-Slug |
 

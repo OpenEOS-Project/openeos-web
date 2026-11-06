@@ -493,8 +493,9 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                     onChange={onChange}
                   >
                     {/* Der Verein verkauft — ohne Impressum und
-                        Datenschutzhinweis zeigt der Shop nur einen
-                        neutralen Hinweis. Warnen statt sperren. */}
+                        Datenschutzhinweis nimmt der Shop keine Bestellungen
+                        an (auch im Testmodus). Einschalten geht trotzdem;
+                        die Warnung fuehrt direkt zu den Angaben. */}
                     <LegalInfoWarning context="shop" />
                     {event && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>

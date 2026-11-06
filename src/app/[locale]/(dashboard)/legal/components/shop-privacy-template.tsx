@@ -68,9 +68,8 @@ export function ShopPrivacyTemplateView() {
       return response.data;
     },
     onSuccess: (data) => {
-      if (currentOrganization?.organization) {
-        // Zusammenfuehren: die Antwort auf PATCH laesst Felder wie `name` aus.
-        setCurrentOrganization({ ...currentOrganization, organization: { ...currentOrganization.organization, ...data } });
+      if (currentOrganization) {
+        setCurrentOrganization({ ...currentOrganization, organization: data });
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       setSaved(true);
