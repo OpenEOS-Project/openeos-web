@@ -5,6 +5,7 @@
 import type {
   DeviceTseStatus,
   TseEligibility,
+  TseLifecycleOutlook,
   TseMasterDataField,
   TseReceiptView,
   TsePostponement,
@@ -417,4 +418,57 @@ export function currentPostponement(
 /** Super-Admin-Liste: TSEs, deren Abmeldung zum Monatsende überfällig ist. */
 export function overdueUnits<T extends { deactivationOverdue: boolean }>(units: readonly T[]): T[] {
   return units.filter((unit) => unit.deactivationOverdue);
+}
+
+// ── Folgemonat schon gebucht (Entscheidung 2026-11-06) ──────────────────
+
+const BERLIN = 'Europe/Berlin';
+
+/** „Dezember“, mit Jahr („Januar 2027“), wenn es nicht das Jahr von `now` ist. */
+export function tseMonthLabel(month: string, locale: string, now = new Date()): string {
+  const [year, m] = month.split('-').map(Number);
+  // Mitte des Monats: kein Zeitzonen-Randproblem.
+  const date = new Date(Date.UTC(year, m - 1, 15, 12));
+  const currentYear = Number(new Intl.DateTimeFormat('en-CA', { timeZone: BERLIN, year: 'numeric' }).format(now));
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: BERLIN,
+    month: 'long',
+    ...(year !== currentYear ? { year: 'numeric' } : {}),
+  }).format(date);
+}
+
+/** Termin der Abmeldung lang, in Berliner Zeit: `{ date: '31. Dezember 2026', time: '20:00' }`. */
+export function tseDeactivationParts(iso: string, locale: string): { date: string; time: string } {
+  const at = new Date(iso);
+  return {
+    date: new Intl.DateTimeFormat(locale, { timeZone: BERLIN, day: 'numeric', month: 'long', year: 'numeric' }).format(at),
+    time: new Intl.DateTimeFormat(locale, { timeZone: BERLIN, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(at),
+  };
+}
+
+/** Veranstaltungsnamen für den Satz: „A“, „B“ und „C“ (bzw. and). */
+export function quotedEventNames(names: readonly string[], locale: string): string {
+  const quoted = names.map((name) => (locale.startsWith('de') ? `„${name}“` : `“${name}”`));
+  return new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(quoted);
+}
+
+export interface TseKeepLine {
+  month: string;
+  reason: TseLifecycleOutlook['months'][number]['reason'];
+  decided: boolean;
+  events: string[];
+}
+
+/**
+ * Sätze „Bleibt im Dezember aktiv, weil …“ aus der Prognose, je Monat einer
+ * (Namen ohne Doppelte). Leer ohne Prognose.
+ */
+export function tseKeepLines(outlook: TseLifecycleOutlook | null | undefined): TseKeepLine[] {
+  if (!outlook) return [];
+  return outlook.months.map((m) => ({
+    month: m.month,
+    reason: m.reason,
+    decided: m.decided,
+    events: [...new Set(m.events.map((e) => e.name))],
+  }));
 }
