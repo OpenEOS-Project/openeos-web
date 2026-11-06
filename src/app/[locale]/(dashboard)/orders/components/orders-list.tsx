@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Dropdown, DropdownCaption, DropdownOption, Icon, Tooltip } from '@openeos/ui';
 import { ShoppingBag } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { getOrderChannel, type Order, type OrderChannel } from '@/types/order';
+import { usePermissions } from '@/hooks/use-permissions';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { toast } from '@/components/shared/toast';
+import { saveBlob } from '@/lib/dsfinvk';
+import { getOrderChannel, type Order, type OrderChannel, type OrdersExportVariant } from '@/types/order';
 import type { HistoryPaymentFilter } from '@/types/order-history';
 import { STATUS_FILTERS, paymentIcon } from '@/utils/order-history';
 import { OrderDetailModal, displayStatusBadge } from './order-detail-modal';
@@ -30,6 +34,14 @@ const channelQuery: Record<OrderChannel, Record<string, string>> = {
 
 const PAGE_LIMIT = 50;
 
+const EXPORT_VARIANTS: OrdersExportVariant[] = ['orders', 'items'];
+
+/** Heutiges Datum (lokal) für den Ersatz-Dateinamen. */
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export function OrdersList() {
   const t = useTranslations();
   const { formatDateTime, formatCurrency } = useLocaleFormat();
@@ -43,6 +55,14 @@ export function OrdersList() {
   const [query, setQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<OrderChannel | 'all'>('all');
   const [eventFilter, setEventFilter] = useState<string>('all');
+  // Zeitraum (lokale Kalendertage, die API dehnt auf Tagesbeginn/-ende).
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const { hasPermission } = usePermissions();
+  // Export wie Storno und Erstattung: Admin oder Recht „Bestellungen“ (die API prüft dasselbe).
+  const mayExport = hasPermission('orders');
+  const apiErrorMessage = useApiErrorMessage();
   const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -77,6 +97,8 @@ export function OrdersList() {
   if (query) filterParams.q = query;
   if (eventFilter !== 'all') filterParams.eventId = eventFilter;
   if (channelFilter !== 'all') Object.assign(filterParams, channelQuery[channelFilter]);
+  if (dateFrom) filterParams.dateFrom = dateFrom;
+  if (dateTo) filterParams.dateTo = dateTo;
 
   const listParams: Record<string, string> = {
     ...filterParams,
@@ -91,7 +113,7 @@ export function OrdersList() {
     isFetching: isFetchingOrders,
     refetch: refetchOrders,
   } = useQuery({
-    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, query, page],
+    queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, dateFrom, dateTo, query, page],
     queryFn: () => ordersApi.list(organizationId!, listParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
@@ -107,7 +129,7 @@ export function OrdersList() {
     isFetching: isFetchingStats,
     refetch: refetchStats,
   } = useQuery({
-    queryKey: ['orders-stats', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, query],
+    queryKey: ['orders-stats', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, dateFrom, dateTo, query],
     queryFn: () => ordersApi.stats(organizationId!, filterParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
@@ -135,6 +157,20 @@ export function OrdersList() {
       setPage(meta.totalPages);
     }
   }, [meta, page]);
+
+  /** Lädt die gefilterten Bestellungen als CSV (alle Seiten, wie die Kennzahlen). */
+  const handleExport = async (variant: OrdersExportVariant) => {
+    if (!organizationId || exporting) return;
+    setExporting(true);
+    try {
+      const file = await ordersApi.exportCsv(organizationId, { ...filterParams, variant });
+      saveBlob(file.blob, file.filename ?? t(`orders.export.filename.${variant}`, { date: todayKey() }));
+    } catch (error) {
+      toast.error(apiErrorMessage(error, t('orders.export.failed')));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const creatorLabel = (order: Order): string | null => {
     if (order.createdByUser) {
@@ -225,6 +261,27 @@ export function OrdersList() {
           <option value="online">{t('orders.channel.online')}</option>
         </select>
 
+        <input
+          className="input"
+          type="date"
+          style={{ flex: '1 1 140px', minWidth: 0 }}
+          value={dateFrom}
+          max={dateTo || undefined}
+          onChange={(e) => updateFilter(setDateFrom)(e.target.value)}
+          aria-label={t('orders.filters.dateFrom')}
+          title={t('orders.filters.dateFrom')}
+        />
+        <input
+          className="input"
+          type="date"
+          style={{ flex: '1 1 140px', minWidth: 0 }}
+          value={dateTo}
+          min={dateFrom || undefined}
+          onChange={(e) => updateFilter(setDateTo)(e.target.value)}
+          aria-label={t('orders.filters.dateTo')}
+          title={t('orders.filters.dateTo')}
+        />
+
         {events.length > 0 && (
           <select
             className="select"
@@ -243,20 +300,57 @@ export function OrdersList() {
           {t('orders.orderCount', { count: summary.count })}
         </span>
 
-        <button
-          className="btn btn--ghost"
-          style={{ padding: 8, minWidth: 0, flexShrink: 0 }}
-          onClick={() => refetch()}
-          disabled={isFetching}
-          aria-label={t('common.refresh')}
-          title={t('common.refresh')}
-        >
-          <Icon
-            name="refresh"
-            size={18}
-            style={isFetching ? { animation: 'spin 0.75s linear infinite' } : undefined}
-          />
-        </button>
+        {/* Wie die Aktionen der Produkte: nur Symbole, Beschriftung als
+            Sprechblase bei Zeigen oder Fokus. */}
+        <div className="page-actions" style={{ flexShrink: 0 }}>
+          {mayExport && (
+            /* Für Screenreader steht die Beschriftung im Auslöser.
+               Exportiert wird, was die Filter zeigen. */
+            <Tooltip label={t('orders.export.trigger')}>
+              <Dropdown
+                triggerVariant="quiet"
+                align="end"
+                trigger={
+                  <>
+                    <Icon
+                      name={exporting ? 'refresh' : 'download'}
+                      size={18}
+                      style={exporting ? { animation: 'spin 0.75s linear infinite' } : undefined}
+                    />
+                    <span className="oe-sr-only">{t('orders.export.trigger')}</span>
+                  </>
+                }
+              >
+                <DropdownCaption>{t('orders.export.caption', { count: summary.count })}</DropdownCaption>
+                {EXPORT_VARIANTS.map((variant) => (
+                  <DropdownOption
+                    key={variant}
+                    disabled={exporting || summary.count === 0}
+                    onClick={() => void handleExport(variant)}
+                    meta={t(`orders.export.${variant}Hint`)}
+                  >
+                    {t(`orders.export.${variant}`)}
+                  </DropdownOption>
+                ))}
+              </Dropdown>
+            </Tooltip>
+          )}
+
+          <button
+            className="btn btn--ghost"
+            style={{ padding: 8, minWidth: 0, flexShrink: 0 }}
+            onClick={() => refetch()}
+            disabled={isFetching}
+            aria-label={t('common.refresh')}
+            title={t('common.refresh')}
+          >
+            <Icon
+              name="refresh"
+              size={18}
+              style={isFetching ? { animation: 'spin 0.75s linear infinite' } : undefined}
+            />
+          </button>
+        </div>
       </div>
 
       {orders.length === 0 ? (

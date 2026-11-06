@@ -195,6 +195,8 @@ export interface QueryOrdersParams {
   displayStatus?: string;
   /** Zahlart, kommagetrennt: cash, card, sumup, discount. */
   paymentMethod?: string;
+  /** Nur Testbestellungen (`true`) oder nur echte (`false`). */
+  isTest?: boolean;
   includeItems?: boolean;
   page?: number;
   limit?: number;
@@ -202,6 +204,12 @@ export interface QueryOrdersParams {
 
 /** Filter params accepted by GET /organizations/:id/orders/stats (same filters, no paging). */
 export type QueryOrderStatsParams = Omit<QueryOrdersParams, 'page' | 'limit' | 'includeItems'>;
+
+/** CSV-Export: `orders` = eine Zeile je Bestellung, `items` = eine Zeile je Position. */
+export type OrdersExportVariant = 'orders' | 'items';
+
+/** Params of GET /organizations/:id/orders/export (same filters as the list, no paging). */
+export type ExportOrdersParams = QueryOrderStatsParams & { variant: OrdersExportVariant };
 
 /** Aggregates over ALL orders matching the filters (not just the current page). */
 export interface OrderStats {
