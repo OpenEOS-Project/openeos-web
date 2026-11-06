@@ -1431,6 +1431,11 @@
       "attempts": "{count, plural, one {# failed attempt} other {# failed attempts}}",
       "postponed": "postponed because {event} runs past the month end – {month} is billed in addition",
       "postponedBefore": "{count, plural, one {postponed once} other {postponed # times}}",
+      "keptBooked": "stays active in {month} – {events} booked, no new activation",
+      "keptRunning": "stays active in {month} – {events} runs past the month end",
+      "keptDecided": "decided",
+      "keptForecast": "forecast",
+      "expected": "expected {date}",
       "billedMonths": "{count, plural, one {# month} other {# months}}"
     }
   },
@@ -5488,9 +5493,11 @@
         "product": "Product",
         "activeSince": "Active since",
         "plannedDeactivation": "Automatic deactivation",
-        "plannedDeactivationAt": "on {date}",
-        "plannedDeactivationHint": "The TSE runs for the month of your event and is deactivated automatically at the end of the month.",
+        "plannedDeactivationAt": "on {date}, {time}",
+        "plannedDeactivationHint": "The TSE runs for the month of your event and is deactivated automatically at the end of the month. If you have already booked an event for the following month, it stays active.",
         "plannedDeactivationPostponed": "Postponed because {event} runs past the end of the month.",
+        "keptBooked": "Stays active in {month} because {events} {count, plural, one {is} other {are}} already booked.",
+        "keptRunning": "Stays active in {month} because {events} {count, plural, one {runs} other {run}} past the end of the month.",
         "trigger": {
           "manual": "set up manually",
           "auto": "set up automatically",

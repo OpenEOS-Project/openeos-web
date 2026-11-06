@@ -6,7 +6,16 @@ import { Banner, Icon, Meter } from '@openeos/ui';
 
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { currentPostponement, formatBytes, percentOf, shortSerial } from '@/lib/tse';
+import {
+  currentPostponement,
+  formatBytes,
+  percentOf,
+  quotedEventNames,
+  shortSerial,
+  tseDeactivationParts,
+  tseKeepLines,
+  tseMonthLabel,
+} from '@/lib/tse';
 import type { TseStatus } from '@/types/tse';
 
 /** Produkttypen der Swissbit Cloud-TSE 2 (`validProductTypes`). */
@@ -32,7 +41,7 @@ export function productName(productType: string | null | undefined): string {
 export function TseStatusCard({ status }: { status: TseStatus }) {
   const t = useTranslations('integrations.tse.status');
   const locale = useLocale();
-  const { formatDate, formatDateTime, formatNumber } = useLocaleFormat();
+  const { formatDate, formatDateTime, formatNumber, locale: intlLocale } = useLocaleFormat();
   const unit = status.unit!;
   const live = status.live;
   const storage = percentOf(live?.storageUsed, live?.storageCapacity);
@@ -42,6 +51,8 @@ export function TseStatusCard({ status }: { status: TseStatus }) {
   const certificateExpiresAt = live?.certificateExpiresAt ?? unit.certificateExpiresAt;
   const previous = status.history.filter((u) => u.id !== unit.id);
   const postponement = currentPostponement(unit);
+  const keepLines = tseKeepLines(unit.lifecycleOutlook);
+  const expectedDeactivation = unit.lifecycleOutlook?.expectedDeactivationAt ?? unit.plannedDeactivationAt ?? null;
 
   return (
     <div className="app-card" data-testid="tse-status">
@@ -78,18 +89,37 @@ export function TseStatusCard({ status }: { status: TseStatus }) {
             {formatDate(unit.activatedAt)}
             <span className="tse-muted"> · {t(`trigger.${unit.trigger}`)}</span>
           </Fact>
-          {status.lifecycle === 'monthly' && unit.plannedDeactivationAt && (
+          {status.lifecycle === 'monthly' && expectedDeactivation && (
             <Fact label={t('plannedDeactivation')}>
               <span data-testid="tse-planned-deactivation">
-                {t('plannedDeactivationAt', { date: formatDateTime(unit.plannedDeactivationAt) })}
+                {t('plannedDeactivationAt', tseDeactivationParts(expectedDeactivation, intlLocale))}
               </span>
-              <span className="tse-muted" style={{ display: 'block' }}>
-                {postponement
-                  ? t('plannedDeactivationPostponed', {
-                      event: postponement.events.map((e) => `„${e.name}“`).join(', '),
-                    })
-                  : t('plannedDeactivationHint')}
-              </span>
+              {postponement && (
+                <span className="tse-muted" style={{ display: 'block' }}>
+                  {t('plannedDeactivationPostponed', {
+                    event: postponement.events.map((e) => `„${e.name}“`).join(', '),
+                  })}
+                </span>
+              )}
+              {keepLines.map((line) => (
+                <span
+                  key={line.month}
+                  className="tse-muted"
+                  style={{ display: 'block' }}
+                  data-testid="tse-kept-next-month"
+                >
+                  {t(line.reason === 'paid_event_running' ? 'keptRunning' : 'keptBooked', {
+                    month: tseMonthLabel(line.month, intlLocale),
+                    events: quotedEventNames(line.events, intlLocale),
+                    count: line.events.length,
+                  })}
+                </span>
+              ))}
+              {!postponement && keepLines.length === 0 && (
+                <span className="tse-muted" style={{ display: 'block' }}>
+                  {t('plannedDeactivationHint')}
+                </span>
+              )}
             </Fact>
           )}
           <Fact label={t('certificate')}>

@@ -2547,6 +2547,11 @@
       "attempts": "{count, plural, one {# Fehlversuch} other {# Fehlversuche}}",
       "postponed": "verschoben, weil {event} über das Monatsende läuft – {month} wird zusätzlich berechnet",
       "postponedBefore": "{count, plural, one {einmal verschoben} other {# mal verschoben}}",
+      "keptBooked": "bleibt im {month} aktiv – {events} gebucht, keine neue Aktivierung",
+      "keptRunning": "bleibt im {month} aktiv – {events} läuft über das Monatsende",
+      "keptDecided": "entschieden",
+      "keptForecast": "Prognose",
+      "expected": "voraussichtlich {date}",
       "billedMonths": "{count, plural, one {# Monat} other {# Monate}}"
     }
   },
@@ -5488,9 +5493,11 @@
         "product": "Produkt",
         "activeSince": "Aktiv seit",
         "plannedDeactivation": "Automatische Abmeldung",
-        "plannedDeactivationAt": "am {date} Uhr",
-        "plannedDeactivationHint": "Die TSE läuft für den Monat deiner Veranstaltung und wird zum Monatsende automatisch abgemeldet.",
+        "plannedDeactivationAt": "am {date}, {time} Uhr",
+        "plannedDeactivationHint": "Die TSE läuft für den Monat deiner Veranstaltung und wird zum Monatsende automatisch abgemeldet. Hast du im Folgemonat schon eine Veranstaltung gebucht, bleibt sie aktiv.",
         "plannedDeactivationPostponed": "Verschoben, weil {event} über das Monatsende läuft.",
+        "keptBooked": "Bleibt im {month} aktiv, weil {events} schon {count, plural, one {gebucht ist} other {gebucht sind}}.",
+        "keptRunning": "Bleibt im {month} aktiv, weil {events} über das Monatsende {count, plural, one {läuft} other {laufen}}.",
         "trigger": {
           "manual": "von Hand eingerichtet",
           "auto": "automatisch eingerichtet",

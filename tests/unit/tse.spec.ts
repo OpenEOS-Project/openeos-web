@@ -7,10 +7,14 @@ import {
   outageFromViews,
   percentOf,
   posTseState,
+  quotedEventNames,
   processDataTotal,
   receiptTseViews,
   shortSerial,
+  tseDeactivationParts,
   tseHint,
+  tseKeepLines,
+  tseMonthLabel,
   tseNoticeKind,
   tseRequirements,
   tseEventCheckFromEligibility,
@@ -481,5 +485,58 @@ test.describe('receipt designer', () => {
     });
     expect(source).toContain('Zahlungsart: {{ payment_label|default(payment_method) }}');
     expect(source).not.toMatch(/\{\{\s*payment_method\s*\}\}/);
+  });
+});
+
+test.describe('Folgemonat schon gebucht (Prognose der Abmeldung)', () => {
+  const now = new Date('2026-11-06T10:00:00.000Z');
+
+  test('Monatsname mit Jahr nur, wenn es nicht das laufende Jahr ist', () => {
+    expect(tseMonthLabel('2026-12', 'de-DE', now)).toBe('Dezember');
+    expect(tseMonthLabel('2027-01', 'de-DE', now)).toBe('Januar 2027');
+    expect(tseMonthLabel('2026-12', 'en-GB', now)).toBe('December');
+  });
+
+  test('Termin lang in Berliner Zeit (auch im UTC-Browser)', () => {
+    expect(tseDeactivationParts('2026-12-31T19:00:00.000Z', 'de-DE')).toEqual({
+      date: '31. Dezember 2026',
+      time: '20:00',
+    });
+    // Sommerzeit: 20:00 Berlin = 18:00 UTC
+    expect(tseDeactivationParts('2027-03-31T18:00:00.000Z', 'de-DE').time).toBe('20:00');
+  });
+
+  test('Veranstaltungsnamen in Anführungszeichen, als Aufzählung', () => {
+    expect(quotedEventNames(['Weihnachtsmarkt'], 'de-DE')).toBe('„Weihnachtsmarkt“');
+    expect(quotedEventNames(['A', 'B'], 'de-DE')).toBe('„A“ und „B“');
+  });
+
+  test('Zeilen je Monat, Namen ohne Doppelte; ohne Prognose keine', () => {
+    expect(tseKeepLines(null)).toEqual([]);
+    expect(
+      tseKeepLines({
+        expectedDeactivationAt: '2027-01-31T19:00:00.000Z',
+        months: [
+          {
+            month: '2026-12',
+            reason: 'paid_event_next_month',
+            decided: true,
+            events: [
+              { id: '1', name: 'Weihnachtsmarkt', startDate: '2026-12-12T14:00:00.000Z', endDate: null },
+              { id: '2', name: 'Weihnachtsmarkt', startDate: '2026-12-13T14:00:00.000Z', endDate: null },
+            ],
+          },
+          {
+            month: '2027-01',
+            reason: 'paid_event_running',
+            decided: false,
+            events: [{ id: '3', name: 'Winterdorf', startDate: '2026-12-28T09:00:00.000Z', endDate: null }],
+          },
+        ],
+      })
+    ).toEqual([
+      { month: '2026-12', reason: 'paid_event_next_month', decided: true, events: ['Weihnachtsmarkt'] },
+      { month: '2027-01', reason: 'paid_event_running', decided: false, events: ['Winterdorf'] },
+    ]);
   });
 });
