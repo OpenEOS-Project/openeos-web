@@ -873,7 +873,7 @@
       "title": "Rechtliche Angaben (Shop & Helferseiten)",
       "description": "Impressum und Datenschutzhinweis deines Vereins. Sie erscheinen im Shop, auf den Helferseiten und direkt an den Formularen.",
       "incompleteTitle": "Noch nicht vollständig",
-      "incompleteText": "Solange Impressum oder Datenschutzhinweis fehlen, zeigen Shop und Helferseiten an dieser Stelle einen neutralen Hinweis.",
+      "incompleteText": "Solange Impressum oder Datenschutzhinweis fehlen, nimmt dein Shop keine Bestellungen an – auch im Testmodus. Shop und Helferseiten zeigen an dieser Stelle einen neutralen Hinweis.",
       "why": "Du verkaufst bzw. sammelst Helferdaten als Verein – deshalb gehören hier dein Impressum und deine Datenschutzhinweise hin. OpenEOS stellt nur die Technik bereit und steht darunter mit einem eigenen kleinen Hinweis.",
       "templates": "Hast du noch keine Texte? Muster und Generatoren helfen beim Start, z. B. der <imprintGen>Impressum-Generator von eRecht24</imprintGen> oder der <privacyGen>Datenschutz-Generator</privacyGen>. Nenne im Datenschutzhinweis auch Shop-Bestellungen und Helferanmeldungen mit OpenEOS als Dienstleister.",
       "noLegalAdvice": "Keine Rechtsberatung: OpenEOS prüft die Texte nicht. Im Zweifel lass sie von einer fachkundigen Stelle prüfen, etwa deinem Landessportbund oder einer Anwältin.",
@@ -6135,10 +6135,12 @@
   },
   "legalWarning": {
     "title": "Impressum und Datenschutzhinweis fehlen noch",
-    "shop": "Im Shop verkauft dein Verein und fragt Name und E-Mail ab. Dafür brauchen Gäste dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, zeigt der Shop nur einen neutralen Hinweis. Du kannst den Shop trotzdem öffnen.",
+    "shop": "Bestellen können Gäste in deinem Shop erst, wenn du Impressum und Datenschutzhinweis eingetragen hast – das gilt auch im Testmodus. Bis dahin zeigt der Shop nur die Speisekarte und einen Hinweis, Warenkorb und Kasse sind ausgeblendet.",
+    "shopList": "Dein Shop nimmt erst Bestellungen an, wenn Impressum und Datenschutzhinweis eingetragen sind – auch im Testmodus. Bis dahin sehen Gäste unter dem Shop-Link nur die Speisekarte und einen Hinweis.",
     "shifts": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Du kannst den Plan trotzdem veröffentlichen.",
     "shiftsPublished": "Auf der Anmeldeseite geben Helfer ihre Daten an deinen Verein. Dafür brauchen sie dein Impressum und deinen Datenschutzhinweis – bis du sie einträgst, steht dort nur ein neutraler Hinweis. Der Plan ist schon veröffentlicht, trag die Angaben bitte bald ein.",
-    "action": "Rechtliche Angaben eintragen"
+    "action": "Rechtliche Angaben eintragen",
+    "template": "Vorlage für den Datenschutzhinweis"
   },
   "countrySelect": {
     "placeholder": "Land wählen",

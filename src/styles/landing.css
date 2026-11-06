@@ -1575,13 +1575,23 @@ body:has(.landing) {
 }
 .landing .auth-check input {
   width: 18px; height: 18px;
+  /* Nie stauchen: bei langem Text schrumpfte das Kästchen sonst (Handy:
+     13 statt 18 px breit). */
+  flex: none;
+  margin: 0;
   accent-color: var(--green-ink);
   cursor: pointer;
 }
+/* Mehrzeilige Beschriftung: Kästchen oben, mittig auf der ersten Zeile.
+   Zeilenhöhe fest (21 px), Versatz = (Zeilenhöhe − Kästchen) / 2. */
 .landing .auth-check--block {
   display: flex; align-items: flex-start;
   font-size: 14px;
+  line-height: 21px;
   color: var(--ink);
+}
+.landing .auth-check--block input {
+  margin-top: 1.5px;
 }
 .landing .auth-check a {
   color: var(--green-ink);
@@ -5144,7 +5154,9 @@ body:has(.landing) {
   cursor: pointer;
 }
 .landing .order-action__check input {
-  margin-top: 2px;
+  /* Mittig auf der ersten Zeile: (19,5 px Zeile − 13 px Kästchen) / 2. */
+  flex: none;
+  margin-top: 3px;
   accent-color: var(--green-ink);
 }
 .landing .order-action__check span {
@@ -5247,9 +5259,16 @@ body:has(.landing) {
   color: color-mix(in oklab, var(--ink) 75%, transparent);
   line-height: 1.5;
 }
-.landing .legal-warning__action {
-  align-self: flex-start;
+.landing .legal-warning__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 6px;
+}
+/* In der Veranstaltungsliste zwischen Kopf und Tabelle. */
+.landing .events-list__legal {
+  padding: 14px 20px;
+  border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
 }
 .landing .legal-settings__intro {
   font-size: 13px;

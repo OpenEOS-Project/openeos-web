@@ -64,8 +64,9 @@ export interface User {
   /** Nur in GET /auth/me: Mitgliedschaften des Benutzers, egal welche Rolle. */
   organizationCount?: number;
   /**
-   * Nur in GET /auth/me: Admin einer Organisation, der die gültigen AGB und
-   * den AVV noch nicht angenommen hat (Hinweisfenster im Dashboard).
+   * In GET /auth/me und in den Antworten der Anmeldung (Passwort,
+   * Anmeldelink, zweiter Faktor): Admin einer Organisation, der die gültigen
+   * AGB und den AVV noch nicht angenommen hat (Hinweisfenster im Dashboard).
    */
   legalReacceptanceRequired?: boolean;
 }
