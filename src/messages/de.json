@@ -4004,6 +4004,8 @@
     "MENU_IMPORT_NOT_FOUND": "Der Import wurde nicht gefunden.",
     "MENU_IMPORT_NOT_READY": "Der Import ist noch nicht fertig oder wurde schon übernommen.",
     "MENU_IMPORT_PDF_UNSUPPORTED": "PDF wird vom eingerichteten Anbieter nicht unterstützt – lade Fotos der Seiten hoch.",
+    "MENU_IMPORT_PDF_UNREADABLE": "Die PDF-Datei konnte nicht gelesen werden – lade Fotos der Seiten hoch.",
+    "MENU_IMPORT_TOO_MANY_PAGES": "Die Datei hat {pages} Seiten. Pro Import gehen höchstens {max} Seiten – teile die Karte auf oder lade nur die wichtigen Seiten hoch.",
     "MESSAGE_EMPTY": "Die Nachricht darf nicht leer sein.",
     "NAME_REQUIRED": "Bitte gib einen Namen an.",
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Bitte prüfe deine Verbindung.",
