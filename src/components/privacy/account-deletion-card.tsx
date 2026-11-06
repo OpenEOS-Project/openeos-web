@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ConfirmDialog } from '@/components/shared/operating-mode-notices';
 import { toast } from '@/components/shared/toast';
+import { refreshCurrentUser } from '@/components/privacy/organization-closure-banner';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { Link } from '@/i18n/routing';
 import { apiClient, privacyApi } from '@/lib/api-client';
+import { quotedNames } from '@/lib/privacy';
 import { useAuthStore } from '@/stores/auth-store';
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
 
@@ -18,11 +21,18 @@ import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/compone
  * Veranstaltungen) und welche Organisationen mitgelöscht werden. Bestätigt
  * wird mit dem Passwort bzw. einem Code per E-Mail; danach ist man
  * abgemeldet.
+ *
+ * Geht eine Organisation mit (einziges Mitglied), ist die Löschung geplant:
+ * Konto und Organisation werden erst zum Ende der Exportfrist endgültig
+ * gelöscht, bis dahin bleibt man angemeldet und kann exportieren oder die
+ * Löschung abbrechen.
  */
 export function AccountDeletionCard() {
   const t = useTranslations('privacy.accountDeletion');
   const tCommon = useTranslations('common');
   const apiErrorMessage = useApiErrorMessage();
+  const queryClient = useQueryClient();
+  const { formatDate } = useLocaleFormat();
   const [open, setOpen] = useState(false);
   const [secret, setSecret] = useState('');
   const [codeSent, setCodeSent] = useState(false);
@@ -47,7 +57,16 @@ export function AccountDeletionCard() {
       privacyApi.deleteAccount(
         status?.confirmation === 'password' ? { password: secret } : { code: secret.trim() },
       ),
-    onSuccess: () => {
+    onSuccess: async (response) => {
+      const result = response.data;
+      if (result.scheduled) {
+        // Konto bleibt bis zum Termin: Hinweis oben, Export, Abbrechen.
+        close();
+        toast.success(t('scheduledToast', { date: formatDate(result.dueAt) }));
+        await refreshCurrentUser();
+        void queryClient.invalidateQueries();
+        return;
+      }
       setDone(true);
       apiClient.clearAccessToken();
       useAuthStore.getState().reset();
@@ -61,6 +80,23 @@ export function AccountDeletionCard() {
     },
   });
 
+  const cancel = useMutation({
+    mutationFn: async () => {
+      await privacyApi.cancelAccountDeletion();
+      await refreshCurrentUser();
+    },
+    onSuccess: () => {
+      toast.success(t('cancelled'));
+      void queryClient.invalidateQueries();
+    },
+    onError: (err) => toast.error(apiErrorMessage(err, tCommon('error'))),
+  });
+
+  const schedules = (status?.closesOrganizations.length ?? 0) > 0;
+  const closesNames = quotedNames(status?.closesOrganizations ?? []);
+  const closesCount = Math.max(status?.closesOrganizations.length ?? 0, 1);
+  const scheduledDate = formatDate(status?.scheduledDeletionAt ?? null);
+
   const close = () => {
     setOpen(false);
     setSecret('');
@@ -71,6 +107,21 @@ export function AccountDeletionCard() {
       <SettingsSectionHead icon="trash-2" title={t('title')} description={t('description')} />
 
       {status?.superAdmin && <p className="privacy-muted">{t('superAdmin')}</p>}
+
+      {status?.scheduled && (
+        <div className="oe-banner oe-banner--warn" role="status" data-testid="account-deletion-scheduled">
+          <div>
+            <b>
+              {t('scheduledTitle', {
+                date: formatDate(status.scheduled.dueAt),
+                names: quotedNames(status.scheduled.organizations),
+                count: Math.max(status.scheduled.organizations.length, 1),
+              })}
+            </b>
+            <p style={{ margin: '4px 0 0', fontSize: 13 }}>{t('scheduledText')}</p>
+          </div>
+        </div>
+      )}
 
       {status && status.blockers.length > 0 && (
         <div data-testid="account-deletion-blockers">
@@ -92,21 +143,33 @@ export function AccountDeletionCard() {
       {status?.unclosedTransactions && <p className="privacy-muted">{t('unclosed')}</p>}
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-        <button
-          type="button"
-          className="btn btn--danger"
-          disabled={isLoading || !status?.allowed}
-          onClick={() => setOpen(true)}
-          data-testid="account-deletion-open"
-        >
-          {t('open')}
-        </button>
+        {status?.scheduled ? (
+          <button
+            type="button"
+            className="btn btn--ghost"
+            disabled={cancel.isPending}
+            onClick={() => cancel.mutate()}
+            data-testid="account-deletion-cancel"
+          >
+            {t('cancel')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn--danger"
+            disabled={isLoading || !status?.allowed}
+            onClick={() => setOpen(true)}
+            data-testid="account-deletion-open"
+          >
+            {t('open')}
+          </button>
+        )}
       </div>
 
       {open && status && (
         <ConfirmDialog
           id="account-deletion-dialog"
-          title={done ? t('doneTitle') : t('dialogTitle')}
+          title={done ? t('doneTitle') : t(schedules ? 'dialogTitleScheduled' : 'dialogTitle')}
           confirmLabel={t('confirm')}
           pending={remove.isPending || done}
           danger
@@ -118,23 +181,31 @@ export function AccountDeletionCard() {
             <p style={{ margin: 0 }} data-testid="account-deletion-done">{t('done')}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <p style={{ margin: 0, fontSize: 14 }}>{t('dialogText')}</p>
-              <ul className="privacy-list" style={{ marginTop: 0 }}>
-                <li>{t('what.account')}</li>
-                <li>{t('what.memberships')}</li>
-                <li>{t('what.fiscal')}</li>
-              </ul>
-              {status.closesOrganizations.length > 0 && (
+              {schedules && (
                 <div className="oe-banner oe-banner--warn" role="status" data-testid="account-deletion-closes">
                   <div>
-                    <b>{t('closesTitle')}</b>
+                    <b>{t('closesTitle', { count: closesCount })}</b>
                     <p style={{ margin: '4px 0 0', fontSize: 13 }}>
-                      {t('closesText', {
-                        names: status.closesOrganizations.map((o) => `„${o.name}“`).join(', '),
-                      })}
+                      {t('closesText', { names: closesNames, count: closesCount, date: scheduledDate })}
                     </p>
                   </div>
                 </div>
+              )}
+              <p style={{ margin: 0, fontSize: 14 }}>{t('dialogText')}</p>
+              {schedules ? (
+                <ul className="privacy-list" style={{ marginTop: 0 }} data-testid="account-deletion-scheduled-steps">
+                  <li>{t('scheduledSteps.until', { date: scheduledDate, count: closesCount })}</li>
+                  <li>{t('scheduledSteps.now')}</li>
+                  <li>{t('scheduledSteps.final', { date: scheduledDate, count: closesCount })}</li>
+                  <li>{t('scheduledSteps.cancel')}</li>
+                  <li>{t('what.fiscal')}</li>
+                </ul>
+              ) : (
+                <ul className="privacy-list" style={{ marginTop: 0 }}>
+                  <li>{t('what.account')}</li>
+                  <li>{t('what.memberships')}</li>
+                  <li>{t('what.fiscal')}</li>
+                </ul>
               )}
               {status.confirmation === 'password' ? (
                 <div className="auth-field">

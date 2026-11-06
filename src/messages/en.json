@@ -537,6 +537,7 @@
     "support": "Support",
     "adminEvents": "Events & billing",
     "adminTse": "Cloud-TSE",
+    "adminRetention": "Deletion log",
     "adminSupport": "Support requests",
     "adminFeedback": "Feedback",
     "tables": "Tables",
@@ -1437,6 +1438,53 @@
       "keptForecast": "forecast",
       "expected": "expected {date}",
       "billedMonths": "{count, plural, one {# month} other {# months}}"
+    },
+    "retention": {
+      "metaTitle": "Deletion log",
+      "title": "Deletion log",
+      "description": "All deletion runs and deletions: nightly runs, on instruction, by the clubs themselves and by users – with time, data category, counts and the executing person, without contents.",
+      "filter": "Trigger",
+      "all": "All",
+      "trigger": {
+        "scheduled": "Nightly run",
+        "manual": "Manual",
+        "instruction": "On instruction",
+        "club": "By the club",
+        "self_service": "Self-service"
+      },
+      "category": {
+        "guest_data": "Guest data",
+        "helper_data": "Helper data",
+        "auth_records": "Access records",
+        "audit_logs": "Logs",
+        "support_messages": "Support chat",
+        "contact_requests": "Website enquiries",
+        "assistant_imports": "Assistant imports",
+        "organization_inactivity": "Inactive organizations",
+        "organization_purge": "Final deletion",
+        "user_accounts": "User accounts",
+        "deletion_reminders": "Reminders",
+        "fiscal_archive": "Fiscal archive",
+        "organization_closure": "Organization deletion",
+        "memberships": "Memberships"
+      },
+      "table": {
+        "when": "Time",
+        "category": "Data category",
+        "trigger": "Trigger",
+        "organization": "Organization",
+        "executedBy": "Executed by",
+        "counts": "Counts"
+      },
+      "dryRun": "Dry run",
+      "failed": "Failed",
+      "nothing": "nothing to do",
+      "loadMore": "Load more",
+      "shown": "{shown} of {total}",
+      "empty": {
+        "title": "No entries yet",
+        "description": "Deletion runs and deletions show up here as soon as there are any."
+      }
     }
   },
   "theme": {
@@ -4162,7 +4210,10 @@
     "ORGANIZATION_CLOSED": "This organization has been deleted.",
     "ORGANIZATION_PURGE_BLOCKED": "The organization can't be deleted yet (active Cloud TSE, remaining TSE exports being collected or transactions without a closing).",
     "ORGANIZATION_PURGE_CONFIRMATION_MISMATCH": "The name you entered doesn't match the organization's name.",
-    "ORGANIZATION_READ_ONLY": "This organization is being deleted and is read-only. Exports still work."
+    "ORGANIZATION_READ_ONLY": "This organization is being deleted and is read-only. Exports still work.",
+    "ACCOUNT_DELETION_SCHEDULED": "Your account is being deleted. Until then you can neither create nor join organizations.",
+    "ACCOUNT_DELETION_NOT_SCHEDULED": "No deletion is scheduled for your account.",
+    "ORGANIZATION_NOT_CLOSED": "The organization is not deleted."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5840,7 +5891,8 @@
     "language": "Language",
     "appearance": "Appearance",
     "breadcrumb": "Breadcrumb",
-    "organizationLimitReached": "You are in {limit} organizations – that is the maximum. Contact support for more."
+    "organizationLimitReached": "You are in {limit} organizations – that is the maximum. Contact support for more.",
+    "organizationCreateDeletionScheduled": "Your account is being deleted – you can no longer create organizations."
   },
   "createOrganization": {
     "steps": {
@@ -6590,7 +6642,20 @@
     "closure": {
       "title": "This organization will be permanently deleted on {date}. You can export all data until then.",
       "titleDue": "This organization will be permanently deleted shortly. You can export all data until then.",
-      "text": "It was deleted on {closedAt} and is read-only now: reports, orders, cash book and DSFinV-K and TSE exports stay available, changes are no longer possible. The fiscal archive is kept for ten years."
+      "text": "It was deleted on {closedAt} and is read-only now: reports, orders, cash book and DSFinV-K and TSE exports stay available, changes are no longer possible. The fiscal archive is kept for ten years.",
+      "restore": "Cancel deletion",
+      "restoreTitle": "Cancel the deletion of “{name}”?",
+      "restoreText": "The organization is fully usable again afterwards: registers, shop and changes work as before, the final deletion is called off.",
+      "restored": "Deletion cancelled. The organization is fully usable again."
+    },
+    "accountClosure": {
+      "title": "Your account and {count, plural, one {the organization} other {the organizations}} {names} will be permanently deleted on {date}. You can export all data until then.",
+      "titleDue": "Your account and {count, plural, one {the organization} other {the organizations}} {names} will be permanently deleted shortly. You can export all data until then.",
+      "text": "{count, plural, one {The organization is} other {The organizations are}} read-only now: reports, orders, cash book and DSFinV-K and TSE exports stay available. You can no longer create or join organizations. We will remind you by e-mail 10 days and one day before.",
+      "cancel": "Cancel deletion",
+      "cancelTitle": "Cancel the deletion?",
+      "cancelText": "Your account and {count, plural, one {the organization} other {the organizations}} {names} are kept and fully usable again. Memberships in other organizations and API tokens removed during the deletion do not come back.",
+      "cancelled": "Deletion cancelled. Your account is kept."
     },
     "newsletter": {
       "title": "News by email",
@@ -6605,7 +6670,7 @@
     },
     "accountDeletion": {
       "title": "Delete account",
-      "description": "Deletes your account with name, email address, sign-in data and memberships. This cannot be undone.",
+      "description": "Deletes your account with name, e-mail address, login data and memberships. If you are the only member of an organization, it goes with it – then the final deletion only happens after a 30-day export period.",
       "open": "Delete account …",
       "superAdmin": "Super admin accounts can't delete themselves. Have your super admin rights removed first.",
       "blockedTitle": "You are the last administrator of these organizations:",
@@ -6624,8 +6689,8 @@
         "memberships": "You lose access to all organizations.",
         "fiscal": "If you booked transactions, your name stays in the organization's fiscal archive as the operator for ten years."
       },
-      "closesTitle": "These organizations will be deleted too",
-      "closesText": "You are the only member of {names}. They are deleted with your account and permanently deleted after the export period – export what you need first.",
+      "closesTitle": "{count, plural, one {This organization is deleted too} other {These organizations are deleted too}}",
+      "closesText": "You are the only member of {names}. So that you can still export {count, plural, one {its} other {their}} data, we only delete your account and {count, plural, one {the organization} other {the organizations}} permanently on {date}.",
       "password": "To confirm: your password",
       "code": "To confirm: code from the email",
       "sendCode": "Send code",
@@ -6633,7 +6698,19 @@
       "codeSent": "We sent you a code.",
       "confirm": "Delete account",
       "doneTitle": "Account deleted",
-      "done": "Your account has been deleted. You'll get a confirmation email and will be signed out shortly."
+      "done": "Your account has been deleted. You'll get a confirmation email and will be signed out shortly.",
+      "dialogTitleScheduled": "Delete account and organization?",
+      "scheduledSteps": {
+        "until": "Until {date} you can still log in and export all data of {count, plural, one {the organization} other {the organizations}}. Changes, creating new organizations or joining others are no longer possible.",
+        "now": "Memberships in other organizations and your API tokens are removed right away.",
+        "final": "On {date} we permanently delete your account (name, e-mail address, login data) and {count, plural, one {the organization's data} other {the organizations' data}}. We will remind you by e-mail 10 days and one day before.",
+        "cancel": "Until then you can cancel the deletion at any time – at the top of every page under “Cancel deletion”."
+      },
+      "scheduledToast": "Your account will be permanently deleted on {date}. You can export everything until then.",
+      "scheduledTitle": "Your account and {count, plural, one {the organization} other {the organizations}} {names} will be permanently deleted on {date}.",
+      "scheduledText": "Until then you can export all data or cancel the deletion.",
+      "cancel": "Cancel deletion",
+      "cancelled": "Deletion cancelled. Your account is kept."
     },
     "organizationDeletion": {
       "title": "Delete organization",
@@ -6642,7 +6719,7 @@
       "dialogTitle": "Delete “{name}”?",
       "steps": {
         "readOnly": "From now on the organization is read-only: you can export all data for 30 days, registers and shop are switched off.",
-        "final": "After that we permanently delete products, orders, shift plans, devices and memberships. Admins get an email beforehand.",
+        "final": "After that we permanently delete products, orders, shift plans, devices and memberships. The admins get e-mails beforehand (an announcement, then 10 days and one day before); until then any admin can cancel the deletion.",
         "fiscal": "The fiscal archive (TSE exports, cash point closings, signed transactions) is kept for ten years."
       },
       "typeName": "Type the organization name to confirm",

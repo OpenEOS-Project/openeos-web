@@ -537,6 +537,7 @@
     "support": "Support",
     "adminEvents": "Events & Abrechnung",
     "adminTse": "Cloud-TSE",
+    "adminRetention": "Löschprotokoll",
     "adminSupport": "Support-Anfragen",
     "adminFeedback": "Zuschriften",
     "tables": "Tische",
@@ -2553,6 +2554,53 @@
       "keptForecast": "Prognose",
       "expected": "voraussichtlich {date}",
       "billedMonths": "{count, plural, one {# Monat} other {# Monate}}"
+    },
+    "retention": {
+      "metaTitle": "Löschprotokoll",
+      "title": "Löschprotokoll",
+      "description": "Alle Löschläufe und Löschungen: nächtliche Läufe, auf Weisung, durch die Vereine selbst und durch Benutzer – mit Zeitpunkt, Datenart, Anzahl und ausführender Person, ohne Inhalte.",
+      "filter": "Auslöser",
+      "all": "Alle",
+      "trigger": {
+        "scheduled": "Nächtlicher Lauf",
+        "manual": "Von Hand",
+        "instruction": "Auf Weisung",
+        "club": "Durch den Verein",
+        "self_service": "Selbst gelöscht"
+      },
+      "category": {
+        "guest_data": "Gästeangaben",
+        "helper_data": "Helferdaten",
+        "auth_records": "Zugangsdaten",
+        "audit_logs": "Protokolle",
+        "support_messages": "Support-Chat",
+        "contact_requests": "Website-Anfragen",
+        "assistant_imports": "Assistent-Importe",
+        "organization_inactivity": "Inaktive Organisationen",
+        "organization_purge": "Endgültige Löschung",
+        "user_accounts": "Benutzerkonten",
+        "deletion_reminders": "Erinnerungen",
+        "fiscal_archive": "Steuerarchiv",
+        "organization_closure": "Löschung der Organisation",
+        "memberships": "Mitgliedschaften"
+      },
+      "table": {
+        "when": "Zeitpunkt",
+        "category": "Datenart",
+        "trigger": "Auslöser",
+        "organization": "Organisation",
+        "executedBy": "Ausgeführt von",
+        "counts": "Anzahl"
+      },
+      "dryRun": "Probelauf",
+      "failed": "Fehlgeschlagen",
+      "nothing": "nichts zu tun",
+      "loadMore": "Weitere laden",
+      "shown": "{shown} von {total}",
+      "empty": {
+        "title": "Noch keine Einträge",
+        "description": "Hier erscheinen die Löschläufe und Löschungen, sobald es welche gibt."
+      }
     }
   },
   "pos": {
@@ -4162,7 +4210,10 @@
     "ORGANIZATION_CLOSED": "Diese Organisation wurde gelöscht.",
     "ORGANIZATION_PURGE_BLOCKED": "Die Organisation kann noch nicht gelöscht werden (aktive Cloud-TSE, laufende Abholung der TSE-Exporte oder Vorgänge ohne Kassenabschluss).",
     "ORGANIZATION_PURGE_CONFIRMATION_MISMATCH": "Der eingegebene Name stimmt nicht mit dem Namen der Organisation überein.",
-    "ORGANIZATION_READ_ONLY": "Diese Organisation wird gelöscht und ist nur noch lesend nutzbar. Exporte sind weiter möglich."
+    "ORGANIZATION_READ_ONLY": "Diese Organisation wird gelöscht und ist nur noch lesend nutzbar. Exporte sind weiter möglich.",
+    "ACCOUNT_DELETION_SCHEDULED": "Dein Konto wird gelöscht. Solange kannst du keine Organisation anlegen und keiner beitreten.",
+    "ACCOUNT_DELETION_NOT_SCHEDULED": "Für dein Konto ist keine Löschung geplant.",
+    "ORGANIZATION_NOT_CLOSED": "Die Organisation ist nicht gelöscht."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5840,7 +5891,8 @@
     "language": "Sprache",
     "appearance": "Erscheinungsbild",
     "breadcrumb": "Seitenpfad",
-    "organizationLimitReached": "Du bist in {limit} Organisationen – mehr geht nicht. Für weitere wende dich an den Support."
+    "organizationLimitReached": "Du bist in {limit} Organisationen – mehr geht nicht. Für weitere wende dich an den Support.",
+    "organizationCreateDeletionScheduled": "Dein Konto wird gelöscht – neue Organisationen kannst du nicht mehr anlegen."
   },
   "createOrganization": {
     "steps": {
@@ -6590,7 +6642,20 @@
     "closure": {
       "title": "Diese Organisation wird am {date} endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
       "titleDue": "Diese Organisation wird in Kürze endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
-      "text": "Sie wurde am {closedAt} gelöscht und ist nur noch lesend nutzbar: Berichte, Bestellungen, Kassenbuch sowie DSFinV-K- und TSE-Exporte stehen dir weiter zur Verfügung, Änderungen sind nicht mehr möglich. Das Steuerarchiv bleibt zehn Jahre erhalten."
+      "text": "Sie wurde am {closedAt} gelöscht und ist nur noch lesend nutzbar: Berichte, Bestellungen, Kassenbuch sowie DSFinV-K- und TSE-Exporte stehen dir weiter zur Verfügung, Änderungen sind nicht mehr möglich. Das Steuerarchiv bleibt zehn Jahre erhalten.",
+      "restore": "Löschung abbrechen",
+      "restoreTitle": "Löschung von „{name}“ abbrechen?",
+      "restoreText": "Die Organisation ist danach wieder voll nutzbar: Kassen, Shop und Änderungen funktionieren wie vorher, die endgültige Löschung entfällt.",
+      "restored": "Löschung abgebrochen. Die Organisation ist wieder voll nutzbar."
+    },
+    "accountClosure": {
+      "title": "Dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} {names} werden am {date} endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
+      "titleDue": "Dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} {names} werden in Kürze endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
+      "text": "{count, plural, one {Die Organisation ist} other {Die Organisationen sind}} nur noch lesend nutzbar: Berichte, Bestellungen, Kassenbuch sowie DSFinV-K- und TSE-Exporte stehen dir weiter zur Verfügung. Neue Organisationen anlegen oder anderen beitreten kannst du nicht mehr. Wir erinnern dich 10 Tage und einen Tag vorher per E-Mail.",
+      "cancel": "Löschung abbrechen",
+      "cancelTitle": "Löschung abbrechen?",
+      "cancelText": "Dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} {names} bleiben bestehen und sind wieder voll nutzbar. Mitgliedschaften in anderen Organisationen und API-Tokens, die beim Löschen entfernt wurden, kommen nicht zurück.",
+      "cancelled": "Löschung abgebrochen. Dein Konto bleibt bestehen."
     },
     "newsletter": {
       "title": "Neuigkeiten per E-Mail",
@@ -6605,7 +6670,7 @@
     },
     "accountDeletion": {
       "title": "Konto löschen",
-      "description": "Löscht dein Konto mit Name, E-Mail-Adresse, Anmeldedaten und Mitgliedschaften. Das lässt sich nicht rückgängig machen.",
+      "description": "Löscht dein Konto mit Name, E-Mail-Adresse, Anmeldedaten und Mitgliedschaften. Bist du einziges Mitglied einer Organisation, geht sie mit – dann löschen wir erst nach 30 Tagen Exportfrist endgültig.",
       "open": "Konto löschen …",
       "superAdmin": "Super-Admin-Konten lassen sich nicht selbst löschen. Lass dir die Super-Admin-Rechte zuerst entziehen.",
       "blockedTitle": "Du bist der letzte Administrator dieser Organisationen:",
@@ -6624,8 +6689,8 @@
         "memberships": "Du verlierst den Zugang zu allen Organisationen.",
         "fiscal": "Hast du Kassenvorgänge gebucht, bleibt dein Name als Bediener im Steuerarchiv der Organisation zehn Jahre erhalten."
       },
-      "closesTitle": "Diese Organisationen werden mitgelöscht",
-      "closesText": "Du bist das einzige Mitglied von {names}. Sie werden mit deinem Konto gelöscht und nach der Exportfrist endgültig gelöscht – exportiere vorher, was du brauchst.",
+      "closesTitle": "{count, plural, one {Diese Organisation wird mitgelöscht} other {Diese Organisationen werden mitgelöscht}}",
+      "closesText": "Du bist das einzige Mitglied von {names}. Damit du ihre Daten noch exportieren kannst, löschen wir dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} erst am {date} endgültig.",
       "password": "Zur Bestätigung: dein Passwort",
       "code": "Zur Bestätigung: Code aus der E-Mail",
       "sendCode": "Code senden",
@@ -6633,7 +6698,19 @@
       "codeSent": "Wir haben dir einen Code geschickt.",
       "confirm": "Konto löschen",
       "doneTitle": "Konto gelöscht",
-      "done": "Dein Konto wurde gelöscht. Du bekommst eine Bestätigung per E-Mail und wirst gleich abgemeldet."
+      "done": "Dein Konto wurde gelöscht. Du bekommst eine Bestätigung per E-Mail und wirst gleich abgemeldet.",
+      "dialogTitleScheduled": "Konto und Organisation löschen?",
+      "scheduledSteps": {
+        "until": "Bis zum {date} kannst du dich weiter anmelden und alle Daten {count, plural, one {der Organisation} other {der Organisationen}} exportieren. Ändern, neue Organisationen anlegen oder anderen beitreten geht nicht mehr.",
+        "now": "Mitgliedschaften in anderen Organisationen und deine API-Tokens entfernen wir sofort.",
+        "final": "Am {date} löschen wir dein Konto (Name, E-Mail-Adresse, Anmeldedaten) und {count, plural, one {die Daten der Organisation} other {die Daten der Organisationen}} endgültig. Wir erinnern dich 10 Tage und einen Tag vorher per E-Mail.",
+        "cancel": "Bis dahin kannst du die Löschung jederzeit abbrechen – oben auf jeder Seite unter „Löschung abbrechen“."
+      },
+      "scheduledToast": "Dein Konto wird am {date} endgültig gelöscht. Bis dahin kannst du alles exportieren.",
+      "scheduledTitle": "Dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} {names} werden am {date} endgültig gelöscht.",
+      "scheduledText": "Bis dahin kannst du alle Daten exportieren oder die Löschung abbrechen.",
+      "cancel": "Löschung abbrechen",
+      "cancelled": "Löschung abgebrochen. Dein Konto bleibt bestehen."
     },
     "organizationDeletion": {
       "title": "Organisation löschen",
@@ -6642,7 +6719,7 @@
       "dialogTitle": "„{name}“ löschen?",
       "steps": {
         "readOnly": "Ab sofort ist die Organisation nur noch lesend nutzbar: Du kannst 30 Tage lang alle Daten exportieren, Kassen und Shop sind abgeschaltet.",
-        "final": "Danach löschen wir Artikel, Bestellungen, Schichtpläne, Geräte und Mitgliedschaften endgültig. Die Admins bekommen vorher eine E-Mail.",
+        "final": "Danach löschen wir Artikel, Bestellungen, Schichtpläne, Geräte und Mitgliedschaften endgültig. Die Admins bekommen vorher E-Mails (eine Ankündigung, dann 10 Tage und einen Tag vorher); bis dahin kann jeder Admin die Löschung abbrechen.",
         "fiscal": "Das Steuerarchiv (TSE-Exporte, Kassenabschlüsse, signierte Vorgänge) bleibt zehn Jahre erhalten."
       },
       "typeName": "Gib zur Bestätigung den Namen der Organisation ein",

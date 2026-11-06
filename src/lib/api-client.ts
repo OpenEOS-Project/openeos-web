@@ -418,6 +418,10 @@ export const organizationsApi = {
   delete: (id: string) =>
     apiClient.delete(`/organizations/${id}`),
 
+  /** „Löschung abbrechen“ (Admins, bis zur endgültigen Löschung). */
+  restore: (id: string) =>
+    apiClient.post<ApiResponse<import('@/types/organization').Organization>>(`/organizations/${id}/restore`),
+
   // Integration ein-/ausschalten; Antwort ist die aktualisierte Organisation.
   setIntegrationEnabled: (
     id: string,
@@ -1133,7 +1137,11 @@ export const privacyApi = {
   sendAccountDeletionCode: () => apiClient.post<ApiResponse<void>>('/users/me/deletion/code'),
 
   deleteAccount: (data: { password?: string; code?: string }) =>
-    apiClient.post<ApiResponse<{ deleted: boolean; runId: string }>>('/users/me/deletion', data),
+    apiClient.post<ApiResponse<import('@/lib/privacy').AccountDeletionResult>>('/users/me/deletion', data),
+
+  /** „Löschung abbrechen“: Konto und mitgelöschte Organisationen zurückholen. */
+  cancelAccountDeletion: () =>
+    apiClient.post<ApiResponse<{ cancelled: boolean; runId: string }>>('/users/me/deletion/cancel'),
 
   newsletter: () =>
     apiClient.get<ApiResponse<import('@/lib/privacy').NewsletterStatus>>('/users/me/newsletter'),
@@ -1182,6 +1190,18 @@ export const adminApi = {
   /** Super-Admin-Felder am Benutzer, derzeit die eigene Organisationsgrenze (null = Standard). */
   updateUser: (userId: string, data: { organizationLimit?: number | null }) =>
     apiClient.patch<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}`, data),
+
+  /** Protokoll der Löschläufe und Löschungen (auch durch Vereine), neueste zuerst. */
+  listRetentionRuns: (params?: { trigger?: string; category?: string; organizationId?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    for (const [key, value] of Object.entries(params ?? {})) {
+      if (value !== undefined && value !== '') q.set(key, String(value));
+    }
+    const suffix = q.toString() ? `?${q}` : '';
+    return apiClient.get<
+      ApiResponse<import('@/lib/privacy').RetentionRunEntry[]> & { meta: { total: number } }
+    >(`/admin/retention/runs${suffix}`);
+  },
 
   // Organizations (admin view)
   /** Sofortige endgültige Löschung auf Verlangen (AVV 10.2): Name zur Bestätigung und Anlass. */

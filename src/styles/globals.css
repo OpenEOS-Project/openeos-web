@@ -241,6 +241,7 @@ input[type="search"]::-webkit-search-cancel-button {
    Gefahrenbereiche (Konto bzw. Organisation löschen). */
 .privacy-closure-banner { margin-bottom: 16px; }
 .privacy-closure-banner p { font-size: 13px; }
+.privacy-closure-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .privacy-danger { border-color: color-mix(in oklab, var(--danger, #c0392b) 35%, transparent); }
 .privacy-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; list-style: disc; }
 .privacy-list li + li { margin-top: 4px; }

@@ -21,6 +21,7 @@ import {
   ShoppingBag,
   TabletSmartphone,
   Tag,
+  Trash2,
   Users,
 } from 'lucide-react';
 
@@ -62,6 +63,13 @@ export const superAdminNavItems: NavItemType[] = [
     labelKey: 'adminTse',
     href: '/admin/tse',
     icon: ShieldCheck,
+  },
+  {
+    // Protokoll der Löschläufe und Löschungen (auch durch Vereine selbst).
+    labelKey: 'adminRetention',
+    href: '/admin/retention',
+    saasOnly: true,
+    icon: Trash2,
   },
   {
     // Nicht schlicht "Support": der Fusseintrag heisst schon so und
