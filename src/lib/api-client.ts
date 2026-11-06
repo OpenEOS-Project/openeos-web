@@ -1031,6 +1031,16 @@ export const ordersApi = {
       `/organizations/${organizationId}/orders/stats${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
     ),
 
+  /** CSV der gefilterten Bestellungen (eine Zeile je Bestellung oder je Position). */
+  exportCsv: (organizationId: string, params: import('@/types/order').ExportOrdersParams) =>
+    authorizedDownload(
+      `/organizations/${organizationId}/orders/export?${new URLSearchParams(
+        Object.entries(params)
+          .filter(([, value]) => value !== undefined && value !== '')
+          .map(([key, value]) => [key, String(value)])
+      )}`
+    ),
+
   get: (organizationId: string, orderId: string) =>
     apiClient.get<ApiResponse<import('@/types/order').Order>>(`/organizations/${organizationId}/orders/${orderId}`),
 

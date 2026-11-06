@@ -254,3 +254,54 @@ input[type="search"]::-webkit-search-cancel-button {
   background: color-mix(in oklab, var(--danger, #c0392b) 12%, var(--paper));
   color: var(--danger, #c0392b);
 }
+
+/* Aktionen nur als Symbol, Beschriftung als Sprechblase (Produkte,
+   Bestellungen). */
+.page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* @openeos/ui zeigt die Sprechblase von <Tooltip> immer an und über dem
+   Element; hier erst bei Zeigen oder Tastaturfokus und darunter — über dem
+   Knopf würde der Kartenkopf sie abschneiden. aria-label trägt den Text
+   für Screenreader. */
+.page-actions .oe-tip__bubble {
+  top: calc(100% + 7px);
+  bottom: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 5;
+  transition:
+    opacity 0.12s,
+    visibility 0.12s;
+}
+.page-actions .oe-tip__bubble::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--oe-contrast);
+}
+.page-actions .oe-tip:hover .oe-tip__bubble,
+.page-actions .oe-tip:focus-within .oe-tip__bubble {
+  opacity: 1;
+  visibility: visible;
+}
+/* Offenes Menü (Dropdown als Auslöser): Sprechblase weg, sie läge über dem
+   Panel. */
+.page-actions .oe-tip:has(.oe-dd.is-open) .oe-tip__bubble {
+  opacity: 0;
+  visibility: hidden;
+}
+/* Symbol als Auslöser eines Dropdowns: volle Größe und Farbe, dreht beim
+   Öffnen nicht mit dem Pfeil. */
+.page-actions .oe-dd__trigger svg.oe-icon,
+.page-actions .oe-dd.is-open > .oe-dd__trigger svg.oe-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--oe-ink);
+  transform: none;
+}

@@ -1,41 +1,7 @@
-/* Produkte-Seite: Aktionen im Kartenkopf und der gemeinsame Import-Dialog
+/* Produkte-Seite: der gemeinsame Import-Dialog
    (products/components/import-dialog.tsx) mit den Reitern „Speisekarte“
-   und „CSV“. Die Vorschau des Speisekarten-Imports steht in assistant.css. */
-
-/* ---------- Aktionen: nur Symbol, Beschriftung als Sprechblase ---------- */
-.page-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-/* @openeos/ui zeigt die Sprechblase von <Tooltip> immer an und über dem
-   Element; hier erst bei Zeigen oder Tastaturfokus und darunter — über dem
-   Knopf würde der Kartenkopf sie abschneiden. aria-label trägt den Text
-   für Screenreader. */
-.page-actions .oe-tip__bubble {
-  top: calc(100% + 7px);
-  bottom: auto;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  z-index: 5;
-  transition:
-    opacity 0.12s,
-    visibility 0.12s;
-}
-.page-actions .oe-tip__bubble::after {
-  top: auto;
-  bottom: 100%;
-  border-top-color: transparent;
-  border-bottom-color: var(--oe-contrast);
-}
-.page-actions .oe-tip:hover .oe-tip__bubble,
-.page-actions .oe-tip:focus-within .oe-tip__bubble {
-  opacity: 1;
-  visibility: visible;
-}
+   und „CSV“. Die Vorschau des Speisekarten-Imports steht in assistant.css.
+   Die Symbol-Aktionen im Kartenkopf (.page-actions) stehen in globals.css. */
 
 /* ---------- Import-Dialog ---------- */
 /* .landing .modal__panel setzt 520px; die Vorschau-Tabelle braucht Breite. */

@@ -3200,7 +3200,9 @@
       "allPayments": "Alle Zahlungen",
       "allChannels": "Alle Kanäle",
       "allEvents": "Alle Veranstaltungen",
-      "searchPlaceholder": "Nummer, Tisch oder Produkt"
+      "searchPlaceholder": "Nummer, Tisch oder Produkt",
+      "dateFrom": "Von (Datum)",
+      "dateTo": "Bis (Datum)"
     },
     "columns": {
       "orderNumber": "Bestellung",
@@ -3399,6 +3401,19 @@
       "more": "{name}: mehr",
       "cashlessBlockedTitle": "Keine Bar-Erstattung",
       "cashlessBlocked": "Ohne Bargeld geht eine Erstattung nur auf die ursprüngliche Karten- oder Online-Zahlung zurück. Dieser Betrag wurde (teilweise) bar bezahlt und lässt sich über OpenEOS nicht erstatten."
+    },
+    "export": {
+      "trigger": "Als CSV exportieren",
+      "caption": "{count, plural, one {# gefilterte Bestellung} other {# gefilterte Bestellungen}} als CSV",
+      "orders": "Bestellungen",
+      "ordersHint": "eine Zeile je Bestellung",
+      "items": "Positionen",
+      "itemsHint": "eine Zeile je Artikel",
+      "failed": "Der Export hat nicht geklappt. Versuch es bitte noch einmal.",
+      "filename": {
+        "orders": "bestellungen_{date}.csv",
+        "items": "bestellpositionen_{date}.csv"
+      }
     }
   },
   "device": {

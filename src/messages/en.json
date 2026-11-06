@@ -3200,7 +3200,9 @@
       "allPayments": "All payments",
       "allChannels": "All channels",
       "allEvents": "All events",
-      "searchPlaceholder": "Number, table or product"
+      "searchPlaceholder": "Number, table or product",
+      "dateFrom": "From (date)",
+      "dateTo": "To (date)"
     },
     "columns": {
       "orderNumber": "Order",
@@ -3399,6 +3401,19 @@
       "more": "{name}: more",
       "cashlessBlockedTitle": "No cash refund",
       "cashlessBlocked": "Without cash, a refund only goes back to the original card or online payment. This amount was paid (partly) in cash and cannot be refunded via OpenEOS."
+    },
+    "export": {
+      "trigger": "Export as CSV",
+      "caption": "{count, plural, one {# filtered order} other {# filtered orders}} as CSV",
+      "orders": "Orders",
+      "ordersHint": "one row per order",
+      "items": "Line items",
+      "itemsHint": "one row per item",
+      "failed": "The export failed. Please try again.",
+      "filename": {
+        "orders": "bestellungen_{date}.csv",
+        "items": "bestellpositionen_{date}.csv"
+      }
     }
   },
   "device": {
