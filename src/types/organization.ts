@@ -120,9 +120,25 @@ export interface BillingAddress {
 
 export type DiscountType = 'all' | 'credits' | 'hardware';
 
+/**
+ * Gelöschte bzw. geschlossene Organisation (AGB 10.4): bis zur endgültigen
+ * Löschung nur noch lesend nutzbar, damit die Admins exportieren können.
+ */
+export interface OrganizationClosure {
+  closedAt: string;
+  finalDeletionAt: string;
+  /** Endgültig gelöscht – nur noch die gesperrte Hülle mit Steuerarchiv. */
+  purged: boolean;
+  readOnly: true;
+}
+
 export interface Organization {
   id: string;
   name: string;
+  /** Gesetzt, wenn die Organisation gelöscht wurde. */
+  deletedAt?: string | null;
+  /** Nur bei gelöschten Organisationen, sonst null. */
+  closure?: OrganizationClosure | null;
   slug: string;
   logoUrl: string | null;
   settings: OrganizationSettings;
