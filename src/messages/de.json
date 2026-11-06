@@ -2168,7 +2168,7 @@
     },
     "deleteConfirm": {
       "title": "Organisation löschen",
-      "message": "Bist du sicher, dass du diese Organisation löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "message": "Die Organisation ist danach 30 Tage lang nur noch lesend nutzbar (Export), dann wird sie endgültig gelöscht. Das Steuerarchiv bleibt erhalten.",
       "confirm": "Löschen"
     },
     "notifications": {
@@ -4150,7 +4150,19 @@
     "PURCHASE_MASTER_DATA_REQUIRED": "Bevor du bezahlst, brauchen wir noch ein paar Angaben zu deiner Organisation.",
     "PURCHASE_MASTER_DATA_OVERRIDE_REASON_REQUIRED": "Bitte gib einen Grund an, warum ohne vollständige Angaben erlassen wird.",
     "TAX_ID_INVALID": "Steuernummer oder USt-IdNr. hat nicht das richtige Format.",
-    "LEGAL_ACCEPTANCE_REQUIRED": "Bitte akzeptiere die AGB und den Auftragsverarbeitungsvertrag und bestätige, dass du für eine Organisation handelst."
+    "LEGAL_ACCEPTANCE_REQUIRED": "Bitte akzeptiere die AGB und den Auftragsverarbeitungsvertrag und bestätige, dass du für eine Organisation handelst.",
+    "ACCOUNT_DELETION_BLOCKED": "Du bist der letzte Administrator von {organizations}. Ernenne zuerst eine andere Person zum Administrator oder verlasse bzw. lösche die Organisation.",
+    "ACCOUNT_DELETION_CODE_INVALID": "Der Code ist ungültig oder abgelaufen. Fordere einen neuen an.",
+    "ACCOUNT_DELETION_CONFIRMATION_REQUIRED": "Bitte bestätige mit deinem Passwort bzw. dem Code aus der E-Mail.",
+    "ACCOUNT_DELETION_PASSWORD_INVALID": "Das Passwort stimmt nicht.",
+    "ACCOUNT_DELETION_SUPER_ADMIN": "Super-Admin-Konten lassen sich nicht selbst löschen.",
+    "ACCOUNT_DELETION_UNCLOSED_TRANSACTIONS": "Du hast Kassenvorgänge ohne Kassenabschluss. Bitte deinen Verein, zuerst den Kassenabschluss zu erstellen.",
+    "NEWSLETTER_TOKEN_INVALID": "Dieser Abmeldelink ist ungültig.",
+    "ORGANIZATION_ALREADY_PURGED": "Diese Organisation ist bereits endgültig gelöscht.",
+    "ORGANIZATION_CLOSED": "Diese Organisation wurde gelöscht.",
+    "ORGANIZATION_PURGE_BLOCKED": "Die Organisation kann noch nicht gelöscht werden (aktive Cloud-TSE, laufende Abholung der TSE-Exporte oder Vorgänge ohne Kassenabschluss).",
+    "ORGANIZATION_PURGE_CONFIRMATION_MISMATCH": "Der eingegebene Name stimmt nicht mit dem Namen der Organisation überein.",
+    "ORGANIZATION_READ_ONLY": "Diese Organisation wird gelöscht und ist nur noch lesend nutzbar. Exporte sind weiter möglich."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -6572,6 +6584,106 @@
       "saving": "Wird übernommen …",
       "saveFailed": "Der Text konnte nicht übernommen werden.",
       "saved": "Übernommen. Du findest den Text jetzt unter <link>Einstellungen → Rechtliche Angaben (Shop & Helferseiten)</link> und kannst ihn dort weiter bearbeiten."
+    }
+  },
+  "privacy": {
+    "closure": {
+      "title": "Diese Organisation wird am {date} endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
+      "titleDue": "Diese Organisation wird in Kürze endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.",
+      "text": "Sie wurde am {closedAt} gelöscht und ist nur noch lesend nutzbar: Berichte, Bestellungen, Kassenbuch sowie DSFinV-K- und TSE-Exporte stehen dir weiter zur Verfügung, Änderungen sind nicht mehr möglich. Das Steuerarchiv bleibt zehn Jahre erhalten."
+    },
+    "newsletter": {
+      "title": "Neuigkeiten per E-Mail",
+      "description": "Gelegentliche Neuigkeiten zu OpenEOS. Du kannst deine Einwilligung jederzeit geben oder widerrufen.",
+      "label": "Neuigkeiten per E-Mail erhalten",
+      "hint": "Freiwillig. Wir speichern, wann du eingewilligt bzw. widerrufen hast.",
+      "subscribed": "Einwilligung gespeichert",
+      "unsubscribed": "Einwilligung widerrufen",
+      "consentedAt": "Eingewilligt am {date}",
+      "withdrawnAt": "Widerrufen am {date}",
+      "unverified": "Bestätige zuerst deine E-Mail-Adresse – vorher schicken wir nichts."
+    },
+    "accountDeletion": {
+      "title": "Konto löschen",
+      "description": "Löscht dein Konto mit Name, E-Mail-Adresse, Anmeldedaten und Mitgliedschaften. Das lässt sich nicht rückgängig machen.",
+      "open": "Konto löschen …",
+      "superAdmin": "Super-Admin-Konten lassen sich nicht selbst löschen. Lass dir die Super-Admin-Rechte zuerst entziehen.",
+      "blockedTitle": "Du bist der letzte Administrator dieser Organisationen:",
+      "blockers": {
+        "members": "Sie hat weitere Mitglieder.",
+        "active_events": "Sie hat eine laufende oder bezahlte kommende Veranstaltung.",
+        "tse_active": "Ihre Cloud-TSE ist noch aktiv."
+      },
+      "blockedHint": "Ernenne zuerst eine andere Person zum Administrator oder verlasse bzw. lösche die Organisation.",
+      "toMembers": "Zu den Mitgliedern",
+      "unclosed": "Du hast Kassenvorgänge gebucht, die noch keinem Kassenabschluss zugeordnet sind. Bitte deinen Verein, zuerst den Kassenabschluss zu erstellen.",
+      "dialogTitle": "Konto endgültig löschen?",
+      "dialogText": "Das passiert beim Löschen:",
+      "what": {
+        "account": "Name, E-Mail-Adresse, Passwort, Zwei-Faktor-Anmeldung, Sitzungen und API-Tokens werden entfernt; du wirst abgemeldet.",
+        "memberships": "Du verlierst den Zugang zu allen Organisationen.",
+        "fiscal": "Hast du Kassenvorgänge gebucht, bleibt dein Name als Bediener im Steuerarchiv der Organisation zehn Jahre erhalten."
+      },
+      "closesTitle": "Diese Organisationen werden mitgelöscht",
+      "closesText": "Du bist das einzige Mitglied von {names}. Sie werden mit deinem Konto gelöscht und nach der Exportfrist endgültig gelöscht – exportiere vorher, was du brauchst.",
+      "password": "Zur Bestätigung: dein Passwort",
+      "code": "Zur Bestätigung: Code aus der E-Mail",
+      "sendCode": "Code senden",
+      "resendCode": "Neuen Code senden",
+      "codeSent": "Wir haben dir einen Code geschickt.",
+      "confirm": "Konto löschen",
+      "doneTitle": "Konto gelöscht",
+      "done": "Dein Konto wurde gelöscht. Du bekommst eine Bestätigung per E-Mail und wirst gleich abgemeldet."
+    },
+    "organizationDeletion": {
+      "title": "Organisation löschen",
+      "description": "Beendet die Nutzung für diese Organisation. Danach kannst du 30 Tage lang noch alle Daten exportieren.",
+      "open": "Organisation löschen …",
+      "dialogTitle": "„{name}“ löschen?",
+      "steps": {
+        "readOnly": "Ab sofort ist die Organisation nur noch lesend nutzbar: Du kannst 30 Tage lang alle Daten exportieren, Kassen und Shop sind abgeschaltet.",
+        "final": "Danach löschen wir Artikel, Bestellungen, Schichtpläne, Geräte und Mitgliedschaften endgültig. Die Admins bekommen vorher eine E-Mail.",
+        "fiscal": "Das Steuerarchiv (TSE-Exporte, Kassenabschlüsse, signierte Vorgänge) bleibt zehn Jahre erhalten."
+      },
+      "typeName": "Gib zur Bestätigung den Namen der Organisation ein",
+      "confirm": "Organisation löschen",
+      "deleted": "Organisation gelöscht. Du kannst ihre Daten 30 Tage lang exportieren."
+    },
+    "purge": {
+      "title": "„{name}“ sofort endgültig löschen?",
+      "text": "Nur auf Verlangen des Kunden (AVV 10.2, Wechsel nach AGB 20.5). Die Exportfrist entfällt, die Daten sind danach weg.",
+      "keeps": "Das Steuerarchiv (TSE-Exporte, Kassenabschlüsse, signierte Vorgänge) bleibt zehn Jahre erhalten.",
+      "rules": "Bei aktiver Cloud-TSE, laufender Abholung der Rest-Exporte oder Vorgängen ohne Kassenabschluss wird nicht gelöscht.",
+      "log": "Der Vorgang steht mit dir und dem Anlass im Protokoll der Löschläufe; die Admins bekommen eine Bestätigung.",
+      "typeName": "Name der Organisation zur Bestätigung",
+      "reason": "Anlass",
+      "reasonPlaceholder": "z. B. Löschverlangen per E-Mail vom 06.11.2026",
+      "reasonHint": "Mindestens {min} Zeichen, ohne Namen oder Inhalte.",
+      "confirm": "Endgültig löschen",
+      "done": "„{name}“ wurde endgültig gelöscht.",
+      "failed": "Die Löschung ist fehlgeschlagen."
+    },
+    "adminList": {
+      "filter": "Status",
+      "active": "Aktiv",
+      "closed": "Gelöscht",
+      "scheduled": "Endgültige Löschung am {date}",
+      "purged": "Endgültig gelöscht",
+      "purge": "Endgültig löschen",
+      "emptyTitle": "Keine gelöschten Organisationen",
+      "emptyDescription": "Hier stehen Organisationen in der Exportfrist und endgültig gelöschte."
+    },
+    "unsubscribe": {
+      "title": "Keine Neuigkeiten mehr?",
+      "text": "Mit einem Klick widerrufst du deine Einwilligung. Du bekommst dann keine Neuigkeiten zu OpenEOS mehr per E-Mail; E-Mails zu deinem Konto bleiben.",
+      "confirm": "Abmelden",
+      "successTitle": "Du bist abgemeldet",
+      "successMessage": "Wir schicken dir keine Neuigkeiten mehr. In den Kontoeinstellungen kannst du dich jederzeit wieder anmelden.",
+      "toLogin": "Zur Anmeldung",
+      "errorTitle": "Abmelden nicht möglich",
+      "errorHint": "Du kannst die Einwilligung auch in den Kontoeinstellungen widerrufen oder eine E-Mail an hello@openeos.de schreiben.",
+      "missingToken": "Der Link ist unvollständig.",
+      "error": "Der Abmeldelink ist ungültig."
     }
   }
 }

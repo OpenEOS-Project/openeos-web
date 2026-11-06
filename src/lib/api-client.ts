@@ -1125,6 +1125,31 @@ export const changelogApi = {
     ),
 };
 
+/** Datenschutz zum Selbstbedienen: Konto löschen, Newsletter-Einwilligung. */
+export const privacyApi = {
+  accountDeletionStatus: () =>
+    apiClient.get<ApiResponse<import('@/lib/privacy').AccountDeletionStatus>>('/users/me/deletion'),
+
+  sendAccountDeletionCode: () => apiClient.post<ApiResponse<void>>('/users/me/deletion/code'),
+
+  deleteAccount: (data: { password?: string; code?: string }) =>
+    apiClient.post<ApiResponse<{ deleted: boolean; runId: string }>>('/users/me/deletion', data),
+
+  newsletter: () =>
+    apiClient.get<ApiResponse<import('@/lib/privacy').NewsletterStatus>>('/users/me/newsletter'),
+
+  setNewsletter: (subscribed: boolean) =>
+    apiClient.put<ApiResponse<import('@/lib/privacy').NewsletterStatus>>('/users/me/newsletter', { subscribed }),
+
+  /** Abmeldelink aus Mails – ohne Anmeldung. */
+  unsubscribeNewsletter: (token: string) =>
+    apiClient.post<ApiResponse<{ unsubscribed: boolean }>>(
+      '/public/newsletter/unsubscribe',
+      { token },
+      { skipAuth: true },
+    ),
+};
+
 export const adminApi = {
   // Zuschriften von der Website
   listContactRequests: (params?: { type?: string; handled?: boolean }) => {
@@ -1159,7 +1184,19 @@ export const adminApi = {
     apiClient.patch<ApiResponse<import('@/types/admin').AdminUser>>(`/admin/users/${userId}`, data),
 
   // Organizations (admin view)
-  listOrganizations: (params?: { search?: string; page?: number; limit?: number }) =>
+  /** Sofortige endgültige Löschung auf Verlangen (AVV 10.2): Name zur Bestätigung und Anlass. */
+  purgeOrganization: (id: string, data: { confirmName: string; reason: string }) =>
+    apiClient.post<ApiResponse<{ id: string; status: string; counts: Record<string, number> }>>(
+      `/admin/retention/organizations/${id}/purge`,
+      data,
+    ),
+
+  listOrganizations: (params?: {
+    search?: string;
+    page?: number;
+    limit?: number;
+    status?: 'active' | 'closed' | 'all';
+  }) =>
     apiClient.get<ApiResponse<import('@/types/organization').Organization[]> & { meta: import('@/types/api').PaginationMeta }>(
       `/admin/organizations${params ? `?${new URLSearchParams(params as Record<string, string>)}` : ''}`
     ),

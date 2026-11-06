@@ -10,6 +10,7 @@ import { MembersModal } from './members-modal';
 import { OperatingModeModal } from './operating-mode-modal';
 import { OrganizationFormModal } from './organization-form-modal';
 import { OrganizationsList } from './organizations-list';
+import { PurgeOrganizationModal } from './purge-organization-modal';
 
 export function OrganizationsContainer() {
   const t = useTranslations('organizations');
@@ -19,6 +20,7 @@ export function OrganizationsContainer() {
   const [deletingOrganization, setDeletingOrganization] = useState<Organization | null>(null);
   const [membersOrganization, setMembersOrganization] = useState<Organization | null>(null);
   const [modeOrganization, setModeOrganization] = useState<Organization | null>(null);
+  const [purgeOrganization, setPurgeOrganization] = useState<Organization | null>(null);
 
   const deleteOrganization = useDeleteOrganization();
 
@@ -50,7 +52,10 @@ export function OrganizationsContainer() {
         onDeleteClick={handleDeleteClick}
         onManageMembersClick={handleManageMembersClick}
         onOperatingModeClick={setModeOrganization}
+        onPurgeClick={setPurgeOrganization}
       />
+
+      <PurgeOrganizationModal organization={purgeOrganization} onClose={() => setPurgeOrganization(null)} />
 
       <OrganizationFormModal
         isOpen={isCreateModalOpen || !!editingOrganization}

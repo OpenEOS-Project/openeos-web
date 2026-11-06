@@ -236,3 +236,21 @@ input[type="search"]::-webkit-search-cancel-button {
   color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
 }
 .mode-history time { font-variant-numeric: tabular-nums; color: var(--oe-mute); min-width: 128px; }
+
+/* Datenschutz zum Selbstbedienen: Hinweis gelöschter Organisationen und
+   Gefahrenbereiche (Konto bzw. Organisation löschen). */
+.privacy-closure-banner { margin-bottom: 16px; }
+.privacy-closure-banner p { font-size: 13px; }
+.privacy-danger { border-color: color-mix(in oklab, var(--danger, #c0392b) 35%, transparent); }
+.privacy-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; list-style: disc; }
+.privacy-list li + li { margin-top: 4px; }
+.privacy-muted { font-size: 13px; color: var(--ink-faint); margin: 0; }
+.privacy-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--danger, #c0392b) 12%, var(--paper));
+  color: var(--danger, #c0392b);
+}

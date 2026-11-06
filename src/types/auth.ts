@@ -54,6 +54,10 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  /** Letzte Einwilligung in Neuigkeiten per E-Mail (bleibt nach Widerruf stehen). */
+  newsletterOptInAt?: string | null;
+  /** Letzter Widerruf der Einwilligung. */
+  newsletterOptOutAt?: string | null;
   userOrganizations: UserOrganization[];
   /** Nur in GET /auth/me: wirksame Höchstzahl an Organisationen (0 = unbegrenzt). */
   organizationLimit?: number;

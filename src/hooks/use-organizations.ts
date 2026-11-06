@@ -142,11 +142,16 @@ export function useInviteMember() {
 export const adminOrganizationKeys = {
   all: ['admin-organizations'] as const,
   lists: () => [...adminOrganizationKeys.all, 'list'] as const,
-  list: (params?: { search?: string; page?: number; limit?: number }) =>
+  list: (params?: { search?: string; page?: number; limit?: number; status?: string }) =>
     [...adminOrganizationKeys.lists(), params] as const,
 };
 
-export function useAdminOrganizations(params?: { search?: string; page?: number; limit?: number }) {
+export function useAdminOrganizations(params?: {
+  search?: string;
+  page?: number;
+  limit?: number;
+  status?: 'active' | 'closed' | 'all';
+}) {
   return useQuery({
     queryKey: adminOrganizationKeys.list(params),
     queryFn: async () => {
