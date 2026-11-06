@@ -9,10 +9,18 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
 
-import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { useIntlLocale, useLocaleFormat } from '@/hooks/use-locale-format';
 
 import { adminApi } from '@/lib/api-client';
-import { currentPostponement, isMonthlyDeactivation, overdueUnits, shortSerial } from '@/lib/tse';
+import {
+  currentPostponement,
+  isMonthlyDeactivation,
+  overdueUnits,
+  quotedEventNames,
+  shortSerial,
+  tseKeepLines,
+  tseMonthLabel,
+} from '@/lib/tse';
 
 import type { AdminTseUnit, TseHealthIssue } from '@/types/tse';
 
@@ -180,8 +188,15 @@ function UnitRow({
 }) {
   const t = useTranslations('admin.tse');
   const tStatus = useTranslations('integrations.tse.status');
+  const locale = useIntlLocale();
   const postponement = currentPostponement(unit);
   const postponedCount = unit.postponements?.length ?? 0;
+  const keepLines = tseKeepLines(unit.lifecycleOutlook);
+  const expected = unit.lifecycleOutlook?.expectedDeactivationAt ?? null;
+  const expectedLater =
+    !!expected &&
+    !!unit.plannedDeactivationAt &&
+    new Date(expected).getTime() !== new Date(unit.plannedDeactivationAt).getTime();
 
   return (
     <tr
@@ -249,6 +264,26 @@ function UnitRow({
             })}
           </span>
         )}
+        {expectedLater && (
+          <span style={{ display: 'block', fontSize: 12, color: 'var(--ink)' }} data-testid="admin-tse-expected">
+            {t('expected', { date: formatDateTime(expected) })}
+          </span>
+        )}
+        {keepLines.map((line) => (
+          <span
+            key={line.month}
+            style={{ display: 'block', fontSize: 12, color: MUTED }}
+            data-testid="admin-tse-kept"
+          >
+            {t(line.reason === 'paid_event_running' ? 'keptRunning' : 'keptBooked', {
+              month: tseMonthLabel(line.month, locale),
+              events: quotedEventNames(line.events, locale),
+            })}{' '}
+            <span className="badge badge--neutral" style={{ fontSize: 11 }}>
+              {t(line.decided ? 'keptDecided' : 'keptForecast')}
+            </span>
+          </span>
+        ))}
         {!postponement && postponedCount > 0 && (
           <span style={{ display: 'block', fontSize: 12, color: MUTED }}>
             {t('postponedBefore', { count: postponedCount })}

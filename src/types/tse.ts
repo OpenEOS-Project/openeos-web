@@ -65,6 +65,44 @@ export interface TseUnit {
   plannedDeactivationAt?: string | null;
   /** Verschiebungen, weil zum Termin eine bezahlte Veranstaltung lief. */
   postponements?: TsePostponement[];
+  /** Behalten, weil im Folgemonat schon eine bezahlte Veranstaltung gebucht war (2026-11-06). */
+  keeps?: TseKeep[];
+  /**
+   * Nur aktive TSE, Lebenszyklus `monthly` (GET …/tse und /admin/tse/units):
+   * voraussichtliche Abmeldung und die Monate, in denen sie weiterläuft.
+   */
+  lifecycleOutlook?: TseLifecycleOutlook | null;
+}
+
+/** Behalten zum Monatsende (gebuchte Veranstaltung im Folgemonat). */
+export interface TseKeep {
+  at: string;
+  from: string;
+  to: string;
+  reason: 'paid_event_next_month';
+  /** Monat, in dem die TSE dadurch weiterläuft (`YYYY-MM`). */
+  month: string;
+  events: { id: string; name: string; startDate: string; endDate: string | null }[];
+  recheckUntil: string;
+  /** Veranstaltung vor dem Monatswechsel storniert/erstattet → doch abgemeldet. */
+  revokedAt?: string | null;
+}
+
+export type TseKeepReason = 'paid_event_next_month' | 'paid_event_running';
+
+export interface TseLifecycleOutlook {
+  /** Voraussichtliche Abmeldung (letzter Tag eines Monats, 20:00 Berlin). */
+  expectedDeactivationAt: string;
+  /**
+   * Monate, in denen die TSE über ihren Monat hinaus aktiv bleibt: zuerst
+   * eine schon getroffene Entscheidung (`decided`), dann die Prognose.
+   */
+  months: {
+    month: string;
+    reason: TseKeepReason;
+    decided: boolean;
+    events: { id: string; name: string; startDate: string; endDate: string | null }[];
+  }[];
 }
 
 export type TseLifecycle = 'persistent' | 'monthly';
