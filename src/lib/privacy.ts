@@ -49,4 +49,63 @@ export interface AccountDeletionStatus {
   unclosedTransactions: boolean;
   blockers: Array<{ organizationId: string; name: string; reason: AccountDeletionBlockReason }>;
   closesOrganizations: Array<{ organizationId: string; name: string }>;
+  /** Termin der endgültigen Löschung, wenn jetzt gelöscht wird und Organisationen mitgehen. */
+  scheduledDeletionAt: string | null;
+  /** Bereits geplante Löschung von Konto und Organisationen. */
+  scheduled: ScheduledAccountDeletion | null;
+}
+
+export interface ScheduledAccountDeletion {
+  requestedAt: string;
+  dueAt: string;
+  organizations: Array<{ organizationId: string; name: string }>;
+}
+
+export type AccountDeletionResult =
+  | { deleted: true; scheduled: false; runId: string }
+  | {
+      deleted: false;
+      scheduled: true;
+      dueAt: string;
+      organizations: Array<{ organizationId: string; name: string }>;
+      runId: string;
+    };
+
+/** Namen für Texte: „A“, „B“. */
+export function quotedNames(items: Array<{ name: string }>): string {
+  return items.map((o) => `„${o.name}“`).join(', ');
+}
+
+/** Konto mit geplanter Löschung (nur noch anmelden und exportieren). */
+export function accountDeletionScheduled(user: { deletionDueAt?: string | null } | null | undefined): boolean {
+  return !!user?.deletionDueAt;
+}
+
+/** Eintrag im Protokoll der Löschungen (GET /admin/retention/runs). */
+export interface RetentionRunEntry {
+  id: string;
+  category: string;
+  trigger: 'scheduled' | 'manual' | 'instruction' | 'self_service' | 'club';
+  dryRun: boolean;
+  status: 'running' | 'succeeded' | 'failed';
+  startedAt: string;
+  finishedAt: string | null;
+  counts: Record<string, number>;
+  total: number;
+  error: string | null;
+  organizationId: string | null;
+  organizationName: string | null;
+  executedByUserId: string | null;
+  executedBy: { id: string; name: string; email: string } | null;
+  reason: string | null;
+  details: Record<string, unknown> | null;
+}
+
+export const RETENTION_TRIGGERS = ['scheduled', 'manual', 'instruction', 'club', 'self_service'] as const;
+
+/** Zahlen eines Eintrags ohne Nullen, größte zuerst. */
+export function nonZeroCounts(counts: Record<string, number>): Array<[string, number]> {
+  return Object.entries(counts)
+    .filter(([, n]) => typeof n === 'number' && n !== 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }

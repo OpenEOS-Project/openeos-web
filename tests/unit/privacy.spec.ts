@@ -3,10 +3,13 @@ import { expect, test } from '@playwright/test';
 import de from '@/messages/de.json';
 import en from '@/messages/en.json';
 import {
+  accountDeletionScheduled,
   confirmationMatches,
   finalDeletionDue,
   isReadOnlyOrganization,
+  nonZeroCounts,
   organizationClosure,
+  quotedNames,
 } from '@/lib/privacy';
 import type { OrganizationClosure } from '@/types/organization';
 
@@ -60,6 +63,9 @@ test.describe('privacy: translations', () => {
     'ACCOUNT_DELETION_SUPER_ADMIN',
     'ACCOUNT_DELETION_UNCLOSED_TRANSACTIONS',
     'NEWSLETTER_TOKEN_INVALID',
+    'ACCOUNT_DELETION_SCHEDULED',
+    'ACCOUNT_DELETION_NOT_SCHEDULED',
+    'ORGANIZATION_NOT_CLOSED',
   ];
   test('every new API reason is translated in German and English', () => {
     for (const reason of reasons) {
@@ -74,11 +80,46 @@ test.describe('privacy: translations', () => {
     );
   });
 
+  test('the account banner uses the agreed wording', () => {
+    expect(de.privacy.accountClosure.title).toBe(
+      'Dein Konto und {count, plural, one {die Organisation} other {die Organisationen}} {names} werden am {date} endgültig gelöscht. Du kannst bis dahin alle Daten exportieren.',
+    );
+  });
+
+  test('German and English have the same deletion log keys', () => {
+    const keys = (o: object, prefix = ''): string[] =>
+      Object.entries(o).flatMap(([k, v]) =>
+        v && typeof v === 'object' ? keys(v as object, `${prefix}${k}.`) : [`${prefix}${k}`],
+      );
+    expect(keys(en.admin.retention).sort()).toEqual(keys(de.admin.retention).sort());
+  });
+
   test('German and English have the same privacy keys', () => {
     const keys = (o: object, prefix = ''): string[] =>
       Object.entries(o).flatMap(([k, v]) =>
         v && typeof v === 'object' ? keys(v as object, `${prefix}${k}.`) : [`${prefix}${k}`],
       );
     expect(keys(en.privacy).sort()).toEqual(keys(de.privacy).sort());
+  });
+});
+
+test.describe('privacy: scheduled account deletion', () => {
+  test('is scheduled only with a due date', () => {
+    expect(accountDeletionScheduled({ deletionDueAt: '2026-12-06T02:30:00Z' })).toBe(true);
+    expect(accountDeletionScheduled({ deletionDueAt: null })).toBe(false);
+    expect(accountDeletionScheduled({})).toBe(false);
+    expect(accountDeletionScheduled(null)).toBe(false);
+  });
+
+  test('quotes organization names for the texts', () => {
+    expect(quotedNames([{ name: 'TSV' }, { name: 'SV Blau-Weiß' }])).toBe('„TSV“, „SV Blau-Weiß“');
+    expect(quotedNames([])).toBe('');
+  });
+
+  test('deletion log shows only non-zero counts, largest first', () => {
+    expect(nonZeroCounts({ a: 0, registrationsDeleted: 2, organizationsClosed: 1, b: 0 })).toEqual([
+      ['registrationsDeleted', 2],
+      ['organizationsClosed', 1],
+    ]);
   });
 });

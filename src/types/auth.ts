@@ -69,6 +69,12 @@ export interface User {
    * AGB und den AVV noch nicht angenommen hat (Hinweisfenster im Dashboard).
    */
   legalReacceptanceRequired?: boolean;
+  /**
+   * Geplante Kontolöschung: Das Konto wird mit den Organisationen, deren
+   * einziges Mitglied der Benutzer war, an diesem Tag endgültig gelöscht.
+   * Bis dahin nur anmelden und exportieren.
+   */
+  deletionDueAt?: string | null;
 }
 
 export interface AuthTokens {
