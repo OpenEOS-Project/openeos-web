@@ -1959,7 +1959,8 @@
       "name": "Name",
       "amount": "Betrag",
       "status": "Status",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "vatRate": "MwSt"
     },
     "status": {
       "active": "Aktiv",
@@ -1974,7 +1975,15 @@
       "namePlaceholder": "z. B. Becher",
       "amount": "Pfandbetrag (€)",
       "isActive": "Aktiv",
-      "isActiveHint": "Nur aktive Pfand-Typen sind an der Kasse nutzbar."
+      "isActiveHint": "Nur aktive Pfand-Typen sind an der Kasse nutzbar.",
+      "vatRate": "Mehrwertsteuer",
+      "vatRateHint": "Steuersatz der Getränke/Waren, für die dieses Pfand gilt – meist 19 %.",
+      "vatRateExemptHint": "Deine Organisation weist keine Umsatzsteuer aus – auf Bons steht keine MwSt. Umstellbar in den Organisationseinstellungen.",
+      "vatRateOptions": {
+        "standard": "{rate} % (Regelsatz)",
+        "reduced": "{rate} % (ermäßigt)",
+        "zero": "0 % (nicht steuerbar)"
+      }
     },
     "deleteConfirm": {
       "title": "Pfand-Typ löschen",
@@ -3254,6 +3263,14 @@
       "pfandDone": "Pfand ausgezahlt",
       "sectionTitle": "TSE-Daten ({count})",
       "done": "Fertig"
+    },
+    "pfandDone": {
+      "title": "Pfand ausgezahlt",
+      "cash": "Bar",
+      "printed": "Bon gedruckt",
+      "sum": "Ausgezahlt",
+      "done": "Fertig",
+      "noPrinter": "Kein Bondrucker für diese Kasse eingerichtet."
     }
   },
   "orders": {
@@ -5106,7 +5123,8 @@
         "channels": "umsatz-nach-kanal.csv",
         "categories": "top-kategorien.csv",
         "hourly": "stundenverlauf.csv",
-        "payments": "zahlarten.csv"
+        "payments": "zahlarten.csv",
+        "vat": "umsatzsteuer.csv"
       }
     },
     "filter": {
@@ -5266,6 +5284,24 @@
         "hourlyTitle": "Bestellungen je Stunde",
         "hourlyEmpty": "Keine Bestellungen im gewählten Zeitraum",
         "items": "Bestellte Artikel"
+      }
+    },
+    "vat": {
+      "title": "Umsatzsteuer",
+      "subtitle": "Umsatz je Steuersatz – Pfand gehört zum Entgelt, Rückgaben mindern ihn",
+      "empty": "Keine Umsätze im Zeitraum",
+      "exempt": "Deine Organisation weist keine Umsatzsteuer aus (z. B. Kleinunternehmer). Alle Beträge stehen deshalb bei 0 % ohne Steuer.",
+      "legacyHint": "Pfand von vor November 2026 wurde ohne Umsatzsteuer gebucht und steht unverändert bei 0 %.",
+      "total": "Summe",
+      "rate": "{rate} %",
+      "columns": {
+        "rate": "Steuersatz",
+        "goods": "Ware",
+        "deposits": "Pfand",
+        "depositReturns": "Pfand-Rückgabe",
+        "gross": "Brutto",
+        "net": "Netto",
+        "tax": "Umsatzsteuer"
       }
     }
   },

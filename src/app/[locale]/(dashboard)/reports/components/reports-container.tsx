@@ -16,6 +16,7 @@ import {
   useCategoriesReport,
   useDevicesReport,
   useNetSalesSummary,
+  useVatReport,
 } from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
 import { useOperatingMode } from '@/hooks/use-operating-mode';
@@ -28,6 +29,7 @@ import { ReportsHourlyChart } from './reports-hourly-chart';
 import { ReportsChannelsTable } from './reports-channels-table';
 import { ReportsCategoriesTable } from './reports-categories-table';
 import { ReportsDevicesTable } from './reports-devices-table';
+import { ReportsVatTable } from './reports-vat-table';
 import { PdfExportButton } from './pdf-export-button';
 import { todayKey } from '@/utils/calendar-date';
 
@@ -78,6 +80,8 @@ export function ReportsContainer() {
   const categoriesReport = useCategoriesReport(organizationId, reportQuery);
   const devicesReport = useDevicesReport(organizationId, reportQuery);
   const netSummary = useNetSalesSummary(organizationId, reportQuery);
+  // „Nur Bons“: keine Beträge, also auch keine Umsatzsteuer.
+  const vatReport = useVatReport(organizationId, reportQuery, !orderOnly);
 
   const selectedEventName = events.find((e) => e.id === filter.eventId)?.name;
 
@@ -113,6 +117,7 @@ export function ReportsContainer() {
             categories={categoriesReport.data}
             net={netSummary.data}
             devices={devicesReport.data}
+            vat={vatReport.data}
             orderOnly={orderOnly}
           />
         }
@@ -136,6 +141,8 @@ export function ReportsContainer() {
       {!orderOnly && (
         <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
       )}
+
+      <ReportsVatTable data={vatReport.data} isLoading={vatReport.isLoading} orderOnly={orderOnly} />
 
       <ReportsChannelsTable data={channelsReport.data} isLoading={channelsReport.isLoading} orderOnly={orderOnly} />
 
