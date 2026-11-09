@@ -59,6 +59,11 @@ export interface OrderHistoryRow {
   eventId: string | null;
   createdByDeviceId: string | null;
   deviceName: string | null;
+  /** Verantwortliche Bedienung (Tisch), sonst die aufnehmende. */
+  waiterId?: string | null;
+  waiterName?: string | null;
+  waiterShortName?: string | null;
+  waiterColor?: string | null;
   paymentMethods: PaymentMethod[];
   items: {
     id: string;
@@ -201,7 +206,16 @@ export type OrderEventType =
   | 'refund_failed'
   | 'receipt_reprinted'
   | 'tickets_reprinted'
-  | 'refund_receipt_reprinted';
+  | 'refund_receipt_reprinted'
+  | 'transferred';
+
+/** Bedienung in Verlauf und Liste (Name, Kurzname, Farbe). */
+export interface OrderWaiterRef {
+  id: string;
+  name: string;
+  shortName: string | null;
+  color: string | null;
+}
 
 export interface OrderEventEntry {
   id: string;
@@ -211,6 +225,9 @@ export interface OrderEventEntry {
   userId: string | null;
   actorName: string | null;
   data: Record<string, unknown>;
+  /** Tischübergabe: von/an. */
+  fromWaiter?: OrderWaiterRef | null;
+  toWaiter?: OrderWaiterRef | null;
 }
 
 export interface OrderDetail {

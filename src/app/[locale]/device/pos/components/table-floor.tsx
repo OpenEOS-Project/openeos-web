@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { FloorPlan, Legend, Tabs, type FloorDecor, type FloorTable, type FloorWall, type FloorZone } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { splitAreaDecor, toTableKey, type DeviceDiningTable, type DeviceTableArea } from '@/types/table';
+import { textOn } from '@/lib/waiters';
+import type { DeviceWaiterTile } from '@/types/waiter';
 import { hasFloorLayout, type OpenTableEntry } from '../utils/tables';
 
 interface TableFloorProps {
@@ -17,6 +19,8 @@ interface TableFloorProps {
   onPick: (table: DeviceDiningTable) => void;
   /** Wartende Tische des Bereichs mit Grund unter der Karte (Blatt ohne „Offene Tische“). */
   showWaiting?: boolean;
+  /** Bedienungen: Farbe und Kurzname der verantwortlichen Bedienung am Tisch. */
+  waiters?: Map<string, DeviceWaiterTile>;
 }
 
 /** Mindestmaßstab (px je Einheit); darunter scrollt die Karte waagerecht. */
@@ -35,7 +39,7 @@ const MIN_TABLE_PX = 40;
  * Mehrere Bereiche mit Tischplan → Reiter darüber. Auf schmalen Geräten
  * scrollt die Karte waagerecht (Mindestmaßstab).
  */
-export function TableFloor({ areas, states, currentKey, onPick, showWaiting = false }: TableFloorProps) {
+export function TableFloor({ areas, states, currentKey, onPick, showWaiting = false, waiters }: TableFloorProps) {
   const t = useTranslations('pos.tables');
   const tf = useTranslations('pos.floor');
   const formatPrice = useFormatPrice();
@@ -88,7 +92,14 @@ export function TableFloor({ areas, states, currentKey, onPick, showWaiting = fa
     const key = toTableKey(table.label);
     const entry = states.get(key);
     const hint = hintOf(key, entry);
-    ariaLabels.set(table.id, t('chipAria', { label: table.label, hint: hint.long }));
+    const owner = entry?.waiterId ? waiters?.get(entry.waiterId) : undefined;
+    ariaLabels.set(
+      table.id,
+      t('chipAria', {
+        label: table.label,
+        hint: owner ? `${hint.long} · ${owner.shortName}` : hint.long,
+      }),
+    );
     return {
       id: table.id,
       label: table.label,
@@ -100,7 +111,21 @@ export function TableFloor({ areas, states, currentKey, onPick, showWaiting = fa
       rotation: table.rotation,
       seats: table.seats,
       state: entry?.state ?? 'free',
-      hint: hint.short ?? undefined,
+      // Verantwortliche Bedienung: Punkt in ihrer Farbe mit Kurzname.
+      hint: owner ? (
+        <span className="pos-floor__hint">
+          <i
+            className="pos-floor__owner"
+            style={{ background: owner.color ?? undefined, color: textOn(owner.color) }}
+            data-testid="pos-floor-owner"
+          >
+            {owner.shortName}
+          </i>
+          {hint.short}
+        </span>
+      ) : (
+        (hint.short ?? undefined)
+      ),
     };
   });
 

@@ -29,7 +29,11 @@ test.describe('shop privacy template', () => {
 
   test('publishable part runs from the title to the rule before the guidance', () => {
     expect(template.body.startsWith(PUBLISH_START)).toBe(true);
-    expect(template.body.endsWith('Es findet keine Nutzungsanalyse und kein Tracking statt.')).toBe(true);
+    // Abschnitt 7 „Kassenpersonal (Bedienungen)“ steht am Ende.
+    expect(
+      template.body.endsWith('Eine Auskunft über die zu Ihrem Profil gespeicherten Daten können wir Ihnen als Datei geben.'),
+    ).toBe(true);
+    expect(template.body).toContain('## 7. Kassenpersonal (Bedienungen)');
     expect(template.body).not.toContain('Hinweise für den Kunden');
     expect(template.body).not.toContain('\n---');
     // Wortlaut unverändert: der Teil steht so im Muster.
@@ -40,12 +44,13 @@ test.describe('shop privacy template', () => {
     expect(template.stand).toBe('Stand: 4. November 2026');
     expect(template.intro).toHaveLength(1);
     expect(template.intro[0]).toMatch(/^Dieses Muster stellt LUXCODE/);
-    expect(template.guidance).toHaveLength(4);
+    expect(template.guidance).toHaveLength(5);
+    expect(template.guidance[4]).toMatch(/Kassenpersonal über Abschnitt 7/);
     expect(template.guidance[0]).toMatch(/ersetzt keine Rechtsberatung/);
   });
 
   test('every placeholder becomes a field', () => {
-    expect(template.fields.map((f) => f.kind)).toEqual(['name', 'address', 'email', 'text', 'text', 'payment', 'text']);
+    expect(template.fields.map((f) => f.kind)).toEqual(['name', 'address', 'email', 'text', 'text', 'payment', 'text', 'text']);
     expect(template.fields[3].label).toBe('Vertretungsberechtigte Person, z. B. Vorstand nach § 26 BGB');
     expect(template.fields[5].placeholder).toBe('[SumUp und/oder PayPal, nicht Genutztes streichen]');
   });
@@ -58,8 +63,8 @@ test.describe('shop privacy template', () => {
     };
     const partial = fillShopPrivacyTemplate(template, values);
     expect(partial).toContain('TSV Musterstadt e.V.\nHauptstraße 1\n12345 Musterstadt\nE-Mail: info@tsv.example');
-    expect(missingTemplateFields(template, values)).toHaveLength(4);
-    expect(unfilledTemplatePlaceholders(partial, template)).toHaveLength(4);
+    expect(missingTemplateFields(template, values)).toHaveLength(5);
+    expect(unfilledTemplatePlaceholders(partial, template)).toHaveLength(5);
 
     for (const field of template.fields.slice(3)) values[field.id] = field.kind === 'payment' ? 'SumUp' : 'Wert';
     const full = fillShopPrivacyTemplate(template, values);

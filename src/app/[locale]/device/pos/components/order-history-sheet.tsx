@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { textOn } from '@/lib/waiters';
 
 import {
   DISPLAY_STATUS_ICON,
@@ -331,6 +332,16 @@ export function OrderHistorySheet({
                               />
                               {placeText(row)}
                               {row.customerName && <em>{row.customerName}</em>}
+                              {row.waiterName && (
+                                <span
+                                  className="pos-oh-row__waiter"
+                                  style={{ background: row.waiterColor ?? undefined, color: textOn(row.waiterColor) }}
+                                  title={row.waiterName}
+                                  data-testid="pos-history-waiter"
+                                >
+                                  {row.waiterShortName || row.waiterName.split(' ')[0]}
+                                </span>
+                              )}
                             </span>
                             <span className="pos-oh-row__items">
                               {summary.parts.length ? summary.parts.join(', ') : t('noItems')}

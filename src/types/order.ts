@@ -102,6 +102,8 @@ export interface Order {
   createdByUser?: { id: string; firstName: string; lastName: string } | null;
   /** Device/terminal that created the order. */
   createdByDevice?: { id: string; name: string } | null;
+  /** Bedienung: verantwortlich (Tisch), sonst die aufnehmende. */
+  waiter?: { id: string; name: string; shortName: string | null; color: string | null } | null;
   /** Summe der Erstattungen (Gegenbelege). */
   refundedAmount?: number;
   /** Ein Status je Bestellung, gleich in Kasse und Verwaltung. */

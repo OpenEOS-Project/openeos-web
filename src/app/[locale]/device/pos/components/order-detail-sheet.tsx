@@ -701,7 +701,12 @@ function buildTimeline(
       key: e.id,
       at: e.createdAt,
       type: e.type,
-      values: { items, amount: formatPrice(amount) },
+      values: {
+        items,
+        amount: formatPrice(amount),
+        from: e.fromWaiter?.shortName || e.fromWaiter?.name || '—',
+        to: e.toWaiter?.shortName || e.toWaiter?.name || '—',
+      },
       who,
       tone:
         e.type === 'refund_failed' || e.type === 'items_cancelled' || e.type === 'order_cancelled'

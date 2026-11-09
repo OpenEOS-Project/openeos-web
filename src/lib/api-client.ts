@@ -624,6 +624,38 @@ export const waitersApi = {
     apiClient.delete<ApiResponse<{ deleted: boolean; anonymized: boolean }>>(
       `/organizations/${orgId}/waiters/${waiterId}`
     ),
+  /** Zwischenstand (Kellnerabrechnung). */
+  summary: (orgId: string, waiterId: string, eventId?: string) =>
+    apiClient.get<ApiResponse<import('@/types/waiter').WaiterSummary>>(
+      `/organizations/${orgId}/waiters/${waiterId}/summary${eventId ? `?eventId=${eventId}` : ''}`
+    ),
+  settle: (orgId: string, waiterId: string, data: import('@/types/waiter').SettleWaiterData) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: { printed: boolean } }>(
+      `/organizations/${orgId}/waiters/${waiterId}/settlements`,
+      data
+    ),
+  transferTables: (orgId: string, waiterId: string, toWaiterId: string, eventId?: string) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').TransferResult>>(
+      `/organizations/${orgId}/waiters/${waiterId}/transfer-tables`,
+      { toWaiterId, ...(eventId ? { eventId } : {}) }
+    ),
+  settlements: (orgId: string, params?: { eventId?: string; waiterId?: string }) => {
+    const search = new URLSearchParams();
+    if (params?.eventId) search.set('eventId', params.eventId);
+    if (params?.waiterId) search.set('waiterId', params.waiterId);
+    const qs = search.toString();
+    return apiClient.get<ApiResponse<import('@/types/waiter').WaiterSettlement[]>>(
+      `/organizations/${orgId}/waiter-settlements${qs ? `?${qs}` : ''}`
+    );
+  },
+  reprintSettlement: (orgId: string, settlementId: string, printerId?: string) =>
+    apiClient.post<ApiResponse<{ printed: boolean }>>(
+      `/organizations/${orgId}/waiter-settlements/${settlementId}/reprint`,
+      printerId ? { printerId } : {}
+    ),
+  /** Auskunft (Art. 15 DSGVO) als CSV. */
+  exportData: (orgId: string, waiterId: string) =>
+    authorizedDownload(`/organizations/${orgId}/waiters/${waiterId}/export?format=csv`),
 };
 
 export const supportApi = {
@@ -1891,6 +1923,29 @@ export const deviceApi = {
     apiClient.get<ApiResponse<import('@/types/waiter').DeviceWaiterTile[]>>('/device-api/waiters', {
       useDeviceAuth: true,
     }),
+  // Kellnerabrechnung an der Kasse
+  getWaiterSummary: (waiterId?: string) =>
+    apiClient.get<
+      ApiResponse<import('@/types/waiter').WaiterSummary> & { meta: import('@/types/waiter').SettleRights }
+    >(`/device-api/waiter/summary${waiterId ? `?waiterId=${waiterId}` : ''}`, { useDeviceAuth: true }),
+  printWaiterSummary: (waiterId?: string) =>
+    apiClient.post<ApiResponse<{ printed: boolean }>>(
+      '/device-api/waiter/summary/print',
+      waiterId ? { waiterId } : {},
+      { useDeviceAuth: true }
+    ),
+  settleWaiter: (data: { waiterId?: string; force?: boolean; note?: string | null; print?: boolean }) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: { printed: boolean } }>(
+      '/device-api/waiter/settlements',
+      data,
+      { useDeviceAuth: true }
+    ),
+  transferOrder: (orderId: string, toWaiterId: string, wholeTable = true) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').TransferResult>>(
+      `/device-api/orders/${orderId}/transfer`,
+      { toWaiterId, wholeTable },
+      { useDeviceAuth: true }
+    ),
 
   // Order history
   getAllOrders: (params?: { status?: string; eventId?: string; page?: number; limit?: number }) => {
@@ -2592,6 +2647,12 @@ export const reportsApi = {
   getDevices: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
     apiClient.get<ApiResponse<import('@/types/report').DeviceReport[]>>(
       `/organizations/${organizationId}/reports/devices${reportQuery(params)}`
+    ),
+
+  /** Bericht „Bedienungen“ (nur Verwaltung, nicht per API-Token). */
+  getWaiters: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/waiter').WaiterReportRow[]>>(
+      `/organizations/${organizationId}/reports/waiters${reportQuery(params)}`
     ),
 
   getActivity: (organizationId: string) =>

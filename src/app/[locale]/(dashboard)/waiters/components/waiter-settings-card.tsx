@@ -77,6 +77,18 @@ export function WaiterSettingsCard() {
             <option value="allow">{t('foreignTablesAllow')}</option>
           </select>
         </label>
+        <label className="auth-field">
+          <span>{t('selfSettlement')}</span>
+          <select
+            className="select"
+            value={current.selfSettlement ? 'self' : 'lead'}
+            disabled={update.isPending}
+            onChange={(e) => save({ selfSettlement: e.target.value === 'self' })}
+          >
+            <option value="lead">{t('selfSettlementLead')}</option>
+            <option value="self">{t('selfSettlementSelf')}</option>
+          </select>
+        </label>
       </div>
     </section>
   );

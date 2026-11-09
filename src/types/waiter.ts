@@ -27,6 +27,8 @@ export interface Waiter {
   pinLength: number | null;
   lastUsedAt: string | null;
   anonymizedAt: string | null;
+  /** Ab wann der Löschlauf sie anonymisiert (null = keine Frist). */
+  anonymizeDueAt?: string | null;
   createdAt: string;
 }
 
@@ -94,4 +96,128 @@ export interface OrganizationWaiterSettings {
   foreignTables?: 'allow' | 'warn';
   selfSettlement?: boolean;
   receiptName?: 'short' | 'full';
+}
+
+// ------------------------------------------------------------ Abrechnung
+
+export interface SettlementCount {
+  count: number;
+  amount: number;
+}
+
+/** Schnappschuss der Zahlen (bedienungen-plan.md §7); „Nur Bons“: nur Mengen. */
+export interface SettlementTotals {
+  operatingMode: 'full' | 'cashless' | 'orders_only';
+  payments?: { cash: SettlementCount; card: SettlementCount; other: SettlementCount; total: SettlementCount };
+  tips?: number;
+  refunds?: { cash: SettlementCount; nonCash: SettlementCount; total: SettlementCount };
+  pfandReturns?: SettlementCount;
+  taken: { orders: number; items: number; revenue?: number; discounts?: number };
+  cashExpected?: number;
+  cashByDevice?: Array<{ deviceId: string | null; deviceName: string | null; amount: number }>;
+  training: { orders: number; payments: number; amount?: number };
+}
+
+export interface SettlementOpenTable {
+  orderId: string;
+  orderNumber: string;
+  dailyNumber: number | null;
+  tableNumber: string | null;
+  openAmount?: number;
+}
+
+export interface SettlementSubject {
+  kind: 'waiter' | 'member';
+  id: string;
+  waiterId: string | null;
+  userId: string | null;
+  name: string;
+  shortName: string | null;
+  color: string | null;
+  anonymized: boolean;
+}
+
+/** Zwischenstand (GET …/summary). */
+export interface WaiterSummary {
+  subject: SettlementSubject;
+  eventId: string;
+  eventName: string | null;
+  periodFrom: string | null;
+  periodTo: string;
+  totals: SettlementTotals;
+  openTables: SettlementOpenTable[];
+  wallet: boolean;
+  lastSettlement: { id: string; number: number | null; createdAt: string } | null;
+  empty: boolean;
+}
+
+export interface WaiterSettlement {
+  id: string;
+  number: number | null;
+  isTest: boolean;
+  subject: SettlementSubject;
+  eventId: string | null;
+  eventName: string | null;
+  periodFrom: string | null;
+  periodTo: string;
+  totals: SettlementTotals;
+  cashExpected: number | null;
+  cashCounted: number | null;
+  difference: number | null;
+  wallet: boolean;
+  openTables: SettlementOpenTable[];
+  forced: boolean;
+  note: string | null;
+  settledBy: { kind: 'user' | 'waiter'; id: string; name: string } | null;
+  deviceId: string | null;
+  deviceName: string | null;
+  printedAt: string | null;
+  createdAt: string;
+}
+
+export interface SettleWaiterData {
+  eventId?: string;
+  countedCash?: number | null;
+  force?: boolean;
+  note?: string | null;
+  printerId?: string;
+}
+
+/** Rechte an der Kasse (meta von GET /device-api/waiter/summary). */
+export interface SettleRights {
+  canSettle: boolean;
+  canForce: boolean;
+}
+
+export interface TransferResult {
+  orderIds: string[];
+  toWaiter: { id: string; name: string; shortName: string | null; color: string | null };
+  fromWaiterIds: Array<string | null>;
+  eventId: string | null;
+  tableNumber: string | null;
+}
+
+/** Bericht „Bedienungen“ (GET /organizations/:id/reports/waiters). */
+export interface WaiterReportRow {
+  kind: 'waiter' | 'member' | 'none';
+  waiterId: string | null;
+  userId: string | null;
+  name: string;
+  shortName: string | null;
+  color: string | null;
+  role: string | null;
+  orders: number;
+  items: number;
+  revenue?: number;
+  payments: number;
+  collected?: number;
+  cashAmount?: number;
+  cardAmount?: number;
+  otherAmount?: number;
+  tips?: number;
+  refundCount: number;
+  refunds?: number;
+  pfandReturned?: number;
+  settlements: number;
+  openOrders: number;
 }

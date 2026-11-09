@@ -71,7 +71,9 @@ async function globalSetup(config: FullConfig) {
     for (const { headers } of [admin, member]) {
       const res = await api.patch('users/me/preferences', {
         headers,
-        data: { onboarding: { tourVersion: TOUR_VERSION } },
+        // „Das ist neu“ legt sich ebenso über die Seite: als gesehen
+        // merken, auch für Einträge nach dem Anlegen der Testkonten.
+        data: { onboarding: { tourVersion: TOUR_VERSION, lastSeenChangelog: '2999-12-31' } },
       });
       await ensureOk(res, 'Einstellungen setzen');
     }

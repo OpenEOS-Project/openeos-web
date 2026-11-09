@@ -208,3 +208,20 @@ export function pinSheetPages<T>(cards: T[], perPage = PIN_CARDS_PER_PAGE): T[][
   for (let i = 0; i < cards.length; i += perPage) pages.push(cards.slice(i, i + perPage));
   return pages;
 }
+
+// ------------------------------------------------------------ Abrechnung
+
+/** Abrechnen gesperrt: offene Tische, außer „trotzdem“ mit Notiz. */
+export function settlementBlocked(openTables: number, force: boolean, note: string): boolean {
+  return openTables > 0 && !(force && note.trim().length > 0);
+}
+
+/** Schichtleitung oder Admin-Mitglied: rechnet andere ab (Server prüft). */
+export function isLeadWaiter(waiter: Pick<PosWaiter, 'role'> | null | undefined): boolean {
+  return waiter?.role === 'lead' || waiter?.role === 'admin';
+}
+
+/** Empfänger einer Tischübergabe: alle außer der bisherigen Bedienung. */
+export function handoverTargets<T extends { id: string }>(tiles: T[], excludeId: string | null | undefined): T[] {
+  return tiles.filter((tile) => tile.id !== excludeId);
+}

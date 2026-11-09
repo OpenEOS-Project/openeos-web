@@ -17,6 +17,8 @@ export interface DeploymentInfo {
   limits?: {
     organizationsPerUser: number;
     membersPerOrganization: number;
+    /** Bedienungen je Organisation (Standard 200). */
+    waitersPerOrganization?: number;
   };
 }
 

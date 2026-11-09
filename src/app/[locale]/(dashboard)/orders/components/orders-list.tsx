@@ -420,6 +420,25 @@ export function OrdersList() {
                     </td>
                     <td>
                       <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
+                      {order.waiter && (
+                        <div
+                          data-testid="order-waiter"
+                          title={order.waiter.name}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, marginTop: 4 }}
+                        >
+                          <i
+                            aria-hidden
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              flexShrink: 0,
+                              background: order.waiter.color ?? 'var(--ink)',
+                            }}
+                          />
+                          {order.waiter.name}
+                        </div>
+                      )}
                       {creator && (
                         <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', marginTop: 4 }}>
                           {creator}

@@ -1,0 +1,29 @@
+/* Kellnerabrechnung: Zahlen in Kasse und Verwaltung (gleiche Darstellung). */
+.settle-figs { display: grid; gap: 14px; }
+.settle-figs section { display: grid; gap: 4px; }
+.settle-figs h3 { margin: 0 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.settle-figs dl { margin: 0; display: grid; gap: 2px; }
+.settle-figs__row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 1.5; }
+.settle-figs__row dt { margin: 0; }
+.settle-figs__row dd { margin: 0; font-family: var(--f-mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.settle-figs__row--total { font-weight: 700; }
+.settle-figs__row--sub { font-size: 13px; opacity: .75; }
+.settle-figs__count { opacity: .55; font-size: 12px; }
+.settle-figs__cash { padding: 10px 12px; border-radius: 10px; background: color-mix(in oklab, currentColor 6%, transparent); }
+.settle-figs__hint { margin: 4px 0 0; font-size: 12px; opacity: .7; }
+.settle-figs__training { margin: 0; font-size: 12px; opacity: .7; font-style: italic; }
+
+/* Offene Tische mit „Übergeben“ */
+.settle-open { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; background: color-mix(in oklab, var(--warning, #f59e0b) 14%, transparent); }
+.settle-open h3 { margin: 0; font-size: 13px; }
+.settle-open ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.settle-open li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; }
+.settle-open__amount { font-family: var(--f-mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; }
+.settle-period { margin: 0; font-size: 13px; opacity: .75; }
+.settle-force { display: grid; gap: 6px; }
+.settle-force label { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.settle-force textarea { min-height: 64px; resize: vertical; }
+.settle-targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.settle-target { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid color-mix(in oklab, currentColor 18%, transparent); background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; min-height: 44px; }
+.settle-target[aria-pressed='true'] { border-color: currentColor; box-shadow: inset 0 0 0 1px currentColor; }
+.settle-target__dot { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; }

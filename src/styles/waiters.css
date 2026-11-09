@@ -73,3 +73,6 @@
   .waiter-pin-card .waiter-pin-card__privacy { color: #555; }
   .waiter-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Frist des Löschlaufs („wird am … anonymisiert“) */
+.waiters-due { display: block; margin-top: 4px; font-size: 11px; color: var(--mute); max-width: 14em; }
