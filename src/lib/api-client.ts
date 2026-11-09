@@ -1693,6 +1693,14 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
+  // Beleg einer Pfand-Rückgabe drucken („Bon drucken“, Nachdruck)
+  printPfandReturn: (pfandReturnId: string, reprint = false) =>
+    apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
+      `/device-api/pfand-returns/${pfandReturnId}/print`,
+      { reprint },
+      { useDeviceAuth: true }
+    ),
+
   // Kassenbuch dieses Geräts (heutiger Geschäftstag, 6–6 Uhr)
   getCashbook: () =>
     apiClient.get<ApiResponse<import('@/types/dsfinvk').CashbookDay>>(
@@ -2467,6 +2475,11 @@ export const reportsApi = {
   getCategories: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
     apiClient.get<ApiResponse<import('@/types/report').CategoryReport[]>>(
       `/organizations/${organizationId}/reports/categories${reportQuery(params)}`
+    ),
+
+  getVat: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
+    apiClient.get<ApiResponse<import('@/types/report').VatReport>>(
+      `/organizations/${organizationId}/reports/vat${reportQuery(params)}`
     ),
 
   getNetSummary: (organizationId: string, params?: import('@/types/report').ReportQuery) =>

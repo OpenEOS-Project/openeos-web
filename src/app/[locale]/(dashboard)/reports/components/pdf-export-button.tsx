@@ -13,6 +13,7 @@ import type {
   CategoryReport,
   DeviceReport,
   NetSalesSummary,
+  VatReport,
 } from '@/types/report';
 import type { ReportsFilter } from './reports-filter-bar';
 import { generateReportsPdf } from './pdf-export';
@@ -29,6 +30,7 @@ interface PdfExportButtonProps {
   categories?: CategoryReport[];
   net?: NetSalesSummary;
   devices?: DeviceReport[];
+  vat?: VatReport;
   /** „Nur Bons“: nur Bestellungen und Mengen — keine Beträge, keine Zahlarten. */
   orderOnly?: boolean;
 }

@@ -11,6 +11,8 @@ export interface CartItemPfandType {
   id: string;
   name: string;
   amount: number;
+  /** Steuersatz der Pfandart (Standard 19); fehlt in alten Warenkörben. */
+  vatRate?: number;
 }
 
 export interface CartItem {
@@ -35,7 +37,12 @@ export interface CartPfandReturnLine {
   name: string;
   unitAmount: number;
   quantity: number;
+  /** Steuersatz der Pfandart (Standard 19); fehlt in alten Warenkörben. */
+  vatRate?: number;
 }
+
+/** Steuersatz eines Pfand-Snapshots; ohne Angabe der Standard 19 %. */
+const pfandRate = (rate: number | undefined | null) => (rate === undefined || rate === null ? 19 : Number(rate));
 
 export interface AppliedVoucher {
   uid: string; // Unique per application instance (a voucher may be applied multiple times)
@@ -84,25 +91,37 @@ export function cartPfandTotal(items: CartItem[]): number {
  * Einheiten werden zu „Nachfüllen“. Liefert den gutgeschriebenen Betrag und
  * je Position die umgewandelten Einheiten — beim Kassieren wird dieselbe
  * Umwandlung wiederholt, damit Anzeige und Bestellsumme centgenau gleich sind.
+ *
+ * Verrechnet wird nur innerhalb desselben Steuersatzes: Pfand gehört zum
+ * Entgelt, eine Rückgabe zu 19 % darf kein Pfand zu 7 % ersetzen (sonst
+ * stimmte die Umsatzsteuer nicht). Was nicht verrechnet wird, zahlt die
+ * Kasse wie bisher über „Auszahlen“ aus.
  */
 export function cartPfandOffset(
   items: CartItem[],
   pfandReturns: CartPfandReturnLine[],
 ): { convertedSum: number; byItem: Record<string, number> } {
   const byItem: Record<string, number> = {};
-  let remaining = pfandReturns.reduce((sum, l) => sum + l.unitAmount * l.quantity, 0);
+  const remaining = new Map<number, number>();
+  for (const l of pfandReturns) {
+    const rate = pfandRate(l.vatRate);
+    remaining.set(rate, (remaining.get(rate) ?? 0) + l.unitAmount * l.quantity);
+  }
   let convertedSum = 0;
-  if (remaining <= 0) return { convertedSum, byItem };
+  if (![...remaining.values()].some((v) => v > 0)) return { convertedSum, byItem };
   for (const item of items) {
     if (!item.pfandType) continue;
     const amount = item.pfandType.amount;
+    const rate = pfandRate(item.pfandType.vatRate);
+    let rest = remaining.get(rate) ?? 0;
     let units = Math.max(item.quantity - item.refillCount, 0);
-    while (units > 0 && remaining >= amount - 1e-9) {
-      remaining -= amount;
+    while (units > 0 && rest >= amount - 1e-9) {
+      rest -= amount;
       convertedSum += amount;
       byItem[item.id] = (byItem[item.id] || 0) + 1;
       units--;
     }
+    remaining.set(rate, rest);
   }
   return { convertedSum, byItem };
 }
@@ -252,6 +271,7 @@ export const useCartStore = create<CartState & CartActions>()(
                 id: product.pfandType.id,
                 name: product.pfandType.name,
                 amount: Number(product.pfandType.amount),
+                vatRate: pfandRate(product.pfandType.vatRate),
               }
             : null;
           const newItem: CartItem = {

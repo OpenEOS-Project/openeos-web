@@ -20,6 +20,29 @@ export interface SalesReport {
 }
 
 /**
+ * Umsatz und Umsatzsteuer je Steuersatz (`GET reports/vat`). Pfand gehört
+ * zum Entgelt und steht beim Satz seiner Pfandart, Pfand-Rückgaben mindern
+ * ihn (negativ). Buchungen von vor 2026-11 ohne Satz stehen bei 0 %.
+ * Trinkgeld ist kein Entgelt und fehlt.
+ */
+export interface VatReportRow {
+  rate: number;
+  goods: number;
+  deposits: number;
+  depositReturns: number;
+  gross: number;
+  tax: number;
+  net: number;
+}
+
+export interface VatReport {
+  /** Organisation weist keine Umsatzsteuer aus (Kleinunternehmer). */
+  vatExempt: boolean;
+  rows: VatReportRow[];
+  total: Omit<VatReportRow, 'rate'>;
+}
+
+/**
  * Abgleich der Produkt- und Kategorieberichte mit dem Umsatz netto
  * (`GET reports/net-summary`): Produkte + Erstattungen ohne Position +
  * Trinkgeld = Umsatz netto (`SalesReport.totalRevenue`).
