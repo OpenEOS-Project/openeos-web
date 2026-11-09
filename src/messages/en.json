@@ -544,7 +544,8 @@
     "cashbook": "Cash book",
     "legal": "Legal",
     "legalElster": "ELSTER details",
-    "legalShop": "Shop legal texts"
+    "legalShop": "Shop legal texts",
+    "waiters": "Servers"
   },
   "settings": {
     "title": "Settings",
@@ -2706,7 +2707,8 @@
       "adminHint": "Administrators automatically have access to all modules.",
       "reports": "Reports",
       "inventory": "Inventory",
-      "orders": "Orders (cancel & refund)"
+      "orders": "Orders (cancel & refund)",
+      "waiters": "Servers"
     },
     "form": {
       "email": "Email Address",
@@ -3012,7 +3014,19 @@
       "title": "Enter PIN",
       "description": "Enter your personal PIN to identify yourself.",
       "error": "Invalid PIN. Please try again.",
-      "verifying": "Verifying..."
+      "verifying": "Verifying...",
+      "whoTitle": "Who is serving?",
+      "whoDescription": "Enter your PIN.",
+      "hello": "Hello {name}",
+      "tiles": "Servers",
+      "locked": "Too many wrong PINs. Locked for {seconds} s.",
+      "deviceLocked": "PIN entry on this device is locked. An admin releases it under Devices.",
+      "notForEvent": "Your PIN is only valid for another event.",
+      "errorRemaining": "{count, plural, one {Wrong PIN. # attempt left before the lock.} other {Wrong PIN. # attempts left before the lock.}}",
+      "offline": "No connection – unlocking works again once online.",
+      "parked": "The cart is kept for {name}.",
+      "timedOut": "Locked automatically.",
+      "expired": "Your sign-in expired. Please enter your PIN again."
     },
     "cashDrawer": {
       "open": "Open drawer",
@@ -3137,8 +3151,8 @@
       "pin": {
         "title": "Enter PIN",
         "subtitle": "Cancel & refund",
-        "description": "Enter the PIN of a member with the “Orders” permission or of an admin.",
-        "notAuthorized": "This PIN may not cancel or refund.",
+        "description": "Enter the PIN of a shift lead, a member with the “Orders” permission or an admin.",
+        "notAuthorized": "This PIN may not approve. It needs a shift lead, the “Orders” permission or admin.",
         "invalid": "Wrong PIN."
       },
       "cancelItemsSuccess": "{count, plural, =1 {1 item cancelled} other {# items cancelled}}",
@@ -3527,6 +3541,20 @@
       "sum": "Paid out",
       "done": "Done",
       "noPrinter": "No receipt printer set up for this till."
+    },
+    "waiter": {
+      "menu": "Server {name}",
+      "switch": "Switch",
+      "lock": "Lock",
+      "signOut": "Sign out",
+      "fixed": "Fixed server: {name}",
+      "foreignTable": "Table of {name}",
+      "unassignedTitle": "This device has no server assigned",
+      "unassignedText": "An admin selects the fixed server in the admin area: Devices, then Settings.",
+      "tableFilter": "Filter tables",
+      "tablesMine": "Mine",
+      "tablesAll": "All",
+      "tableOwner": "Server: {name}"
     }
   },
   "orders": {
@@ -4149,6 +4177,36 @@
           "description": "Card payments via a SumUp reader.",
           "noCash": "In your organization’s operating mode this till accepts no cash.",
           "modeLink": "Operating mode"
+        },
+        "waiters": {
+          "title": "Servers & security",
+          "description": "Who books on this till and what it takes.",
+          "mode": "Servers",
+          "mode_off": "No servers",
+          "mode_offDescription": "As before: nobody signs in, bookings count for the device.",
+          "mode_shared": "Shared till",
+          "mode_sharedDescription": "Before booking, a server signs in with their PIN (“Who is serving?”). Switch and lock with one tap.",
+          "mode_personal": "Fixed server",
+          "mode_personalDescription": "The device belongs to one server, e.g. their phone. No PIN entry.",
+          "sharedTitle": "Lock",
+          "sharedHint": "When locking, the cart is kept per server on this device.",
+          "autoLock": "Lock automatically after",
+          "autoLockHint": "Without touch. Never during a running payment.",
+          "autoLockOff": "Never",
+          "autoLockSeconds": "{seconds} seconds",
+          "autoLockMinutes": "{minutes, plural, one {# minute} other {# minutes}}",
+          "lockAfterPayment": "Lock after every payment",
+          "lockAfterPaymentHint": "For the bar: everyone takes payments under their own name.",
+          "tiles": "Name tiles on the PIN screen",
+          "tilesHint": "Shows short name and color of the servers. Off by default so no names are visible.",
+          "personalTitle": "Fixed server",
+          "personalHint": "All bookings of this device count for this server.",
+          "fixedWaiter": "Server",
+          "fixedWaiterNone": "Please choose",
+          "manage": "You manage servers and PINs under",
+          "pinLocked": "PIN entry on this device is locked after too many failed attempts.",
+          "unlock": "Release PIN entry",
+          "unlocked": "PIN entry released"
         }
       },
       "printer": {
@@ -4409,7 +4467,7 @@
     "REFUND_NOT_ALLOWED": "Cancelling and refunding is switched off on this register.",
     "REFUND_NOT_FOUND": "Refund not found.",
     "REFUND_PAYMENT_REQUIRED": "The amount spans several card payments. Refund each payment separately.",
-    "REFUND_PIN_NOT_AUTHORIZED": "This PIN may not cancel or refund. It needs the “Orders” permission or admin.",
+    "REFUND_PIN_NOT_AUTHORIZED": "This PIN may not cancel or refund. It needs a shift lead, the “Orders” permission or admin.",
     "REFUND_PIN_REQUIRED": "A PIN is required to cancel or refund.",
     "REFUND_PROVIDER_FAILED": "SumUp declined the refund. Try again or book it as refunded manually.",
     "REFUND_QUANTITY_EXCEEDED": "Only {max} of {product} can still be refunded.",
@@ -4554,7 +4612,20 @@
     "WEBHOOK_LIMIT_REACHED": "You already have {limit} webhooks – that is the maximum. Delete one to create a new one.",
     "WEBHOOK_URL_INVALID": "The server does not accept this address.",
     "WEBHOOK_EVENT_TYPE_INVALID": "This server does not know at least one of the chosen events. Reload the page and try again.",
-    "WEBHOOKS_DISABLED": "Webhooks are switched off on this server."
+    "WEBHOOKS_DISABLED": "Webhooks are switched off on this server.",
+    "PIN_NOT_AVAILABLE": "This PIN is not available. Choose another one (no simple sequences like 1234 or 0000).",
+    "PIN_LOCKED": "Too many wrong PINs. Try again in {retryAfterSeconds} seconds.",
+    "PIN_DEVICE_LOCKED": "PIN entry on this device is locked. An admin releases it under Devices.",
+    "WAITER_DEVICE_UNASSIGNED": "This device has no server assigned.",
+    "WAITER_HAS_BOOKINGS": "This server already has bookings.",
+    "WAITER_INACTIVE": "This server is deactivated. Activate them first.",
+    "WAITER_LIMIT_REACHED": "At most {limit} servers per organization (created: {count}).",
+    "WAITER_NOT_FOR_EVENT": "This server belongs to an event that is not running right now.",
+    "WAITER_NOT_FOUND": "Server not found.",
+    "WAITER_NOT_PERMITTED": "You may not do this yourself. A shift lead approves with their PIN.",
+    "WAITER_SESSION_EXPIRED": "Your till sign-in expired. Enter your PIN again.",
+    "WAITER_SESSION_REQUIRED": "Please sign in at the till with your PIN.",
+    "WAITER_SETTINGS_INVALID": "Invalid server setting."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -7142,6 +7213,141 @@
       "errorHint": "You can also withdraw your consent in your account settings or email hello@openeos.de.",
       "missingToken": "The link is incomplete.",
       "error": "The unsubscribe link is invalid."
+    }
+  },
+  "waiters": {
+    "title": "Servers",
+    "subtitle": "Till profiles without an account or e-mail: name, color and PIN. Helpers switch on shared tills in seconds, and every booking shows who made it.",
+    "count": "{count, plural, =0 {No servers} one {# server} other {# servers}}",
+    "limit": {
+      "used": "{count} of {limit} created · not counted as members",
+      "unlimited": "{count} created · not counted as members"
+    },
+    "hint": "Servers have no access to the admin area. They only sign in on tills set to “Shared till” or “Fixed server” (Devices → Settings). You see the PIN only right after creating it or after “New PIN”.",
+    "filter": {
+      "label": "Filter by validity",
+      "all": "All servers",
+      "event": "Event: {name}"
+    },
+    "scope": {
+      "organization": "Whole organization",
+      "event": "Event"
+    },
+    "roles": {
+      "service": "Server",
+      "serviceDescription": "Books and takes payments. Cancel/refund, cash drawer and cash book only with approval.",
+      "lead": "Shift lead",
+      "leadDescription": "May also cancel and refund, open the cash drawer, keep the cash book and approve cancellations for others."
+    },
+    "rights": {
+      "refund": "Cancel & refund",
+      "refundHint": "Without this right a shift lead approves with their PIN.",
+      "cashDrawer": "Open the cash drawer by hand",
+      "cashDrawerHint": "It always opens for cash payments.",
+      "discount": "Redeem discount vouchers",
+      "discountHint": "Discounts at checkout.",
+      "cashbook": "Cash book",
+      "cashbookHint": "Opening float, pay-in, pay-out, cash count."
+    },
+    "table": {
+      "name": "Server",
+      "role": "Role",
+      "scope": "Valid for",
+      "pin": "PIN",
+      "lastUsed": "Last sign-in",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "pin": {
+      "set": "{length} digits",
+      "missing": "No PIN"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Deactivated"
+    },
+    "actions": {
+      "create": "Add server",
+      "bulk": "Add several",
+      "edit": "Edit {name}",
+      "resetPin": "New PIN for {name}",
+      "deactivate": "Deactivate {name}",
+      "activate": "Activate {name}",
+      "delete": "Delete {name}"
+    },
+    "empty": {
+      "title": "No servers yet",
+      "description": "Add your helpers with a list of names. Everyone gets a PIN, which you print as a PIN sheet."
+    },
+    "form": {
+      "createTitle": "Add server",
+      "editTitle": "Edit server",
+      "name": "Name",
+      "namePlaceholder": "e.g. Anna Berger",
+      "nameRequired": "Please enter a name.",
+      "shortName": "Short name (up to 12 characters)",
+      "shortNamePlaceholder": "e.g. Anna",
+      "scope": "Valid for",
+      "color": "Color",
+      "role": "Role",
+      "rights": "Rights",
+      "ownPin": "Own PIN (optional)",
+      "ownPinPlaceholder": "leave empty = generated",
+      "ownPinHint": "4 to 6 digits. Simple sequences like 1234 or 0000 are not allowed.",
+      "pinFormat": "The PIN has 4 to 6 digits.",
+      "createSubmit": "Add"
+    },
+    "bulk": {
+      "title": "Add several servers",
+      "description": "One name per line. Optionally with short name and role: “Name;Short name;Role” (role: server or shift lead). Everyone gets a PIN.",
+      "names": "Names",
+      "role": "Role (default)",
+      "placeholder": "Anna Berger;Anna\nBen Krämer\nLea Schmidt;Lea;Shift lead",
+      "recognized": "{count, plural, =0 {No names yet} one {# server recognized} other {# servers recognized}}",
+      "duplicates": "{count, plural, one {# duplicate name skipped} other {# duplicate names skipped}}",
+      "invalid": "Please check line {lines}",
+      "tooMany": "at most {max} at once",
+      "submit": "{count, plural, =0 {Add} one {Add # server} other {Add # servers}}"
+    },
+    "reveal": {
+      "title": "{count, plural, one {New PIN} other {# new PINs}}",
+      "onlyNow": "You see the PINs only now. Only a check value is stored. Print the PIN sheet or hand the PIN over directly. Anyone who forgets their PIN gets a new one via “New PIN”.",
+      "pinOf": "PIN of {name}",
+      "print": "Print PIN sheet",
+      "done": "Done"
+    },
+    "sheet": {
+      "pinLabel": "PIN",
+      "howTo": "At the till, enter your PIN under “Who is serving?”. To switch or lock, tap your name at the top right.",
+      "privacy": "Do not share your PIN. Every booking is attributed to you."
+    },
+    "delete": {
+      "title": "Delete {name}?",
+      "text": "Without bookings the server is deleted. If they already booked, they are deactivated and their name is replaced by “Server N”. The name in the tax records (cash point closing) is kept."
+    },
+    "toast": {
+      "saved": "{name} saved",
+      "deactivated": "{name} deactivated – their till sign-in ends right away.",
+      "activated": "{name} activated – assign a new PIN.",
+      "deleted": "{name} deleted",
+      "anonymized": "{name} deactivated and anonymized"
+    },
+    "errors": {
+      "pinReset": "The new PIN could not be assigned."
+    },
+    "settings": {
+      "title": "Server settings",
+      "description": "Applies to all tills of the organization.",
+      "saved": "Saved",
+      "pinLength": "Length of new PINs",
+      "pinLength4": "4 digits",
+      "pinLength6": "6 digits (recommended for organization-wide servers)",
+      "receiptName": "Name on tickets",
+      "receiptNameShort": "Short name (if set)",
+      "receiptNameFull": "Full name",
+      "foreignTables": "Other servers’ tables",
+      "foreignTablesWarn": "Booking allowed, with a note",
+      "foreignTablesAllow": "Booking allowed, without a note"
     }
   }
 }

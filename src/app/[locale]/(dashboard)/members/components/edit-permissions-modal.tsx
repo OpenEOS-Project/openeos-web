@@ -21,6 +21,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'events',
   'devices',
   'members',
+  'waiters',
   'shiftPlans',
   'discounts',
   'pfand',
@@ -46,6 +47,7 @@ export function EditPermissionsModal({ isOpen, organizationId, member, onClose }
     reports: false,
     inventory: false,
     orders: false,
+    waiters: false,
     ...member.permissions,
   });
   const [error, setError] = useState<string | null>(null);

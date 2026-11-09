@@ -212,7 +212,7 @@ export function PaySheet({
       return;
     }
     drawerOpened.current = true;
-    deviceApi.openCashDrawer().catch(() => {});
+    deviceApi.openCashDrawer('payment').catch(() => {});
   }, [open, cashless, method, amount, deviceSettings]);
 
   const givenAmount = given ? parseInt(given, 10) / 100 : 0;

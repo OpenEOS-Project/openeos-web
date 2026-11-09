@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EmptyState, Icon, IconBox, Spinner } from '@openeos/ui';
+import { Button, EmptyState, Icon, IconBox, Spinner } from '@openeos/ui';
+import { textOn, type TableFilter } from '@/lib/waiters';
+import type { DeviceWaiterTile } from '@/types/waiter';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import type { PosTableContext } from '@/types/table';
 import type { OpenTableEntry } from '../utils/tables';
@@ -13,6 +15,10 @@ interface OpenTablesAsideProps {
   isLoading?: boolean;
   /** Ohne Live-Verbindung: Stand des Tischstatus (Zeitstempel in ms). */
   staleSince?: number | null;
+  /** Gemeinsame Kasse: „Meine / Alle“ (Standard „Meine“). */
+  filter?: { value: TableFilter; onChange: (value: TableFilter) => void };
+  /** Bedienungen (Kurzname, Farbe) für den Tischbesitz. */
+  waiters?: Map<string, DeviceWaiterTile>;
 }
 
 /** Minuten seit einem Zeitpunkt; tickt alle 30 s. */
@@ -30,8 +36,9 @@ function useNow(intervalMs = 30_000) {
  * Bestellungen oder wartender Bedienung (Server) und lokal geparkte
  * Warenkörbe dieses Geräts. Antippen öffnet den Tisch.
  */
-export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: OpenTablesAsideProps) {
+export function OpenTablesAside({ entries, onOpen, isLoading, staleSince, filter, waiters }: OpenTablesAsideProps) {
   const t = useTranslations('pos.tables');
+  const tWaiter = useTranslations('pos.waiter');
   const tFloor = useTranslations('pos.floor');
   const locale = useLocale();
   const formatPrice = useFormatPrice();
@@ -85,6 +92,21 @@ export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: Open
           </span>
         </div>
       </div>
+      {filter && (
+        <div className="pos-open__filter" role="group" aria-label={tWaiter('tableFilter')}>
+          {(['mine', 'all'] as const).map((value) => (
+            <Button
+              key={value}
+              size="sm"
+              variant={filter.value === value ? 'primary' : 'secondary'}
+              aria-pressed={filter.value === value}
+              onClick={() => filter.onChange(value)}
+            >
+              {tWaiter(value === 'mine' ? 'tablesMine' : 'tablesAll')}
+            </Button>
+          ))}
+        </div>
+      )}
       {isLoading && entries.length === 0 ? (
         <div className="pos-center">
           <Spinner />
@@ -114,6 +136,18 @@ export function OpenTablesAside({ entries, onOpen, isLoading, staleSince }: Open
                   <b>{title(entry.context)}</b>
                   <span>{meta(entry)}</span>
                 </span>
+                {entry.waiterId && waiters?.get(entry.waiterId) && (
+                  <span
+                    className="pos-openrow__waiter"
+                    style={{
+                      background: waiters.get(entry.waiterId)?.color ?? undefined,
+                      color: textOn(waiters.get(entry.waiterId)?.color),
+                    }}
+                    title={tWaiter('tableOwner', { name: waiters.get(entry.waiterId)?.shortName ?? '' })}
+                  >
+                    {waiters.get(entry.waiterId)?.shortName}
+                  </span>
+                )}
                 {entry.amount > 0 && <span className="pos-openrow__sum">{formatPrice(entry.amount)}</span>}
                 <Icon name="chevron-right" size={16} />
               </button>

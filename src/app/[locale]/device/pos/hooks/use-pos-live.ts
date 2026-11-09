@@ -58,7 +58,11 @@ const RECONNECT_QUERIES = [
  * beim (Wieder-)Verbinden alles Relevante neu laden, weil Ereignisse aus
  * der Trennzeit verloren sind.
  */
-export function usePosSocketEvents(eventId: string | null, onBroadcast: (message: BroadcastMessage) => void) {
+export function usePosSocketEvents(
+  eventId: string | null,
+  onBroadcast: (message: BroadcastMessage) => void,
+  onWaiterUpdated?: (data: unknown) => void,
+) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -152,8 +156,13 @@ export function usePosSocketEvents(eventId: string | null, onBroadcast: (message
       printerStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
       // Cloud-TSE: Ausfall auf/zu, aktiviert, deaktiviert — Pille und Hinweis neu.
       tseStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
+      // Bedienung deaktiviert, neue PIN, Rechte geändert: Sitzung prüfen.
+      waiterUpdated: (data: unknown) => {
+        queryClient.invalidateQueries({ queryKey: ['device-waiters'] });
+        onWaiterUpdated?.(data);
+      },
     }),
-    [eventId, queryClient, refreshDevice, router, ordersChanged],
+    [eventId, queryClient, refreshDevice, router, ordersChanged, onWaiterUpdated],
   );
 
   const onConnect = useCallback(() => {

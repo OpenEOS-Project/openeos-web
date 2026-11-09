@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Dropdown,
@@ -49,6 +49,8 @@ interface PosHeaderProps {
   tse?: PosTseState | null;
   user: { firstName: string; lastName: string } | null;
   onLock?: () => void;
+  /** Bedienung (Chip mit Farbe und Kurzname), ersetzt `user`. */
+  waiter?: ReactNode;
   menu: PosMenuAction[];
   /** Hell/Dunkel/System, je Gerät gespeichert. */
   theme: PosTheme;
@@ -87,6 +89,7 @@ export function PosHeader({
   tse = null,
   user,
   onLock,
+  waiter,
   menu,
   theme,
   onThemeChange,
@@ -232,7 +235,8 @@ export function PosHeader({
         </Dropdown>
       </div>
 
-      {user && (
+      {waiter}
+      {!waiter && user && (
         <UserChip
           className="pos-head__user"
           name={`${user.firstName} ${user.lastName.charAt(0)}.`.trim()}

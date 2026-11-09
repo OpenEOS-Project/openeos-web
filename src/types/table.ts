@@ -264,6 +264,10 @@ export interface DeviceTableStatus {
   orderIds: string[];
   waitingSince: string | null;
   lastActivityAt: string;
+  /** Verantwortliche Bedienung (Tischbesitz); ältere API-Stände ohne Feld. */
+  waiterId?: string | null;
+  /** Alle Bedienungen mit Bestellungen am Tisch. */
+  waiterIds?: string[];
 }
 
 /** Query von GET /device-api/orders/open (ohne `eventId`: aktives bzw. Test-Event). */

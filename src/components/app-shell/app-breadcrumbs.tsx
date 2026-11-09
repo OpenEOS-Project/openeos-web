@@ -25,6 +25,7 @@ const SEG_TO_NAV_KEY: Record<string, string> = {
   products: 'products',
   categories: 'categories',
   members: 'members',
+  waiters: 'waiters',
   devices: 'devices',
   printers: 'printers',
   orders: 'orders',

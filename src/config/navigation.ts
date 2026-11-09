@@ -22,6 +22,7 @@ import {
   TabletSmartphone,
   Tag,
   Trash2,
+  UserRoundCheck,
   Users,
 } from 'lucide-react';
 
@@ -171,6 +172,13 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     href: '/members',
     icon: Users,
     requiredPermission: 'members',
+  },
+  {
+    // Kassenprofile mit PIN (ohne Konto) fuer gemeinsam genutzte Kassen.
+    labelKey: 'waiters',
+    href: '/waiters',
+    icon: UserRoundCheck,
+    requiredPermission: 'waiters',
   },
   {
     labelKey: 'shifts',
