@@ -81,6 +81,10 @@ test.describe('Bon-Element „Bedienung“ / „Gerät“', () => {
     expect(e.fields.waiter_name).toBe('Waiter');
     expect(e.fields.device_name).toBe('Device');
     expect(d.props.conditionWaiterName).toBeTruthy();
+    // Hinweis im Editor: es gibt keine Anmeldung an Geräten, die Bedienung ist das Gerät.
+    expect(d.fieldHints.waiter_name).toContain('Name des Geräts, mit dem die Bestellung aufgenommen wurde');
+    expect(d.fieldHints.device_name).toContain('Name des Geräts, mit dem die Bestellung aufgenommen wurde');
+    expect(e.fieldHints.waiter_name).toContain('device the order was taken on');
     expect(e.props.conditionDeviceName).toBeTruthy();
   });
 

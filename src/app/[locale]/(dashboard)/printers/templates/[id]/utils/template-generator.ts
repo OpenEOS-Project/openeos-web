@@ -138,9 +138,10 @@ function generateField(el: TemplateElement, cols: number): string | null {
       );
 
     case 'waiter_name':
-      // Bedienung: Person, die die Bestellung aufgenommen hat, sonst der
-      // Name des bestellenden Geraets (API). Ohne Namen faellt die Zeile
-      // samt Beschriftung weg, auch bei einer anderen Sichtbarkeit.
+      // Bedienung: Name des Geraets, mit dem die Bestellung aufgenommen
+      // wurde; nur bei Bestellungen aus der Verwaltung (ohne Geraet) der
+      // Name des Nutzers (API). Ohne Namen faellt die Zeile samt
+      // Beschriftung weg, auch bei einer anderen Sichtbarkeit.
       return wrapNamedField('waiter_name', label || 'Bedienung: ', el);
 
     case 'device_name':

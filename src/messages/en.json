@@ -5032,6 +5032,10 @@
         "priority": "Priority",
         "notes": "Notes"
       },
+      "fieldHints": {
+        "waiter_name": "Name of the device the order was taken on. For orders created in the admin area, the name of the user. Without a name the line and its label are left out.",
+        "device_name": "Name of the device the order was taken on. Without a device the line and its label are left out."
+      },
       "props": {
         "content": "Text Content",
         "contentPlaceholder": "Enter text...",

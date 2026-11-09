@@ -5032,6 +5032,10 @@
         "priority": "Priorität",
         "notes": "Notizen"
       },
+      "fieldHints": {
+        "waiter_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Bei Bestellungen aus der Verwaltung der Name des Nutzers. Ohne Namen fällt die Zeile samt Beschriftung weg.",
+        "device_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Ohne Gerät fällt die Zeile samt Beschriftung weg."
+      },
       "props": {
         "content": "Textinhalt",
         "contentPlaceholder": "Text eingeben...",

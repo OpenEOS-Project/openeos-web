@@ -120,6 +120,9 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
               ? t(`fields.${element.field}`)
               : t(`elements.${element.type}`)}
           </span>
+          {element.type === 'field' && (element.field === 'waiter_name' || element.field === 'device_name') && (
+            <p className="mt-2 text-xs text-quaternary" data-testid="field-hint">{t(`fieldHints.${element.field}`)}</p>
+          )}
         </div>
 
         {element.type === 'text' && (
