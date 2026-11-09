@@ -172,7 +172,7 @@ test.describe('Webhooks settings', () => {
     // Löschen führt zurück zur Liste.
     await page.getByRole('button', { name: 'Löschen' }).click();
     const del = page.getByRole('dialog', { name: 'Webhook löschen?' });
-    await expect(del.getByText(/https:\/\/hooks\.example\.org\/openeos/)).toBeVisible();
+    await expect(del.getByText('https://hooks.example.org/openeos', { exact: false })).toBeVisible();
     await expect(del.getByText(/Das Zustellprotokoll wird mit gelöscht/)).toBeVisible();
     await del.getByRole('button', { name: 'Löschen' }).click();
     await expect(page.getByText('Webhook gelöscht.')).toBeVisible();
