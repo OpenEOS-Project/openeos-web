@@ -58,7 +58,12 @@ export function TseSetupCard({ organizationId, status, setup }: TseSetupCardProp
   const showOverride =
     isSuperAdmin && setup.input.integrationEnabled && (step === 'paid_event_required' || step === 'too_early');
   // Vor Server, Land und Schalter ist „Jetzt einrichten“ kein Thema.
-  const showCreate = step !== 'unavailable' && step !== 'country_missing' && step !== 'country' && step !== 'integration_disabled';
+  const showCreate =
+    step !== 'unavailable' &&
+    step !== 'coming_soon' &&
+    step !== 'country_missing' &&
+    step !== 'country' &&
+    step !== 'integration_disabled';
   // Stammdaten-Formular: wenn die API sie anmahnt (oder das Anlegen mit 409 scheiterte).
   const needsMasterData = step === 'master_data' || missingFromCreate !== null;
   const missing: TseMasterDataField[] =
