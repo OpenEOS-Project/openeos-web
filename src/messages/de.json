@@ -1252,7 +1252,9 @@
         "yesHint": "OpenEOS richtet die TSE zum ersten Veranstaltungstag automatisch ein. Deine Betriebsart wird „Alle Funktionen“ – Bargeld geht dann mit TSE.",
         "no": "Nein, so lassen",
         "noHint": "Alles bleibt wie bisher. In Deutschland braucht Bargeld eine TSE – du kannst sie später jederzeit dazunehmen.",
-        "total": "+ {surcharge} Cloud-TSE · gesamt {total}"
+        "total": "+ {surcharge} Cloud-TSE · gesamt {total}",
+        "comingSoonBadge": "Bald verfügbar",
+        "comingSoon": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Sobald sie da ist, kannst du sie für deine Veranstaltungen dazunehmen."
       },
       "masterData": {
         "title": "Angaben zu deiner Organisation",
@@ -5518,11 +5520,17 @@
       "deactivateBlocked": "Deine Cloud-TSE ist eingerichtet. Ausschalten kannst du die Integration erst, wenn du die TSE in der Gefahrenzone unten endgültig deaktiviert hast – danach geschieht es automatisch.",
       "onlyGermany": "Die Cloud-TSE nach KassenSichV gibt es nur für Organisationen in Deutschland. Hinweise für dein Land findest du in den Einstellungen unter „Betriebsart“.",
       "serverUnavailable": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation.",
+      "comingSoonHint": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.",
       "hint": {
         "unavailable": {
           "short": "Auf diesem Server nicht eingerichtet",
           "title": "Auf diesem Server nicht eingerichtet",
           "text": "Hier bietet niemand eine Cloud-TSE an. Frag den Betreiber deiner Installation."
+        },
+        "comingSoon": {
+          "short": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.",
+          "title": "Bald verfügbar",
+          "text": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen."
         },
         "countryMissing": {
           "short": "Lege zuerst das Land deiner Organisation fest",
@@ -5605,6 +5613,7 @@
         },
         "check": {
           "server": "Cloud-TSE auf diesem Server eingerichtet",
+          "serverComingSoon": "Cloud-TSE verfügbar – kommt in Kürze",
           "country": "Organisation in Deutschland",
           "countryMissing": "Land der Organisation festgelegt",
           "countryOther": "Organisation in Deutschland (deine: {country})",
@@ -6317,6 +6326,7 @@
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
       "tse_required": "benötigt eine aktive Cloud-TSE",
+      "tse_coming_soon": "Bald verfügbar – mit Cloud-TSE",
       "country_required": "Lege zuerst das Land fest",
       "paid_event_required": "braucht eine freigeschaltete Veranstaltung"
     },
@@ -6401,6 +6411,7 @@
       "de": {
         "title": "Bargeld braucht in Deutschland eine TSE – bitte wähle deine Betriebsart",
         "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Wähle deshalb „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online) – oder schalte unter Integrationen die Cloud-TSE ein, dann bleibt „Alle Funktionen“ mit Bargeld möglich. Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
+        "textComingSoon": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Die Cloud-TSE von OpenEOS kommt in Kürze – bis dahin wähle „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
         "noCountry": "Lege dafür zuerst das Land deiner Organisation fest."
       },
       "confirm": {
@@ -6428,7 +6439,8 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Kassenregeln in Deutschland",
-        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE (Integrationen → Cloud-TSE). In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen."
+        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE (Integrationen → Cloud-TSE). In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen.",
+        "textComingSoon": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE – die kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen: Dort erfasst OpenEOS kein Bargeld, und du bekommst eine Herstellerbescheinigung für deine Unterlagen."
       },
       "at": {
         "title": "Registrierkassenpflicht in Österreich",
@@ -6447,6 +6459,7 @@
     "tseBadge": {
       "active": "Cloud-TSE aktiv",
       "creating": "Cloud-TSE wird eingerichtet",
+      "comingSoon": "Cloud-TSE bald verfügbar",
       "error": "Cloud-TSE gestört",
       "off": "Keine Cloud-TSE",
       "link": "Zur Cloud-TSE",

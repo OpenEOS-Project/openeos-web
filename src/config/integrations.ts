@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import type { ComponentType, FC } from 'react';
 import { CreditCard, ShieldCheck } from 'lucide-react';
 
+import { isTseComingSoon } from '@/lib/tse';
 import type { IntegrationId, Organization, OrganizationSettings } from '@/types/organization';
 
 export interface IntegrationScreenshot {
@@ -71,6 +72,13 @@ export interface IntegrationDefinition {
    */
   serverAvailable?: (organization: Partial<Organization> | null | undefined) => boolean;
   serverUnavailableKey?: string;
+  /**
+   * Bietet der Server sie (noch) nicht an, hat sie aber angekündigt? Dann
+   * „Bald verfügbar“ mit `comingSoonHintKey` statt „Nicht verfügbar“.
+   */
+  serverComingSoon?: (organization: Partial<Organization> | null | undefined) => boolean;
+  /** Hinweis im Infofenster bei „Bald verfügbar“ (sonst der allgemeine). */
+  comingSoonHintKey?: string;
   /**
    * Ausschalten gerade nicht möglich (z. B. Cloud-TSE aktiv: erst
    * endgültig deaktivieren). Die Rückfrage erklärt es mit `deactivateBlockedKey`.
@@ -202,6 +210,9 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     countryHintKey: 'tse.onlyGermany',
     serverAvailable: (organization) => organization?.tse?.available !== false,
     serverUnavailableKey: 'tse.serverUnavailable',
+    // Gehostet ohne Swissbit-Vertrag (API `TSE_COMING_SOON`).
+    serverComingSoon: (organization) => isTseComingSoon(organization?.tse),
+    comingSoonHintKey: 'tse.comingSoonHint',
     deactivateBlocked: (organization) =>
       organization?.tse?.state === 'active' || organization?.tse?.state === 'creating',
     deactivateBlockedKey: 'tse.deactivateBlocked',
@@ -274,9 +285,14 @@ export function integrationAvailability(
   organization: Partial<Organization> | null | undefined,
 ): IntegrationAvailability {
   if (!integration.available) return 'comingSoon';
-  if (integration.serverAvailable && !integration.serverAvailable(organization)) return 'server';
+  const country = (organization?.country ?? '').trim().toUpperCase();
+  if (integration.serverAvailable && !integration.serverAvailable(organization)) {
+    if (!integration.serverComingSoon?.(organization)) return 'server';
+    // Angekündigt: nur dort „Bald verfügbar“, wo sie dann auch geht.
+    if (country && integration.countries && !integration.countries.includes(country)) return 'country';
+    return 'comingSoon';
+  }
   if (integration.countries) {
-    const country = (organization?.country ?? '').trim().toUpperCase();
     if (!country) return 'countryMissing';
     if (!integration.countries.includes(country)) return 'country';
   }

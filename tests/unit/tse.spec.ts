@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { INTEGRATIONS, integrationAvailability } from '@/config/integrations';
 import {
   formatBytes,
+  isTseComingSoon,
   isV0QrPayload,
   outageFromViews,
   percentOf,
@@ -108,6 +109,9 @@ test.describe('Cloud-TSE setup step', () => {
 
   test('explains missing requirements', () => {
     expect(tseSetupStep(status({ available: false }))).toBe('unavailable');
+    expect(tseSetupStep(status({ available: false, availability: 'not_configured' }))).toBe('unavailable');
+    // Gehostet ohne Swissbit-Vertrag (TSE_COMING_SOON): „Bald verfügbar“.
+    expect(tseSetupStep(status({ available: false, availability: 'coming_soon' }))).toBe('coming_soon');
     expect(tseSetupStep(status({ country: null }))).toBe('country_missing');
     expect(tseSetupStep(status({ country: ' ' }))).toBe('country_missing');
     expect(tseSetupStep(status({ country: 'AT' }))).toBe('country');
@@ -167,6 +171,9 @@ test.describe('Cloud-TSE setup step', () => {
       'country_missing',
     );
     expect(tseSetupStepFrom(input({ available: false, country: null }))).toBe('unavailable');
+    expect(tseSetupStepFrom(input({ available: false, comingSoon: true, country: null }))).toBe('coming_soon');
+    // Verfügbar schlägt angekündigt.
+    expect(tseSetupStepFrom(input({ available: true, comingSoon: true }))).not.toBe('coming_soon');
     // Ohne bezahlte Veranstaltung nützt Einschalten allein nichts.
     expect(tseSetupStepFrom(input({ integrationEnabled: false, events: { event: null, availableFrom: null } }))).toBe(
       'paid_event_required',
@@ -274,6 +281,7 @@ test.describe('Cloud-TSE paid event check', () => {
 test.describe('Cloud-TSE reason → message', () => {
   const steps: TseSetupStep[] = [
     'unavailable',
+    'coming_soon',
     'country_missing',
     'country',
     'paid_event_required',
@@ -290,6 +298,7 @@ test.describe('Cloud-TSE reason → message', () => {
     expect(tseHint('country_missing')).toEqual({ key: 'countryMissing', tone: 'warn', action: 'set_country' });
     expect(tseHint('country')).toEqual({ key: 'countryUnsupported', tone: 'info', action: null });
     expect(tseHint('unavailable')).toEqual({ key: 'unavailable', tone: 'info', action: null });
+    expect(tseHint('coming_soon')).toEqual({ key: 'comingSoon', tone: 'info', action: null });
     expect(tseHint('paid_event_required')).toEqual({ key: 'paidEventRequired', tone: 'warn', action: 'unlock_event' });
     expect(tseHint('integration_disabled')).toEqual({ key: 'integrationDisabled', tone: 'info', action: 'enable' });
     expect(tseHint('master_data')).toEqual({ key: 'masterData', tone: 'warn', action: 'master_data' });
@@ -318,6 +327,10 @@ test.describe('Cloud-TSE reason → message', () => {
     expect(hints.countryMissing.title).toBe('Lege zuerst das Land deiner Organisation fest');
     expect(hints.countryUnsupported.title).toBe('Nur für Deutschland');
     expect(hints.unavailable.title).toBe('Auf diesem Server nicht eingerichtet');
+    expect(hints.comingSoon.title).toBe('Bald verfügbar');
+    expect(hints.comingSoon.short).toBe(
+      'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.',
+    );
     expect(hints.paidEventRequired.text).toContain(
       'Die Cloud-TSE wird mit deiner ersten bezahlten Veranstaltung eingerichtet',
     );
@@ -444,6 +457,34 @@ test.describe('integration availability', () => {
         tse: { available: false, integrationEnabled: false, active: false, state: null, serialNumber: null, clientId: null },
       }),
     ).toBe('server');
+  });
+
+  test('coming soon (hosted, TSE_COMING_SOON): „Bald verfügbar“ instead of „not on this server“', () => {
+    const soon = {
+      available: false,
+      availability: 'coming_soon' as const,
+      integrationEnabled: false,
+      active: false,
+      state: null,
+      serialNumber: null,
+      clientId: null,
+    };
+    expect(integrationAvailability(tse, { country: 'DE', tse: soon })).toBe('comingSoon');
+    expect(integrationAvailability(tse, { country: null, tse: soon })).toBe('comingSoon');
+    // Außerhalb Deutschlands kommt sie auch dann nicht.
+    expect(integrationAvailability(tse, { country: 'AT', tse: soon })).toBe('country');
+    // Eigene Installation ohne Provider (kein coming_soon): unverändert.
+    expect(
+      integrationAvailability(tse, { country: 'DE', tse: { ...soon, availability: 'not_configured' } }),
+    ).toBe('server');
+    expect(isTseComingSoon(soon)).toBe(true);
+    expect(isTseComingSoon({ availability: 'available' })).toBe(false);
+    expect(isTseComingSoon(null)).toBe(false);
+    for (const messages of [de, en]) {
+      expect(messages.integrations.tse.comingSoonHint).toBeTruthy();
+      expect(messages.integrations.tse.setup.check.serverComingSoon).toBeTruthy();
+    }
+    expect(de.integrations.tse.comingSoonHint).toContain('„Nur Bons“ oder „Bargeldlos“');
   });
 
   test('switching off is blocked while a TSE is set up', () => {

@@ -1653,7 +1653,9 @@
         "yesHint": "OpenEOS sets up the TSE automatically for the first event day. Your operating mode becomes “All features” – cash then works with the TSE.",
         "no": "No, keep it as it is",
         "noHint": "Nothing changes. In Germany, cash needs a TSE – you can add it later at any time.",
-        "total": "+ {surcharge} cloud TSE · total {total}"
+        "total": "+ {surcharge} cloud TSE · total {total}",
+        "comingSoonBadge": "Coming soon",
+        "comingSoon": "The cloud TSE for cash payments in Germany is coming soon. Once it's here, you can add it to your events."
       },
       "masterData": {
         "title": "About your organization",
@@ -5518,11 +5520,17 @@
       "deactivateBlocked": "Your cloud TSE is set up. You can only switch the integration off after you have permanently deactivated the TSE in the danger zone below – it then happens automatically.",
       "onlyGermany": "The cloud TSE under the German KassenSichV is only available for organizations in Germany. Notes for your country are in the settings under “Operating mode”.",
       "serverUnavailable": "No cloud TSE is set up on this server. Ask the operator of your installation.",
+      "comingSoonHint": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”.",
       "hint": {
         "unavailable": {
           "short": "Not set up on this server",
           "title": "Not set up on this server",
           "text": "This installation does not offer a cloud TSE. Ask its operator."
+        },
+        "comingSoon": {
+          "short": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”.",
+          "title": "Coming soon",
+          "text": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”."
         },
         "countryMissing": {
           "short": "Set your organization's country first",
@@ -5605,6 +5613,7 @@
         },
         "check": {
           "server": "Cloud TSE set up on this server",
+          "serverComingSoon": "Cloud TSE available – coming soon",
           "country": "Organization in Germany",
           "countryMissing": "Organization's country set",
           "countryOther": "Organization in Germany (yours: {country})",
@@ -6317,6 +6326,7 @@
       "legacy": "Active (existing)",
       "available": "Available",
       "tse_required": "requires an active cloud TSE",
+      "tse_coming_soon": "Coming soon – with cloud TSE",
       "country_required": "Set the country first",
       "paid_event_required": "needs an activated event"
     },
@@ -6401,6 +6411,7 @@
       "de": {
         "title": "Cash requires a TSE in Germany – please choose your operating mode",
         "text": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. Please choose “Orders only” (no prices and payments) or “Cashless” (card and online) – or switch on the cloud TSE under Integrations to keep “All features” with cash. Until you choose, everything stays as it is – OpenEOS switches nothing automatically.",
+        "textComingSoon": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. The OpenEOS cloud TSE is coming soon – until then, choose “Orders only” (no prices or payments) or “Cashless” (card and online). Until you choose, everything stays as it is – OpenEOS doesn't switch anything automatically.",
         "noCountry": "Set the country of your organization first."
       },
       "confirm": {
@@ -6428,7 +6439,8 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Till rules in Germany",
-        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why “All features” with cash is only available with an active cloud TSE (Integrations → Cloud TSE). In “Orders only” and “Cashless” OpenEOS records no cash; you get a manufacturer certificate for your records."
+        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why “All features” with cash is only available with an active cloud TSE (Integrations → Cloud TSE). In “Orders only” and “Cashless” OpenEOS records no cash; you get a manufacturer certificate for your records.",
+        "textComingSoon": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That's why “All features” with cash is only available with an active cloud TSE – which is coming soon. Until then you can use “Orders only” or “Cashless”: OpenEOS records no cash there, and you get a manufacturer's certificate for your records."
       },
       "at": {
         "title": "Cash register obligation in Austria",
@@ -6447,6 +6459,7 @@
     "tseBadge": {
       "active": "Cloud TSE active",
       "creating": "Cloud TSE being set up",
+      "comingSoon": "Cloud TSE coming soon",
       "error": "Cloud TSE disrupted",
       "off": "No cloud TSE",
       "link": "Go to cloud TSE",
