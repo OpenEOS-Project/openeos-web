@@ -62,7 +62,7 @@ export function PfandReturnDoneSheet({ result, context, onClose }: PfandReturnDo
   const total = Math.abs(Number(result.totalAmount));
   const time = new Date(result.createdAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   const lines: ReceiptLine[] = result.lines.map((line) => ({
-    qty: `${line.quantity}×`,
+    qty: `${line.quantity}x`,
     name: line.name,
     total: formatPrice(-Number(line.unitAmount) * line.quantity),
   }));
