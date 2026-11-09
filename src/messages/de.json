@@ -3128,7 +3128,7 @@
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
         "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
-        "transferred": "Tisch übergeben: {from} → {to}"
+        "transferred": "Tisch übergeben von {from} an {to}"
       },
       "optionWithout": "ohne {option}",
       "itemRefunded": "{count} erstattet",
@@ -3696,7 +3696,7 @@
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
         "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
-        "transferred": "Tisch übergeben: {from} → {to}"
+        "transferred": "Tisch übergeben von {from} an {to}"
       },
       "payments": "Zahlungen"
     },

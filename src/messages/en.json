@@ -3140,7 +3140,7 @@
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
         "refund_receipt_reprinted": "Counter-receipt reprinted",
-        "transferred": "Table handed over: {from} → {to}"
+        "transferred": "Table handed over from {from} to {to}"
       },
       "optionWithout": "without {option}",
       "itemRefunded": "{count} refunded",
@@ -3708,7 +3708,7 @@
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
         "refund_receipt_reprinted": "Counter-receipt reprinted",
-        "transferred": "Table handed over: {from} → {to}"
+        "transferred": "Table handed over from {from} to {to}"
       },
       "payments": "Payments"
     },
