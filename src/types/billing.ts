@@ -22,6 +22,11 @@ export interface EventTseTerms {
   surcharge: number;
   /** Fehlende Stammdaten für die TSE (`taxNumber`, `street`, `zip`, `city`). */
   missing: string[];
+  /**
+   * Die TSE gehörte dazu, ist aber erst angekündigt („Bald verfügbar“) —
+   * dann ohne Frage (`offer` = null), nur ein Hinweis.
+   */
+  comingSoon?: boolean;
   /** Freigeschaltet: ob die TSE dazugehört. */
   included: boolean | null;
   /** Freigeschaltet: berechneter Zuschlag. */

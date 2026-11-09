@@ -10,6 +10,7 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useTseComingSoon } from '@/hooks/use-integrations';
 import { organizationsApi } from '@/lib/api-client';
 import { countryName } from '@/lib/countries';
 import {
@@ -94,6 +95,7 @@ export function NoticeBanner({
 export function CountryNotice({ kind }: { kind: CountryNoticeKind }) {
   const t = useTranslations('operatingMode.countryNotice');
   const locale = useLocale();
+  const tseComingSoon = useTseComingSoon();
   const link = (href: string, label: string) => (
     <a href={href} target="_blank" rel="noopener noreferrer" className="notice-link">
       {label}
@@ -111,7 +113,7 @@ export function CountryNotice({ kind }: { kind: CountryNoticeKind }) {
 
   return (
     <NoticeBanner tone="info" title={t(`${kind}.title`)} testId={`country-notice-${kind}`}>
-      <p className="mode-notice__p">{t(`${kind}.text`)}</p>
+      <p className="mode-notice__p">{t(kind === 'de' && tseComingSoon ? 'de.textComingSoon' : `${kind}.text`)}</p>
       <p className="mode-notice__p mode-notice__muted">
         {t('noTaxAdvice')} {docs}
         {extra ? <> · {extra}</> : null}
@@ -144,6 +146,7 @@ export function LegacyNotice({
 }) {
   const t = useTranslations('operatingMode.legacy');
   const locale = useLocale();
+  const tseComingSoon = useTseComingSoon();
 
   if (kind === 'confirm') {
     return (
@@ -157,7 +160,9 @@ export function LegacyNotice({
 
   return (
     <NoticeBanner tone="warn" title={t('de.title')} testId="legacy-notice-de" onDismiss={onDismiss}>
-      <p className="mode-notice__p">{t('de.text')}</p>
+      <p className="mode-notice__p" data-tse-coming-soon={tseComingSoon || undefined}>
+        {t(tseComingSoon ? 'de.textComingSoon' : 'de.text')}
+      </p>
       {!hasCountry && <p className="mode-notice__p">{t('de.noCountry')}</p>}
       {!isAdmin && <p className="mode-notice__p mode-notice__muted">{t('adminOnly')}</p>}
       <p className="mode-notice__p mode-notice__muted">

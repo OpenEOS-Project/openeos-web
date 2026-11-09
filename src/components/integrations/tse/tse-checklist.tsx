@@ -31,7 +31,7 @@ export function TseChecklist({ requirements, input, step, variant = 'full' }: Ts
   const label = (requirement: TseRequirement): string => {
     switch (requirement.id) {
       case 'server':
-        return t('check.server');
+        return step === 'coming_soon' ? t('check.serverComingSoon') : t('check.server');
       case 'country':
         if (compact) return t('check.country');
         if (step === 'country_missing') return t('check.countryMissing');

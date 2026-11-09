@@ -7,6 +7,7 @@ import { useEvents } from '@/hooks/use-events';
 import { useIntegrationOrganization } from '@/hooks/use-integrations';
 import { missingMasterData } from '@/lib/dsfinvk';
 import {
+  isTseComingSoon,
   tseEventCheckFromEligibility,
   tseEventCheckFromEvents,
   tseMasterDataMissingFromEligibility,
@@ -159,6 +160,7 @@ export function useTseSetup(organizationId: string | undefined) {
       fromApi ?? (events.data ? tseEventCheckFromEvents(events.data, { selfHosted }) : undefined);
     const input: TseSetupInput = {
       available: data ? data.available : organization?.tse?.available !== false,
+      comingSoon: data ? isTseComingSoon(data) : isTseComingSoon(organization?.tse),
       integrationEnabled: enabled,
       country: data?.country ?? organization?.country,
       events: eventCheck,

@@ -39,6 +39,7 @@ import {
 } from '@/lib/operating-mode';
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationTseSummary } from '@/types/tse';
+import { isTseComingSoon } from '@/lib/tse';
 import type { OperatingModeState } from '@/types/organization';
 import { TseChecklist } from '@/components/integrations/tse/tse-checklist';
 import { useTseSetup } from '@/hooks/use-tse';
@@ -376,7 +377,13 @@ function TseModeBadge({
 }) {
   const t = useTranslations('operatingMode.tseBadge');
   const active = tse ? tse.active : tseActive;
-  const kind = active ? 'active' : tse?.state === 'creating' ? 'creating' : 'off';
+  const kind = active
+    ? 'active'
+    : tse?.state === 'creating'
+      ? 'creating'
+      : isTseComingSoon(tse)
+        ? 'comingSoon'
+        : 'off';
   const badge = kind === 'active' ? 'badge badge--success' : kind === 'creating' ? 'badge badge--info' : 'badge badge--neutral';
   const enabled = tse?.integrationEnabled ?? false;
   return (
@@ -391,7 +398,7 @@ function TseModeBadge({
           className="notice-link"
           onClick={(event) => event.stopPropagation()}
         >
-          {enabled ? t('link') : t('setup')}
+          {enabled || kind === 'comingSoon' ? t('link') : t('setup')}
         </Link>
       )}
     </span>
@@ -442,6 +449,9 @@ function TseFollowsHint({
 /** Kurz-Checkliste der Cloud-TSE an „Alle Funktionen“ (✓ erfüllt, • offen). */
 function TseModeChecklist({ organizationId }: { organizationId: string }) {
   const setup = useTseSetup(organizationId);
-  if (!setup.step || setup.step === 'active' || setup.step === 'unavailable') return null;
+  // Ohne TSE auf dem Server (oder „Bald verfügbar“) sagt die Pille genug.
+  if (!setup.step || setup.step === 'active' || setup.step === 'unavailable' || setup.step === 'coming_soon') {
+    return null;
+  }
   return <TseChecklist requirements={setup.requirements} input={setup.input} step={setup.step} variant="compact" />;
 }
