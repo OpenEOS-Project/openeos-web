@@ -92,6 +92,8 @@ export class WebhookApiMock {
     maxEndpoints: 10,
     apiVersion: '2026-11-10',
     signatureToleranceSeconds: 300,
+    allowHttp: false,
+    allowPrivateNetworks: false,
     maxAttempts: 8,
     retentionDays: 30,
     eventTypes: EVENT_TYPES,

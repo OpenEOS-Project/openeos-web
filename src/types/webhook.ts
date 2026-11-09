@@ -53,6 +53,10 @@ export interface WebhookInfo {
   maxEndpoints: number;
   apiVersion: string;
   signatureToleranceSeconds: number;
+  /** `WEBHOOKS_ALLOW_HTTP`: auch http-Adressen erlaubt (eigene Installation). */
+  allowHttp: boolean;
+  /** `WEBHOOKS_ALLOW_PRIVATE_NETWORKS`: auch Adressen im lokalen Netz erlaubt. */
+  allowPrivateNetworks: boolean;
   maxAttempts: number;
   /** Aufbewahrung des Zustellprotokolls in Tagen. */
   retentionDays: number;

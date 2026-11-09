@@ -23,6 +23,7 @@ import {
   WEBHOOK_DESCRIPTION_MAX_LENGTH,
   WEBHOOK_URL_MAX_LENGTH,
   webhookUrlErrorReason,
+  webhookUrlHintKey,
   type WebhookUrlCheck,
 } from '@/lib/webhooks';
 
@@ -93,7 +94,7 @@ export function WebhookFormDialog({ organizationId, endpoint, onClose }: Webhook
   const order = useMemo(() => typeInfos.map((info) => info.type), [typeInfos]);
   const withAmounts = eventTypesWithAmounts(eventTypes, typeInfos);
 
-  const urlCheck = checkWebhookUrl(url);
+  const urlCheck = checkWebhookUrl(url, { allowHttp: info.data?.allowHttp });
   const urlError = (submitted ? urlCheck : null) ?? serverUrlError;
   const noEvents = eventTypes.length === 0;
 
@@ -210,7 +211,7 @@ export function WebhookFormDialog({ organizationId, endpoint, onClose }: Webhook
                       {t(`urlErrors.${urlError}`)}
                     </span>
                   ) : (
-                    <span className="auth-field__hint">{t('urlHint')}</span>
+                    <span className="auth-field__hint">{t(webhookUrlHintKey(info.data))}</span>
                   )}
                 </label>
 

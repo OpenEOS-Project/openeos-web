@@ -173,6 +173,7 @@ test.describe('Webhooks settings', () => {
     await page.getByRole('button', { name: 'Löschen' }).click();
     const del = page.getByRole('dialog', { name: 'Webhook löschen?' });
     await expect(del.getByText(/https:\/\/hooks\.example\.org\/openeos/)).toBeVisible();
+    await expect(del.getByText(/Das Zustellprotokoll wird mit gelöscht/)).toBeVisible();
     await del.getByRole('button', { name: 'Löschen' }).click();
     await expect(page.getByText('Webhook gelöscht.')).toBeVisible();
     await expect(page).toHaveURL(/\/settings\?tab=org-webhooks$/);
@@ -198,6 +199,23 @@ test.describe('Webhooks settings', () => {
     await page.reload();
     await expect(page.getByText('Webhooks sind auf diesem Server ausgeschaltet')).toBeVisible();
     await expect(page.getByRole('button', { name: /^Test senden:/ }).first()).toBeDisabled();
+  });
+
+  test('self-hosted server that allows http and local addresses', async ({ adminPage: page }) => {
+    const api = new WebhookApiMock();
+    Object.assign(api.info, { allowHttp: true, allowPrivateNetworks: true });
+    await api.install(page);
+    await openWebhooks(page);
+
+    await page.getByRole('button', { name: 'Webhook anlegen' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Webhook anlegen' });
+    await expect(dialog.getByText(/Dieser Server nimmt auch http und Adressen im lokalen Netz an/)).toBeVisible();
+    await dialog.getByRole('textbox', { name: /Adresse \(URL\)/ }).fill('http://192.168.1.20:8080/openeos');
+    await dialog.getByRole('checkbox', { name: /Bestellung vollständig bezahlt/ }).check();
+    await dialog.getByRole('button', { name: 'Webhook anlegen' }).click();
+    await expect(page.getByRole('dialog', { name: 'Webhook angelegt' })).toBeVisible();
+    const created = api.requests.filter((r) => r.method === 'POST' && /\/webhooks$/.test(r.path)).at(-1);
+    expect(created?.body?.url).toBe('http://192.168.1.20:8080/openeos');
   });
 
   test('access tab links to webhooks', async ({ adminPage: page }) => {

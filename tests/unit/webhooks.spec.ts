@@ -16,6 +16,7 @@ import {
   webhookSecretHint,
   webhookStatusTone,
   webhookUrlErrorReason,
+  webhookUrlHintKey,
 } from '@/lib/webhooks';
 import { ApiException } from '@/types/api';
 import type { WebhookEventType, WebhookEventTypeInfo } from '@/types/webhook';
@@ -142,6 +143,21 @@ test.describe('url check', () => {
     expect(checkWebhookUrl('ftp://example.org/hook')).toBe('invalid');
     expect(checkWebhookUrl('example.org/hook')).toBe('invalid');
     expect(checkWebhookUrl('https://')).toBe('invalid');
+  });
+
+  test('http only when the server allows it', () => {
+    expect(checkWebhookUrl('http://192.168.1.20:8080/hook', { allowHttp: true })).toBeNull();
+    expect(checkWebhookUrl('http://192.168.1.20:8080/hook', { allowHttp: false })).toBe('not_https');
+    expect(checkWebhookUrl('ftp://example.org/hook', { allowHttp: true })).toBe('invalid');
+    expect(checkWebhookUrl('http://user:pw@example.org/hook', { allowHttp: true })).toBe('credentials');
+  });
+
+  test('hint follows what the server allows', () => {
+    expect(webhookUrlHintKey(undefined)).toBe('urlHint');
+    expect(webhookUrlHintKey({ allowHttp: false, allowPrivateNetworks: false })).toBe('urlHint');
+    expect(webhookUrlHintKey({ allowHttp: true, allowPrivateNetworks: false })).toBe('urlHintHttp');
+    expect(webhookUrlHintKey({ allowHttp: false, allowPrivateNetworks: true })).toBe('urlHintPrivate');
+    expect(webhookUrlHintKey({ allowHttp: true, allowPrivateNetworks: true })).toBe('urlHintHttpPrivate');
   });
 
   test('credentials in the address', () => {

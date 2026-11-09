@@ -1136,6 +1136,9 @@
         "url": "Address (URL)",
         "urlPlaceholder": "https://example.org/openeos/webhook",
         "urlHint": "HTTPS only. The server does not accept addresses in private networks (such as 192.168.…).",
+        "urlHintHttp": "This server also accepts http – still use https wherever you can. It does not accept addresses in private networks (such as 192.168.…).",
+        "urlHintPrivate": "HTTPS only. This server also accepts addresses in the local network (such as 192.168.…).",
+        "urlHintHttpPrivate": "This server also accepts http and addresses in the local network – still use https wherever you can.",
         "urlErrors": {
           "required": "Enter the address OpenEOS should send to.",
           "too_long": "The address is too long – 2048 characters at most.",
@@ -1198,7 +1201,7 @@
       },
       "deleteDialog": {
         "title": "Delete webhook?",
-        "text": "Nothing will be sent to {url} afterwards, not even pending deliveries. This cannot be undone.",
+        "text": "Nothing will be sent to {url} afterwards, not even pending deliveries. The delivery log is deleted as well. This cannot be undone.",
         "confirm": "Delete",
         "pending": "Deleting…"
       },

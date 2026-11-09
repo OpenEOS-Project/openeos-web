@@ -209,12 +209,15 @@ export function webhookSecretHint(secret: string): string {
 export type WebhookUrlCheck = 'required' | 'too_long' | WebhookUrlInvalidReason;
 
 /**
- * Prüft die Adresse, bevor sie zur API geht: Pflicht, Länge, lesbar, nur
- * https und ohne Zugangsdaten in der Adresse. Private Netze und
- * Erreichbarkeit prüft erst die API (`private_address`, `unresolvable`).
- * `null` heißt: sieht gut aus.
+ * Prüft die Adresse, bevor sie zur API geht: Pflicht, Länge, lesbar, https
+ * (http nur, wenn der Server es erlaubt, `allowHttp`) und ohne Zugangsdaten
+ * in der Adresse. Private Netze und Erreichbarkeit prüft erst die API
+ * (`private_address`, `unresolvable`). `null` heißt: sieht gut aus.
  */
-export function checkWebhookUrl(value: string): WebhookUrlCheck | null {
+export function checkWebhookUrl(
+  value: string,
+  { allowHttp = false }: { allowHttp?: boolean } = {}
+): WebhookUrlCheck | null {
   const trimmed = value.trim();
   if (!trimmed) return 'required';
   if (trimmed.length > WEBHOOK_URL_MAX_LENGTH) return 'too_long';
@@ -224,12 +227,28 @@ export function checkWebhookUrl(value: string): WebhookUrlCheck | null {
   } catch {
     return 'invalid';
   }
-  if (url.protocol !== 'https:') {
-    return url.protocol === 'http:' ? 'not_https' : 'invalid';
+  if (url.protocol === 'http:') {
+    if (!allowHttp) return 'not_https';
+  } else if (url.protocol !== 'https:') {
+    return 'invalid';
   }
   if (!url.hostname) return 'invalid';
   if (url.username || url.password) return 'credentials';
   return null;
+}
+
+export type WebhookUrlHintKey = 'urlHint' | 'urlHintHttp' | 'urlHintPrivate' | 'urlHintHttpPrivate';
+
+/** Hinweis unter dem Adressfeld, je nachdem, was der Server zusätzlich erlaubt. */
+export function webhookUrlHintKey(
+  info: Pick<WebhookInfo, 'allowHttp' | 'allowPrivateNetworks'> | null | undefined
+): WebhookUrlHintKey {
+  const http = !!info?.allowHttp;
+  const lan = !!info?.allowPrivateNetworks;
+  if (http && lan) return 'urlHintHttpPrivate';
+  if (http) return 'urlHintHttp';
+  if (lan) return 'urlHintPrivate';
+  return 'urlHint';
 }
 
 /** `params.reason` einer abgelehnten Adresse — sonst `null`. */
