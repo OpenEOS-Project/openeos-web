@@ -100,6 +100,23 @@ export function useMarkEventInvoicePaid() {
   });
 }
 
+/** Support: Veranstaltung nach Beginn des Verkaufs verschieben (mit Grund). */
+export function useMoveEventDates() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { id: string; startDate?: string; endDate?: string; reason: string }) =>
+      adminApi.moveEventDates(input.id, {
+        startDate: input.startDate,
+        endDate: input.endDate,
+        reason: input.reason,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+    },
+  });
+}
+
 export function useWaiveEvent() {
   const queryClient = useQueryClient();
 

@@ -37,6 +37,7 @@ import { resolveOrderingMode } from '@/utils/ordering-mode';
 import { Link } from '@/i18n/routing';
 import type { TableMode } from '@/types/table';
 import { Banner, Checkbox, Icon } from '@openeos/ui';
+import { currentEventPhase, phaseMoment } from '@/lib/event-phase';
 import '@/styles/event-tables.css';
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
@@ -51,6 +52,8 @@ function createEventSchema(t: (key: string) => string, tTables: (key: string) =>
       endDate: z.string().optional(),
       shopEnabled: z.boolean().optional(),
       shopServiceFee: z.string().optional(),
+      presale: z.boolean().optional(),
+      earlyStartHours: z.string().optional(),
       tablesMode: z.enum(['none', 'free', 'predefined']),
       tablesAllAreas: z.boolean(),
       tablesAreaIds: z.array(z.string()),
@@ -80,6 +83,8 @@ const EMPTY_FORM: EventFormData = {
   endDate: '',
   shopEnabled: false,
   shopServiceFee: '',
+  presale: false,
+  earlyStartHours: '',
   // Ohne Angabe erbt die Veranstaltung den Kassiermodus der Organisation.
   orderingMode: undefined,
   // Ohne Angabe gilt freie Tischnummer — wie vor den Tischen.
@@ -129,6 +134,15 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
     defaultValues: EMPTY_FORM,
   });
 
+  /* Phasen: nach Beginn des Verkaufs ist der Beginn fest und das Ende laesst
+     sich nur vorziehen; nach dem Ende gar nichts mehr. Der Server prueft
+     dasselbe (EVENT_DATES_LOCKED). */
+  const phase = currentEventPhase(event);
+  const datesLocked = event?.phaseDetails?.datesLocked === true;
+  const eventEnded = datesLocked && phase === 'ended';
+  const lockedEnd = event?.endDate ? toDayKey(event.endDate) : event?.startDate ? toDayKey(event.startDate) : '';
+  const defaultLead = event?.phaseDetails?.earlyStartHours ?? 12;
+
   const startDate = watch('startDate');
   const tablesMode = watch('tablesMode');
   const tablesAllAreas = watch('tablesAllAreas');
@@ -147,6 +161,11 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
         endDate: end,
         shopEnabled: event.settings?.shop?.enabled === true,
         shopServiceFee: typeof fee === 'number' && fee > 0 ? String(fee) : '',
+        presale: event.settings?.sales?.presale === true,
+        earlyStartHours:
+          typeof event.settings?.sales?.earlyStartHours === 'number'
+            ? String(event.settings.sales.earlyStartHours)
+            : '',
         // Nur ein an der Veranstaltung gesetzter Wert; ohne ihn gilt der
         // der Organisation (Anzeige siehe Auswahlfeld).
         orderingMode: event.settings?.orderingMode,
@@ -218,11 +237,32 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
          Speichern als fester Wert hängen. */
       const orderingMode = data.orderingMode ? { orderingMode: data.orderingMode } : {};
 
+      /* Verkaufsfenster: eigener Vorlauf (leer = Standard des Servers) und
+         Vorverkauf im Shop. */
+      const parsedLead = parseFloat(String(data.earlyStartHours ?? '').replace(',', '.'));
+      const sales = {
+        presale: !!data.presale,
+        earlyStartHours: Number.isFinite(parsedLead) ? parsedLead : null,
+      };
+
+      /* Den Zeitraum nur schicken, wenn er sich geaendert hat: nach Beginn
+         des Verkaufs ist er gesperrt (Ende nur vorziehen), und eine
+         Veranstaltung mit Uhrzeit (aus der API) wuerde sonst beim Speichern
+         auf Mitternacht gesetzt. */
+      const originalStart = event?.startDate ? toDayKey(event.startDate) : '';
+      const originalEnd = event?.endDate ? toDayKey(event.endDate) : originalStart;
+      const nextEnd = data.endDate || data.startDate;
+      const datesChanged =
+        !isEditing || data.startDate !== originalStart || nextEnd !== originalEnd;
       const payload = {
         name: data.name,
         description: data.description || undefined,
-        startDate: toIsoAtMidnight(data.startDate),
-        endDate: toIsoAtMidnight(data.endDate || data.startDate),
+        ...(datesChanged
+          ? {
+              startDate: toIsoAtMidnight(data.startDate),
+              endDate: toIsoAtMidnight(nextEnd),
+            }
+          : {}),
       };
 
       if (isEditing && event) {
@@ -231,13 +271,17 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           id: event.id,
           data: {
             ...payload,
-            settings: { ...event.settings, ...orderingMode, shop: shopSettings, tables },
+            settings: { ...event.settings, ...orderingMode, shop: shopSettings, tables, sales },
           },
         });
       } else {
         await createEvent.mutateAsync({
           organizationId,
-          data: { ...payload, settings: { ...orderingMode, shop: shopSettings, tables } },
+          data: {
+            ...payload,
+            startDate: toIsoAtMidnight(data.startDate),
+            settings: { ...orderingMode, shop: shopSettings, tables, sales },
+          },
         });
       }
       onClose();
@@ -302,7 +346,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       <span>
                         {t('form.startDate')} <span className="auth-field__req">*</span>
                       </span>
-                      <input type="date" {...field} />
+                      <input type="date" disabled={datesLocked} {...field} />
                     </label>
                   )}
                 />
@@ -315,7 +359,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                       style={errors.endDate ? ({ '--field-border': 'var(--danger)' } as React.CSSProperties) : {}}
                     >
                       <span>{t('form.endDate')}</span>
-                      <input type="date" min={startDate || undefined} {...field} />
+                      <input
+                        type="date"
+                        min={startDate || undefined}
+                        max={datesLocked && lockedEnd ? lockedEnd : undefined}
+                        disabled={eventEnded}
+                        {...field}
+                      />
                     </label>
                   )}
                 />
@@ -329,6 +379,13 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
               <span className="auth-field__hint">
                 {days > 0 ? t('form.dayCount', { days }) : t('form.endHint')}
               </span>
+              {/* Nach Beginn des Verkaufs: Beginn fest, Ende nur vorziehen
+                  (verschieben erst wieder ueber den Support). */}
+              {datesLocked && (
+                <Banner tone="info" icon={<Icon name="lock" />}>
+                  {eventEnded ? t('form.sales.datesEnded') : t('form.sales.datesLocked')}
+                </Banner>
+              )}
 
               {deployment.billingEnabled && preis && days > 0 && (
                 <div className="event-price-hint">
@@ -390,6 +447,41 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                   <span className="auth-field__hint">
                     {t('form.orderingModeHint')}
                     {!field.value && <> {t('form.orderingModeInherited')}</>}
+                  </span>
+                </label>
+              )}
+            />
+
+            <Controller
+              name="earlyStartHours"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.sales.earlyStart')}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="24"
+                      step="1"
+                      inputMode="numeric"
+                      placeholder={String(defaultLead)}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      disabled={datesLocked}
+                      className="input"
+                      style={{ flex: 1, fontFamily: 'var(--oe-f-mono)' }}
+                    />
+                    <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
+                      {t('form.sales.earlyStartUnit')}
+                    </span>
+                  </div>
+                  <span className="auth-field__hint">
+                    {t('form.sales.earlyStartHint', { hours: defaultLead })}
+                    {event?.realSalesFrom && (
+                      <> {t('form.sales.realSalesFrom', phaseMoment(event.realSalesFrom, locale))}</>
+                    )}
+                    {event?.phaseDetails?.earlyStartLimitedByMonth && <> {t('form.sales.limitedByMonth')}</>}
                   </span>
                 </label>
               )}
@@ -526,6 +618,25 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                         </button>
                       </div>
                     )}
+
+                    {/* Vorverkauf: echte Bestellungen schon vor dem
+                        Verkaufsfenster der Veranstaltung. Ohne ihn startet
+                        der Shop mit der Veranstaltung. */}
+                    <Controller
+                      name="presale"
+                      control={control}
+                      render={({ field: presaleField }) => (
+                        <Checkbox
+                          checked={!!presaleField.value}
+                          onChange={(e) => presaleField.onChange(e.target.checked)}
+                        >
+                          <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <span>{t('form.sales.presale')}</span>
+                            <span className="auth-field__hint">{t('form.sales.presaleHint')}</span>
+                          </span>
+                        </Checkbox>
+                      )}
+                    />
 
                     <div>
                       {/* Kein .auth-field-Huelle: deren Eingaberegel wuerde auch

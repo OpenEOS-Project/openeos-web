@@ -13,6 +13,7 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { useIntegrationErrorMessage } from '@/hooks/use-integrations';
 import { useActiveEvent } from '@/hooks/use-events';
+import { useEventPhase } from '@/lib/event-phase';
 
 export function SumUpIntegration() {
   const t = useTranslations('settings.organizationSumup');
@@ -26,7 +27,9 @@ export function SumUpIntegration() {
 
   const organizationId = currentOrganization?.organizationId;
   const { data: activeEvent } = useActiveEvent(organizationId ?? '');
-  const inTestMode = activeEvent?.status === 'test';
+  // Testmodus und „Geplant“ (Testbetrieb vor dem Verkaufsfenster).
+  const activePhase = useEventPhase(activeEvent);
+  const inTestMode = activePhase === 'test' || activePhase === 'planned';
   const sumupSettings = currentOrganization?.organization?.settings?.sumup;
   const isConfigured = !!sumupSettings?.merchantCode;
 

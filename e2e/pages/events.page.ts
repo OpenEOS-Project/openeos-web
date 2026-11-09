@@ -41,7 +41,11 @@ export class EventsPage {
     await expect(this.row(data.name)).toBeVisible();
   }
 
-  async expectStatus(eventName: string, status: 'Aktiv' | 'Inaktiv' | 'Testmodus') {
-    await expect(this.row(eventName).getByRole('cell').nth(1)).toHaveText(status);
+  async expectStatus(
+    eventName: string,
+    status: 'Aktiv' | 'Inaktiv' | 'Testmodus' | 'Geplant' | 'Beendet',
+  ) {
+    // Unter dem Badge steht je nach Phase ein Hinweis (Verkauf bis …).
+    await expect(this.row(eventName).getByRole('cell').nth(1).locator('.badge')).toHaveText(status);
   }
 }

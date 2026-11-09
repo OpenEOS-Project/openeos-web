@@ -2103,6 +2103,21 @@ body:has(.landing) {
 .landing .app-sidebar__active-event[data-status="test"] .app-sidebar__active-event-icon {
   color: #8a5e10;
 }
+/* Geplant: bezahlt, Testbetrieb bis zum Verkaufsfenster */
+.landing .app-sidebar__active-event[data-status="planned"] {
+  background: color-mix(in oklab, var(--oe-info) 10%, var(--paper));
+  border-color: color-mix(in oklab, var(--oe-info) 28%, transparent);
+}
+.landing .app-sidebar__active-event[data-status="planned"] .app-sidebar__active-event-icon {
+  color: var(--info-ink);
+}
+/* Beendet: keine neuen Bestellungen mehr */
+.landing .app-sidebar__active-event[data-status="ended"] {
+  background: color-mix(in oklab, var(--ink) 4%, var(--paper));
+}
+.landing .app-sidebar__active-event[data-status="ended"] .app-sidebar__active-event-icon {
+  color: color-mix(in oklab, var(--ink) 45%, transparent);
+}
 .landing .app-sidebar__active-event-label {
   font-size: 12px;
   font-weight: 700;

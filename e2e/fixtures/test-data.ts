@@ -28,3 +28,22 @@ export const TEST_USER = {
 export const TEST_ORG = {
   name: 'E2E Verein',
 };
+
+/**
+ * Seit den Phasen (2026-11) verkauft eine aktive Veranstaltung nur in ihrem
+ * Verkaufsfenster — eine Veranstaltung am festen Datum 2026-03-01 waere
+ * „Beendet“. Die Tests legen sie deshalb fuer heute an.
+ */
+
+/** Heute (Europe/Berlin, wie Browser und Organisation) als 'YYYY-MM-DD'. */
+export function todayKey(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+}
+
+/**
+ * Beginn fuer Veranstaltungen, die ueber die API angelegt werden: jetzt,
+ * mit Uhrzeit. Ein reines Datum laese die API als Mitternacht UTC.
+ */
+export function nowIso(): string {
+  return new Date().toISOString();
+}

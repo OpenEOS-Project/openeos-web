@@ -1,7 +1,7 @@
 import type { APIRequestContext, BrowserContextOptions, Page } from '@playwright/test';
 
 import { apiLogin, apiPost, ensureOk, newApiContext } from './api';
-import { TEST_ADMIN } from './test-data';
+import { TEST_ADMIN, nowIso } from './test-data';
 
 /*
  * Vorbereitung der Kassen-Tests ueber die API: Veranstaltung mit Tischmodus,
@@ -41,7 +41,7 @@ export async function createPosEvent(admin: PosAdmin, options: PosEventOptions) 
   const org = admin.organizationId;
   const event = await apiPost(admin.api, `organizations/${org}/events`, admin.headers, {
     name: options.name,
-    startDate: '2026-03-01',
+    startDate: nowIso(),
   });
   await apiPost(admin.api, `organizations/${org}/events/${event.id}/activate`, admin.headers);
   await setEventSettings(admin, event.id, { tables: options.tables, orderingMode: options.orderingMode });

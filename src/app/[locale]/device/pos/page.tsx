@@ -30,7 +30,8 @@ import { OrderHistorySheet } from './components/order-history-sheet';
 import { PaySheet } from './components/pay-sheet';
 import { PfandReturnModal } from './components/pfand-return-modal';
 import { PinEntryScreen } from './components/pin-entry-screen';
-import { PosTestModeBanner } from './components/pos-event-selector';
+import { PosEndedBanner, PosTestModeBanner } from './components/pos-event-selector';
+import { useEventPhase } from '@/lib/event-phase';
 import { PosHeader, type PosMenuAction } from './components/pos-header';
 import { PosOrderView } from './components/pos-order-view';
 import { PosLayerProvider } from './components/pos-sheet';
@@ -149,7 +150,12 @@ function PosApp() {
     vouchers,
     pfandTypes,
   } = usePosData(eventId, true);
-  const isTest = activeEvent?.status === 'test';
+  // Phase der Veranstaltung: „Geplant“ bucht wie der Testmodus
+  // Testbestellungen (Testbetrieb bis zum Verkaufsfenster), „Beendet“
+  // nimmt keine neuen Bestellungen mehr an.
+  const eventPhase = useEventPhase(activeEvent);
+  const isTest = eventPhase === 'test' || eventPhase === 'planned';
+  const isEnded = eventPhase === 'ended';
   // Betriebsart (lädt bei `organizationSettingsUpdated` neu, siehe use-pos-live):
   // ohne Bargeld kein Bar, keine Kassenlade, keine Pfand-Auszahlung;
   // „Nur Bons“ ohne Preise und Zahlungen — senden, Küche, Ausgabe, abschließen.
@@ -478,7 +484,12 @@ function PosApp() {
           onThemeChange={setPosTheme}
           onLogout={() => setSheet('logout')}
         />
-        {isTest && <PosTestModeBanner />}
+        {isTest && (
+          <PosTestModeBanner
+            realSalesFrom={eventPhase === 'planned' ? activeEvent?.realSalesFrom : null}
+          />
+        )}
+        {isEnded && <PosEndedBanner />}
         {orderOnly && (
           <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
             {t('orderOnly.banner')}

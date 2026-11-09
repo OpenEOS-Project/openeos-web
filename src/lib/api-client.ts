@@ -1327,6 +1327,9 @@ export const adminApi = {
   unmarkEventInvoiced: (id: string) =>
     apiClient.delete<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/invoice`),
 
+  /** Support: trotz begonnenem Verkauf verschieben (Grund Pflicht, protokolliert). */
+  moveEventDates: (id: string, body: { startDate?: string; endDate?: string; reason: string }) =>
+    apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/dates`, body),
   waiveEvent: (id: string, body?: { overrideMasterData?: boolean; overrideReason?: string }) =>
     apiClient.post<ApiResponse<import('@/types/admin').AdminEventListItem>>(`/admin/events/${id}/waive`, body),
 

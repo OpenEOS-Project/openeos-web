@@ -68,6 +68,12 @@ export interface AdminEventListItem {
   /** Ob Stripe ein PDF hat — geladen wird es über /admin/events/:id/invoice/pdf. */
   invoiceHasPdf?: boolean;
   priceCharged?: number | null;
+  /** Phase (Geplant/Aktiv/Beendet) und Verkaufsfenster, siehe types/event. */
+  phase?: import('./event').EventPhase;
+  realSalesFrom?: string | null;
+  realSalesUntil?: string | null;
+  presaleEnabled?: boolean;
+  phaseDetails?: import('./event').EventPhaseDetails;
 }
 
 export interface AdminEventOrderSummary {
