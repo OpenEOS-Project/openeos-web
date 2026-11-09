@@ -2,12 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { adminApi, supportApi } from '@/lib/api-client';
+import { adminApi, deviceApi, supportApi } from '@/lib/api-client';
 
 const POLL_INTERVAL = 5000;
 
 const keys = {
   org: (organizationId: string | undefined) => ['organizations', organizationId, 'support'] as const,
+  emergency: (organizationId: string | undefined) => ['organizations', organizationId, 'support', 'emergency'] as const,
   adminThreads: () => ['admin', 'support', 'threads'] as const,
   adminMessages: (organizationId: string | undefined) => ['admin', 'support', organizationId, 'messages'] as const,
 };
@@ -23,6 +24,38 @@ export function useSupportThread(organizationId: string | undefined) {
     },
     enabled: !!organizationId,
     refetchInterval: POLL_INTERVAL,
+  });
+}
+
+/**
+ * Notfall-Support (AGB 18.2). Ändert sich selten (Kauf, Ende einer
+ * Veranstaltung) — einmal je Viertelstunde reicht. Fehler blenden den
+ * Hinweis aus statt zu stören.
+ */
+export function useEmergencySupport(organizationId: string | undefined) {
+  return useQuery({
+    queryKey: keys.emergency(organizationId),
+    queryFn: async () => {
+      if (!organizationId) throw new Error('Organization ID required');
+      const response = await supportApi.emergency(organizationId);
+      return response.data;
+    },
+    enabled: !!organizationId,
+    staleTime: 5 * 60_000,
+    refetchInterval: 15 * 60_000,
+    retry: false,
+  });
+}
+
+/** Wie `useEmergencySupport`, für die Kasse (Geräte-Token). */
+export function useDeviceEmergencySupport(enabled: boolean) {
+  return useQuery({
+    queryKey: ['device', 'support', 'emergency'] as const,
+    queryFn: async () => (await deviceApi.getEmergencySupport()).data,
+    enabled,
+    staleTime: 5 * 60_000,
+    refetchInterval: 15 * 60_000,
+    retry: false,
   });
 }
 
