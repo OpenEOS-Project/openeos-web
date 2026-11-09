@@ -40,7 +40,7 @@ import { SettingsSectionHead } from './settings-section-head';
  * bekommen den Hinweis. Der Klartext erscheint genau einmal nach dem
  * Anlegen (Dialog); hier steht nur das Präfix.
  */
-export function OrganizationAccessSection() {
+export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?: () => void } = {}) {
   const t = useTranslations('settings.organizationAccess');
   const tCommon = useTranslations('common');
   const locale = useLocale();
@@ -246,6 +246,12 @@ export function OrganizationAccessSection() {
           >
             {t('agentDocsLink')}
           </a>
+          {/* Webhooks stehen im Reiter daneben; ihre Token-Scopes hier. */}
+          {onShowWebhooks && (
+            <button type="button" className="notice-link api-tokens__link-button" onClick={onShowWebhooks}>
+              {t('webhooksLink')}
+            </button>
+          )}
         </div>
 
         {body}

@@ -1012,6 +1012,8 @@
         "staff:write": "Edit shift plans",
         "devices:write": "Edit receipt templates",
         "settings:write": "Change settings",
+        "webhooks:read": "Read webhooks",
+        "webhooks:write": "Manage webhooks",
         "monitoring:read": "Platform metrics"
       },
       "scopeDescriptions": {
@@ -1022,6 +1024,8 @@
         "staff:write": "Edit shift plans, jobs, shifts and helper registrations",
         "devices:write": "Create and edit receipt templates",
         "settings:write": "Change organization settings",
+        "webhooks:read": "Read webhooks and their deliveries",
+        "webhooks:write": "Create, change, test and redeliver webhooks (no deleting)",
         "monitoring:read": "Read platform metrics (super admin)"
       },
       "createDialog": {
@@ -1070,7 +1074,251 @@
         "status": "Status",
         "actions": "Actions"
       },
-      "revokeTitle": "Revoke “{name}”"
+      "revokeTitle": "Revoke “{name}”",
+      "webhooksLink": "Webhooks"
+    },
+    "organizationWebhooks": {
+      "tab": "Webhooks",
+      "title": "Webhooks",
+      "description": "Messages to other programs as soon as something happens in your organization.",
+      "intro": "For every event you pick – a paid order, for example – a webhook sends a signed HTTPS request to an address of your choice. That keeps accounting, inventory tools or your own scripts up to date without constant polling.",
+      "docsLink": "Guide: webhooks",
+      "adminOnly": "Only an admin of the organization can see and create webhooks.",
+      "loadError": "The webhooks could not be loaded.",
+      "disabled": {
+        "title": "Webhooks are switched off on this server",
+        "text": "Nothing is delivered, and you cannot create or test webhooks. Whoever runs the server can switch them on with WEBHOOKS_ENABLED=true."
+      },
+      "count": "{count} of {limit} webhooks",
+      "create": "Create webhook",
+      "empty": "No webhook yet.",
+      "emptyHint": "Create one to send a message to your program on every paid order, for example.",
+      "noDescription": "no description",
+      "limit": {
+        "title": "Limit reached",
+        "text": "You have {limit} webhooks – that is the maximum. Delete one to create a new one."
+      },
+      "status": {
+        "active": "Active",
+        "paused": "Paused",
+        "auto_disabled": "Disabled automatically",
+        "failing": "Failing since {date}",
+        "failingCount": "{count, plural, one {# failure} other {# failures in a row}}"
+      },
+      "eventCount": "{count, plural, one {# event} other {# events}}",
+      "table": {
+        "url": "Address",
+        "events": "Events",
+        "status": "Status",
+        "lastDelivery": "Last delivery",
+        "actions": "Actions"
+      },
+      "lastDelivery": {
+        "never": "none yet",
+        "succeeded": "delivered",
+        "failed": "failed"
+      },
+      "actions": {
+        "edit": "Edit",
+        "test": "Send test",
+        "rotate": "Rotate secret",
+        "delete": "Delete",
+        "deliveries": "View deliveries"
+      },
+      "actionLabel": "{action}: {url}",
+      "testQueued": "Test sent – the result shows up in the deliveries in a moment.",
+      "deleted": "Webhook deleted.",
+      "updated": "Webhook saved.",
+      "secretLabel": "Secret",
+      "form": {
+        "createTitle": "Create webhook",
+        "editTitle": "Edit webhook",
+        "url": "Address (URL)",
+        "urlPlaceholder": "https://example.org/openeos/webhook",
+        "urlHint": "HTTPS only. The server does not accept addresses in private networks (such as 192.168.…).",
+        "urlHintHttp": "This server also accepts http – still use https wherever you can. It does not accept addresses in private networks (such as 192.168.…).",
+        "urlHintPrivate": "HTTPS only. This server also accepts addresses in the local network (such as 192.168.…).",
+        "urlHintHttpPrivate": "This server also accepts http and addresses in the local network – still use https wherever you can.",
+        "urlErrors": {
+          "required": "Enter the address OpenEOS should send to.",
+          "too_long": "The address is too long – 2048 characters at most.",
+          "invalid": "This is not a valid address.",
+          "not_https": "The address must start with https://.",
+          "credentials": "User name and password do not belong in the address.",
+          "private_address": "The address points to a private network – that is not allowed.",
+          "unresolvable": "The address cannot be resolved. Is the host name correct?"
+        },
+        "description": "Description",
+        "optional": "optional",
+        "descriptionPlaceholder": "e.g. accounting, Zapier, club script",
+        "events": "Events",
+        "eventsRequired": "Choose at least one event.",
+        "eventsSelected": "{count, plural, =0 {none selected} one {# selected} other {# selected}}",
+        "selectAll": "Select all",
+        "selectNone": "None",
+        "selectAllIn": "Select all in “{group}”",
+        "selectNoneIn": "None in “{group}”",
+        "amountsTag": "Amounts",
+        "amountsNote": "In the “Receipts only” operating mode, events marked “Amounts” carry no amounts or prices.",
+        "groups": {
+          "orders": "Orders",
+          "payments": "Payments and refunds",
+          "shop": "Online shop",
+          "pfand": "Deposit",
+          "events": "Events",
+          "fiscal": "Cash point closings",
+          "catalog": "Products"
+        },
+        "options": "Options",
+        "active": "Active",
+        "activeHint": "Paused webhooks receive no events. “Send test” still works.",
+        "autoDisabledHint": "Disabled automatically on {date} because deliveries kept failing. Switch it back on to start counting from zero.",
+        "guestData": "Include guest data",
+        "guestDataHint": "Names, phone numbers and notes of your guests are then sent to the third-party program. You are responsible for making sure this is allowed under data protection law – for example with a data processing agreement.",
+        "testOrders": "Include test orders",
+        "testOrdersHint": "Also orders from test mode and the planning phase, marked with isTest: true.",
+        "submitCreate": "Create webhook",
+        "submitEdit": "Save",
+        "pending": "Saving…",
+        "infoError": "The events could not be loaded."
+      },
+      "secret": {
+        "createdTitle": "Webhook created",
+        "rotatedTitle": "New secret",
+        "onceTitle": "Copy it now – the secret is shown only once",
+        "onceText": "Your receiver uses it to verify the signature in the OpenEOS-Signature header. Keep it safe, for example in a password manager. If you lose it, rotate it.",
+        "previousValid": "The old secret stays valid until {date} – until then OpenEOS signs with both.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "copyFailed": "Copying did not work – select the secret and copy it by hand.",
+        "done": "Done"
+      },
+      "rotateDialog": {
+        "title": "Rotate secret?",
+        "text": "OpenEOS creates a new secret and shows it to you exactly once. The old one stays valid for 24 hours – during that time every delivery carries both signatures, so you can switch your receiver over without downtime.",
+        "confirm": "Rotate secret",
+        "pending": "Rotating…"
+      },
+      "deleteDialog": {
+        "title": "Delete webhook?",
+        "text": "Nothing will be sent to {url} afterwards, not even pending deliveries. The delivery log is deleted as well. This cannot be undone.",
+        "confirm": "Delete",
+        "pending": "Deleting…"
+      },
+      "deliveries": {
+        "pageTitle": "Webhook deliveries",
+        "title": "Deliveries",
+        "back": "Back to webhooks",
+        "retention": "The log goes back {days} days. OpenEOS retries failed deliveries up to {attempts} times, spread over about 24 hours.",
+        "filterStatus": "Status",
+        "allStatuses": "All statuses",
+        "filterEvent": "Event",
+        "allEvents": "All events",
+        "empty": "No deliveries yet. Use “Send test” to send a sample.",
+        "emptyFiltered": "No deliveries for this filter.",
+        "loadError": "The deliveries could not be loaded.",
+        "notFound": "This webhook does not exist (anymore).",
+        "status": {
+          "succeeded": "Delivered",
+          "pending": "Pending",
+          "delivering": "Sending",
+          "failed": "Failed"
+        },
+        "table": {
+          "status": "Status",
+          "event": "Event",
+          "http": "HTTP",
+          "duration": "Duration",
+          "attempts": "Attempts",
+          "nextAttempt": "Next attempt",
+          "time": "Time",
+          "details": "Details"
+        },
+        "attempts": "{attempts}/{max}",
+        "attemptsLong": "Attempt {attempts} of {max}",
+        "durationMs": "{value} ms",
+        "durationS": "{value} s",
+        "manual": "manual",
+        "count": "{count, plural, one {# delivery} other {# deliveries}}",
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {page} of {totalPages}",
+        "refresh": "Refresh",
+        "showDetails": "Details of delivery {event} at {time}",
+        "endpoint": {
+          "url": "Address",
+          "events": "Events",
+          "secret": "Secret",
+          "previousSecret": "old secret valid until {date}",
+          "created": "Created",
+          "createdBy": "Created on {date} by {name}",
+          "createdOn": "Created on {date}",
+          "options": "Options",
+          "guestData": "with guest data",
+          "testOrders": "with test orders",
+          "noOptions": "without guest data and test orders",
+          "lastSuccess": "Last success"
+        },
+        "autoDisabled": {
+          "title": "Disabled automatically",
+          "text": "Deliveries have kept failing since {date}. Check your receiver and then switch the webhook back on. You can redeliver failed deliveries one by one.",
+          "reactivate": "Switch back on",
+          "reactivated": "Webhook switched back on."
+        },
+        "detail": {
+          "title": "Delivery",
+          "eventId": "Event ID",
+          "deliveryId": "Delivery ID",
+          "status": "Status",
+          "http": "HTTP status",
+          "duration": "Duration",
+          "attempts": "Attempts",
+          "nextAttempt": "Next attempt",
+          "created": "Created",
+          "lastAttempt": "Last attempt",
+          "error": "Error",
+          "redeliveryOf": "Redelivery of",
+          "payload": "Payload (JSON)",
+          "response": "Receiver response",
+          "responseHint": "first 1 KB",
+          "noResponse": "No response received.",
+          "attemptLog": "Attempts",
+          "noAttempts": "No attempt yet.",
+          "redeliver": "Redeliver",
+          "redelivering": "Sending…",
+          "redelivered": "Delivery queued again.",
+          "loadError": "The delivery could not be loaded.",
+          "copyPayload": "Copy payload",
+          "copied": "Copied"
+        },
+        "errors": {
+          "TIMEOUT": "Timeout (10 s)",
+          "CONNECTION_FAILED": "Connection failed",
+          "DNS_FAILED": "Address could not be resolved (DNS)",
+          "TLS_FAILED": "Secure connection failed (TLS certificate)",
+          "BLOCKED_ADDRESS": "Target address not allowed (private network)",
+          "REDIRECT_NOT_FOLLOWED": "Redirect (3xx) is not followed",
+          "HTTP_ERROR": "Response without 2xx status",
+          "ENDPOINT_INACTIVE": "Webhook was disabled",
+          "ENDPOINT_DELETED": "Webhook was deleted",
+          "INTERNAL": "Internal error at OpenEOS"
+        }
+      },
+      "eventTypes": {
+        "ping": "Test from OpenEOS (only via “Send test”)",
+        "order_created": "Order created",
+        "order_paid": "Order fully paid",
+        "order_completed": "Order completed",
+        "order_cancelled": "Order cancelled",
+        "payment_created": "Payment received",
+        "refund_created": "Cancellation or refund booked",
+        "shop_order_created": "New online shop order",
+        "pfand_return_created": "Deposit returned",
+        "event_activated": "Event activated",
+        "event_phase_changed": "Event phase changed",
+        "cash_point_closing_created": "Cash point closing created (Cloud TSE)",
+        "product_updated": "Product changed (name, price, tax, availability, category)"
+      }
     },
     "organizationMode": {
       "tab": "Operating mode"
@@ -4300,7 +4548,13 @@
     "EVENT_DATES_OVERRIDE_REASON_REQUIRED": "Please give a reason for moving the event.",
     "EVENT_EARLY_START_INVALID": "The lead time must be between 0 and {max} hours.",
     "SHOP_PRESALE_DISABLED": "The shop is not taking orders yet – sales start with the event.",
-    "PLANNED_TEST_LIMIT_REACHED": "Test limit reached in test operation ({maxOrders} test orders). Real sales start when the event's sales window opens."
+    "PLANNED_TEST_LIMIT_REACHED": "Test limit reached in test operation ({maxOrders} test orders). Real sales start when the event's sales window opens.",
+    "WEBHOOK_NOT_FOUND": "This webhook does not exist (anymore).",
+    "WEBHOOK_DELIVERY_NOT_FOUND": "This delivery does not exist (anymore).",
+    "WEBHOOK_LIMIT_REACHED": "You already have {limit} webhooks – that is the maximum. Delete one to create a new one.",
+    "WEBHOOK_URL_INVALID": "The server does not accept this address.",
+    "WEBHOOK_EVENT_TYPE_INVALID": "This server does not know at least one of the chosen events. Reload the page and try again.",
+    "WEBHOOKS_DISABLED": "Webhooks are switched off on this server."
   },
   "shifts": {
     "title": "Shift Plans",

@@ -75,7 +75,7 @@ export function ApiTokenCreateDialog({ organizationId, onClose }: ApiTokenCreate
   const nameMissing = trimmedName.length === 0;
   const noScope = scopes.length === 0;
   const expiryPast = isExpiryInPast(expiry);
-  const writeWithoutRead = scopes.some((s) => s !== 'read') && !scopes.includes('read');
+  const writeWithoutRead = scopes.some((s) => s.endsWith(':write')) && !scopes.includes('read');
   const activePreset = expiryPresetForDate(expiry);
 
   const toggleScope = (scope: ApiTokenScope, checked: boolean) => {

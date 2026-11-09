@@ -14,6 +14,7 @@ import { OrganizationLegalSection } from './organization-legal-section';
 import { OperatingModeSection } from './operating-mode-section';
 import { OrganizationAssistantSection } from './organization-assistant-section';
 import { OrganizationAccessSection } from './organization-access-section';
+import { OrganizationWebhooksSection } from './organization-webhooks-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { AboutSection } from './about-section';
 import { OrganizationDeleteCard } from '@/components/privacy/organization-delete-card';
@@ -61,7 +62,7 @@ export function SettingsContainer() {
   // Alter Reiter „Zahlungen“ (org-payments): steckt jetzt in „Betriebsart“.
   const rawTab = useSearchParams().get('tab');
   const requestedTab = rawTab === 'org-payments' ? 'org-mode' : rawTab;
-  const orgTabIds = ['org-general', 'org-contact', 'org-tax', 'org-mode', 'org-assistant', 'org-access', 'org-legal'];
+  const orgTabIds = ['org-general', 'org-contact', 'org-tax', 'org-mode', 'org-assistant', 'org-access', 'org-webhooks', 'org-legal'];
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
@@ -97,7 +98,12 @@ export function SettingsContainer() {
     { id: 'org-tax', label: t('organizationTax.tab'), children: <OrganizationTaxSection /> },
     { id: 'org-mode', label: t('organizationMode.tab'), children: <OperatingModeSection /> },
     { id: 'org-assistant', label: t('organizationAssistant.tab'), children: <OrganizationAssistantSection /> },
-    { id: 'org-access', label: t('organizationAccess.tab'), children: <OrganizationAccessSection /> },
+    {
+      id: 'org-access',
+      label: t('organizationAccess.tab'),
+      children: <OrganizationAccessSection onShowWebhooks={() => setActiveOrg('org-webhooks')} />,
+    },
+    { id: 'org-webhooks', label: t('organizationWebhooks.tab'), children: <OrganizationWebhooksSection /> },
     { id: 'org-legal', label: t('organizationLegal.tab'), children: <OrganizationLegalSection /> },
   ];
 
