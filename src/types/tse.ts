@@ -194,9 +194,17 @@ export interface TseAutoEnabled {
   at: string;
 }
 
+/**
+ * Bietet dieser Server die Cloud-TSE an? `coming_soon`: gehostet und
+ * angekündigt (API `TSE_COMING_SOON`) — „Bald verfügbar“ statt „nicht
+ * eingerichtet“. Ältere API-Stände liefern das Feld nicht.
+ */
+export type TseAvailability = 'available' | 'coming_soon' | 'not_configured';
+
 /** GET /organizations/:id/tse */
 export interface TseStatus {
   available: boolean;
+  availability?: TseAvailability;
   integrationEnabled: boolean;
   /** Automatisch eingeschaltet (Kauf einer Veranstaltung bzw. Wechsel auf „Alle Funktionen“). */
   integrationEnabledAuto?: TseAutoEnabled | null;
@@ -289,6 +297,7 @@ export interface TseExport {
 export interface OrganizationTseSummary {
   /** Bietet dieser Server eine Cloud-TSE an (TSE_PROVIDER)? */
   available: boolean;
+  availability?: TseAvailability;
   integrationEnabled: boolean;
   /** Integration an und TSE aktiv (= hasActiveTse). */
   active: boolean;

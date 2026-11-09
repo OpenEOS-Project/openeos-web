@@ -15,7 +15,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { TseStepHint } from './tse-step-hint';
 
 /** Server, Land und Schalter erklärt das Infofenster schon unten an seinem Knopf. */
-const FOOTER_STEPS = new Set<TseSetupStep>(['unavailable', 'country_missing', 'country', 'integration_disabled']);
+const FOOTER_STEPS = new Set<TseSetupStep>(['unavailable', 'coming_soon', 'country_missing', 'country', 'integration_disabled']);
 
 /**
  * Cloud-TSE im Katalog: woran sie gerade hängt und was als Nächstes zu tun
@@ -59,7 +59,12 @@ export function TseCatalogHint({ placement, onNavigate }: IntegrationCatalogHint
 
   // Die ganze Checkliste — nur sinnvoll, wenn die TSE hier überhaupt geht.
   const details =
-    placement === 'card' && step !== 'unavailable' && step !== 'country' && step !== 'ready' && step !== 'failed' ? (
+    placement === 'card' &&
+    step !== 'unavailable' &&
+    step !== 'coming_soon' &&
+    step !== 'country' &&
+    step !== 'ready' &&
+    step !== 'failed' ? (
       <Link href="/integrations/tse" className="notice-link tse-hint__details" onClick={onNavigate} data-testid="tse-hint-details">
         {t('tse.hint.details')}
       </Link>

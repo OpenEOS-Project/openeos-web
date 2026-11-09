@@ -22,7 +22,11 @@ import type { OrderItem } from '@/types/order';
 export type OperatingMode = 'orders_only' | 'cashless' | 'full';
 /** Werte im Verlauf: `full_legacy` = „Alle Funktionen (Bestand)“. */
 export type OperatingModeHistoryValue = OperatingMode | 'full_legacy';
-export type OperatingModeUnavailableReason = 'tse_required' | 'paid_event_required' | 'country_required';
+export type OperatingModeUnavailableReason =
+  | 'tse_required'
+  | 'tse_coming_soon'
+  | 'paid_event_required'
+  | 'country_required';
 
 /** Reihenfolge in Auswahl und Texten. */
 export const OPERATING_MODES: readonly OperatingMode[] = ['orders_only', 'cashless', 'full'];

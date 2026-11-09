@@ -11,13 +11,24 @@ import type {
   TsePostponement,
   TseStatus,
   TseUnit,
+  TseAvailability,
   TseUnitState,
 } from '@/types/tse';
+
+/**
+ * Cloud-TSE angekündigt, aber noch nicht da („Bald verfügbar“)? Nur, wenn
+ * die API es ausdrücklich meldet (`availability: 'coming_soon'`) — eine
+ * eigene Installation ohne TSE bleibt „nicht eingerichtet“.
+ */
+export function isTseComingSoon(value: { availability?: TseAvailability } | null | undefined): boolean {
+  return value?.availability === 'coming_soon';
+}
 
 /**
  * Schritt der Einrichtung, wie ihn Katalog, Seite und Betriebsart zeigen —
  * immer der Grund, der die TSE gerade aufhält, mit der Aktion dazu:
  * - `unavailable`: dieser Server bietet keine Cloud-TSE an,
+ * - `coming_soon`: gehostet, Cloud-TSE angekündigt („Bald verfügbar“),
  * - `country_missing`: die Organisation hat noch kein Land,
  * - `country`: Organisation nicht in Deutschland,
  * - `paid_event_required`: keine bezahlte (freigeschaltete) Veranstaltung —
@@ -35,6 +46,7 @@ import type {
  */
 export type TseSetupStep =
   | 'unavailable'
+  | 'coming_soon'
   | 'country_missing'
   | 'country'
   | 'master_data'
@@ -60,6 +72,8 @@ export interface TseEventCheck {
 /** Was der Schritt braucht — aus GET …/tse, ergänzt um die Veranstaltungsliste. */
 export interface TseSetupInput {
   available: boolean;
+  /** Nicht verfügbar, aber angekündigt (`availability: 'coming_soon'`). */
+  comingSoon?: boolean;
   integrationEnabled: boolean;
   country: string | null | undefined;
   /** `undefined`, solange sich Veranstaltung und Monat nicht sagen lassen. */
@@ -170,7 +184,7 @@ export function tseUnlockCandidate<T extends TseEventLike>(
 export function tseSetupStepFrom(input: TseSetupInput): TseSetupStep | null {
   if (input.unitState === 'active') return 'active';
   if (input.unitState === 'creating') return 'creating';
-  if (!input.available) return 'unavailable';
+  if (!input.available) return input.comingSoon ? 'coming_soon' : 'unavailable';
   const country = (input.country ?? '').trim().toUpperCase();
   if (!country) return 'country_missing';
   if (country !== 'DE') return 'country';
@@ -189,6 +203,7 @@ export function tseSetupStep(status: TseStatus | null | undefined): TseSetupStep
   return (
     tseSetupStepFrom({
       available: status.available,
+      comingSoon: isTseComingSoon(status),
       integrationEnabled: status.integrationEnabled,
       country: status.country,
       events: tseEventCheckFromEligibility(status.eligibility),
@@ -213,6 +228,8 @@ export function tseHint(step: TseSetupStep): TseHint {
   switch (step) {
     case 'unavailable':
       return { key: 'unavailable', tone: 'info', action: null };
+    case 'coming_soon':
+      return { key: 'comingSoon', tone: 'info', action: null };
     case 'country_missing':
       return { key: 'countryMissing', tone: 'warn', action: 'set_country' };
     case 'country':
@@ -252,6 +269,7 @@ export interface TseRequirement {
 
 const STEP_REQUIREMENT: Record<TseSetupStep, TseRequirementId | null> = {
   unavailable: 'server',
+  coming_soon: 'server',
   country_missing: 'country',
   country: 'country',
   paid_event_required: 'paidEvent',

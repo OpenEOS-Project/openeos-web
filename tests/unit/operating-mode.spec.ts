@@ -25,7 +25,10 @@ import {
   tableCloseState,
   type OperatingMode,
   type OperatingModeOrg,
+  type OperatingModeUnavailableReason,
 } from '@/lib/operating-mode';
+import de from '@/messages/de.json';
+import en from '@/messages/en.json';
 
 /*
  * Betriebsarten „Nur Bons“ (orders_only), „Bargeldlos“ (cashless) und
@@ -263,5 +266,34 @@ test.describe('reports and dashboard without revenue', () => {
     expect(rankByMode(rows, true, qty, amount).map((r) => r.name)).toEqual(['Bier', 'Wasser', 'Steak']);
     expect(rankByMode(rows, false, qty, amount).map((r) => r.name)).toEqual(['Bier', 'Steak', 'Wasser']);
     expect(rows[0].name).toBe('Steak');
+  });
+});
+
+test.describe('Cloud-TSE bald verfügbar', () => {
+  test('every unavailable reason has a label, incl. tse_coming_soon', () => {
+    const reasons: OperatingModeUnavailableReason[] = [
+      'tse_required',
+      'tse_coming_soon',
+      'paid_event_required',
+      'country_required',
+    ];
+    for (const messages of [de, en]) {
+      const labels = messages.operatingMode.availability as Record<string, string>;
+      for (const reason of reasons) expect(labels[reason], reason).toBeTruthy();
+      expect(messages.operatingMode.tseBadge.comingSoon).toBeTruthy();
+      expect(messages.operatingMode.legacy.de.textComingSoon).toBeTruthy();
+      expect(messages.operatingMode.countryNotice.de.textComingSoon).toBeTruthy();
+    }
+    expect(de.operatingMode.availability.tse_coming_soon).toBe('Bald verfügbar – mit Cloud-TSE');
+  });
+
+  test('the API reason blocks the switch to full like tse_required', () => {
+    const org: OperatingModeOrg = { country: 'DE', operatingMode: 'cashless' };
+    const options = operatingModeOptions(org, [
+      { mode: 'full', available: false, unavailableReason: 'tse_coming_soon' },
+    ]);
+    expect(options[2]).toEqual({ mode: 'full', available: false, unavailableReason: 'tse_coming_soon' });
+    expect(canSwitchTo(org, 'full', options)).toBe(false);
+    expect(canSwitchTo(org, 'orders_only', options)).toBe(true);
   });
 });
