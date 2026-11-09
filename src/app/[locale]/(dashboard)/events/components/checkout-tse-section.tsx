@@ -23,7 +23,9 @@ interface CheckoutTseSectionProps {
  * Freischalten auf „Alle Funktionen“ um. Ein Zuschlag erscheint nur, wenn
  * der Betreiber einen eingestellt hat (derzeit inklusive). Fehlende
  * Steuerangaben fragt der Dialog im Schritt „Angaben zu deiner
- * Organisation“ ab (PurchaseMasterDataStep).
+ * Organisation“ ab (PurchaseMasterDataStep). Ist die Cloud-TSE auf dem
+ * Server nur angekündigt (`comingSoon`), gibt es keine Frage, nur den
+ * Hinweis „Bald verfügbar“.
  */
 export function CheckoutTseSection({
   tse,
@@ -33,6 +35,33 @@ export function CheckoutTseSection({
   disabled,
 }: CheckoutTseSectionProps) {
   const t = useTranslations('events.checkout.tse');
+  if (!tse.offer && tse.comingSoon) {
+    return (
+      <div
+        data-testid="checkout-tse-coming-soon"
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          padding: '12px 14px',
+          borderRadius: 10,
+          border: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',
+          fontSize: 13,
+          color: 'var(--ink)',
+        }}
+      >
+        <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)', display: 'inline-flex', marginTop: 1 }}>
+          <Icon name="shield" size={16} />
+        </span>
+        <span>
+          <span className="badge badge--neutral" style={{ marginRight: 6 }}>
+            {t('comingSoonBadge')}
+          </span>
+          {t('comingSoon')}
+        </span>
+      </div>
+    );
+  }
   if (!tse.offer) return null;
 
   const surcharge = tse.surcharge > 0 ? formatCurrency(tse.surcharge, locale) : null;

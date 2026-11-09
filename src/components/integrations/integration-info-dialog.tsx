@@ -153,7 +153,9 @@ export function IntegrationInfoDialog({ integration, onClose }: IntegrationInfoD
           <div className="modal__foot integration-info__foot">
             {availability === 'comingSoon' ? (
               <>
-                <p className="integration-info__hint">{t('info.comingSoonHint')}</p>
+                <p className="integration-info__hint" data-testid="integration-coming-soon-hint">
+                  {t(integration.comingSoonHintKey ?? 'info.comingSoonHint')}
+                </p>
                 <button type="button" className="btn btn--ghost" onClick={onClose}>
                   {t('actions.close')}
                 </button>

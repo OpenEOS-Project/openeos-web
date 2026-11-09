@@ -1,6 +1,8 @@
 import { checkoutIncludesTse, checkoutTseSurcharge } from '@/utils/event-tse';
 import { expect, test } from '@playwright/test';
 
+import de from '@/messages/de.json';
+import en from '@/messages/en.json';
 import type { EventTseTerms } from '@/types/billing';
 
 function terms(overrides: Partial<EventTseTerms> = {}): EventTseTerms {
@@ -28,6 +30,17 @@ test.describe('Cloud-TSE im Bezahldialog', () => {
     expect(checkoutIncludesTse(optional, true)).toBe(true);
     expect(checkoutTseSurcharge(optional, false)).toBe(0);
     expect(checkoutTseSurcharge(optional, true)).toBe(4.5);
+  });
+
+  test('Cloud-TSE bald verfügbar: keine Frage, kein Zuschlag, Texte da', () => {
+    const soon = terms({ offer: null, comingSoon: true, surcharge: 0 });
+    expect(checkoutIncludesTse(soon, true)).toBe(false);
+    expect(checkoutTseSurcharge(soon, true)).toBe(0);
+    for (const messages of [de, en]) {
+      expect(messages.events.checkout.tse.comingSoon).toBeTruthy();
+      expect(messages.events.checkout.tse.comingSoonBadge).toBeTruthy();
+    }
+    expect(de.events.checkout.tse.comingSoonBadge).toBe('Bald verfügbar');
   });
 
   test('ohne TSE-Angebot (Bargeldlos, AT, ältere API) nichts', () => {

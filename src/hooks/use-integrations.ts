@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useOrganization } from '@/hooks/use-organizations';
 import { organizationsApi } from '@/lib/api-client';
+import { isTseComingSoon } from '@/lib/tse';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import type { IntegrationId, Organization } from '@/types/organization';
@@ -102,4 +103,12 @@ export function useIntegrationOrganization(): Partial<Organization> | undefined 
       tseActive: detail?.tseActive ?? stored.tseActive,
     };
   }, [stored, detail]);
+}
+
+/**
+ * Cloud-TSE auf diesem Server angekündigt („Bald verfügbar“)? Für Texte,
+ * die sonst auf „Cloud-TSE einschalten“ verweisen.
+ */
+export function useTseComingSoon(): boolean {
+  return isTseComingSoon(useIntegrationOrganization()?.tse);
 }

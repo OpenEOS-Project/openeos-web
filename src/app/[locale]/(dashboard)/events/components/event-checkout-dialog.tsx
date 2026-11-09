@@ -331,7 +331,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
                 )}
               </div>
 
-              {tse?.offer && (
+              {(tse?.offer || tse?.comingSoon) && (
                 <CheckoutTseSection
                   tse={tse}
                   answer={withTse}
