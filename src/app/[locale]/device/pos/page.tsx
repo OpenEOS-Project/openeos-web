@@ -24,6 +24,7 @@ import { resolvePosCardMode } from '@/utils/pos-card-mode';
 import { BroadcastToast } from './components/broadcast-toast';
 import { CashbookSheet } from './components/cashbook-sheet';
 import { DoneSheet, type DoneInfo } from './components/done-sheet';
+import { EmergencySupportSheet } from './components/emergency-support-sheet';
 import { LogoutSheet } from './components/logout-sheet';
 import { OpenOrdersSheet } from './components/open-orders-sheet';
 import { OrderHistorySheet } from './components/order-history-sheet';
@@ -32,6 +33,8 @@ import { PfandReturnModal } from './components/pfand-return-modal';
 import { PinEntryScreen } from './components/pin-entry-screen';
 import { PosEndedBanner, PosTestModeBanner } from './components/pos-event-selector';
 import { useEventPhase } from '@/lib/event-phase';
+import { useDeviceEmergencySupport } from '@/hooks/use-support';
+import { showEmergencyAtPos } from '@/lib/emergency-support';
 import { PosHeader, type PosMenuAction } from './components/pos-header';
 import { PosOrderView } from './components/pos-order-view';
 import { PosLayerProvider } from './components/pos-sheet';
@@ -48,7 +51,7 @@ import { usePosTseOutage } from './hooks/use-pos-tse';
 import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 
-type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'cashbook' | 'logout' | 'table' | null;
+type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'cashbook' | 'logout' | 'table' | 'emergency' | null;
 
 /** Kartenzahlung ohne gespeicherte Bestellung (Kassieren-Blatt der Bestellansicht). */
 const UNSAVED_KEY = 'openeos-pos-unsaved-card';
@@ -156,6 +159,9 @@ function PosApp() {
   const eventPhase = useEventPhase(activeEvent);
   const isTest = eventPhase === 'test' || eventPhase === 'planned';
   const isEnded = eventPhase === 'ended';
+  // Notfall-Support (AGB 18.2) im Menü, solange die gebuchte Veranstaltung echt verkauft.
+  const emergency = useDeviceEmergencySupport(!!activeEvent).data;
+  const showEmergency = eventPhase === 'active' && showEmergencyAtPos(emergency, activeEvent);
   // Betriebsart (lädt bei `organizationSettingsUpdated` neu, siehe use-pos-live):
   // ohne Bargeld kein Bar, keine Kassenlade, keine Pfand-Auszahlung;
   // „Nur Bons“ ohne Preise und Zahlungen — senden, Küche, Ausgabe, abschließen.
@@ -383,6 +389,9 @@ function PosApp() {
           disabled: offline,
           onSelect: () => deviceApi.openCashDrawer().then(() => toast(t('menu.cashDrawerOpened')), () => toast(t('menu.cashDrawerFailed'), 'danger')),
         }]
+      : []),
+    ...(showEmergency
+      ? [{ id: 'emergency', icon: 'alert' as const, label: t('menu.emergency'), onSelect: () => setSheet('emergency') }]
       : []),
   ];
 
@@ -622,6 +631,9 @@ function PosApp() {
         )}
         {operating.cashAllowed && !orderOnly && (
           <CashbookSheet open={sheet === 'cashbook'} onClose={() => setSheet(null)} disabled={offline} />
+        )}
+        {showEmergency && emergency && (
+          <EmergencySupportSheet open={sheet === 'emergency'} onClose={() => setSheet(null)} info={emergency} />
         )}
         <LogoutSheet open={sheet === 'logout'} onClose={() => setSheet(null)} onConfirm={handleLogout} />
       </div>

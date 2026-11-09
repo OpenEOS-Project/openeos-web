@@ -554,6 +554,10 @@ export const supportApi = {
 
   sendMessage: (orgId: string, body: string) =>
     apiClient.post<ApiResponse<import('@/types/support').SupportMessage>>(`/organizations/${orgId}/support/messages`, { body }),
+
+  /** Notfall-Support (AGB 18.2): Rufnummer nur mit gebuchter Veranstaltung. */
+  emergency: (orgId: string) =>
+    apiClient.get<ApiResponse<import('@/types/support').EmergencySupportInfo>>(`/organizations/${orgId}/support/emergency`),
 };
 
 // Discount Vouchers API (Rabatt-Bons)
@@ -1760,6 +1764,13 @@ export const deviceApi = {
     apiClient.post<ApiResponse<unknown>>(
       '/device-api/sumup/terminate',
       {},
+      { useDeviceAuth: true }
+    ),
+
+  // Notfall-Support (AGB 18.2) für das Kassenmenü
+  getEmergencySupport: () =>
+    apiClient.get<ApiResponse<import('@/types/support').EmergencySupportInfo>>(
+      '/device-api/support/emergency',
       { useDeviceAuth: true }
     ),
 
