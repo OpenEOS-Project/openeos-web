@@ -953,7 +953,7 @@
         "menuImport": "Import a menu – a photo, PDF or text becomes a suggestion for categories and products that you review before anything is created.",
         "icons": "Icon suggestions – product icons that match the product name, in the form and during import."
       },
-      "privacy": "For this, the uploaded content (menus, product names) is sent to an external provider and stored there only for the duration of processing. Details in the <link>privacy policy</link>.",
+      "privacy": "For this, the uploaded content (menus, product names) is sent to the provider of the language model. Who that is, where the data is processed and whether the provider stores it is described in the <link>privacy policy</link>.",
       "adminOnly": "Only admins of the organization can switch the features on or off.",
       "quota": {
         "title": "Daily quota",

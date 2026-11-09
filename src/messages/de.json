@@ -953,7 +953,7 @@
         "menuImport": "Speisekarte importieren – aus Foto, PDF oder Text wird ein Vorschlag für Kategorien und Produkte, den du vor dem Anlegen prüfst.",
         "icons": "Icon-Vorschläge – passende Produkt-Icons zum Produktnamen, im Formular und beim Import."
       },
-      "privacy": "Dafür werden die hochgeladenen Inhalte (Speisekarten, Produktnamen) an einen externen Anbieter übertragen und dort nur für die Dauer der Verarbeitung gespeichert. Mehr dazu in der <link>Datenschutzerklärung</link>.",
+      "privacy": "Dafür werden die hochgeladenen Inhalte (Speisekarten, Produktnamen) an den Anbieter des Sprachmodells übertragen. Wer das ist, wo die Daten verarbeitet werden und ob der Anbieter sie speichert, steht in der <link>Datenschutzerklärung</link>.",
       "adminOnly": "Nur Admins der Organisation können die Funktionen ein- oder ausschalten.",
       "quota": {
         "title": "Tageskontingent",
