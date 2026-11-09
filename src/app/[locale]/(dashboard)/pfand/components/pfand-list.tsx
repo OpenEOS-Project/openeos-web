@@ -5,6 +5,7 @@ import { Icon } from '@openeos/ui';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
+import { useOrganization } from '@/hooks/use-organizations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import type { PfandType } from '@/types/pfand';
 
@@ -21,6 +22,9 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
   const { formatCurrency } = useLocaleFormat();
 
   const { data: types, isLoading, error } = usePfandTypes(organizationId);
+  // Ohne Umsatzsteuer (Kleinunternehmer) wirkt der Satz nicht: „–“.
+  const { data: organization } = useOrganization(organizationId);
+  const vatExempt = organization?.settings?.vatExempt !== false;
 
   if (isLoading) {
     return <ListLoading />;
@@ -73,6 +77,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
             <tr>
               <th>{t('table.name')}</th>
               <th className="text-right">{t('table.amount')}</th>
+              <th className="text-right">{t('table.vatRate')}</th>
               <th>{t('table.status')}</th>
               <th style={{ width: 120 }}>{t('table.actions')}</th>
             </tr>
@@ -84,6 +89,7 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
                   <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{type.name}</div>
                 </td>
                 <td className="mono text-right">{formatAmount(type.amount)}</td>
+                <td className="mono text-right">{vatExempt ? '–' : `${Number(type.vatRate ?? 19)} %`}</td>
                 <td>
                   {type.isActive ? (
                     <span className="badge badge--success">{t('status.active')}</span>

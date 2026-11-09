@@ -2360,7 +2360,8 @@
       "name": "Name",
       "amount": "Amount",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "vatRate": "VAT"
     },
     "status": {
       "active": "Active",
@@ -2375,7 +2376,15 @@
       "namePlaceholder": "e.g. Cup",
       "amount": "Deposit amount (€)",
       "isActive": "Active",
-      "isActiveHint": "Only active deposit types can be used at the register."
+      "isActiveHint": "Only active deposit types can be used at the register.",
+      "vatRate": "VAT rate",
+      "vatRateHint": "VAT rate of the drinks/goods this deposit belongs to – usually 19 %.",
+      "vatRateExemptHint": "Your organization does not charge VAT – receipts show no VAT. You can change this in the organization settings.",
+      "vatRateOptions": {
+        "standard": "{rate} % (standard rate)",
+        "reduced": "{rate} % (reduced rate)",
+        "zero": "0 % (not taxable)"
+      }
     },
     "deleteConfirm": {
       "title": "Delete deposit type",
@@ -3254,6 +3263,14 @@
       "pfandDone": "Deposit paid out",
       "sectionTitle": "TSE data ({count})",
       "done": "Done"
+    },
+    "pfandDone": {
+      "title": "Deposit paid out",
+      "cash": "Cash",
+      "printed": "Receipt printed",
+      "sum": "Paid out",
+      "done": "Done",
+      "noPrinter": "No receipt printer set up for this till."
     }
   },
   "orders": {
@@ -5098,7 +5115,8 @@
         "channels": "revenue-by-channel.csv",
         "categories": "top-categories.csv",
         "hourly": "hourly-breakdown.csv",
-        "payments": "payment-methods.csv"
+        "payments": "payment-methods.csv",
+        "vat": "vat.csv"
       }
     },
     "filter": {
@@ -5258,6 +5276,24 @@
         "hourlyTitle": "Orders per hour",
         "hourlyEmpty": "No orders in the selected period",
         "items": "Items ordered"
+      }
+    },
+    "vat": {
+      "title": "VAT",
+      "subtitle": "Revenue per VAT rate – deposits are part of the consideration, returns reduce it",
+      "empty": "No sales in this period",
+      "exempt": "Your organization does not charge VAT (e.g. small business). All amounts are therefore shown at 0 % without tax.",
+      "legacyHint": "Deposits from before November 2026 were booked without VAT and stay unchanged at 0 %.",
+      "total": "Total",
+      "rate": "{rate} %",
+      "columns": {
+        "rate": "VAT rate",
+        "goods": "Goods",
+        "deposits": "Deposit",
+        "depositReturns": "Deposit returns",
+        "gross": "Gross",
+        "net": "Net",
+        "tax": "VAT"
       }
     }
   },

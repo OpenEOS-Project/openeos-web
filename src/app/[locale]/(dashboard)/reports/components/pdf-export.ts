@@ -10,6 +10,7 @@ import type {
   CategoryReport,
   DeviceReport,
   NetSalesSummary,
+  VatReport,
 } from '@/types/report';
 import { formatCurrency, formatPercent } from '@/utils/format';
 import { netReconciliation } from '@/utils/report-net';
@@ -31,6 +32,8 @@ export interface PdfExportInput {
   /** Abgleich mit dem Umsatz netto (Erstattungen ohne Position, Trinkgeld). */
   net?: NetSalesSummary;
   devices?: DeviceReport[];
+  /** Umsatz und Umsatzsteuer je Satz (Ware, Pfand, Pfand-Rückgaben). */
+  vat?: VatReport;
   /** „Nur Bons“: nur Bestellungen und Mengen — keine Beträge, keine Zahlarten. */
   orderOnly?: boolean;
 }
@@ -440,6 +443,46 @@ export async function generateReportsPdf(input: PdfExportInput, i18n: PdfExportI
       ]),
       t('payments.empty'),
       [1, 2, 3],
+    );
+
+    const vat = input.vat;
+    cursorY = addTableSection(
+      doc,
+      cursorY,
+      t('vat.title'),
+      [
+        t('vat.columns.rate'),
+        t('vat.columns.goods'),
+        t('vat.columns.deposits'),
+        t('vat.columns.depositReturns'),
+        t('vat.columns.gross'),
+        t('vat.columns.net'),
+        t('vat.columns.tax'),
+      ],
+      (vat?.rows ?? []).map((r) => [
+        t('vat.rate', { rate: r.rate }),
+        money(r.goods),
+        money(r.deposits),
+        money(r.depositReturns),
+        money(r.gross),
+        money(r.net),
+        money(r.tax),
+      ]),
+      t('vat.empty'),
+      [1, 2, 3, 4, 5, 6],
+      vat && vat.rows.length
+        ? [
+            [
+              t('vat.total'),
+              money(vat.total.goods),
+              money(vat.total.deposits),
+              money(vat.total.depositReturns),
+              money(vat.total.gross),
+              money(vat.total.net),
+              money(vat.total.tax),
+            ],
+          ]
+        : [],
     );
   }
 

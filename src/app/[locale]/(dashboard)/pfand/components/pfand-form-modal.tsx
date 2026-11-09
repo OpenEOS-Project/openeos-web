@@ -7,10 +7,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useCreatePfandType, useUpdatePfandType } from '@/hooks/use-pfand-types';
+import { useOrganization } from '@/hooks/use-organizations';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { PfandType } from '@/types/pfand';
 import { SettingToggle } from '@/components/shared/setting-toggle';
 import { PriceInput } from '@/components/shared/price-input';
+
+/**
+ * Steuersätze für Pfand (wie Produkte in Deutschland: 19, 7, 0). Pfand
+ * gehört zum Entgelt und trägt den Satz der Ware, für die es gilt; die
+ * API nimmt nur diese drei an. Ein Satz je Pfandart — Pfand für Waren mit
+ * anderem Satz bekommt eine eigene Pfandart.
+ */
+const PFAND_VAT_RATES = [
+  { rate: 19, labelKey: 'standard' },
+  { rate: 7, labelKey: 'reduced' },
+  { rate: 0, labelKey: 'zero' },
+] as const;
+const DEFAULT_PFAND_VAT_RATE = 19;
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
 // ausserhalb der Komponente gibt es noch kein t().
@@ -18,6 +32,7 @@ function createPfandSchema(t: (key: string) => string) {
   return z.object({
     name: z.string().min(1, t('nameRequired')).max(255),
     amount: z.coerce.number().min(0, t('amountNotNegative')),
+    vatRate: z.coerce.number().refine((rate) => PFAND_VAT_RATES.some((o) => o.rate === rate)),
     isActive: z.boolean(),
     sortOrder: z.coerce.number().min(0).optional(),
   });
@@ -49,19 +64,25 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
     formState: { errors, isSubmitting },
   } = useForm<PfandFormData>({
     resolver: zodResolver(validationSchema),
-    defaultValues: { name: '', amount: 0, isActive: true, sortOrder: 0 },
+    defaultValues: { name: '', amount: 0, vatRate: DEFAULT_PFAND_VAT_RATE, isActive: true, sortOrder: 0 },
   });
+
+  // Ohne Umsatzsteuer (Kleinunternehmer, Standard) wirkt der Satz nicht:
+  // sichtbar, aber gesperrt — wie der Steuersatz im Produktformular.
+  const { data: organization } = useOrganization(organizationId);
+  const vatExempt = organization?.settings?.vatExempt !== false;
 
   useEffect(() => {
     if (pfandType) {
       reset({
         name: pfandType.name,
         amount: Number(pfandType.amount),
+        vatRate: Number(pfandType.vatRate ?? DEFAULT_PFAND_VAT_RATE),
         isActive: pfandType.isActive,
         sortOrder: pfandType.sortOrder,
       });
     } else {
-      reset({ name: '', amount: 0, isActive: true, sortOrder: 0 });
+      reset({ name: '', amount: 0, vatRate: DEFAULT_PFAND_VAT_RATE, isActive: true, sortOrder: 0 });
     }
   }, [pfandType, reset]);
 
@@ -120,6 +141,32 @@ export function PfandFormModal({ isOpen, organizationId, pfandType, onClose }: P
                     invalid={!!errors.amount}
                   />
                   {errors.amount && <span role="alert" className="auth-field__error">{errors.amount.message}</span>}
+                </label>
+              )}
+            />
+
+            <Controller
+              name="vatRate"
+              control={control}
+              render={({ field }) => (
+                <label className="auth-field">
+                  <span>{t('form.vatRate')}</span>
+                  <select
+                    className="select"
+                    value={String(field.value ?? DEFAULT_PFAND_VAT_RATE)}
+                    disabled={vatExempt}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onBlur={field.onBlur}
+                  >
+                    {PFAND_VAT_RATES.map((option) => (
+                      <option key={option.rate} value={option.rate}>
+                        {t(`form.vatRateOptions.${option.labelKey}`, { rate: option.rate })}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="auth-field__hint" style={{ margin: '4px 0 0' }}>
+                    {vatExempt ? t('form.vatRateExemptHint') : t('form.vatRateHint')}
+                  </p>
                 </label>
               )}
             />

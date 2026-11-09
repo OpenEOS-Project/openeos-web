@@ -6,13 +6,12 @@ import { Banner, Button, EmptyState, Icon, Stepper } from '@openeos/ui';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceApi } from '@/lib/api-client';
-import type { PfandType } from '@/types/pfand';
+import type { PfandReturn, PfandType } from '@/types/pfand';
 import type { CartPfandReturnLine } from '@/stores/cart-store';
-import type { TseReceiptView } from '@/types/tse';
 import { reportTse } from '../hooks/use-pos-tse';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
-import { PosTseSheet } from './pos-tse-receipts';
+import { PfandReturnDoneSheet, type PfandReturnReceiptContext } from './pfand-return-done-sheet';
 
 interface PfandReturnModalProps {
   isOpen: boolean;
@@ -31,6 +30,8 @@ interface PfandReturnModalProps {
    * lässt sich dann nur gegen neues Pfand im Warenkorb verrechnen.
    */
   cashless?: boolean;
+  /** Kopf, Kasse und Drucker für den Beleg nach der Auszahlung. */
+  receiptContext: PfandReturnReceiptContext;
 }
 
 /**
@@ -48,17 +49,16 @@ export function PfandReturnModal({
   onOffset,
   payoutDisabled = false,
   cashless = false,
+  receiptContext,
 }: PfandReturnModalProps) {
   const t = useTranslations('pos.pfand');
-  const tCart = useTranslations('pos.cartV2');
-  const tTse = useTranslations('pos.tse');
   const formatPrice = useFormatPrice();
   const toast = usePosToast();
   const apiErrorMessage = useApiErrorMessage();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
-  // Kassenbeleg der Auszahlung mit Cloud-TSE (bleibt nach dem Schließen offen).
-  const [receipt, setReceipt] = useState<{ title: string; subtitle: string; views: TseReceiptView[] } | null>(null);
+  // Beleg der Auszahlung (bleibt nach dem Schließen der Zählung offen).
+  const [done, setDone] = useState<PfandReturn | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -80,9 +80,9 @@ export function PfandReturnModal({
     setSubmitting(true);
     try {
       const res = await deviceApi.createPfandReturn({ ...(eventId ? { eventId } : {}), lines });
-      const receipts = reportTse([res.data?.tse]);
-      if (receipts.length > 0) setReceipt({ title: tTse('pfandDone'), subtitle: formatPrice(total), views: receipts });
-      else toast(tCart('pfandPaidOut', { amount: formatPrice(total) }));
+      // Meldet einen TSE-Ausfall wie bei jeder anderen Buchung.
+      reportTse([res.data?.tse]);
+      if (res.data) setDone(res.data);
       onClose();
     } catch (error) {
       toast(apiErrorMessage(error), 'danger');
@@ -100,6 +100,7 @@ export function PfandReturnModal({
           name: pt.name,
           unitAmount: Number(pt.amount),
           quantity: counts[pt.id],
+          vatRate: Number(pt.vatRate ?? 19),
         })),
     );
   };
@@ -172,7 +173,7 @@ export function PfandReturnModal({
         )}
         {allowOffset && !cashless && <p className="pos-hint">{t('offsetHint')}</p>}
       </PosSheet>
-      <PosTseSheet receipt={receipt} onClose={() => setReceipt(null)} />
+      <PfandReturnDoneSheet result={done} context={receiptContext} onClose={() => setDone(null)} />
     </>
   );
 }
