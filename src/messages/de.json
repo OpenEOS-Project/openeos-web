@@ -2018,6 +2018,10 @@
     "input": {
       "placeholder": "Nachricht schreiben…",
       "send": "Senden"
+    },
+    "emergency": {
+      "title": "Notfall-Support am Veranstaltungstag:",
+      "text": "Nur für kritische Störungen während deiner gebuchten Veranstaltung, z. B. Kasse fällt aus. Sonst bitte Support-Chat oder E-Mail."
     }
   },
   "members": {
@@ -2977,7 +2981,11 @@
       "theme_light": "Hell",
       "theme_system": "System",
       "sourceCode": "Quellcode (AGPL-3.0)",
-      "cashbook": "Kassenbuch"
+      "cashbook": "Kassenbuch",
+      "emergency": "Notfall-Support",
+      "emergencyTitle": "Notfall-Support am Veranstaltungstag",
+      "emergencyCall": "Anrufen",
+      "emergencyClose": "Schließen"
     },
     "header": {
       "lock": "Kasse sperren",

@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
 import { EventPhaseBadge, EventPhaseHint } from '@/components/shared/event-phase';
+import { EventEmergencySupportNotice } from '@/components/shared/event-emergency-support-notice';
 import type { Event } from '@/types';
 
 interface EventsListProps {
@@ -112,6 +113,8 @@ export function EventsList({
           {t('create')}
         </button>
       </div>
+
+      <EventEmergencySupportNotice organizationId={organizationId} events={events} wrapperClassName="events-list__legal" />
 
       {/* Shop-Link in der Liste, aber noch ohne Impressum/Datenschutz: der
           Shop nimmt dann keine Bestellungen an (auch im Testmodus). */}

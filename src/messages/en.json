@@ -2419,6 +2419,10 @@
     "input": {
       "placeholder": "Write a message…",
       "send": "Send"
+    },
+    "emergency": {
+      "title": "Emergency support on your event day:",
+      "text": "Only for critical problems during your booked event, e.g. the till fails. Otherwise please use the support chat or e-mail."
     }
   },
   "members": {
@@ -2977,7 +2981,11 @@
       "theme_light": "Light",
       "theme_system": "System",
       "sourceCode": "Source code (AGPL-3.0)",
-      "cashbook": "Cash book"
+      "cashbook": "Cash book",
+      "emergency": "Emergency support",
+      "emergencyTitle": "Emergency support on your event day",
+      "emergencyCall": "Call",
+      "emergencyClose": "Close"
     },
     "header": {
       "lock": "Lock register",

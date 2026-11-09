@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { useSendSupportMessage, useSupportThread } from '@/hooks/use-support';
+import { useEmergencySupport, useSendSupportMessage, useSupportThread } from '@/hooks/use-support';
+import { EmergencySupportNotice } from '@/components/shared/emergency-support-notice';
+import { emergencyPhoneFor } from '@/lib/emergency-support';
 import { toast } from '@/components/shared/toast';
 import { ListEmpty, ListLoading } from '@/components/shared/list-states';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -19,6 +21,8 @@ export function SupportChat() {
 
   const { data, isLoading, isError, refetch } = useSupportThread(organizationId);
   const sendMessage = useSendSupportMessage(organizationId);
+  // Notfall-Support (AGB 18.2): nur mit gebuchter, noch nicht beendeter Veranstaltung.
+  const emergency = emergencyPhoneFor(useEmergencySupport(organizationId).data);
 
   const [draft, setDraft] = useState('');
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -80,6 +84,8 @@ export function SupportChat() {
           <p className="app-page-head__sub">{data?.prioritySupport ? t('priorityHint') : t('standardHint')}</p>
         </div>
       </div>
+
+      {emergency && <EmergencySupportNotice info={emergency} />}
 
       {isLoading ? (
         <ListLoading />
