@@ -27,6 +27,7 @@ import {
   Trash2,
   TriangleAlert,
   UserRound,
+  Webhook,
   type LucideIcon,
 } from 'lucide-react';
 import { ICON_STROKE_WIDTH } from '@openeos/ui/icons';
@@ -69,6 +70,7 @@ const SECTION_ICONS = {
   'trash-2': Trash2,
   'triangle-alert': TriangleAlert,
   'user-round': UserRound,
+  webhook: Webhook,
 } as const satisfies Record<string, LucideIcon>;
 
 export type SettingsSectionIconName = keyof typeof SECTION_ICONS;

@@ -350,3 +350,13 @@
   font-size: 12px;
   color: var(--oe-mute);
 }
+
+/* Querverweis zu den Webhooks: Knopf im Aussehen eines Links. */
+.api-tokens__link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

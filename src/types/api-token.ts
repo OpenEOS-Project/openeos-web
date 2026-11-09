@@ -14,6 +14,8 @@ export type ApiTokenScope =
   | 'staff:write'
   | 'devices:write'
   | 'settings:write'
+  | 'webhooks:read'
+  | 'webhooks:write'
   | 'monitoring:read';
 
 /** Scopes, die ein Organisations-Token tragen darf (Reihenfolge wie im Dialog). */
@@ -25,6 +27,8 @@ export const ORGANIZATION_TOKEN_SCOPES: readonly ApiTokenScope[] = [
   'staff:write',
   'devices:write',
   'settings:write',
+  'webhooks:read',
+  'webhooks:write',
 ];
 
 export interface ApiToken {

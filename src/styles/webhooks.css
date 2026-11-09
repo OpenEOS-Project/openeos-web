@@ -1,0 +1,445 @@
+/* Webhooks: Reiter in den Organisationseinstellungen
+   (settings/components/organization-webhooks-section.tsx), Dialoge und die
+   Seite mit dem Zustellprotokoll (settings/webhooks/[webhookId]). Baut auf
+   api-tokens.css auf (Toolbar, Zeilen, Formular, Secret-Anzeige). */
+
+.webhook-muted {
+  color: var(--oe-mute);
+}
+.webhook-mono,
+.webhook-mono-muted {
+  font: 500 12px/1.5 var(--oe-f-mono);
+  overflow-wrap: anywhere;
+}
+.webhook-mono-muted {
+  margin: 0;
+  color: var(--oe-mute);
+}
+.webhook-break {
+  overflow-wrap: anywhere;
+}
+.webhook-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.webhook-pill {
+  white-space: nowrap;
+}
+.webhook-event-code {
+  font: 500 12px var(--oe-f-mono);
+  color: var(--oe-ink);
+  overflow-wrap: anywhere;
+}
+
+/* Liste */
+.landing .data-table.webhooks__table {
+  table-layout: auto;
+}
+.landing .data-table.webhooks__table th,
+.landing .data-table.webhooks__table td {
+  padding: 6px 8px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.landing .data-table.webhooks__table th {
+  line-height: 1.2;
+}
+.landing .data-table.webhooks__table th:first-child,
+.landing .data-table.webhooks__table td:first-child {
+  padding-left: 0;
+}
+.landing .data-table.webhooks__table th:last-child,
+.landing .data-table.webhooks__table td:last-child {
+  padding-right: 0;
+  width: 1%;
+  white-space: nowrap;
+}
+.webhooks__url-cell {
+  width: 99%;
+  max-width: 0; /* lässt die Adresse kürzen statt die Tabelle zu verbreitern */
+}
+.webhooks__nowrap {
+  white-space: nowrap;
+}
+.webhook-title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.webhook-title__url {
+  font: 500 12.5px/1.4 var(--oe-f-mono);
+  color: var(--oe-ink);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.webhook-title__url:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.webhook-title__desc {
+  font-size: 12px;
+  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.webhook-title__desc.is-empty {
+  color: var(--oe-mute);
+  font-style: italic;
+}
+.webhook-last {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.webhook-last__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--oe-green-ink);
+  flex: none;
+}
+.webhook-last__dot.is-failed {
+  background: var(--oe-danger);
+}
+.webhook-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.landing .btn.webhook-action--danger {
+  color: var(--oe-danger);
+}
+
+/* Kompakte Zeilen unter Tablet-Breite */
+.webhook-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-top: 1px solid var(--oe-line);
+  min-width: 0;
+}
+.webhook-row:first-child {
+  border-top: 0;
+}
+.webhook-row__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: -6px;
+}
+
+/* Dialog: Ereignisse nach Gruppen */
+.webhook-url-input {
+  font-family: var(--oe-f-mono);
+}
+.webhook-optional {
+  font-weight: 400;
+  color: var(--oe-mute);
+}
+.webhook-events {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.webhook-events__legend {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 2px;
+}
+.webhook-events__count {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--oe-mute);
+}
+.webhook-events__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.webhook-events__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+.webhook-events__title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.webhook-events__all {
+  flex: none;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--oe-green-ink);
+  font: 600 12px var(--oe-f-sans);
+  cursor: pointer;
+}
+.webhook-events__all:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.webhook-events__all:focus-visible {
+  outline: 2px solid var(--oe-green-ink);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+.webhook-amounts-tag {
+  display: inline-flex;
+  padding: 0 6px;
+  border-radius: 99px;
+  font: 500 10.5px/16px var(--oe-f-sans);
+  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
+  background: color-mix(in oklab, var(--oe-ink) 7%, transparent);
+}
+.webhook-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.webhook-reveal__url {
+  font-family: var(--oe-f-mono);
+  overflow-wrap: anywhere;
+}
+
+/* Seite mit den Zustellungen */
+.webhook-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.webhook-head__url {
+  font: 500 12.5px/1.4 var(--oe-f-mono);
+  overflow-wrap: anywhere;
+}
+.webhook-banner-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.webhook-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+}
+.webhook-facts__row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.webhook-facts__row--wide {
+  grid-column: 1 / -1;
+}
+.webhook-facts dt {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--oe-mute);
+}
+.webhook-facts dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.webhook-facts__sub {
+  display: block;
+  font-size: 11.5px;
+}
+.webhook-facts--grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.webhook-deliveries {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.webhook-deliveries__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.webhook-deliveries__title {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--oe-ink);
+}
+.webhook-deliveries__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.webhook-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 180px;
+  min-width: 0;
+  max-width: 280px;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.webhook-filter select {
+  width: 100%;
+}
+.webhook-deliveries__row {
+  cursor: pointer;
+}
+.webhook-deliveries__row:hover td {
+  background: color-mix(in oklab, var(--oe-ink) 3%, transparent);
+}
+.webhook-deliveries__event {
+  min-width: 160px;
+}
+.webhook-deliveries__error {
+  display: block;
+  font-size: 12px;
+  color: var(--oe-danger);
+}
+.webhook-delivery-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  border-top: 1px solid var(--oe-line);
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  min-width: 0;
+}
+li:first-child > .webhook-delivery-row {
+  border-top: 0;
+}
+.webhook-delivery-row__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.webhook-delivery-row__head .webhook-event-code {
+  flex: 1;
+  min-width: 0;
+}
+.webhook-delivery-row__chevron {
+  flex: none;
+  color: var(--oe-mute);
+}
+.webhook-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.webhook-pager__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Detaildialog einer Zustellung */
+.webhook-delivery {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.webhook-delivery__title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.webhook-delivery__title .webhook-event-code {
+  font-size: 14px;
+}
+.webhook-delivery__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.webhook-delivery__section h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--oe-ink);
+}
+.webhook-delivery__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.webhook-code {
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
+  font: 500 12px/1.5 var(--oe-f-mono);
+  color: var(--oe-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.webhook-code--response {
+  max-height: 200px;
+}
+.webhook-attempts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+}
+.webhook-attempts li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 4px 0;
+  border-top: 1px solid var(--oe-line);
+}
+.webhook-attempts li:first-child {
+  border-top: 0;
+}
+.webhook-attempts__n {
+  color: var(--oe-mute);
+  font-variant-numeric: tabular-nums;
+}
