@@ -611,6 +611,13 @@ function PosApp() {
           }}
           payoutDisabled={offline}
           cashless={cashless}
+          receiptContext={{
+            title: orgName || 'OpenEOS',
+            eventName: activeEvent?.name ?? null,
+            deviceName: deviceName || 'POS',
+            isTest,
+            canPrint,
+          }}
         />
         )}
         {operating.cashAllowed && !orderOnly && (

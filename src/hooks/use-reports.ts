@@ -21,6 +21,7 @@ function useReport<T>(
     | 'channels'
     | 'categories'
     | 'net-summary'
+    | 'vat'
     | 'devices'
     | 'inventory'
     | 'stock-movements',
@@ -74,6 +75,11 @@ export function useNetSalesSummary(organizationId: string, params?: ReportQuery,
     params,
     enabled,
   );
+}
+
+/** Umsatz und Umsatzsteuer je Steuersatz, inkl. Pfand und Pfand-Rückgaben. */
+export function useVatReport(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(organizationId, 'vat', () => reportsApi.getVat(organizationId, params), params, enabled);
 }
 
 export function useDevicesReport(organizationId: string, params?: ReportQuery, enabled = true) {
