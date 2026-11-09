@@ -10,7 +10,8 @@ import { shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
 import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
-import type { Event, EventStatus } from '@/types';
+import { EventPhaseBadge, EventPhaseHint } from '@/components/shared/event-phase';
+import type { Event } from '@/types';
 
 interface EventsListProps {
   onCreateClick: () => void;
@@ -27,12 +28,6 @@ interface EventsListProps {
   /** Event currently being checked/activated — shows a busy state on its activate button. */
   activatingEventId?: string | null;
 }
-
-const statusBadge: Record<EventStatus, string> = {
-  active: 'badge badge--success',
-  inactive: 'badge badge--neutral',
-  test: 'badge badge--warning',
-};
 
 export function EventsList({
   onCreateClick,
@@ -161,9 +156,11 @@ export function EventsList({
                   </div>
                 </td>
                 <td>
-                  <span className={statusBadge[event.status]}>
-                    {t(`status.${event.status}`)}
-                  </span>
+                  {/* Phase statt Status: eine bezahlte Veranstaltung vor
+                      ihrem Termin ist „Geplant“ (Testbetrieb), danach
+                      „Beendet“. */}
+                  <EventPhaseBadge event={event} />
+                  <EventPhaseHint event={event} />
                 </td>
                 <td className="mono">{formatDateTime(event.startDate, event.endDate)}</td>
                 <td>

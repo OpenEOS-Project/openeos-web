@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { EventsPage } from '../pages/events.page';
+import { todayKey } from '../fixtures/test-data';
 
 /** Eindeutig je Lauf: lokal laeuft die Suite wiederholt gegen dieselbe Datenbank. */
 const unique = (prefix: string) => `${prefix} ${Date.now()}`;
@@ -77,7 +78,7 @@ test.describe('Events', () => {
       await eventsPage.goto();
 
       const eventName = unique('Aktivierung');
-      await eventsPage.createEvent({ name: eventName, startDate: '2026-03-01' });
+      await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
       await eventsPage.row(eventName).getByRole('button', { name: 'Aktivieren' }).click();
       await eventsPage.expectStatus(eventName, 'Aktiv');
@@ -92,7 +93,7 @@ test.describe('Events', () => {
       await eventsPage.goto();
 
       const eventName = unique('Testlauf');
-      await eventsPage.createEvent({ name: eventName, startDate: '2026-03-01' });
+      await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
       await eventsPage.row(eventName).getByRole('button', { name: 'Testmodus' }).click();
       await eventsPage.expectStatus(eventName, 'Testmodus');
@@ -106,12 +107,12 @@ test.describe('Events', () => {
       await eventsPage.goto();
 
       const first = unique('Erstes');
-      await eventsPage.createEvent({ name: first, startDate: '2026-03-01' });
+      await eventsPage.createEvent({ name: first, startDate: todayKey() });
       await eventsPage.row(first).getByRole('button', { name: 'Aktivieren' }).click();
       await eventsPage.expectStatus(first, 'Aktiv');
 
       const second = unique('Zweites');
-      await eventsPage.createEvent({ name: second, startDate: '2026-03-02' });
+      await eventsPage.createEvent({ name: second, startDate: todayKey() });
       await eventsPage.row(second).getByRole('button', { name: 'Aktivieren' }).click();
       await eventsPage.expectStatus(second, 'Aktiv');
       await eventsPage.expectStatus(first, 'Inaktiv');
@@ -124,7 +125,7 @@ test.describe('Events', () => {
       await eventsPage.goto();
 
       const eventName = unique('Loeschen');
-      await eventsPage.createEvent({ name: eventName, startDate: '2026-03-01' });
+      await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
       await eventsPage.row(eventName).getByRole('button', { name: 'Löschen' }).click();
       await expect(eventsPage.modal.getByRole('heading', { name: 'Veranstaltung löschen' })).toBeVisible();
@@ -144,7 +145,7 @@ test.describe('Events', () => {
       await eventsPage.goto();
 
       const eventName = unique('Behalten');
-      await eventsPage.createEvent({ name: eventName, startDate: '2026-03-01' });
+      await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
       await eventsPage.row(eventName).getByRole('button', { name: 'Löschen' }).click();
       await eventsPage.modal.getByRole('button', { name: 'Abbrechen' }).click();

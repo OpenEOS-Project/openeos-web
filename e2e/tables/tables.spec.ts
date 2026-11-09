@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 
 import { apiLogin, apiPost, ensureOk, newApiContext } from '../fixtures/api';
 import { loginAs } from '../fixtures/auth.fixture';
-import { TEST_ADMIN } from '../fixtures/test-data';
+import { TEST_ADMIN, nowIso } from '../fixtures/test-data';
 
 /*
  * Verwaltung der Tische (Spezifikation §4, §5.6): Bereich anlegen, Serie,
@@ -277,7 +277,7 @@ test.describe('Tische', () => {
     const eventName = `Tischfest ${stamp}`;
     const event = await apiPost(api, `organizations/${org}/events`, admin.headers, {
       name: eventName,
-      startDate: '2026-03-01',
+      startDate: nowIso(),
     });
     const area = (await areasFromApi()).find((a) => a.name === AREA)!;
 

@@ -42,6 +42,8 @@ import {
 } from '@/config/navigation';
 import { useMyInvitations } from '@/hooks/use-members';
 import { useActiveEvent } from '@/hooks/use-events';
+import { phaseMoment, useEventPhase } from '@/lib/event-phase';
+import { useIntlLocale } from '@/hooks/use-locale-format';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { isCashAllowed } from '@/lib/operating-mode';
@@ -85,6 +87,10 @@ export function AppSidebar() {
 
   const orgIdForEvent = currentOrganization?.organizationId ?? '';
   const { data: activeEvent } = useActiveEvent(orgIdForEvent);
+  // Phase statt Status: bezahlt, aber vor dem Termin heisst „Geplant“
+  // (Testbetrieb), nach dem Ende „Beendet“.
+  const activePhase = useEventPhase(activeEvent);
+  const intlLocale = useIntlLocale();
 
   // Informational only for now — no accept/decline UI exists yet to route
   // this badge to (see the removed handleAcceptInvitation/
@@ -402,7 +408,7 @@ export function AppSidebar() {
           <Link
             href={'/events' as never}
             className="app-sidebar__active-event"
-            data-status={activeEvent?.status ?? 'none'}
+            data-status={activePhase ?? 'none'}
           >
             <Calendar className="app-sidebar__active-event-icon" />
             <div style={{ minWidth: 0, flex: 1 }}>
@@ -410,14 +416,18 @@ export function AppSidebar() {
                 {activeEvent ? activeEvent.name : t('activeEvent.none')}
               </div>
               <div className="app-sidebar__active-event-status">
-                {activeEvent?.status === 'active'
-                  ? t('activeEvent.active')
-                  : activeEvent?.status === 'test'
-                    ? t('activeEvent.test')
-                    : t('activeEvent.activateHint')}
+                {activePhase === 'planned' && activeEvent?.realSalesFrom
+                  ? t('activeEvent.plannedFrom', phaseMoment(activeEvent.realSalesFrom, intlLocale))
+                  : activePhase === 'active'
+                    ? t('activeEvent.active')
+                    : activePhase === 'ended'
+                      ? t('activeEvent.ended')
+                      : activePhase === 'test'
+                        ? t('activeEvent.test')
+                        : t('activeEvent.activateHint')}
               </div>
             </div>
-            {activeEvent?.status === 'test' && (
+            {(activePhase === 'test' || activePhase === 'planned') && (
               <span className="app-sidebar__active-event-pill app-sidebar__active-event-pill--test">
                 TEST
               </span>

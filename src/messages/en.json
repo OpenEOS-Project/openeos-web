@@ -1277,7 +1277,8 @@
         "cancelBilling": "Cancel/refund",
         "resendInvoice": "Resend invoice",
         "markInvoicePaid": "Mark as paid",
-        "invoicePdf": "Download invoice PDF"
+        "invoicePdf": "Download invoice PDF",
+        "moveDates": "Move"
       },
       "pagination": {
         "total": "{count, plural, =1 {# event total} other {# events total}}",
@@ -1349,6 +1350,14 @@
         "invoiceResent": "Stripe has sent the invoice again.",
         "invoiceMarkedPaid": "The invoice is recorded as paid.",
         "downloadFailed": "The PDF could not be loaded."
+      },
+      "moveDates": {
+        "title": "Move event (support)",
+        "description": "Sales have started, so the club and the till can no longer change the dates. Here you can move them anyway – the paid days still apply and the change is logged with a reason. If sales start in the future afterwards, the event is \"Planned\" (test operation) again.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "e.g. festival moved by a week because of a storm",
+        "submit": "Move",
+        "success": "Event moved"
       }
     },
     "printers": {
@@ -1541,7 +1550,7 @@
         "periodFirst": "Please enter the event period first.",
         "dayOpen": "{day} open",
         "endsNextDay": "Ends the next day",
-        "openingHoursHint": "An end time before the start time means the shop stays open past midnight. Days without a checkmark stay closed. In test mode the shop is reachable regardless of the opening hours.",
+        "openingHoursHint": "An end time before the start time means the shop stays open past midnight. Days without a checkmark stay closed. In test mode the shop is reachable regardless of the opening hours. Before sales start the shop only takes orders with pre-sale, after the event ends not at all.",
         "serviceFee": "Service fee",
         "serviceFeeUnit": "EUR per order",
         "serviceFeeHint": "Added as a flat amount per order to the total in the online shop. Leave empty for no fee."
@@ -1563,7 +1572,18 @@
         "tableCount": "{count, plural, =0 {no tables} one {# table} other {# tables}}"
       },
       "priceTse": "+ {amount} cloud TSE per event",
-      "priceTseOptional": "Optional: + {amount} cloud TSE per event"
+      "priceTseOptional": "Optional: + {amount} cloud TSE per event",
+      "sales": {
+        "earlyStart": "Real sales start earlier",
+        "earlyStartUnit": "hours before the first day (6 am)",
+        "earlyStartHint": "Leave empty for the default ({hours} hours – sales start the evening before). Until then the till runs in test operation; the test orders are deleted when sales start.",
+        "realSalesFrom": "Sales start: {date} at {time}.",
+        "limitedByMonth": "With Cloud-TSE, sales start no earlier than midnight on the 1st of the month.",
+        "presale": "Shop pre-sale",
+        "presaleHint": "The shop takes real orders before the event – until sales start. Without pre-sale the shop opens with the event.",
+        "datesLocked": "Sales have started: the start is fixed and you can only bring the end forward. If you need to move the event, contact support.",
+        "datesEnded": "The event has ended and its dates are fixed. You can still settle and refund open orders."
+      }
     },
     "status": {
       "active": "Active",
@@ -1751,6 +1771,21 @@
       },
       "invoiceVoided": "The invoice was cancelled.",
       "bankRefund": "For the transfer back, Stripe sent you an email asking for your bank account."
+    },
+    "phase": {
+      "label": {
+        "test": "Test mode",
+        "planned": "Planned",
+        "active": "Active",
+        "ended": "Ended",
+        "inactive": "Inactive"
+      },
+      "hint": {
+        "planned": "Starts on {date} at {time} (test operation until then)",
+        "plannedPresale": "Starts on {date} at {time} · shop pre-sale is running",
+        "active": "Sales until {date}, {time}",
+        "ended": "Ended on {date} at {time} – you can still settle open orders"
+      }
     }
   },
   "categories": {
@@ -2721,6 +2756,8 @@
       "opened": "Drawer opened"
     },
     "testMode": "Test mode — Orders will be deleted on activation",
+    "plannedMode": "Test operation – real sales from {date} at {time}",
+    "endedMode": "Event ended – only settle open orders",
     "testBadge": "Test",
     "scheduledBadge": "Scheduled",
     "orderHistory": {
@@ -4230,7 +4267,13 @@
     "ORGANIZATION_READ_ONLY": "This organization is being deleted and is read-only. Exports still work.",
     "ACCOUNT_DELETION_SCHEDULED": "Your account is being deleted. Until then you can neither create nor join organizations.",
     "ACCOUNT_DELETION_NOT_SCHEDULED": "No deletion is scheduled for your account.",
-    "ORGANIZATION_NOT_CLOSED": "The organization is not deleted."
+    "ORGANIZATION_NOT_CLOSED": "The organization is not deleted.",
+    "EVENT_ENDED": "The event has ended – no new orders are possible. You can still settle open orders, close tables and refund.",
+    "EVENT_DATES_LOCKED": "Sales for this event have started – the start and lead time can no longer be moved. You can only bring the end forward.",
+    "EVENT_DATES_OVERRIDE_REASON_REQUIRED": "Please give a reason for moving the event.",
+    "EVENT_EARLY_START_INVALID": "The lead time must be between 0 and {max} hours.",
+    "SHOP_PRESALE_DISABLED": "The shop is not taking orders yet – sales start with the event.",
+    "PLANNED_TEST_LIMIT_REACHED": "Test limit reached in test operation ({maxOrders} test orders). Real sales start when the event's sales window opens."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5902,7 +5945,9 @@
       "none": "No active event",
       "active": "Active",
       "test": "Test mode",
-      "activateHint": "Click to activate"
+      "activateHint": "Click to activate",
+      "plannedFrom": "Planned · from {date} {time}",
+      "ended": "Ended"
     },
     "pendingInvitations": "{count, plural, one {# pending invitation} other {# pending invitations}}",
     "language": "Language",

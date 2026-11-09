@@ -1149,7 +1149,7 @@
         "periodFirst": "Bitte zuerst den Zeitraum der Veranstaltung eintragen.",
         "dayOpen": "{day} geöffnet",
         "endsNextDay": "Endet am Folgetag",
-        "openingHoursHint": "Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig von den Öffnungszeiten erreichbar.",
+        "openingHoursHint": "Eine Endzeit vor der Startzeit bedeutet, dass der Shop über Mitternacht hinaus geöffnet bleibt. Tage ohne Häkchen bleiben geschlossen. Im Testmodus ist der Shop unabhängig von den Öffnungszeiten erreichbar. Vor dem Verkaufsstart nimmt der Shop nur mit Vorverkauf Bestellungen an, nach dem Ende der Veranstaltung gar nicht mehr.",
         "serviceFee": "Servicegebühr",
         "serviceFeeUnit": "EUR pro Bestellung",
         "serviceFeeHint": "Wird im Online-Shop pauschal pro Bestellung auf den Gesamtbetrag aufgeschlagen. Leer lassen für keine Gebühr."
@@ -1171,7 +1171,18 @@
         "tableCount": "{count, plural, =0 {keine Tische} one {# Tisch} other {# Tische}}"
       },
       "priceTse": "+ {amount} Cloud-TSE je Veranstaltung",
-      "priceTseOptional": "Optional: + {amount} Cloud-TSE je Veranstaltung"
+      "priceTseOptional": "Optional: + {amount} Cloud-TSE je Veranstaltung",
+      "sales": {
+        "earlyStart": "Echter Verkauf beginnt vorher",
+        "earlyStartUnit": "Stunden vor dem ersten Tag (6 Uhr)",
+        "earlyStartHint": "Leer lassen für den Standard ({hours} Stunden – Verkaufsstart am Vorabend). Bis dahin läuft die Kasse im Testbetrieb, die Testbestellungen werden zum Verkaufsstart gelöscht.",
+        "realSalesFrom": "Verkaufsstart: {date} um {time} Uhr.",
+        "limitedByMonth": "Mit Cloud-TSE beginnt der Verkauf frühestens am Monatsersten um 0 Uhr.",
+        "presale": "Vorverkauf im Shop",
+        "presaleHint": "Der Shop nimmt schon vor der Veranstaltung echte Bestellungen an – bis zum Verkaufsstart. Ohne Vorverkauf öffnet der Shop erst mit der Veranstaltung.",
+        "datesLocked": "Der Verkauf hat begonnen: Der Beginn steht fest, das Ende kannst du nur noch vorziehen. Musst du verschieben, wende dich an den Support.",
+        "datesEnded": "Die Veranstaltung ist beendet, der Zeitraum steht fest. Offene Bestellungen kannst du weiter kassieren und erstatten."
+      }
     },
     "status": {
       "active": "Aktiv",
@@ -1359,6 +1370,21 @@
       },
       "invoiceVoided": "Die Rechnung wurde storniert.",
       "bankRefund": "Für die Rücküberweisung hat dir Stripe eine E-Mail geschickt, in der du deine Bankverbindung angibst."
+    },
+    "phase": {
+      "label": {
+        "test": "Testmodus",
+        "planned": "Geplant",
+        "active": "Aktiv",
+        "ended": "Beendet",
+        "inactive": "Inaktiv"
+      },
+      "hint": {
+        "planned": "Startet am {date} um {time} Uhr (Testbetrieb bis dahin)",
+        "plannedPresale": "Startet am {date} um {time} Uhr · Vorverkauf im Shop läuft",
+        "active": "Verkauf bis {date}, {time} Uhr",
+        "ended": "Beendet am {date} um {time} Uhr – offene Bestellungen kannst du weiter kassieren"
+      }
     }
   },
   "categories": {
@@ -2393,7 +2419,8 @@
         "cancelBilling": "Storno/Erstattung",
         "resendInvoice": "Rechnung erneut senden",
         "markInvoicePaid": "Als bezahlt markieren",
-        "invoicePdf": "Rechnungs-PDF herunterladen"
+        "invoicePdf": "Rechnungs-PDF herunterladen",
+        "moveDates": "Verschieben"
       },
       "pagination": {
         "total": "{count, plural, =1 {# Event gesamt} other {# Events gesamt}}",
@@ -2465,6 +2492,14 @@
         "invoiceResent": "Stripe hat die Rechnung erneut verschickt.",
         "invoiceMarkedPaid": "Die Rechnung ist als bezahlt verbucht.",
         "downloadFailed": "Das PDF konnte nicht geladen werden."
+      },
+      "moveDates": {
+        "title": "Veranstaltung verschieben (Support)",
+        "description": "Der Verkauf hat begonnen, Verein und Kasse können den Zeitraum nicht mehr ändern. Hier verschiebst du ihn trotzdem – die bezahlten Tage gelten weiter, der Eingriff wird mit Grund protokolliert. Liegt der Verkaufsstart danach in der Zukunft, ist die Veranstaltung wieder „Geplant“ (Testbetrieb).",
+        "reasonLabel": "Grund",
+        "reasonPlaceholder": "z. B. Fest wegen Unwetter um eine Woche verschoben",
+        "submit": "Verschieben",
+        "success": "Veranstaltung verschoben"
       }
     },
     "printers": {
@@ -2721,6 +2756,8 @@
       "opened": "Schublade geöffnet"
     },
     "testMode": "Testmodus — Bestellungen werden beim Aktivieren gelöscht",
+    "plannedMode": "Testbetrieb – echte Verkäufe ab {date} um {time} Uhr",
+    "endedMode": "Veranstaltung beendet – nur noch offene Bestellungen kassieren",
     "testBadge": "Test",
     "scheduledBadge": "Geplant",
     "orderHistory": {
@@ -4230,7 +4267,13 @@
     "ORGANIZATION_READ_ONLY": "Diese Organisation wird gelöscht und ist nur noch lesend nutzbar. Exporte sind weiter möglich.",
     "ACCOUNT_DELETION_SCHEDULED": "Dein Konto wird gelöscht. Solange kannst du keine Organisation anlegen und keiner beitreten.",
     "ACCOUNT_DELETION_NOT_SCHEDULED": "Für dein Konto ist keine Löschung geplant.",
-    "ORGANIZATION_NOT_CLOSED": "Die Organisation ist nicht gelöscht."
+    "ORGANIZATION_NOT_CLOSED": "Die Organisation ist nicht gelöscht.",
+    "EVENT_ENDED": "Die Veranstaltung ist beendet – neue Bestellungen sind nicht mehr möglich. Offene Bestellungen kannst du weiter kassieren, Tische schließen und erstatten.",
+    "EVENT_DATES_LOCKED": "Der Verkauf dieser Veranstaltung hat begonnen – Beginn und Vorlauf lassen sich nicht mehr verschieben. Das Ende kannst du nur noch vorziehen.",
+    "EVENT_DATES_OVERRIDE_REASON_REQUIRED": "Bitte gib einen Grund für das Verschieben an.",
+    "EVENT_EARLY_START_INVALID": "Der Vorlauf muss zwischen 0 und {max} Stunden liegen.",
+    "SHOP_PRESALE_DISABLED": "Der Shop nimmt noch keine Bestellungen an – der Verkauf startet mit der Veranstaltung.",
+    "PLANNED_TEST_LIMIT_REACHED": "Test-Limit im Testbetrieb erreicht ({maxOrders} Testbestellungen). Echte Verkäufe starten mit dem Verkaufsstart der Veranstaltung."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5902,7 +5945,9 @@
       "none": "Keine aktive Veranstaltung",
       "active": "Aktiv",
       "test": "Testmodus",
-      "activateHint": "Zum Aktivieren klicken"
+      "activateHint": "Zum Aktivieren klicken",
+      "plannedFrom": "Geplant · ab {date} {time}",
+      "ended": "Beendet"
     },
     "pendingInvitations": "{count, plural, one {# Einladung ausstehend} other {# Einladungen ausstehend}}",
     "language": "Sprache",

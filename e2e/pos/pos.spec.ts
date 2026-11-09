@@ -2,7 +2,7 @@ import { type BrowserContextOptions, expect, test } from '@playwright/test';
 
 import { apiLogin, apiPost, newApiContext } from '../fixtures/api';
 import { loginAs } from '../fixtures/auth.fixture';
-import { TEST_ADMIN } from '../fixtures/test-data';
+import { TEST_ADMIN, nowIso } from '../fixtures/test-data';
 import { POSPage } from '../pages/pos.page';
 
 /*
@@ -35,7 +35,7 @@ test.beforeAll(async () => {
     const org = admin.organizationId;
     const event = await apiPost(api, `organizations/${org}/events`, admin.headers, {
       name: EVENT_NAME,
-      startDate: '2026-03-01',
+      startDate: nowIso(),
     });
     await apiPost(api, `organizations/${org}/events/${event.id}/activate`, admin.headers);
     const category = await apiPost(api, `events/${event.id}/categories`, admin.headers, {

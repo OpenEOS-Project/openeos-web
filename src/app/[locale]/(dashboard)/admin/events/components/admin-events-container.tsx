@@ -12,6 +12,7 @@ import {
   useResendEventInvoice,
   useUnmarkEventInvoiced,
   useWaiveEvent,
+  useMoveEventDates,
 } from '@/hooks/use-admin-events';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
@@ -24,6 +25,9 @@ import type { PurchaseMasterDataField } from '@/types/billing';
 import { parseMissingParam } from '@/utils/purchase-master-data';
 import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import { CancelBillingModal } from './cancel-billing-modal';
+import { EventPhaseBadge, EventPhaseHint } from '@/components/shared/event-phase';
+import { toDayKey, toIsoAtMidnight } from '@/lib/event-schedule';
+import type { EventStatus } from '@/types/event';
 
 const statusBadge: Record<string, string> = {
   active: 'badge badge--success',
@@ -352,6 +356,100 @@ function UnmarkInvoicedModal({ event, onClose }: UnmarkModalProps) {
   );
 }
 
+/**
+ * Support: eine Veranstaltung verschieben, deren Verkauf schon begonnen hat
+ * (sonst gesperrt). Grund Pflicht, protokolliert; die bezahlten Tage gelten
+ * weiter. Liegt der Verkaufsstart danach wieder in der Zukunft, ist sie
+ * wieder „Geplant“.
+ */
+function MoveDatesModal({ event, onClose }: { event: AdminEventListItem; onClose: () => void }) {
+  const t = useTranslations();
+  const apiErrorMessage = useApiErrorMessage();
+  const moveDates = useMoveEventDates();
+  const [start, setStart] = useState(event.startDate ? toDayKey(event.startDate) : '');
+  const [end, setEnd] = useState(
+    event.endDate ? toDayKey(event.endDate) : event.startDate ? toDayKey(event.startDate) : '',
+  );
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  function handleConfirm() {
+    setError(null);
+    moveDates.mutate(
+      {
+        id: event.id,
+        startDate: start ? toIsoAtMidnight(start) : undefined,
+        endDate: toIsoAtMidnight(end || start),
+        reason: reason.trim(),
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('admin.events.moveDates.success'));
+          onClose();
+        },
+        onError: (err) => setError(apiErrorMessage(err, t('errors.generic'))),
+      },
+    );
+  }
+
+  return (
+    <div className="modal__backdrop" onClick={onClose}>
+      <div className="modal__box modal__panel--sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <div className="modal__title">{t('admin.events.moveDates.title')}</div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
+        <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 14, color: 'color-mix(in oklab, var(--ink) 65%, transparent)', margin: 0 }}>
+            {t('admin.events.moveDates.description')}
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
+            {event.name} — {event.organizationName}
+          </p>
+          <div className="field-row">
+            <label className="auth-field">
+              <span>{t('events.form.startDate')}</span>
+              <input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+            </label>
+            <label className="auth-field">
+              <span>{t('events.form.endDate')}</span>
+              <input type="date" value={end} min={start || undefined} onChange={(e) => setEnd(e.target.value)} />
+            </label>
+          </div>
+          <label className="auth-field">
+            <span>
+              {t('admin.events.moveDates.reasonLabel')} <span className="auth-field__req">*</span>
+            </span>
+            <input
+              className="input"
+              value={reason}
+              maxLength={500}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder={t('admin.events.moveDates.reasonPlaceholder')}
+              data-testid="move-dates-reason"
+            />
+          </label>
+          {error && (
+            <p role="alert" style={{ margin: 0, fontSize: 13, color: 'var(--danger)' }}>
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="modal__foot">
+          <button className="btn btn--ghost" onClick={onClose}>{t('common.cancel')}</button>
+          <button
+            className="btn btn--primary"
+            onClick={handleConfirm}
+            disabled={moveDates.isPending || !start || !reason.trim()}
+          >
+            {moveDates.isPending ? t('common.saving') : t('admin.events.moveDates.submit')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface WaiveModalProps {
   event: AdminEventListItem;
   onClose: () => void;
@@ -470,6 +568,7 @@ export function AdminEventsContainer() {
   const [markEvent, setMarkEvent] = useState<AdminEventListItem | null>(null);
   const [unmarkEvent, setUnmarkEvent] = useState<AdminEventListItem | null>(null);
   const [waiveEvent, setWaiveEventTarget] = useState<AdminEventListItem | null>(null);
+  const [moveDatesEvent, setMoveDatesEvent] = useState<AdminEventListItem | null>(null);
   const [cancelBillingEvent, setCancelBillingEvent] = useState<AdminEventListItem | null>(null);
   const [markPaidEvent, setMarkPaidEvent] = useState<AdminEventListItem | null>(null);
 
@@ -576,9 +675,16 @@ export function AdminEventsContainer() {
                       {event.endDate && event.endDate !== event.startDate ? ` – ${formatDate(event.endDate)}` : ''}
                     </td>
                     <td>
-                      <span className={statusBadge[event.status] ?? 'badge badge--neutral'}>
-                        {statusLabel[event.status] ?? event.status}
-                      </span>
+                      {event.phase ? (
+                        <>
+                          <EventPhaseBadge event={{ ...event, status: event.status as EventStatus }} />
+                          <EventPhaseHint event={{ ...event, status: event.status as EventStatus }} />
+                        </>
+                      ) : (
+                        <span className={statusBadge[event.status] ?? 'badge badge--neutral'}>
+                          {statusLabel[event.status] ?? event.status}
+                        </span>
+                      )}
                     </td>
                     <td className="mono text-right">{event.orderCount}</td>
                     <td className="mono text-right" style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</td>
@@ -626,6 +732,16 @@ export function AdminEventsContainer() {
                         {(event.billingStatus === 'none' || event.billingStatus === 'pending' || !event.billingStatus) && (
                           <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setWaiveEventTarget(event)}>
                             {t('actions.waive')}
+                          </button>
+                        )}
+                        {event.phaseDetails?.datesLocked && (
+                          <button
+                            className="btn btn--ghost"
+                            style={{ fontSize: 12 }}
+                            onClick={() => setMoveDatesEvent(event)}
+                            data-testid="admin-event-move-dates"
+                          >
+                            {t('actions.moveDates')}
                           </button>
                         )}
                         {(event.billingStatus === 'paid' || event.billingStatus === 'invoice') && (
@@ -680,6 +796,9 @@ export function AdminEventsContainer() {
       )}
       {waiveEvent && (
         <WaiveEventModal event={waiveEvent} onClose={() => setWaiveEventTarget(null)} />
+      )}
+      {moveDatesEvent && (
+        <MoveDatesModal event={moveDatesEvent} onClose={() => setMoveDatesEvent(null)} />
       )}
 
       {cancelBillingEvent && (
