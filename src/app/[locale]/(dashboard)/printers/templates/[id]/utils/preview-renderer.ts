@@ -19,6 +19,9 @@ const SAMPLE_DATA = {
   daily_number: '42',
   table_number: '12',
   customer_name: 'Max Mustermann',
+  // Bedienung/Geraet, das die Bestellung aufgenommen hat.
+  waiter_name: 'Markus',
+  device_name: 'Tablet 2',
   created_at: '12.02.2026 14:30',
   items: [
     { quantity: 2, name: 'Bratwurst', total: 7.0, notes: null, kitchen_notes: null, options: [] },
@@ -124,6 +127,12 @@ function renderField(el: TemplateElement, cols: number): PreviewLine[] {
 
     case 'customer_name':
       return [{ text: `${label || 'Kunde: '}${SAMPLE_DATA.customer_name}`, bold: el.bold, align: el.align as PreviewLine['align'], elementId: el.id }];
+
+    case 'waiter_name':
+      return [{ text: `${label || 'Bedienung: '}${SAMPLE_DATA.waiter_name}`, bold: el.bold, big: el.big, align: el.align as PreviewLine['align'], elementId: el.id }];
+
+    case 'device_name':
+      return [{ text: `${label || 'Gerät: '}${SAMPLE_DATA.device_name}`, bold: el.bold, big: el.big, align: el.align as PreviewLine['align'], elementId: el.id }];
 
     case 'production_station':
       return [{ text: 'GETRÄNKE', bold: el.bold, big: el.big, align: el.align as PreviewLine['align'], elementId: el.id }];

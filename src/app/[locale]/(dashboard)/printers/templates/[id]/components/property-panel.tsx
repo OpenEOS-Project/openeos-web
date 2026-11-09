@@ -15,6 +15,8 @@ const CONDITION_OPTIONS = [
   { value: '', labelKey: 'conditionAlways' },
   { value: 'table_number', labelKey: 'conditionTableNumber' },
   { value: 'customer_name', labelKey: 'conditionCustomerName' },
+  { value: 'waiter_name', labelKey: 'conditionWaiterName' },
+  { value: 'device_name', labelKey: 'conditionDeviceName' },
   { value: 'event_name', labelKey: 'conditionEventName' },
   { value: 'organization.address', labelKey: 'conditionAddress' },
   { value: 'organization.phone', labelKey: 'conditionPhone' },
@@ -118,6 +120,9 @@ export function PropertyPanel({ element, onUpdate, onRemove }: PropertyPanelProp
               ? t(`fields.${element.field}`)
               : t(`elements.${element.type}`)}
           </span>
+          {element.type === 'field' && (element.field === 'waiter_name' || element.field === 'device_name') && (
+            <p className="mt-2 text-xs text-quaternary" data-testid="field-hint">{t(`fieldHints.${element.field}`)}</p>
+          )}
         </div>
 
         {element.type === 'text' && (

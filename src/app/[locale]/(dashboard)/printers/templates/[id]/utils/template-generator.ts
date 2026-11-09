@@ -137,6 +137,16 @@ function generateField(el: TemplateElement, cols: number): string | null {
         el.condition ?? 'customer_name',
       );
 
+    case 'waiter_name':
+      // Bedienung: Name des Geraets, mit dem die Bestellung aufgenommen
+      // wurde; nur bei Bestellungen aus der Verwaltung (ohne Geraet) der
+      // Name des Nutzers (API). Ohne Namen faellt die Zeile samt
+      // Beschriftung weg, auch bei einer anderen Sichtbarkeit.
+      return wrapNamedField('waiter_name', label || 'Bedienung: ', el);
+
+    case 'device_name':
+      return wrapNamedField('device_name', label || 'Gerät: ', el);
+
     case 'production_station':
       // Kitchen banner: the production station (Standort) this ticket belongs
       // to, falling back to the generic "KÜCHE" headline when an item has no
@@ -319,6 +329,21 @@ function generateItemsList(el: TemplateElement, cols: number): string {
 
   lines.push('{% endfor %}');
   return lines.join('\n');
+}
+
+/**
+ * Namensfeld (Bedienung, Geraet): nur drucken, wenn der Name da ist; eine
+ * zusaetzlich gewaehlte Sichtbarkeit gilt obendrauf.
+ */
+function wrapNamedField(variable: string, label: string, el: TemplateElement): string {
+  const line = wrapCondition(
+    variable,
+    formatText(`${label}{{ ${variable} }}`, el),
+    variable,
+  );
+  return el.condition && el.condition !== variable
+    ? wrapCondition(variable, line, el.condition)
+    : line;
 }
 
 function wrapCondition(

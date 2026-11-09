@@ -5041,6 +5041,8 @@
         "daily_number": "Daily Number",
         "table_number": "Table Number",
         "customer_name": "Customer Name",
+        "waiter_name": "Waiter",
+        "device_name": "Device",
         "production_station": "Station",
         "order_channel": "Order channel/destination",
         "date_time": "Date/Time",
@@ -5056,6 +5058,10 @@
         "barcode": "Barcode (Order ID)",
         "priority": "Priority",
         "notes": "Notes"
+      },
+      "fieldHints": {
+        "waiter_name": "Name of the device the order was taken on. For orders created in the admin area, the name of the user. Without a name the line and its label are left out.",
+        "device_name": "Name of the device the order was taken on. Without a device the line and its label are left out."
       },
       "props": {
         "content": "Text Content",
@@ -5078,6 +5084,8 @@
         "conditionAlways": "Always show",
         "conditionTableNumber": "Only when table number exists",
         "conditionCustomerName": "Only when customer name exists",
+        "conditionWaiterName": "Only when waiter exists",
+        "conditionDeviceName": "Only when device exists",
         "conditionEventName": "Only when event exists",
         "conditionAddress": "Only when address exists",
         "conditionPhone": "Only when phone number exists",

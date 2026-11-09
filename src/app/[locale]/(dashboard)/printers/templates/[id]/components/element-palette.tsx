@@ -14,6 +14,7 @@ import {
   CreditCard,
   Euro,
   FileText,
+  HandPlatter,
   Hash,
   LayoutGrid,
   List,
@@ -23,6 +24,7 @@ import {
   QrCode,
   ReceiptText,
   Scissors,
+  TabletSmartphone,
   TriangleAlert,
   Type,
   UnfoldVertical,
@@ -45,6 +47,8 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   'hash': Hash,
   'layout-grid': LayoutGrid,
   'user': User,
+  'waiter': HandPlatter,
+  'tablet': TabletSmartphone,
   'clock': Clock,
   'alert-triangle': TriangleAlert,
   'file-text': FileText,
@@ -59,7 +63,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   'barcode': Barcode,
 };
 
-function DraggablePaletteItem({ item, label }: { item: PaletteItem; label: string }) {
+function DraggablePaletteItem({ item, label, hint }: { item: PaletteItem; label: string; hint?: string }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${item.type}-${item.field || ''}`,
     data: { type: 'palette-item', item },
@@ -72,6 +76,7 @@ function DraggablePaletteItem({ item, label }: { item: PaletteItem; label: strin
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      title={hint}
       className={cx(
         'flex cursor-grab items-center gap-2 rounded-lg border border-secondary px-3 py-2 text-sm transition-colors',
         'hover:border-brand-primary hover:bg-brand-secondary active:cursor-grabbing',
@@ -108,6 +113,7 @@ export function ElementPalette() {
                     key={`${item.type}-${item.field || ''}`}
                     item={item}
                     label={t(item.labelKey)}
+                    hint={item.field && t.has(`fieldHints.${item.field}`) ? t(`fieldHints.${item.field}`) : undefined}
                   />
                 ))}
               </div>

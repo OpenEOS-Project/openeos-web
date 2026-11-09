@@ -5041,6 +5041,8 @@
         "daily_number": "Tagesnummer",
         "table_number": "Tischnummer",
         "customer_name": "Kundenname",
+        "waiter_name": "Bedienung",
+        "device_name": "Gerät",
         "production_station": "Standort",
         "order_channel": "Bestellkanal/Ziel",
         "date_time": "Datum/Uhrzeit",
@@ -5056,6 +5058,10 @@
         "barcode": "Barcode (Auftrags-ID)",
         "priority": "Priorität",
         "notes": "Notizen"
+      },
+      "fieldHints": {
+        "waiter_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Bei Bestellungen aus der Verwaltung der Name des Nutzers. Ohne Namen fällt die Zeile samt Beschriftung weg.",
+        "device_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Ohne Gerät fällt die Zeile samt Beschriftung weg."
       },
       "props": {
         "content": "Textinhalt",
@@ -5078,6 +5084,8 @@
         "conditionAlways": "Immer anzeigen",
         "conditionTableNumber": "Nur wenn Tischnummer vorhanden",
         "conditionCustomerName": "Nur wenn Kundenname vorhanden",
+        "conditionWaiterName": "Nur wenn Bedienung vorhanden",
+        "conditionDeviceName": "Nur wenn Gerät vorhanden",
         "conditionEventName": "Nur wenn Veranstaltung vorhanden",
         "conditionAddress": "Nur wenn Adresse vorhanden",
         "conditionPhone": "Nur wenn Telefonnummer vorhanden",
