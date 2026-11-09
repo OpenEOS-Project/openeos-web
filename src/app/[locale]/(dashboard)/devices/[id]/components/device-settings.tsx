@@ -21,6 +21,10 @@ import { useOperatingMode } from '@/hooks/use-operating-mode';
 import { OPERATING_MODE_SETTINGS_HREF } from '@/lib/operating-mode';
 
 import { useAuthStore } from '@/stores/auth-store';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useWaiters } from '@/hooks/use-waiters';
+import { autoLockSecondsOf, waiterModeOf } from '@/lib/waiters';
+import type { WaiterMode } from '@/types/waiter';
 
 import type {
   Device,
@@ -110,10 +114,13 @@ const hasFloorLayout = (area: TableArea) =>
 
 const TABLE_SELECT_VIEWS: TableSelectView[] = ['number', 'list', 'map'];
 const REFUND_PERMISSIONS: RefundPermission[] = ['allowed', 'pin', 'disabled'];
+const WAITER_MODES: WaiterMode[] = ['off', 'shared', 'personal'];
+const AUTO_LOCK_CHOICES = [0, 30, 60, 120, 300, 600];
 
 export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization } = useAuthStore();
 
   const sumupConfigured = !!currentOrganization?.organization?.settings?.sumup?.merchantCode;
@@ -127,7 +134,15 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
   const [serviceMode, setServiceMode] = useState<ServiceMode>(
     device.settings?.serviceMode || 'table'
   );
-  const [requirePin, setRequirePin] = useState(device.settings?.requirePin ?? false);
+  /* Bedienungen: ohne, gemeinsame Kasse (PIN) oder feste Bedienung. */
+  const [waiterMode, setWaiterMode] = useState<WaiterMode>(waiterModeOf(device.settings));
+  const [waiterId, setWaiterId] = useState<string>((device.settings?.waiterId as string | undefined) ?? '');
+  const [autoLockSeconds, setAutoLockSeconds] = useState<string>(String(autoLockSecondsOf(device.settings)));
+  const [lockAfterPayment, setLockAfterPayment] = useState<boolean>(device.settings?.lockAfterPayment === true);
+  const [waiterTiles, setWaiterTiles] = useState<boolean>(device.settings?.waiterTiles === true);
+  const pinLockedAt = (device.settings?.waiterPinLockedAt as string | undefined) ?? null;
+  const { data: waiterList } = useWaiters(type === 'pos' && waiterMode === 'personal' ? organizationId : undefined);
+  const activeWaiters = (waiterList?.data ?? []).filter((w) => w.isActive);
   /* Stornieren & Erstatten an der Kasse: erlaubt (Standard), nur mit PIN, aus. */
   const [refundPermission, setRefundPermission] = useState<RefundPermission>(
     device.settings?.refundPermission ?? 'allowed'
@@ -171,7 +186,11 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
     setName(device.name);
     setType(device.type);
     setServiceMode(device.settings?.serviceMode || 'table');
-    setRequirePin(device.settings?.requirePin ?? false);
+    setWaiterMode(waiterModeOf(device.settings));
+    setWaiterId((device.settings?.waiterId as string | undefined) ?? '');
+    setAutoLockSeconds(String(autoLockSecondsOf(device.settings)));
+    setLockAfterPayment(device.settings?.lockAfterPayment === true);
+    setWaiterTiles(device.settings?.waiterTiles === true);
     setRefundPermission(device.settings?.refundPermission ?? 'allowed');
     setSumupReaderId((device.settings?.sumupReaderId as string) || '');
     setDisplayMode(device.settings?.displayMode || 'customer');
@@ -227,7 +246,14 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
           ...device.settings,
           serviceMode: type === 'pos' ? serviceMode : device.settings?.serviceMode,
           printerMode: device.settings?.printerMode,
-          requirePin: type === 'pos' ? requirePin : device.settings?.requirePin,
+          // Bedienungen ersetzen den früheren Schalter „PIN verlangen“.
+          requirePin: type === 'pos' ? undefined : device.settings?.requirePin,
+          waiterMode: type === 'pos' ? waiterMode : device.settings?.waiterMode,
+          waiterId: type === 'pos' ? (waiterMode === 'personal' ? waiterId || null : null) : device.settings?.waiterId,
+          autoLockSeconds:
+            type === 'pos' ? (waiterMode === 'shared' ? Number(autoLockSeconds) || 0 : null) : device.settings?.autoLockSeconds,
+          lockAfterPayment: type === 'pos' ? waiterMode === 'shared' && lockAfterPayment : device.settings?.lockAfterPayment,
+          waiterTiles: type === 'pos' ? waiterMode === 'shared' && waiterTiles : device.settings?.waiterTiles,
           // „Erlaubt“ ist die Vorgabe: dann nichts speichern (null löscht).
           refundPermission:
             type === 'pos'
@@ -274,9 +300,20 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       queryClient.invalidateQueries({ queryKey: ['devices', organizationId] });
       toast.success(t('devices.detail.saved'));
     },
-    onError: () => {
-      toast.error(t('devices.detail.saveFailed'));
+    onError: (error) => {
+      toast.error(apiErrorMessage(error, t('devices.detail.saveFailed')));
     },
+  });
+
+  /* PIN-Sperre nach Fehlversuchen freigeben (Admin). */
+  const unlockMutation = useMutation({
+    mutationFn: () =>
+      devicesApi.update(organizationId, device.id, { settings: { waiterPinLockedAt: null } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['device', organizationId, device.id] });
+      toast.success(t('devices.detail.settings.waiters.unlocked'));
+    },
+    onError: (error) => toast.error(apiErrorMessage(error, t('devices.detail.saveFailed'))),
   });
 
   /* 'admin' fehlt hier bewusst — der Wert wurde nirgends ausgewertet und
@@ -466,14 +503,95 @@ export function DeviceSettings({ device, organizationId }: DeviceSettingsProps) 
       )}
 
       {type === 'pos' && (
-        <SectionCard title={s('auth.title')} description={s('auth.description')}>
-          <SettingToggle
-            label={s('auth.requirePin')}
-            hint={s('auth.requirePinDescription')}
-            checked={requirePin}
-            onChange={setRequirePin}
-          />
-          <p className="device-settings__hint">{s('auth.pinManagedPerMember')}</p>
+        <SectionCard title={s('waiters.title')} description={s('waiters.description')}>
+          {pinLockedAt && (
+            <Banner tone="danger" icon={<Icon name="lock" />}>
+              <span>{s('waiters.pinLocked')}</span>{' '}
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => unlockMutation.mutate()}
+                disabled={unlockMutation.isPending}
+              >
+                {s('waiters.unlock')}
+              </button>
+            </Banner>
+          )}
+          <div className="device-settings__row">
+            <span className="device-settings__label">{s('waiters.mode')}</span>
+            <div className="device-settings__choices" role="radiogroup" aria-label={s('waiters.mode')}>
+              {WAITER_MODES.map((mode) => (
+                <div key={mode} className="device-settings__choice-wrap">
+                  <label className="device-settings__choice">
+                    <input
+                      type="radio"
+                      name="waiterMode"
+                      value={mode}
+                      checked={waiterMode === mode}
+                      onChange={() => setWaiterMode(mode)}
+                    />
+                    <span>
+                      <b>{s(`waiters.mode_${mode}`)}</b>
+                      <small>{s(`waiters.mode_${mode}Description`)}</small>
+                    </span>
+                  </label>
+                  {mode === 'shared' && waiterMode === 'shared' && (
+                    <Dependent title={s('waiters.sharedTitle')} text={s('waiters.sharedHint')}>
+                      <FormRow label={s('waiters.autoLock')} hint={s('waiters.autoLockHint')}>
+                        <select
+                          className="select"
+                          value={autoLockSeconds}
+                          onChange={(e) => setAutoLockSeconds(e.target.value)}
+                        >
+                          {AUTO_LOCK_CHOICES.map((seconds) => (
+                            <option key={seconds} value={String(seconds)}>
+                              {seconds === 0
+                                ? s('waiters.autoLockOff')
+                                : seconds < 60
+                                  ? s('waiters.autoLockSeconds', { seconds })
+                                  : s('waiters.autoLockMinutes', { minutes: seconds / 60 })}
+                            </option>
+                          ))}
+                        </select>
+                      </FormRow>
+                      <SettingToggle
+                        label={s('waiters.lockAfterPayment')}
+                        hint={s('waiters.lockAfterPaymentHint')}
+                        checked={lockAfterPayment}
+                        onChange={setLockAfterPayment}
+                      />
+                      <SettingToggle
+                        label={s('waiters.tiles')}
+                        hint={s('waiters.tilesHint')}
+                        checked={waiterTiles}
+                        onChange={setWaiterTiles}
+                      />
+                    </Dependent>
+                  )}
+                  {mode === 'personal' && waiterMode === 'personal' && (
+                    <Dependent title={s('waiters.personalTitle')} text={s('waiters.personalHint')}>
+                      <FormRow label={s('waiters.fixedWaiter')}>
+                        <select className="select" value={waiterId} onChange={(e) => setWaiterId(e.target.value)}>
+                          <option value="">{s('waiters.fixedWaiterNone')}</option>
+                          {activeWaiters.map((w) => (
+                            <option key={w.id} value={w.id}>
+                              {w.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormRow>
+                    </Dependent>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="device-settings__hint">
+              {s('waiters.manage')}{' '}
+              <Link href="/waiters" className="device-settings__link">
+                {t('navigation.waiters')}
+              </Link>
+            </p>
+          </div>
           <div className="device-settings__row">
             <span className="device-settings__label">{s('auth.refund')}</span>
             <p className="device-settings__hint">{s('auth.refundDescription')}</p>

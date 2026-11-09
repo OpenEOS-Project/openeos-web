@@ -26,6 +26,7 @@ const PERMISSION_KEYS: (keyof OrganizationPermissions)[] = [
   'events',
   'devices',
   'members',
+  'waiters',
   'shiftPlans',
   'discounts',
   'pfand',

@@ -15,6 +15,8 @@ export interface OrganizationPermissions {
   inventory?: boolean;
   /** Bestellungen stornieren und erstatten (Kasse per PIN, Verwaltung). */
   orders?: boolean;
+  /** Bedienungen (Kassenprofile mit PIN) verwalten. */
+  waiters?: boolean;
 }
 
 export interface UserOrganization {

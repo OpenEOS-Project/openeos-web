@@ -544,7 +544,8 @@
     "cashbook": "Kassenbuch",
     "legal": "Rechtliches",
     "legalElster": "ELSTER-Angaben",
-    "legalShop": "Shop-Rechtstexte"
+    "legalShop": "Shop-Rechtstexte",
+    "waiters": "Bedienungen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -2057,7 +2058,8 @@
       "adminHint": "Administratoren haben automatisch Zugriff auf alle Module.",
       "reports": "Auswertung",
       "inventory": "Inventur",
-      "orders": "Bestellungen (stornieren & erstatten)"
+      "orders": "Bestellungen (stornieren & erstatten)",
+      "waiters": "Bedienungen"
     },
     "form": {
       "email": "E-Mail-Adresse",
@@ -2764,7 +2766,19 @@
       "title": "PIN eingeben",
       "description": "Gib deine persönliche PIN ein, um dich zu identifizieren.",
       "error": "Ungültige PIN. Bitte versuche es erneut.",
-      "verifying": "Wird überprüft..."
+      "verifying": "Wird überprüft...",
+      "whoTitle": "Wer bedient?",
+      "whoDescription": "Gib deine PIN ein.",
+      "hello": "Hallo {name}",
+      "tiles": "Bedienungen",
+      "locked": "Zu viele falsche PINs. Noch {seconds} s gesperrt.",
+      "deviceLocked": "Die PIN-Eingabe an diesem Gerät ist gesperrt. Ein Admin gibt sie unter Geräte wieder frei.",
+      "notForEvent": "Deine PIN gilt nur für eine andere Veranstaltung.",
+      "errorRemaining": "{count, plural, one {Falsche PIN. Noch # Versuch bis zur Sperre.} other {Falsche PIN. Noch # Versuche bis zur Sperre.}}",
+      "offline": "Keine Verbindung – Entsperren ist erst wieder online möglich.",
+      "parked": "Der Warenkorb wird für {name} gemerkt.",
+      "timedOut": "Automatisch gesperrt.",
+      "expired": "Deine Anmeldung ist abgelaufen. Bitte gib deine PIN erneut ein."
     },
     "cashDrawer": {
       "open": "Schublade öffnen",
@@ -2889,8 +2903,8 @@
       "pin": {
         "title": "PIN eingeben",
         "subtitle": "Stornieren & Erstatten",
-        "description": "Gib die PIN eines Mitglieds mit Recht „Bestellungen“ oder eines Admins ein.",
-        "notAuthorized": "Diese PIN darf nicht stornieren oder erstatten.",
+        "description": "Gib die PIN einer Schichtleitung, eines Mitglieds mit Recht „Bestellungen“ oder eines Admins ein.",
+        "notAuthorized": "Diese PIN darf nicht freigeben. Nötig ist eine Schichtleitung, das Recht „Bestellungen“ oder Admin.",
         "invalid": "PIN ist falsch."
       },
       "cancelItemsSuccess": "{count, plural, =1 {1 Position storniert} other {# Positionen storniert}}",
@@ -3279,6 +3293,20 @@
       "sum": "Ausgezahlt",
       "done": "Fertig",
       "noPrinter": "Kein Bondrucker für diese Kasse eingerichtet."
+    },
+    "waiter": {
+      "menu": "Bedienung {name}",
+      "switch": "Wechseln",
+      "lock": "Sperren",
+      "signOut": "Abmelden",
+      "fixed": "Feste Bedienung: {name}",
+      "foreignTable": "Tisch von {name}",
+      "unassignedTitle": "Gerät ist keiner Bedienung zugeordnet",
+      "unassignedText": "Ein Admin wählt die feste Bedienung in der Verwaltung: Geräte, dann Einstellungen.",
+      "tableFilter": "Tische filtern",
+      "tablesMine": "Meine",
+      "tablesAll": "Alle",
+      "tableOwner": "Bedienung: {name}"
     }
   },
   "orders": {
@@ -3901,6 +3929,36 @@
           "description": "Kartenzahlung über ein SumUp-Lesegerät.",
           "noCash": "In der Betriebsart deiner Organisation nimmt diese Kasse kein Bargeld an.",
           "modeLink": "Betriebsart"
+        },
+        "waiters": {
+          "title": "Bedienung & Sicherheit",
+          "description": "Wer an dieser Kasse bucht und was dafür nötig ist.",
+          "mode": "Bedienungen",
+          "mode_off": "Ohne Bedienung",
+          "mode_offDescription": "Wie bisher: niemand meldet sich an, Buchungen zählen für das Gerät.",
+          "mode_shared": "Gemeinsame Kasse",
+          "mode_sharedDescription": "Vor dem Buchen meldet sich eine Bedienung mit ihrer PIN an („Wer bedient?“). Wechseln und Sperren mit einem Tipp.",
+          "mode_personal": "Feste Bedienung",
+          "mode_personalDescription": "Das Gerät gehört einer Bedienung, z. B. ihr Handy. Keine PIN-Eingabe.",
+          "sharedTitle": "Sperre",
+          "sharedHint": "Der Warenkorb wird beim Sperren je Bedienung auf diesem Gerät gemerkt.",
+          "autoLock": "Automatisch sperren nach",
+          "autoLockHint": "Ohne Berührung. Nie während einer laufenden Zahlung.",
+          "autoLockOff": "Nie",
+          "autoLockSeconds": "{seconds} Sekunden",
+          "autoLockMinutes": "{minutes, plural, one {# Minute} other {# Minuten}}",
+          "lockAfterPayment": "Nach jedem Kassieren sperren",
+          "lockAfterPaymentHint": "Für die Theke: jede Person kassiert unter ihrem Namen.",
+          "tiles": "Namenskacheln auf dem PIN-Bildschirm",
+          "tilesHint": "Zeigt Kurzname und Farbe der Bedienungen. Standard aus, damit keine Namen sichtbar sind.",
+          "personalTitle": "Feste Bedienung",
+          "personalHint": "Alle Buchungen dieses Geräts zählen für diese Bedienung.",
+          "fixedWaiter": "Bedienung",
+          "fixedWaiterNone": "Bitte wählen",
+          "manage": "Bedienungen und PINs verwaltest du unter",
+          "pinLocked": "Die PIN-Eingabe an diesem Gerät ist nach zu vielen Fehlversuchen gesperrt.",
+          "unlock": "PIN-Eingabe freigeben",
+          "unlocked": "PIN-Eingabe freigegeben"
         }
       },
       "printer": {
@@ -4161,7 +4219,7 @@
     "REFUND_NOT_ALLOWED": "Stornieren und Erstatten ist an dieser Kasse ausgeschaltet.",
     "REFUND_NOT_FOUND": "Erstattung nicht gefunden.",
     "REFUND_PAYMENT_REQUIRED": "Der Betrag verteilt sich auf mehrere Kartenzahlungen. Erstatte je Zahlung einzeln.",
-    "REFUND_PIN_NOT_AUTHORIZED": "Diese PIN darf nicht stornieren oder erstatten. Nötig ist das Recht „Bestellungen“ oder Admin.",
+    "REFUND_PIN_NOT_AUTHORIZED": "Diese PIN darf nicht stornieren oder erstatten. Nötig ist eine Schichtleitung, das Recht „Bestellungen“ oder Admin.",
     "REFUND_PIN_REQUIRED": "Für Storno und Erstattung ist eine PIN nötig.",
     "REFUND_PROVIDER_FAILED": "SumUp hat die Erstattung abgelehnt. Versuche es erneut oder buche sie als manuell erstattet.",
     "REFUND_QUANTITY_EXCEEDED": "Von {product} sind nur noch {max} erstattbar.",
@@ -4300,7 +4358,20 @@
     "EVENT_DATES_OVERRIDE_REASON_REQUIRED": "Bitte gib einen Grund für das Verschieben an.",
     "EVENT_EARLY_START_INVALID": "Der Vorlauf muss zwischen 0 und {max} Stunden liegen.",
     "SHOP_PRESALE_DISABLED": "Der Shop nimmt noch keine Bestellungen an – der Verkauf startet mit der Veranstaltung.",
-    "PLANNED_TEST_LIMIT_REACHED": "Test-Limit im Testbetrieb erreicht ({maxOrders} Testbestellungen). Echte Verkäufe starten mit dem Verkaufsstart der Veranstaltung."
+    "PLANNED_TEST_LIMIT_REACHED": "Test-Limit im Testbetrieb erreicht ({maxOrders} Testbestellungen). Echte Verkäufe starten mit dem Verkaufsstart der Veranstaltung.",
+    "PIN_NOT_AVAILABLE": "Diese PIN ist nicht verfügbar. Wähle eine andere (keine einfachen Folgen wie 1234 oder 0000).",
+    "PIN_LOCKED": "Zu viele falsche PINs. Versuche es in {retryAfterSeconds} Sekunden noch einmal.",
+    "PIN_DEVICE_LOCKED": "Die PIN-Eingabe an diesem Gerät ist gesperrt. Ein Admin gibt sie unter Geräte wieder frei.",
+    "WAITER_DEVICE_UNASSIGNED": "Gerät ist keiner Bedienung zugeordnet.",
+    "WAITER_HAS_BOOKINGS": "Diese Bedienung hat schon gebucht.",
+    "WAITER_INACTIVE": "Die Bedienung ist deaktiviert. Aktiviere sie zuerst.",
+    "WAITER_LIMIT_REACHED": "Höchstens {limit} Bedienungen je Organisation (angelegt: {count}).",
+    "WAITER_NOT_FOR_EVENT": "Diese Bedienung gehört zu einer Veranstaltung, die gerade nicht läuft.",
+    "WAITER_NOT_FOUND": "Bedienung nicht gefunden.",
+    "WAITER_NOT_PERMITTED": "Das darfst du nicht selbst. Eine Schichtleitung gibt es mit ihrer PIN frei.",
+    "WAITER_SESSION_EXPIRED": "Deine Anmeldung an der Kasse ist abgelaufen. Gib deine PIN erneut ein.",
+    "WAITER_SESSION_REQUIRED": "Bitte melde dich an der Kasse mit deiner PIN an.",
+    "WAITER_SETTINGS_INVALID": "Ungültige Einstellung für Bedienungen."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -6888,6 +6959,141 @@
       "errorHint": "Du kannst die Einwilligung auch in den Kontoeinstellungen widerrufen oder eine E-Mail an hello@openeos.de schreiben.",
       "missingToken": "Der Link ist unvollständig.",
       "error": "Der Abmeldelink ist ungültig."
+    }
+  },
+  "waiters": {
+    "title": "Bedienungen",
+    "subtitle": "Kassenprofile ohne Konto und ohne E-Mail: Name, Farbe und PIN. Damit wechseln Helferinnen und Helfer an gemeinsam genutzten Kassen in Sekunden, und jede Buchung zeigt, wer sie gebucht hat.",
+    "count": "{count, plural, =0 {Keine Bedienung} one {# Bedienung} other {# Bedienungen}}",
+    "limit": {
+      "used": "{count} von {limit} angelegt · zählen nicht zu den Mitgliedern",
+      "unlimited": "{count} angelegt · zählen nicht zu den Mitgliedern"
+    },
+    "hint": "Bedienungen haben keinen Zugang zur Verwaltung. Sie melden sich nur an Kassen an, die auf „Gemeinsame Kasse“ oder „Feste Bedienung“ stehen (Geräte → Einstellungen). Die PIN siehst du nur direkt nach dem Anlegen bzw. nach „Neue PIN“.",
+    "filter": {
+      "label": "Gültigkeit filtern",
+      "all": "Alle Bedienungen",
+      "event": "Veranstaltung: {name}"
+    },
+    "scope": {
+      "organization": "Ganze Organisation",
+      "event": "Veranstaltung"
+    },
+    "roles": {
+      "service": "Bedienung",
+      "serviceDescription": "Bucht und kassiert. Storno/Erstattung, Kassenlade und Kassenbuch nur mit Freigabe.",
+      "lead": "Schichtleitung",
+      "leadDescription": "Darf zusätzlich stornieren und erstatten, die Kassenlade öffnen, das Kassenbuch führen und anderen Storno freigeben."
+    },
+    "rights": {
+      "refund": "Stornieren & Erstatten",
+      "refundHint": "Ohne dieses Recht gibt eine Schichtleitung mit ihrer PIN frei.",
+      "cashDrawer": "Kassenlade von Hand öffnen",
+      "cashDrawerHint": "Beim Barkassieren öffnet sie sich immer.",
+      "discount": "Rabatt-Bons einlösen",
+      "discountHint": "Rabatte beim Kassieren.",
+      "cashbook": "Kassenbuch",
+      "cashbookHint": "Anfangsbestand, Einlage, Entnahme, Kassensturz."
+    },
+    "table": {
+      "name": "Bedienung",
+      "role": "Rolle",
+      "scope": "Gültig für",
+      "pin": "PIN",
+      "lastUsed": "Zuletzt angemeldet",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "pin": {
+      "set": "{length}-stellig",
+      "missing": "Keine PIN"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Deaktiviert"
+    },
+    "actions": {
+      "create": "Bedienung anlegen",
+      "bulk": "Mehrere anlegen",
+      "edit": "{name} bearbeiten",
+      "resetPin": "Neue PIN für {name}",
+      "deactivate": "{name} deaktivieren",
+      "activate": "{name} aktivieren",
+      "delete": "{name} löschen"
+    },
+    "empty": {
+      "title": "Noch keine Bedienungen",
+      "description": "Lege deine Helferinnen und Helfer mit einer Namensliste an. Jede Person bekommt eine PIN, die du als PIN-Zettel ausdruckst."
+    },
+    "form": {
+      "createTitle": "Bedienung anlegen",
+      "editTitle": "Bedienung bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Anna Berger",
+      "nameRequired": "Bitte gib einen Namen ein.",
+      "shortName": "Kurzname (höchstens 12 Zeichen)",
+      "shortNamePlaceholder": "z. B. Anna",
+      "scope": "Gültig für",
+      "color": "Farbe",
+      "role": "Rolle",
+      "rights": "Rechte",
+      "ownPin": "Eigene PIN (optional)",
+      "ownPinPlaceholder": "leer lassen = wird erzeugt",
+      "ownPinHint": "4 bis 6 Ziffern. Einfache Folgen wie 1234 oder 0000 gehen nicht.",
+      "pinFormat": "Die PIN hat 4 bis 6 Ziffern.",
+      "createSubmit": "Anlegen"
+    },
+    "bulk": {
+      "title": "Mehrere Bedienungen anlegen",
+      "description": "Ein Name je Zeile. Wahlweise mit Kurzname und Rolle: „Name;Kurzname;Rolle“ (Rolle: Bedienung oder Schichtleitung). Jede Person bekommt eine PIN.",
+      "names": "Namen",
+      "role": "Rolle (Vorgabe)",
+      "placeholder": "Anna Berger;Anna\nBen Krämer\nLea Schmidt;Lea;Schichtleitung",
+      "recognized": "{count, plural, =0 {Noch keine Namen} one {# Bedienung erkannt} other {# Bedienungen erkannt}}",
+      "duplicates": "{count, plural, one {# doppelter Name übersprungen} other {# doppelte Namen übersprungen}}",
+      "invalid": "Bitte prüfe Zeile {lines}",
+      "tooMany": "höchstens {max} auf einmal",
+      "submit": "{count, plural, =0 {Anlegen} one {# Bedienung anlegen} other {# Bedienungen anlegen}}"
+    },
+    "reveal": {
+      "title": "{count, plural, one {Neue PIN} other {# neue PINs}}",
+      "onlyNow": "Die PINs siehst du nur jetzt. Gespeichert ist nur ein Prüfwert. Drucke den PIN-Zettel oder gib die PIN direkt weiter. Wer seine PIN vergisst, bekommt mit „Neue PIN“ eine neue.",
+      "pinOf": "PIN von {name}",
+      "print": "PIN-Zettel drucken",
+      "done": "Fertig"
+    },
+    "sheet": {
+      "pinLabel": "PIN",
+      "howTo": "An der Kasse „Wer bedient?“ deine PIN eingeben. Zum Wechseln oder Sperren tippst du oben rechts auf deinen Namen.",
+      "privacy": "Gib deine PIN nicht weiter. Jede Buchung wird dir zugeordnet."
+    },
+    "delete": {
+      "title": "{name} löschen?",
+      "text": "Ohne Buchungen wird die Bedienung gelöscht. Hat sie schon gebucht, wird sie deaktiviert und ihr Name durch „Bedienung N“ ersetzt. Der Name in den steuerlichen Aufzeichnungen (Kassenabschluss) bleibt erhalten."
+    },
+    "toast": {
+      "saved": "{name} gespeichert",
+      "deactivated": "{name} deaktiviert – die Anmeldung an Kassen endet sofort.",
+      "activated": "{name} aktiviert – vergib eine neue PIN.",
+      "deleted": "{name} gelöscht",
+      "anonymized": "{name} deaktiviert und anonymisiert"
+    },
+    "errors": {
+      "pinReset": "Die neue PIN konnte nicht vergeben werden."
+    },
+    "settings": {
+      "title": "Einstellungen für Bedienungen",
+      "description": "Gilt für alle Kassen der Organisation.",
+      "saved": "Gespeichert",
+      "pinLength": "Länge neuer PINs",
+      "pinLength4": "4 Ziffern",
+      "pinLength6": "6 Ziffern (empfohlen für Bedienungen der ganzen Organisation)",
+      "receiptName": "Name auf Bons",
+      "receiptNameShort": "Kurzname (wenn gesetzt)",
+      "receiptNameFull": "Voller Name",
+      "foreignTables": "Fremde Tische",
+      "foreignTablesWarn": "Buchen erlaubt, mit Hinweis",
+      "foreignTablesAllow": "Buchen erlaubt, ohne Hinweis"
     }
   }
 }

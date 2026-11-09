@@ -7,6 +7,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-quer
 import { deviceApi } from '@/lib/api-client';
 
 import { useDeviceStore } from '@/stores/device-store';
+import { useWaiterSessionStore } from '@/stores/waiter-session-store';
 
 import type {
   DeviceActor,
@@ -119,11 +120,20 @@ export function isPinError(error: unknown): boolean {
 
 /**
  * Berechtigung „Stornieren & Erstatten“ der Kasse. `run(action)` führt die
- * Aktion direkt aus (erlaubt) oder fragt zuerst eine PIN ab (nur mit PIN)
- * und gibt sie mit. Eine abgelehnte PIN bleibt im PIN-Blatt stehen.
+ * Aktion direkt aus oder fragt zuerst eine PIN ab und gibt sie mit:
+ *
+ * - Gerät „nur mit PIN“ ohne angemeldete Person mit dem Recht: erst PIN.
+ * - Sonst direkt; verlangt der Server eine Freigabe (Bedienung ohne Recht
+ *   „Storno/Erstattung“, `REFUND_PIN_REQUIRED`), öffnet das PIN-Blatt für
+ *   die PIN einer Schichtleitung bzw. eines Mitglieds mit Recht
+ *   „Bestellungen“.
+ *
+ * Die Zuordnung (wer storniert) kommt nur aus der Bedienungs-Sitzung.
+ * Eine abgelehnte PIN bleibt im PIN-Blatt stehen.
  */
 export function useRefundGate() {
-  const { settings, session } = useDeviceStore();
+  const { settings } = useDeviceStore();
+  const waiter = useWaiterSessionStore((s) => s.waiter);
   const permission = ((settings?.refundPermission as RefundPermission | undefined) ??
     'allowed') as RefundPermission;
   const [pending, setPending] = useState<((actor: DeviceActor) => Promise<void>) | null>(null);
@@ -132,14 +142,23 @@ export function useRefundGate() {
 
   const run = useCallback(
     async (action: (actor: DeviceActor) => Promise<void>) => {
-      if (permission === 'pin') {
+      if (permission === 'pin' && !waiter?.permissions?.refund) {
         setPinError(null);
         setPending(() => action);
         return;
       }
-      await action(session?.userId ? { operatorUserId: session.userId } : {});
+      try {
+        await action({});
+      } catch (error) {
+        if (errorReason(error) === 'REFUND_PIN_REQUIRED') {
+          setPinError(null);
+          setPending(() => action);
+          return;
+        }
+        throw error;
+      }
     },
-    [permission, session?.userId]
+    [permission, waiter?.permissions?.refund]
   );
 
   const submitPin = useCallback(

@@ -128,6 +128,9 @@ export interface OpenTableEntry {
   localItems: number;
   waitingSince: string | null;
   lastActivity: number;
+  /** Verantwortliche Bedienung laut Server (Tischbesitz). */
+  waiterId?: string | null;
+  waiterIds?: string[];
 }
 
 /**
@@ -162,6 +165,8 @@ export function mergeOpenTables(
       localItems: 0,
       waitingSince: s.waitingSince,
       lastActivity: Date.parse(s.lastActivityAt) || 0,
+      waiterId: s.waiterId ?? null,
+      waiterIds: s.waiterIds ?? [],
     });
   }
   if (eventId) {

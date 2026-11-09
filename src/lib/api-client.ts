@@ -95,9 +95,25 @@ async function authorizedDownload(path: string): Promise<import('@/types/dsfinvk
   };
 }
 
+/** Fehler, die die Kopplung des Geräts betreffen (Token weg, gesperrt). */
+const DEVICE_PAIRING_REASONS = new Set([
+  'DEVICE_TOKEN_MISSING',
+  'DEVICE_TOKEN_INVALID',
+  'DEVICE_NOT_VERIFIED',
+]);
+
+/** Bedienungs-Sitzung fehlt oder ist abgelaufen → PIN-Bildschirm. */
+const WAITER_SESSION_REASONS = new Set(['WAITER_SESSION_REQUIRED', 'WAITER_SESSION_EXPIRED']);
+
 class ApiClient {
   private accessToken: string | null = null;
   private deviceToken: string | null = null;
+  /**
+   * Token der Bedienungs-Sitzung an der Kasse (Header `X-Waiter-Session`).
+   * Nur im Speicher: Neuladen verlangt die PIN erneut.
+   */
+  private waiterSessionToken: string | null = null;
+  private waiterSessionLost: ((reason: string) => void) | null = null;
   private initialized = false;
   private isRefreshing = false;
   private refreshPromise: Promise<boolean> | null = null;
@@ -165,6 +181,19 @@ class ApiClient {
         // localStorage not available
       }
     }
+  }
+
+  setWaiterSessionToken(token: string | null) {
+    this.waiterSessionToken = token;
+  }
+
+  getWaiterSessionToken() {
+    return this.waiterSessionToken;
+  }
+
+  /** Die Kasse meldet sich hier an, um bei abgelaufener Sitzung zu sperren. */
+  onWaiterSessionLost(handler: ((reason: string) => void) | null) {
+    this.waiterSessionLost = handler;
   }
 
   getDeviceToken() {
@@ -239,6 +268,9 @@ class ApiClient {
     if (!skipAuth) {
       if (useDeviceAuth && this.deviceToken) {
         (headers as Record<string, string>)['X-Device-Token'] = this.deviceToken;
+        if (this.waiterSessionToken) {
+          (headers as Record<string, string>)['X-Waiter-Session'] = this.waiterSessionToken;
+        }
       } else if (this.accessToken) {
         (headers as Record<string, string>)['Authorization'] = `Bearer ${this.accessToken}`;
       }
@@ -252,16 +284,30 @@ class ApiClient {
 
     if (!response.ok) {
       // Handle 401 Unauthorized
+      if (useDeviceAuth && response.status === 403 && this.waiterSessionLost) {
+        const exception = await apiExceptionFromResponse(response);
+        if (exception.reason && WAITER_SESSION_REASONS.has(exception.reason)) {
+          this.waiterSessionToken = null;
+          this.waiterSessionLost(exception.reason);
+        }
+        throw exception;
+      }
       if (response.status === 401 && !skipAuth) {
         if (useDeviceAuth) {
-          // For device auth, clear device token and redirect to device registration
-          this.clearDeviceToken();
-          if (typeof window !== 'undefined') {
-            /* Die Kopplung liegt seit der Umstellung auf den Zahlencode
-               unter /device/pair; /device/register war der alte Weg mit
-               dem Kuerzel der Organisation. */
-            window.location.href = '/device/pair?grund=entfernt';
+          const exception = await apiExceptionFromResponse(response);
+          /* Nur ein ungueltiger Geraete-Token loest die Kopplung. Andere
+             401 (z. B. eine falsche PIN einer aelteren API) lassen das
+             Geraet gekoppelt. */
+          if (!exception.reason || DEVICE_PAIRING_REASONS.has(exception.reason)) {
+            this.clearDeviceToken();
+            if (typeof window !== 'undefined') {
+              /* Die Kopplung liegt seit der Umstellung auf den Zahlencode
+                 unter /device/pair; /device/register war der alte Weg mit
+                 dem Kuerzel der Organisation. */
+              window.location.href = '/device/pair?grund=entfernt';
+            }
           }
+          throw exception;
         } else if (!isRetry) {
           // For user auth, try to refresh the token first
           const refreshed = await this.refreshAccessToken();
@@ -548,6 +594,38 @@ export const organizationsApi = {
 };
 
 // Support Chat API (organization member view)
+/** Bedienungen verwalten (Admin oder Recht „Bedienungen“). */
+export const waitersApi = {
+  list: (orgId: string, params?: { eventId?: string; active?: boolean }) => {
+    const search = new URLSearchParams();
+    if (params?.eventId) search.set('eventId', params.eventId);
+    if (params?.active !== undefined) search.set('active', String(params.active));
+    const qs = search.toString();
+    return apiClient.get<{
+      data: import('@/types/waiter').Waiter[];
+      meta: import('@/types/waiter').WaiterListMeta;
+    }>(`/organizations/${orgId}/waiters${qs ? `?${qs}` : ''}`);
+  },
+  create: (orgId: string, data: import('@/types/waiter').CreateWaiterData) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterWithPin>>(`/organizations/${orgId}/waiters`, data),
+  bulkCreate: (orgId: string, data: import('@/types/waiter').BulkCreateWaitersData) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterWithPin[]>>(
+      `/organizations/${orgId}/waiters/bulk`,
+      data
+    ),
+  update: (orgId: string, waiterId: string, data: import('@/types/waiter').UpdateWaiterData) =>
+    apiClient.patch<ApiResponse<import('@/types/waiter').Waiter>>(`/organizations/${orgId}/waiters/${waiterId}`, data),
+  resetPin: (orgId: string, waiterId: string, pin?: string) =>
+    apiClient.post<ApiResponse<{ id: string; pin: string }>>(
+      `/organizations/${orgId}/waiters/${waiterId}/pin`,
+      pin ? { pin } : {}
+    ),
+  remove: (orgId: string, waiterId: string) =>
+    apiClient.delete<ApiResponse<{ deleted: boolean; anonymized: boolean }>>(
+      `/organizations/${orgId}/waiters/${waiterId}`
+    ),
+};
+
 export const supportApi = {
   get: (orgId: string) =>
     apiClient.get<ApiResponse<import('@/types/support').OrganizationSupportThread>>(`/organizations/${orgId}/support`),
@@ -1774,21 +1852,45 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
-  // Cash drawer
-  openCashDrawer: () =>
+  // Cash drawer: `payment` beim Barkassieren (immer erlaubt), sonst von Hand
+  // (Bedienungen brauchen dafür das Recht „Kassenlade“).
+  openCashDrawer: (reason: 'payment' | 'manual' = 'manual') =>
     apiClient.post<ApiResponse<{ success: boolean }>>(
       '/device-api/cash-drawer/open',
-      {},
+      { reason },
       { useDeviceAuth: true }
     ),
 
-  // PIN verification
+  // PIN verification (Alias von waiter-session, ältere Kassen)
   verifyPin: (pin: string) =>
     apiClient.post<ApiResponse<{ userId: string; firstName: string; lastName: string; role: string }>>(
       '/device-api/verify-pin',
       { pin },
       { useDeviceAuth: true }
     ),
+
+  // Bedienungen: Anmelden per PIN, aktuelle Sitzung, Sperren/Abmelden
+  startWaiterSession: (pin: string) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSessionResponse>>(
+      '/device-api/waiter-session',
+      { pin },
+      { useDeviceAuth: true }
+    ),
+  getWaiterSession: () =>
+    apiClient.get<
+      ApiResponse<Omit<import('@/types/waiter').WaiterSessionResponse, 'token'> | null> & {
+        meta?: { mode: import('@/types/waiter').WaiterMode };
+      }
+    >('/device-api/waiter-session', { useDeviceAuth: true }),
+  endWaiterSession: (reason: 'lock' | 'switch' | 'timeout' | 'logout') =>
+    apiClient.delete<ApiResponse<{ ended: boolean }>>('/device-api/waiter-session', {
+      useDeviceAuth: true,
+      body: JSON.stringify({ reason }),
+    }),
+  getWaiterTiles: () =>
+    apiClient.get<ApiResponse<import('@/types/waiter').DeviceWaiterTile[]>>('/device-api/waiters', {
+      useDeviceAuth: true,
+    }),
 
   // Order history
   getAllOrders: (params?: { status?: string; eventId?: string; page?: number; limit?: number }) => {

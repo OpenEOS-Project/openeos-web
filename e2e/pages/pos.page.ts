@@ -228,8 +228,28 @@ export class POSPage {
     await this.page.getByRole('menuitem', { name: item }).click();
   }
 
-  /** Benutzer-Chip: Kasse sperren (nur mit Geraete-PIN sichtbar). */
+  /** Chip der Bedienung (gemeinsame Kasse): Menue mit Wechseln/Sperren/Abmelden. */
+  waiterChip(): Locator {
+    return this.page.getByTestId('pos-waiter-chip');
+  }
+
+  /** Gemeinsame Kasse sperren (Chip → Sperren). */
   async lock() {
-    await this.page.getByRole('button', { name: 'Kasse sperren' }).click();
+    await this.waiterChip().click();
+    await this.page.getByRole('menuitem', { name: 'Sperren' }).click();
+    await expect(this.pinScreen).toBeVisible();
+  }
+
+  /** PIN-Bildschirm „Wer bedient?“. */
+  get pinScreen(): Locator {
+    return this.page.getByTestId('pos-pin-screen');
+  }
+
+  /** PIN tippen (Ziffernblock) und bestaetigen. */
+  async enterPin(pin: string) {
+    await expect(this.pinScreen).toBeVisible();
+    const keypad = this.pinScreen.getByRole('group', { name: 'Wer bedient?' });
+    for (const digit of pin) await keypad.getByRole('button', { name: digit, exact: true }).click();
+    if (pin.length < 6) await keypad.getByRole('button', { name: 'Bestätigen' }).click();
   }
 }

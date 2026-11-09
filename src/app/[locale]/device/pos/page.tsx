@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Banner, Icon, Spinner } from '@openeos/ui';
 import { isIntegrationEnabled } from '@/config/integrations';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
@@ -17,6 +17,7 @@ import { effectiveOrderingMode, resolveOperatingMode, tableCloseState } from '@/
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useCartStore } from '@/stores/cart-store';
 import { useDeviceHydration, useDeviceStore } from '@/stores/device-store';
+import { useWaiterSessionStore } from '@/stores/waiter-session-store';
 import type { PosTableContext } from '@/types/table';
 import { cashDrawerAvailable } from '@/utils/cash-drawer';
 import { resolveChargePfand } from '@/utils/pfand';
@@ -50,6 +51,9 @@ import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents, usePosTseStatu
 import { usePosTseOutage } from './hooks/use-pos-tse';
 import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
+import { useWaiterSession } from './hooks/use-waiter-session';
+import { WaiterChip } from './components/waiter-chip';
+import { foreignOwner, isMyTable, may, waiterLabel, type TableFilter } from '@/lib/waiters';
 
 type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'cashbook' | 'logout' | 'table' | 'emergency' | null;
 
@@ -107,8 +111,6 @@ function PosApp() {
     deviceName,
     settings,
     table: storedTable,
-    session,
-    setSession,
     setTable,
     posTheme,
     setPosTheme,
@@ -116,11 +118,16 @@ function PosApp() {
   } = useDeviceStore();
   const serviceMode = (settings?.serviceMode as string) || 'table';
   const deviceAreaId = (settings?.tableAreaId as string | undefined) ?? null;
-  const requirePin = !!settings?.requirePin;
   const cart = useCartStore();
   const { eventId, setEventId } = cart;
 
   const [sheet, setSheet] = useState<SheetId>(null);
+  // Bedienungen (bedienungen-plan.md §6): keine automatische Sperre,
+  // solange ein Bezahl-Blatt (auch SumUp) offen ist.
+  const waiterSession = useWaiterSession({ busy: sheet === 'pay' || sheet === 'split' });
+  const { mode: waiterMode, waiter } = waiterSession;
+  const sharedTill = waiterMode === 'shared';
+  const [tableFilter, setTableFilter] = useState<TableFilter>('mine');
   const [carryDefault, setCarryDefault] = useState(false);
   const [done, setDone] = useState<DoneInfo | null>(null);
   const [printing, setPrinting] = useState(false);
@@ -135,7 +142,7 @@ function PosApp() {
     setBroadcasts((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
-  const socketOptions = usePosSocketEvents(eventId, handleBroadcast);
+  const socketOptions = usePosSocketEvents(eventId, handleBroadcast, waiterSession.onWaiterUpdated);
   const { socket, isConnected } = useDeviceSocket(socketOptions);
   const connection = usePosConnection(isConnected);
   const offline = connection === 'offline';
@@ -218,6 +225,22 @@ function PosApp() {
     // „Nur Bons“: keine offenen Beträge — der Tisch ist nur „offen“.
     return orderOnly ? entries.map((entry) => ({ ...entry, amount: 0 })) : entries;
   }, [tablesEnabled, tableStatus.status, cart.parked, eventId, chargePfand, orderOnly]);
+  // Bedienungen (Kurzname, Farbe) für Tischbesitz und Hinweise.
+  const waiterTiles = useQuery({
+    queryKey: ['device-waiters'],
+    queryFn: () => deviceApi.getWaiterTiles(),
+    enabled: waiterMode !== 'off',
+    staleTime: 60_000,
+  }).data?.data;
+  const waiterById = useMemo(() => new Map((waiterTiles ?? []).map((w) => [w.id, w])), [waiterTiles]);
+  // „Meine Tische“ (gemeinsame Kasse): meine und noch niemandem zugeordnete.
+  const visibleOpenTables = useMemo(
+    () =>
+      sharedTill && waiter?.waiterId && tableFilter === 'mine'
+        ? openTables.filter((entry) => isMyTable(entry, waiter.waiterId))
+        : openTables,
+    [openTables, sharedTill, waiter?.waiterId, tableFilter],
+  );
 
   // Offene Bestellungen des Kontexts: Tisch → Abschnitt „Gesendet“;
   // Theke + `tab` → Zähler „Offene Bestellungen“.
@@ -290,6 +313,12 @@ function PosApp() {
       setTable(next);
       if (next?.kind === 'table' && eventId) {
         const entry = openTables.find((e) => e.context.kind === 'table' && e.context.key === next.key);
+        // Fremder Tisch: buchen und kassieren erlaubt, mit Hinweis (E6).
+        const owner = foreignOwner(entry, useWaiterSessionStore.getState().waiter?.waiterId);
+        if (owner) {
+          const tile = waiterById.get(owner);
+          toast(t('waiter.foreignTable', { name: tile ? waiterLabel({ name: tile.shortName }) : '?' }));
+        }
         if (entry?.state === 'wait') {
           deviceTablesApi
             .acknowledge({ tableKey: next.key, eventId })
@@ -298,7 +327,7 @@ function PosApp() {
         }
       }
     },
-    [eventId, openTables, queryClient, setTable],
+    [eventId, openTables, queryClient, setTable, waiterById, toast, t],
   );
 
   const serve = async (itemIds: string[]) => {
@@ -337,10 +366,9 @@ function PosApp() {
     }
   };
 
-  const lock = () => {
+  const lock = (reason: 'lock' | 'switch' | 'logout' = 'lock') => {
     setSheet(null);
-    setSession(null);
-    toast(t('header.locked'), 'danger');
+    void waiterSession.lock(reason);
   };
 
   const handleLogout = async () => {
@@ -352,7 +380,9 @@ function PosApp() {
   const nextReceipt = useCallback(() => {
     setDone(null);
     if (tablesEnabled) openContext(null);
-  }, [tablesEnabled, openContext]);
+    // „Nach jedem Kassieren sperren“ (Theke).
+    if (waiterSession.lockAfterPayment) void waiterSession.lock('lock');
+  }, [tablesEnabled, openContext, waiterSession]);
 
   const print = async (orderIds: string[]) => {
     setPrinting(true);
@@ -366,8 +396,29 @@ function PosApp() {
     }
   };
 
-  if (requirePin && !session) {
-    return <PinEntryScreen deviceName={deviceName || 'POS'} onSuccess={setSession} onLogout={handleLogout} />;
+  if (sharedTill && !waiter) {
+    return (
+      <PinEntryScreen
+        deviceName={deviceName || 'POS'}
+        onSuccess={waiterSession.signIn}
+        onLogout={handleLogout}
+        offline={offline}
+        lockReason={waiterSession.lockReason}
+        parkedFor={waiterSession.parkedFor}
+        tiles={waiterSession.tiles}
+      />
+    );
+  }
+  if (waiterMode === 'personal' && waiterSession.personal === 'unassigned') {
+    return (
+      <div className="pos-blocked" data-testid="pos-waiter-unassigned">
+        <div className="oe-card">
+          <Icon name="lock" size={28} />
+          <h1>{t('waiter.unassignedTitle')}</h1>
+          <p>{t('waiter.unassignedText')}</p>
+        </div>
+      </div>
+    );
   }
 
   const totals = checkoutTotals(cart, chargePfand, sentOrders);
@@ -378,10 +429,10 @@ function PosApp() {
       ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }]
       : []),
     // Kassenbuch (Anfangsbestand, Einlage, Entnahme, Kassensturz): nur mit Bargeld.
-    ...(operating.cashAllowed && !orderOnly
+    ...(operating.cashAllowed && !orderOnly && may(waiter, 'cashbook')
       ? [{ id: 'cashbook', icon: 'note' as const, label: t('menu.cashbook'), onSelect: () => setSheet('cashbook') }]
       : []),
-    ...(!orderOnly && cashDrawerAvailable({ settings, cashless })
+    ...(!orderOnly && cashDrawerAvailable({ settings, cashless }) && may(waiter, 'cashDrawer')
       ? [{
           id: 'drawer',
           icon: 'drawer' as const,
@@ -459,8 +510,10 @@ function PosApp() {
         mode={startMode}
         areas={areas}
         view={selectView}
-        openTables={openTables}
+        openTables={visibleOpenTables}
         openTablesLoading={tableStatus.isLoading}
+        tableFilter={sharedTill && waiter?.waiterId ? { value: tableFilter, onChange: setTableFilter } : undefined}
+        waiters={waiterById}
         staleSince={connection === 'online' ? null : tableStatus.updatedAt}
         onOpen={(next) => openContext(next)}
       />
@@ -486,8 +539,18 @@ function PosApp() {
           connection={connection}
           printer={printer}
           tse={posTseState(tseStatus, tseOutage)}
-          user={requirePin ? session : null}
-          onLock={lock}
+          user={null}
+          waiter={
+            waiter ? (
+              <WaiterChip
+                waiter={waiter}
+                shared={sharedTill}
+                onSwitch={() => lock('switch')}
+                onLock={() => lock('lock')}
+                onSignOut={() => lock('logout')}
+              />
+            ) : undefined
+          }
           menu={menu}
           theme={posTheme ?? 'system'}
           onThemeChange={setPosTheme}

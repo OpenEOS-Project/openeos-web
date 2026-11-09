@@ -258,8 +258,8 @@ export interface OrderDetail {
 
 /** Wer die Aktion an der Kasse auslöst (Berechtigung „Nur mit PIN“). */
 export interface DeviceActor {
+  /** PIN einer Freigabe (Schichtleitung bzw. Mitglied mit Recht „Bestellungen“). */
   pin?: string;
-  operatorUserId?: string;
 }
 
 export interface CancelItemsData extends DeviceActor {

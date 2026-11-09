@@ -6,6 +6,8 @@ import { Banner, Button, Icon } from '@openeos/ui';
 import type { DeviceTableArea, PosTableContext } from '@/types/table';
 import { tableContext, type OpenTableEntry, type TableSelectView } from '../utils/tables';
 import { OpenTablesAside } from './open-tables-aside';
+import type { TableFilter } from '@/lib/waiters';
+import type { DeviceWaiterTile } from '@/types/waiter';
 import { TableFloor } from './table-floor';
 import { TableList } from './table-list';
 import { TableNumberEntry } from './table-number-entry';
@@ -26,6 +28,10 @@ interface PosStartViewProps {
   /** Ohne Live-Verbindung: Stand des Tischstatus. */
   staleSince?: number | null;
   onOpen: (context: PosTableContext) => void;
+  /** Gemeinsame Kasse: Filter „Meine / Alle“ für „Offene Tische“. */
+  tableFilter?: { value: TableFilter; onChange: (value: TableFilter) => void };
+  /** Bedienungen (Kurzname, Farbe) für den Tischbesitz. */
+  waiters?: Map<string, DeviceWaiterTile>;
 }
 
 /**
@@ -34,7 +40,17 @@ interface PosStartViewProps {
  * Suche in den Tischen), Tischliste je Bereich oder Karte —, dazu „Ohne
  * Tisch“ (Theke, To-go) und rechts „Offene Tische“.
  */
-export function PosStartView({ mode, areas, view, openTables, openTablesLoading, staleSince, onOpen }: PosStartViewProps) {
+export function PosStartView({
+  mode,
+  areas,
+  view,
+  openTables,
+  openTablesLoading,
+  staleSince,
+  onOpen,
+  tableFilter,
+  waiters,
+}: PosStartViewProps) {
   const t = useTranslations('pos.tables');
   const tOrder = useTranslations('pos.order');
   const tFloor = useTranslations('pos.floor');
@@ -123,6 +139,8 @@ export function PosStartView({ mode, areas, view, openTables, openTablesLoading,
         onOpen={open}
         isLoading={openTablesLoading}
         staleSince={staleSince}
+        filter={tableFilter}
+        waiters={waiters}
       />
     </section>
   );

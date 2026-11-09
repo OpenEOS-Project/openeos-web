@@ -108,6 +108,8 @@ export interface OrganizationSettings {
     customerDisplay?: { enabled: boolean };
     autoComplete?: { enabled: boolean };
   };
+  /** Bedienungen (Kassenprofile mit PIN). */
+  waiters?: import('./waiter').OrganizationWaiterSettings;
 }
 
 export interface BillingAddress {
