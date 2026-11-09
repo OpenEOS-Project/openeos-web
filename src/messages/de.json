@@ -954,7 +954,7 @@
         "menuImport": "Speisekarte importieren – aus Foto, PDF oder Text wird ein Vorschlag für Kategorien und Produkte, den du vor dem Anlegen prüfst.",
         "icons": "Icon-Vorschläge – passende Produkt-Icons zum Produktnamen, im Formular und beim Import."
       },
-      "privacy": "Dafür werden die hochgeladenen Inhalte (Speisekarten, Produktnamen) an einen externen Anbieter übertragen und dort nur für die Dauer der Verarbeitung gespeichert. Mehr dazu in der <link>Datenschutzerklärung</link>.",
+      "privacy": "Dafür werden die hochgeladenen Inhalte (Speisekarten, Produktnamen) an den Anbieter des Sprachmodells übertragen. Wer das ist, wo die Daten verarbeitet werden und ob der Anbieter sie speichert, steht in der <link>Datenschutzerklärung</link>.",
       "adminOnly": "Nur Admins der Organisation können die Funktionen ein- oder ausschalten.",
       "quota": {
         "title": "Tageskontingent",
@@ -1013,6 +1013,8 @@
         "staff:write": "Schichtpläne bearbeiten",
         "devices:write": "Bon-Vorlagen bearbeiten",
         "settings:write": "Einstellungen ändern",
+        "webhooks:read": "Webhooks lesen",
+        "webhooks:write": "Webhooks verwalten",
         "monitoring:read": "Plattform-Kennzahlen"
       },
       "scopeDescriptions": {
@@ -1023,6 +1025,8 @@
         "staff:write": "Schichtpläne, Jobs, Schichten und Helfer-Anmeldungen bearbeiten",
         "devices:write": "Bon-Vorlagen anlegen und ändern",
         "settings:write": "Organisationseinstellungen ändern",
+        "webhooks:read": "Webhooks und ihre Zustellungen lesen",
+        "webhooks:write": "Webhooks anlegen, ändern, testen und erneut senden (kein Löschen)",
         "monitoring:read": "Plattform-Kennzahlen lesen (Super-Admin)"
       },
       "createDialog": {
@@ -1071,7 +1075,239 @@
         "status": "Status",
         "actions": "Aktionen"
       },
-      "revokeTitle": "„{name}“ widerrufen"
+      "revokeTitle": "„{name}“ widerrufen",
+      "webhooksLink": "Webhooks"
+    },
+    "organizationWebhooks": {
+      "tab": "Webhooks",
+      "title": "Webhooks",
+      "description": "Nachrichten an andere Programme, sobald in deiner Organisation etwas passiert.",
+      "intro": "Ein Webhook schickt bei jedem gewählten Ereignis – etwa einer bezahlten Bestellung – eine signierte HTTPS-Anfrage an eine Adresse deiner Wahl. So bleiben Buchhaltung, Warenwirtschaft oder eigene Skripte auf dem Laufenden, ohne ständig nachzufragen.",
+      "docsLink": "Anleitung: Webhooks",
+      "adminOnly": "Webhooks kann nur ein Admin der Organisation sehen und anlegen.",
+      "loadError": "Die Webhooks konnten nicht geladen werden.",
+      "disabled": {
+        "title": "Webhooks sind auf diesem Server ausgeschaltet",
+        "text": "Es wird nichts zugestellt, und du kannst keine Webhooks anlegen oder testen. Wer den Server betreibt, schaltet sie mit WEBHOOKS_ENABLED=true ein."
+      },
+      "count": "{count} von {limit} Webhooks",
+      "create": "Webhook anlegen",
+      "empty": "Noch kein Webhook angelegt.",
+      "emptyHint": "Lege einen an, um zum Beispiel bei jeder bezahlten Bestellung eine Nachricht an dein Programm zu schicken.",
+      "noDescription": "ohne Beschreibung",
+      "limit": {
+        "title": "Höchstzahl erreicht",
+        "text": "Du hast {limit} Webhooks – mehr sind nicht möglich. Lösche einen, um einen neuen anzulegen."
+      },
+      "status": {
+        "active": "Aktiv",
+        "paused": "Pausiert",
+        "auto_disabled": "Automatisch deaktiviert",
+        "failing": "Fehler seit {date}",
+        "failingCount": "{count, plural, one {# Fehler} other {# Fehler in Folge}}"
+      },
+      "eventCount": "{count, plural, one {# Ereignis} other {# Ereignisse}}",
+      "table": {
+        "url": "Adresse",
+        "events": "Ereignisse",
+        "status": "Status",
+        "lastDelivery": "Letzte Zustellung",
+        "actions": "Aktionen"
+      },
+      "lastDelivery": {
+        "never": "noch keine",
+        "succeeded": "zugestellt",
+        "failed": "fehlgeschlagen"
+      },
+      "actions": {
+        "edit": "Bearbeiten",
+        "test": "Test senden",
+        "rotate": "Secret erneuern",
+        "delete": "Löschen",
+        "deliveries": "Zustellungen ansehen"
+      },
+      "actionLabel": "{action}: {url}",
+      "testQueued": "Test verschickt – das Ergebnis steht gleich in den Zustellungen.",
+      "deleted": "Webhook gelöscht.",
+      "updated": "Webhook gespeichert.",
+      "secretLabel": "Secret",
+      "form": {
+        "createTitle": "Webhook anlegen",
+        "editTitle": "Webhook bearbeiten",
+        "url": "Adresse (URL)",
+        "urlPlaceholder": "https://example.org/openeos/webhook",
+        "urlHint": "Nur https. Adressen in privaten Netzen (etwa 192.168.…) nimmt der Server nicht an.",
+        "urlHintHttp": "Dieser Server nimmt auch http an – nutze trotzdem https, wo es geht. Adressen in privaten Netzen (etwa 192.168.…) nimmt er nicht an.",
+        "urlHintPrivate": "Nur https. Dieser Server nimmt auch Adressen im lokalen Netz an (etwa 192.168.…).",
+        "urlHintHttpPrivate": "Dieser Server nimmt auch http und Adressen im lokalen Netz an – nutze trotzdem https, wo es geht.",
+        "urlErrors": {
+          "required": "Gib die Adresse ein, an die OpenEOS senden soll.",
+          "too_long": "Die Adresse ist zu lang – höchstens 2048 Zeichen.",
+          "invalid": "Das ist keine gültige Adresse.",
+          "not_https": "Die Adresse muss mit https:// beginnen.",
+          "credentials": "Benutzername und Passwort gehören nicht in die Adresse.",
+          "private_address": "Die Adresse zeigt in ein privates Netz – das ist nicht erlaubt.",
+          "unresolvable": "Die Adresse lässt sich nicht auflösen. Stimmt der Rechnername?"
+        },
+        "description": "Beschreibung",
+        "optional": "optional",
+        "descriptionPlaceholder": "z. B. Buchhaltung, Zapier, Vereins-Skript",
+        "events": "Ereignisse",
+        "eventsRequired": "Wähle mindestens ein Ereignis.",
+        "eventsSelected": "{count, plural, =0 {nichts gewählt} one {# gewählt} other {# gewählt}}",
+        "selectAll": "Alle auswählen",
+        "selectNone": "Keine",
+        "selectAllIn": "Alle in „{group}“ auswählen",
+        "selectNoneIn": "Keine in „{group}“",
+        "amountsTag": "Beträge",
+        "amountsNote": "In der Betriebsart „Nur Bons“ fehlen bei den mit „Beträge“ markierten Ereignissen alle Beträge und Preise.",
+        "groups": {
+          "orders": "Bestellungen",
+          "payments": "Zahlungen und Erstattungen",
+          "shop": "Online-Shop",
+          "pfand": "Pfand",
+          "events": "Veranstaltungen",
+          "fiscal": "Kassenabschlüsse",
+          "catalog": "Produkte"
+        },
+        "options": "Optionen",
+        "active": "Aktiv",
+        "activeHint": "Pausierte Webhooks bekommen keine Ereignisse. „Test senden“ geht trotzdem.",
+        "autoDisabledHint": "Am {date} automatisch deaktiviert, weil die Zustellungen dauerhaft fehlschlugen. Schaltest du ihn wieder ein, beginnt die Zählung von vorn.",
+        "guestData": "Gästedaten mitsenden",
+        "guestDataHint": "Name, Telefonnummer und Notizen deiner Gäste gehen dann an das fremde Programm. Du bist dafür verantwortlich, dass das datenschutzrechtlich erlaubt ist – etwa mit einem Vertrag zur Auftragsverarbeitung.",
+        "testOrders": "Testbestellungen mitsenden",
+        "testOrdersHint": "Auch Bestellungen aus Testmodus und Planungsphase, gekennzeichnet mit isTest: true.",
+        "submitCreate": "Webhook anlegen",
+        "submitEdit": "Speichern",
+        "pending": "Speichert…",
+        "infoError": "Die Ereignisse konnten nicht geladen werden."
+      },
+      "secret": {
+        "createdTitle": "Webhook angelegt",
+        "rotatedTitle": "Neues Secret",
+        "onceTitle": "Jetzt kopieren – das Secret wird nur einmal angezeigt",
+        "onceText": "Damit prüft dein Empfänger die Signatur in der Kopfzeile OpenEOS-Signature. Bewahre es sicher auf, zum Beispiel in einem Passwort-Manager. Geht es verloren, erneuere es.",
+        "previousValid": "Das alte Secret gilt noch bis {date} – bis dahin signiert OpenEOS mit beiden.",
+        "copy": "Kopieren",
+        "copied": "Kopiert",
+        "copyFailed": "Kopieren ging nicht – markiere das Secret und kopiere es von Hand.",
+        "done": "Fertig"
+      },
+      "rotateDialog": {
+        "title": "Secret erneuern?",
+        "text": "OpenEOS erzeugt ein neues Secret und zeigt es dir genau einmal an. Das alte bleibt noch 24 Stunden gültig – so lange trägt jede Zustellung beide Signaturen, und du kannst deinen Empfänger ohne Ausfall umstellen.",
+        "confirm": "Secret erneuern",
+        "pending": "Erneuert…"
+      },
+      "deleteDialog": {
+        "title": "Webhook löschen?",
+        "text": "An {url} geht danach nichts mehr, auch ausstehende Zustellungen nicht. Das Zustellprotokoll wird mit gelöscht. Das lässt sich nicht rückgängig machen.",
+        "confirm": "Löschen",
+        "pending": "Löscht…"
+      },
+      "deliveries": {
+        "pageTitle": "Webhook-Zustellungen",
+        "title": "Zustellungen",
+        "back": "Zurück zu den Webhooks",
+        "retention": "Das Protokoll reicht {days} Tage zurück. Fehlgeschlagene Zustellungen versucht OpenEOS bis zu {attempts}-mal, verteilt über etwa 24 Stunden.",
+        "filterStatus": "Status",
+        "allStatuses": "Alle Status",
+        "filterEvent": "Ereignis",
+        "allEvents": "Alle Ereignisse",
+        "empty": "Noch keine Zustellungen. Mit „Test senden“ schickst du eine Probe.",
+        "emptyFiltered": "Keine Zustellungen für diesen Filter.",
+        "loadError": "Die Zustellungen konnten nicht geladen werden.",
+        "notFound": "Diesen Webhook gibt es nicht (mehr).",
+        "status": {
+          "succeeded": "Zugestellt",
+          "pending": "Ausstehend",
+          "delivering": "Wird gesendet",
+          "failed": "Fehlgeschlagen"
+        },
+        "table": {
+          "status": "Status",
+          "event": "Ereignis",
+          "http": "HTTP",
+          "duration": "Dauer",
+          "attempts": "Versuche",
+          "nextAttempt": "Nächster Versuch",
+          "time": "Zeitpunkt",
+          "details": "Details"
+        },
+        "attempts": "{attempts}/{max}",
+        "attemptsLong": "Versuch {attempts} von {max}",
+        "durationMs": "{value} ms",
+        "durationS": "{value} s",
+        "manual": "manuell",
+        "count": "{count, plural, one {# Zustellung} other {# Zustellungen}}",
+        "prev": "Zurück",
+        "next": "Weiter",
+        "pageOf": "Seite {page} von {totalPages}",
+        "refresh": "Aktualisieren",
+        "showDetails": "Details zur Zustellung {event} vom {time}",
+        "endpoint": {
+          "url": "Adresse",
+          "events": "Ereignisse",
+          "secret": "Secret",
+          "previousSecret": "altes Secret gültig bis {date}",
+          "created": "Angelegt",
+          "createdBy": "Angelegt am {date} von {name}",
+          "createdOn": "Angelegt am {date}",
+          "options": "Optionen",
+          "guestData": "mit Gästedaten",
+          "testOrders": "mit Testbestellungen",
+          "noOptions": "ohne Gästedaten und Testbestellungen",
+          "lastSuccess": "Zuletzt erfolgreich"
+        },
+        "autoDisabled": {
+          "title": "Automatisch deaktiviert",
+          "text": "Seit {date} schlugen die Zustellungen dauerhaft fehl. Prüfe deinen Empfänger und schalte den Webhook dann wieder ein. Fehlgeschlagene Zustellungen kannst du einzeln erneut senden.",
+          "reactivate": "Wieder einschalten",
+          "reactivated": "Webhook wieder eingeschaltet."
+        },
+        "detail": {
+          "title": "Zustellung",
+          "eventId": "Ereignis-ID",
+          "deliveryId": "Zustellungs-ID",
+          "status": "Status",
+          "http": "HTTP-Status",
+          "duration": "Dauer",
+          "attempts": "Versuche",
+          "nextAttempt": "Nächster Versuch",
+          "created": "Erstellt",
+          "lastAttempt": "Letzter Versuch",
+          "error": "Fehler",
+          "redeliveryOf": "Erneut gesendet von",
+          "payload": "Inhalt (JSON)",
+          "response": "Antwort des Empfängers",
+          "responseHint": "erste 1 KB",
+          "noResponse": "Keine Antwort erhalten.",
+          "attemptLog": "Versuche",
+          "noAttempts": "Noch kein Versuch.",
+          "redeliver": "Erneut senden",
+          "redelivering": "Sendet…",
+          "redelivered": "Zustellung neu in die Warteschlange gestellt.",
+          "loadError": "Die Zustellung konnte nicht geladen werden.",
+          "copyPayload": "Inhalt kopieren",
+          "copied": "Kopiert"
+        },
+        "errors": {
+          "TIMEOUT": "Zeitüberschreitung (10 s)",
+          "CONNECTION_FAILED": "Verbindung fehlgeschlagen",
+          "DNS_FAILED": "Adresse nicht auflösbar (DNS)",
+          "TLS_FAILED": "Sichere Verbindung fehlgeschlagen (TLS-Zertifikat)",
+          "BLOCKED_ADDRESS": "Ziel-Adresse nicht erlaubt (privates Netz)",
+          "REDIRECT_NOT_FOLLOWED": "Weiterleitung (3xx) wird nicht verfolgt",
+          "HTTP_ERROR": "Antwort ohne 2xx-Status",
+          "ENDPOINT_INACTIVE": "Webhook war deaktiviert",
+          "ENDPOINT_DELETED": "Webhook wurde gelöscht",
+          "INTERNAL": "Interner Fehler bei OpenEOS"
+        }
+      },
+      "eventTypes": {
+        "ping": "Test von OpenEOS (nur über „Test senden“)"
+      }
     },
     "organizationMode": {
       "tab": "Betriebsart"
@@ -4359,6 +4595,12 @@
     "EVENT_EARLY_START_INVALID": "Der Vorlauf muss zwischen 0 und {max} Stunden liegen.",
     "SHOP_PRESALE_DISABLED": "Der Shop nimmt noch keine Bestellungen an – der Verkauf startet mit der Veranstaltung.",
     "PLANNED_TEST_LIMIT_REACHED": "Test-Limit im Testbetrieb erreicht ({maxOrders} Testbestellungen). Echte Verkäufe starten mit dem Verkaufsstart der Veranstaltung.",
+    "WEBHOOK_NOT_FOUND": "Diesen Webhook gibt es nicht (mehr).",
+    "WEBHOOK_DELIVERY_NOT_FOUND": "Diese Zustellung gibt es nicht (mehr).",
+    "WEBHOOK_LIMIT_REACHED": "Du hast schon {limit} Webhooks – mehr sind nicht möglich. Lösche einen, um einen neuen anzulegen.",
+    "WEBHOOK_URL_INVALID": "Diese Adresse nimmt der Server nicht an.",
+    "WEBHOOK_EVENT_TYPE_INVALID": "Mindestens ein gewähltes Ereignis kennt dieser Server nicht. Lade die Seite neu und versuche es noch einmal.",
+    "WEBHOOKS_DISABLED": "Webhooks sind auf diesem Server ausgeschaltet.",
     "PIN_NOT_AVAILABLE": "Diese PIN ist nicht verfügbar. Wähle eine andere (keine einfachen Folgen wie 1234 oder 0000).",
     "PIN_LOCKED": "Zu viele falsche PINs. Versuche es in {retryAfterSeconds} Sekunden noch einmal.",
     "PIN_DEVICE_LOCKED": "Die PIN-Eingabe an diesem Gerät ist gesperrt. Ein Admin gibt sie unter Geräte wieder frei.",
