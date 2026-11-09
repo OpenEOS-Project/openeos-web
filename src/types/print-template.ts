@@ -21,6 +21,8 @@ export type TemplateFieldType =
   | 'daily_number'
   | 'table_number'
   | 'customer_name'
+  | 'waiter_name'
+  | 'device_name'
   | 'date_time'
   | 'items_list'
   | 'subtotal'

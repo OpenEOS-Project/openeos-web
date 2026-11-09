@@ -75,6 +75,8 @@ function getKitchenDefault(): TemplateElement[] {
     { id: nextId(), type: 'field', field: 'priority', align: 'center' },
     { id: nextId(), type: 'separator', char: '-' },
     { id: nextId(), type: 'field', field: 'date_time', label: 'Bestellt: ' },
+    // Wer die Bestellung aufgenommen hat — nur wenn bekannt.
+    { id: nextId(), type: 'field', field: 'waiter_name', label: 'Bedienung: ', condition: 'waiter_name' },
     { id: nextId(), type: 'separator', char: '=' },
     // Produkte gross + fett, damit sie aus der Ferne lesbar sind
     { id: nextId(), type: 'field', field: 'items_list', big: true, bold: true, showNotes: true, showKitchenNotes: true, showOptions: true, showPrice: false },

@@ -15,6 +15,8 @@ const CONDITION_OPTIONS = [
   { value: '', labelKey: 'conditionAlways' },
   { value: 'table_number', labelKey: 'conditionTableNumber' },
   { value: 'customer_name', labelKey: 'conditionCustomerName' },
+  { value: 'waiter_name', labelKey: 'conditionWaiterName' },
+  { value: 'device_name', labelKey: 'conditionDeviceName' },
   { value: 'event_name', labelKey: 'conditionEventName' },
   { value: 'organization.address', labelKey: 'conditionAddress' },
   { value: 'organization.phone', labelKey: 'conditionPhone' },

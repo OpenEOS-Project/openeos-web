@@ -19,6 +19,9 @@ export const PALETTE_ITEMS: PaletteItem[] = [
   { type: 'field', field: 'daily_number', labelKey: 'fields.daily_number', icon: 'hash', category: 'order' },
   { type: 'field', field: 'table_number', labelKey: 'fields.table_number', icon: 'layout-grid', category: 'order' },
   { type: 'field', field: 'customer_name', labelKey: 'fields.customer_name', icon: 'user', category: 'order' },
+  // Wer die Bestellung aufgenommen hat (Idee: openeos-web#15).
+  { type: 'field', field: 'waiter_name', labelKey: 'fields.waiter_name', icon: 'user', category: 'order' },
+  { type: 'field', field: 'device_name', labelKey: 'fields.device_name', icon: 'phone', category: 'order' },
   { type: 'field', field: 'production_station', labelKey: 'fields.production_station', icon: 'marker-pin', category: 'order' },
   { type: 'field', field: 'order_channel', labelKey: 'fields.order_channel', icon: 'marker-pin', category: 'order' },
   { type: 'field', field: 'date_time', labelKey: 'fields.date_time', icon: 'clock', category: 'order' },
