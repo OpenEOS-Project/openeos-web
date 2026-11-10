@@ -436,8 +436,12 @@ function PosApp() {
   const print = async (orderIds: string[]) => {
     setPrinting(true);
     try {
-      for (const id of orderIds) await deviceApi.reprintOrder(id, 'receipt');
-      toast(t('done.printed'));
+      let printed = true;
+      for (const id of orderIds) {
+        const res = await deviceApi.reprintOrder(id, 'receipt');
+        if (res.data?.printed === false) printed = false;
+      }
+      toast(printed ? t('done.printed') : t('receiptHandout.noPrinter'), printed ? undefined : 'danger');
     } catch {
       toast(t('done.printFailed'), 'danger');
     } finally {

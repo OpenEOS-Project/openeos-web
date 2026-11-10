@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Icon, Receipt, type ReceiptLine } from '@openeos/ui';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { TseReceiptBlock } from '@/components/tse/tse-receipt-block';
 import type { TseReceiptView } from '@/types/tse';
+import { doneSheetAutoCloses, receiptAvailable } from '@/lib/receipt';
 import { PosSheet } from './pos-sheet';
+import { ReceiptHandout, type HandoutView } from './receipt-handout';
 
 export interface DoneInfo {
   /** Bestellung(en), auf die sich der Bon bezieht. */
@@ -39,12 +41,22 @@ interface DoneSheetProps {
   onPrint: (orderIds: string[]) => void;
   printing: boolean;
   onNext: () => void;
+  /** Weitere Beleg-Knöpfe (z. B. „Bewirtungsbeleg“). */
+  extraHandout?: (orderIds: string[], helpers: { interact: () => void }) => ReactNode;
+  /** Ansicht des Beleg-Bereichs von außen setzen. */
+  handoutView?: HandoutView;
+  onHandoutViewChange?: (view: HandoutView) => void;
 }
 
-/** Ohne Rückgeld schließt das Blatt nach 5 s von selbst. */
+/**
+ * Ohne Rückgeld schließt das Blatt nach 5 s von selbst — aber nur, wenn
+ * der Kassenbon schon automatisch gedruckt wurde. Sonst muss der Beleg
+ * angeboten werden (Belegausgabepflicht § 146a Abs. 2 AO): das Blatt
+ * bleibt, bis „Kein Beleg“ oder ein Beleg gewählt ist.
+ */
 const AUTO_CLOSE_MS = 5000;
 
-/** Abschluss: „Bezahlt“, Betrag/Zahlart/Rückgeld, Bon-Vorschau, Druck, Nächster Bon. */
+/** Abschluss: „Bezahlt“, Betrag/Zahlart/Rückgeld, Bon-Vorschau, Beleg (QR/E-Mail/Druck), Nächster Bon. */
 export function DoneSheet({
   info,
   title,
@@ -56,17 +68,29 @@ export function DoneSheet({
   onPrint,
   printing,
   onNext,
+  extraHandout,
+  handoutView,
+  onHandoutViewChange,
 }: DoneSheetProps) {
   const t = useTranslations('pos.done');
   const formatPrice = useFormatPrice();
 
   const hasChange = !!info && info.method === 'cash' && info.change > 0.0001;
+  // „Ohne Zahlung abschließen“ hat keinen Kassenbeleg.
+  const hasReceipt = !!info && receiptAvailable(info.method, info.orderIds);
+  const [interacted, setInteracted] = useState(false);
+  useEffect(() => {
+    setInteracted(false);
+  }, [info]);
+  // Nach der Zahlung steht der QR-Code sofort da. Selbst schließen nur,
+  // wenn der Bon schon gedruckt ist (oder es keinen Beleg gibt).
+  const autoClose = doneSheetAutoCloses({ hasChange, interacted, autoPrinted, receiptAvailable: hasReceipt });
 
   useEffect(() => {
-    if (!info || hasChange) return;
+    if (!info || !autoClose) return;
     const timer = window.setTimeout(onNext, AUTO_CLOSE_MS);
     return () => window.clearTimeout(timer);
-  }, [info, hasChange, onNext]);
+  }, [info, autoClose, onNext]);
 
   if (!info) return null;
 
@@ -113,14 +137,24 @@ export function DoneSheet({
             ) : undefined
           }
         />
+        {hasReceipt && (
+          <ReceiptHandout
+            key={info.orderIds.join(',')}
+            orderIds={info.orderIds}
+            canPrint={canPrint}
+            autoPrinted={autoPrinted}
+            onPrint={() => onPrint(info.orderIds)}
+            printing={printing}
+            onInteract={() => setInteracted(true)}
+            extra={extraHandout?.(info.orderIds, { interact: () => setInteracted(true) })}
+            view={handoutView}
+            onViewChange={onHandoutViewChange}
+            autoQr
+            onNoReceipt={onNext}
+          />
+        )}
         <div className="pos-done__act">
-          {canPrint && info.orderIds.length > 0 && (
-            <Button variant="ghost" loading={printing} onClick={() => onPrint(info.orderIds)}>
-              {!printing && <Icon name="print" />}
-              {autoPrinted ? t('reprint') : t('print')}
-            </Button>
-          )}
-          <Button variant="primary" className="oe-grow" onClick={onNext}>
+          <Button variant="primary" className="oe-grow" onClick={onNext} data-testid="done-next">
             {t('next')}
             <Icon name="arrow-right" />
           </Button>

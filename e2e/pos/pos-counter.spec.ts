@@ -67,8 +67,14 @@ test.describe('POS - counter device', () => {
     await pos.payCash('Passend');
     await expect(pos.paySheet).toContainText(/Rückgeld 0,00\s€/);
     await pos.completePayment();
-    // Ohne Rückgeld schließt der Abschluss nach 5 s von selbst.
-    await expect(pos.doneSheet).toHaveCount(0, { timeout: 10_000 });
+    // Ohne automatischen Bon bleibt der Abschluss mit dem QR-Code des
+    // Belegs stehen (Belegausgabepflicht), bis „Kein Beleg“ oder
+    // „Nächster Bon“ gewählt ist.
+    await expect(pos.doneSheet.getByRole('img', { name: 'QR-Code zum Beleg' })).toBeVisible();
+    await page.waitForTimeout(5_500);
+    await expect(pos.doneSheet).toBeVisible();
+    await pos.doneSheet.getByRole('button', { name: 'Kein Beleg' }).click();
+    await expect(pos.doneSheet).toHaveCount(0);
     await pos.openCart();
     await expect(pos.cart).toContainText('Warenkorb ist leer');
   });
