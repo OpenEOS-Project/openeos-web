@@ -7,7 +7,6 @@ import {
   isV0QrPayload,
   outageFromViews,
   percentOf,
-  posTseState,
   quotedEventNames,
   processDataTotal,
   receiptTseViews,
@@ -497,24 +496,6 @@ test.describe('integration availability', () => {
   test('SumUp stays available everywhere', () => {
     const sumup = INTEGRATIONS.find((i) => i.id === 'sumup')!;
     expect(integrationAvailability(sumup, { country: 'AT' })).toBe('available');
-  });
-});
-
-test.describe('POS TSE pill', () => {
-  test('hidden without the integration', () => {
-    expect(posTseState(null, false)).toBeNull();
-    expect(posTseState(undefined, true)).toBeNull();
-  });
-
-  test('follows the server state', () => {
-    expect(posTseState({ state: 'ok' }, false)).toBe('ok');
-    expect(posTseState({ state: 'creating' }, false)).toBe('creating');
-    expect(posTseState({ state: 'inactive' }, false)).toBe('inactive');
-    expect(posTseState({ state: 'error' }, false)).toBe('error');
-  });
-
-  test('an unsigned transaction of this till turns it red before the server reports it', () => {
-    expect(posTseState({ state: 'ok' }, true)).toBe('error');
   });
 });
 

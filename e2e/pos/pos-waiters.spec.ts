@@ -10,6 +10,7 @@ import {
   type PosAdmin,
 } from '../fixtures/pos';
 import { POSPage } from '../pages/pos.page';
+import { TEST_ORG } from '../fixtures/test-data';
 
 /*
  * Bedienungen an der gemeinsamen Kasse (bedienungen-plan.md §6):
@@ -85,6 +86,11 @@ test.describe('POS - Bedienungen (gemeinsame Kasse)', () => {
     await pos.enterPin(pins.anna);
     await expect(pos.waiterChip()).toContainText('Anna');
     await expect(pos.product(PRODUCT)).toBeVisible();
+    // Gerät und Verein stehen neben dem Chip im Kopf — auch auf dem Telefon.
+    const ctx = page.locator('.pos-head__ctx');
+    await expect(ctx).toBeVisible();
+    await expect(ctx).toContainText('Gemeinsame Kasse');
+    await expect(ctx).toContainText(TEST_ORG.name);
     await shot(page, '02-pos-angemeldet-chip');
 
     const created = page.waitForResponse(

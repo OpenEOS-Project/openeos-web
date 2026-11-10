@@ -37,6 +37,7 @@ import { useEventPhase } from '@/lib/event-phase';
 import { useDeviceEmergencySupport } from '@/hooks/use-support';
 import { showEmergencyAtPos } from '@/lib/emergency-support';
 import { PosHeader, type PosMenuAction } from './components/pos-header';
+import { PosFooter } from './components/pos-footer';
 import { PosOrderView } from './components/pos-order-view';
 import { PosLayerProvider } from './components/pos-sheet';
 import { PosStartView } from './components/pos-start-view';
@@ -55,8 +56,8 @@ import {
   type OrderTransferredPayload,
 } from './hooks/use-pos-live';
 import { usePosTseOutage } from './hooks/use-pos-tse';
-import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
+import { posNotice } from './utils/pos-notice';
 import { useWaiterSession } from './hooks/use-waiter-session';
 import { WaiterChip } from './components/waiter-chip';
 import { WaiterHandoverSheet } from './components/waiter-handover-sheet';
@@ -205,7 +206,6 @@ function PosApp() {
   // nimmt keine neuen Bestellungen mehr an.
   const eventPhase = useEventPhase(activeEvent);
   const isTest = eventPhase === 'test' || eventPhase === 'planned';
-  const isEnded = eventPhase === 'ended';
   // Notfall-Support (AGB 18.2) im Menü, solange die gebuchte Veranstaltung echt verkauft.
   const emergency = useDeviceEmergencySupport(!!activeEvent).data;
   const showEmergency = eventPhase === 'active' && showEmergencyAtPos(emergency, activeEvent);
@@ -291,10 +291,19 @@ function PosApp() {
   const counterOrderCount = context?.kind === 'table' ? 0 : scopeOrders.length;
   const printer = usePosDeviceStatus();
   // Cloud-TSE: Ausfall-Hinweis (letzter Vorgang ohne Signatur oder offener
-  // Ausfall laut Server); im Testmodus mit aktiver TSE Trainingsbuchungen.
+  // Ausfall laut Server). Trainingsbuchungen im Testbetrieb deckt dessen
+  // Hinweis ab.
   const tseStatus = usePosTseStatus();
   const tseOutage = usePosTseOutage(tseStatus);
-  const tseTraining = isTest && !!tseStatus?.active;
+  // Genau ein Hinweis unter dem Kopf (Reihenfolge siehe posNotice).
+  const notice = posNotice({
+    phase: eventPhase,
+    offline,
+    tseOutage,
+    cashBlocked: operating.cashBlockedWithoutTse,
+    orderOnly,
+  });
+  const hasBand = notice === 'ended' || notice === 'planned' || notice === 'test';
 
   // Testmodus: SumUp-Zahlart deaktiviert, keine Aufrufe am Lesegerät.
   const card = orderOnly
@@ -586,10 +595,11 @@ function PosApp() {
 
   return (
     <PosLiveProvider value={isConnected}>
-      <div className={isTest ? 'pos-shell is-test' : 'pos-shell'}>
+      <div className={hasBand ? 'pos-shell has-band' : 'pos-shell'}>
         <BroadcastToast messages={broadcasts} onDismiss={dismissBroadcast} />
         <PosHeader
           deviceName={deviceAreaName ? `${deviceName || 'POS'} · ${deviceAreaName}` : deviceName || 'POS'}
+          organizationName={orgName}
           eventName={activeEvent?.name ?? null}
           table={
             tablesEnabled && inOrderView && context
@@ -602,7 +612,6 @@ function PosApp() {
           }
           connection={connection}
           printer={printer}
-          tse={posTseState(tseStatus, tseOutage)}
           user={null}
           waiter={
             waiter ? (
@@ -622,39 +631,33 @@ function PosApp() {
           onThemeChange={setPosTheme}
           onLogout={() => setSheet('logout')}
         />
-        {isTest && (
-          <PosTestModeBanner
-            realSalesFrom={eventPhase === 'planned' ? activeEvent?.realSalesFrom : null}
-          />
+        {notice === 'ended' && <PosEndedBanner />}
+        {(notice === 'planned' || notice === 'test') && (
+          <PosTestModeBanner realSalesFrom={notice === 'planned' ? activeEvent?.realSalesFrom : null} />
         )}
-        {isEnded && <PosEndedBanner />}
-        {orderOnly && (
-          <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
-            {t('orderOnly.banner')}
-          </Banner>
-        )}
-        {operating.cashBlockedWithoutTse && (
-          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly">
-            {t('cashBlocked.banner')}
-          </Banner>
-        )}
-        {tseOutage && (
-          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly pos-tse-outage">
-            {t('tseOutage.banner')}
-          </Banner>
-        )}
-        {tseTraining && !orderOnly && (
-          <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
-            {t('tseOutage.training')}
-          </Banner>
-        )}
-        {offline && (
+        {notice === 'offline' && (
           <Banner tone="danger" icon={<Icon name="wifi-off" />} className="pos-offline">
             {t('offline.banner')}
           </Banner>
         )}
+        {notice === 'tseOutage' && (
+          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly pos-tse-outage">
+            {t('tseOutage.banner')}
+          </Banner>
+        )}
+        {notice === 'cashBlocked' && (
+          <Banner tone="warn" icon={<Icon name="alert" />} className="pos-orderonly">
+            {t('cashBlocked.banner')}
+          </Banner>
+        )}
+        {notice === 'orderOnly' && (
+          <Banner tone="info" icon={<Icon name="info" />} className="pos-orderonly">
+            {t('orderOnly.banner')}
+          </Banner>
+        )}
 
         {body}
+        <PosFooter variant="line" />
 
         {tablesEnabled && (
           <TableSwitchSheet

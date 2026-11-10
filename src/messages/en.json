@@ -3053,9 +3053,12 @@
       "open": "Open drawer",
       "opened": "Drawer opened"
     },
-    "testMode": "Test mode — Orders will be deleted on activation",
-    "plannedMode": "Test operation – real sales from {date} at {time}",
+    "testMode": "Test mode – sales don't count and are deleted on activation",
+    "testModeShort": "Test mode – sales don't count",
+    "plannedMode": "Test operation – sales don't count. Real sales from {date} at {time}",
+    "plannedModeShort": "Test operation until {date}, {time} – doesn't count",
     "endedMode": "Event ended – only settle open orders",
+    "endedModeShort": "Ended – only settle open orders",
     "testBadge": "Test",
     "scheduledBadge": "Scheduled",
     "orderHistory": {
@@ -3540,17 +3543,9 @@
       "banner": "Cash blocked – without an active TSE this till accepts no cash. Card and online keep working."
     },
     "tseOutage": {
-      "banner": "TSE failed – you can keep selling, the receipt will be marked.",
-      "training": "Training transaction – don't accept real money."
+      "banner": "TSE failed – you can keep selling, the receipt will be marked."
     },
     "tse": {
-      "pill": "TSE",
-      "pillState": {
-        "ok": "Cloud TSE ready – receipts are signed",
-        "error": "Cloud TSE disrupted – receipts are marked “TSE failed”",
-        "creating": "Cloud TSE is being set up",
-        "inactive": "Cloud TSE not active – no cash"
-      },
       "splitDone": "Partial payment booked",
       "pfandDone": "Deposit paid out",
       "sectionTitle": "TSE data ({count})",
