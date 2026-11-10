@@ -37,6 +37,7 @@ import { OrderRefundSheet, type RefundPreset } from './order-refund-sheet';
 import { type PayResult, PaySheet } from './pay-sheet';
 import { PinPromptSheet } from './pin-prompt-sheet';
 import { PosSheet } from './pos-sheet';
+import { ReceiptHandoutSheet } from './receipt-handout-sheet';
 import { usePosToast } from './pos-toast';
 
 interface OrderDetailSheetProps {
@@ -47,6 +48,8 @@ interface OrderDetailSheetProps {
   onPaid: (info: DoneInfo) => void;
   /** „Nur Bons“: keine Preise und Zahlungen, statt Kassieren „Abgeholt“ bzw. „Abschließen“. */
   orderOnly?: boolean;
+  /** Bondrucker an dieser Kasse (für „Bon drucken“ im Beleg-Blatt). */
+  canPrint?: boolean;
 }
 
 /**
@@ -62,6 +65,7 @@ export function OrderDetailSheet({
   disabled,
   onPaid,
   orderOnly = false,
+  canPrint = true,
 }: OrderDetailSheetProps) {
   const t = useTranslations('pos.orderHistory');
   const locale = useLocale();
@@ -78,6 +82,7 @@ export function OrderDetailSheet({
   const [refund, setRefund] = useState<RefundPreset | null>(null);
   const [paying, setPaying] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [handout, setHandout] = useState(false);
 
   /** „Nur Bons“: abschließen ohne Zahlung (abgeholt/serviert). */
   const complete = async () => {
@@ -238,14 +243,9 @@ export function OrderDetailSheet({
         </Button>
       )}
       {order.payments.length > 0 && !orderOnly && (
-        <Button
-          variant="ghost"
-          size="lg"
-          disabled={reprint.isPending}
-          onClick={() => reprint.mutate('receipt')}
-        >
-          <Icon name="printer" />
-          {t('reprintReceipt')}
+        <Button variant="ghost" size="lg" onClick={() => setHandout(true)} data-testid="order-receipt">
+          <Icon name="receipt" />
+          {t('receipt')}
         </Button>
       )}
       <Button
@@ -288,6 +288,16 @@ export function OrderDetailSheet({
           />
         )}
       </PosSheet>
+
+      <ReceiptHandoutSheet
+        orderId={handout && order ? order.id : null}
+        orderNumber={order?.orderNumber}
+        canPrint={canPrint}
+        onClose={() => {
+          setHandout(false);
+          invalidate();
+        }}
+      />
 
       {order && (
         <>
@@ -658,7 +668,16 @@ interface TimelineEntry {
 
 /** Verlauf aus den Zeitstempeln und dem Protokoll der Bestellung. */
 /** Verlaufseinträge mit Zahlungsbezug (in „Nur Bons“ ausgeblendet). */
-const PAYMENT_TIMELINE_TYPES = new Set(['paid', 'refunded', 'refund_failed', 'receipt_reprinted', 'refund_receipt_reprinted']);
+const PAYMENT_TIMELINE_TYPES = new Set([
+  'paid',
+  'refunded',
+  'refund_failed',
+  'receipt_reprinted',
+  'refund_receipt_reprinted',
+  'receipt_link_created',
+  'receipt_emailed',
+  'receipt_email_failed',
+]);
 
 function buildTimeline(
   order: OrderDetail,
@@ -700,7 +719,8 @@ function buildTimeline(
     out.push({
       key: e.id,
       at: e.createdAt,
-      type: e.type,
+      // Beleg-Mail: Ergebnis steht in den Daten (ohne Adresse).
+      type: e.type === 'receipt_emailed' && e.data?.status === 'failed' ? 'receipt_email_failed' : e.type,
       values: {
         items,
         amount: formatPrice(amount),
@@ -709,7 +729,10 @@ function buildTimeline(
       },
       who,
       tone:
-        e.type === 'refund_failed' || e.type === 'items_cancelled' || e.type === 'order_cancelled'
+        e.type === 'refund_failed' ||
+        e.type === 'items_cancelled' ||
+        e.type === 'order_cancelled' ||
+        (e.type === 'receipt_emailed' && e.data?.status === 'failed')
           ? 'danger'
           : undefined,
     });

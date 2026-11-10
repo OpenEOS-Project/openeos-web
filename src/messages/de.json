@@ -2865,6 +2865,7 @@
         "audit_logs": "Protokolle",
         "support_messages": "Support-Chat",
         "contact_requests": "Website-Anfragen",
+        "receipt_links": "Beleg-Links",
         "assistant_imports": "Assistent-Importe",
         "organization_inactivity": "Inaktive Organisationen",
         "organization_purge": "Endgültige Löschung",
@@ -3076,6 +3077,7 @@
       "cancelItems": "Positionen stornieren",
       "cancelAndRefund": "Stornieren & erstatten",
       "refund": "Erstatten",
+      "receipt": "Beleg",
       "reprintReceipt": "Kassenbon",
       "reprintTickets": "Küchenbon",
       "detailTitle": "Bestellung #{number}",
@@ -3128,6 +3130,9 @@
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
         "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
+        "receipt_link_created": "Beleg als QR-Code ausgegeben",
+        "receipt_emailed": "Beleg per E-Mail verschickt",
+        "receipt_email_failed": "Beleg-Mail fehlgeschlagen",
         "transferred": "Tisch übergeben von {from} an {to}"
       },
       "optionWithout": "ohne {option}",
@@ -3424,6 +3429,28 @@
       "tip": "Trinkgeld",
       "title": "Bezahlt"
     },
+    "receiptHandout": {
+      "title": "Beleg",
+      "sheetTitle": "Beleg ausgeben",
+      "qr": "QR-Code",
+      "qrTitle": "QR-Code zum Beleg",
+      "qrLead": "Beleg zum Scannen – öffnet den Beleg mit PDF zum Herunterladen.",
+      "qrLoading": "Beleg wird erstellt …",
+      "qrValid": "Link gültig bis {date}",
+      "email": "E-Mail",
+      "emailLabel": "E-Mail-Adresse des Gastes",
+      "emailPlaceholder": "name@beispiel.de",
+      "emailHint": "Nur für den Versand – die Adresse wird nicht gespeichert.",
+      "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "emailSend": "Beleg senden",
+      "emailSent": "Beleg per E-Mail verschickt",
+      "print": "Bon drucken",
+      "reprint": "Bon erneut drucken",
+      "printed": "Bon wird gedruckt",
+      "noPrinter": "Kein Bondrucker für diese Kasse eingerichtet.",
+      "none": "Kein Beleg",
+      "back": "Zurück"
+    },
     "offline": {
       "banner": "Keine Verbindung – Senden und Kassieren gehen erst wieder, wenn die Kasse online ist."
     },
@@ -3696,6 +3723,9 @@
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
         "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
+        "receipt_link_created": "Beleg als QR-Code ausgegeben",
+        "receipt_emailed": "Beleg per E-Mail verschickt",
+        "receipt_email_failed": "Beleg-Mail fehlgeschlagen",
         "transferred": "Tisch übergeben von {from} an {to}"
       },
       "payments": "Zahlungen"
@@ -4252,6 +4282,15 @@
     "networkError": "Netzwerkfehler",
     "generic": "Etwas ist schiefgelaufen"
   },
+  "receiptPublic": {
+    "title": "Dein Beleg",
+    "titleHospitality": "Bewirtungsbeleg",
+    "pdf": "Als PDF herunterladen",
+    "loading": "Beleg wird geladen …",
+    "goneTitle": "Beleg nicht verfügbar",
+    "receiptLabel": "Beleg zu Bestellung {number}",
+    "validUntil": "Dieser Link ist bis {date} gültig. Lade dir den Beleg als PDF herunter, wenn du ihn aufbewahren möchtest."
+  },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "Das Konto ist deaktiviert.",
     "ACCOUNT_LOCKED": "Das Konto ist für {minutes} Minuten gesperrt.",
@@ -4607,6 +4646,12 @@
     "WEBHOOK_LIMIT_REACHED": "Du hast schon {limit} Webhooks – mehr sind nicht möglich. Lösche einen, um einen neuen anzulegen.",
     "WEBHOOK_URL_INVALID": "Diese Adresse nimmt der Server nicht an.",
     "WEBHOOK_EVENT_TYPE_INVALID": "Mindestens ein gewähltes Ereignis kennt dieser Server nicht. Lade die Seite neu und versuche es noch einmal.",
+    "RECEIPT_LINK_NOT_FOUND": "Dieser Beleg ist nicht (mehr) verfügbar. Frag an der Kasse nach einem neuen.",
+    "RECEIPT_NOT_AVAILABLE": "Zu dieser Bestellung gibt es keinen Kassenbeleg.",
+    "RECEIPT_EMAIL_RATE_LIMITED": "Gerade wurden zu viele Belege per E-Mail verschickt. Bitte versuch es gleich noch einmal oder gib den QR-Code aus.",
+    "RECEIPT_EMAIL_FAILED": "Die E-Mail konnte nicht verschickt werden. Bitte versuch es noch einmal oder gib den QR-Code aus.",
+    "RECEIPT_EMAIL_INVALID": "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "RECEIPT_ORDERS_INVALID": "Für diesen Beleg fehlen die Bestellungen.",
     "WEBHOOKS_DISABLED": "Webhooks sind auf diesem Server ausgeschaltet.",
     "PIN_NOT_AVAILABLE": "Diese PIN ist nicht verfügbar. Wähle eine andere (keine einfachen Folgen wie 1234 oder 0000).",
     "PIN_LOCKED": "Zu viele falsche PINs. Versuche es in {retryAfterSeconds} Sekunden noch einmal.",
