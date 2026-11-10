@@ -20,6 +20,8 @@ import {
   type WaiterWithPin,
 } from '@/types/waiter';
 
+import '@/styles/device-settings.css';
+
 interface WaiterFormModalProps {
   organizationId: string;
   /** `null` = neue Bedienung. */
