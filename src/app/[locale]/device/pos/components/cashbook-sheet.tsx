@@ -10,15 +10,21 @@ import { useFormatPrice } from '@/hooks/use-format-price';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import {
   applyAmountKey,
+  cashbookActionsFor,
   cashDifference,
-  CASHBOOK_ACTIONS,
   centsInputToEuros,
   differenceTone,
+  openingBalancePrefill,
   sortEntriesNewestFirst,
   summaryRows,
 } from '@/lib/dsfinvk';
 import { tseNoticeKind } from '@/lib/tse';
-import type { CashbookEntryResult, CashbookEntryType, CashbookEntryView } from '@/types/dsfinvk';
+import type {
+  CashbookEntryResult,
+  CashbookEntryType,
+  CashbookEntryView,
+  CashbookOpeningSuggestion,
+} from '@/types/dsfinvk';
 
 import { reportTse } from '../hooks/use-pos-tse';
 import { PosSheet } from './pos-sheet';
@@ -32,7 +38,7 @@ const ICONS: Record<CashbookEntryType, IconName> = {
   cash_count: 'list',
 };
 
-/** Schnellwahl für Wechselgeld, Einlage und Entnahme. */
+/** Schnellwahl für Anfangsbestand, Wechselgeld und Abschöpfung. */
 const QUICK_AMOUNTS = [50, 100, 150, 200] as const;
 
 interface CashbookSheetProps {
@@ -44,9 +50,10 @@ interface CashbookSheetProps {
 
 /**
  * Kassenbuch an der Kasse: Soll-Bestand dieser Schublade mit der
- * Aufschlüsselung des Tages, vier Buchungen (Anfangsbestand, Einlage,
- * Entnahme, Kassensturz) und die heutigen Buchungen dieses Geräts. Jede
- * Bargeldbewegung ist ein eigener TSE-Beleg.
+ * Aufschlüsselung des Tages, vier Buchungen (Anfangsbestand, Wechselgeld
+ * aus Vereinskasse, Abschöpfung an Vereinskasse, Kassensturz) und die
+ * heutigen Buchungen dieses Geräts. Jede Bargeldbewegung ist ein eigener
+ * TSE-Beleg. Ohne früheren Kassensturz steht das Wechselgeld vorn.
  */
 export function CashbookSheet({ open, onClose, disabled = false }: CashbookSheetProps) {
   const t = useTranslations('cashbook');
@@ -121,7 +128,7 @@ export function CashbookSheet({ open, onClose, disabled = false }: CashbookSheet
             </section>
 
             <div className="pos-cb__actions">
-              {CASHBOOK_ACTIONS.map((type) => (
+              {cashbookActionsFor(data.openingBalanceSuggestion).map((type) => (
                 <Button
                   key={type}
                   variant={type === 'cash_count' ? 'primary' : 'secondary'}
@@ -135,7 +142,7 @@ export function CashbookSheet({ open, onClose, disabled = false }: CashbookSheet
                   data-testid={`pos-cashbook-${type}`}
                 >
                   <Icon name={ICONS[type]} />
-                  {t(`types.${type}`)}
+                  {t(`actionLabels.${type}`)}
                 </Button>
               ))}
             </div>
@@ -159,6 +166,7 @@ export function CashbookSheet({ open, onClose, disabled = false }: CashbookSheet
       <CashbookEntrySheet
         type={open ? action : null}
         expected={data?.total.expected ?? 0}
+        suggestion={data?.openingBalanceSuggestion}
         onClose={() => setAction(null)}
         onBooked={(result) => {
           setLast(result);
@@ -246,6 +254,8 @@ interface CashbookEntrySheetProps {
   type: CashbookEntryType | null;
   /** Soll-Bestand dieser Schublade (Kassensturz). */
   expected: number;
+  /** Zuletzt gezählter Bestand (Vorschlag für den Anfangsbestand). */
+  suggestion?: CashbookOpeningSuggestion | null;
   onClose: () => void;
   onBooked: (result: CashbookEntryResult) => void;
 }
@@ -254,10 +264,11 @@ interface CashbookEntrySheetProps {
  * Eine Buchung: Betrag über den Ziffernblock (Cent), Notiz; beim
  * Kassensturz der gezählte Bestand mit Soll und laufender Differenz.
  */
-function CashbookEntrySheet({ type, expected, onClose, onBooked }: CashbookEntrySheetProps) {
+function CashbookEntrySheet({ type, expected, suggestion, onClose, onBooked }: CashbookEntrySheetProps) {
   const t = useTranslations('cashbook');
   const tPay = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
+  const { formatDate } = useLocaleFormat();
   const toast = usePosToast();
   const apiErrorMessage = useApiErrorMessage();
   const create = useCreateDeviceCashbookEntry();
@@ -267,10 +278,15 @@ function CashbookEntrySheet({ type, expected, onClose, onBooked }: CashbookEntry
 
   useEffect(() => {
     if (type) {
-      setDigits('');
+      // Anfangsbestand: zuletzt gezählter Bestand vorbelegt (Restbestand).
+      const prefill = openingBalancePrefill(type, suggestion);
+      setDigits(prefill !== null ? String(Math.round(prefill * 100)) : '');
       setNote('');
-      setQuickPicked(false);
+      // Wie eine Schnellwahl: die erste Taste ersetzt den Vorschlag.
+      setQuickPicked(prefill !== null);
     }
+    // Nur beim Öffnen vorbelegen, nicht bei jedem Nachladen des Tages.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
   const amount = centsInputToEuros(digits);
@@ -384,6 +400,19 @@ function CashbookEntrySheet({ type, expected, onClose, onBooked }: CashbookEntry
           />
 
           {isCount && <p className="pos-hint">{t('dialog.differenceHint')}</p>}
+          {type === 'opening_balance' && suggestion && (
+            <p className="pos-hint" data-testid="pos-cashbook-last-counted">
+              {t('dialog.lastCounted', {
+                date: formatDate(suggestion.fromBusinessDate),
+                amount: formatPrice(suggestion.amount),
+              })}
+            </p>
+          )}
+          {(type === 'opening_balance' || type === 'deposit') && (
+            <p className="pos-hint" data-testid="pos-cashbook-opening-hint">
+              {t('dialog.openingHint')}
+            </p>
+          )}
 
           <Field label={t('dialog.note')} htmlFor="pos-cashbook-note">
             <input

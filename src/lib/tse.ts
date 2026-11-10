@@ -7,6 +7,7 @@ import type {
   TseLifecycleOutlook,
   TseMasterDataField,
   TseReceiptView,
+  TseLateSignature,
   TsePostponement,
   TseStatus,
   TseUnit,
@@ -355,6 +356,18 @@ export function tseNoticeKind(view: Pick<TseReceiptView, 'status' | 'training'>)
   if (view.status === 'failed' || view.status === 'pending') return 'failed';
   if (view.training || view.status === 'training') return 'training';
   return null;
+}
+
+/**
+ * Nachträgliche Signatur eines Ausfallbelegs: nur bei einem Vorgang ohne
+ * Signatur (failed/pending) — ein signierter Beleg hat seine Signatur
+ * regulär, dort wäre der Hinweis irreführend.
+ */
+export function lateSignatureOf(
+  view: Pick<TseReceiptView, 'status' | 'training' | 'lateSignature'>,
+): TseLateSignature | null {
+  if (tseNoticeKind(view) !== 'failed') return null;
+  return view.lateSignature ?? null;
 }
 
 /**

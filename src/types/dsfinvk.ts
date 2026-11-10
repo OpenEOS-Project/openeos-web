@@ -122,7 +122,19 @@ export interface CashbookDay {
   tseActive: boolean;
   entries: CashbookEntryView[];
   total: CashSummary;
+  /**
+   * Vorschlag für den Anfangsbestand: zuletzt gezählter Bestand vor diesem
+   * Geschäftstag (Restbestand aus dem Vorabschluss). null = noch nie
+   * gezählt; fehlt bei älteren API-Versionen.
+   */
+  openingBalanceSuggestion?: CashbookOpeningSuggestion | null;
   devices: { deviceId: string | null; deviceName: string | null; summary: CashSummary }[];
+}
+
+export interface CashbookOpeningSuggestion {
+  amount: number;
+  /** Geschäftstag des Kassensturzes (YYYY-MM-DD). */
+  fromBusinessDate: string;
 }
 
 export interface CreateCashbookEntryData {

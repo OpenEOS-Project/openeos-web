@@ -464,6 +464,17 @@ export const organizationsApi = {
   delete: (id: string) =>
     apiClient.delete(`/organizations/${id}`),
 
+  /**
+   * Steuerstatus wechseln (Admins): erst Kassenabschluss, dann
+   * Kleinunternehmer ↔ umsatzsteuerpflichtig. Mit TSE-Vorgängen der einzige
+   * Weg (PATCH antwortet 409 VAT_STATUS_CHANGE_REQUIRES_CLOSING).
+   */
+  changeVatStatus: (id: string, vatExempt: boolean) =>
+    apiClient.post<ApiResponse<import('@/types/organization').VatStatusChangeResult>>(
+      `/organizations/${id}/vat-status`,
+      { vatExempt },
+    ),
+
   /** „Löschung abbrechen“ (Admins, bis zur endgültigen Löschung). */
   restore: (id: string) =>
     apiClient.post<ApiResponse<import('@/types/organization').Organization>>(`/organizations/${id}/restore`),
@@ -722,6 +733,12 @@ export const pfandTypesApi = {
 
   delete: (organizationId: string, pfandTypeId: string) =>
     apiClient.delete(`/organizations/${organizationId}/pfand-types/${pfandTypeId}`),
+
+  /** Pfand-Altsaldo: vor der Umstellung ohne USt verkauft, noch nicht zurück (Euro). */
+  legacyBalance: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/pfand').PfandLegacyBalance>>(
+      `/organizations/${organizationId}/pfand-types/legacy-balance`,
+    ),
 };
 
 // Events API
@@ -2648,6 +2665,12 @@ export const reportsApi = {
   getCategories: (organizationId: string, params?: import('@/types/report').ReportQuery) =>
     apiClient.get<ApiResponse<import('@/types/report').CategoryReport[]>>(
       `/organizations/${organizationId}/reports/categories${reportQuery(params)}`
+    ),
+
+  /** Kleinunternehmer-Grenzen (§ 19 UStG): Umsatz in OpenEOS laufendes und Vorjahr. */
+  getSmallBusiness: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/report').SmallBusinessStatus>>(
+      `/organizations/${organizationId}/reports/small-business`
     ),
 
   getVat: (organizationId: string, params?: import('@/types/report').ReportQuery) =>

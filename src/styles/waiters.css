@@ -22,6 +22,7 @@
 .waiters-form__right { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
 .waiters-form__right span { display: grid; }
 .waiters-form__right small, .waiters-form__hint { font-size: 12px; color: var(--mute); margin: 0; }
+.waiters-role { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .waiters-form__error { margin: 0; color: var(--danger); font-size: 13px; }
 .waiters-bulk__text { min-height: 160px; font-family: var(--f-mono); font-size: 13px; resize: vertical; }
 .waiters-bulk__summary { margin: 0; font-size: 13px; color: var(--mute); }

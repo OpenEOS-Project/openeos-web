@@ -3,7 +3,13 @@
  * (Kasse und Verwaltung) und die Steuerangaben der Organisation.
  */
 import { addDays, type DayKey } from '@/utils/calendar-date';
-import type { CashbookEntryType, CashbookEntryView, CashPointClosingTotals, CashSummary } from '@/types/dsfinvk';
+import type {
+  CashbookEntryType,
+  CashbookEntryView,
+  CashbookOpeningSuggestion,
+  CashPointClosingTotals,
+  CashSummary,
+} from '@/types/dsfinvk';
 import type { OrganizationSettings } from '@/types/organization';
 import type { TseMasterDataField } from '@/types/tse';
 
@@ -117,11 +123,6 @@ export function missingMasterData(settings: Partial<OrganizationSettings> | null
   return missing;
 }
 
-/** Trinkgeld-Empfänger für den Export (Standard: Verein → TrinkgeldAG). */
-export function tipRecipientOf(settings: Partial<OrganizationSettings> | null | undefined): 'employer' | 'employee' {
-  return settings?.dsfinvk?.tipRecipient === 'employee' ? 'employee' : 'employer';
-}
-
 /** Doku-Seite „Kassen-Nachschau“ je Sprache (Doku liegt an der Wurzel von docs.openeos.de). */
 export function kassenNachschauDocsUrl(locale: string): string {
   return locale === 'en' ? 'https://docs.openeos.de/en/kassen-nachschau' : 'https://docs.openeos.de/kassen-nachschau';
@@ -130,6 +131,28 @@ export function kassenNachschauDocsUrl(locale: string): string {
 // ── Kassenbuch ─────────────────────────────────────────────────────────
 
 export const CASHBOOK_ACTIONS: readonly CashbookEntryType[] = ['opening_balance', 'deposit', 'withdrawal', 'cash_count'];
+
+/**
+ * Reihenfolge der Buchungen: ohne früheren Kassensturz (kein Restbestand)
+ * zuerst „Wechselgeld aus Vereinskasse“ — Wechselgeld ist Geldtransit,
+ * kein Anfangsbestand (Steuerberater 2026-11-10, Frage 6).
+ */
+export function cashbookActionsFor(
+  suggestion: CashbookOpeningSuggestion | null | undefined,
+): readonly CashbookEntryType[] {
+  if (suggestion) return CASHBOOK_ACTIONS;
+  return ['deposit', 'opening_balance', 'withdrawal', 'cash_count'];
+}
+
+/** Vorbelegung des Betrags (Euro) beim Anfangsbestand, sonst `null`. */
+export function openingBalancePrefill(
+  type: CashbookEntryType | null,
+  suggestion: CashbookOpeningSuggestion | null | undefined,
+): number | null {
+  if (type !== 'opening_balance' || !suggestion) return null;
+  const amount = roundEuros(Number(suggestion.amount));
+  return Number.isFinite(amount) && amount >= 0 ? amount : null;
+}
 
 /** Euro auf Cent gerundet (gegen 0,1 + 0,2). */
 export function roundEuros(value: number): number {

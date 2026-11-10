@@ -197,8 +197,15 @@ export function WaitersContainer() {
                   </div>
                 </td>
                 <td>
-                  <span className={`badge ${waiter.role === 'lead' ? 'badge--info' : 'badge--neutral'}`}>
-                    {t(`roles.${waiter.role}`)}
+                  <span className="waiters-role">
+                    <span className={`badge ${waiter.role === 'lead' ? 'badge--info' : 'badge--neutral'}`}>
+                      {t(`roles.${waiter.role}`)}
+                    </span>
+                    {waiter.isEmployee && (
+                      <span className="badge badge--neutral" title={t('form.isEmployee')} data-testid="waiter-employee-badge">
+                        {t('employeeBadge')}
+                      </span>
+                    )}
                   </span>
                 </td>
                 <td style={{ fontSize: 13 }}>{eventName(waiter.eventId)}</td>

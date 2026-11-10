@@ -227,7 +227,11 @@ export interface TseReceiptView {
   kind: TseTransactionKind;
   status: TseTransactionStatus;
   training: boolean;
-  /** `TSE ausgefallen`, `TRAININGSBUCHUNG – KEIN VERKAUF` oder null. */
+  /**
+   * `TSE nicht erreichbar – Beleg ohne Signatur` (failed/pending; ältere
+   * API-Versionen: `TSE ausgefallen`), `TRAININGSBUCHUNG – KEIN VERKAUF`
+   * oder null.
+   */
   notice: string | null;
   processType: string;
   processData: string;
@@ -253,7 +257,30 @@ export interface TseReceiptView {
   pfandReturnId?: string | null;
   /** Beleg-Nr. der Kasse (DSFinV-K BON_NR), fortlaufend je Organisation. */
   bonNumber?: number | null;
+  /**
+   * Signatur, die erst nach der Belegausgabe eintraf (Abgleich hat eine
+   * verlorene Antwort gefunden). Der Vorgang bleibt `failed`, der Beleg ein
+   * Ausfallbeleg — nur ein gekennzeichneter Hinweis, nie Signatur oder QR.
+   */
+  lateSignature?: TseLateSignature | null;
+  /**
+   * Beginn der ersten abgesicherten Bestellung (Bestellung-V1) zu diesem
+   * Beleg, ISO UTC wie von der TSE (DSFinV-K Tz. 2.7.3). null ohne
+   * Bestellvorgang.
+   */
+  orderStartTime?: string | null;
   createdAt: string;
+}
+
+/** `lateSignature` eines Ausfallbelegs. */
+export interface TseLateSignature {
+  /** „Signatur nach Belegausgabe“. */
+  note: string;
+  transactionNumber: number | null;
+  signatureCounter: number | null;
+  finishTime: string | null;
+  /** Wann der Abgleich die Signatur gefunden hat. */
+  recoveredAt: string | null;
 }
 
 export interface TseTransactionList {

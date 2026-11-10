@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import {
   applyAmountKey,
   businessDateOf,
+  cashbookActionsFor,
   cashDifference,
   centsInputToEuros,
   differenceTone,
@@ -12,10 +13,10 @@ import {
   isValidVatId,
   missingMasterData,
   normalizeVatId,
+  openingBalancePrefill,
   rangeIncludesToday,
   salesGrossCents,
   summaryRows,
-  tipRecipientOf,
 } from '@/lib/dsfinvk';
 import { filenameFromDisposition } from '@/lib/api-client';
 
@@ -77,11 +78,6 @@ test.describe('tax details', () => {
       'zip',
     ]);
   });
-
-  test('tip recipient defaults to the club', () => {
-    expect(tipRecipientOf(undefined)).toBe('employer');
-    expect(tipRecipientOf({ dsfinvk: { tipRecipient: 'employee' } })).toBe('employee');
-  });
 });
 
 test.describe('cash book', () => {
@@ -139,5 +135,24 @@ test.describe('cash book', () => {
     expect(filenameFromDisposition('attachment; filename="dsfinvk_Z1-Z3.zip"')).toBe('dsfinvk_Z1-Z3.zip');
     expect(filenameFromDisposition("attachment; filename*=UTF-8''kasse%20a.zip")).toBe('kasse a.zip');
     expect(filenameFromDisposition(null)).toBeNull();
+  });
+});
+
+test.describe('cash book: opening balance vs. change', () => {
+  const suggestion = { amount: 87.5, fromBusinessDate: '2026-11-09' };
+
+  test('change from the club cash box comes first without a previous count', () => {
+    expect(cashbookActionsFor(null)[0]).toBe('deposit');
+    expect(cashbookActionsFor(undefined)).toEqual(['deposit', 'opening_balance', 'withdrawal', 'cash_count']);
+    expect(cashbookActionsFor(suggestion)).toEqual(['opening_balance', 'deposit', 'withdrawal', 'cash_count']);
+  });
+
+  test('prefills only the opening balance with the last count', () => {
+    expect(openingBalancePrefill('opening_balance', suggestion)).toBe(87.5);
+    expect(openingBalancePrefill('opening_balance', { amount: 0.1 + 0.2, fromBusinessDate: '2026-11-09' })).toBe(0.3);
+    expect(openingBalancePrefill('opening_balance', { amount: 0, fromBusinessDate: '2026-11-09' })).toBe(0);
+    expect(openingBalancePrefill('deposit', suggestion)).toBeNull();
+    expect(openingBalancePrefill('opening_balance', null)).toBeNull();
+    expect(openingBalancePrefill(null, suggestion)).toBeNull();
   });
 });

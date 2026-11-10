@@ -225,3 +225,11 @@ export function isLeadWaiter(waiter: Pick<PosWaiter, 'role'> | null | undefined)
 export function handoverTargets<T extends { id: string }>(tiles: T[], excludeId: string | null | undefined): T[] {
   return tiles.filter((tile) => tile.id !== excludeId);
 }
+
+/**
+ * `isEmployee` nur mitschicken, wenn er sich ändert (neu: nur wenn an) —
+ * so bleibt Anlegen und Bearbeiten mit einer API ohne das Feld möglich.
+ */
+export function employeeFlagPatch(previous: boolean | undefined, next: boolean): { isEmployee?: boolean } {
+  return (previous === true) === next ? {} : { isEmployee: next };
+}

@@ -18,11 +18,6 @@ export interface OrganizationSettings {
   taxNumber?: string;
   /** Umsatzsteuer-Identifikationsnummer (z. B. DE123456789). */
   vatId?: string;
-  /** Einstellungen für den DSFinV-K-Export. */
-  dsfinvk?: {
-    /** Trinkgeld an den Verein (TrinkgeldAG, Standard) oder die Helfer (TrinkgeldAN). */
-    tipRecipient?: 'employer' | 'employee';
-  };
   description?: string;
   address?: {
     street: string;
@@ -194,6 +189,14 @@ export interface Organization {
   pricesVisible?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/** POST /organizations/:id/vat-status — Kassenabschluss, dann Statuswechsel. */
+export interface VatStatusChangeResult {
+  vatExempt: boolean;
+  /** false: der Status war schon so (kein Abschluss). */
+  changed: boolean;
+  closings: import('@/types/dsfinvk').CashPointClosingView[];
 }
 
 export interface CreateOrganizationData {
