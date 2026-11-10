@@ -10,10 +10,11 @@ import { deviceApi } from '@/lib/api-client';
 import { looksLikeEmail } from '@/lib/receipt';
 import '@/styles/pos-receipt.css';
 
+import { HospitalityPanel } from './hospitality-panel';
 import { usePosToast } from './pos-toast';
 
 
-export type HandoutView = 'menu' | 'qr' | 'email';
+export type HandoutView = 'menu' | 'qr' | 'email' | 'hospitality';
 
 interface ReceiptHandoutProps {
   orderIds: string[];
@@ -39,6 +40,8 @@ interface ReceiptHandoutProps {
   autoQr?: boolean;
   /** „Kein Beleg“: der Gast möchte keinen — schließt nur das Blatt. */
   onNoReceipt?: () => void;
+  /** Knopf „Bewirtungsbeleg“ anbieten (Standard: ja). */
+  hospitality?: boolean;
 }
 
 /**
@@ -59,6 +62,7 @@ export function ReceiptHandout({
   onViewChange,
   autoQr = false,
   onNoReceipt,
+  hospitality = true,
 }: ReceiptHandoutProps) {
   const t = useTranslations('pos.receiptHandout');
   const locale = useLocale();
@@ -170,6 +174,19 @@ export function ReceiptHandout({
           {autoPrinted ? t('reprint') : t('print')}
         </Button>
       )}
+      {hospitality && (
+        <Button
+          variant="secondary"
+          data-testid="receipt-hospitality"
+          onClick={() => {
+            onInteract?.();
+            setView('hospitality');
+          }}
+        >
+          <Icon name="utensils" />
+          {t('hospitality')}
+        </Button>
+      )}
       {extra}
       {onNoReceipt && (
         <Button variant="ghost" onClick={onNoReceipt} data-testid="receipt-none">
@@ -179,6 +196,10 @@ export function ReceiptHandout({
       )}
     </div>
   );
+
+  if (view === 'hospitality') {
+    return <HospitalityPanel orderIds={orderIds} onBack={() => setView(link ? 'qr' : 'menu')} />;
+  }
 
   if (view === 'qr') {
     return (

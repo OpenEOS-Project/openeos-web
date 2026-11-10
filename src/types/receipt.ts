@@ -28,3 +28,31 @@ export interface PublicReceiptView {
   receipts: PublicReceipt[];
   legal: PublicLegalInfo;
 }
+
+/** Ausgestellter Bewirtungsbeleg (API: HospitalityReceiptView). */
+export interface HospitalityReceipt {
+  id: string;
+  number: string | null;
+  isTest: boolean;
+  issuedAt: string;
+  serviceDate: string;
+  recipientName: string | null;
+  total: number;
+  tip: number;
+  orderIds: string[];
+}
+
+export type HospitalityMasterField = 'legalName' | 'street' | 'zip' | 'city' | 'taxNumber';
+
+export interface HospitalityCheck {
+  existing: HospitalityReceipt | null;
+  total: number;
+  tip: number;
+  isTest: boolean;
+  recipientRequired: boolean;
+  missingMasterData: HospitalityMasterField[];
+  collectiveItems: string[];
+  serviceDate: string;
+  serviceDateMin: string;
+  serviceDateMax: string;
+}
