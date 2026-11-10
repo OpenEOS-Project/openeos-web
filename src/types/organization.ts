@@ -167,6 +167,8 @@ export interface Organization {
    * Adminbereich der rohe Wert, null = Standard der Installation.
    */
   memberLimit?: number | null;
+  /** Höchstzahl an Bedienungen (Super-Admin); null = Standard (200), 0 = unbegrenzt. */
+  waiterLimit?: number | null;
   /** Nur in GET /organizations/:id: belegte Plätze inkl. offener Einladungen. */
   memberCount?: number;
   /**

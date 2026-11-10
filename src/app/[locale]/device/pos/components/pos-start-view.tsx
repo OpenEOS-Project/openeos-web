@@ -97,7 +97,7 @@ export function PosStartView({
   } else if (active === 'map') {
     main = (
       <div className="pos-start__list">
-        <TableFloor areas={areas} states={states} onPick={(table) => open(tableContext(table))} />
+        <TableFloor areas={areas} states={states} waiters={waiters} onPick={(table) => open(tableContext(table))} />
         {withoutTable}
       </div>
     );

@@ -347,9 +347,14 @@ function HistorySections({
   const muted = 'color-mix(in oklab, var(--ink) 50%, transparent)';
   const box = { border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', borderRadius: 8, padding: '10px 12px' };
   const events = [
-    ...detail.events.map((e) => ({ at: e.createdAt, type: e.type, who: [e.data?.deviceName as string | undefined, e.actorName].filter(Boolean).join(' · ') })),
+    ...detail.events.map((e) => ({
+      at: e.createdAt,
+      type: e.type,
+      who: [e.data?.deviceName as string | undefined, e.actorName].filter(Boolean).join(' · '),
+      values: { from: e.fromWaiter?.name ?? '—', to: e.toWaiter?.name ?? '—' },
+    })),
     ...(detail.cancelledAt && !detail.events.some((e) => e.type === 'order_cancelled')
-      ? [{ at: detail.cancelledAt, type: 'cancelled', who: '' }]
+      ? [{ at: detail.cancelledAt, type: 'cancelled', who: '', values: { from: '', to: '' } }]
       : []),
   ].sort((a, b) => a.at.localeCompare(b.at));
 
@@ -423,7 +428,7 @@ function HistorySections({
                 {formatDateTime(e.at)}
               </span>
               <span>
-                {t(`timelineEvents.${e.type}`, { items: '', amount: '' }).replace(/:\s*$/, '')}
+                {t(`timelineEvents.${e.type}`, { items: '', amount: '', ...e.values }).replace(/:\s*$/, '')}
                 {e.who ? <span style={{ color: muted }}> · {e.who}</span> : null}
               </span>
             </div>

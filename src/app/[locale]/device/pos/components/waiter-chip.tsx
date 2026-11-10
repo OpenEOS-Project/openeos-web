@@ -12,10 +12,14 @@ interface WaiterChipProps {
   onSwitch?: () => void;
   onLock?: () => void;
   onSignOut?: () => void;
+  /** „Mein Zwischenstand“ (jede Bedienung). */
+  onSummary?: () => void;
+  /** „Abrechnen“ (Schichtleitung bzw. Admin). */
+  onSettle?: () => void;
 }
 
 /** Kopf-Chip „Wer bedient?“ mit Farbe und Kurzname (bedienungen-plan.md §6). */
-export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut }: WaiterChipProps) {
+export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut, onSummary, onSettle }: WaiterChipProps) {
   const t = useTranslations('pos.waiter');
   const label = waiterLabel(waiter);
   const color = waiter.color ?? 'var(--oe-ink)';
@@ -27,17 +31,44 @@ export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut }: Wait
       <span className="pos-waiter__name">{label}</span>
     </span>
   );
+  const settlement = (
+    <>
+      {onSummary && (
+        <DropdownOption icon={<Icon name="list" />} onClick={onSummary}>
+          {t('summary')}
+        </DropdownOption>
+      )}
+      {onSettle && (
+        <DropdownOption icon={<Icon name="receipt" />} onClick={onSettle}>
+          {t('settle')}
+        </DropdownOption>
+      )}
+    </>
+  );
   if (!shared) {
+    if (!onSummary && !onSettle) {
+      return (
+        <span className="pos-head__user" title={t('fixed', { name: waiter.name })}>
+          {face}
+        </span>
+      );
+    }
+    // Feste Bedienung: kein Wechseln/Sperren, aber Zwischenstand und Abrechnen.
     return (
-      <span className="pos-head__user" title={t('fixed', { name: waiter.name })}>
-        {face}
-      </span>
+      <div className="pos-head__user" title={t('fixed', { name: waiter.name })}>
+        <Dropdown align="end" triggerVariant="quiet" trigger={<>{face}<span className="oe-sr-only">{t('menu', { name: waiter.name })}</span></>}>
+          <DropdownCaption>{waiter.name}</DropdownCaption>
+          {settlement}
+        </Dropdown>
+      </div>
     );
   }
   return (
     <div className="pos-head__user">
       <Dropdown align="end" triggerVariant="quiet" trigger={<>{face}<span className="oe-sr-only">{t('menu', { name: waiter.name })}</span></>}>
         <DropdownCaption>{waiter.name}</DropdownCaption>
+        {settlement}
+        {(onSummary || onSettle) && <DropdownSeparator />}
         <DropdownOption icon={<Icon name="users" />} onClick={onSwitch}>
           {t('switch')}
         </DropdownOption>

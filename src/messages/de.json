@@ -2425,7 +2425,9 @@
       "memberLimit": "Höchstzahl Mitglieder",
       "memberLimitHint": "leer = Standard ({limit}), 0 = unbegrenzt; zählt Mitglieder und offene Einladungen",
       "memberLimitInvalid": "Bitte eine ganze Zahl ab 0 eingeben",
-      "country": "Land"
+      "country": "Land",
+      "waiterLimit": "Höchstzahl Bedienungen",
+      "waiterLimitHint": "Leer = Standard ({limit}), 0 = unbegrenzt. Bedienungen zählen nicht zu den Mitgliedern."
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -3125,7 +3127,8 @@
         "refund_failed": "Erstattung fehlgeschlagen: {amount}",
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
-        "refund_receipt_reprinted": "Gegenbeleg nachgedruckt"
+        "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
+        "transferred": "Tisch übergeben von {from} an {to}"
       },
       "optionWithout": "ohne {option}",
       "itemRefunded": "{count} erstattet",
@@ -3542,7 +3545,10 @@
       "tableFilter": "Tische filtern",
       "tablesMine": "Meine",
       "tablesAll": "Alle",
-      "tableOwner": "Bedienung: {name}"
+      "tableOwner": "Bedienung: {name}",
+      "summary": "Mein Zwischenstand",
+      "settle": "Abrechnen",
+      "handover": "Tisch übergeben"
     }
   },
   "orders": {
@@ -3689,7 +3695,8 @@
         "refund_failed": "Erstattung fehlgeschlagen: {amount}",
         "receipt_reprinted": "Kassenbon nachgedruckt",
         "tickets_reprinted": "Küchenbon nachgedruckt",
-        "refund_receipt_reprinted": "Gegenbeleg nachgedruckt"
+        "refund_receipt_reprinted": "Gegenbeleg nachgedruckt",
+        "transferred": "Tisch übergeben von {from} an {to}"
       },
       "payments": "Zahlungen"
     },
@@ -4613,7 +4620,13 @@
     "WAITER_NOT_PERMITTED": "Das darfst du nicht selbst. Eine Schichtleitung gibt es mit ihrer PIN frei.",
     "WAITER_SESSION_EXPIRED": "Deine Anmeldung an der Kasse ist abgelaufen. Gib deine PIN erneut ein.",
     "WAITER_SESSION_REQUIRED": "Bitte melde dich an der Kasse mit deiner PIN an.",
-    "WAITER_SETTINGS_INVALID": "Ungültige Einstellung für Bedienungen."
+    "WAITER_SETTINGS_INVALID": "Ungültige Einstellung für Bedienungen.",
+    "WAITER_OPEN_TABLES": "Es gibt noch offene Tische. Übergib sie an eine andere Bedienung oder rechne mit Notiz trotzdem ab (Schichtleitung).",
+    "WAITER_SETTLEMENT_EMPTY": "Seit der letzten Abrechnung gibt es nichts abzurechnen.",
+    "WAITER_SETTLEMENT_NOTE_REQUIRED": "Bitte gib eine Notiz an, warum trotz offener Tische abgerechnet wird.",
+    "WAITER_SETTLEMENT_NOT_FOUND": "Abrechnung nicht gefunden.",
+    "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
+    "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5623,6 +5636,28 @@
         "gross": "Brutto",
         "net": "Netto",
         "tax": "Umsatzsteuer"
+      }
+    },
+    "waiters": {
+      "title": "Bedienungen",
+      "subtitle": "Je Bedienung: aufgenommen, kassiert, erstattet und abgerechnet (ohne Testbuchungen)",
+      "none": "Ohne Bedienung",
+      "member": "Mitglied",
+      "filename": "bericht-bedienungen.csv",
+      "columns": {
+        "waiter": "Bedienung",
+        "orders": "Bestellungen",
+        "items": "Positionen",
+        "revenue": "Umsatz",
+        "collected": "Kassiert",
+        "cash": "Bar",
+        "card": "Karte",
+        "other": "Sonstige",
+        "tips": "Trinkgeld",
+        "refunds": "Storno/Erst.",
+        "pfand": "Pfand",
+        "settlements": "Abrechnungen",
+        "open": "Offene Tische"
       }
     }
   },
@@ -7261,7 +7296,9 @@
       "resetPin": "Neue PIN für {name}",
       "deactivate": "{name} deaktivieren",
       "activate": "{name} aktivieren",
-      "delete": "{name} löschen"
+      "delete": "{name} löschen",
+      "settle": "{name} abrechnen",
+      "export": "Auskunft über {name} exportieren (CSV)"
     },
     "empty": {
       "title": "Noch keine Bedienungen",
@@ -7321,7 +7358,8 @@
       "anonymized": "{name} deaktiviert und anonymisiert"
     },
     "errors": {
-      "pinReset": "Die neue PIN konnte nicht vergeben werden."
+      "pinReset": "Die neue PIN konnte nicht vergeben werden.",
+      "export": "Auskunft konnte nicht erstellt werden."
     },
     "settings": {
       "title": "Einstellungen für Bedienungen",
@@ -7335,7 +7373,124 @@
       "receiptNameFull": "Voller Name",
       "foreignTables": "Fremde Tische",
       "foreignTablesWarn": "Buchen erlaubt, mit Hinweis",
-      "foreignTablesAllow": "Buchen erlaubt, ohne Hinweis"
+      "foreignTablesAllow": "Buchen erlaubt, ohne Hinweis",
+      "selfSettlement": "Abrechnen",
+      "selfSettlementLead": "Nur Schichtleitung und Admins",
+      "selfSettlementSelf": "Bedienungen rechnen selbst ab"
+    },
+    "anonymizeDue": "wird am {date} anonymisiert"
+  },
+  "waiterSettlement": {
+    "sections": {
+      "collected": "Kassiert",
+      "refunded": "Storno, Erstattung, Pfand",
+      "taken": "Aufgenommen"
+    },
+    "rows": {
+      "cash": "Bar",
+      "card": "Karte",
+      "other": "Sonstige",
+      "total": "Gesamt",
+      "tips": "davon Trinkgeld",
+      "refundsCash": "Storno/Erstattung bar",
+      "refundsNonCash": "Storno/Erstattung unbar",
+      "pfand": "Pfand ausgezahlt",
+      "orders": "Bestellungen",
+      "items": "Positionen",
+      "revenue": "Umsatz brutto",
+      "discounts": "Rabatte",
+      "cashExpected": "Soll bar",
+      "drawer": "Schublade {name}",
+      "unknownDevice": "ohne Gerät",
+      "counted": "Gezählt",
+      "difference": "Differenz"
+    },
+    "cashHint": "Nur zur Info: Das Bargeld liegt in der Schublade der genannten Kasse. Gezählt wird wie bisher beim Kassensturz des Geräts.",
+    "ordersOnlyHint": "„Nur Bons“: OpenEOS kassiert nicht, die Abrechnung enthält nur Mengen.",
+    "training": "Training (nicht im Geld): {orders, plural, one {# Bestellung} other {# Bestellungen}}, {payments, plural, one {# Zahlung} other {# Zahlungen}}",
+    "period": {
+      "since": "seit {from} (Abrechnung Nr. {number})",
+      "start": "seit Beginn der Veranstaltung"
+    },
+    "empty": "Seit der letzten Abrechnung gibt es nichts abzurechnen.",
+    "openTables": {
+      "title": "{count, plural, one {# offener Tisch} other {# offene Tische}}",
+      "table": "Tisch {table}",
+      "target": "Übergeben an …",
+      "handOver": "Offene Tische übergeben",
+      "handOverShort": "Übergeben …",
+      "leadHint": "Übergib die offenen Tische an eine andere Bedienung. Trotzdem abrechnen kann nur eine Schichtleitung."
+    },
+    "force": {
+      "label": "Trotz offener Tische abrechnen (Notiz nötig)",
+      "note": "Notiz",
+      "notePlaceholder": "z. B. Tisch 7 zahlt beim Gehen an der Theke"
+    },
+    "printer": "Bon drucken auf",
+    "noPrint": "Nicht drucken",
+    "submit": "Abrechnen",
+    "dashboardTitle": "{name} abrechnen",
+    "summaryTitle": "Mein Zwischenstand",
+    "settleTitle": "Abrechnen",
+    "pickWaiter": "Wen rechnest du ab?",
+    "settleHint": "Abrechnen macht eine Schichtleitung. Den Zwischenstand kannst du jederzeit ansehen und drucken.",
+    "cancel": "Abbrechen",
+    "submitAndPrint": "{name} abrechnen",
+    "print": "Zwischenstand drucken",
+    "done": {
+      "saved": "Abrechnung Nr. {number} für {name} gespeichert.",
+      "training": "Training-Abrechnung für {name} gespeichert (ohne Nummer).",
+      "printed": "Der Bon kommt aus dem Bondrucker dieser Kasse. Bitte beide unterschreiben.",
+      "notPrinted": "Kein Bon gedruckt: Diese Kasse hat keinen Bondrucker. Nachdruck in der Verwaltung unter Bedienungen.",
+      "close": "Fertig"
+    },
+    "handover": {
+      "title": "Bestellung übergeben",
+      "titleTable": "Tisch {table} übergeben",
+      "subtitle": "Wer übernimmt? Alle offenen Bestellungen des Tisches gehen mit.",
+      "none": "Keine andere Bedienung angemeldet bzw. aktiv.",
+      "pick": "Bedienung wählen"
+    },
+    "toast": {
+      "transferred": "{count, plural, one {# Bestellung} other {# Bestellungen}} an {name} übergeben.",
+      "settled": "Abrechnung Nr. {number} für {name} gespeichert.",
+      "settledTraining": "Training-Abrechnung für {name} gespeichert.",
+      "notPrinted": "Kein Bon gedruckt: Drucker nicht erreichbar.",
+      "reprinted": "Nachdruck geschickt.",
+      "summaryPrinted": "Zwischenstand wird gedruckt.",
+      "receivedTable": "Tisch {table} wurde dir übergeben.",
+      "receivedOrder": "{count, plural, one {Eine Bestellung wurde} other {# Bestellungen wurden}} dir übergeben."
+    },
+    "errors": {
+      "summary": "Zwischenstand konnte nicht geladen werden.",
+      "settle": "Abrechnen hat nicht geklappt.",
+      "transfer": "Übergeben hat nicht geklappt."
+    },
+    "list": {
+      "title": "Abrechnungen",
+      "description": "Abgeschlossene Kellnerabrechnungen, neueste zuerst. Sie lassen sich nicht ändern; ein Nachdruck ist jederzeit möglich.",
+      "empty": "Noch keine Abrechnungen.",
+      "number": "Nr.",
+      "waiter": "Bedienung",
+      "period": "Zeitraum",
+      "collected": "Kassiert",
+      "cashExpected": "Soll bar",
+      "settledBy": "Abgerechnet von",
+      "actions": "Aktionen",
+      "training": "Training",
+      "forced": "trotz offener Tische",
+      "fromStart": "Beginn",
+      "open": "Abrechnung Nr. {number} ansehen"
+    },
+    "detail": {
+      "title": "Abrechnung Nr. {number}",
+      "trainingTitle": "Training-Abrechnung",
+      "settledBy": "Abgerechnet von {name} · {device}",
+      "dashboard": "Verwaltung",
+      "forced": "Trotz offener Tische abgerechnet",
+      "note": "Notiz: {note}",
+      "devicePrinter": "Bondrucker der Kasse",
+      "reprint": "Nachdruck"
     }
   }
 }

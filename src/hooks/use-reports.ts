@@ -23,6 +23,7 @@ function useReport<T>(
     | 'net-summary'
     | 'vat'
     | 'devices'
+    | 'waiters'
     | 'inventory'
     | 'stock-movements',
   fetcher: () => Promise<{ data: T }>,
@@ -84,6 +85,11 @@ export function useVatReport(organizationId: string, params?: ReportQuery, enabl
 
 export function useDevicesReport(organizationId: string, params?: ReportQuery, enabled = true) {
   return useReport(organizationId, 'devices', () => reportsApi.getDevices(organizationId, params), params, enabled);
+}
+
+/** Bericht „Bedienungen“ (je Bedienung bzw. Mitglied). */
+export function useWaitersReport(organizationId: string, params?: ReportQuery, enabled = true) {
+  return useReport(organizationId, 'waiters', () => reportsApi.getWaiters(organizationId, params), params, enabled);
 }
 
 export function useInventoryReport(organizationId: string, params?: ReportQuery, enabled = true) {

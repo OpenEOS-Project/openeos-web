@@ -40,6 +40,11 @@ function createOrganizationSchema(t: (key: string) => string) {
       .string()
       .optional()
       .refine((v) => !v || /^\d+$/.test(v), t('form.memberLimitInvalid')),
+    // Bedienungen (Kassenprofile): leer = Standard, 0 = unbegrenzt.
+    waiterLimit: z
+      .string()
+      .optional()
+      .refine((v) => !v || /^\d+$/.test(v), t('form.memberLimitInvalid')),
   });
 }
 
@@ -58,6 +63,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
   const isEditing = !!organization;
   const deployment = useDeployment();
   const defaultMemberLimit = deployment.limits?.membersPerOrganization ?? 10;
+  const defaultWaiterLimit = deployment.limits?.waitersPerOrganization ?? 200;
 
   const createOrganization = useCreateOrganization();
   const updateOrganization = useAdminUpdateOrganization();
@@ -80,6 +86,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
       invoiceDaysUntilDue: '',
       prioritySupport: false,
       memberLimit: '',
+      waiterLimit: '',
     },
   });
   const billingMode = watch('billingMode');
@@ -101,6 +108,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
           typeof organization.invoiceDaysUntilDue === 'number' ? String(organization.invoiceDaysUntilDue) : '',
         prioritySupport: organization.prioritySupport ?? false,
         memberLimit: typeof organization.memberLimit === 'number' ? String(organization.memberLimit) : '',
+        waiterLimit: typeof organization.waiterLimit === 'number' ? String(organization.waiterLimit) : '',
       });
     } else {
       reset({
@@ -112,6 +120,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
         invoiceDaysUntilDue: '',
         prioritySupport: false,
         memberLimit: '',
+        waiterLimit: '',
       });
     }
   }, [organization, reset]);
@@ -141,6 +150,7 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
             // Leer heisst "Standard" und wird als null gespeichert, damit ein
             // spaeter geaenderter Standard wieder greift.
             memberLimit: data.memberLimit ? Number(data.memberLimit) : null,
+            waiterLimit: data.waiterLimit ? Number(data.waiterLimit) : null,
           },
         });
       } else {
@@ -283,6 +293,27 @@ export function OrganizationFormModal({ isOpen, organization, onClose }: Organiz
                   </span>
                   {errors.memberLimit && (
                     <span role="alert" className="auth-field__error">{errors.memberLimit.message}</span>
+                  )}
+                </label>
+
+                <label className="auth-field" style={{ gridColumn: '1 / -1' }}>
+                  <span>{t('form.waiterLimit')}</span>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    inputMode="numeric"
+                    className="input"
+                    placeholder={t('form.waiterLimitHint', { limit: defaultWaiterLimit })}
+                    aria-describedby="org-waiter-limit-hint"
+                    data-testid="org-waiter-limit"
+                    {...register('waiterLimit')}
+                  />
+                  <span id="org-waiter-limit-hint" style={{ fontSize: 12, color: 'var(--mute)' }}>
+                    {t('form.waiterLimitHint', { limit: defaultWaiterLimit })}
+                  </span>
+                  {errors.waiterLimit && (
+                    <span role="alert" className="auth-field__error">{errors.waiterLimit.message}</span>
                   )}
                 </label>
 

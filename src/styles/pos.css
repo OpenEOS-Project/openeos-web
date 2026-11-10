@@ -109,6 +109,9 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-floor__tabs { overflow-x: auto; scrollbar-width: none; }
 .pos-floor .oe-floor__table { min-width: 0; }
 .pos-floor .oe-floor__hint { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+/* Verantwortliche Bedienung am Tisch (Farbe + Kurzname). */
+.pos-floor__hint { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; max-width: 100%; }
+.pos-floor__owner { font-style: normal; font-size: 9px; font-weight: 700; line-height: 1.1; padding: 1px 5px; border-radius: 999px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--oe-ink); color: var(--oe-bg, #fff); }
 /* Startansicht breit/mittel: ganze Karte ohne Scrollen sichtbar (Höhe begrenzt die Breite) */
 .pos-start .pos-floor .oe-floor-wrap { max-width: max(420px, calc((100dvh - 300px) * var(--pos-floor-ratio, 1.5))); }
 .pos-floor__swipe { margin: -4px 0 0; font: 500 12px var(--oe-f-mono); color: var(--oe-mute); }
@@ -414,6 +417,11 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-oh-row__main { display: grid; gap: 4px; min-width: 0; }
 .pos-oh-row__place { display: flex; align-items: center; gap: 6px; min-width: 0; font: 600 14px var(--oe-f-sans); --oe-ico: 15px; }
 .pos-oh-row__place em { font-style: normal; font-weight: 500; color: var(--oe-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pos-oh-row__waiter { flex-shrink: 0; font: 700 11px var(--oe-f-sans); padding: 2px 7px; border-radius: var(--oe-r-full); background: var(--oe-ink); color: var(--oe-paper); max-width: 10ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Kellnerabrechnung an der Kasse */
+.pos-settle { display: grid; gap: 14px; }
+.pos-settle__foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; width: 100%; }
+.pos-settle__foot > * { flex: 1 1 200px; }
 .pos-oh-row__items { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--oe-mute); }
 .pos-oh-row__status { display: flex; flex-wrap: wrap; gap: 6px; }
 .pos-oh-row__status .oe-badge { --oe-ico: 12px; gap: 4px; }

@@ -2838,7 +2838,9 @@
       "memberLimit": "Maximum members",
       "memberLimitHint": "empty = default ({limit}), 0 = unlimited; counts members and pending invitations",
       "memberLimitInvalid": "Please enter a whole number of 0 or more",
-      "country": "Country"
+      "country": "Country",
+      "waiterLimit": "Maximum servers",
+      "waiterLimitHint": "Empty = default ({limit}), 0 = unlimited. Servers do not count as members."
     },
     "actions": {
       "edit": "Edit",
@@ -3137,7 +3139,8 @@
         "refund_failed": "Refund failed: {amount}",
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
-        "refund_receipt_reprinted": "Counter-receipt reprinted"
+        "refund_receipt_reprinted": "Counter-receipt reprinted",
+        "transferred": "Table handed over from {from} to {to}"
       },
       "optionWithout": "without {option}",
       "itemRefunded": "{count} refunded",
@@ -3554,7 +3557,10 @@
       "tableFilter": "Filter tables",
       "tablesMine": "Mine",
       "tablesAll": "All",
-      "tableOwner": "Server: {name}"
+      "tableOwner": "Server: {name}",
+      "summary": "My running total",
+      "settle": "Settle",
+      "handover": "Hand over table"
     }
   },
   "orders": {
@@ -3701,7 +3707,8 @@
         "refund_failed": "Refund failed: {amount}",
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
-        "refund_receipt_reprinted": "Counter-receipt reprinted"
+        "refund_receipt_reprinted": "Counter-receipt reprinted",
+        "transferred": "Table handed over from {from} to {to}"
       },
       "payments": "Payments"
     },
@@ -4625,7 +4632,13 @@
     "WAITER_NOT_PERMITTED": "You may not do this yourself. A shift lead approves with their PIN.",
     "WAITER_SESSION_EXPIRED": "Your till sign-in expired. Enter your PIN again.",
     "WAITER_SESSION_REQUIRED": "Please sign in at the till with your PIN.",
-    "WAITER_SETTINGS_INVALID": "Invalid server setting."
+    "WAITER_SETTINGS_INVALID": "Invalid server setting.",
+    "WAITER_OPEN_TABLES": "There are still open tables. Hand them over to another server or settle anyway with a note (shift lead).",
+    "WAITER_SETTLEMENT_EMPTY": "Nothing to settle since the last settlement.",
+    "WAITER_SETTLEMENT_NOTE_REQUIRED": "Please add a note why you settle despite open tables.",
+    "WAITER_SETTLEMENT_NOT_FOUND": "Settlement not found.",
+    "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
+    "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5635,6 +5648,28 @@
         "gross": "Gross",
         "net": "Net",
         "tax": "VAT"
+      }
+    },
+    "waiters": {
+      "title": "Servers",
+      "subtitle": "Per server: taken, collected, refunded and settled (without test bookings)",
+      "none": "No server",
+      "member": "Member",
+      "filename": "report-servers.csv",
+      "columns": {
+        "waiter": "Server",
+        "orders": "Orders",
+        "items": "Items",
+        "revenue": "Sales",
+        "collected": "Collected",
+        "cash": "Cash",
+        "card": "Card",
+        "other": "Other",
+        "tips": "Tips",
+        "refunds": "Canc./refunds",
+        "pfand": "Deposits",
+        "settlements": "Settlements",
+        "open": "Open tables"
       }
     }
   },
@@ -7273,7 +7308,9 @@
       "resetPin": "New PIN for {name}",
       "deactivate": "Deactivate {name}",
       "activate": "Activate {name}",
-      "delete": "Delete {name}"
+      "delete": "Delete {name}",
+      "settle": "Settle {name}",
+      "export": "Export data about {name} (CSV)"
     },
     "empty": {
       "title": "No servers yet",
@@ -7333,7 +7370,8 @@
       "anonymized": "{name} deactivated and anonymized"
     },
     "errors": {
-      "pinReset": "The new PIN could not be assigned."
+      "pinReset": "The new PIN could not be assigned.",
+      "export": "Could not create the data export."
     },
     "settings": {
       "title": "Server settings",
@@ -7347,7 +7385,124 @@
       "receiptNameFull": "Full name",
       "foreignTables": "Other servers’ tables",
       "foreignTablesWarn": "Booking allowed, with a note",
-      "foreignTablesAllow": "Booking allowed, without a note"
+      "foreignTablesAllow": "Booking allowed, without a note",
+      "selfSettlement": "Settling",
+      "selfSettlementLead": "Shift leads and admins only",
+      "selfSettlementSelf": "Servers settle themselves"
+    },
+    "anonymizeDue": "will be anonymized on {date}"
+  },
+  "waiterSettlement": {
+    "sections": {
+      "collected": "Collected",
+      "refunded": "Cancellations, refunds, deposits",
+      "taken": "Taken"
+    },
+    "rows": {
+      "cash": "Cash",
+      "card": "Card",
+      "other": "Other",
+      "total": "Total",
+      "tips": "of which tips",
+      "refundsCash": "Cancellations/refunds in cash",
+      "refundsNonCash": "Cancellations/refunds non-cash",
+      "pfand": "Deposits paid out",
+      "orders": "Orders",
+      "items": "Items",
+      "revenue": "Gross sales",
+      "discounts": "Discounts",
+      "cashExpected": "Expected cash",
+      "drawer": "Drawer {name}",
+      "unknownDevice": "no device",
+      "counted": "Counted",
+      "difference": "Difference"
+    },
+    "cashHint": "For information only: the cash is in the drawer of the till named. It is counted at the till’s cash count as before.",
+    "ordersOnlyHint": "\"Tickets only\": OpenEOS takes no payments, the settlement contains quantities only.",
+    "training": "Training (not in the money): {orders, plural, one {# order} other {# orders}}, {payments, plural, one {# payment} other {# payments}}",
+    "period": {
+      "since": "since {from} (settlement no. {number})",
+      "start": "since the start of the event"
+    },
+    "empty": "Nothing to settle since the last settlement.",
+    "openTables": {
+      "title": "{count, plural, one {# open table} other {# open tables}}",
+      "table": "Table {table}",
+      "target": "Hand over to …",
+      "handOver": "Hand over open tables",
+      "handOverShort": "Hand over …",
+      "leadHint": "Hand the open tables over to another server. Only a shift lead can settle anyway."
+    },
+    "force": {
+      "label": "Settle despite open tables (note required)",
+      "note": "Note",
+      "notePlaceholder": "e.g. table 7 pays at the bar when leaving"
+    },
+    "printer": "Print receipt on",
+    "noPrint": "Do not print",
+    "submit": "Settle",
+    "dashboardTitle": "Settle {name}",
+    "summaryTitle": "My running total",
+    "settleTitle": "Settle",
+    "pickWaiter": "Who are you settling?",
+    "settleHint": "A shift lead settles. You can view and print your running total at any time.",
+    "cancel": "Cancel",
+    "submitAndPrint": "Settle {name}",
+    "print": "Print running total",
+    "done": {
+      "saved": "Settlement no. {number} for {name} saved.",
+      "training": "Training settlement for {name} saved (no number).",
+      "printed": "The receipt comes out of this till’s receipt printer. Please both sign it.",
+      "notPrinted": "No receipt printed: this till has no receipt printer. Reprint in the dashboard under Servers.",
+      "close": "Done"
+    },
+    "handover": {
+      "title": "Hand over order",
+      "titleTable": "Hand over table {table}",
+      "subtitle": "Who takes over? All open orders of the table move along.",
+      "none": "No other active server.",
+      "pick": "Choose server"
+    },
+    "toast": {
+      "transferred": "{count, plural, one {# order} other {# orders}} handed over to {name}.",
+      "settled": "Settlement no. {number} for {name} saved.",
+      "settledTraining": "Training settlement for {name} saved.",
+      "notPrinted": "No receipt printed: printer not reachable.",
+      "reprinted": "Reprint sent.",
+      "summaryPrinted": "Running total is being printed.",
+      "receivedTable": "Table {table} was handed over to you.",
+      "receivedOrder": "{count, plural, one {An order was} other {# orders were}} handed over to you."
+    },
+    "errors": {
+      "summary": "Could not load the running total.",
+      "settle": "Settling failed.",
+      "transfer": "Handing over failed."
+    },
+    "list": {
+      "title": "Settlements",
+      "description": "Completed server settlements, newest first. They cannot be changed; a reprint is possible at any time.",
+      "empty": "No settlements yet.",
+      "number": "No.",
+      "waiter": "Server",
+      "period": "Period",
+      "collected": "Collected",
+      "cashExpected": "Expected cash",
+      "settledBy": "Settled by",
+      "actions": "Actions",
+      "training": "Training",
+      "forced": "despite open tables",
+      "fromStart": "Start",
+      "open": "View settlement no. {number}"
+    },
+    "detail": {
+      "title": "Settlement no. {number}",
+      "trainingTitle": "Training settlement",
+      "settledBy": "Settled by {name} · {device}",
+      "dashboard": "Dashboard",
+      "forced": "Settled despite open tables",
+      "note": "Note: {note}",
+      "devicePrinter": "Till receipt printer",
+      "reprint": "Reprint"
     }
   }
 }

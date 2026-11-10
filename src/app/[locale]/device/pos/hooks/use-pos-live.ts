@@ -28,6 +28,16 @@ interface ProductUpdatedPayload {
  * Steht die Live-Verbindung (Socket)? Abfragen offener Bestellungen pollen
  * nur ohne sie (Spezifikation §5.5).
  */
+/** Echtzeit `orderTransferred` (Tischübergabe). */
+export interface OrderTransferredPayload {
+  orderIds: string[];
+  eventId: string | null;
+  tableNumber: string | null;
+  fromWaiterId: string | null;
+  toWaiterId: string;
+  toName: string;
+}
+
 const PosLiveContext = createContext(false);
 export const PosLiveProvider = PosLiveContext.Provider;
 export function usePosLive() {
@@ -62,6 +72,7 @@ export function usePosSocketEvents(
   eventId: string | null,
   onBroadcast: (message: BroadcastMessage) => void,
   onWaiterUpdated?: (data: unknown) => void,
+  onOrderTransferred?: (data: OrderTransferredPayload) => void,
 ) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -161,8 +172,13 @@ export function usePosSocketEvents(
         queryClient.invalidateQueries({ queryKey: ['device-waiters'] });
         onWaiterUpdated?.(data);
       },
+      // Tisch übergeben: Listen neu, Hinweis an die neue Bedienung.
+      orderTransferred: (data: unknown) => {
+        ordersChanged(data);
+        onOrderTransferred?.(data as OrderTransferredPayload);
+      },
     }),
-    [eventId, queryClient, refreshDevice, router, ordersChanged, onWaiterUpdated],
+    [eventId, queryClient, refreshDevice, router, ordersChanged, onWaiterUpdated, onOrderTransferred],
   );
 
   const onConnect = useCallback(() => {

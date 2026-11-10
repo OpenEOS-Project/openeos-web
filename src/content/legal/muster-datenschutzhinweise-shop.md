@@ -43,6 +43,16 @@ Sie haben das Recht auf Auskunft über die zu Ihnen gespeicherten Daten (Art. 15
 
 Der Online-Shop speichert Ihren Warenkorb nur lokal in Ihrem Browser; das ist für die Bestellung technisch erforderlich. Es findet keine Nutzungsanalyse und kein Tracking statt.
 
+## 7. Kassenpersonal (Bedienungen)
+
+Dieser Abschnitt richtet sich an die Personen, die an unseren Kassen bedienen und kassieren. Für sie legen wir in OpenEOS ein Kassenprofil ohne Benutzerkonto an (Bedienung), entweder für eine Veranstaltung oder für alle Veranstaltungen. Dabei verarbeiten wir Ihren Namen (auch nur Vorname oder Spitzname), einen Kurznamen, eine Farbe, Ihre Rolle (Bedienung oder Schichtleitung) und Ihre Rechte sowie Ihre PIN, die nur als nicht umkehrbarer Prüfwert gespeichert wird. Gespeichert werden außerdem Ihre Anmeldungen an den Kassengeräten (Gerät, Beginn und Ende), die Zuordnung Ihrer Buchungen (Bestellungen, Zahlungen, Stornos und Erstattungen, Pfand-Auszahlungen, Tischübergaben) und Ihre Kellnerabrechnungen. Eine E-Mail-Adresse oder Telefonnummer wird dafür nicht erfasst. Arbeitszeiten oder Ihre Leistung je Stunde werden nicht ausgewertet.
+
+Wir brauchen diese Daten, um jede Buchung der Person zuzuordnen, die sie vorgenommen hat, um mit Ihnen am Ende der Schicht abzurechnen und um unsere Kasse nach den Vorschriften der Abgabenordnung zu führen. Rechtsgrundlage ist [Art. 6 Abs. 1 Buchstabe b DSGVO (Vereinsmitgliedschaft bzw. Vereinbarung über Ihre Mithilfe), bei Beschäftigten § 26 BDSG, für die steuerrechtlichen Aufzeichnungspflichten Art. 6 Abs. 1 Buchstabe c DSGVO; vom Kunden zu prüfen].
+
+Ein Profil für eine Veranstaltung wird 30 Tage nach dem Ende der Veranstaltung anonymisiert, ein Profil für alle Veranstaltungen 30 Tage nach seiner Deaktivierung oder nach zwölf Monaten ohne Nutzung. Dabei wird Ihr Name durch „Bedienung“ mit einer Nummer ersetzt, Kurzname und Farbe werden gelöscht, ebenso der Prüfwert Ihrer PIN; in den Protokollen von Stornos und Erstattungen wird Ihr Name durch ein Pseudonym ersetzt. Ihre Anmeldungen an den Kassengeräten werden nach 90 Tagen gelöscht. Die Kellnerabrechnungen bleiben mit ihren Beträgen erhalten, nach der Anonymisierung ohne Ihren Namen. Wir können Ihr Profil auch vorher löschen; enthält es bereits Buchungen, wird es deaktiviert und anonymisiert. Nehmen wir Bargeld an, steht Ihr Name als Bediener auch in den steuerrechtlichen Kassenaufzeichnungen (signierte Kassenvorgänge, Kassenabschlüsse und Export nach der DSFinV-K, Kassenbuch-Belege). Diese Aufzeichnungen müssen wir zehn Jahre aufbewahren (§ 147 Abgabenordnung); Ihr Name bleibt dort für diese Zeit erhalten und wird nicht anonymisiert.
+
+Ihre Rechte nach Abschnitt 5 gelten auch für Sie. Eine Auskunft über die zu Ihrem Profil gespeicherten Daten können wir Ihnen als Datei geben.
+
 ---
 
 ## Hinweise für den Kunden (nicht veröffentlichen)
@@ -51,3 +61,4 @@ Der Online-Shop speichert Ihren Warenkorb nur lokal in Ihrem Browser; das ist f�
 - Den fertigen Text trägt der Kunde in OpenEOS unter Einstellungen → „Rechtliche Angaben (Shop & Helferseiten)“ als Datenschutzhinweis ein (als Text oder Link). OpenEOS zeigt ihn dann im Fußbereich des Online-Shops und der Helferseiten und verlinkt ihn neben dem E-Mail-Feld der Bestellung und der Helferanmeldung. Soweit Daten an der Kasse erfasst werden, zusätzlich als Aushang oder Link auf dem Beleg.
 - Zusätzlich braucht der Shop ein Impressum des Kunden (ebenfalls unter „Rechtliche Angaben“). Für eingetragene Vereine: Vereinsname, Anschrift, vertretungsberechtigter Vorstand, Registergericht und Vereinsregisternummer, E-Mail.
 - Wenn der Kunde Gästedaten zu anderen Zwecken nutzt, etwa für Einladungen zum nächsten Fest, braucht er dafür eine eigene Rechtsgrundlage, in der Regel eine Einwilligung.
+- Setzt der Kunde Bedienungen ein, informiert er sein Kassenpersonal über Abschnitt 7, z. B. durch einen Aushang an der Kasse oder beim Ausgeben des PIN-Zettels. Setzt er keine Bedienungen ein, kann Abschnitt 7 entfallen.

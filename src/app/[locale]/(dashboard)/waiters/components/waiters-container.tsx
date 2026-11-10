@@ -13,7 +13,9 @@ import { useIntlLocale } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useResetWaiterPin, useUpdateWaiter, useWaiters } from '@/hooks/use-waiters';
 import { useAuthStore } from '@/stores/auth-store';
-import type { Waiter, WaiterWithPin } from '@/types/waiter';
+import { waitersApi } from '@/lib/api-client';
+import { saveBlob } from '@/lib/dsfinvk';
+import type { Waiter, WaiterSettlement, WaiterWithPin } from '@/types/waiter';
 
 import { WaiterBadge } from './waiter-badge';
 import { WaiterFormModal } from './waiter-form-modal';
@@ -21,6 +23,8 @@ import { WaitersBulkModal } from './waiters-bulk-modal';
 import { PinRevealModal, type RevealedPin } from './pin-reveal-modal';
 import { WaiterDeleteDialog } from './waiter-delete-dialog';
 import { WaiterSettingsCard } from './waiter-settings-card';
+import { WaiterSettleModal } from './waiter-settle-modal';
+import { WaiterSettlementsSection } from './waiter-settlements-section';
 
 export function WaitersContainer() {
   const t = useTranslations('waiters');
@@ -37,6 +41,9 @@ export function WaitersContainer() {
   const [bulkOpen, setBulkOpen] = useState(false);
   const [revealed, setRevealed] = useState<RevealedPin[] | null>(null);
   const [deleting, setDeleting] = useState<Waiter | null>(null);
+  const [settling, setSettling] = useState<Waiter | null>(null);
+  const [settled, setSettled] = useState<WaiterSettlement | null>(null);
+  const [exporting, setExporting] = useState<string | null>(null);
 
   const { data: events = [] } = useEvents(organizationId);
   const list = useWaiters(organizationId || undefined, eventFilter === 'all' ? null : eventFilter);
@@ -101,6 +108,21 @@ export function WaitersContainer() {
       },
     );
   };
+
+  /** Auskunft (Art. 15 DSGVO) als CSV herunterladen. */
+  const handleExport = async (waiter: Waiter) => {
+    setExporting(waiter.id);
+    try {
+      const file = await waitersApi.exportData(organizationId, waiter.id);
+      saveBlob(file.blob, file.filename ?? `bedienung-${waiter.id.slice(0, 8)}-auskunft.csv`);
+    } catch (error) {
+      toast.error(apiErrorMessage(error, t('errors.export')));
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const formatDay = (value: string) => new Date(value).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const formatDate = (value: string | null) =>
     value
@@ -194,9 +216,23 @@ export function WaitersContainer() {
                   <span className={`badge ${waiter.isActive ? 'badge--success' : 'badge--neutral'}`}>
                     {waiter.isActive ? t('status.active') : t('status.inactive')}
                   </span>
+                  {waiter.anonymizeDueAt && (
+                    <small className="waiters-due" data-testid="waiter-anonymize-due">
+                      {t('anonymizeDue', { date: formatDay(waiter.anonymizeDueAt) })}
+                    </small>
+                  )}
                 </td>
                 <td>
                   <div className="waiters-actions">
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => setSettling(waiter)}
+                      aria-label={t('actions.settle', { name: waiter.name })}
+                      title={t('actions.settle', { name: waiter.name })}
+                    >
+                      <Icon name="receipt" size={16} />
+                    </button>
                     <button
                       type="button"
                       className="btn btn--ghost"
@@ -234,6 +270,16 @@ export function WaitersContainer() {
                       }
                     >
                       <Icon name={waiter.isActive ? 'ban' : 'check-circle'} size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => void handleExport(waiter)}
+                      disabled={exporting === waiter.id}
+                      aria-label={t('actions.export', { name: waiter.name })}
+                      title={t('actions.export', { name: waiter.name })}
+                    >
+                      <Icon name="download" size={16} />
                     </button>
                     <button
                       type="button"
@@ -278,7 +324,27 @@ export function WaitersContainer() {
         <p>{t('hint')}</p>
       </div>
 
+      <WaiterSettlementsSection
+        organizationId={organizationId}
+        eventId={eventFilter === 'all' ? null : eventFilter}
+        highlight={settled}
+        onCloseHighlight={() => setSettled(null)}
+      />
+
       {isAdmin && <WaiterSettingsCard />}
+
+      {settling && (
+        <WaiterSettleModal
+          organizationId={organizationId}
+          waiter={settling}
+          waiters={waiters}
+          onClose={() => setSettling(null)}
+          onSettled={(settlement) => {
+            setSettling(null);
+            setSettled(settlement);
+          }}
+        />
+      )}
 
       {formFor && (
         <WaiterFormModal

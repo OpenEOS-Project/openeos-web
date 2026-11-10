@@ -47,15 +47,36 @@ import { useOpenOrders, type OpenOrdersScope } from './hooks/use-open-orders';
 import { checkoutTotals, usePosCheckout } from './hooks/use-pos-checkout';
 import { usePosData } from './hooks/use-pos-data';
 import { usePosTheme } from './hooks/use-pos-theme';
-import { PosLiveProvider, usePosDeviceStatus, usePosSocketEvents, usePosTseStatus } from './hooks/use-pos-live';
+import {
+  PosLiveProvider,
+  usePosDeviceStatus,
+  usePosSocketEvents,
+  usePosTseStatus,
+  type OrderTransferredPayload,
+} from './hooks/use-pos-live';
 import { usePosTseOutage } from './hooks/use-pos-tse';
 import { posTseState } from '@/lib/tse';
 import { effectiveTableMode, mergeOpenTables, resolveTableSelectView, sameContext, sortAreas } from './utils/tables';
 import { useWaiterSession } from './hooks/use-waiter-session';
 import { WaiterChip } from './components/waiter-chip';
-import { foreignOwner, isMyTable, may, waiterLabel, type TableFilter } from '@/lib/waiters';
+import { WaiterHandoverSheet } from './components/waiter-handover-sheet';
+import { WaiterSettleSheet } from './components/waiter-settle-sheet';
+import { foreignOwner, isLeadWaiter, isMyTable, may, waiterLabel, type TableFilter } from '@/lib/waiters';
 
-type SheetId = 'pay' | 'history' | 'openOrders' | 'split' | 'pfand' | 'cashbook' | 'logout' | 'table' | 'emergency' | null;
+type SheetId =
+  | 'pay'
+  | 'history'
+  | 'openOrders'
+  | 'split'
+  | 'pfand'
+  | 'cashbook'
+  | 'logout'
+  | 'table'
+  | 'emergency'
+  | 'waiterSummary'
+  | 'waiterSettle'
+  | 'handover'
+  | null;
 
 /** Kartenzahlung ohne gespeicherte Bestellung (Kassieren-Blatt der Bestellansicht). */
 const UNSAVED_KEY = 'openeos-pos-unsaved-card';
@@ -142,7 +163,26 @@ function PosApp() {
     setBroadcasts((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
-  const socketOptions = usePosSocketEvents(eventId, handleBroadcast, waiterSession.onWaiterUpdated);
+  // Tisch übergeben: Hinweis an die neue Bedienung (an jedem ihrer Geräte).
+  const tSettle = useTranslations('waiterSettlement');
+  const handleOrderTransferred = useCallback(
+    (payload: OrderTransferredPayload) => {
+      const me = useWaiterSessionStore.getState().waiter;
+      if (!me?.waiterId || payload.toWaiterId !== me.waiterId) return;
+      toast(
+        payload.tableNumber
+          ? tSettle('toast.receivedTable', { table: payload.tableNumber })
+          : tSettle('toast.receivedOrder', { count: payload.orderIds.length }),
+      );
+    },
+    [toast, tSettle],
+  );
+  const socketOptions = usePosSocketEvents(
+    eventId,
+    handleBroadcast,
+    waiterSession.onWaiterUpdated,
+    handleOrderTransferred,
+  );
   const { socket, isConnected } = useDeviceSocket(socketOptions);
   const connection = usePosConnection(isConnected);
   const offline = connection === 'offline';
@@ -422,6 +462,20 @@ function PosApp() {
   }
 
   const totals = checkoutTotals(cart, chargePfand, sentOrders);
+  // Offener Tisch mit gesendeten Bestellungen: übergeben (eigene jede
+  // Bedienung, fremde nur Schichtleitung — der Server prüft das).
+  const currentEntry =
+    context?.kind === 'table'
+      ? openTables.find((entry) => entry.context.kind === 'table' && entry.context.key === context.key)
+      : undefined;
+  const handoverTarget =
+    waiterMode !== 'off' && !!waiter && context?.kind === 'table' && totals.openOrderIds.length > 0
+      ? {
+          orderId: totals.openOrderIds[0],
+          tableNumber: context.label,
+          ownerId: currentEntry?.waiterId ?? null,
+        }
+      : null;
   const menu: PosMenuAction[] = [
     { id: 'history', icon: 'clock', label: t('menu.history'), onSelect: () => setSheet('history') },
     ...(isTab ? [{ id: 'open', icon: 'orders' as const, label: t('menu.openOrders'), onSelect: () => setSheet('openOrders') }] : []),
@@ -439,6 +493,16 @@ function PosApp() {
           label: t('menu.cashDrawer'),
           disabled: offline,
           onSelect: () => deviceApi.openCashDrawer().then(() => toast(t('menu.cashDrawerOpened')), () => toast(t('menu.cashDrawerFailed'), 'danger')),
+        }]
+      : []),
+    // Tisch übergeben (Bedienungen): am offenen Tisch mit gesendeten Bestellungen.
+    ...(handoverTarget
+      ? [{
+          id: 'handover',
+          icon: 'users' as const,
+          label: t('waiter.handover'),
+          disabled: offline,
+          onSelect: () => setSheet('handover'),
         }]
       : []),
     ...(showEmergency
@@ -548,6 +612,8 @@ function PosApp() {
                 onSwitch={() => lock('switch')}
                 onLock={() => lock('lock')}
                 onSignOut={() => lock('logout')}
+                onSummary={() => setSheet('waiterSummary')}
+                onSettle={isLeadWaiter(waiter) ? () => setSheet('waiterSettle') : undefined}
               />
             ) : undefined
           }
@@ -617,7 +683,12 @@ function PosApp() {
           amount={totals.due}
           pfandIncluded={totals.pfand}
           card={card}
-          discount={{ vouchers, applied: cart.appliedVouchers, onApply: cart.applyVoucher, onRemove: cart.removeVoucher }}
+          discount={
+            // Rabatt-Bons nur mit Recht „Rabatt“ (Bedienung ohne Schalter: aus).
+            may(waiter, 'discount')
+              ? { vouchers, applied: cart.appliedVouchers, onApply: cart.applyVoucher, onRemove: cart.removeVoucher }
+              : null
+          }
           onSplit={canSplit ? () => void openSplit() : undefined}
           onPay={async (result) => {
             const info = await checkout.pay(result);
@@ -698,6 +769,22 @@ function PosApp() {
         {showEmergency && emergency && (
           <EmergencySupportSheet open={sheet === 'emergency'} onClose={() => setSheet(null)} info={emergency} />
         )}
+        {waiter && (
+          <WaiterSettleSheet
+            mode={sheet === 'waiterSummary' ? 'summary' : sheet === 'waiterSettle' ? 'settle' : null}
+            onClose={() => setSheet(null)}
+            me={waiter}
+            tiles={waiterTiles ?? []}
+            disabled={offline}
+          />
+        )}
+        <WaiterHandoverSheet
+          order={sheet === 'handover' && handoverTarget ? handoverTarget : null}
+          tiles={waiterTiles ?? []}
+          excludeId={handoverTarget?.ownerId ?? null}
+          onClose={() => setSheet(null)}
+          onDone={() => setSheet(null)}
+        />
         <LogoutSheet open={sheet === 'logout'} onClose={() => setSheet(null)} onConfirm={handleLogout} />
       </div>
     </PosLiveProvider>

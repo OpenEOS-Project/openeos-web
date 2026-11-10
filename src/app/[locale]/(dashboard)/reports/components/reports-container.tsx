@@ -17,6 +17,7 @@ import {
   useDevicesReport,
   useNetSalesSummary,
   useVatReport,
+  useWaitersReport,
 } from '@/hooks/use-reports';
 import { ListEmpty } from '@/components/shared/list-states';
 import { useOperatingMode } from '@/hooks/use-operating-mode';
@@ -29,6 +30,7 @@ import { ReportsHourlyChart } from './reports-hourly-chart';
 import { ReportsChannelsTable } from './reports-channels-table';
 import { ReportsCategoriesTable } from './reports-categories-table';
 import { ReportsDevicesTable } from './reports-devices-table';
+import { ReportsWaitersTable } from './reports-waiters-table';
 import { ReportsVatTable } from './reports-vat-table';
 import { PdfExportButton } from './pdf-export-button';
 import { todayKey } from '@/utils/calendar-date';
@@ -79,6 +81,7 @@ export function ReportsContainer() {
   const channelsReport = useChannelsReport(organizationId, reportQuery);
   const categoriesReport = useCategoriesReport(organizationId, reportQuery);
   const devicesReport = useDevicesReport(organizationId, reportQuery);
+  const waitersReport = useWaitersReport(organizationId, reportQuery);
   const netSummary = useNetSalesSummary(organizationId, reportQuery);
   // „Nur Bons“: keine Beträge, also auch keine Umsatzsteuer.
   const vatReport = useVatReport(organizationId, reportQuery, !orderOnly);
@@ -154,6 +157,8 @@ export function ReportsContainer() {
       />
 
       <ReportsDevicesTable data={devicesReport.data} isLoading={devicesReport.isLoading} orderOnly={orderOnly} />
+
+      <ReportsWaitersTable data={waitersReport.data} isLoading={waitersReport.isLoading} orderOnly={orderOnly} />
 
       <ReportsHourlyChart data={hourlyReport.data} isLoading={hourlyReport.isLoading} orderOnly={orderOnly} />
     </div>
