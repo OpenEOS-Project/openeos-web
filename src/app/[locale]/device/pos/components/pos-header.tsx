@@ -17,13 +17,12 @@ import type { PosConnectionState } from '@/hooks/use-pos-connection';
 import { getSourceUrl } from '@/lib/runtime-config';
 import type { PosTheme } from '@/stores/device-store';
 
+import { PosFooter } from './pos-footer';
+
 export interface PosPrinterStatus {
   name: string;
   isOnline: boolean;
 }
-
-/** Cloud-TSE aus Sicht der Kasse (`error` auch bei eigenem Ausfall). */
-export type PosTseState = 'ok' | 'error' | 'creating' | 'inactive';
 
 export interface PosMenuAction {
   id: string;
@@ -36,6 +35,8 @@ export interface PosMenuAction {
 
 interface PosHeaderProps {
   deviceName: string;
+  /** Organisation (Verein) des Geräts — auch auf dem Telefon sichtbar. */
+  organizationName: string | null;
   eventName: string | null;
   /**
    * Tisch-Pille nur in der Bestellansicht mit Tischbetrieb: Tisch, Theke
@@ -45,8 +46,6 @@ interface PosHeaderProps {
   connection: PosConnectionState;
   /** Bondrucker des Geräts — nur gesetzt, wenn die API einen Zustand liefert. */
   printer: PosPrinterStatus | null;
-  /** Cloud-TSE: nur mit eingeschalteter Integration gesetzt. */
-  tse?: PosTseState | null;
   user: { firstName: string; lastName: string } | null;
   onLock?: () => void;
   /** Bedienung (Chip mit Farbe und Kurzname), ersetzt `user`. */
@@ -65,13 +64,6 @@ const THEMES: Array<{ id: PosTheme; icon: IconName }> = [
   { id: 'system', icon: 'monitor' },
 ];
 
-const TSE_DOT: Record<PosTseState, 'live' | 'warn' | 'danger'> = {
-  ok: 'live',
-  error: 'danger',
-  creating: 'warn',
-  inactive: 'warn',
-};
-
 const CONNECTION_TONE: Record<PosConnectionState, 'default' | 'warn' | 'danger'> = {
   online: 'default',
   connecting: 'warn',
@@ -79,14 +71,19 @@ const CONNECTION_TONE: Record<PosConnectionState, 'default' | 'warn' | 'danger'>
   offline: 'danger',
 };
 
-/** Kopfzeile der Kasse: Logo, Kontext, Tisch-Pille, Status, Mehr-Menü, Benutzer. */
+/**
+ * Kopfzeile der Kasse: Logo, Kontext (Gerät, Organisation, Veranstaltung),
+ * Tisch-Pille, Status, Mehr-Menü, Benutzer. Die Cloud-TSE hat hier keine
+ * eigene Anzeige: ein Ausfall erscheint als Hinweis unter dem Kopf und auf
+ * dem Bon.
+ */
 export function PosHeader({
   deviceName,
+  organizationName,
   eventName,
   table,
   connection,
   printer,
-  tse = null,
   user,
   onLock,
   waiter,
@@ -99,6 +96,7 @@ export function PosHeader({
 
   const connectionLabel = t(`status.${connection}`);
   const printerProblem = printer && !printer.isOnline;
+  const event = eventName ?? t('header.noEvent');
 
   return (
     <header className="pos-head">
@@ -110,9 +108,15 @@ export function PosHeader({
         <img className="pos-logo pos-logo--light" src="/logo_light.png" alt="" aria-hidden />
       </span>
       <span className="pos-head__sep" aria-hidden />
-      <div className="pos-head__ctx">
+      <div
+        className="pos-head__ctx"
+        title={[deviceName, organizationName, event].filter(Boolean).join(' · ')}
+      >
         <b>{deviceName}</b>
-        <span>{eventName ?? t('header.noEvent')}</span>
+        <span>
+          {organizationName && <span className="pos-head__org">{organizationName}</span>}
+          <span className="pos-head__event">{event}</span>
+        </span>
       </div>
 
       {table && (
@@ -159,15 +163,6 @@ export function PosHeader({
                 ? t('status.printer', { name: printer.name })
                 : t('status.printerOffline', { name: printer.name })
             }
-          />
-        )}
-        {tse && (
-          <StatusPill
-            className="pos-head__tse"
-            dot={TSE_DOT[tse]}
-            tone={tse === 'error' ? 'danger' : 'default'}
-            label={t('tse.pill')}
-            title={t(`tse.pillState.${tse}`)}
           />
         )}
         <PosClock />
@@ -232,6 +227,8 @@ export function PosHeader({
           <DropdownOption danger icon={<Icon name="logout" />} onClick={onLogout}>
             {t('menu.logout')}
           </DropdownOption>
+          {/* Telefon/Tablet hochkant: Fußzeile im Menü statt unter der Kasse */}
+          <PosFooter variant="menu" />
         </Dropdown>
       </div>
 

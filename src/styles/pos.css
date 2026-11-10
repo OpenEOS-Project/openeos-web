@@ -37,9 +37,12 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-head__sep { width: 1px; height: 26px; background: var(--oe-line-2); flex: none; }
 .pos-head__ctx { display: grid; gap: 1px; min-width: 0; }
 .pos-head__ctx b { font: 700 14px var(--oe-f-sans); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pos-head__ctx span { display: flex; align-items: center; gap: 8px; font: 500 10px var(--oe-f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--oe-mute); white-space: nowrap; }
+.pos-head__ctx > span { font: 500 10px var(--oe-f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--oe-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-head__org + .pos-head__event::before { content: " · "; }
 .pos-head__grow { flex: 1; }
 .pos-head__stat { display: flex; align-items: center; gap: 14px; }
+/* Ein ruhiger Verbindungspunkt: kein Pulsieren, Farbe nur bei Störung */
+.pos-head__online .oe-dot { animation: none; box-shadow: none; }
 .pos-tablepill { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 12px 0 10px; border-radius: var(--oe-r-full); background: var(--oe-green-soft); border: 1px solid color-mix(in oklab, var(--oe-green-ink) 22%, transparent); color: var(--oe-green-ink); cursor: pointer; font: inherit; --oe-ico: 15px; }
 .pos-tablepill:hover { background: var(--oe-green-soft-2); }
 .pos-tablepill__txt { display: flex; align-items: baseline; gap: 5px; min-width: 0; }
@@ -58,6 +61,14 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-testband .oe-banner__ico { width: 14px; height: 14px; margin: 0; --oe-ico: 14px; }
 .pos-testband > div { min-width: 0; }
 .pos-testband p { font: 600 12px/18px var(--oe-f-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-testband__short { display: none; }
+/* Fußzeile: eine leise Zeile unter der Kasse; kompakt im Mehr-Menü */
+.pos-foot { flex: none; display: flex; align-items: center; justify-content: center; min-width: 0; height: 24px; padding: 0 16px; border-top: 1px solid var(--oe-line); background: var(--oe-paper); font: 500 11px var(--oe-f-sans); color: var(--oe-mute); white-space: nowrap; overflow: hidden; }
+.pos-foot__group { display: flex; align-items: center; }
+.pos-foot > * + *::before, .pos-foot__group > * + *::before { content: "·"; margin: 0 8px; color: var(--oe-mute-2); }
+.pos-foot a { color: inherit; text-decoration: none; }
+.pos-foot a:hover { color: var(--oe-ink); text-decoration: underline; }
+.pos-foot--menu { display: none; }
 .pos-offline { flex: none; margin: 10px 16px 0; }
 
 /* ── Startansicht ───────────────────────────────────────── */
@@ -334,9 +345,15 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-shell { height: auto; min-height: 100dvh; display: block; overflow: visible; }
   .pos-head { position: sticky; top: 0; height: 56px; min-height: 0; padding: 0 12px; gap: 8px; }
   .pos-logo { height: 16px; }
-  .pos-head__sep, .pos-head__ctx, .pos-tablepill__sw, .pos-head__clock, .pos-head__user .oe-userchip__name, .pos-waiter__name { display: none; }
+  .pos-foot { display: none; }
+  .pos-foot.pos-foot--menu { display: flex; flex-direction: column; align-items: flex-start; height: auto; margin: 4px -4px 0; padding: 8px 12px 4px; background: none; line-height: 28px; }
+  .pos-foot--menu > * + *::before { content: none; }
+  .pos-head__sep, .pos-head__grow, .pos-tablepill__sw, .pos-head__clock, .pos-head__user .oe-userchip__name, .pos-waiter__name { display: none; }
   .pos-waiter { padding: 0 4px; }
   .pos-tablepill { min-width: 0; }
+  /* Gerät und Verein füllen den freien Platz und kürzen mit „…“ */
+  .pos-head__ctx { flex: 1 1 0; }
+  .pos-head__ctx b { font-size: 13px; }
   .pos-head__stat { gap: 0; }
   .pos-head__online > span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* Bleibt beim Scrollen unter dem Kopf stehen (26 px) */
@@ -357,7 +374,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
 
   .pos-order { display: block; padding-bottom: 76px; }
   .pos-order__rail { position: sticky; top: 56px; z-index: 50; border-right: 0; border-bottom: 1px solid var(--oe-line); }
-  .is-test .pos-order__rail { top: 82px; }
+  .has-band .pos-order__rail { top: 82px; }
   .pos-order__main { display: block; }
   .pos-bar { min-height: 0; padding: 12px 12px 10px; gap: 10px; }
   .pos-bar h2 { min-width: 0; }
@@ -385,6 +402,14 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-pay { grid-template-columns: 1fr; margin: -14px; }
   .pos-pay__l { border-right: 0; border-bottom: 1px solid var(--oe-line); padding: 14px; }
   .pos-pay__r { padding: 14px; }
+}
+
+/* ── Telefon: Platz für Gerät und Verein statt Logo ─────── */
+@media (max-width: 520px) {
+  .pos-head__brand, .pos-head__event, .pos-tablepill__txt small { display: none; }
+  .pos-head__ctx > span { font: 500 11px var(--oe-f-sans); letter-spacing: 0; text-transform: none; }
+  .pos-testband__long { display: none; }
+  .pos-testband__short { display: inline; }
 }
 
 /* ── Bestellverlauf ─────────────────────────────────────────

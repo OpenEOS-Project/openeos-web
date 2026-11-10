@@ -3,7 +3,6 @@
  * Bestellansicht (Vertrag: tse-swissbit-plan.md §8).
  */
 import type {
-  DeviceTseStatus,
   TseEligibility,
   TseLifecycleOutlook,
   TseMasterDataField,
@@ -397,19 +396,6 @@ export function processDataTotal(processType: string, processData: string | null
     total += amount;
   }
   return Math.round(total * 100) / 100;
-}
-
-/**
- * Zustand der TSE-Pille im Kopf der Kasse: `null` ohne Integration (keine
- * Pille), sonst der Server-Zustand — ein eigener Ausfall (letzter Vorgang
- * ohne Signatur) zählt als `error`, auch bevor der Server ihn meldet.
- */
-export function posTseState(
-  tse: Pick<DeviceTseStatus, 'state'> | null | undefined,
-  outage: boolean,
-): DeviceTseStatus['state'] | null {
-  if (!tse) return null;
-  return outage ? 'error' : tse.state;
 }
 
 // ── Lebenszyklus „monthly“ (Abmeldung zum Monatsende) ─────────────────

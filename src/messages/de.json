@@ -3022,9 +3022,12 @@
       "open": "Schublade öffnen",
       "opened": "Schublade geöffnet"
     },
-    "testMode": "Testmodus — Bestellungen werden beim Aktivieren gelöscht",
-    "plannedMode": "Testbetrieb – echte Verkäufe ab {date} um {time} Uhr",
+    "testMode": "Testmodus – Buchungen zählen nicht und werden beim Aktivieren gelöscht",
+    "testModeShort": "Testmodus – Buchungen zählen nicht",
+    "plannedMode": "Testbetrieb – Buchungen zählen nicht. Echte Verkäufe ab {date} um {time} Uhr",
+    "plannedModeShort": "Testbetrieb bis {date}, {time} Uhr – zählt nicht",
     "endedMode": "Veranstaltung beendet – nur noch offene Bestellungen kassieren",
+    "endedModeShort": "Beendet – nur offene Bestellungen kassieren",
     "testBadge": "Test",
     "scheduledBadge": "Geplant",
     "orderHistory": {
@@ -3509,17 +3512,9 @@
       "banner": "Bargeld gesperrt – ohne aktive TSE nimmt diese Kasse kein Bargeld an. Karte und online gehen weiter."
     },
     "tseOutage": {
-      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet.",
-      "training": "Trainingsbuchung – nimm kein echtes Geld an."
+      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet."
     },
     "tse": {
-      "pill": "TSE",
-      "pillState": {
-        "ok": "Cloud-TSE bereit – Belege werden signiert",
-        "error": "Cloud-TSE gestört – Belege werden als „TSE ausgefallen“ gekennzeichnet",
-        "creating": "Cloud-TSE wird eingerichtet",
-        "inactive": "Cloud-TSE nicht aktiv – kein Bargeld"
-      },
       "splitDone": "Teilzahlung gebucht",
       "pfandDone": "Pfand ausgezahlt",
       "sectionTitle": "TSE-Daten ({count})",
