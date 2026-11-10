@@ -9,7 +9,7 @@ import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateWaiter, useUpdateWaiter } from '@/hooks/use-waiters';
-import { WAITER_COLORS, effectivePermissions, permissionOverrides } from '@/lib/waiters';
+import { WAITER_COLORS, effectivePermissions, employeeFlagPatch, permissionOverrides } from '@/lib/waiters';
 import type { Event } from '@/types/event';
 import {
   WAITER_PERMISSION_KEYS,
@@ -46,6 +46,7 @@ export function WaiterFormModal({ organizationId, waiter, events, defaultEventId
     effectivePermissions(waiter?.role ?? 'service', waiter?.permissions),
   );
   const [eventId, setEventId] = useState<string>(waiter ? (waiter.eventId ?? '') : (defaultEventId ?? ''));
+  const [isEmployee, setIsEmployee] = useState(waiter?.isEmployee === true);
   const [ownPin, setOwnPin] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -75,6 +76,7 @@ export function WaiterFormModal({ organizationId, waiter, events, defaultEventId
       role,
       permissions: permissionOverrides(role, rights),
       eventId: eventId || null,
+      ...employeeFlagPatch(waiter?.isEmployee, isEmployee),
     };
     if (isEdit) {
       update.mutate(
@@ -181,6 +183,21 @@ export function WaiterFormModal({ organizationId, waiter, events, defaultEventId
                   </span>
                 </label>
               ))}
+            </fieldset>
+            <fieldset className="waiters-form__rights">
+              <legend>{t('form.employment')}</legend>
+              <label className="waiters-form__right">
+                <input
+                  type="checkbox"
+                  checked={isEmployee}
+                  onChange={(e) => setIsEmployee(e.target.checked)}
+                  data-testid="waiter-is-employee"
+                />
+                <span>
+                  <b>{t('form.isEmployee')}</b>
+                  <small>{t('form.isEmployeeHint')}</small>
+                </span>
+              </label>
             </fieldset>
             {!isEdit && (
               <label className="auth-field">

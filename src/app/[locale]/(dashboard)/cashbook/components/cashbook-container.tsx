@@ -9,7 +9,7 @@ import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCashbookDay, useCreateCashbookEntry } from '@/hooks/use-dsfinvk';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { businessDateOf, CASHBOOK_ACTIONS, sortEntriesNewestFirst, summaryRows } from '@/lib/dsfinvk';
+import { businessDateOf, cashbookActionsFor, sortEntriesNewestFirst, summaryRows } from '@/lib/dsfinvk';
 import { tseNoticeKind } from '@/lib/tse';
 import { useAuthStore } from '@/stores/auth-store';
 import type { CashbookEntryType, CashbookEntryView, CashSummary, CreateCashbookEntryData } from '@/types/dsfinvk';
@@ -29,6 +29,8 @@ export const CASHBOOK_ICONS: Record<CashbookEntryType, IconName> = {
  * Kassenbuch der ganzen Kasse in der Verwaltung: Geschäftstag wählen,
  * Soll-Bestand gesamt und je Gerät, alle Buchungen des Tages und dieselben
  * vier Buchungen wie an der Kasse (für die ganze Kasse, ohne Gerät).
+ * Ohne früheren Kassensturz steht „Wechselgeld aus Vereinskasse“ vorn;
+ * sonst ist der Anfangsbestand mit dem zuletzt gezählten Bestand vorbelegt.
  */
 export function CashbookContainer() {
   const t = useTranslations('cashbook');
@@ -113,7 +115,7 @@ export function CashbookContainer() {
           <h2 id="cb-actions-title" className="cb-h2">{t('admin.actionsTitle')}</h2>
           <p className="cb-muted">{isToday ? t('admin.actionsHint') : t('admin.actionsPast')}</p>
           <div className="cb-actions__grid">
-            {CASHBOOK_ACTIONS.map((type) => (
+            {cashbookActionsFor(data.openingBalanceSuggestion).map((type) => (
               <button
                 key={type}
                 type="button"
@@ -225,6 +227,7 @@ export function CashbookContainer() {
       <CashbookEntryDialog
         type={dialog}
         expected={data.total.expected}
+        suggestion={data.openingBalanceSuggestion}
         pending={create.isPending}
         onClose={() => setDialog(null)}
         onSubmit={book}

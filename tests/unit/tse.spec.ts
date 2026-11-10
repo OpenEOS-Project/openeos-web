@@ -5,6 +5,7 @@ import {
   formatBytes,
   isTseComingSoon,
   isV0QrPayload,
+  lateSignatureOf,
   outageFromViews,
   percentOf,
   quotedEventNames,
@@ -427,6 +428,29 @@ test.describe('Cloud-TSE helpers', () => {
     expect(tseNoticeKind(view({ status: 'failed' }))).toBe('failed');
     expect(tseNoticeKind(view({ status: 'pending' }))).toBe('failed');
     expect(tseNoticeKind(view({ status: 'training', training: true }))).toBe('training');
+  });
+
+  test('late signature only on outage receipts', () => {
+    const late = {
+      note: 'Signatur nach Belegausgabe',
+      transactionNumber: 42,
+      signatureCounter: 1234,
+      finishTime: '2026-11-10T18:00:05.000Z',
+      recoveredAt: '2026-11-10T18:05:00.000Z',
+    };
+    expect(lateSignatureOf(view({ status: 'failed', lateSignature: late }))).toEqual(late);
+    expect(lateSignatureOf(view({ status: 'pending', lateSignature: late }))).toEqual(late);
+    // Regulär signiert: kein Hinweis, auch wenn die API ihn (fälschlich) mitschickt.
+    expect(lateSignatureOf(view({ lateSignature: late }))).toBeNull();
+    expect(lateSignatureOf(view({ status: 'failed' }))).toBeNull();
+    expect(lateSignatureOf(view({ status: 'failed', lateSignature: null }))).toBeNull();
+  });
+
+  test('outage notice matches the API wording', () => {
+    expect(de.tse.receipt.notice.failed).toBe('TSE nicht erreichbar – Beleg ohne Signatur');
+    expect(de.tse.receipt.late.title).toBe('Signatur nach Belegausgabe');
+    expect(de.tse.receipt.orderStart).toBe('Bestellbeginn');
+    expect(en.tse.receipt.notice.failed).toContain('TSE nicht erreichbar – Beleg ohne Signatur');
   });
 
   test('outage hint follows the last transaction', () => {

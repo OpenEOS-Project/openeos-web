@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Banner, Icon, Segment } from '@openeos/ui';
+import { Banner, Icon } from '@openeos/ui';
 
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateClosing, useDsfinvkClosings } from '@/hooks/use-dsfinvk';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { useUpdateCurrentOrganizationSettings } from '@/hooks/use-organizations';
 import { useRequestTseExport } from '@/hooks/use-tse';
 import { dsfinvkApi, tseApi } from '@/lib/api-client';
 import {
@@ -21,9 +20,8 @@ import {
   rangeIncludesToday,
   salesGrossCents,
   saveBlob,
-  tipRecipientOf,
 } from '@/lib/dsfinvk';
-import { useAuthStore } from '@/stores/auth-store';
+import { Link } from '@/i18n/routing';
 import { ApiException } from '@/types/api';
 import type { CashPointClosingView } from '@/types/dsfinvk';
 
@@ -32,8 +30,8 @@ const reasonOf = (error: unknown) => (error instanceof ApiException ? (error.rea
 /**
  * Kassen-Nachschau (§ 146b AO): was der Prüferin übergeben wird —
  * DSFinV-K-Export (ZIP), TSE-Export (TAR) und Verfahrensdokumentation —,
- * Export für einen Zeitraum aus Geschäftstagen (6–6 Uhr) und der
- * Trinkgeld-Empfänger für den Export.
+ * Export für einen Zeitraum aus Geschäftstagen (6–6 Uhr) und wie Trinkgeld
+ * im Export steht.
  */
 export function TseNachschauCard({ organizationId, active }: { organizationId: string; active: boolean }) {
   const t = useTranslations('integrations.tse.nachschau');
@@ -212,46 +210,31 @@ export function TseNachschauCard({ organizationId, active }: { organizationId: s
           </Banner>
         )}
 
-        <TipRecipientSetting />
+        <TipInfo />
       </div>
     </div>
   );
 }
 
-/** Trinkgeld-Empfänger im Export: Verein (TrinkgeldAG) oder Helfer (TrinkgeldAN). */
-function TipRecipientSetting() {
+/**
+ * Wie Trinkgeld im Export steht (Steuerberater 2026-11-10): an den Verein
+ * als TrinkgeldAG mit dem (anteiligen) Satz der Ware; TrinkgeldAN nur für
+ * Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Früher eine Einstellung je
+ * Organisation, jetzt je Bedienung.
+ */
+function TipInfo() {
   const t = useTranslations('integrations.tse.nachschau.tip');
-  const apiErrorMessage = useApiErrorMessage();
-  const settings = useAuthStore((state) => state.currentOrganization?.organization?.settings);
-  const save = useUpdateCurrentOrganizationSettings();
-  const value = tipRecipientOf(settings);
-
-  const change = (next: 'employer' | 'employee') => {
-    if (next === value) return;
-    save.mutate(
-      { dsfinvk: { ...settings?.dsfinvk, tipRecipient: next } },
-      {
-        onSuccess: () => toast.success(t('saved')),
-        onError: (error) => toast.error(apiErrorMessage(error, t('saveFailed'))),
-      },
-    );
-  };
-
   return (
     <div className="nachschau__tip" data-testid="nachschau-tip">
       <div>
         <b>{t('title')}</b>
-        <p className="tse-muted" style={{ margin: 0 }}>{t('hint')}</p>
+        <p className="tse-muted" style={{ margin: 0 }}>{t('club')}</p>
+        <p className="tse-muted" style={{ margin: 0 }}>{t('employee')}</p>
       </div>
-      <Segment<'employer' | 'employee'>
-        aria-label={t('title')}
-        value={value}
-        onChange={change}
-        options={[
-          { id: 'employer', label: t('employer') },
-          { id: 'employee', label: t('employee') },
-        ]}
-      />
+      <Link href="/waiters" className="btn btn--ghost">
+        <Icon name="users" />
+        {t('waitersLink')}
+      </Link>
     </div>
   );
 }

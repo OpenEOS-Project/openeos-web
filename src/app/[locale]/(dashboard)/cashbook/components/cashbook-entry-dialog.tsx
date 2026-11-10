@@ -7,14 +7,16 @@ import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { PriceInput } from '@/components/shared/price-input';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { cashDifference, differenceTone, roundEuros } from '@/lib/dsfinvk';
-import type { CashbookEntryType, CreateCashbookEntryData } from '@/types/dsfinvk';
+import { cashDifference, differenceTone, openingBalancePrefill, roundEuros } from '@/lib/dsfinvk';
+import type { CashbookEntryType, CashbookOpeningSuggestion, CreateCashbookEntryData } from '@/types/dsfinvk';
 
 interface CashbookEntryDialogProps {
   /** Art der Buchung; `null` = geschlossen. */
   type: CashbookEntryType | null;
   /** Soll-Bestand der ganzen Kasse (für den Kassensturz). */
   expected: number;
+  /** Zuletzt gezählter Bestand (Vorschlag für den Anfangsbestand). */
+  suggestion?: CashbookOpeningSuggestion | null;
   pending: boolean;
   onClose: () => void;
   onSubmit: (data: CreateCashbookEntryData) => void;
@@ -24,18 +26,20 @@ interface CashbookEntryDialogProps {
  * Buchung für die ganze Kasse in der Verwaltung: Betrag und Notiz; beim
  * Kassensturz der gezählte Bestand mit Soll und laufender Differenz.
  */
-export function CashbookEntryDialog({ type, expected, pending, onClose, onSubmit }: CashbookEntryDialogProps) {
+export function CashbookEntryDialog({ type, expected, suggestion, pending, onClose, onSubmit }: CashbookEntryDialogProps) {
   const t = useTranslations('cashbook');
   const tCommon = useTranslations('common');
-  const { formatCurrency } = useLocaleFormat();
+  const { formatCurrency, formatDate } = useLocaleFormat();
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState('');
 
   useEffect(() => {
     if (type) {
-      setAmount(0);
+      setAmount(openingBalancePrefill(type, suggestion) ?? 0);
       setNote('');
     }
+    // Nur beim Öffnen vorbelegen, nicht bei jedem Nachladen des Tages.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
   useEffect(() => {
@@ -75,7 +79,20 @@ export function CashbookEntryDialog({ type, expected, pending, onClose, onSubmit
             <label className="auth-field">
               <span>{isCount ? t('dialog.counted') : t('dialog.amount')}</span>
               <PriceInput value={amount} onChange={(v) => setAmount(Number.isFinite(v) ? v : 0)} invalid={!valid && amount !== 0} />
+              {type === 'opening_balance' && suggestion && (
+                <small className="auth-field__hint" data-testid="cashbook-last-counted">
+                  {t('dialog.lastCounted', {
+                    date: formatDate(suggestion.fromBusinessDate),
+                    amount: formatCurrency(suggestion.amount),
+                  })}
+                </small>
+              )}
             </label>
+            {(type === 'opening_balance' || type === 'deposit') && (
+              <p className="auth-field__hint" style={{ margin: 0 }} data-testid="cashbook-opening-hint">
+                {t('dialog.openingHint')}
+              </p>
+            )}
             {isCount && (
               <dl className="cb-diff" data-tone={tone} data-testid="cashbook-difference">
                 <div>

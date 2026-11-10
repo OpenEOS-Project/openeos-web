@@ -4,6 +4,7 @@ import {
   ROLE_PERMISSIONS,
   autoLockSecondsOf,
   effectivePermissions,
+  employeeFlagPatch,
   foreignOwner,
   handoverTargets,
   isLeadWaiter,
@@ -171,5 +172,25 @@ test.describe('Kellnerabrechnung', () => {
     }
     expect(de.pos.orderHistory.timeline.transferred).toContain('{from}');
     expect(en.orders.history.timelineEvents.transferred).toContain('{to}');
+  });
+});
+
+test.describe('Bedienungen: Arbeitnehmer (Lohnkonto)', () => {
+  test('sends isEmployee only when it changes', () => {
+    // Neu: nur, wenn angehakt.
+    expect(employeeFlagPatch(undefined, false)).toEqual({});
+    expect(employeeFlagPatch(undefined, true)).toEqual({ isEmployee: true });
+    // Bearbeiten: nur die Änderung.
+    expect(employeeFlagPatch(false, false)).toEqual({});
+    expect(employeeFlagPatch(true, true)).toEqual({});
+    expect(employeeFlagPatch(true, false)).toEqual({ isEmployee: false });
+    expect(employeeFlagPatch(false, true)).toEqual({ isEmployee: true });
+  });
+
+  test('labels exist in both languages', () => {
+    expect(de.waiters.form.isEmployee).toBe('Arbeitnehmer (Lohnkonto)');
+    expect(de.waiters.form.isEmployeeHint).toContain('TrinkgeldAN');
+    expect(en.waiters.form.isEmployee).toBeTruthy();
+    expect(en.waiters.employeeBadge).toBeTruthy();
   });
 });

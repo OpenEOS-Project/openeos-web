@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Banner, Icon } from '@openeos/ui';
 
-import { useDeletePfandType } from '@/hooks/use-pfand-types';
+import { useDeletePfandType, usePfandLegacyBalance } from '@/hooks/use-pfand-types';
+import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListEmpty } from '@/components/shared/list-states';
 import type { PfandType } from '@/types/pfand';
@@ -24,6 +26,8 @@ export function PfandContainer() {
   const organizationId = currentOrganization?.organizationId || '';
 
   const deleteType = useDeletePfandType(organizationId);
+  const legacy = usePfandLegacyBalance(organizationId || undefined).data;
+  const { formatCurrency } = useLocaleFormat();
 
   const handleDeleteConfirm = async () => {
     if (!deletingType) return;
@@ -52,6 +56,15 @@ export function PfandContainer() {
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Altsaldo (Steuerberater 2026-11-10, Frage 2): Rückgaben mindern
+            erst ihn, ohne Steuerminderung. Nur umsatzsteuerpflichtig. */}
+        {legacy?.applies && legacy.remaining > 0 && (
+          <Banner tone="info" icon={<Icon name="info" />}>
+            <span data-testid="pfand-legacy-balance">
+              {t('legacyBalance', { amount: formatCurrency(legacy.remaining) })}
+            </span>
+          </Banner>
+        )}
         <PfandList
           organizationId={organizationId}
           onSettingsClick={() => setIsSettingsOpen(true)}

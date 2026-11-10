@@ -22,6 +22,7 @@ import { ListEmpty } from '@/components/shared/list-states';
 import type { DashboardWidgetSize } from '@/types/settings';
 import { QuickStartCard } from './onboarding/quick-start-card';
 import { OperatingModeHint } from './operating-mode-hint';
+import { SmallBusinessHint } from './small-business-hint';
 import { EventEmergencySupportNotice } from '@/components/shared/event-emergency-support-notice';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useOperatingMode } from '@/hooks/use-operating-mode';
@@ -255,6 +256,9 @@ export function DashboardContainer() {
 
         {/* Land und Bestand: bis ein Admin Land bzw. Betriebsart festgelegt hat. */}
         <OperatingModeHint />
+
+        {/* Kleinunternehmer nahe an oder über der Umsatzgrenze (§ 19 UStG). */}
+        <SmallBusinessHint organizationId={organizationId} orderOnly={orderOnly} />
 
         {/* Notfall-Support, solange eine gebuchte Veranstaltung geplant oder aktiv ist. */}
         <EventEmergencySupportNotice organizationId={organizationId} />
