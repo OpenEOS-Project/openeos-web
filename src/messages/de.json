@@ -254,6 +254,18 @@
       "useVerificationCode": "Mit Verifizierungscode anmelden",
       "useRecoveryCode": "Wiederherstellungscode verwenden",
       "backToLogin": "Zurück zur Anmeldung"
+    },
+    "verifyEmailChange": {
+      "loading": "Wir bestätigen deine neue E-Mail-Adresse …",
+      "successTitle": "E-Mail-Adresse geändert",
+      "successMessage": "Ab jetzt meldest du dich mit {email} an.",
+      "successMessageNoEmail": "Ab jetzt meldest du dich mit deiner neuen Adresse an.",
+      "errorTitle": "Änderung nicht bestätigt",
+      "errorHint": "Fordere in den Einstellungen unter Konto einfach einen neuen Link an. Deine bisherige Adresse gilt weiter.",
+      "missingToken": "Im Link fehlt der Bestätigungscode. Öffne bitte den Link aus der Mail.",
+      "error": "Das hat nicht geklappt. Bitte versuch es noch einmal.",
+      "toSettings": "Zu den Einstellungen",
+      "toLogin": "Zur Anmeldung"
     }
   },
   "sidebar": {
@@ -583,7 +595,7 @@
       "changeEmailDescription": "Deine aktuelle E-Mail-Adresse ist {email}",
       "newEmail": "Neue E-Mail-Adresse",
       "currentPassword": "Aktuelles Passwort",
-      "emailChangeRequested": "Bestätigungslink wurde an die neue E-Mail-Adresse gesendet",
+      "emailChangeRequested": "Bestätigungslink an die neue Adresse gesendet.",
       "changePassword": "Passwort ändern",
       "changePasswordDescription": "Aktualisiere dein Passwort regelmäßig für mehr Sicherheit.",
       "newPassword": "Neues Passwort",
@@ -597,8 +609,17 @@
         "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "confirmPasswordRequired": "Passwort-Bestätigung ist erforderlich",
-        "passwordMismatch": "Passwörter stimmen nicht überein"
-      }
+        "passwordMismatch": "Passwörter stimmen nicht überein",
+        "passwordWeak": "Das Passwort braucht Groß- und Kleinbuchstaben und eine Zahl.",
+        "passwordTooLong": "Das Passwort darf höchstens 72 Zeichen haben."
+      },
+      "setPassword": "Passwort festlegen",
+      "setPasswordDescription": "Bisher meldest du dich nur per Anmeldelink an. Mit einem Passwort kannst du dich auch direkt anmelden – der Anmeldelink funktioniert weiter.",
+      "passwordSet": "Passwort festgelegt. Du kannst dich jetzt auch mit Passwort anmelden.",
+      "passwordRules": "Mindestens 8 Zeichen, mit Groß- und Kleinbuchstaben und einer Zahl.",
+      "newEmailHint": "Wir schicken einen Bestätigungslink an die neue Adresse. Bis du ihn öffnest, meldest du dich weiter mit der bisherigen an.",
+      "noPasswordEmailHint": "Du meldest dich per Anmeldelink an – ein Passwort brauchst du hier nicht.",
+      "pendingEmail": "Bestätigung ausstehend für {email} – öffne den Link in der Mail an diese Adresse."
     },
     "security": {
       "title": "Sicherheit",
@@ -1349,6 +1370,13 @@
       "saving": "Speichern …",
       "saved": "Steuerangaben gespeichert.",
       "saveFailed": "Die Steuerangaben konnten nicht gespeichert werden."
+    },
+    "organizationReadOnly": "Nur Admins deiner Organisation können diese Angaben ändern. Du siehst sie hier zum Nachlesen.",
+    "organizationId": {
+      "label": "Organisations-ID",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "hint": "Steht in den REST-Pfaden der API, z. B. <path></path>."
     }
   },
   "theme": {
@@ -4685,7 +4713,9 @@
     "WAITER_SETTLEMENT_NOTE_REQUIRED": "Bitte gib eine Notiz an, warum trotz offener Tische abgerechnet wird.",
     "WAITER_SETTLEMENT_NOT_FOUND": "Abrechnung nicht gefunden.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
-    "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben."
+    "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
+    "CURRENT_PASSWORD_REQUIRED": "Gib dein aktuelles Passwort ein.",
+    "EMAIL_CHANGE_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -6466,7 +6496,8 @@
     "twoFactor": "Zwei-Faktor-Anmeldung",
     "shifts": "Schichtpläne",
     "invitation": "Einladung",
-    "tables": "Tische"
+    "tables": "Tische",
+    "verifyEmailChange": "Neue E-Mail-Adresse bestätigen"
   },
   "tables": {
     "areas": {

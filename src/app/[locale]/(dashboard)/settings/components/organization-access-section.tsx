@@ -32,6 +32,7 @@ import type { ApiToken, ApiTokenScope } from '@/types/api-token';
 import { ApiTokenCreateDialog } from './api-token-create-dialog';
 import { ApiTokenRevokeDialog } from './api-token-revoke-dialog';
 import { SettingsSectionHead } from './settings-section-head';
+import { OrganizationIdField } from './organization-id-field';
 
 /**
  * Zugänge der Organisation (ki-plan.md Abschnitt 8): API-Tokens, mit denen
@@ -253,6 +254,8 @@ export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?:
             </button>
           )}
         </div>
+
+        <OrganizationIdField example="tokens" />
 
         {body}
       </div>

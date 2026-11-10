@@ -14,7 +14,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { usePermissions } from '@/hooks/use-permissions';
 import { SettingsSectionHead } from './settings-section-head';
+import { OrgReadOnlyNotice, OrgSettingsFieldset } from './org-settings-readonly';
 
 function createOrgGeneralSchema(t: (key: string) => string) {
   return z.object({
@@ -32,6 +34,7 @@ export function OrganizationGeneralSection() {
   const apiErrorMessage = useApiErrorMessage();
   const orgGeneralSchema = useMemo(() => createOrgGeneralSchema(tValidation), [tValidation]);
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
+  const { isAdmin } = usePermissions();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -149,9 +152,10 @@ export function OrganizationGeneralSection() {
   return (
     <div className="app-card">
       <SettingsSectionHead icon="building-2" title={t('title')} description={t('description')} />
+      {!isAdmin && <OrgReadOnlyNotice />}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <OrgSettingsFieldset disabled={!isAdmin} gap={20}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div
@@ -172,9 +176,12 @@ export function OrganizationGeneralSection() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0, flex: '1 1 200px' }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>{t('logo')}</span>
-              <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-                {t('logoHint')}
-              </span>
+              {isAdmin && (
+                <span style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
+                  {t('logoHint')}
+                </span>
+              )}
+              {isAdmin && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
                 <button
                   type="button"
@@ -197,6 +204,7 @@ export function OrganizationGeneralSection() {
                   </button>
                 )}
               </div>
+              )}
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleLogoChange} style={{ display: 'none' }} />
             </div>
           </div>
@@ -221,22 +229,24 @@ export function OrganizationGeneralSection() {
             label={t('vatExempt.label')}
             hint={t('vatExempt.hint')}
             checked={currentOrganization.organization?.settings?.vatExempt !== false}
-            disabled={updateVatExempt.isPending}
+            disabled={!isAdmin || updateVatExempt.isPending}
             onChange={(checked) => updateVatExempt.mutate(checked)}
           />
-        </div>
+        </OrgSettingsFieldset>
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginTop: 20,
-          paddingTop: 12,
-          borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-        }}>
-          <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
-            {updateOrg.isPending ? t('saving') : t('saveChanges')}
-          </button>
-        </div>
+        {isAdmin && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginTop: 20,
+            paddingTop: 12,
+            borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
+          }}>
+            <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
+              {updateOrg.isPending ? t('saving') : t('saveChanges')}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

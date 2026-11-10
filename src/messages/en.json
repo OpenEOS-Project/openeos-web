@@ -254,6 +254,18 @@
       "useVerificationCode": "Sign in with verification code",
       "useRecoveryCode": "Use a recovery code",
       "backToLogin": "Back to login"
+    },
+    "verifyEmailChange": {
+      "loading": "Confirming your new email address …",
+      "successTitle": "Email address changed",
+      "successMessage": "From now on you sign in with {email}.",
+      "successMessageNoEmail": "From now on you sign in with your new address.",
+      "errorTitle": "Change not confirmed",
+      "errorHint": "Just request a new link in Settings under Account. Your current address stays valid.",
+      "missingToken": "The link has no confirmation code. Please open the link from the email.",
+      "error": "That didn't work. Please try again.",
+      "toSettings": "Go to settings",
+      "toLogin": "Go to sign-in"
     }
   },
   "sidebar": {
@@ -583,7 +595,7 @@
       "changeEmailDescription": "Your current email address is {email}",
       "newEmail": "New email address",
       "currentPassword": "Current password",
-      "emailChangeRequested": "Confirmation link sent to the new email address",
+      "emailChangeRequested": "Confirmation link sent to the new address.",
       "changePassword": "Change password",
       "changePasswordDescription": "Update your password regularly for better security.",
       "newPassword": "New password",
@@ -597,8 +609,17 @@
         "currentPasswordRequired": "Current password is required",
         "passwordTooShort": "Password must be at least 8 characters",
         "confirmPasswordRequired": "Password confirmation is required",
-        "passwordMismatch": "Passwords do not match"
-      }
+        "passwordMismatch": "Passwords do not match",
+        "passwordWeak": "The password needs upper- and lowercase letters and a number.",
+        "passwordTooLong": "The password can have at most 72 characters."
+      },
+      "setPassword": "Set password",
+      "setPasswordDescription": "So far you only sign in with a sign-in link. With a password you can also sign in directly – the sign-in link keeps working.",
+      "passwordSet": "Password set. You can now also sign in with your password.",
+      "passwordRules": "At least 8 characters, with upper- and lowercase letters and a number.",
+      "newEmailHint": "We send a confirmation link to the new address. Until you open it, you keep signing in with your current one.",
+      "noPasswordEmailHint": "You sign in with a sign-in link – no password needed here.",
+      "pendingEmail": "Confirmation pending for {email} – open the link in the email sent to that address."
     },
     "security": {
       "title": "Security",
@@ -1361,6 +1382,13 @@
       "saving": "Saving …",
       "saved": "Tax details saved.",
       "saveFailed": "The tax details could not be saved."
+    },
+    "organizationReadOnly": "Only admins of your organization can change these details. They are shown here for reference.",
+    "organizationId": {
+      "label": "Organization ID",
+      "copy": "Copy",
+      "copied": "Copied",
+      "hint": "Part of the API's REST paths, e.g. <path></path>."
     }
   },
   "billing": {
@@ -4697,7 +4725,9 @@
     "WAITER_SETTLEMENT_NOTE_REQUIRED": "Please add a note why you settle despite open tables.",
     "WAITER_SETTLEMENT_NOT_FOUND": "Settlement not found.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
-    "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server."
+    "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
+    "CURRENT_PASSWORD_REQUIRED": "Enter your current password.",
+    "EMAIL_CHANGE_LINK_INVALID": "The confirmation link is invalid or has expired."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -6478,7 +6508,8 @@
     "twoFactor": "Two-factor sign-in",
     "shifts": "Shift plans",
     "invitation": "Invitation",
-    "tables": "Tables"
+    "tables": "Tables",
+    "verifyEmailChange": "Confirm new email address"
   },
   "tables": {
     "areas": {

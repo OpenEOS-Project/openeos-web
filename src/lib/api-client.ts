@@ -1063,15 +1063,18 @@ export const userSettingsApi = {
     apiClient.delete<ApiResponse<import('@/types/auth').User>>('/users/me/avatar'),
 
   // Password
+  /* PATCH /auth/change-password — den frueher hier angesprochenen
+     POST /users/me/password gab es in der API nie (404). */
   changePassword: (data: import('@/types/settings').ChangePasswordDto) =>
-    apiClient.post<ApiResponse<void>>('/users/me/password', data),
+    apiClient.patch<ApiResponse<void>>('/auth/change-password', data),
 
   // Email
   requestEmailChange: (data: import('@/types/settings').ChangeEmailDto) =>
     apiClient.post<ApiResponse<void>>('/users/me/email/change', data),
 
+  // Oeffentlich: der Link aus der Mail wird oft ohne Sitzung geoeffnet.
   verifyEmailChange: (token: string) =>
-    apiClient.post<ApiResponse<import('@/types/auth').User>>('/users/me/email/verify', { token }),
+    apiClient.post<ApiResponse<import('@/types/auth').User>>('/users/me/email/verify', { token }, { skipAuth: true }),
 
   // Preferences
   getPreferences: () =>
