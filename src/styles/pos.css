@@ -404,9 +404,10 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-pay__r { padding: 14px; }
 }
 
-/* ── Telefon: Platz für Gerät und Verein statt Logo ─────── */
+/* ── Telefon: Logo klein, Gerät und Verein kürzen mit „…“ ─ */
 @media (max-width: 520px) {
-  .pos-head__brand, .pos-head__event, .pos-tablepill__txt small { display: none; }
+  .pos-head__event, .pos-tablepill__txt small { display: none; }
+  .pos-logo { height: 14px; }
   .pos-head__ctx > span { font: 500 11px var(--oe-f-sans); letter-spacing: 0; text-transform: none; }
   .pos-testband__long { display: none; }
   .pos-testband__short { display: inline; }
