@@ -1736,6 +1736,7 @@
         "audit_logs": "Logs",
         "support_messages": "Support chat",
         "contact_requests": "Website enquiries",
+        "receipt_links": "Receipt links",
         "assistant_imports": "Assistant imports",
         "organization_inactivity": "Inactive organizations",
         "organization_purge": "Final deletion",
@@ -3110,6 +3111,7 @@
       "cancelItems": "Cancel items",
       "cancelAndRefund": "Cancel & refund",
       "refund": "Refund",
+      "receipt": "Receipt",
       "reprintReceipt": "Receipt",
       "reprintTickets": "Kitchen ticket",
       "detailTitle": "Order #{number}",
@@ -3162,6 +3164,9 @@
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
         "refund_receipt_reprinted": "Counter-receipt reprinted",
+        "receipt_link_created": "Receipt handed out as QR code",
+        "receipt_emailed": "Receipt sent by e-mail",
+        "receipt_email_failed": "Receipt e-mail failed",
         "transferred": "Table handed over from {from} to {to}"
       },
       "optionWithout": "without {option}",
@@ -3458,6 +3463,28 @@
       "tip": "Tip",
       "title": "Paid"
     },
+    "receiptHandout": {
+      "title": "Receipt",
+      "sheetTitle": "Hand out receipt",
+      "qr": "QR code",
+      "qrTitle": "QR code for the receipt",
+      "qrLead": "Scan for the receipt – opens it with a PDF to download.",
+      "qrLoading": "Creating receipt …",
+      "qrValid": "Link valid until {date}",
+      "email": "E-mail",
+      "emailLabel": "Guest's e-mail address",
+      "emailPlaceholder": "name@example.com",
+      "emailHint": "Only used for sending – the address is not stored.",
+      "emailInvalid": "Please enter a valid e-mail address.",
+      "emailSend": "Send receipt",
+      "emailSent": "Receipt sent by e-mail",
+      "print": "Print receipt",
+      "reprint": "Print receipt again",
+      "printed": "Printing receipt",
+      "noPrinter": "No receipt printer set up for this till.",
+      "none": "No receipt",
+      "back": "Back"
+    },
     "offline": {
       "banner": "No connection – sending and checkout work again once the register is online."
     },
@@ -3722,6 +3749,9 @@
         "receipt_reprinted": "Receipt reprinted",
         "tickets_reprinted": "Kitchen ticket reprinted",
         "refund_receipt_reprinted": "Counter-receipt reprinted",
+        "receipt_link_created": "Receipt handed out as QR code",
+        "receipt_emailed": "Receipt sent by e-mail",
+        "receipt_email_failed": "Receipt e-mail failed",
         "transferred": "Table handed over from {from} to {to}"
       },
       "payments": "Payments"
@@ -4278,6 +4308,15 @@
     "networkError": "Network error",
     "generic": "Something went wrong"
   },
+  "receiptPublic": {
+    "title": "Your receipt",
+    "titleHospitality": "Hospitality receipt",
+    "pdf": "Download as PDF",
+    "loading": "Loading receipt …",
+    "goneTitle": "Receipt not available",
+    "receiptLabel": "Receipt for order {number}",
+    "validUntil": "This link is valid until {date}. Download the receipt as a PDF if you want to keep it."
+  },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "The account is deactivated.",
     "ACCOUNT_LOCKED": "The account is locked for {minutes} minutes.",
@@ -4633,6 +4672,12 @@
     "WEBHOOK_LIMIT_REACHED": "You already have {limit} webhooks – that is the maximum. Delete one to create a new one.",
     "WEBHOOK_URL_INVALID": "The server does not accept this address.",
     "WEBHOOK_EVENT_TYPE_INVALID": "This server does not know at least one of the chosen events. Reload the page and try again.",
+    "RECEIPT_LINK_NOT_FOUND": "This receipt is no longer available. Ask at the till for a new one.",
+    "RECEIPT_NOT_AVAILABLE": "There is no receipt for this order.",
+    "RECEIPT_EMAIL_RATE_LIMITED": "Too many receipts were sent by e-mail just now. Please try again shortly or hand out the QR code.",
+    "RECEIPT_EMAIL_FAILED": "The e-mail could not be sent. Please try again or hand out the QR code.",
+    "RECEIPT_EMAIL_INVALID": "Please enter a valid e-mail address.",
+    "RECEIPT_ORDERS_INVALID": "The orders for this receipt are missing.",
     "WEBHOOKS_DISABLED": "Webhooks are switched off on this server.",
     "PIN_NOT_AVAILABLE": "This PIN is not available. Choose another one (no simple sequences like 1234 or 0000).",
     "PIN_LOCKED": "Too many wrong PINs. Try again in {retryAfterSeconds} seconds.",

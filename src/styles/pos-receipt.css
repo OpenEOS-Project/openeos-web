@@ -1,0 +1,47 @@
+/* Beleg ausgeben (QR-Code, E-Mail, Drucken) im Abschlussblatt der Kasse und
+   im Verlauf. Eigene Datei, damit pos.css unberührt bleibt. */
+.pos-handout { display: grid; gap: 10px; width: 100%; margin-top: 16px; text-align: left; }
+.pos-handout__title { font: 600 12px var(--oe-f-mono, ui-monospace, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--oe-mute); }
+.pos-handout__choices { justify-self: stretch; width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 8px; }
+.pos-handout__choices .oe-btn { min-height: 48px; justify-content: center; }
+.pos-handout__lead { margin: 0; color: var(--oe-ink); font-size: 15px; text-align: center; }
+.pos-handout__qr { display: grid; place-items: center; min-height: 216px; }
+.pos-handout__qr svg { width: min(210px, 64vw); height: auto; background: #fff; border-radius: 8px; padding: 6px; }
+.pos-handout__qr-wait { color: var(--oe-mute); font-size: 14px; }
+.pos-handout__fine { margin: 0; color: var(--oe-mute); font-size: 13px; text-align: center; }
+.pos-handout--qr { justify-items: center; }
+.pos-handout__row { display: flex; gap: 8px; justify-self: stretch; }
+.pos-handout__row .oe-btn { min-height: 46px; }
+.pos-handout__field input { font-size: 17px; min-height: 46px; }
+.pos-handout__fields { display: grid; gap: 10px; }
+.pos-handout__warn { margin: 0; font-size: 13px; color: var(--oe-danger, #b42318); }
+
+/* Öffentliche Beleg-Seite /beleg/<token> */
+.receipt-public { min-height: 100vh; display: flex; flex-direction: column; background: var(--paper-2, #f4f1ea); color: #14180f; }
+.receipt-public__main { flex: 1; display: grid; justify-items: center; align-content: start; gap: 16px; padding: 24px 12px 32px; }
+.receipt-public__head { width: 100%; max-width: 440px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.receipt-public__head h1 { margin: 0; font: 800 22px var(--oe-f-display, inherit); letter-spacing: -.02em; }
+.receipt-public__paper { width: 100%; max-width: 440px; background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 20px 18px; }
+.receipt-public__paper + .receipt-public__paper { margin-top: 4px; }
+.receipt-public__fine { max-width: 440px; margin: 0; font-size: 13px; color: #5b6057; text-align: center; }
+.receipt-public__state { max-width: 440px; text-align: center; padding: 48px 12px; }
+.rb { display: grid; gap: 2px; font-size: 14px; line-height: 1.45; }
+.rb__banner { background: #14180f; color: #fff; text-align: center; font-weight: 700; letter-spacing: .06em; padding: 5px 8px; border-radius: 4px; margin: 2px 0 6px; }
+.rb__heading { text-align: center; font-weight: 800; font-size: 19px; margin-top: 2px; }
+.rb__title { text-align: center; font-weight: 800; font-size: 17px; letter-spacing: .06em; margin: 8px 0 4px; }
+.rb__center { text-align: center; }
+.rb__muted { color: #5b6057; }
+.rb__bold { font-weight: 700; }
+.rb__row, .rb__item { display: flex; justify-content: space-between; gap: 12px; }
+.rb__row > :last-child, .rb__item > :last-child { white-space: nowrap; text-align: right; }
+.rb__row--bold { font-weight: 800; font-size: 16px; }
+.rb__item > :first-child { display: flex; gap: 6px; }
+.rb__rule { border-top: 1px solid #14180f; margin: 6px 0; }
+.rb__rule--double { border-top: 3px double #14180f; }
+.rb__mono { font-size: 12px; color: #5b6057; margin-top: 2px; }
+.rb__mono code { display: block; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: #14180f; word-break: break-all; }
+.rb__qr { display: grid; justify-items: center; gap: 4px; padding: 8px 0; }
+.rb__qr svg { width: 140px; height: 140px; }
+.rb__fill { margin-top: 8px; }
+.rb__fill-line { border-bottom: 1px dashed #14180f; height: 26px; }
+.rb__note { font-size: 12px; color: #5b6057; margin-top: 4px; }

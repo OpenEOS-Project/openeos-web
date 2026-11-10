@@ -2029,9 +2029,25 @@ export const deviceApi = {
 
   // Reprint order tickets or receipt
   reprintOrder: (orderId: string, type: 'tickets' | 'receipt' = 'tickets') =>
-    apiClient.post<ApiResponse<{ success: boolean }>>(
+    apiClient.post<ApiResponse<{ success: boolean; printed?: boolean }>>(
       `/device-api/orders/${orderId}/reprint`,
       { type },
+      { useDeviceAuth: true }
+    ),
+
+  /** Digitaler Beleg: Link für den QR-Code (gültig 90 Tage). */
+  receiptLink: (orderIds: string[]) =>
+    apiClient.post<ApiResponse<{ url: string; expiresAt: string }>>(
+      '/device-api/receipts/link',
+      { orderIds },
+      { useDeviceAuth: true }
+    ),
+
+  /** Digitaler Beleg per E-Mail; die Adresse wird nicht gespeichert. */
+  receiptEmail: (orderIds: string[], email: string) =>
+    apiClient.post<ApiResponse<{ sent: true }>>(
+      '/device-api/receipts/email',
+      { orderIds, email },
       { useDeviceAuth: true }
     ),
 
@@ -2738,4 +2754,14 @@ export const inventoryApi = {
       `/events/${eventId}/inventory/counts/${countId}/items/${itemId}`,
       data
     ),
+};
+
+/** Öffentliche Beleg-Seite (`/beleg/<token>`), ohne Anmeldung. */
+export const publicReceiptsApi = {
+  get: (token: string) =>
+    apiClient.get<ApiResponse<import('@/types/receipt').PublicReceiptView>>(
+      `/public/receipts/${encodeURIComponent(token)}`,
+      { skipAuth: true }
+    ),
+  pdfUrl: (token: string) => `${API_URL}/public/receipts/${encodeURIComponent(token)}/pdf`,
 };
