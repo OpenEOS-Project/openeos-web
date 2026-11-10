@@ -33,7 +33,7 @@ Unser Kassensystem und der Online-Shop laufen auf der Software OpenEOS, die von 
 
 ## 4. Wie lange wir die Daten speichern
 
-Ihre Angaben zu einer Online-Bestellung (Name, E-Mail-Adresse, Tischnummer, Anmerkungen) werden 30 Tage nach dem Ende der Veranstaltung gelöscht oder anonymisiert, Ihre Angaben zur Helferanmeldung 30 Tage nach der letzten Schicht des Schichtplans. Kassenbelege und die zugehörigen Aufzeichnungen müssen wir nach den steuerrechtlichen Vorschriften aufbewahren, derzeit acht Jahre für Buchungsbelege und zehn Jahre für Bücher und Aufzeichnungen (§ 147 Abgabenordnung). Diese Daten werden für die Dauer der Aufbewahrungspflicht gesperrt und danach gelöscht. Sie enthalten keine Namen von Gästen.
+Ihre Angaben zu einer Online-Bestellung (Name, E-Mail-Adresse, Tischnummer, Anmerkungen) werden 30 Tage nach dem Ende der Veranstaltung gelöscht oder anonymisiert, Ihre Angaben zur Helferanmeldung 30 Tage nach der letzten Schicht des Schichtplans. Kassenbelege und die zugehörigen Aufzeichnungen müssen wir nach den steuerrechtlichen Vorschriften aufbewahren, derzeit acht Jahre für Buchungsbelege und zehn Jahre für Bücher und Aufzeichnungen (§ 147 Abgabenordnung). Diese Daten werden für die Dauer der Aufbewahrungspflicht gesperrt und danach gelöscht. Sie enthalten keine Namen von Gästen, außer dem Namen des Bewirtenden auf einem Bewirtungsbeleg (Abschnitt 8).
 
 ## 5. Ihre Rechte
 
@@ -53,6 +53,14 @@ Ein Profil für eine Veranstaltung wird 30 Tage nach dem Ende der Veranstaltung 
 
 Ihre Rechte nach Abschnitt 5 gelten auch für Sie. Eine Auskunft über die zu Ihrem Profil gespeicherten Daten können wir Ihnen als Datei geben.
 
+## 8. Digitale Belege und Bewirtungsbelege
+
+**Beleg per QR-Code.** Nach dem Bezahlen zeigt unsere Kasse einen QR-Code. Scannen Sie ihn, öffnet sich Ihr Beleg als Seite, von der Sie ihn als PDF herunterladen können. Der Link enthält keine Angaben zu Ihrer Person und ist 90 Tage gültig; danach wird er gelöscht. Der Beleg selbst gehört zu unseren Kassenaufzeichnungen (Abschnitt 4).
+
+**Beleg per E-Mail.** Möchten Sie den Beleg per E-Mail, verwenden wir Ihre E-Mail-Adresse nur, um Ihnen den Beleg zu schicken. Wir speichern sie nicht; im Verlauf der Bestellung steht nur, dass und wann ein Beleg per E-Mail verschickt wurde. Rechtsgrundlage ist Art. 6 Abs. 1 Buchstabe b DSGVO (Erfüllung unserer Pflicht, Ihnen einen Beleg auszuhändigen, in der von Ihnen gewünschten Form). Die E-Mail wird über den in Abschnitt 3 genannten Mailserver versandt, in dessen Protokollen die Adresse für kurze Zeit zur Fehlersuche erhalten bleibt.
+
+**Bewirtungsbeleg.** Auf Ihren Wunsch stellen wir einen Bewirtungsbeleg aus, mit dem Sie Bewirtungsaufwendungen steuerlich geltend machen können. Dafür verarbeiten wir den Namen der Person oder Firma, die bewirtet (ab einem Rechnungsbetrag von 250 Euro vorgeschrieben), und, wenn Sie sie angeben, die Anschrift, zusammen mit den Angaben der Rechnung (Nummer, Datum, Tag der Bewirtung, Positionen, Beträge, Trinkgeld, Zahlungsart). Den Abschnitt zu Anlass und Teilnehmern füllen Sie selbst von Hand aus; diese Angaben erfassen wir nicht. Rechtsgrundlage ist Art. 6 Abs. 1 Buchstabe c DSGVO (Pflichtangaben einer Rechnung nach § 14 Umsatzsteuergesetz) bzw. Buchstabe b DSGVO. Bewirtungsbelege sind Rechnungen und gehören zu unseren steuerrechtlichen Aufzeichnungen; wir bewahren sie zehn Jahre auf (§ 147 Abgabenordnung, § 14b Umsatzsteuergesetz) und können sie in dieser Zeit nicht ändern oder löschen.
+
 ---
 
 ## Hinweise für den Kunden (nicht veröffentlichen)
@@ -62,3 +70,4 @@ Ihre Rechte nach Abschnitt 5 gelten auch für Sie. Eine Auskunft über die zu Ih
 - Zusätzlich braucht der Shop ein Impressum des Kunden (ebenfalls unter „Rechtliche Angaben“). Für eingetragene Vereine: Vereinsname, Anschrift, vertretungsberechtigter Vorstand, Registergericht und Vereinsregisternummer, E-Mail.
 - Wenn der Kunde Gästedaten zu anderen Zwecken nutzt, etwa für Einladungen zum nächsten Fest, braucht er dafür eine eigene Rechtsgrundlage, in der Regel eine Einwilligung.
 - Setzt der Kunde Bedienungen ein, informiert er sein Kassenpersonal über Abschnitt 7, z. B. durch einen Aushang an der Kasse oder beim Ausgeben des PIN-Zettels. Setzt er keine Bedienungen ein, kann Abschnitt 7 entfallen.
+- Abschnitt 8 gilt, sobald die Kasse Belege per QR-Code oder E-Mail ausgibt (in den Betriebsarten „Bargeldlos“ und „Alle Funktionen“ immer) bzw. Bewirtungsbelege ausstellt. Die Gäste sollten ihn vor der Eingabe der E-Mail-Adresse bzw. des Namens lesen können, z. B. als Aushang an der Kasse oder über den Datenschutzhinweis im Shop.
