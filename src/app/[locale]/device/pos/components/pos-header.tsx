@@ -17,7 +17,6 @@ import type { PosConnectionState } from '@/hooks/use-pos-connection';
 import { getSourceUrl } from '@/lib/runtime-config';
 import type { PosTheme } from '@/stores/device-store';
 
-import { PosFooter } from './pos-footer';
 
 export interface PosPrinterStatus {
   name: string;
@@ -227,8 +226,6 @@ export function PosHeader({
           <DropdownOption danger icon={<Icon name="logout" />} onClick={onLogout}>
             {t('menu.logout')}
           </DropdownOption>
-          {/* Telefon/Tablet hochkant: Fußzeile im Menü statt unter der Kasse */}
-          <PosFooter variant="menu" />
         </Dropdown>
       </div>
 

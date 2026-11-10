@@ -657,7 +657,7 @@ function PosApp() {
         )}
 
         {body}
-        <PosFooter variant="line" />
+        <PosFooter />
 
         {tablesEnabled && (
           <TableSwitchSheet
