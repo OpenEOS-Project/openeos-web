@@ -185,7 +185,9 @@ export function CategoriesManagementModal({
         <CategoryDeleteDialog
           eventId={eventId}
           category={deletingCategory}
-          zIndex={60}
+          /* Über dem Kategorien-Dialog (.modal__overlay: z-index 100) — mit
+             60 lag die Rückfrage bisher unsichtbar dahinter. */
+          zIndex={110}
           onClose={() => setDeletingCategory(null)}
           onShowProducts={
             onShowProducts
