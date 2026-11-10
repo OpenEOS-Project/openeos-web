@@ -5,12 +5,14 @@ import { useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
 import { Building } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import { useAssistantStatus } from '@/hooks/use-assistant';
 import { useDeleteProduct } from '@/hooks/use-products';
 import { useActiveEvent } from '@/hooks/use-events';
 import { usePermissions } from '@/hooks/use-permissions';
 import { assistantUsable } from '@/lib/assistant';
+import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
@@ -45,6 +47,14 @@ export function ProductsContainer() {
   const menuImportHint = !!assistant?.available && !assistant.enabled && isAdmin;
 
   const eventId = activeEvent?.id ?? '';
+
+  /* ?category=<id> zeigt nur die Produkte einer Kategorie — der Dialog
+     „Kategorie löschen“ verlinkt hierher, wenn noch Produkte darin sind. */
+  const router = useRouter();
+  const categoryFilter = useSearchParams().get('category');
+  const setCategoryFilter = (categoryId: string | null) => {
+    router.replace(categoryId ? `/products?category=${encodeURIComponent(categoryId)}` : '/products');
+  };
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
@@ -122,12 +132,18 @@ export function ProductsContainer() {
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
         onAdjustStockClick={handleAdjustStockClick}
+        categoryFilter={categoryFilter}
+        onClearCategoryFilter={() => setCategoryFilter(null)}
       />
 
       <CategoriesManagementModal
         isOpen={isCategoriesModalOpen}
         eventId={eventId}
         onClose={() => setIsCategoriesModalOpen(false)}
+        onShowProducts={(categoryId) => {
+          setIsCategoriesModalOpen(false);
+          setCategoryFilter(categoryId);
+        }}
       />
 
       {/* Nur eingehängt, solange er offen ist: jedes Öffnen startet frisch. */}
