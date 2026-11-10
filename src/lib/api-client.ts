@@ -2043,6 +2043,42 @@ export const deviceApi = {
       { useDeviceAuth: true }
     ),
 
+  /** Bewirtungsbeleg: Stand vor dem Ausstellen (vorhanden, Pflichtangaben, Tag der Bewirtung). */
+  hospitalityCheck: (orderIds: string[]) =>
+    apiClient.get<ApiResponse<import('@/types/receipt').HospitalityCheck>>(
+      `/device-api/hospitality-receipts/check?orderIds=${encodeURIComponent(orderIds.join(','))}`,
+      { useDeviceAuth: true }
+    ),
+  hospitalityIssue: (data: {
+    orderIds: string[];
+    recipientName?: string;
+    recipientAddress?: string;
+    serviceDate?: string;
+  }) =>
+    apiClient.post<ApiResponse<{ receipt: import('@/types/receipt').HospitalityReceipt; existing: boolean }>>(
+      '/device-api/hospitality-receipts',
+      data,
+      { useDeviceAuth: true }
+    ),
+  hospitalityPrint: (id: string) =>
+    apiClient.post<ApiResponse<{ printed: boolean; copy: boolean }>>(
+      `/device-api/hospitality-receipts/${id}/print`,
+      {},
+      { useDeviceAuth: true }
+    ),
+  hospitalityLink: (id: string) =>
+    apiClient.post<ApiResponse<{ url: string; expiresAt: string; copy: boolean }>>(
+      `/device-api/hospitality-receipts/${id}/link`,
+      {},
+      { useDeviceAuth: true }
+    ),
+  hospitalityEmail: (id: string, email: string) =>
+    apiClient.post<ApiResponse<{ sent: true; copy: boolean }>>(
+      `/device-api/hospitality-receipts/${id}/email`,
+      { email },
+      { useDeviceAuth: true }
+    ),
+
   /** Digitaler Beleg per E-Mail; die Adresse wird nicht gespeichert. */
   receiptEmail: (orderIds: string[], email: string) =>
     apiClient.post<ApiResponse<{ sent: true }>>(
