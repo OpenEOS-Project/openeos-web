@@ -690,7 +690,9 @@
         "email": "E-Mail-Benachrichtigungen",
         "emailDescription": "Wichtige Updates per E-Mail erhalten",
         "push": "Push-Benachrichtigungen",
-        "pushDescription": "Browser-Benachrichtigungen erhalten"
+        "pushDescription": "Browser-Benachrichtigungen erhalten",
+        "eventReminders": "Erinnerungen zu Veranstaltungen",
+        "eventRemindersDescription": "Nur für Admins: Checkliste eine Woche vorher, Erinnerung am Vortag und Rückblick nach dem Fest"
       },
       "saved": "Einstellungen gespeichert",
       "tour": {
@@ -825,11 +827,28 @@
       }
     },
     "organizationNotifications": {
-      "title": "Benachrichtigungen",
-      "description": "E-Mail-Benachrichtigungen für deine Organisation",
-      "orderConfirmation": "Bestellbestätigungen",
-      "dailySummary": "Tägliche Zusammenfassung",
-      "newOrders": "Neue Bestellungen (Push)"
+      "tab": "Benachrichtigungen",
+      "title": "Erinnerungen zu Veranstaltungen",
+      "description": "Diese Mails gehen an alle Admins deiner Organisation.",
+      "saved": "Gespeichert",
+      "personalHint": "Nur für dich abschalten kannst du sie unter Persönlich → Einstellungen.",
+      "adminOnly": "Nur Admins können diese Einstellungen ändern.",
+      "weekBefore": {
+        "label": "Eine Woche vorher: „Dein Fest rückt näher“",
+        "hint": "Checkliste aus deinen Daten: Kassen, Drucker, Bedienungen, Produkte, Rechtstexte, Betriebsart"
+      },
+      "dayBefore": {
+        "label": "Am Vortag: „Morgen geht's los“",
+        "hint": "Verkaufsstart, Löschen der Testbestellungen, Notfall-Support"
+      },
+      "afterEvent": {
+        "label": "Nach dem Fest: „Danke! So lief dein Fest“",
+        "hint": "Bestellungen, Umsatz, meistverkaufte Produkte und Links zu Berichten und Export"
+      },
+      "notBooked": {
+        "label": "Noch nicht freigeschaltet",
+        "hint": "Eine Woche vorher, wenn die Veranstaltung noch im Testmodus ist"
+      }
     },
     "organizationBranding": {
       "title": "Branding",
@@ -3023,9 +3042,12 @@
       "open": "Schublade öffnen",
       "opened": "Schublade geöffnet"
     },
-    "testMode": "Testmodus — Bestellungen werden beim Aktivieren gelöscht",
-    "plannedMode": "Testbetrieb – echte Verkäufe ab {date} um {time} Uhr",
+    "testMode": "Testmodus – Buchungen zählen nicht und werden beim Aktivieren gelöscht",
+    "testModeShort": "Testmodus – Buchungen zählen nicht",
+    "plannedMode": "Testbetrieb – Buchungen zählen nicht. Echte Verkäufe ab {date} um {time} Uhr",
+    "plannedModeShort": "Testbetrieb bis {date}, {time} Uhr – zählt nicht",
     "endedMode": "Veranstaltung beendet – nur noch offene Bestellungen kassieren",
+    "endedModeShort": "Beendet – nur offene Bestellungen kassieren",
     "testBadge": "Test",
     "scheduledBadge": "Geplant",
     "orderHistory": {
@@ -3536,17 +3558,9 @@
       "banner": "Bargeld gesperrt – ohne aktive TSE nimmt diese Kasse kein Bargeld an. Karte und online gehen weiter."
     },
     "tseOutage": {
-      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet.",
-      "training": "Trainingsbuchung – nimm kein echtes Geld an."
+      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet."
     },
     "tse": {
-      "pill": "TSE",
-      "pillState": {
-        "ok": "Cloud-TSE bereit – Belege werden signiert",
-        "error": "Cloud-TSE gestört – Belege werden als „TSE ausgefallen“ gekennzeichnet",
-        "creating": "Cloud-TSE wird eingerichtet",
-        "inactive": "Cloud-TSE nicht aktiv – kein Bargeld"
-      },
       "splitDone": "Teilzahlung gebucht",
       "pfandDone": "Pfand ausgezahlt",
       "sectionTitle": "TSE-Daten ({count})",

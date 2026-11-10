@@ -45,6 +45,8 @@ export interface OrganizationSettings {
   };
   /** Weist die Organisation Umsatzsteuer aus? Vereine und Kleinunternehmer nicht. */
   vatExempt?: boolean;
+  /** „Erinnerungen zu Veranstaltungen“ an die Admins; fehlt ein Wert, ist die Mail an. */
+  eventReminders?: EventReminderSettings;
   /** Impressum und Datenschutzhinweis fuer Shop und Helferseiten. */
   legal?: import('@/lib/legal').OrganizationLegalSettings;
   pos?: {
@@ -199,6 +201,14 @@ export interface CreateOrganizationData {
   /** Pflicht: Land der Organisation (ISO 3166-1 alpha-2). */
   country: string;
   settings?: Partial<OrganizationSettings>;
+}
+
+/** Schalter je Erinnerungsmail (Einstellungen → Organisation → Benachrichtigungen). */
+export interface EventReminderSettings {
+  weekBefore?: boolean;
+  dayBefore?: boolean;
+  afterEvent?: boolean;
+  notBooked?: boolean;
 }
 
 export interface UpdateOrganizationData {

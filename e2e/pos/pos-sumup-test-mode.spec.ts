@@ -72,7 +72,11 @@ test.describe('POS - SumUp in test mode', () => {
 
     const pos = new POSPage(page);
     await pos.goto();
-    await expect(page.getByText(/^Testmodus — Bestellungen werden/)).toBeVisible();
+    // Ein Streifen, ein Hinweis (Telefon: Kurzfassung).
+    const band = page.locator('.pos-testband');
+    await expect(band).toHaveCount(1);
+    await expect(band).toBeVisible();
+    await expect(band.locator('.pos-testband__long:visible, .pos-testband__short:visible')).toContainText('Testmodus – Buchungen zählen nicht');
     await pos.addProduct(PRODUCT);
     await pos.checkout();
 

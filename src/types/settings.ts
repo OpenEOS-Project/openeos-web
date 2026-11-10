@@ -5,6 +5,8 @@ export type LocalePreference = 'de' | 'en';
 export interface NotificationPreferences {
   email: boolean;
   push: boolean;
+  /** Erinnerungen zu Veranstaltungen (nur Admins); fehlt der Wert, sind sie an. */
+  eventReminders?: boolean;
 }
 
 export interface DashboardPreferences {
