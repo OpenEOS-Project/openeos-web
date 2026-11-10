@@ -72,3 +72,16 @@ export interface CreatePfandReturnLine {
   pfandTypeId: string;
   quantity: number;
 }
+
+/**
+ * GET /organizations/:id/pfand-types/legacy-balance (Euro): Pfand, das vor
+ * der Umstellung (2026-11) ohne Umsatzsteuer verkauft wurde. Rückgaben
+ * werden zuerst dagegen gebucht — ohne Steuerminderung. `applies` = false
+ * bei Kleinunternehmern.
+ */
+export interface PfandLegacyBalance {
+  applies: boolean;
+  charged: number;
+  returned: number;
+  remaining: number;
+}

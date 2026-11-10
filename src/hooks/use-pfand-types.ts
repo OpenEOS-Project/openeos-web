@@ -55,3 +55,17 @@ export function useDeletePfandType(organizationId: string) {
     },
   });
 }
+
+/** Pfand-Altsaldo (Hinweis auf der Pfand-Seite); Fehler bleiben still. */
+export function usePfandLegacyBalance(organizationId: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.list(organizationId), 'legacy-balance'] as const,
+    queryFn: async () => {
+      if (!organizationId) throw new Error('Organization ID required');
+      const response = await pfandTypesApi.legacyBalance(organizationId);
+      return response.data;
+    },
+    enabled: !!organizationId,
+    retry: false,
+  });
+}

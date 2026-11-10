@@ -509,6 +509,22 @@
       "hourlyLegendBars": "Orders per hour",
       "hourlyPeak": "Peak {hour} — {count, plural, one {# order} other {# orders}}",
       "topProductsSubtitle": "The five most ordered products · {period}"
+    },
+    "smallBusiness": {
+      "approaching": {
+        "title": "Small business limit in sight",
+        "text": "Your revenue in OpenEOS is {revenue} – that is {percent} % of the small business limit of {limit}. Already the revenue with which you exceed the limit is taxable. Talk to your tax advisor in good time."
+      },
+      "exceeded": {
+        "title": "Small business limit exceeded",
+        "text": "Your revenue in OpenEOS is {revenue} – limit of {limit} exceeded. Talk to your tax advisor and change the tax status."
+      },
+      "exceededPrevious": {
+        "title": "Small business limit exceeded",
+        "text": "Your revenue in OpenEOS last year was {revenue} – limit of {limit} for the previous year exceeded. Talk to your tax advisor and change the tax status."
+      },
+      "onlyOpeneos": "Only revenue in OpenEOS – revenue outside of it counts too.",
+      "settingsLink": "Change tax status"
     }
   },
   "navigation": {
@@ -714,6 +730,25 @@
       "vatExempt": {
         "label": "No VAT",
         "hint": "For associations and small businesses. When on, products carry 0% and no rate can be chosen."
+      },
+      "vatStatus": {
+        "toLiable": {
+          "title": "Liable for VAT from now on?",
+          "effect": "All bookings up to now stay tax-free (small business, key 6). From now on OpenEOS books with 7 % or 19 % – check the VAT rates of your products afterwards.",
+          "confirm": "Create closing and switch"
+        },
+        "toExempt": {
+          "title": "Small business again?",
+          "effect": "All bookings up to now stay booked with 7 % or 19 %. From now on OpenEOS books tax-free as a small business (key 6), without VAT on the receipt.",
+          "confirm": "Create closing and switch"
+        },
+        "closingFirst": "Your register has a Cloud TSE. OpenEOS therefore first creates a cash register closing so that all previous transactions are closed with the old tax status.",
+        "limits": "Check the limits with your tax advisor: €25,000 revenue in the previous year and €100,000 in the current year. Already the revenue with which you exceed €100,000 is taxable.",
+        "logged": "The change is logged with its time.",
+        "changed": "Tax status changed.",
+        "changedWithClosing": "Tax status changed. Cash register closing {numbers} created.",
+        "unchanged": "The tax status was already set this way.",
+        "failed": "The tax status could not be changed."
       },
       "logoHint": "PNG, JPG or WEBP – max. 5 MB. Shown on the public shift plan page and in the shop.",
       "replaceLogo": "Replace logo",
@@ -2568,6 +2603,7 @@
   "discounts": {
     "title": "Discount Vouchers",
     "subtitle": "Configure discount vouchers that can be selected at the register",
+    "voucherHint": "Discount vouchers are free discounts from the club (e.g. artist meals), not a payment method. Without a Cloud TSE you must not accept sold tokens or vouchers as payment.",
     "create": "Create voucher",
     "edit": "Edit voucher",
     "empty": {
@@ -2618,6 +2654,7 @@
   "pfand": {
     "title": "Deposit (Pfand)",
     "subtitle": "Configure deposit types (e.g. cup, bottle) that can be assigned to products",
+    "legacyBalance": "Legacy balance: {amount} of deposits were sold without VAT before the switch. Returns are booked against it first – without reducing VAT.",
     "create": "Create deposit type",
     "edit": "Edit deposit type",
     "empty": {
@@ -3543,7 +3580,7 @@
       "banner": "Cash blocked – without an active TSE this till accepts no cash. Card and online keep working."
     },
     "tseOutage": {
-      "banner": "TSE failed – you can keep selling, the receipt will be marked."
+      "banner": "TSE unreachable – you can keep selling, the receipt will be marked “Beleg ohne Signatur” (receipt without signature)."
     },
     "tse": {
       "splitDone": "Partial payment booked",
@@ -4652,7 +4689,8 @@
     "WAITER_SETTLEMENT_NOTE_REQUIRED": "Please add a note why you settle despite open tables.",
     "WAITER_SETTLEMENT_NOT_FOUND": "Settlement not found.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
-    "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server."
+    "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
+    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5648,10 +5686,11 @@
     },
     "vat": {
       "title": "VAT",
-      "subtitle": "Revenue per VAT rate – deposits are part of the consideration, returns reduce it",
+      "subtitle": "Revenue per VAT rate – deposits and tips to the club are part of the consideration, returns reduce it",
       "empty": "No sales in this period",
       "exempt": "Your organization does not charge VAT (e.g. small business). All amounts are therefore shown at 0 % without tax.",
-      "legacyHint": "Deposits from before November 2026 were booked without VAT and stay unchanged at 0 %.",
+      "legacyHint": "Deposits from before November 2026 were booked without VAT and stay unchanged at 0 %. Returns against this legacy balance are also shown at 0 % – they do not reduce VAT.",
+      "employeeTips": "Tips to employed servers (not taxable): {amount}",
       "total": "Total",
       "rate": "{rate} %",
       "columns": {
@@ -5659,6 +5698,8 @@
         "goods": "Goods",
         "deposits": "Deposit",
         "depositReturns": "Deposit returns",
+        "tips": "Tips",
+        "tipsHint": "Tips to the club – proportionally at the VAT rate of the goods",
         "gross": "Gross",
         "net": "Net",
         "tax": "VAT"
@@ -6044,7 +6085,7 @@
         },
         "outage": {
           "title": "TSE disrupted since {time}",
-          "text": "{count, plural, one {# transaction remained} other {# transactions remained}} unsigned. Selling continues, receipts carry the note “TSE ausgefallen” (TSE failed). The outage ends with the next signed transaction."
+          "text": "{count, plural, one {# transaction remained} other {# transactions remained}} unsigned. Selling continues, receipts carry the note “TSE nicht erreichbar – Beleg ohne Signatur” (TSE unreachable – receipt without signature). The outage ends with the next signed transaction."
         },
         "serial": "Serial number",
         "client": "Till (client ID)",
@@ -6084,7 +6125,7 @@
       },
       "outages": {
         "title": "Outage log",
-        "description": "Periods in which the TSE did not sign. Receipts from that time carry the note “TSE ausgefallen” (TSE failed).",
+        "description": "Periods in which the TSE did not sign. Receipts from that time carry the note “TSE nicht erreichbar – Beleg ohne Signatur” (TSE unreachable – receipt without signature).",
         "empty": "No outages.",
         "loading": "Loading …",
         "ongoing": "ongoing",
@@ -6229,12 +6270,10 @@
         "tseStarted": "The TSE export is running. Download it in a few minutes.",
         "tseStartFailed": "The TSE export could not be started.",
         "tip": {
-          "title": "Tips go to",
-          "hint": "Determines how tips are booked in the export. Check with your tax advisor.",
-          "employer": "Club",
-          "employee": "Helpers",
-          "saved": "Saved.",
-          "saveFailed": "Could not be saved."
+          "title": "Tips in the export",
+          "club": "Tips to the club appear as TrinkgeldAG in the export – with the proportional VAT rate of the food and drinks on the receipt.",
+          "employee": "TrinkgeldAN (tax-free) only applies to servers marked “Employee (payroll account)”. Volunteer helpers are not employees.",
+          "waitersLink": "Go to servers"
         }
       },
       "closings": {
@@ -6258,7 +6297,7 @@
           "cash": "Cash",
           "transactions": "Transactions",
           "download": "Download",
-          "cashHint": "All cash movements of the closing, including opening balance, cash in and cash out"
+          "cashHint": "All cash movements of the closing, including opening balance, change from the club cash box and skims"
         },
         "cardLine": "cash {cash} · {count, plural, =1 {1 transaction} other {# transactions}}",
         "failed": "{count} without TSE",
@@ -6869,16 +6908,21 @@
       "serial": "TSE serial number",
       "transaction": "Transaction",
       "counter": "Signature counter",
+      "orderStart": "Order start",
       "start": "Start",
       "finish": "End",
       "algorithm": "Algorithm",
       "timeFormat": "Time format",
       "signature": "Signature",
       "notice": {
-        "failed": "TSE failed (TSE ausgefallen)",
+        "failed": "TSE unreachable – receipt without signature (TSE nicht erreichbar – Beleg ohne Signatur)",
         "training": "TRAINING – NOT A SALE"
       },
       "errorCode": "Error: {code}",
+      "late": {
+        "title": "Signature after the receipt was issued (Signatur nach Belegausgabe)",
+        "hint": "The signature only arrived after the receipt was issued. The receipt stays a receipt without signature."
+      },
       "qrLabel": "QR code with the TSE data (DSFinV-K)",
       "bon": "Receipt no."
     },
@@ -6902,23 +6946,29 @@
     "title": "Cash book",
     "businessDay": "Business day {date} (6 am – 6 am)",
     "types": {
-      "opening_balance": "Opening balance",
-      "deposit": "Cash in",
-      "withdrawal": "Cash out",
+      "opening_balance": "Opening balance (remaining cash from the last closing)",
+      "deposit": "Change from the club cash box",
+      "withdrawal": "Skim to the club cash box",
       "cash_count": "Cash count"
     },
     "typeHints": {
-      "opening_balance": "Change at the start",
-      "deposit": "Put money into the drawer",
-      "withdrawal": "Skim money (safe, bank)",
+      "opening_balance": "Cash already in the drawer when you open",
+      "deposit": "Put change from the club cash box into the drawer",
+      "withdrawal": "Hand money over to the club cash box",
       "cash_count": "Count the drawer, book the difference"
+    },
+    "actionLabels": {
+      "opening_balance": "Opening balance",
+      "deposit": "Change from the club cash box",
+      "withdrawal": "Skim to the club cash box",
+      "cash_count": "Cash count"
     },
     "summary": {
       "expected": "Expected cash",
       "expectedDevice": "Expected cash in this register",
       "openingBalance": "Opening balance",
-      "deposits": "Cash in",
-      "withdrawals": "Cash out",
+      "deposits": "Change from the club cash box",
+      "withdrawals": "Skimmed to the club cash box",
       "cashSales": "Cash sales",
       "cashRefunds": "Cash refunds",
       "pfandPayouts": "Deposit payouts",
@@ -6938,29 +6988,31 @@
       "difference_minus": "Shortage",
       "differencePending": "Difference",
       "differenceHint": "If the counted cash differs, the difference is booked as “difference expected/actual”.",
+      "openingHint": "The opening balance is only the cash that is already in the drawer when you open. Change you take from the club cash box is booked as “Change from the club cash box”.",
+      "lastCounted": "Last counted on {date}: {amount}",
       "note": "Note (optional)",
       "notePlaceholder": {
-        "opening_balance": "e.g. change from the club cash box",
-        "deposit": "e.g. topped up change",
-        "withdrawal": "e.g. into the safe",
+        "opening_balance": "e.g. cash left from last night",
+        "deposit": "e.g. change from the treasurer",
+        "withdrawal": "e.g. to the treasurer",
         "cash_count": "e.g. shift change"
       },
       "text": {
-        "opening_balance": "How much change is in the drawer at the start?",
-        "deposit": "How much are you putting in?",
-        "withdrawal": "How much are you taking out?",
+        "opening_balance": "How much cash is already in the drawer when you open?",
+        "deposit": "How much change are you taking from the club cash box?",
+        "withdrawal": "How much are you handing over to the club cash box?",
         "cash_count": "Count the cash and enter the amount."
       },
       "adminText": {
-        "opening_balance": "Change at the start of the day for the whole register.",
-        "deposit": "Money going into the register – e.g. from the club cash box or the bank account.",
-        "withdrawal": "Money leaving the register – e.g. into the safe or to the bank.",
+        "opening_balance": "Cash already in the register when you open – the remaining cash from the last closing.",
+        "deposit": "Change you take from the club cash box and put into the register.",
+        "withdrawal": "Money you take out of the register and hand over to the club cash box (skim).",
         "cash_count": "Count the cash of all tills and enter the amount. A deviation from the expected cash is booked as a difference."
       },
       "confirm": {
         "opening_balance": "Book opening balance",
-        "deposit": "Book cash in",
-        "withdrawal": "Book cash out",
+        "deposit": "Book change",
+        "withdrawal": "Book skim",
         "cash_count": "Book cash count"
       },
       "cancel": "Cancel",
@@ -6971,15 +7023,15 @@
     "countNoDifference": "Cash count booked · register balances",
     "bookedShort": {
       "opening_balance": "Opening balance booked",
-      "deposit": "Cash in booked",
-      "withdrawal": "Cash out booked",
+      "deposit": "Change booked",
+      "withdrawal": "Skim booked",
       "cash_count": "Cash count booked"
     },
     "bon": "Receipt no. {bon}",
     "tseSigned": "TSE signed · receipt no. {bon}",
     "tseSignedNoBon": "TSE signed",
     "noTse": "Booked without TSE signature.",
-    "tseFailed": "TSE failed – the receipt is marked “TSE ausgefallen”.",
+    "tseFailed": "TSE unreachable – the receipt is marked “Beleg ohne Signatur” (receipt without signature).",
     "tseDetails": "TSE data",
     "countedOf": "{counted} counted / expected {expected}",
     "entries": "Bookings today",
@@ -6997,7 +7049,7 @@
       "user": "Operator"
     },
     "admin": {
-      "subtitle": "Cash in your register: opening balance, cash in, cash out and cash count per business day.",
+      "subtitle": "Cash in your register: opening balance, change from the club cash box, skims and cash count per business day.",
       "date": "Business day",
       "today": "Today",
       "expectedTotal": "Expected cash, whole register",
@@ -7296,7 +7348,7 @@
       "discount": "Redeem discount vouchers",
       "discountHint": "Discounts at checkout.",
       "cashbook": "Cash book",
-      "cashbookHint": "Opening float, pay-in, pay-out, cash count."
+      "cashbookHint": "Opening balance, change, skim, cash count."
     },
     "table": {
       "name": "Server",
@@ -7342,6 +7394,9 @@
       "color": "Color",
       "role": "Role",
       "rights": "Rights",
+      "employment": "Employment",
+      "isEmployee": "Employee (payroll account)",
+      "isEmployeeHint": "Only for employed servers (e.g. mini-job). Their tips then count as tips to employees (tax-free, TrinkgeldAN). Volunteer helpers are not employees – their tips belong to the club and are taxed at the rate of the food and drinks.",
       "ownPin": "Own PIN (optional)",
       "ownPinPlaceholder": "leave empty = generated",
       "ownPinHint": "4 to 6 digits. Simple sequences like 1234 or 0000 are not allowed.",
@@ -7404,7 +7459,8 @@
       "selfSettlementLead": "Shift leads and admins only",
       "selfSettlementSelf": "Servers settle themselves"
     },
-    "anonymizeDue": "will be anonymized on {date}"
+    "anonymizeDue": "will be anonymized on {date}",
+    "employeeBadge": "Employee"
   },
   "waiterSettlement": {
     "sections": {

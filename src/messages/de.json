@@ -509,6 +509,22 @@
       "hourlyLegendBars": "Bestellungen je Stunde",
       "hourlyPeak": "Spitze {hour} — {count, plural, one {# Bestellung} other {# Bestellungen}}",
       "topProductsSubtitle": "Die 5 meistbestellten Produkte · {period}"
+    },
+    "smallBusiness": {
+      "approaching": {
+        "title": "Kleinunternehmergrenze in Sicht",
+        "text": "Dein Umsatz in OpenEOS liegt bei {revenue} – das sind {percent} % der Kleinunternehmergrenze von {limit}. Schon der Umsatz, mit dem du die Grenze überschreitest, ist steuerpflichtig. Sprich rechtzeitig mit deinem Steuerberater."
+      },
+      "exceeded": {
+        "title": "Kleinunternehmergrenze überschritten",
+        "text": "Dein Umsatz in OpenEOS liegt bei {revenue} – Grenze von {limit} überschritten. Sprich mit deinem Steuerberater und stelle den Steuerstatus um."
+      },
+      "exceededPrevious": {
+        "title": "Kleinunternehmergrenze überschritten",
+        "text": "Dein Umsatz in OpenEOS lag im Vorjahr bei {revenue} – Grenze von {limit} für das Vorjahr überschritten. Sprich mit deinem Steuerberater und stelle den Steuerstatus um."
+      },
+      "onlyOpeneos": "Nur Umsätze in OpenEOS – Umsätze außerhalb zählen auch.",
+      "settingsLink": "Steuerstatus ändern"
     }
   },
   "navigation": {
@@ -714,6 +730,25 @@
       "vatExempt": {
         "label": "Keine Umsatzsteuer",
         "hint": "Für Vereine und Kleinunternehmer nach § 19 UStG. Ist das an, tragen Produkte 0 % und es gibt keine Auswahl."
+      },
+      "vatStatus": {
+        "toLiable": {
+          "title": "Ab sofort umsatzsteuerpflichtig?",
+          "effect": "Alle Buchungen bis jetzt bleiben steuerfrei (Kleinunternehmer, Schlüssel 6). Ab jetzt bucht OpenEOS mit 7 % bzw. 19 % – prüfe danach die Steuersätze deiner Produkte.",
+          "confirm": "Abschluss erstellen und umstellen"
+        },
+        "toExempt": {
+          "title": "Wieder Kleinunternehmer?",
+          "effect": "Alle Buchungen bis jetzt bleiben mit 7 % bzw. 19 % gebucht. Ab jetzt bucht OpenEOS steuerfrei als Kleinunternehmer (Schlüssel 6), ohne Umsatzsteuer auf dem Bon.",
+          "confirm": "Abschluss erstellen und umstellen"
+        },
+        "closingFirst": "Deine Kasse hat eine Cloud-TSE. OpenEOS erstellt deshalb zuerst einen Kassenabschluss, damit alle bisherigen Vorgänge mit dem alten Steuerstatus abgeschlossen sind.",
+        "limits": "Prüfe die Grenzen mit deinem Steuerberater: 25.000 € Umsatz im Vorjahr und 100.000 € im laufenden Jahr. Schon der Umsatz, mit dem du die 100.000 € überschreitest, ist steuerpflichtig.",
+        "logged": "Der Wechsel wird mit Zeitpunkt protokolliert.",
+        "changed": "Steuerstatus geändert.",
+        "changedWithClosing": "Steuerstatus geändert. Kassenabschluss {numbers} erstellt.",
+        "unchanged": "Der Steuerstatus war schon so eingestellt.",
+        "failed": "Der Steuerstatus konnte nicht geändert werden."
       },
       "logoHint": "PNG, JPG oder WEBP – max. 5 MB. Wird auf der öffentlichen Helferplan-Seite und im Shop angezeigt.",
       "replaceLogo": "Logo ersetzen",
@@ -2155,6 +2190,7 @@
   "discounts": {
     "title": "Rabatt-Bons",
     "subtitle": "Konfiguriere Rabatt-Bons, die an der Kasse ausgewählt werden können",
+    "voucherHint": "Rabatt-Bons sind kostenlose Rabatte des Vereins (z. B. Künstler-Essen), keine Zahlart. Verkaufte Wertmarken oder Gutscheine darfst du ohne Cloud-TSE nicht als Zahlung annehmen.",
     "create": "Rabatt-Bon erstellen",
     "edit": "Rabatt-Bon bearbeiten",
     "empty": {
@@ -2205,6 +2241,7 @@
   "pfand": {
     "title": "Pfand",
     "subtitle": "Konfiguriere Pfand-Typen (z. B. Becher, Flasche), die Produkten zugewiesen werden",
+    "legacyBalance": "Altsaldo: {amount} Pfand wurde vor der Umstellung ohne Umsatzsteuer verkauft. Rückgaben werden zuerst dagegen gebucht – ohne Steuerminderung.",
     "create": "Pfand-Typ erstellen",
     "edit": "Pfand-Typ bearbeiten",
     "empty": {
@@ -3531,7 +3568,7 @@
       "banner": "Bargeld gesperrt – ohne aktive TSE nimmt diese Kasse kein Bargeld an. Karte und online gehen weiter."
     },
     "tseOutage": {
-      "banner": "TSE ausgefallen – du kannst weiter kassieren, der Bon wird gekennzeichnet."
+      "banner": "TSE nicht erreichbar – du kannst weiter kassieren, der Bon wird als „Beleg ohne Signatur“ gekennzeichnet."
     },
     "tse": {
       "splitDone": "Teilzahlung gebucht",
@@ -4640,7 +4677,8 @@
     "WAITER_SETTLEMENT_NOTE_REQUIRED": "Bitte gib eine Notiz an, warum trotz offener Tische abgerechnet wird.",
     "WAITER_SETTLEMENT_NOT_FOUND": "Abrechnung nicht gefunden.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
-    "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben."
+    "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
+    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5636,10 +5674,11 @@
     },
     "vat": {
       "title": "Umsatzsteuer",
-      "subtitle": "Umsatz je Steuersatz – Pfand gehört zum Entgelt, Rückgaben mindern ihn",
+      "subtitle": "Umsatz je Steuersatz – Pfand und Trinkgeld an den Verein gehören zum Entgelt, Rückgaben mindern ihn",
       "empty": "Keine Umsätze im Zeitraum",
       "exempt": "Deine Organisation weist keine Umsatzsteuer aus (z. B. Kleinunternehmer). Alle Beträge stehen deshalb bei 0 % ohne Steuer.",
-      "legacyHint": "Pfand von vor November 2026 wurde ohne Umsatzsteuer gebucht und steht unverändert bei 0 %.",
+      "legacyHint": "Pfand von vor November 2026 wurde ohne Umsatzsteuer gebucht und steht unverändert bei 0 %. Rückgaben gegen diesen Altsaldo stehen ebenfalls bei 0 % – sie mindern keine Umsatzsteuer.",
+      "employeeTips": "Trinkgeld an angestellte Bedienungen (nicht steuerbar): {amount}",
       "total": "Summe",
       "rate": "{rate} %",
       "columns": {
@@ -5647,6 +5686,8 @@
         "goods": "Ware",
         "deposits": "Pfand",
         "depositReturns": "Pfand-Rückgabe",
+        "tips": "Trinkgeld",
+        "tipsHint": "Trinkgeld an den Verein – anteilig zum Steuersatz der Ware",
         "gross": "Brutto",
         "net": "Netto",
         "tax": "Umsatzsteuer"
@@ -6032,7 +6073,7 @@
         },
         "outage": {
           "title": "TSE gestört seit {time}",
-          "text": "{count, plural, one {# Vorgang blieb} other {# Vorgänge blieben}} ohne Signatur. Kassieren geht weiter, die Bons tragen den Vermerk „TSE ausgefallen“. Der Ausfall endet mit dem nächsten signierten Vorgang."
+          "text": "{count, plural, one {# Vorgang blieb} other {# Vorgänge blieben}} ohne Signatur. Kassieren geht weiter, die Bons tragen den Vermerk „TSE nicht erreichbar – Beleg ohne Signatur“. Der Ausfall endet mit dem nächsten signierten Vorgang."
         },
         "serial": "Seriennummer",
         "client": "Kasse (Client-ID)",
@@ -6072,7 +6113,7 @@
       },
       "outages": {
         "title": "Ausfallprotokoll",
-        "description": "Zeiträume, in denen die TSE nicht signiert hat. Bons aus dieser Zeit tragen den Vermerk „TSE ausgefallen“.",
+        "description": "Zeiträume, in denen die TSE nicht signiert hat. Bons aus dieser Zeit tragen den Vermerk „TSE nicht erreichbar – Beleg ohne Signatur“.",
         "empty": "Keine Ausfälle.",
         "loading": "Wird geladen …",
         "ongoing": "andauernd",
@@ -6217,12 +6258,10 @@
         "tseStarted": "Der TSE-Export läuft. Lade ihn in ein paar Minuten herunter.",
         "tseStartFailed": "Der TSE-Export konnte nicht gestartet werden.",
         "tip": {
-          "title": "Trinkgeld geht an",
-          "hint": "Bestimmt, wie Trinkgeld im Export gebucht wird. Kläre das mit deiner Steuerberatung.",
-          "employer": "Verein",
-          "employee": "Helfer",
-          "saved": "Gespeichert.",
-          "saveFailed": "Konnte nicht gespeichert werden."
+          "title": "Trinkgeld im Export",
+          "club": "Trinkgeld an den Verein steht als TrinkgeldAG im Export – mit dem anteiligen Steuersatz der Speisen und Getränke auf dem Bon.",
+          "employee": "TrinkgeldAN (steuerfrei) gibt es nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Ehrenamtliche Helfer sind keine Arbeitnehmer.",
+          "waitersLink": "Zu den Bedienungen"
         }
       },
       "closings": {
@@ -6246,7 +6285,7 @@
           "cash": "Bargeld",
           "transactions": "Vorgänge",
           "download": "Download",
-          "cashHint": "Alle Barzahlungen des Abschlusses, auch Anfangsbestand, Einlagen und Entnahmen"
+          "cashHint": "Alle Barzahlungen des Abschlusses, auch Anfangsbestand, Wechselgeld aus der Vereinskasse und Abschöpfungen"
         },
         "cardLine": "Bargeld {cash} · {count, plural, =1 {1 Vorgang} other {# Vorgänge}}",
         "failed": "{count} ohne TSE",
@@ -6857,16 +6896,21 @@
       "serial": "TSE-Seriennummer",
       "transaction": "Transaktion",
       "counter": "Signaturzähler",
+      "orderStart": "Bestellbeginn",
       "start": "Start",
       "finish": "Ende",
       "algorithm": "Algorithmus",
       "timeFormat": "Zeitformat",
       "signature": "Signatur",
       "notice": {
-        "failed": "TSE ausgefallen",
+        "failed": "TSE nicht erreichbar – Beleg ohne Signatur",
         "training": "TRAININGSBUCHUNG – KEIN VERKAUF"
       },
       "errorCode": "Fehler: {code}",
+      "late": {
+        "title": "Signatur nach Belegausgabe",
+        "hint": "Die Signatur kam erst nach der Belegausgabe. Der Beleg bleibt ein Beleg ohne Signatur."
+      },
       "qrLabel": "QR-Code mit den TSE-Daten (DSFinV-K)",
       "bon": "Beleg-Nr."
     },
@@ -6890,23 +6934,29 @@
     "title": "Kassenbuch",
     "businessDay": "Geschäftstag {date} (6–6 Uhr)",
     "types": {
-      "opening_balance": "Anfangsbestand",
-      "deposit": "Einlage",
-      "withdrawal": "Entnahme",
+      "opening_balance": "Anfangsbestand (Restbestand aus dem letzten Abschluss)",
+      "deposit": "Wechselgeld aus Vereinskasse",
+      "withdrawal": "Abschöpfung an Vereinskasse",
       "cash_count": "Kassensturz"
     },
     "typeHints": {
-      "opening_balance": "Wechselgeld zu Beginn",
-      "deposit": "Geld in die Kasse legen",
-      "withdrawal": "Geld abschöpfen (Tresor, Bank)",
+      "opening_balance": "Bargeld, das beim Öffnen schon in der Kasse liegt",
+      "deposit": "Wechselgeld aus der Vereinskasse einlegen",
+      "withdrawal": "Geld an die Vereinskasse abgeben",
       "cash_count": "Bestand zählen, Differenz buchen"
+    },
+    "actionLabels": {
+      "opening_balance": "Anfangsbestand",
+      "deposit": "Wechselgeld aus Vereinskasse",
+      "withdrawal": "Abschöpfung an Vereinskasse",
+      "cash_count": "Kassensturz"
     },
     "summary": {
       "expected": "Soll-Bestand",
       "expectedDevice": "Soll-Bestand dieser Kasse",
       "openingBalance": "Anfangsbestand",
-      "deposits": "Einlagen",
-      "withdrawals": "Entnahmen",
+      "deposits": "Wechselgeld aus Vereinskasse",
+      "withdrawals": "Abschöpfung an Vereinskasse",
       "cashSales": "Barverkäufe",
       "cashRefunds": "Bar-Erstattungen",
       "pfandPayouts": "Pfand-Auszahlungen",
@@ -6926,29 +6976,31 @@
       "difference_minus": "Fehlbetrag",
       "differencePending": "Differenz",
       "differenceHint": "Weicht der gezählte Bestand ab, wird die Differenz als „Differenz Soll/Ist“ gebucht.",
+      "openingHint": "Anfangsbestand ist nur das Bargeld, das beim Öffnen schon in der Kasse liegt. Wechselgeld, das du aus der Vereinskasse holst, buchst du als „Wechselgeld aus Vereinskasse“.",
+      "lastCounted": "Zuletzt gezählt am {date}: {amount}",
       "note": "Notiz (optional)",
       "notePlaceholder": {
-        "opening_balance": "z. B. Wechselgeld aus der Vereinskasse",
-        "deposit": "z. B. Wechselgeld nachgelegt",
-        "withdrawal": "z. B. in den Tresor",
+        "opening_balance": "z. B. Restbestand vom letzten Abend",
+        "deposit": "z. B. Wechselgeld vom Kassenwart",
+        "withdrawal": "z. B. an den Kassenwart",
         "cash_count": "z. B. Schichtwechsel"
       },
       "text": {
-        "opening_balance": "Wie viel Wechselgeld liegt zu Beginn in der Kasse?",
-        "deposit": "Wie viel legst du in die Kasse?",
-        "withdrawal": "Wie viel nimmst du heraus?",
+        "opening_balance": "Wie viel Bargeld liegt beim Öffnen schon in der Kasse?",
+        "deposit": "Wie viel Wechselgeld holst du aus der Vereinskasse?",
+        "withdrawal": "Wie viel gibst du an die Vereinskasse ab?",
         "cash_count": "Zähle das Bargeld und gib den Bestand ein."
       },
       "adminText": {
-        "opening_balance": "Wechselgeld zu Beginn des Tages für die ganze Kasse.",
-        "deposit": "Geld, das in die Kasse kommt – z. B. aus der Vereinskasse oder vom Konto.",
-        "withdrawal": "Geld, das aus der Kasse geht – z. B. in den Tresor oder zur Bank.",
+        "opening_balance": "Bargeld, das beim Öffnen schon in der Kasse liegt – der Restbestand aus dem letzten Abschluss.",
+        "deposit": "Wechselgeld, das du aus der Vereinskasse in die Kasse legst.",
+        "withdrawal": "Geld, das du aus der Kasse an die Vereinskasse abgibst (Abschöpfung).",
         "cash_count": "Zähle das Bargeld aller Kassen und gib den Bestand ein. Eine Abweichung vom Soll wird als Differenz gebucht."
       },
       "confirm": {
         "opening_balance": "Anfangsbestand buchen",
-        "deposit": "Einlage buchen",
-        "withdrawal": "Entnahme buchen",
+        "deposit": "Wechselgeld buchen",
+        "withdrawal": "Abschöpfung buchen",
         "cash_count": "Kassensturz buchen"
       },
       "cancel": "Abbrechen",
@@ -6959,15 +7011,15 @@
     "countNoDifference": "Kassensturz gebucht · Kasse stimmt",
     "bookedShort": {
       "opening_balance": "Anfangsbestand gebucht",
-      "deposit": "Einlage gebucht",
-      "withdrawal": "Entnahme gebucht",
+      "deposit": "Wechselgeld gebucht",
+      "withdrawal": "Abschöpfung gebucht",
       "cash_count": "Kassensturz gebucht"
     },
     "bon": "Beleg-Nr. {bon}",
     "tseSigned": "TSE-signiert · Beleg-Nr. {bon}",
     "tseSignedNoBon": "TSE-signiert",
     "noTse": "Ohne TSE-Signatur gebucht.",
-    "tseFailed": "TSE ausgefallen – der Beleg ist als „TSE ausgefallen“ gekennzeichnet.",
+    "tseFailed": "TSE nicht erreichbar – der Beleg ist als „Beleg ohne Signatur“ gekennzeichnet.",
     "tseDetails": "TSE-Daten",
     "countedOf": "{counted} gezählt / Soll {expected}",
     "entries": "Buchungen heute",
@@ -6985,7 +7037,7 @@
       "user": "Bediener"
     },
     "admin": {
-      "subtitle": "Bargeld deiner Kasse: Anfangsbestand, Einlagen, Entnahmen und Kassensturz je Geschäftstag.",
+      "subtitle": "Bargeld deiner Kasse: Anfangsbestand, Wechselgeld aus der Vereinskasse, Abschöpfungen und Kassensturz je Geschäftstag.",
       "date": "Geschäftstag",
       "today": "Heute",
       "expectedTotal": "Soll-Bestand ganze Kasse",
@@ -7284,7 +7336,7 @@
       "discount": "Rabatt-Bons einlösen",
       "discountHint": "Rabatte beim Kassieren.",
       "cashbook": "Kassenbuch",
-      "cashbookHint": "Anfangsbestand, Einlage, Entnahme, Kassensturz."
+      "cashbookHint": "Anfangsbestand, Wechselgeld, Abschöpfung, Kassensturz."
     },
     "table": {
       "name": "Bedienung",
@@ -7330,6 +7382,9 @@
       "color": "Farbe",
       "role": "Rolle",
       "rights": "Rechte",
+      "employment": "Beschäftigung",
+      "isEmployee": "Arbeitnehmer (Lohnkonto)",
+      "isEmployeeHint": "Nur für angestellte Bedienungen (z. B. Minijob). Ihr Trinkgeld gilt dann als Trinkgeld an Angestellte (steuerfrei, TrinkgeldAN). Ehrenamtliche Helfer sind keine Arbeitnehmer – ihr Trinkgeld gehört dem Verein und wird mit dem Steuersatz der Speisen und Getränke versteuert.",
       "ownPin": "Eigene PIN (optional)",
       "ownPinPlaceholder": "leer lassen = wird erzeugt",
       "ownPinHint": "4 bis 6 Ziffern. Einfache Folgen wie 1234 oder 0000 gehen nicht.",
@@ -7392,7 +7447,8 @@
       "selfSettlementLead": "Nur Schichtleitung und Admins",
       "selfSettlementSelf": "Bedienungen rechnen selbst ab"
     },
-    "anonymizeDue": "wird am {date} anonymisiert"
+    "anonymizeDue": "wird am {date} anonymisiert",
+    "employeeBadge": "Arbeitnehmer"
   },
   "waiterSettlement": {
     "sections": {

@@ -14,7 +14,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolveUploadUrl } from '@/utils/upload-url';
 import { toast } from '@/components/shared/toast';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { isVatStatusClosingError, vatStatusNeedsClosing } from '@/lib/vat-status';
 import { SettingsSectionHead } from './settings-section-head';
+import { VatStatusDialog } from './vat-status-dialog';
 
 function createOrgGeneralSchema(t: (key: string) => string) {
   return z.object({
@@ -35,6 +37,8 @@ export function OrganizationGeneralSection() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  /* Ziel des Steuerstatus-Wechsels mit Kassenabschluss (Cloud-TSE), null = zu. */
+  const [vatTarget, setVatTarget] = useState<boolean | null>(null);
 
   const updateOrg = useMutation({
     mutationFn: async (data: UpdateOrganizationData) => {
@@ -74,7 +78,12 @@ export function OrganizationGeneralSection() {
       }
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     },
-    onError: (err) => {
+    onError: (err, vatExempt) => {
+      // Mit TSE-Vorgängen nur über den Kassenabschluss (Rückfrage).
+      if (isVatStatusClosingError(err)) {
+        setVatTarget(vatExempt);
+        return;
+      }
       toast.error(apiErrorMessage(err, tCommon('error')));
     },
   });
@@ -221,8 +230,12 @@ export function OrganizationGeneralSection() {
             label={t('vatExempt.label')}
             hint={t('vatExempt.hint')}
             checked={currentOrganization.organization?.settings?.vatExempt !== false}
-            disabled={updateVatExempt.isPending}
-            onChange={(checked) => updateVatExempt.mutate(checked)}
+            disabled={updateVatExempt.isPending || vatTarget !== null}
+            onChange={(checked) =>
+              vatStatusNeedsClosing(currentOrganization.organization)
+                ? setVatTarget(checked)
+                : updateVatExempt.mutate(checked)
+            }
           />
         </div>
 
@@ -238,6 +251,13 @@ export function OrganizationGeneralSection() {
           </button>
         </div>
       </form>
+      {vatTarget !== null && (
+        <VatStatusDialog
+          organizationId={currentOrganization.organizationId}
+          vatExempt={vatTarget}
+          onClose={() => setVatTarget(null)}
+        />
+      )}
     </div>
   );
 }

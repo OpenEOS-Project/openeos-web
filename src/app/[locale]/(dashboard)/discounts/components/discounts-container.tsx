@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Banner, Icon } from '@openeos/ui';
 
 import { useDeleteDiscountVoucher } from '@/hooks/use-discount-vouchers';
 import { useAuthStore } from '@/stores/auth-store';
@@ -49,12 +50,19 @@ export function DiscountsContainer() {
 
   return (
     <>
-      <DiscountsList
-        organizationId={organizationId}
-        onCreateClick={() => setIsCreateModalOpen(true)}
-        onEditClick={(voucher) => setEditingVoucher(voucher)}
-        onDeleteClick={(voucher) => setDeletingVoucher(voucher)}
-      />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Gutscheine sind Rabatte, keine Zahlart: verkaufte Wertmarken oder
+            Guthaben stehen Bargeld gleich (AEAO zu § 146a Nr. 1.2). */}
+        <Banner tone="info" icon={<Icon name="info" />}>
+          <span data-testid="discounts-voucher-hint">{t('voucherHint')}</span>
+        </Banner>
+        <DiscountsList
+          organizationId={organizationId}
+          onCreateClick={() => setIsCreateModalOpen(true)}
+          onEditClick={(voucher) => setEditingVoucher(voucher)}
+          onDeleteClick={(voucher) => setDeletingVoucher(voucher)}
+        />
+      </div>
 
       <DiscountFormModal
         isOpen={isCreateModalOpen || !!editingVoucher}

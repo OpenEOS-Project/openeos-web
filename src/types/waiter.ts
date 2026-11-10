@@ -22,6 +22,12 @@ export interface Waiter {
   permissions: WaiterPermissions;
   effectivePermissions: Record<WaiterPermissionKey, boolean>;
   eventId: string | null;
+  /**
+   * Arbeitnehmer (Lohnkonto), z. B. Minijob: Trinkgeld als TrinkgeldAN
+   * (steuerfrei). Ehrenamtliche nicht (Trinkgeld an den Verein,
+   * TrinkgeldAG). Fehlt bei älteren API-Versionen.
+   */
+  isEmployee?: boolean;
   isActive: boolean;
   hasPin: boolean;
   pinLength: number | null;
@@ -49,6 +55,8 @@ export interface CreateWaiterData {
   role?: WaiterRole;
   permissions?: WaiterPermissions;
   eventId?: string | null;
+  /** Arbeitnehmer (Lohnkonto); Standard false. */
+  isEmployee?: boolean;
   pin?: string;
 }
 

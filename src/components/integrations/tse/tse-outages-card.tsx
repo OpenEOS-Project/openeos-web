@@ -8,7 +8,7 @@ import { useTseOutages } from '@/hooks/use-tse';
 
 /**
  * Ausfallprotokoll (AEAO zu § 146a Nr. 1.14): wann die TSE nicht signiert
- * hat, warum und wie viele Vorgänge den Vermerk „TSE ausgefallen“ tragen.
+ * hat, warum und wie viele Vorgänge den Vermerk „TSE nicht erreichbar – Beleg ohne Signatur“ tragen.
  */
 export function TseOutagesCard({ organizationId }: { organizationId: string }) {
   const t = useTranslations('integrations.tse.outages');

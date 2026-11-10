@@ -29,7 +29,10 @@ export interface VatReportRow {
   rate: number;
   goods: number;
   deposits: number;
+  /** Pfand-Rückgaben (negativ); gegen den Altsaldo bei 0 %. */
   depositReturns: number;
+  /** Trinkgeld an den Verein (TrinkgeldAG), anteilig je Satz (ältere API: fehlt). */
+  tips?: number;
   gross: number;
   tax: number;
   net: number;
@@ -40,6 +43,24 @@ export interface VatReport {
   vatExempt: boolean;
   rows: VatReportRow[];
   total: Omit<VatReportRow, 'rate'>;
+  /** Trinkgeld angestellter Bedienungen (TrinkgeldAN, nicht steuerbar), nachrichtlich. */
+  employeeTips?: number;
+}
+
+/** GET reports/small-business: Umsatz in OpenEOS gegen die Grenzen des § 19 UStG. */
+export interface SmallBusinessStatus {
+  vatExempt: boolean;
+  year: number;
+  currentYearRevenue: number;
+  previousYearRevenue: number;
+  /** 100.000 € */
+  limitCurrentYear: number;
+  /** 25.000 € */
+  limitPreviousYear: number;
+  /** Anteil an `limitCurrentYear` (0..n). */
+  ratio: number;
+  /** Nur für Kleinunternehmer: ab 80 % `approaching`, darüber `exceeded`. */
+  warning: 'approaching' | 'exceeded' | null;
 }
 
 /**

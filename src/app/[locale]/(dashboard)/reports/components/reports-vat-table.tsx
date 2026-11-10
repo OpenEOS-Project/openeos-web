@@ -16,9 +16,11 @@ interface ReportsVatTableProps {
 /**
  * Umsatz und Umsatzsteuer je Steuersatz. Pfand gehört zum Entgelt
  * (Abschn. 10.1 Abs. 8 UStAE) und steht beim Satz seiner Pfandart;
- * Rückgaben mindern Umsatz und Steuer zum selben Satz. Ware, Pfand und
- * Rückgaben stehen getrennt, damit nachvollziehbar bleibt, woraus sich die
- * Summe je Satz ergibt.
+ * Rückgaben mindern Umsatz und Steuer zum selben Satz (gegen den
+ * Pfand-Altsaldo bei 0 %). Trinkgeld an den Verein ist Entgelt und steht
+ * anteilig beim Satz der Ware; Trinkgeld angestellter Bedienungen nur als
+ * Vermerk darunter. Ware, Pfand, Rückgaben und Trinkgeld stehen getrennt,
+ * damit nachvollziehbar bleibt, woraus sich die Summe je Satz ergibt.
  */
 export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsVatTableProps) {
   const t = useTranslations('reports');
@@ -29,6 +31,7 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
   const money = (value: number) => formatCurrency(value, locale);
   const rows = data?.rows ?? [];
   const hasLegacyDeposit = rows.some((r) => r.rate === 0 && (r.deposits !== 0 || r.depositReturns !== 0));
+  const employeeTips = data?.employeeTips ?? 0;
 
   const handleExport = () => {
     if (!data || rows.length === 0) return;
@@ -37,17 +40,19 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
       t('vat.columns.goods'),
       t('vat.columns.deposits'),
       t('vat.columns.depositReturns'),
+      t('vat.columns.tips'),
       t('vat.columns.gross'),
       t('vat.columns.net'),
       t('vat.columns.tax'),
     ];
     const csvRows = [
-      ...rows.map((r) => [r.rate, r.goods, r.deposits, r.depositReturns, r.gross, r.net, r.tax]),
+      ...rows.map((r) => [r.rate, r.goods, r.deposits, r.depositReturns, r.tips ?? 0, r.gross, r.net, r.tax]),
       [
         t('vat.total'),
         data.total.goods,
         data.total.deposits,
         data.total.depositReturns,
+        data.total.tips ?? 0,
         data.total.gross,
         data.total.net,
         data.total.tax,
@@ -97,6 +102,7 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                   <th className="text-right">{t('vat.columns.goods')}</th>
                   <th className="text-right">{t('vat.columns.deposits')}</th>
                   <th className="text-right">{t('vat.columns.depositReturns')}</th>
+                  <th className="text-right" title={t('vat.columns.tipsHint')}>{t('vat.columns.tips')}</th>
                   <th className="text-right">{t('vat.columns.gross')}</th>
                   <th className="text-right">{t('vat.columns.net')}</th>
                   <th className="text-right">{t('vat.columns.tax')}</th>
@@ -113,6 +119,7 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                     <td className="mono text-right">{money(r.goods)}</td>
                     <td className="mono text-right">{money(r.deposits)}</td>
                     <td className="mono text-right">{money(r.depositReturns)}</td>
+                    <td className="mono text-right">{money(r.tips ?? 0)}</td>
                     <td className="mono text-right">{money(r.gross)}</td>
                     <td className="mono text-right">{money(r.net)}</td>
                     <td className="mono text-right">{money(r.tax)}</td>
@@ -132,6 +139,9 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                     <b>{money(data.total.depositReturns)}</b>
                   </td>
                   <td className="mono text-right">
+                    <b>{money(data.total.tips ?? 0)}</b>
+                  </td>
+                  <td className="mono text-right">
                     <b>{money(data.total.gross)}</b>
                   </td>
                   <td className="mono text-right">
@@ -147,6 +157,11 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
           {hasLegacyDeposit && !data.vatExempt && (
             <p className="app-card__sub" style={{ padding: '12px 20px' }}>
               {t('vat.legacyHint')}
+            </p>
+          )}
+          {employeeTips > 0 && (
+            <p className="app-card__sub" style={{ padding: '0 20px 12px' }} data-testid="reports-vat-employee-tips">
+              {t('vat.employeeTips', { amount: money(employeeTips) })}
             </p>
           )}
         </>

@@ -739,7 +739,7 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-cb__expected b { font: 800 34px/1.1 var(--oe-f-display); letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
 .pos-cb__expected small { font-size: 12.5px; color: var(--oe-mute); }
 .pos-cb__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.pos-cb__action { min-height: 56px; justify-content: center; }
+.pos-cb__action { min-height: 56px; height: auto; justify-content: center; white-space: normal; text-align: center; line-height: 1.2; padding-block: 8px; }
 @media (min-width: 720px) {
   .pos-cb__actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .pos-cb__total { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; }
