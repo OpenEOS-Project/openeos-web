@@ -115,7 +115,7 @@ test.describe('POS - Kellnerabrechnung', () => {
     await expect(figures).toContainText('Bar');
     await expect(figures).toContainText('8,00');
     await expect(figures).toContainText('davon Trinkgeld');
-    await expect(sheet.getByTestId('settlement-cash')).toContainText('Schublade Kasse Zelt');
+    await expect(sheet.getByTestId('settlement-cash')).toContainText('Kassenlade Kasse Zelt');
     await expect(sheet.getByTestId('pos-settle-open')).toContainText('Tisch 7');
     await expect(sheet).toContainText('Abrechnen macht eine Schichtleitung');
     await expect(sheet.getByTestId('pos-settle-start')).toHaveCount(0);
