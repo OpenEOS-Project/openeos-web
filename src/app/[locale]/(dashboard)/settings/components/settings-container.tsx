@@ -15,6 +15,7 @@ import { OperatingModeSection } from './operating-mode-section';
 import { OrganizationAssistantSection } from './organization-assistant-section';
 import { OrganizationAccessSection } from './organization-access-section';
 import { OrganizationWebhooksSection } from './organization-webhooks-section';
+import { OrganizationNotificationsSection } from './organization-notifications-section';
 import { PlatformNotificationsSection } from './platform-notifications-section';
 import { AboutSection } from './about-section';
 import { OrganizationDeleteCard } from '@/components/privacy/organization-delete-card';
@@ -62,7 +63,7 @@ export function SettingsContainer() {
   // Alter Reiter „Zahlungen“ (org-payments): steckt jetzt in „Betriebsart“.
   const rawTab = useSearchParams().get('tab');
   const requestedTab = rawTab === 'org-payments' ? 'org-mode' : rawTab;
-  const orgTabIds = ['org-general', 'org-contact', 'org-tax', 'org-mode', 'org-assistant', 'org-access', 'org-webhooks', 'org-legal'];
+  const orgTabIds = ['org-general', 'org-contact', 'org-tax', 'org-mode', 'org-assistant', 'org-access', 'org-webhooks', 'org-notifications', 'org-legal'];
   const [activeMain, setActiveMain] = useState<'personal' | 'organization' | 'platform'>(
     requestedTab && orgTabIds.includes(requestedTab) ? 'organization' : 'personal',
   );
@@ -104,6 +105,7 @@ export function SettingsContainer() {
       children: <OrganizationAccessSection onShowWebhooks={() => setActiveOrg('org-webhooks')} />,
     },
     { id: 'org-webhooks', label: t('organizationWebhooks.tab'), children: <OrganizationWebhooksSection /> },
+    { id: 'org-notifications', label: t('organizationNotifications.tab'), children: <OrganizationNotificationsSection /> },
     { id: 'org-legal', label: t('organizationLegal.tab'), children: <OrganizationLegalSection /> },
   ];
 
