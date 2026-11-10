@@ -2,6 +2,10 @@ import { expect, test } from '@playwright/test';
 
 import {
   ROLE_PERMISSIONS,
+  canPayOutCardTips,
+  liveAuditCsvRows,
+  liveAuditDrawers,
+  settlementTseState,
   autoLockSecondsOf,
   effectivePermissions,
   employeeFlagPatch,
@@ -20,7 +24,7 @@ import {
   waiterLabel,
   waiterModeOf,
 } from '@/lib/waiters';
-import type { PosWaiter } from '@/types/waiter';
+import type { LiveCashAuditRow, PosWaiter } from '@/types/waiter';
 import de from '@/messages/de.json';
 import en from '@/messages/en.json';
 
@@ -192,5 +196,72 @@ test.describe('Bedienungen: Arbeitnehmer (Lohnkonto)', () => {
     expect(de.waiters.form.isEmployeeHint).toContain('TrinkgeldAN');
     expect(en.waiters.form.isEmployee).toBeTruthy();
     expect(en.waiters.employeeBadge).toBeTruthy();
+  });
+});
+
+test.describe('Kellnerabrechnung: TSE, Live-Kassensturz, Kartentrinkgeld', () => {
+  const tse = { status: 'signed', failed: false, bonNumber: 1201, transactionNumber: 4711, signatureCounter: 9001, finishTime: null };
+
+  test('settlement TSE state', () => {
+    expect(settlementTseState(undefined)).toBeNull();
+    expect(settlementTseState(null)).toBeNull();
+    expect(settlementTseState(tse)).toEqual({ kind: 'signed', transactionNumber: 4711, bonNumber: 1201 });
+    expect(settlementTseState({ ...tse, failed: true })).toEqual({ kind: 'failed' });
+    expect(settlementTseState({ ...tse, status: 'pending' })).toEqual({ kind: 'failed' });
+  });
+
+  test('card tips are only offered to employees with something open', () => {
+    expect(canPayOutCardTips(null)).toBe(false);
+    expect(canPayOutCardTips(undefined)).toBe(false);
+    expect(canPayOutCardTips(0)).toBe(false);
+    expect(canPayOutCardTips(0.004)).toBe(false);
+    expect(canPayOutCardTips(0.01)).toBe(true);
+    expect(canPayOutCardTips(5.2)).toBe(true);
+  });
+
+  const row = (extra: Partial<LiveCashAuditRow> = {}): LiveCashAuditRow => ({
+    subject: { kind: 'waiter', id: 'w1', waiterId: 'w1', userId: null, name: 'Anna', shortName: 'A', color: null, anonymized: false },
+    periodFrom: null,
+    cashExpected: 112.5,
+    cashByDevice: [
+      { deviceId: 'd1', deviceName: 'Theke', amount: 12.5 },
+      { deviceId: null, deviceName: null, amount: 100 },
+      { deviceId: 'd2', deviceName: 'Zelt', amount: 0 },
+    ],
+    payments: {
+      cash: { count: 3, amount: 112.5 },
+      card: { count: 2, amount: 40.2 },
+      other: { count: 0, amount: 0 },
+      total: { count: 5, amount: 152.7 },
+    },
+    tips: 6.4,
+    openTables: 1,
+    openCardTips: 5.2,
+    lastSettlement: { id: 's1', number: 7, createdAt: '2026-11-10T18:00:00Z' },
+    ...extra,
+  });
+
+  test('drawers: without empty ones, largest first', () => {
+    expect(liveAuditDrawers(row()).map((d) => d.amount)).toEqual([100, 12.5]);
+    expect(liveAuditDrawers(row({ cashByDevice: undefined }))).toEqual([]);
+  });
+
+  test('CSV rows', () => {
+    expect(liveAuditCsvRows({ rows: [row(), row({ openCardTips: null, lastSettlement: null, payments: undefined, tips: null })] }, { noDevice: 'ohne Gerät' })).toEqual([
+      ['Anna', 112.5, 'ohne Gerät: 100.00; Theke: 12.50', 40.2, 6.4, 1, 5.2, 7],
+      ['Anna', 112.5, 'ohne Gerät: 100.00; Theke: 12.50', '', '', 1, '', ''],
+    ]);
+  });
+
+  test('texts exist in both languages', () => {
+    expect(de.waiterSettlement.list.electronicOnly).toBe('Kellnerabrechnungen werden ausschließlich elektronisch erzeugt und aufbewahrt.');
+    expect(de.waiterSettlement.live.hint).toBe('Für eine Kassen-Nachschau: das Soll jeder Bedienung seit ihrer letzten Abrechnung.');
+    expect(de.waiterSettlement.detail.copy).toBe('Kopie drucken');
+    for (const messages of [de, en]) {
+      expect(messages.apiErrors.TIP_PAYOUT_NOT_EMPLOYEE).toBeTruthy();
+      expect(messages.apiErrors.TIP_PAYOUT_AMOUNT_INVALID).toBeTruthy();
+      expect(messages.cashbook.summary.tipPayouts).toBeTruthy();
+      expect(messages.waiterSettlement.tipPayout.checkbox).toContain('{amount}');
+    }
   });
 });

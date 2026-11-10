@@ -61,6 +61,7 @@ import { posNotice } from './utils/pos-notice';
 import { useWaiterSession } from './hooks/use-waiter-session';
 import { WaiterChip } from './components/waiter-chip';
 import { WaiterHandoverSheet } from './components/waiter-handover-sheet';
+import { WaiterLiveAuditSheet } from './components/waiter-live-audit-sheet';
 import { WaiterSettleSheet } from './components/waiter-settle-sheet';
 import { foreignOwner, isLeadWaiter, isMyTable, may, waiterLabel, type TableFilter } from '@/lib/waiters';
 
@@ -76,6 +77,7 @@ type SheetId =
   | 'emergency'
   | 'waiterSummary'
   | 'waiterSettle'
+  | 'waiterLiveAudit'
   | 'handover'
   | null;
 
@@ -627,6 +629,7 @@ function PosApp() {
                 onSignOut={() => lock('logout')}
                 onSummary={() => setSheet('waiterSummary')}
                 onSettle={isLeadWaiter(waiter) ? () => setSheet('waiterSettle') : undefined}
+                onLiveAudit={isLeadWaiter(waiter) ? () => setSheet('waiterLiveAudit') : undefined}
               />
             ) : undefined
           }
@@ -782,6 +785,13 @@ function PosApp() {
             onClose={() => setSheet(null)}
             me={waiter}
             tiles={waiterTiles ?? []}
+            disabled={offline}
+          />
+        )}
+        {waiter && isLeadWaiter(waiter) && (
+          <WaiterLiveAuditSheet
+            open={sheet === 'waiterLiveAudit'}
+            onClose={() => setSheet(null)}
             disabled={offline}
           />
         )}

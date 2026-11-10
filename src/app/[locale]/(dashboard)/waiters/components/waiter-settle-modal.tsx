@@ -10,8 +10,8 @@ import { SettlementFigures } from '@/components/waiters/settlement-figures';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePrinters } from '@/hooks/use-printers';
-import { useSettleWaiter, useTransferWaiterTables, useWaiterSummary } from '@/hooks/use-waiters';
-import { settlementBlocked } from '@/lib/waiters';
+import { useSettleWaiter, useTipPayoutStatus, useTransferWaiterTables, useWaiterSummary } from '@/hooks/use-waiters';
+import { canPayOutCardTips, settlementBlocked } from '@/lib/waiters';
 import { ApiException } from '@/types/api';
 import type { Waiter, WaiterSettlement } from '@/types/waiter';
 
@@ -45,6 +45,11 @@ export function WaiterSettleModal({ organizationId, waiter, waiters, onClose, on
   const [force, setForce] = useState(false);
   const [note, setNote] = useState('');
   const [printerId, setPrinterId] = useState('');
+  const [payOutTips, setPayOutTips] = useState(false);
+  // Kartentrinkgeld: nur Arbeitnehmer (Lohnkonto) bekommen es ausgezahlt.
+  const tipStatus = useTipPayoutStatus(organizationId, waiter.id, waiter.isEmployee === true);
+  const openCardTips = tipStatus.data?.isEmployee ? tipStatus.data.openCardTips : null;
+  const offerTipPayout = canPayOutCardTips(openCardTips);
 
   const data = summary.data;
   const openTables = data?.openTables ?? [];
@@ -76,6 +81,7 @@ export function WaiterSettleModal({ organizationId, waiter, waiters, onClose, on
           force: openTables.length > 0 ? force : undefined,
           note: note.trim() || null,
           printerId: printerId || undefined,
+          ...(offerTipPayout && payOutTips ? { payOutCardTips: true } : {}),
         },
       },
       {
@@ -86,6 +92,9 @@ export function WaiterSettleModal({ organizationId, waiter, waiters, onClose, on
               : t('toast.settledTraining', { name: waiter.name }),
           );
           if (printerId && result.meta && !result.meta.printed) toast.error(t('toast.notPrinted'));
+          if (result.meta?.tipPayout) {
+            toast.success(t('tipPayout.paid', { amount: formatCurrency(result.meta.tipPayout.amount), name: waiter.name }));
+          }
           onSettled(result.data);
         },
         onError: (error) => {
@@ -170,6 +179,21 @@ export function WaiterSettleModal({ organizationId, waiter, waiters, onClose, on
               )}
             </div>
           </div>
+        )}
+
+        {offerTipPayout && openCardTips !== null && (
+          <div className="settle-tips" data-testid="settle-tip-payout">
+            <label>
+              <input type="checkbox" checked={payOutTips} onChange={(e) => setPayOutTips(e.target.checked)} />
+              <span>{t('tipPayout.checkbox', { amount: formatCurrency(openCardTips) })}</span>
+            </label>
+            <p>{t('tipPayout.checkboxHint')}</p>
+          </div>
+        )}
+        {!waiter.isEmployee && !data.empty && (data.totals.tips ?? 0) > 0 && (
+          <p className="waiters-form__hint" data-testid="settle-tips-volunteer">
+            {t('tipPayout.volunteerShort')}
+          </p>
         )}
 
         {!data.empty && (

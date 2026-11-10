@@ -3626,6 +3626,7 @@
       "tableOwner": "Bedienung: {name}",
       "summary": "Mein Zwischenstand",
       "settle": "Abrechnen",
+      "liveAudit": "Live-Kassensturz",
       "handover": "Tisch übergeben"
     }
   },
@@ -4723,7 +4724,9 @@
     "WAITER_SETTLEMENT_NOT_FOUND": "Abrechnung nicht gefunden.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
-    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher."
+    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
+    "TIP_PAYOUT_AMOUNT_INVALID": "Der Betrag passt nicht: höchstens das offene Kartentrinkgeld und mehr als 0 €."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -7005,6 +7008,7 @@
       "cashSales": "Barverkäufe",
       "cashRefunds": "Bar-Erstattungen",
       "pfandPayouts": "Pfand-Auszahlungen",
+      "tipPayouts": "Trinkgeld-Auszahlungen",
       "differences": "Differenzen",
       "lastCount": "Letzter Kassensturz um {time}: gezählt {counted}, Differenz {difference}",
       "lastCountShort": "Letzter Kassensturz: {counted} gezählt, Differenz {difference}",
@@ -7571,7 +7575,7 @@
       "settled": "Abrechnung Nr. {number} für {name} gespeichert.",
       "settledTraining": "Training-Abrechnung für {name} gespeichert.",
       "notPrinted": "Kein Bon gedruckt: Drucker nicht erreichbar.",
-      "reprinted": "Nachdruck geschickt.",
+      "reprinted": "Kopie wird gedruckt.",
       "summaryPrinted": "Zwischenstand wird gedruckt.",
       "receivedTable": "Tisch {table} wurde dir übergeben.",
       "receivedOrder": "{count, plural, one {Eine Bestellung wurde} other {# Bestellungen wurden}} dir übergeben."
@@ -7583,7 +7587,11 @@
     },
     "list": {
       "title": "Abrechnungen",
-      "description": "Abgeschlossene Kellnerabrechnungen, neueste zuerst. Sie lassen sich nicht ändern; ein Nachdruck ist jederzeit möglich.",
+      "description": "Abgeschlossene Kellnerabrechnungen, neueste zuerst. Sie lassen sich nicht ändern; eine Kopie kannst du jederzeit drucken.",
+      "electronicOnly": "Kellnerabrechnungen werden ausschließlich elektronisch erzeugt und aufbewahrt.",
+      "views": "Ansicht",
+      "tabSettlements": "Abrechnungen",
+      "tabLive": "Live-Kassensturz",
       "empty": "Noch keine Abrechnungen.",
       "number": "Nr.",
       "waiter": "Bedienung",
@@ -7605,7 +7613,77 @@
       "forced": "Trotz offener Tische abgerechnet",
       "note": "Notiz: {note}",
       "devicePrinter": "Bondrucker der Kasse",
-      "reprint": "Nachdruck"
+      "copy": "Kopie drucken"
+    },
+    "tse": {
+      "signed": "TSE-gesichert (TA-Nr. {number})",
+      "signedNoNumber": "TSE-gesichert",
+      "failed": "TSE nicht erreichbar – Abrechnung ohne Signatur",
+      "bon": "Beleg-Nr. {bon}",
+      "badge": "TSE",
+      "badgeFailed": "ohne TSE"
+    },
+    "live": {
+      "title": "Live-Kassensturz",
+      "description": "Live-Kassensturz: das Soll jeder Bedienung seit ihrer letzten Abrechnung, aus den Buchungen berechnet.",
+      "hint": "Für eine Kassen-Nachschau: das Soll jeder Bedienung seit ihrer letzten Abrechnung.",
+      "stamp": "Stand {at} · {event}",
+      "noEventName": "laufende Veranstaltung",
+      "refresh": "Aktualisieren",
+      "refreshing": "Wird aktualisiert …",
+      "csv": "CSV",
+      "csvFilename": "live-kassensturz",
+      "close": "Schließen",
+      "cancel": "Abbrechen",
+      "col": {
+        "waiter": "Bedienung",
+        "cashExpected": "Soll bar",
+        "drawers": "Wo das Bargeld liegt",
+        "card": "Karte",
+        "tips": "Trinkgeld",
+        "openTables": "Offene Tische",
+        "openCardTips": "Kartentrinkgeld offen",
+        "lastSettlement": "Letzte Abrechnung"
+      },
+      "noDevice": "ohne Gerät",
+      "volunteerTitle": "Ehrenamtlich: Trinkgeld gehört dem Verein",
+      "payOut": "Auszahlen",
+      "payOutTips": "Kartentrinkgeld {amount} auszahlen",
+      "loadFailed": "Der Live-Kassensturz konnte nicht geladen werden.",
+      "empty": "Seit den letzten Abrechnungen hat noch niemand kassiert.",
+      "noEvent": "Gerade läuft keine Veranstaltung.",
+      "since": "seit {from}",
+      "lastSettlement": "Nr. {number} · {at}",
+      "noSettlement": "noch keine",
+      "total": "Summe",
+      "totalCash": "Soll bar gesamt",
+      "totalTips": "Trinkgeld gesamt",
+      "posLine": "Karte {card} · Trinkgeld {tips} · {tables, plural, =0 {keine offenen Tische} one {# offener Tisch} other {# offene Tische}}",
+      "tipsHint": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein."
+    },
+    "tipPayout": {
+      "title": "Kartentrinkgeld für {name}",
+      "intro": "Offenes Kartentrinkgeld: {open}.",
+      "amount": "Betrag bar auszahlen",
+      "amountHint": "Höchstens {open}.",
+      "note": "Notiz (optional)",
+      "printer": "Quittung drucken auf",
+      "noPrint": "Nicht drucken",
+      "effect": "OpenEOS bucht einen eigenen Beleg (Trinkgeld an Angestellte, bar) und mindert den Soll-Bestand der Kasse. Lass die Quittung unterschreiben.",
+      "nothingOpen": "Gerade ist kein Kartentrinkgeld offen.",
+      "history": "Bisherige Auszahlungen",
+      "bon": "Beleg-Nr. {bon}",
+      "submit": "{amount} auszahlen",
+      "paid": "{amount} Kartentrinkgeld an {name} ausgezahlt.",
+      "notPrinted": "Keine Quittung gedruckt: Drucker nicht erreichbar.",
+      "notPrintedPos": "Keine Quittung gedruckt – diese Kasse hat keinen Bondrucker.",
+      "failed": "Auszahlen hat nicht geklappt.",
+      "loadFailed": "Das Kartentrinkgeld konnte nicht geladen werden.",
+      "volunteer": "Diese Bedienung ist ehrenamtlich (kein „Arbeitnehmer (Lohnkonto)“). Ihr Trinkgeld gehört dem Verein – eine Weitergabe wäre eine Zuwendung des Vereins und kein Trinkgeld.",
+      "volunteerShort": "Ehrenamtlich: Das Trinkgeld gehört dem Verein und wird nicht ausgezahlt.",
+      "checkbox": "Offenes Kartentrinkgeld ({amount}) bar auszahlen",
+      "checkboxHint": "Eigener Beleg mit Quittung, nur für Arbeitnehmer (Lohnkonto). Das Bargeld kommt aus der Schublade.",
+      "confirm": "{amount} bar an {name} auszahlen? Die Quittung kommt aus dem Bondrucker."
     }
   }
 }
