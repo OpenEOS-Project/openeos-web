@@ -690,7 +690,9 @@
         "email": "E-Mail-Benachrichtigungen",
         "emailDescription": "Wichtige Updates per E-Mail erhalten",
         "push": "Push-Benachrichtigungen",
-        "pushDescription": "Browser-Benachrichtigungen erhalten"
+        "pushDescription": "Browser-Benachrichtigungen erhalten",
+        "eventReminders": "Erinnerungen zu Veranstaltungen",
+        "eventRemindersDescription": "Nur für Admins: Checkliste eine Woche vorher, Erinnerung am Vortag und Rückblick nach dem Fest"
       },
       "saved": "Einstellungen gespeichert",
       "tour": {
@@ -825,11 +827,28 @@
       }
     },
     "organizationNotifications": {
-      "title": "Benachrichtigungen",
-      "description": "E-Mail-Benachrichtigungen für deine Organisation",
-      "orderConfirmation": "Bestellbestätigungen",
-      "dailySummary": "Tägliche Zusammenfassung",
-      "newOrders": "Neue Bestellungen (Push)"
+      "tab": "Benachrichtigungen",
+      "title": "Erinnerungen zu Veranstaltungen",
+      "description": "Diese Mails gehen an alle Admins deiner Organisation.",
+      "saved": "Gespeichert",
+      "personalHint": "Nur für dich abschalten kannst du sie unter Persönlich → Einstellungen.",
+      "adminOnly": "Nur Admins können diese Einstellungen ändern.",
+      "weekBefore": {
+        "label": "Eine Woche vorher: „Dein Fest rückt näher“",
+        "hint": "Checkliste aus deinen Daten: Kassen, Drucker, Bedienungen, Produkte, Rechtstexte, Betriebsart"
+      },
+      "dayBefore": {
+        "label": "Am Vortag: „Morgen geht's los“",
+        "hint": "Verkaufsstart, Löschen der Testbestellungen, Notfall-Support"
+      },
+      "afterEvent": {
+        "label": "Nach dem Fest: „Danke! So lief dein Fest“",
+        "hint": "Bestellungen, Umsatz, meistverkaufte Produkte und Links zu Berichten und Export"
+      },
+      "notBooked": {
+        "label": "Noch nicht freigeschaltet",
+        "hint": "Eine Woche vorher, wenn die Veranstaltung noch im Testmodus ist"
+      }
     },
     "organizationBranding": {
       "title": "Branding",

@@ -44,7 +44,7 @@ export function PreferencesSection() {
     router.replace(pathname, { locale: newLocale as 'de' | 'en' });
   };
 
-  const handleNotificationChange = async (type: 'email' | 'push', enabled: boolean) => {
+  const handleNotificationChange = async (type: 'email' | 'push' | 'eventReminders', enabled: boolean) => {
     await updatePreferences.mutateAsync({ notifications: { [type]: enabled } });
   };
 
@@ -123,10 +123,12 @@ export function PreferencesSection() {
         <SettingsSectionHead icon="bell" title={t('notifications.title')} description={t('notifications.description')} />
 
         <div className="oe-setting-list">
-          {(['email', 'push'] as const).map((type) => {
-            const isChecked = type === 'email'
-              ? (preferences?.notifications?.email ?? true)
-              : (preferences?.notifications?.push ?? false);
+          {/* Erinnerungen zu Veranstaltungen gehen per E-Mail: ist E-Mail
+              aus, kommen sie auch nicht (API prüft beides). */}
+          {(['email', 'eventReminders', 'push'] as const).map((type) => {
+            const isChecked = type === 'push'
+              ? (preferences?.notifications?.push ?? false)
+              : (preferences?.notifications?.[type] ?? true);
             return (
               <SettingToggle
                 key={type}
