@@ -45,3 +45,10 @@
 .rb__fill { margin-top: 8px; }
 .rb__fill-line { border-bottom: 1px dashed #14180f; height: 26px; }
 .rb__note { font-size: 12px; color: #5b6057; margin-top: 4px; }
+
+/* Bewirtungsbeleg */
+.pos-hosp__head { display: flex; align-items: center; gap: 6px; justify-self: stretch; }
+.pos-hosp__head b { font: 800 18px var(--oe-f-display); letter-spacing: -.02em; }
+.pos-hosp__sum, .pos-hosp__issued { margin: 0; font-size: 15px; color: var(--oe-ink); }
+.pos-hosp__email { display: grid; gap: 10px; }
+.pos-hosp .oe-banner a { color: inherit; text-decoration: underline; }

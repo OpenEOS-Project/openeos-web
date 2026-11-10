@@ -677,6 +677,8 @@ const PAYMENT_TIMELINE_TYPES = new Set([
   'receipt_link_created',
   'receipt_emailed',
   'receipt_email_failed',
+  'hospitality_receipt_issued',
+  'hospitality_receipt_output',
 ]);
 
 function buildTimeline(
@@ -726,6 +728,7 @@ function buildTimeline(
         amount: formatPrice(amount),
         from: e.fromWaiter?.shortName || e.fromWaiter?.name || '—',
         to: e.toWaiter?.shortName || e.toWaiter?.name || '—',
+        number: typeof e.data?.number === 'string' ? e.data.number : 'TEST',
       },
       who,
       tone:
