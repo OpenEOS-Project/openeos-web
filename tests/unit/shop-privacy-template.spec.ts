@@ -29,11 +29,12 @@ test.describe('shop privacy template', () => {
 
   test('publishable part runs from the title to the rule before the guidance', () => {
     expect(template.body.startsWith(PUBLISH_START)).toBe(true);
-    // Abschnitt 7 „Kassenpersonal (Bedienungen)“ steht am Ende.
+    // Abschnitt 8 „Digitale Belege und Bewirtungsbelege“ steht am Ende.
     expect(
-      template.body.endsWith('Eine Auskunft über die zu Ihrem Profil gespeicherten Daten können wir Ihnen als Datei geben.'),
+      template.body.endsWith('wir bewahren sie zehn Jahre auf (§ 147 Abgabenordnung, § 14b Umsatzsteuergesetz) und können sie in dieser Zeit nicht ändern oder löschen.'),
     ).toBe(true);
     expect(template.body).toContain('## 7. Kassenpersonal (Bedienungen)');
+    expect(template.body).toContain('## 8. Digitale Belege und Bewirtungsbelege');
     expect(template.body).not.toContain('Hinweise für den Kunden');
     expect(template.body).not.toContain('\n---');
     // Wortlaut unverändert: der Teil steht so im Muster.
@@ -44,8 +45,9 @@ test.describe('shop privacy template', () => {
     expect(template.stand).toBe('Stand: 4. November 2026');
     expect(template.intro).toHaveLength(1);
     expect(template.intro[0]).toMatch(/^Dieses Muster stellt LUXCODE/);
-    expect(template.guidance).toHaveLength(5);
+    expect(template.guidance).toHaveLength(6);
     expect(template.guidance[4]).toMatch(/Kassenpersonal über Abschnitt 7/);
+    expect(template.guidance[5]).toMatch(/Abschnitt 8 gilt/);
     expect(template.guidance[0]).toMatch(/ersetzt keine Rechtsberatung/);
   });
 

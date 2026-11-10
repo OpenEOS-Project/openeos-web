@@ -209,7 +209,9 @@ export type OrderEventType =
   | 'refund_receipt_reprinted'
   | 'transferred'
   | 'receipt_link_created'
-  | 'receipt_emailed';
+  | 'receipt_emailed'
+  | 'hospitality_receipt_issued'
+  | 'hospitality_receipt_output';
 
 /** Bedienung in Verlauf und Liste (Name, Kurzname, Farbe). */
 export interface OrderWaiterRef {
