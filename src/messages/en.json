@@ -5017,7 +5017,14 @@
     },
     "list": {
       "copyPublicLink": "Copy public link",
-      "copied": "Copied!"
+      "copied": "Copied!",
+      "columns": {
+        "name": "Name",
+        "jobs": "Jobs",
+        "event": "Event",
+        "status": "Status",
+        "createdAt": "Created"
+      }
     },
     "detail": {
       "pdfFileName": "shift-plan",

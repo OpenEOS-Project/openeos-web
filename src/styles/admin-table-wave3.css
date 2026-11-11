@@ -153,3 +153,29 @@
 .landing .printers-overview .app-card__head {
   border-bottom: 0;
 }
+
+/* Schichtpläne: Symbol vor dem Namen, Datum in Mono. */
+.shifts-list__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+}
+.landing .oe-dt__td.shifts-list__jobs {
+  white-space: nowrap;
+}
+.landing .oe-dt__td.shifts-list__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .shifts-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+}

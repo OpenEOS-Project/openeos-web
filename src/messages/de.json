@@ -5005,7 +5005,14 @@
     },
     "list": {
       "copyPublicLink": "Öffentlichen Link kopieren",
-      "copied": "Kopiert!"
+      "copied": "Kopiert!",
+      "columns": {
+        "name": "Name",
+        "jobs": "Arbeiten",
+        "event": "Veranstaltung",
+        "status": "Status",
+        "createdAt": "Erstellt am"
+      }
     },
     "detail": {
       "pdfFileName": "schichtplan",
