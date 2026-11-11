@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 
 import type { VatReport } from '@/types/report';
+import { multiPurposeTokenNote, vatHasSinglePurposeTokens } from '@/lib/token-admin';
 import { formatCurrency } from '@/utils/format';
 import { downloadCsv } from './csv-export';
 
@@ -21,6 +22,9 @@ interface ReportsVatTableProps {
  * anteilig beim Satz der Ware; Trinkgeld angestellter Bedienungen nur als
  * Vermerk darunter. Ware, Pfand, Rückgaben und Trinkgeld stehen getrennt,
  * damit nachvollziehbar bleibt, woraus sich die Summe je Satz ergibt.
+ * Einzweck-Wertmarken (Steuer beim Verkauf) haben eine eigene Spalte, nur
+ * wenn eine Zeile einen Betrag hat; Mehrzweck-Marken stehen als Vermerk
+ * darunter (nicht steuerbar — ihre Steuer steht mit der Ware in „Ware“).
  */
 export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsVatTableProps) {
   const t = useTranslations('reports');
@@ -32,6 +36,8 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
   const rows = data?.rows ?? [];
   const hasLegacyDeposit = rows.some((r) => r.rate === 0 && (r.deposits !== 0 || r.depositReturns !== 0));
   const employeeTips = data?.employeeTips ?? 0;
+  const showTokens = vatHasSinglePurposeTokens(data);
+  const multiPurpose = multiPurposeTokenNote(data);
 
   const handleExport = () => {
     if (!data || rows.length === 0) return;
@@ -41,18 +47,30 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
       t('vat.columns.deposits'),
       t('vat.columns.depositReturns'),
       t('vat.columns.tips'),
+      ...(showTokens ? [t('vat.columns.singlePurposeTokens')] : []),
       t('vat.columns.gross'),
       t('vat.columns.net'),
       t('vat.columns.tax'),
     ];
     const csvRows = [
-      ...rows.map((r) => [r.rate, r.goods, r.deposits, r.depositReturns, r.tips ?? 0, r.gross, r.net, r.tax]),
+      ...rows.map((r) => [
+        r.rate,
+        r.goods,
+        r.deposits,
+        r.depositReturns,
+        r.tips ?? 0,
+        ...(showTokens ? [r.singlePurposeTokens ?? 0] : []),
+        r.gross,
+        r.net,
+        r.tax,
+      ]),
       [
         t('vat.total'),
         data.total.goods,
         data.total.deposits,
         data.total.depositReturns,
         data.total.tips ?? 0,
+        ...(showTokens ? [data.total.singlePurposeTokens ?? 0] : []),
         data.total.gross,
         data.total.net,
         data.total.tax,
@@ -103,6 +121,11 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                   <th className="text-right">{t('vat.columns.deposits')}</th>
                   <th className="text-right">{t('vat.columns.depositReturns')}</th>
                   <th className="text-right" title={t('vat.columns.tipsHint')}>{t('vat.columns.tips')}</th>
+                  {showTokens && (
+                    <th className="text-right" title={t('vat.columns.singlePurposeTokensHint')}>
+                      {t('vat.columns.singlePurposeTokens')}
+                    </th>
+                  )}
                   <th className="text-right">{t('vat.columns.gross')}</th>
                   <th className="text-right">{t('vat.columns.net')}</th>
                   <th className="text-right">{t('vat.columns.tax')}</th>
@@ -120,6 +143,7 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                     <td className="mono text-right">{money(r.deposits)}</td>
                     <td className="mono text-right">{money(r.depositReturns)}</td>
                     <td className="mono text-right">{money(r.tips ?? 0)}</td>
+                    {showTokens && <td className="mono text-right">{money(r.singlePurposeTokens ?? 0)}</td>}
                     <td className="mono text-right">{money(r.gross)}</td>
                     <td className="mono text-right">{money(r.net)}</td>
                     <td className="mono text-right">{money(r.tax)}</td>
@@ -141,6 +165,11 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
                   <td className="mono text-right">
                     <b>{money(data.total.tips ?? 0)}</b>
                   </td>
+                  {showTokens && (
+                    <td className="mono text-right">
+                      <b>{money(data.total.singlePurposeTokens ?? 0)}</b>
+                    </td>
+                  )}
                   <td className="mono text-right">
                     <b>{money(data.total.gross)}</b>
                   </td>
@@ -164,7 +193,29 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
               {t('vat.employeeTips', { amount: money(employeeTips) })}
             </p>
           )}
+          {showTokens && (
+            <p className="app-card__sub" style={{ padding: '0 20px 12px' }} data-testid="reports-vat-single-purpose">
+              {t('vat.singlePurposeTokens')}
+            </p>
+          )}
+          {multiPurpose && (
+            <p className="app-card__sub" style={{ padding: '0 20px 12px' }} data-testid="reports-vat-multi-purpose">
+              {t('vat.multiPurposeTokens', {
+                sold: money(multiPurpose.sold),
+                boughtBack: money(multiPurpose.boughtBack),
+              })}
+            </p>
+          )}
         </>
+      )}
+      {/* Nur Marken verkauft, noch nichts umgesetzt: der Vermerk trotzdem. */}
+      {!isLoading && rows.length === 0 && multiPurpose && (
+        <p className="app-card__sub" style={{ padding: '0 20px 12px' }} data-testid="reports-vat-multi-purpose">
+          {t('vat.multiPurposeTokens', {
+            sold: money(multiPurpose.sold),
+            boughtBack: money(multiPurpose.boughtBack),
+          })}
+        </p>
       )}
     </div>
   );

@@ -8,7 +8,6 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { canCompleteOrder, itemsInProduction } from '@/lib/operating-mode';
-import type { PaymentMethod } from '@/types/payment';
 import type { PosCardMode } from '@/utils/pos-card-mode';
 import { errorReason } from '../hooks/use-pos-checkout';
 import { useOpenOrders } from '../hooks/use-open-orders';
@@ -17,6 +16,7 @@ import type { DoneInfo } from './done-sheet';
 import { reportTse } from '../hooks/use-pos-tse';
 import type { TseReceiptView } from '@/types/tse';
 import { PaySheet, type PayResult } from './pay-sheet';
+import { batchPaymentFields, cashChangeOf } from '../utils/pay-result';
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
 
@@ -164,18 +164,13 @@ export function OpenOrdersSheet({
   }
 
   const pay = async (result: PayResult) => {
-    const method: PaymentMethod =
-      result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     const paidIds = selected.map((o) => o.id);
     let tse: TseReceiptView[] = [];
     try {
       // Alles oder nichts: eine Sammelzahlung statt einer Schleife je Bestellung.
       const batch = await deviceTablesApi.payBatch({
         orderIds: paidIds,
-        paymentMethod: method,
-        ...(method === 'cash' && result.amountReceived !== undefined ? { amountReceived: result.amountReceived } : {}),
-        ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
-        ...(result.method === 'sumup' && result.transactionId ? { providerTransactionId: result.transactionId } : {}),
+        ...batchPaymentFields(result),
       });
       tse = reportTse((batch.data?.payments ?? []).map((p) => p.tse));
     } catch (error) {
@@ -191,7 +186,8 @@ export function OpenOrdersSheet({
       orderNumber: selected.length === 1 ? selected[0].orderNumber : null,
       amount: total,
       method: result.method,
-      change: result.amountReceived ? result.amountReceived - total : 0,
+      change: cashChangeOf(result, total),
+      tokenValue: result.tokenValue,
       tip: result.tip,
       lines: selected.flatMap((order) =>
         (order.items ?? [])

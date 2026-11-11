@@ -17,8 +17,11 @@ export interface DoneInfo {
   /** Kopf bei mehreren Bestellungen, z. B. „Tisch A05 · 3 Bestellungen“. */
   heading?: string | null;
   amount: number;
-  method: 'cash' | 'card' | 'sumup' | 'free';
+  /** `tokens`: nur mit Wertmarken bezahlt. */
+  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens';
   change: number;
+  /** Wert der angenommenen Wertmarken (Euro). */
+  tokenValue?: number;
   tip: number;
   lines: ReceiptLine[];
   pfand: number;
@@ -94,12 +97,19 @@ export function DoneSheet({
 
   if (!info) return null;
 
-  const methodLabel = t(`method.${info.method}`);
+  // Marken plus Geld: „Bar + Wertmarken“.
+  const methodLabel =
+    info.method !== 'tokens' && (info.tokenValue ?? 0) > 0
+      ? t('methodWithTokens', { method: t(`method.${info.method}`) })
+      : t(`method.${info.method}`);
   const lines: ReceiptLine[] = [
     ...info.lines,
     ...(info.pfand > 0 ? [{ qty: '', name: t('pfand'), total: formatPrice(info.pfand) }] : []),
     ...(info.discount > 0 ? [{ qty: '', name: t('discount'), total: `-${formatPrice(info.discount)}` }] : []),
     ...(info.tip > 0 ? [{ qty: '', name: t('tip'), total: formatPrice(info.tip) }] : []),
+    ...((info.tokenValue ?? 0) > 0
+      ? [{ qty: '', name: t('tokensPaid'), total: `-${formatPrice(Math.min(info.tokenValue ?? 0, info.amount + info.tip))}` }]
+      : []),
   ];
 
   return (

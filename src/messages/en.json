@@ -579,6 +579,7 @@
     "inventory": "Inventory",
     "discounts": "Discount vouchers",
     "pfand": "Deposits",
+    "tokens": "Tokens",
     "support": "Support",
     "adminEvents": "Events & billing",
     "adminTse": "Cloud-TSE",
@@ -2768,6 +2769,177 @@
     },
     "count": "{count, plural, =0 {No deposit types} =1 {1 deposit type} other {# deposit types}}"
   },
+  "tokens": {
+    "title": "Tokens",
+    "subtitle": "Tokens that guests buy at the till and redeem like cash – with a report of what is still in circulation",
+    "notAllowed": {
+      "title": "Tokens are currently not available at the till",
+      "ordersOnly": "In the “Orders only” mode, OpenEOS does not take payments – so there are no tokens either. You can still create token types already.",
+      "cashless": "Tokens are accepted in place of money, like cash. They are therefore not available in “Cashless”, only in “All features”. You can still create token types already.",
+      "tseRequired": "Accepting tokens in place of money is a till function, just like cash. In Germany, tokens are therefore only available in “All features” with an active cloud TSE. You can still create token types already.",
+      "link": "View operating mode"
+    },
+    "create": "Create token type",
+    "edit": "Edit token type",
+    "count": "{count, plural, =0 {No token types} one {# token type} other {# token types}}",
+    "types": {
+      "title": "Token types"
+    },
+    "empty": {
+      "title": "No tokens yet",
+      "description": "Create token types, e.g. a €2 token. Guests buy them at the till and pay with them like cash."
+    },
+    "table": {
+      "name": "Name",
+      "value": "Face value",
+      "kind": "Type",
+      "event": "Valid for",
+      "buyback": "Buyback",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "kind": {
+      "multi": "Multi-purpose",
+      "single": "Single-purpose {rate}"
+    },
+    "allEvents": "All events",
+    "unknownEvent": "Unknown event",
+    "restrictedSummary": "Selection only: {categories, plural, one {# category} other {# categories}}, {products, plural, one {# item} other {# items}}",
+    "inUse": "already booked – face value and type fixed",
+    "buyback": {
+      "allowed": "Allowed",
+      "notAllowed": "–"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "deactivate": "Deactivate"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. €2 token",
+      "value": "Face value (€)",
+      "valueHint": "Selling price and redemption value at the same time.",
+      "color": "Color",
+      "colorHint": "Helps your team find the token at the till – ideally the color of the physical token.",
+      "kind": "Token type",
+      "kindMulti": {
+        "name": "Multi-purpose voucher",
+        "badge": "Default",
+        "text": "Redeemable for everything, e.g. food (7 %) and drinks (19 %). Selling the token is not revenue – VAT only arises on redemption, at the rate of the goods."
+      },
+      "kindSingle": {
+        "name": "Single-purpose voucher",
+        "text": "Only for items with exactly one VAT rate, e.g. drinks at 19 % only. VAT is due when the token is sold; none is due on redemption."
+      },
+      "smallBusinessHint": "Your organization does not charge VAT (small business). You therefore always book tokens as multi-purpose vouchers.",
+      "vatRate": "VAT rate",
+      "vatRatePick": "Choose rate",
+      "vatRateHint": "All items the token is valid for must have exactly this rate.",
+      "event": "Event",
+      "eventHint": "Empty = valid for all events. To select categories or items, choose the event.",
+      "restriction": "Redeemable for",
+      "restrictionAll": "All items",
+      "restrictionAllRate": "All items at {rate}",
+      "restrictionSome": "Selected categories and items only",
+      "restrictionNeedsEvent": "Categories and items belong to an event – choose the event first.",
+      "noCatalog": "This event has no categories yet.",
+      "wholeCategory": "{name} – whole category ({count, plural, one {# item} other {# items}})",
+      "selectionSummary": "{categories, plural, =0 {No whole category} one {# whole category} other {# whole categories}} · {products, plural, one {# item} other {# items}} in total",
+      "buyback": "Allow buyback",
+      "buybackHint": "Guests can exchange leftover tokens for cash at the till – as a separate booking with a receipt. Unconditional buyback at any time turns the token into a prepaid card. So set conditions (e.g. only at the end of the festival, only undamaged tokens) and describe them in your procedure documentation.",
+      "isActive": "Active",
+      "isActiveHint": "Only active tokens are available at the till.",
+      "sortOrder": "Order",
+      "sortOrderHint": "Lower numbers appear further ahead at the till.",
+      "lockedHint": "Some of these tokens are already in circulation. Face value, type and VAT rate are therefore fixed – for single-purpose vouchers also the event and the selection. Create a new token type for other values.",
+      "errors": {
+        "nameRequired": "Give the token a name.",
+        "nameTooLong": "The name can have at most {max} characters.",
+        "valueRange": "The face value must be between €0.01 and €1,000 (at most two decimal places).",
+        "smallBusiness": "As a small business, you always book tokens as multi-purpose vouchers.",
+        "rateRequired": "Choose the VAT rate the single-purpose voucher is valid for.",
+        "restrictionRequiresEvent": "Categories and items belong to an event. Choose the event – or leave the selection empty.",
+        "noProducts": "The selection contains no items. Choose the items the token is valid for.",
+        "mixedRates": "A single-purpose voucher only works if all selected items have the same VAT rate ({rate}). Found: {rates}. Use a multi-purpose voucher or adjust the selection."
+      }
+    },
+    "deleteConfirm": {
+      "title": "Delete token type",
+      "message": "Do you really want to delete the token type “{name}”?",
+      "confirm": "Delete"
+    },
+    "deactivate": {
+      "title": "Deactivate token type",
+      "message": "“{name}” has already been sold or accepted and therefore cannot be deleted – that keeps sales and redemptions traceable. Deactivate the token instead: it will then no longer be available at the till.",
+      "alreadyInactive": "“{name}” has already been sold or accepted and therefore cannot be deleted. The token is already deactivated.",
+      "confirm": "Deactivate"
+    },
+    "toast": {
+      "created": "“{name}” created.",
+      "updated": "“{name}” saved.",
+      "deleted": "“{name}” deleted.",
+      "deactivated": "“{name}” deactivated."
+    },
+    "report": {
+      "title": "Report",
+      "subtitle": "Per token type: sold, redeemed, returned, bought back and outstanding (excluding training).",
+      "loading": "Loading …",
+      "loadFailed": "The report could not be loaded.",
+      "empty": "No token types yet – create one above.",
+      "columns": {
+        "type": "Token",
+        "event": "Event",
+        "sold": "Sold",
+        "redeemed": "Redeemed",
+        "returned": "Returned",
+        "boughtBack": "Bought back",
+        "outstanding": "Outstanding"
+      },
+      "pieces": "{count} pcs",
+      "total": "Total",
+      "kindMulti": "Multi-purpose",
+      "kindSingle": "Single-purpose",
+      "byEventTitle": "Per event",
+      "noEvent": "no event",
+      "hints": {
+        "notRevenue": "Tokens sold are not revenue. Revenue only arises on redemption, together with the goods (for single-purpose vouchers, VAT is already due at sale).",
+        "returned": "Returned: given back to the guest when an order paid with tokens was cancelled or refunded.",
+        "outstanding": "Outstanding: sold − redeemed + returned − bought back, i.e. tokens guests still hold.",
+        "outstandingPeriod": "Outstanding: sold − redeemed + returned − bought back, only counting bookings in the selected period."
+      },
+      "csv": "CSV",
+      "csvFilename": "tokens",
+      "csvCount": "pcs"
+    },
+    "transactions": {
+      "title": "Sales and buybacks",
+      "subtitle": "The last {limit} transactions, newest first.",
+      "filter": "Type",
+      "loading": "Loading …",
+      "loadFailed": "The transactions could not be loaded.",
+      "empty": "No transactions in this period.",
+      "columns": {
+        "time": "Time",
+        "number": "No.",
+        "kind": "Type",
+        "tokens": "Tokens",
+        "amount": "Amount",
+        "method": "Payment method",
+        "actor": "By"
+      },
+      "kind": {
+        "all": "All",
+        "sale": "Sale",
+        "buyback": "Buyback"
+      },
+      "test": "Training"
+    }
+  },
   "support": {
     "title": "Support",
     "subtitle": "Chat directly with our support team.",
@@ -3196,7 +3368,8 @@
         "cash": "Cash",
         "card": "Card",
         "sumup": "SumUp",
-        "discount": "Voucher"
+        "discount": "Voucher",
+        "tokens": "Tokens"
       },
       "reprintSuccess": "Print job has been sent",
       "noPrinter": "No receipt printer set up – counter-receipt not printed",
@@ -3302,7 +3475,8 @@
         "cash": "Hand back cash – the cash drawer opens.",
         "sumup": "Refunded to the guest's card via SumUp.",
         "card": "Refund at the card terminal – booked as refunded manually.",
-        "test": "Test mode: only booked, not really refunded."
+        "test": "Test mode: only booked, not really refunded.",
+        "tokens": "Hand the tokens back to the guest – never cash for them."
       },
       "cancelAndRefundTitle": "Cancel & refund · #{number}",
       "refundTitle": "Refund · #{number}",
@@ -3346,7 +3520,8 @@
       "completeBlocked": "Still being prepared",
       "completedToast": "Order completed",
       "pickedUp": "Picked up",
-      "closedWithoutPayment": "Closed without payment (earlier)"
+      "closedWithoutPayment": "Closed without payment (earlier)",
+      "tokensPaid": "Tokens: {tokens} ({amount})"
     },
     "noActiveEvent": "No active event",
     "menu": {
@@ -3372,7 +3547,9 @@
       "emergency": "Emergency support",
       "emergencyTitle": "Emergency support on your event day",
       "emergencyCall": "Call",
-      "emergencyClose": "Close"
+      "emergencyClose": "Close",
+      "tokenSale": "Sell tokens",
+      "tokenBuyback": "Buy back tokens"
     },
     "header": {
       "lock": "Lock till",
@@ -3535,7 +3712,23 @@
       "noMethod": "No payment method",
       "cashlessNoMethodTitle": "No payment method available",
       "cashlessNoMethodText": "Your organization does not accept cash, and no SumUp card reader is set up on this till. Only orders paid online or in advance can be completed here.",
-      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked."
+      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked.",
+      "tokens": "Tokens",
+      "tokensWithValue": "Tokens · {amount}",
+      "tokensComplete": "Pay with tokens",
+      "tokensRest": "Take the rest: {amount}",
+      "tokensList": "Tokens received",
+      "tokensSinglePurpose": "{rate} % items only",
+      "tokensDecrease": "One {name} less",
+      "tokensIncrease": "One more {name}",
+      "tokensExcessTitle": "The tokens are {amount} too much",
+      "tokensExcessText": "There is no change in tokens. Take one token less – or book the rest as a tip if the guest does without change.",
+      "tokensExcessAsTip": "Book the rest ({amount}) as a tip",
+      "tokensRestHint": "Tokens: {tokens} · still due: {rest} – take the rest in cash or by card.",
+      "tokensCoveredHint": "The tokens cover everything.",
+      "tokensHint": "Enter how many tokens the guest hands over. The rest is paid in cash or by card.",
+      "tokensApplied": "less tokens {amount}",
+      "tokensRestShort": "Rest {amount}"
     },
     "done": {
       "change": "Change {amount}",
@@ -3545,7 +3738,8 @@
         "card": "Card",
         "cash": "Cash",
         "free": "no payment",
-        "sumup": "Card · SumUp"
+        "sumup": "Card · SumUp",
+        "tokens": "Tokens"
       },
       "next": "Next receipt",
       "pfand": "Deposit",
@@ -3556,7 +3750,9 @@
       "sum": "Total",
       "testReceipt": "Test receipt",
       "tip": "Tip",
-      "title": "Paid"
+      "title": "Paid",
+      "methodWithTokens": "{method} + tokens",
+      "tokensPaid": "paid with tokens"
     },
     "hospitality": {
       "title": "Hospitality receipt",
@@ -3744,6 +3940,37 @@
       "settle": "Settle",
       "liveAudit": "Live cash audit",
       "handover": "Hand over table"
+    },
+    "tokens": {
+      "sellTitle": "Sell tokens",
+      "buybackTitle": "Buy back tokens",
+      "sum": "Total",
+      "back": "Back",
+      "empty": "No tokens set up",
+      "buybackEmpty": "Buy-back is not allowed for any token",
+      "buybackInfoTitle": "Cash for tokens",
+      "buybackInfo": "Count the returned tokens. The guest gets the amount in cash and signs the receipt.",
+      "buybackConfirm": "Pay out {amount}",
+      "sellConfirm": "Take {amount}",
+      "sellCard": "{amount} by card",
+      "cardCancel": "Cancel card payment",
+      "cash": "Cash",
+      "card": "Card",
+      "method": "Payment method",
+      "exact": "Exact",
+      "change": "Change: {amount}",
+      "saleHint": "Tokens are not revenue: VAT arises only when they are redeemed (multi-purpose voucher).",
+      "multiPurpose": "Multi-purpose voucher",
+      "singlePurpose": "Single-purpose voucher {rate} %",
+      "decrease": "One {name} less",
+      "increase": "One more {name}",
+      "reason": "Reason (optional), e.g. \"end of the festival\"",
+      "doneTitle": "Tokens",
+      "saleDone": "Tokens sold",
+      "buybackDone": "Tokens bought back",
+      "receiptNote": "Tokens (multi-purpose voucher, not taxable) are not change.",
+      "noPrinter": "No receipt printer for this till",
+      "done": "Done"
     }
   },
   "orders": {
@@ -3873,7 +4100,8 @@
         "cash": "Cash",
         "card": "Card",
         "sumup": "SumUp",
-        "discount": "Voucher"
+        "discount": "Voucher",
+        "tokens": "Tokens"
       },
       "kind": {
         "cancellation": "Cancellation",
@@ -3930,13 +4158,15 @@
         "cash": "Give the cash back – booked as \"paid out in cash\". Take the money from the till.",
         "sumup": "Refunded to the guest's card through SumUp.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
-        "test": "Test mode: only booked, nothing is really refunded."
+        "test": "Test mode: only booked, nothing is really refunded.",
+        "tokens": "The guest gets the tokens back, no cash."
       },
       "method": {
         "cash": "Refund in cash – booked as \"paid out in cash\".",
         "sumup": "Refund through SumUp to the guest's card.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
-        "test": "Test mode – only booked, not refunded at the payment provider."
+        "test": "Test mode – only booked, not refunded at the payment provider.",
+        "tokens": "Tokens back"
       },
       "reasonRequired": "Reason (required)",
       "reasonOptional": "Reason (optional)",
@@ -4764,6 +4994,23 @@
     "COUNTRY_UNCHANGED": "The organization already has this country.",
     "ORDER_CLOSED_WITHOUT_PAYMENT": "This order was already closed without payment (paid outside OpenEOS). Reload the open orders.",
     "TSE_REQUIRED_FOR_CASH": "In Germany cash is only possible with an active cloud TSE. Take card or online payment.",
+    "TSE_REQUIRED_FOR_TOKENS": "In Germany, tokens require an active cloud TSE: accepting tokens in place of money is a till function, just like cash.",
+    "TOKEN_TYPE_NOT_FOUND": "This token type does not exist (anymore). Reload the page.",
+    "TOKEN_TYPE_INACTIVE": "{tokenType} is deactivated and is currently neither sold nor accepted.",
+    "TOKEN_TYPE_IN_USE": "This token has already been sold or accepted. Deactivate it instead of deleting it – that keeps sales and redemptions traceable.",
+    "TOKEN_TYPE_LOCKED": "Some of these tokens are already in circulation. Face value, type and VAT rate are therefore fixed – create a new token type for other values.",
+    "TOKEN_RESTRICTION_REQUIRES_EVENT": "Categories and items belong to an event. Choose the event the token is valid for – or leave the selection empty.",
+    "TOKEN_SINGLE_PURPOSE_SMALL_BUSINESS": "As a small business, you always book tokens as multi-purpose vouchers (no VAT, consistent treatment).",
+    "TOKEN_SINGLE_PURPOSE_RATE_REQUIRED": "A single-purpose voucher needs the one VAT rate it is valid for (e.g. 19 % for drinks).",
+    "TOKEN_SINGLE_PURPOSE_NO_PRODUCTS": "The selected categories or items contain no items. Choose the items the token is valid for.",
+    "TOKEN_SINGLE_PURPOSE_MIXED_RATES": "A single-purpose voucher only works if all assigned items have the same VAT rate. Found: {rates}. Use a multi-purpose voucher or adjust the selection.",
+    "TOKEN_NOT_ELIGIBLE": "At least one token is not valid here – it belongs to another event or does not cover these items. Take fewer tokens and collect the rest another way.",
+    "TOKEN_OVERPAYMENT": "The tokens are worth {excess, number, ::currency/EUR} more than the amount due. There is no change in tokens: take fewer tokens or book the rest as a tip.",
+    "TOKEN_AMOUNT_INSUFFICIENT": "The tokens are not enough: {missing, number, ::currency/EUR} is still due. Collect the rest in cash or by card.",
+    "TOKEN_BUYBACK_NOT_ALLOWED": "Buyback is not enabled for {tokenType}. Enable it in the dashboard under Tokens if you take tokens back.",
+    "TOKEN_BUYBACK_EXCEEDS_OUTSTANDING": "According to OpenEOS, only {max} of {tokenType} are in circulation – you cannot buy back more.",
+    "TOKEN_TRANSACTION_NOT_FOUND": "This transaction does not exist (anymore).",
+    "TOKEN_LINES_INVALID": "The token selection does not fit. Check tokens, categories and items.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "In Germany “All features” is only available with an active cloud TSE.",
     "COUNTRY_REQUIRED": "Set the country of your organization first.",
     "CERTIFICATE_NOT_AVAILABLE": "The certificate is only available in Germany in the operating modes “Orders only” and “Cashless”.",
@@ -5785,7 +6032,8 @@
       "sumupOnline": "SumUp Online",
       "voucher": "Voucher",
       "online": "Online",
-      "free": "Free"
+      "free": "Free",
+      "tokens": "Tokens"
     },
     "channelLabels": {
       "pos": "Till",
@@ -5854,6 +6102,8 @@
       "exempt": "Your organization does not charge VAT (e.g. small business). All amounts are therefore shown at 0 % without tax.",
       "legacyHint": "Deposits from before November 2026 were booked without VAT and stay unchanged at 0 %. Returns against this legacy balance are also shown at 0 % – they do not reduce VAT.",
       "employeeTips": "Tips to employed servers (not taxable): {amount}",
+      "singlePurposeTokens": "Single-purpose tokens: VAT is due when the token is sold. Redeemed tokens reduce this column again, while the goods appear under “Goods” – so nothing is taxed twice.",
+      "multiPurposeTokens": "Multi-purpose tokens (not taxable): sold {sold}, bought back {boughtBack}. VAT arises on redemption and is included with the goods under “Goods”.",
       "total": "Total",
       "rate": "{rate} %",
       "columns": {
@@ -5863,10 +6113,25 @@
         "depositReturns": "Deposit returns",
         "tips": "Tips",
         "tipsHint": "Tips to the club – proportionally at the VAT rate of the goods",
+        "singlePurposeTokens": "Single-purpose tokens",
+        "singlePurposeTokensHint": "Single-purpose tokens: VAT at sale – sold − redeemed + returned − bought back",
         "gross": "Gross",
         "net": "Net",
         "tax": "VAT"
       }
+    },
+    "tokens": {
+      "title": "Tokens",
+      "subtitle": "Tokens sold are not revenue – revenue arises on redemption and is then included in total revenue.",
+      "details": "Details",
+      "pieces": "{count} pcs",
+      "sold": "Tokens sold",
+      "soldSub": "{pieces} · not revenue",
+      "redeemed": "Redeemed",
+      "redeemedSub": "{pieces} · included in revenue",
+      "boughtBack": "Bought back",
+      "outstanding": "Outstanding",
+      "outstandingSub": "{pieces} still with guests"
     },
     "waiters": {
       "title": "Servers",
@@ -7138,6 +7403,8 @@
       "cashRefunds": "Cash refunds",
       "pfandPayouts": "Deposit payouts",
       "tipPayouts": "Tip payouts",
+      "tokenSales": "Tokens sold (cash)",
+      "tokenBuybacks": "Token buybacks",
       "differences": "Differences",
       "lastCount": "Last cash count at {time}: counted {counted}, difference {difference}",
       "lastCountShort": "Last cash count: {counted} counted, difference {difference}",
@@ -7653,6 +7920,15 @@
       "counted": "Counted",
       "difference": "Difference"
     },
+    "tokens": {
+      "section": "Tokens",
+      "typeRow": "{count} × {name}",
+      "received": "Tokens to hand in",
+      "sold": "Tokens sold",
+      "soldCash": "of which cash",
+      "boughtBack": "Buyback in cash",
+      "hint": "Hand in accepted tokens like cash. They are not cash, though, so they are not part of “Expected cash”."
+    },
     "cashHint": "For information only: the cash is in the drawer of the till named. It is counted at the till’s cash count as before.",
     "ordersOnlyHint": "\"Tickets only\": OpenEOS takes no payments, the settlement contains quantities only.",
     "training": "Training (not in the money): {orders, plural, one {# order} other {# orders}}, {payments, plural, one {# payment} other {# payments}}",
@@ -7770,6 +8046,7 @@
         "drawers": "Where the cash is",
         "card": "Card",
         "tips": "Tips",
+        "tokens": "Tokens to hand in",
         "openTables": "Open tables",
         "openCardTips": "Open card tips",
         "lastSettlement": "Last settlement"

@@ -4,6 +4,7 @@ import {
   Calendar,
   ChartLine,
   ClipboardCheck,
+  Coins,
   Inbox,
   LayoutDashboard,
   LayoutGrid,
@@ -138,6 +139,14 @@ export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
     href: '/pfand',
     icon: Recycle,
     requiredPermission: 'pfand',
+  },
+  {
+    // Wertmarken: Markentypen und Auswertung. Auch sichtbar, wo die Kasse
+    // keine Marken annimmt — die Seite erklärt dann, warum.
+    labelKey: 'tokens',
+    href: '/tokens',
+    icon: Coins,
+    requiredPermission: 'products',
   },
   { divider: true },
   {

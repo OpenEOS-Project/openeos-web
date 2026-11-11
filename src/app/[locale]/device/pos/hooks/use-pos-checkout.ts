@@ -23,6 +23,7 @@ import type { DoneInfo } from '../components/done-sheet';
 import type { PayResult } from '../components/pay-sheet';
 import { usePosToast } from '../components/pos-toast';
 import { billOf, contextId } from '../utils/tables';
+import { batchPaymentFields, cashChangeOf } from '../utils/pay-result';
 import { reportTse } from './use-pos-tse';
 import type { TseReceiptView } from '@/types/tse';
 
@@ -257,8 +258,10 @@ export function usePosCheckout({
       orderNumber: null,
       amount: totals.due,
       method: result.method,
-      change: result.amountReceived !== undefined ? result.amountReceived - totals.due : 0,
-      tip: result.tip,
+      change: cashChangeOf(result, totals.due),
+      // Ueberzahlung mit Marken wird Trinkgeld (der Server bucht es so).
+      tip: result.tip + (result.tokenExcessAsTip ? Math.max(0, (result.tokenValue ?? 0) - totals.due) : 0),
+      tokenValue: result.tokenValue,
       lines: [
         ...sentLines,
         ...cart.items.map((item) => ({
@@ -275,12 +278,7 @@ export function usePosCheckout({
     const charged = totals.due > 0 && result.method !== 'free';
     const reason = cart.appliedVouchers.map((v) => v.name).join(', ');
     const payment: Omit<PaymentsBatchData, 'orderIds'> = {
-      paymentMethod: result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash',
-      ...(result.method === 'cash' && result.amountReceived !== undefined
-        ? { amountReceived: result.amountReceived }
-        : {}),
-      ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
-      ...(result.method === 'sumup' && result.transactionId ? { providerTransactionId: result.transactionId } : {}),
+      ...batchPaymentFields(result),
       // Mit offenen Bestellungen läuft der Rabatt über die Zahlung (über alle verteilt).
       ...(hasOpen && totals.discount > 0
         ? { discountAmount: Math.round(totals.discount * 100) / 100, discountReason: reason }

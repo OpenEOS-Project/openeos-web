@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Icon, type DataColumn } from '@openeos/ui';
 
 import { downloadCsv } from '@/app/[locale]/(dashboard)/reports/components/csv-export';
@@ -10,6 +10,7 @@ import { AdminTable, CellMain, CellText } from '@/components/shared/admin-table'
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useLiveCashAudit } from '@/hooks/use-waiters';
+import { formatTokenCount } from '@/lib/token-admin';
 import { canPayOutCardTips, liveAuditCsvRows, liveAuditDrawers } from '@/lib/waiters';
 import type { LiveCashAuditRow } from '@/types/waiter';
 
@@ -35,6 +36,8 @@ interface WaiterLiveAuditProps {
  */
 export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProps) {
   const t = useTranslations('waiterSettlement.live');
+  const tTokens = useTranslations('waiterSettlement.tokens');
+  const locale = useLocale();
   const apiErrorMessage = useApiErrorMessage();
   const { formatCurrency, formatDateTime } = useLocaleFormat();
   const audit = useLiveCashAudit(organizationId, eventId);
@@ -61,6 +64,28 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
             {d.deviceName ?? t('noDevice')}: {formatCurrency(d.amount)}
           </span>
         ))}
+      </span>
+    );
+  };
+
+  // Wertmarken: angenommene Marken (abgeben wie Bargeld, nicht im Soll bar),
+  // dazu verkauft bzw. zurückgetauscht. Spalte nur, wenn jemand Marken hat.
+  const showTokens = !!data?.rows.some((row) => row.tokens);
+  const tokensCell = (row: LiveCashAuditRow) => {
+    const tokens = row.tokens;
+    if (!tokens) return '—';
+    const types = tokens.receivedByType
+      .map((type) => tTokens('typeRow', { count: formatTokenCount(type.count, locale), name: type.name }))
+      .join(', ');
+    return (
+      <span className="live-audit__drawers" title={types || undefined}>
+        <span>{formatCurrency(tokens.received.amount)}</span>
+        {tokens.sold.count > 0 && (
+          <small>{`${tTokens('sold')}: ${formatCurrency(tokens.sold.amount)}`}</small>
+        )}
+        {tokens.boughtBack.count > 0 && (
+          <small>{`${tTokens('boughtBack')}: ${formatCurrency(-tokens.boughtBack.amount)}`}</small>
+        )}
       </span>
     );
   };
@@ -124,6 +149,17 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
       num: true,
       cell: (line) => (line === 'total' ? formatCurrency(data?.total.tips ?? 0) : money(line.tips)),
     },
+    // Wertmarken nur, wenn jemand Marken hat (wie bisher).
+    ...(showTokens
+      ? [
+          {
+            id: 'tokens',
+            header: t('col.tokens'),
+            num: true,
+            cell: (line: AuditLine) => (line === 'total' ? null : tokensCell(line)),
+          } satisfies DataColumn<AuditLine>,
+        ]
+      : []),
     { id: 'openTables', header: t('col.openTables'), num: true, cell: (line) => (line === 'total' ? null : line.openTables) },
     { id: 'openCardTips', header: t('col.openCardTips'), num: true, cell: (line) => (line === 'total' ? null : cardTips(line)) },
     {
@@ -194,6 +230,12 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
                 <dd>{money(row.payments?.card.amount)}</dd>
                 <dt>{t('col.tips')}</dt>
                 <dd>{money(row.tips)}</dd>
+                {row.tokens && (
+                  <>
+                    <dt>{t('col.tokens')}</dt>
+                    <dd>{tokensCell(row)}</dd>
+                  </>
+                )}
                 <dt>{t('col.openTables')}</dt>
                 <dd>{row.openTables}</dd>
                 {row.openCardTips !== null && (
