@@ -757,6 +757,49 @@ export const pfandTypesApi = {
     ),
 };
 
+// Wertmarken (Markentypen, Bericht, Buchungen)
+export const tokensApi = {
+  listTypes: (organizationId: string, eventId?: string) =>
+    apiClient.get<ApiResponse<import('@/types/token').TokenType[]>>(
+      `/organizations/${organizationId}/token-types${eventId ? `?eventId=${eventId}` : ''}`,
+    ),
+
+  createType: (organizationId: string, data: import('@/types/token').TokenTypeInput) =>
+    apiClient.post<ApiResponse<import('@/types/token').TokenType>>(
+      `/organizations/${organizationId}/token-types`,
+      data,
+    ),
+
+  updateType: (organizationId: string, tokenTypeId: string, data: import('@/types/token').TokenTypeInput) =>
+    apiClient.patch<ApiResponse<import('@/types/token').TokenType>>(
+      `/organizations/${organizationId}/token-types/${tokenTypeId}`,
+      data,
+    ),
+
+  deleteType: (organizationId: string, tokenTypeId: string) =>
+    apiClient.delete(`/organizations/${organizationId}/token-types/${tokenTypeId}`),
+
+  report: (organizationId: string, params: { eventId?: string; startDate?: string; endDate?: string } = {}) => {
+    const query = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => !!v) as [string, string][],
+    ).toString();
+    return apiClient.get<ApiResponse<import('@/types/token').TokenReport>>(
+      `/organizations/${organizationId}/reports/tokens${query ? `?${query}` : ''}`,
+    );
+  },
+
+  transactions: (organizationId: string, params: { eventId?: string; kind?: 'sale' | 'buyback'; limit?: number } = {}) => {
+    const query = new URLSearchParams(
+      Object.entries(params)
+        .filter(([, v]) => v !== undefined && v !== '')
+        .map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return apiClient.get<ApiResponse<import('@/types/token').TokenTransaction[]>>(
+      `/organizations/${organizationId}/token-transactions${query ? `?${query}` : ''}`,
+    );
+  },
+};
+
 // Events API
 export const eventsApi = {
   list: (organizationId: string) =>
@@ -1843,6 +1886,48 @@ export const deviceApi = {
   printPfandReturn: (pfandReturnId: string, reprint = false) =>
     apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
       `/device-api/pfand-returns/${pfandReturnId}/print`,
+      { reprint },
+      { useDeviceAuth: true }
+    ),
+
+  // Markentypen (Wertmarken) für die Kasse; leer, wo Marken nicht erlaubt sind
+  getTokenTypes: (eventId?: string | null) =>
+    apiClient.get<ApiResponse<import('@/types/token').TokenType[]>>(
+      `/device-api/token-types${eventId ? `?eventId=${eventId}` : ''}`,
+      { useDeviceAuth: true }
+    ),
+
+  // Wertmarken verkaufen (bar, Karte, SumUp)
+  sellTokens: (data: {
+    eventId?: string;
+    lines: import('@/types/token').TokenTender[];
+    paymentMethod: 'cash' | 'card' | 'sumup_terminal';
+    amountReceived?: number;
+    providerTransactionId?: string;
+    clientRequestId?: string;
+  }) =>
+    apiClient.post<ApiResponse<import('@/types/token').TokenTransaction>>(
+      '/device-api/tokens/sales',
+      data,
+      { useDeviceAuth: true }
+    ),
+
+  // Wertmarken zurücktauschen (Bargeld raus, Beleg mit Unterschrift)
+  buybackTokens: (data: {
+    eventId?: string;
+    lines: import('@/types/token').TokenTender[];
+    reason?: string;
+    clientRequestId?: string;
+  }) =>
+    apiClient.post<ApiResponse<import('@/types/token').TokenTransaction>>(
+      '/device-api/tokens/buybacks',
+      data,
+      { useDeviceAuth: true }
+    ),
+
+  printTokenTransaction: (tokenTransactionId: string, reprint = false) =>
+    apiClient.post<ApiResponse<{ success: boolean; printed: boolean }>>(
+      `/device-api/tokens/transactions/${tokenTransactionId}/print`,
       { reprint },
       { useDeviceAuth: true }
     ),
