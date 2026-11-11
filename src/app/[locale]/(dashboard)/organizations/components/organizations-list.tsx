@@ -139,7 +139,7 @@ export function OrganizationsList({
     {
       id: 'slug',
       header: t('table.slug'),
-      mobile: 'meta',
+      mobile: 'hidden',
       className: 'wave4-mono',
       cell: (org) => <CellText title={org.slug}>{org.slug}</CellText>,
     },

@@ -635,9 +635,11 @@ export function AdminEventsContainer() {
       cell: (event) => formatCurrency(event.revenueTotal),
     },
     {
+      // Telefon: Zeile 2 zeigt nur Verein und Status, sonst würde alles
+      // gekürzt; die passenden Aktionen (Abrechnen, Rechnung …) stehen im Menü.
       id: 'payment',
       header: t('table.payment'),
-      mobile: 'meta',
+      mobile: 'hidden',
       cell: (event) => (
         <span className={billingStatusBadge[event.billingStatus ?? 'none'] ?? 'badge badge--neutral'}>
           {billingStatusLabel[event.billingStatus ?? 'none'] ?? event.billingStatus}
@@ -647,7 +649,7 @@ export function AdminEventsContainer() {
     {
       id: 'invoiced',
       header: t('table.invoiced'),
-      mobile: 'meta',
+      mobile: 'hidden',
       cell: (event) =>
         event.stripeInvoiceId ? (
           /* Auf Rechnung über Stripe: Nummer, Zahlungsstand und
