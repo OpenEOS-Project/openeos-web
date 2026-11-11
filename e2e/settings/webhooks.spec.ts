@@ -84,7 +84,7 @@ test.describe('Webhooks settings', () => {
     await expect(page.getByText(/whsec_e2eSecret1_/)).toHaveCount(0);
 
     // Liste
-    const row = page.locator('tr', { hasText: 'https://hooks.example.org/openeos' });
+    const row = page.getByRole('row').filter({ hasText: 'https://hooks.example.org/openeos' });
     await expect(row).toBeVisible();
     await expect(row.getByText('Buchhaltung')).toBeVisible();
     await expect(row.getByText('4 Ereignisse')).toBeVisible();
@@ -129,16 +129,18 @@ test.describe('Webhooks settings', () => {
     await expect(page).toHaveURL(new RegExp(`/settings/webhooks/${webhookId}$`));
     await expect(page.getByRole('heading', { name: 'Buchhaltung (Lexware)', level: 1 })).toBeVisible();
     await expect(page.getByText('whsec_e2eA…')).toBeVisible();
-    const table = page.locator('table');
-    await expect(table.locator('tbody tr')).toHaveCount(2);
-    await expect(table.getByText('ping')).toBeVisible();
-    await expect(table.getByText('Zugestellt')).toBeVisible();
+    const table = page.getByRole('table');
+    // Zeilen mit Zellen — ohne die Kopfzeile.
+    const bodyRows = table.getByRole('row').filter({ has: page.getByRole('cell') });
+    await expect(bodyRows).toHaveCount(2);
+    await expect(table.getByText('ping', { exact: true })).toBeVisible();
+    await expect(table.getByText('Zugestellt', { exact: true })).toBeVisible();
     await expect(page.getByText('2 Zustellungen')).toBeVisible();
 
     await page.getByLabel('Status').selectOption({ label: 'Fehlgeschlagen' });
-    await expect(table.locator('tbody tr')).toHaveCount(1);
-    const failedRow = table.locator('tbody tr').first();
-    await expect(failedRow.getByText('order.paid')).toBeVisible();
+    await expect(bodyRows).toHaveCount(1);
+    const failedRow = bodyRows.first();
+    await expect(failedRow.getByText('order.paid', { exact: true })).toBeVisible();
     await expect(failedRow.getByText('Zeitüberschreitung (10 s)')).toBeVisible();
     await expect(failedRow.getByText('8/8')).toBeVisible();
     expect(api.requests.some((r) => r.method === 'GET' && r.path.includes('status=failed'))).toBe(true);
@@ -155,8 +157,8 @@ test.describe('Webhooks settings', () => {
     expect(api.requests.some((r) => r.method === 'POST' && r.path.endsWith('/redeliver'))).toBe(true);
 
     await page.getByLabel('Status').selectOption({ label: 'Alle Status' });
-    await expect(table.locator('tbody tr')).toHaveCount(3);
-    await expect(table.getByText('Ausstehend')).toBeVisible();
+    await expect(bodyRows).toHaveCount(3);
+    await expect(table.getByText('Ausstehend', { exact: true })).toBeVisible();
 
     // Secret erneuern: Rückfrage mit 24 h, dann einmalige Anzeige.
     await page.getByRole('button', { name: 'Secret erneuern' }).click();
@@ -193,7 +195,7 @@ test.describe('Webhooks settings', () => {
     await expect(page.getByText('2 von 2 Webhooks')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Webhook anlegen' })).toBeDisabled();
     await expect(page.getByText('Höchstzahl erreicht')).toBeVisible();
-    await expect(page.locator('tr', { hasText: 'b.example.org' }).getByText(/^Fehler seit 09\.11\.2026/)).toBeVisible();
+    await expect(page.getByRole('row').filter({ hasText: 'b.example.org' }).getByText(/^Fehler seit 09\.11\.2026/)).toBeVisible();
 
     api.info.enabled = false;
     await page.reload();
@@ -265,16 +267,21 @@ test.describe('Webhooks settings', () => {
     await page.setViewportSize({ width: 390, height: 844 });
 
     await openWebhooks(page);
+    // Telefon: jede Zeile ein Eintrag, die Beschreibung unter der Adresse,
+    // alle Aktionen im ⋯-Menü.
+    const row = page.getByRole('row').filter({ hasText: 'Warenwirtschaft' });
     await expect(page.getByText('Warenwirtschaft', { exact: true })).toBeVisible();
-    await expect(page.locator('table')).toHaveCount(0);
+    await expect(row.getByRole('button', { name: /^Bearbeiten:/ })).toBeHidden();
     await expectNoHorizontalScroll(page);
 
-    await page.getByRole('link', { name: /^Zustellungen ansehen:/ }).click();
+    await row.getByRole('button', { name: 'Weitere Aktionen' }).click();
+    await page.getByRole('menuitem', { name: /^Zustellungen ansehen:/ }).click();
     await expect(page.getByRole('heading', { name: 'Warenwirtschaft', level: 1 })).toBeVisible();
     await expect(page.getByText('Ziel-Adresse nicht erlaubt (privates Netz)')).toBeVisible();
     await expectNoHorizontalScroll(page);
 
-    await page.getByRole('button', { name: /^Details zur Zustellung refund\.created/ }).click();
+    // Tippen auf den Eintrag öffnet die Details.
+    await page.getByRole('row').filter({ hasText: 'refund.created' }).click();
     const detail = page.getByRole('dialog', { name: /Zustellung/ });
     await expect(detail.getByTestId('webhook-payload')).toBeVisible();
     await expectNoHorizontalScroll(page);

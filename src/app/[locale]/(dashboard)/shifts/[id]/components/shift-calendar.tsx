@@ -69,12 +69,15 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
   }
 
   return (
-    <div className="rounded-xl border border-secondary bg-primary overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[800px]">
+    // Breiter als der Bildschirm (Telefon, viele Tage): nur der Kalender
+    // scrollt waagerecht, die Seite bleibt stehen. Die Mindestbreite ergibt
+    // sich aus den Spalten statt aus festen 800 px.
+    <div className="max-w-full rounded-xl border border-secondary bg-primary overflow-hidden">
+      <div className="max-w-full overflow-x-auto overscroll-x-contain">
+        <table className="w-full">
           <thead>
             <tr className="border-b border-secondary bg-secondary/30">
-              <th className="sticky left-0 z-10 bg-secondary/30 px-4 py-3 text-left text-sm font-medium text-secondary min-w-[180px]">
+              <th className="sticky left-0 z-10 bg-secondary/30 px-4 py-3 text-left text-sm font-medium text-secondary min-w-[132px] sm:min-w-[180px]">
                 {t('shifts.calendar.job')}
               </th>
               {allDates.map((date) => {
@@ -82,7 +85,7 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
                 return (
                   <th
                     key={date}
-                    className="px-3 py-3 text-center text-sm font-medium text-secondary min-w-[140px]"
+                    className="px-3 py-3 text-center text-sm font-medium text-secondary min-w-[128px] sm:min-w-[140px]"
                   >
                     <div className="text-xs text-tertiary">{weekday}</div>
                     <div>{day}</div>
@@ -94,7 +97,7 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
           <tbody className="divide-y divide-secondary">
             {jobs.map((job) => (
               <tr key={job.id} className="hover:bg-secondary/20">
-                <td className="sticky left-0 z-10 bg-primary px-4 py-3 border-r border-secondary">
+                <td className="sticky left-0 z-10 bg-primary px-3 py-3 border-r border-secondary sm:px-4">
                   <div className="flex items-center gap-2">
                     <div
                       className="h-3 w-3 rounded-full flex-shrink-0"
@@ -103,7 +106,7 @@ export function ShiftCalendar({ plan }: ShiftCalendarProps) {
                     <div>
                       <div className="font-medium text-primary text-sm">{job.name}</div>
                       {job.description && (
-                        <div className="text-xs text-tertiary truncate max-w-[150px]">
+                        <div className="text-xs text-tertiary truncate max-w-[110px] sm:max-w-[150px]">
                           {job.description}
                         </div>
                       )}

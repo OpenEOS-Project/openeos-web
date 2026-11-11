@@ -1,10 +1,11 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Segment } from '@openeos/ui';
+import { IconButton, Segment, type DataColumn } from '@openeos/ui';
 
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
+import { AdminPager, AdminTable } from '@/components/shared/admin-table';
 import { TseReceiptBlock } from '@/components/tse/tse-receipt-block';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { TSE_TRANSACTIONS_PAGE_SIZE, useTseTransactions } from '@/hooks/use-tse';
@@ -22,14 +23,15 @@ export const TSE_STATUS_BADGE: Record<TseTransactionStatus, string> = {
 };
 
 /**
- * Abgesicherte Vorgänge, neueste zuerst: kompakte Tabelle ab Tablet-Breite,
- * darunter zweizeilige Zeilen. Ein Klick klappt die TSE-Angaben samt
- * QR-Code auf (wie auf dem Bon).
+ * Abgesicherte Vorgänge, neueste zuerst (DataTable: Tabelle ab Tablet-Breite,
+ * darunter zweizeilige Einträge). Ein Klick zeigt die TSE-Angaben samt
+ * QR-Code (wie auf dem Bon) im Feld unter der Tabelle.
  */
 export function TseTransactionsCard({ organizationId }: { organizationId: string }) {
   const t = useTranslations('integrations.tse.transactions');
   const tKind = useTranslations('tse.kind');
   const tStatus = useTranslations('tse.status');
+  const tCommon = useTranslations('common');
   const { formatDateTime, formatCurrency } = useLocaleFormat();
   const [filter, setFilter] = useState<Filter>('all');
   const [page, setPage] = useState(0);
@@ -44,6 +46,74 @@ export function TseTransactionsCard({ organizationId }: { organizationId: string
     return value === null ? '–' : formatCurrency(value);
   };
   const toggle = (id: string) => setOpen((current) => (current === id ? null : id));
+  const selected = open ? items.find((view) => view.id === open) : undefined;
+
+  // Das Feld liegt unter der Tabelle — beim Öffnen in den sichtbaren Bereich holen.
+  const detailRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (open) detailRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [open]);
+
+  const columns: DataColumn<TseReceiptView>[] = [
+    {
+      id: 'time',
+      header: t('col.time'),
+      mobile: 'meta',
+      className: 'tse-tx-list__time',
+      cell: (view) => formatDateTime(view.createdAt),
+    },
+    {
+      id: 'kind',
+      header: t('col.kind'),
+      mobile: 'title',
+      cell: (view) => tKind(view.kind),
+    },
+    {
+      id: 'status',
+      header: t('col.status'),
+      mobile: 'subtitle',
+      cell: (view) => (
+        <>
+          <span className={TSE_STATUS_BADGE[view.status]}>{tStatus(view.status)}</span>
+          {view.errorCode && <span className="tse-mono tse-muted"> {view.errorCode}</span>}
+        </>
+      ),
+    },
+    {
+      id: 'number',
+      header: t('col.number'),
+      num: true,
+      cell: (view) => view.transactionNumber ?? '–',
+    },
+    {
+      id: 'counter',
+      header: t('col.counter'),
+      num: true,
+      priority: 2,
+      cell: (view) => view.signatureCounter ?? '–',
+    },
+    {
+      // Telefon: Nummer und Zähler mit Kürzel in Zeile 2.
+      id: 'numbers',
+      header: t('col.number'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only',
+      cell: (view) =>
+        [
+          view.transactionNumber !== null ? t('shortNumber', { number: view.transactionNumber }) : null,
+          view.signatureCounter !== null ? t('shortCounter', { counter: view.signatureCounter }) : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || null,
+    },
+    {
+      id: 'amount',
+      header: t('col.amount'),
+      num: true,
+      mobile: 'trailing',
+      cell: (view) => amount(view),
+    },
+  ];
 
   return (
     <div className="app-card" data-testid="tse-transactions">
@@ -69,94 +139,52 @@ export function TseTransactionsCard({ organizationId }: { organizationId: string
         <p className="tse-empty">{query.isLoading ? t('loading') : t('empty')}</p>
       ) : (
         <>
-          <div className="tse-tx__table-wrap">
-            <table className="data-table tse-tx__table">
-              <thead>
-                <tr>
-                  <th>{t('col.time')}</th>
-                  <th>{t('col.kind')}</th>
-                  <th>{t('col.status')}</th>
-                  <th className="text-right">{t('col.number')}</th>
-                  <th className="text-right">{t('col.counter')}</th>
-                  <th className="text-right">{t('col.amount')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((view) => (
-                  <Fragment key={view.id}>
-                    <tr
-                      className={open === view.id ? 'tse-tx__row is-open' : 'tse-tx__row'}
-                      onClick={() => toggle(view.id)}
-                      aria-expanded={open === view.id}
-                    >
-                      <td>
-                        <button type="button" className="tse-tx__link" onClick={(e) => { e.stopPropagation(); toggle(view.id); }}>
-                          {formatDateTime(view.createdAt)}
-                        </button>
-                      </td>
-                      <td>{tKind(view.kind)}</td>
-                      <td>
-                        <span className={TSE_STATUS_BADGE[view.status]}>{tStatus(view.status)}</span>
-                        {view.errorCode && <span className="tse-mono tse-muted"> {view.errorCode}</span>}
-                      </td>
-                      <td className="text-right mono">{view.transactionNumber ?? '–'}</td>
-                      <td className="text-right mono">{view.signatureCounter ?? '–'}</td>
-                      <td className="text-right mono">{amount(view)}</td>
-                    </tr>
-                    {open === view.id && (
-                      <tr className="tse-tx__detail">
-                        <td colSpan={6}>
-                          <TransactionDetail view={view} />
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <AdminTable
+            flush={false}
+            className="tse-tx-list"
+            caption={t('title')}
+            rows={items}
+            rowKey="id"
+            columns={columns}
+            // Klick (oder Enter) auf eine Zeile zeigt die TSE-Angaben darunter.
+            onRowClick={(view) => toggle(view.id)}
+            rowClassName={(view) => (view.id === open ? 'is-open' : undefined)}
+            loading={query.isPlaceholderData && query.isFetching}
+            footer={
+              pages > 1 ? (
+                <AdminPager
+                  page={page + 1}
+                  pageSize={TSE_TRANSACTIONS_PAGE_SIZE}
+                  total={total}
+                  onChange={(next) => {
+                    setPage(next - 1);
+                    setOpen(null);
+                  }}
+                />
+              ) : undefined
+            }
+          />
 
-          <ul className="tse-tx__rows">
-            {items.map((view) => (
-              <li key={view.id} className="tse-tx-row">
-                <button
-                  type="button"
-                  className="tse-tx-row__main"
-                  onClick={() => toggle(view.id)}
-                  aria-expanded={open === view.id}
-                >
-                  <span className="tse-tx-row__head">
-                    <b>{tKind(view.kind)}</b>
-                    <span className={TSE_STATUS_BADGE[view.status]}>{tStatus(view.status)}</span>
-                    <span className="tse-tx-row__amount mono">{amount(view)}</span>
-                  </span>
-                  <span className="tse-tx-row__sub tse-muted">
-                    {formatDateTime(view.createdAt)}
-                    {view.transactionNumber !== null ? ` · ${t('shortNumber', { number: view.transactionNumber })}` : ''}
-                    {view.signatureCounter !== null ? ` · ${t('shortCounter', { counter: view.signatureCounter })}` : ''}
-                    {view.errorCode ? ` · ${view.errorCode}` : ''}
-                  </span>
-                </button>
-                {open === view.id && <TransactionDetail view={view} />}
-              </li>
-            ))}
-          </ul>
-
-          {pages > 1 && (
-            <div className="tse-pager">
-              <button type="button" className="btn btn--ghost" disabled={page === 0} onClick={() => setPage(page - 1)}>
-                {t('previous')}
-              </button>
-              <span className="tse-muted">{t('page', { page: page + 1, pages })}</span>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                disabled={page + 1 >= pages}
-                onClick={() => setPage(page + 1)}
-              >
-                {t('next')}
-              </button>
-            </div>
+          {/* DataTable kennt keine aufklappbaren Zeilen: die Angaben des
+              gewählten Vorgangs stehen in einem Feld unter der Tabelle. */}
+          {selected && (
+            <section
+              ref={detailRef}
+              className="tse-tx__panel"
+              aria-label={t('detailTitle', { kind: tKind(selected.kind), time: formatDateTime(selected.createdAt) })}
+            >
+              <div className="tse-tx__panel-head">
+                <b>{t('detailTitle', { kind: tKind(selected.kind), time: formatDateTime(selected.createdAt) })}</b>
+                <IconButton
+                  variant="quiet"
+                  size="sm"
+                  icon="x"
+                  label={tCommon('close')}
+                  onClick={() => setOpen(null)}
+                />
+              </div>
+              <TransactionDetail view={selected} />
+            </section>
           )}
         </>
       )}

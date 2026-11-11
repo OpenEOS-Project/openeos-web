@@ -1,0 +1,181 @@
+/* Admin-Listen, Welle 3 (Integrationen und Einstellungen): Ergänzungen
+   zu admin-table.css für einzelne Seiten. */
+
+/* Standorte: Farbpunkt vor dem Namen. */
+.stations-list__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* Drucker: Agent-Karte mit Kopf, übernommenen und gefundenen Druckern. */
+.printer-agent__head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+.printer-agent__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-ink) 6%, transparent);
+}
+.printer-agent__text {
+  min-width: 0;
+}
+.printer-agent__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.landing .printer-agent__title .app-card__title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.landing .printer-agent__sub {
+  margin: 2px 0 0;
+}
+.printer-agent__section {
+  padding: 14px 0 4px;
+}
+.printer-agent__section--discovered {
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in oklab, var(--oe-ink) 6%, transparent);
+}
+.printer-agent__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 20px 8px;
+}
+.landing .printer-agent__heading {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oe-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.landing .printer-agent__section > .printer-agent__heading {
+  margin-inline: 20px;
+}
+.landing .printer-agent__section-head .printer-agent__heading {
+  margin: 0;
+}
+.landing .printer-agent__empty {
+  margin: 0 20px 16px;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+.printers-list__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-ink) 6%, transparent);
+  /* Sprungziel: nicht unter der Kopfleiste verschwinden. */
+  scroll-margin-top: 96px;
+}
+.printers-list__conn {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.printers-list__addr {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.printers-list__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.printers-list__seen {
+  white-space: nowrap;
+  color: var(--oe-mute);
+}
+.printers-list__adopted {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--oe-mute);
+}
+.landing .printers-list__adopted a {
+  color: var(--oe-green-ink);
+  font-weight: 600;
+}
+@media (max-width: 767px) {
+  .printer-agent__icon {
+    width: 32px;
+    height: 32px;
+  }
+  .printers-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+  /* Zeile 2 des Eintrags: Art und Adresse nebeneinander. */
+  .printers-list__conn {
+    display: inline;
+  }
+  .printers-list__conn > span + span::before {
+    content: ' ';
+  }
+  .printers-list__addr {
+    display: inline;
+    font-size: inherit;
+  }
+  .printer-agent__section-head,
+  .landing .printer-agent__section > .printer-agent__heading,
+  .landing .printer-agent__empty {
+    margin-inline: 16px;
+  }
+}
+/* Überblickskarte über den Agents: nur der Kopf, ohne Trennlinie. */
+.landing .printers-overview .app-card__head {
+  border-bottom: 0;
+}
+
+/* Schichtpläne: Symbol vor dem Namen, Datum in Mono. */
+.shifts-list__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+}
+.landing .oe-dt__td.shifts-list__jobs {
+  white-space: nowrap;
+}
+.landing .oe-dt__td.shifts-list__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .shifts-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+}

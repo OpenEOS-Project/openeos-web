@@ -7,13 +7,30 @@ import { Webhook } from 'lucide-react';
 
 import '@/styles/api-tokens.css';
 import '@/styles/webhooks.css';
-import { Banner, Icon, Skeleton } from '@openeos/ui';
+import '@/styles/admin-table-wave3.css';
+import {
+  Banner,
+  Icon,
+  Select,
+  Skeleton,
+  useMediaQuery,
+  type DataColumn,
+  type RowAction,
+} from '@openeos/ui';
+
+import {
+  AdminFilterBar,
+  AdminPager,
+  AdminTable,
+  ListAction,
+  ListHead,
+  PHONE_QUERY,
+} from '@/components/shared/admin-table';
 
 import { DetailPageHead } from '@/components/shared/detail-page-head';
 import { toast } from '@/components/shared/toast';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
-import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import {
@@ -273,7 +290,7 @@ function EndpointSummary({ endpoint }: { endpoint: WebhookEndpoint }) {
 
 function DeliveriesCard({ organizationId, endpoint }: { organizationId: string; endpoint: WebhookEndpoint }) {
   const t = useTranslations('settings.organizationWebhooks.deliveries');
-  const desktop = useBreakpoint('md');
+  const phone = useMediaQuery(PHONE_QUERY);
   const { formatDateTime } = useLocaleFormat();
   const info = useWebhookInfo(organizationId);
   const eventLabel = useEventTypeLabel(info.data?.eventTypes);
@@ -307,202 +324,186 @@ function DeliveriesCard({ organizationId, endpoint }: { organizationId: string; 
   const detailsLabel = (delivery: WebhookDelivery) =>
     t('showDetails', { event: delivery.eventType, time: formatDateTime(delivery.createdAt) });
 
-  return (
-    <div className="app-card webhook-deliveries">
-      <div className="webhook-deliveries__head">
-        <div>
-          <h2 className="webhook-deliveries__title">{t('title')}</h2>
-          {info.data && (
-            <p className="api-tokens__count">
-              {t('retention', { days: info.data.retentionDays, attempts: info.data.maxAttempts })}
-            </p>
-          )}
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost btn--sm"
-          onClick={() => deliveries.refetch()}
-          disabled={deliveries.isFetching}
-        >
-          <Icon name="refresh" size={16} />
-          {t('refresh')}
-        </button>
-      </div>
+  const columns: DataColumn<WebhookDelivery>[] = [
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (delivery) => <DeliveryStatusPill status={delivery.status} />,
+    },
+    {
+      id: 'event',
+      header: t('table.event'),
+      mobile: 'title',
+      className: 'webhook-deliveries__event',
+      cell: (delivery) => {
+        const error = errorLabel(delivery.error);
+        return (
+          <span className="webhook-deliveries__event-cell">
+            <span className="webhook-deliveries__event-line">
+              <EventTypeCode type={delivery.eventType} label={eventLabel(delivery.eventType)} />
+              {delivery.manual && <span className="webhook-muted"> · {t('manual')}</span>}
+            </span>
+            {/* Auch auf dem Telefon unter dem Ereignis (Zeile 1 des Eintrags). */}
+            {error && (
+              <span className="webhook-deliveries__error" title={error}>
+                {error}
+              </span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'http',
+      header: t('table.http'),
+      num: true,
+      priority: 2,
+      cell: (delivery) => delivery.responseStatus ?? '—',
+    },
+    {
+      id: 'duration',
+      header: t('table.duration'),
+      num: true,
+      priority: 3,
+      cell: (delivery) => durationLabel(delivery.durationMs),
+    },
+    {
+      id: 'attempts',
+      header: t('table.attempts'),
+      num: true,
+      mobile: 'meta',
+      cell: (delivery) => t('attempts', { attempts: delivery.attempts, max: delivery.maxAttempts }),
+    },
+    {
+      id: 'nextAttempt',
+      header: t('table.nextAttempt'),
+      num: true,
+      priority: 3,
+      cell: (delivery) => formatDateTime(delivery.nextAttemptAt),
+    },
+    {
+      id: 'time',
+      header: t('table.time'),
+      num: true,
+      mobile: 'meta',
+      cell: (delivery) => formatDateTime(delivery.createdAt),
+    },
+  ];
 
-      <div className="webhook-deliveries__filters">
-        <label className="webhook-filter">
-          <span>{t('filterStatus')}</span>
-          <select
-            className="input"
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value as WebhookDeliveryStatus | '');
-              setPage(1);
-            }}
-          >
-            <option value="">{t('allStatuses')}</option>
-            {WEBHOOK_DELIVERY_STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {t(`status.${value}`)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="webhook-filter">
-          <span>{t('filterEvent')}</span>
-          <select
-            className="input"
-            value={eventType}
-            onChange={(e) => {
-              setEventType(e.target.value as WebhookDeliveryEventType | '');
-              setPage(1);
-            }}
-          >
-            <option value="">{t('allEvents')}</option>
-            {eventOptions.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+  /* Die ganze Zeile öffnet die Details; der Knopf bleibt für Tastatur und
+     Screenreader. Auf dem Telefon reicht das Tippen auf den Eintrag. */
+  const rowActions = (delivery: WebhookDelivery): RowAction[] => [
+    {
+      id: 'details',
+      label: detailsLabel(delivery),
+      icon: 'chevron-right',
+      hidden: phone,
+      onClick: () => showDetails(delivery),
+    },
+  ];
+
+  return (
+    <div className="app-card app-card--flat webhook-deliveries">
+      <ListHead
+        actions={
+          <ListAction
+            icon={<Icon name="refresh" className={deliveries.isFetching ? 'admin-spin' : undefined} />}
+            label={t('refresh')}
+            onClick={() => deliveries.refetch()}
+            disabled={deliveries.isFetching}
+          />
+        }
+      >
+        <h2 className="webhook-deliveries__title">{t('title')}</h2>
+        {info.data && (
+          <p className="api-tokens__count">
+            {t('retention', { days: info.data.retentionDays, attempts: info.data.maxAttempts })}
+          </p>
+        )}
+      </ListHead>
+
+      {/* Auf dem Telefon stehen die Filter im Sheet, dort mit Beschriftung. */}
+      <AdminFilterBar
+        activeCount={[status, eventType].filter(Boolean).length}
+        onReset={() => {
+          setStatus('');
+          setEventType('');
+          setPage(1);
+        }}
+        actions={
+          meta && rows.length > 0 ? (
+            <span className="api-tokens__count webhook-deliveries__count">{t('count', { count: meta.total })}</span>
+          ) : undefined
+        }
+      >
+        <Select
+          label={phone ? t('filterStatus') : undefined}
+          aria-label={t('filterStatus')}
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value as WebhookDeliveryStatus | '');
+            setPage(1);
+          }}
+        >
+          <option value="">{t('allStatuses')}</option>
+          {WEBHOOK_DELIVERY_STATUSES.map((value) => (
+            <option key={value} value={value}>
+              {t(`status.${value}`)}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label={phone ? t('filterEvent') : undefined}
+          aria-label={t('filterEvent')}
+          value={eventType}
+          onChange={(e) => {
+            setEventType(e.target.value as WebhookDeliveryEventType | '');
+            setPage(1);
+          }}
+        >
+          <option value="">{t('allEvents')}</option>
+          {eventOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </Select>
+      </AdminFilterBar>
 
       {deliveries.isLoading ? (
-        <Skeleton height={120} />
+        <div className="webhook-deliveries__state">
+          <Skeleton height={120} />
+        </div>
       ) : deliveries.isError ? (
-        <Banner tone="danger" icon={<Icon name="alert" />}>
-          {t('loadError')}
-        </Banner>
+        <div className="webhook-deliveries__state">
+          <Banner tone="danger" icon={<Icon name="alert" />}>
+            {t('loadError')}
+          </Banner>
+        </div>
       ) : rows.length === 0 ? (
-        <p className="api-tokens__empty">{filtered ? t('emptyFiltered') : t('empty')}</p>
-      ) : desktop ? (
-        <div className="api-tokens__scroll">
-          <table className="data-table data-table--compact webhooks__table webhook-deliveries__table">
-            <thead>
-              <tr>
-                <th>{t('table.status')}</th>
-                <th>{t('table.event')}</th>
-                <th>{t('table.http')}</th>
-                <th>{t('table.duration')}</th>
-                <th>{t('table.attempts')}</th>
-                <th>{t('table.nextAttempt')}</th>
-                <th>{t('table.time')}</th>
-                <th className="text-right">
-                  <span className="oe-sr-only">{t('table.details')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((delivery) => {
-                const error = errorLabel(delivery.error);
-                return (
-                  <tr
-                    key={delivery.id}
-                    data-delivery-id={delivery.id}
-                    className="webhook-deliveries__row"
-                    onClick={() => showDetails(delivery)}
-                  >
-                    <td>
-                      <DeliveryStatusPill status={delivery.status} />
-                    </td>
-                    <td className="webhook-deliveries__event">
-                      <EventTypeCode type={delivery.eventType} label={eventLabel(delivery.eventType)} />
-                      {delivery.manual && <span className="webhook-muted"> · {t('manual')}</span>}
-                      {error && <span className="webhook-deliveries__error">{error}</span>}
-                    </td>
-                    <td className="webhook-num">{delivery.responseStatus ?? '—'}</td>
-                    <td className="webhook-num">{durationLabel(delivery.durationMs)}</td>
-                    <td className="webhook-num">
-                      {t('attempts', { attempts: delivery.attempts, max: delivery.maxAttempts })}
-                    </td>
-                    <td className="webhook-num">{formatDateTime(delivery.nextAttemptAt)}</td>
-                    <td className="webhook-num">{formatDateTime(delivery.createdAt)}</td>
-                    <td className="text-right">
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--icon btn--sm"
-                        aria-label={detailsLabel(delivery)}
-                        title={t('table.details')}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showDetails(delivery);
-                        }}
-                      >
-                        <Icon name="chevron-right" size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <p className="api-tokens__empty webhook-deliveries__state">{filtered ? t('emptyFiltered') : t('empty')}</p>
       ) : (
-        <ul className="api-tokens__rows">
-          {rows.map((delivery) => {
-            const error = errorLabel(delivery.error);
-            return (
-              <li key={delivery.id} data-delivery-id={delivery.id}>
-                <button
-                  type="button"
-                  className="webhook-delivery-row"
-                  aria-label={detailsLabel(delivery)}
-                  onClick={() => showDetails(delivery)}
-                >
-                  <span className="webhook-delivery-row__head">
-                    <DeliveryStatusPill status={delivery.status} />
-                    <EventTypeCode type={delivery.eventType} label={eventLabel(delivery.eventType)} />
-                    <Icon name="chevron-right" size={16} className="webhook-delivery-row__chevron" />
-                  </span>
-                  <span className="api-token-row__meta">
-                    <span>{formatDateTime(delivery.createdAt)}</span>
-                    {delivery.responseStatus !== null && <span>HTTP {delivery.responseStatus}</span>}
-                    {delivery.durationMs !== null && <span>{durationLabel(delivery.durationMs)}</span>}
-                    <span>
-                      {t('table.attempts')} {t('attempts', { attempts: delivery.attempts, max: delivery.maxAttempts })}
-                    </span>
-                    {delivery.nextAttemptAt && (
-                      <span>
-                        {t('table.nextAttempt')}: {formatDateTime(delivery.nextAttemptAt)}
-                      </span>
-                    )}
-                  </span>
-                  {error && <span className="webhook-deliveries__error">{error}</span>}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {meta && rows.length > 0 && (
-        <div className="webhook-pager">
-          <span className="api-tokens__count">{t('count', { count: meta.total })}</span>
-          {meta.totalPages > 1 && (
-            <div className="webhook-pager__nav">
-              <button
-                type="button"
-                className="btn btn--ghost btn--sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={!meta.hasPrev}
-              >
-                {t('prev')}
-              </button>
-              <span className="api-tokens__count">
-                {t('pageOf', { page: meta.page, totalPages: meta.totalPages })}
-              </span>
-              <button
-                type="button"
-                className="btn btn--ghost btn--sm"
-                onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                disabled={!meta.hasNext}
-              >
-                {t('next')}
-              </button>
-            </div>
-          )}
-        </div>
+        <AdminTable
+          className="webhook-deliveries__table"
+          caption={t('title')}
+          rows={rows}
+          rowKey="id"
+          columns={columns}
+          actions={rowActions}
+          onRowClick={showDetails}
+          loading={deliveries.isPlaceholderData && deliveries.isFetching}
+          footer={
+            meta && meta.totalPages > 1 ? (
+              <AdminPager
+                page={meta.page}
+                pageSize={WEBHOOK_DELIVERIES_PAGE_SIZE}
+                total={meta.total}
+                onChange={(next) => setPage(next)}
+              />
+            ) : undefined
+          }
+        />
       )}
 
       {selected && (
