@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import '@/styles/api-tokens.css';
-import { Banner, Icon, Skeleton } from '@openeos/ui';
+import '@/styles/admin-table-wave3.css';
+import { Banner, Icon, Skeleton, type DataColumn, type RowAction } from '@openeos/ui';
+
+import { AdminTable, CellMain } from '@/components/shared/admin-table';
 
 import { toast } from '@/components/shared/toast';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
-import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useApiTokens, useRevokeApiToken } from '@/hooks/use-api-tokens';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -49,9 +51,6 @@ export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?:
   const { currentOrganization } = useAuthStore();
   const { isAdmin } = usePermissions();
   const { formatDate } = useLocaleFormat();
-  /* Ab Tablet-Breite die dichte Tabelle, darunter kompakte Zeilen — nichts
-     soll seitlich scrollen. */
-  const desktop = useBreakpoint('md');
   const organizationId = currentOrganization?.organizationId ?? '';
 
   const tokens = useApiTokens(organizationId || undefined, isAdmin);
@@ -75,6 +74,79 @@ export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?:
   const sorted = sortApiTokens(list);
   const activeCount = countActiveApiTokens(list);
   const limitReached = apiTokenLimitReached(list);
+
+  const columns: DataColumn<ApiToken>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (token) => (
+        <CellMain
+          title={token.name}
+          titleText={token.name}
+          sub={
+            <span className="api-token__prefix" title={t('prefixTitle')}>
+              {apiTokenPreview(token.tokenPrefix)}
+            </span>
+          }
+        />
+      ),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (token) => <StatusBadge status={apiTokenStatus(token)} />,
+    },
+    {
+      id: 'scopes',
+      header: t('table.scopes'),
+      mobile: 'meta',
+      className: 'api-tokens-list__scopes',
+      cell: (token) => <ScopeChips scopes={token.scopes} />,
+    },
+    {
+      id: 'created',
+      header: t('table.created'),
+      priority: 3,
+      cell: (token) => (
+        <span className="api-token__created">
+          <span>{formatDate(token.createdAt)}</span>
+          <small>{creatorName(token, t('meta.unknownUser'))}</small>
+        </span>
+      ),
+    },
+    {
+      id: 'lastUsed',
+      header: t('table.lastUsed'),
+      mobile: 'meta',
+      className: 'api-token__date',
+      cell: (token) => (
+        <>
+          {/* Telefon: ohne Spaltenkopf braucht das Datum eine Beschriftung. */}
+          <span className="api-tokens-list__phone-label">{t('table.lastUsed')}: </span>
+          {token.lastUsedAt ? formatDate(token.lastUsedAt) : t('meta.never')}
+        </>
+      ),
+    },
+    {
+      id: 'expires',
+      header: t('table.expires'),
+      className: 'api-token__date',
+      cell: (token) => (token.expiresAt ? formatDate(token.expiresAt) : t('meta.never')),
+    },
+  ];
+
+  const rowActions = (token: ApiToken): RowAction[] => [
+    {
+      id: 'revoke',
+      label: t('revokeTitle', { name: token.name }),
+      icon: 'ban',
+      danger: true,
+      hidden: apiTokenStatus(token) !== 'active',
+      onClick: () => setRevokeTarget(token),
+    },
+  ];
 
   let body: React.ReactNode;
   if (!isAdmin) {
@@ -117,108 +189,17 @@ export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?:
 
         {list.length === 0 ? (
           <p className="api-tokens__empty">{t('empty')}</p>
-        ) : desktop ? (
-          <div className="api-tokens__scroll">
-            <table className="data-table data-table--compact api-tokens__table">
-              <thead>
-                <tr>
-                  <th>{t('table.name')}</th>
-                  <th>{t('table.key')}</th>
-                  <th>{t('table.scopes')}</th>
-                  <th>{t('table.created')}</th>
-                  <th>{t('table.lastUsed')}</th>
-                  <th>{t('table.expires')}</th>
-                  <th className="text-right">
-                    <span className="oe-sr-only">{t('table.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map((token) => {
-                  const status = apiTokenStatus(token);
-                  return (
-                    <tr
-                      key={token.id}
-                      className={status === 'active' ? undefined : 'api-token--inactive'}
-                      data-status={status}
-                    >
-                      <td>
-                        <span className="api-token__stack">
-                          <span className="api-token__title">
-                            <span className="api-token__name">{token.name}</span>
-                            <StatusBadge status={status} />
-                          </span>
-                          {/* Unter 1024px rückt der Schlüssel unter den Namen,
-                              die eigene Spalte verschwindet (CSS). */}
-                          <span className="api-token__prefix api-token__prefix--sub" title={t('prefixTitle')}>
-                            {apiTokenPreview(token.tokenPrefix)}
-                          </span>
-                        </span>
-                      </td>
-                      <td className="api-token__prefix api-token__prefix--col" title={t('prefixTitle')}>
-                        {apiTokenPreview(token.tokenPrefix)}
-                      </td>
-                      <td className="api-token__scopes-cell">
-                        <ScopeChips scopes={token.scopes} />
-                      </td>
-                      <td>
-                        <span className="api-token__created">
-                          <span>{formatDate(token.createdAt)}</span>
-                          <small>{creatorName(token, t('meta.unknownUser'))}</small>
-                        </span>
-                      </td>
-                      <td className="api-token__date">
-                        {token.lastUsedAt ? formatDate(token.lastUsedAt) : t('meta.never')}
-                      </td>
-                      <td className="api-token__date">
-                        {token.expiresAt ? formatDate(token.expiresAt) : t('meta.never')}
-                      </td>
-                      <td className="text-right">
-                        {status === 'active' && (
-                          <RevokeButton label={t('revokeTitle', { name: token.name })} onClick={() => setRevokeTarget(token)} />
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
         ) : (
-          <ul className="api-tokens__rows">
-            {sorted.map((token) => {
-              const status = apiTokenStatus(token);
-              return (
-                <li
-                  key={token.id}
-                  className={`api-token-row${status === 'active' ? '' : ' api-token--inactive'}`}
-                  data-status={status}
-                >
-                  <div className="api-token-row__main">
-                    <div className="api-token-row__head">
-                      <span className="api-token__name">{token.name}</span>
-                      <StatusBadge status={status} />
-                    </div>
-                    <div className="api-token-row__meta">
-                      <span className="api-token__prefix" title={t('prefixTitle')}>
-                        {apiTokenPreview(token.tokenPrefix)}
-                      </span>
-                      <ScopeChips scopes={token.scopes} />
-                      <span className="api-token-row__used">
-                        {t('table.lastUsed')}:{' '}
-                        {token.lastUsedAt ? formatDate(token.lastUsedAt) : t('meta.never')}
-                      </span>
-                    </div>
-                  </div>
-                  {status === 'active' && (
-                    <div className="api-token-row__actions">
-                      <RevokeButton label={t('revokeTitle', { name: token.name })} onClick={() => setRevokeTarget(token)} />
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          <AdminTable
+            flush={false}
+            className="api-tokens-list"
+            caption={t('title')}
+            rows={sorted}
+            rowKey="id"
+            columns={columns}
+            actions={rowActions}
+            rowClassName={(token) => (apiTokenStatus(token) === 'active' ? undefined : 'admin-dt__row--muted')}
+          />
         )}
       </>
     );
@@ -279,21 +260,6 @@ export function OrganizationAccessSection({ onShowWebhooks }: { onShowWebhooks?:
 function creatorName(token: ApiToken, fallback: string): string {
   if (!token.createdBy) return fallback;
   return `${token.createdBy.firstName} ${token.createdBy.lastName}`.trim();
-}
-
-/** Nur das Symbol; der Name steht im Tooltip und für Screenreader. */
-function RevokeButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      className="btn btn--ghost btn--icon btn--sm api-token__revoke"
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-    >
-      <Icon name="ban" size={16} />
-    </button>
-  );
 }
 
 function ScopeChips({ scopes }: { scopes: ApiTokenScope[] }) {
