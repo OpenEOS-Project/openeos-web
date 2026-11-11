@@ -185,6 +185,11 @@ export interface Organization {
   tse?: import('@/types/tse').OrganizationTseSummary | null;
   /** Bargeld an den Kassen erlaubt (vom Server abgeleitet). */
   cashAllowed?: boolean;
+  /**
+   * Wertmarken erlaubt (vom Server abgeleitet): nur „Alle Funktionen“, in
+   * Deutschland nur mit aktiver Cloud-TSE.
+   */
+  tokensAllowed?: boolean;
   /** Preise sichtbar (alles außer „Nur Bons“). */
   pricesVisible?: boolean;
   createdAt: string;

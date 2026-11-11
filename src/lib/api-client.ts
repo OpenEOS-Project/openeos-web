@@ -788,7 +788,10 @@ export const tokensApi = {
     );
   },
 
-  transactions: (organizationId: string, params: { eventId?: string; kind?: 'sale' | 'buyback'; limit?: number } = {}) => {
+  transactions: (
+    organizationId: string,
+    params: { eventId?: string; kind?: 'sale' | 'buyback'; limit?: number; startDate?: string; endDate?: string } = {},
+  ) => {
     const query = new URLSearchParams(
       Object.entries(params)
         .filter(([, v]) => v !== undefined && v !== '')

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Icon } from '@openeos/ui';
 
 import { downloadCsv } from '@/app/[locale]/(dashboard)/reports/components/csv-export';
@@ -9,6 +9,7 @@ import { ListLoading } from '@/components/shared/list-states';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useLiveCashAudit } from '@/hooks/use-waiters';
+import { formatTokenCount } from '@/lib/token-admin';
 import { canPayOutCardTips, liveAuditCsvRows, liveAuditDrawers } from '@/lib/waiters';
 import type { LiveCashAuditRow } from '@/types/waiter';
 
@@ -31,6 +32,8 @@ interface WaiterLiveAuditProps {
  */
 export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProps) {
   const t = useTranslations('waiterSettlement.live');
+  const tTokens = useTranslations('waiterSettlement.tokens');
+  const locale = useLocale();
   const apiErrorMessage = useApiErrorMessage();
   const { formatCurrency, formatDateTime } = useLocaleFormat();
   const audit = useLiveCashAudit(organizationId, eventId);
@@ -57,6 +60,28 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
             {d.deviceName ?? t('noDevice')}: {formatCurrency(d.amount)}
           </span>
         ))}
+      </span>
+    );
+  };
+
+  // Wertmarken: angenommene Marken (abgeben wie Bargeld, nicht im Soll bar),
+  // dazu verkauft bzw. zurückgetauscht. Spalte nur, wenn jemand Marken hat.
+  const showTokens = !!data?.rows.some((row) => row.tokens);
+  const tokensCell = (row: LiveCashAuditRow) => {
+    const tokens = row.tokens;
+    if (!tokens) return '—';
+    const types = tokens.receivedByType
+      .map((type) => tTokens('typeRow', { count: formatTokenCount(type.count, locale), name: type.name }))
+      .join(', ');
+    return (
+      <span className="live-audit__drawers" title={types || undefined}>
+        <span>{formatCurrency(tokens.received.amount)}</span>
+        {tokens.sold.count > 0 && (
+          <small>{`${tTokens('sold')}: ${formatCurrency(tokens.sold.amount)}`}</small>
+        )}
+        {tokens.boughtBack.count > 0 && (
+          <small>{`${tTokens('boughtBack')}: ${formatCurrency(-tokens.boughtBack.amount)}`}</small>
+        )}
       </span>
     );
   };
@@ -106,6 +131,7 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
                 <th>{t('col.drawers')}</th>
                 <th className="text-right">{t('col.card')}</th>
                 <th className="text-right">{t('col.tips')}</th>
+                {showTokens && <th className="text-right">{t('col.tokens')}</th>}
                 <th className="text-right">{t('col.openTables')}</th>
                 <th className="text-right">{t('col.openCardTips')}</th>
                 <th>{t('col.lastSettlement')}</th>
@@ -129,6 +155,7 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
                   <td>{drawers(row)}</td>
                   <td className="mono text-right">{money(row.payments?.card.amount)}</td>
                   <td className="mono text-right">{money(row.tips)}</td>
+                  {showTokens && <td className="mono text-right">{tokensCell(row)}</td>}
                   <td className="mono text-right">{row.openTables}</td>
                   <td className="mono text-right">{cardTips(row)}</td>
                   <td style={{ fontSize: 13 }}>
@@ -144,6 +171,7 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
                 <td />
                 <td />
                 <td className="mono text-right">{formatCurrency(data.total.tips)}</td>
+                {showTokens && <td />}
                 <td />
                 <td />
                 <td />
@@ -172,6 +200,12 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
                 <dd>{money(row.payments?.card.amount)}</dd>
                 <dt>{t('col.tips')}</dt>
                 <dd>{money(row.tips)}</dd>
+                {row.tokens && (
+                  <>
+                    <dt>{t('col.tokens')}</dt>
+                    <dd>{tokensCell(row)}</dd>
+                  </>
+                )}
                 <dt>{t('col.openTables')}</dt>
                 <dd>{row.openTables}</dd>
                 {row.openCardTips !== null && (
