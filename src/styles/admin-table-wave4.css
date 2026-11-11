@@ -153,3 +153,39 @@
     background: none;
   }
 }
+
+/* Super-Admin · Löschprotokoll */
+.landing .admin-retention__filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  min-width: 0;
+}
+.landing .admin-retention__filter .oe-field,
+.landing .admin-retention__filter .oe-select-wrap {
+  min-width: 200px;
+}
+.admin-retention__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.landing .admin-retention__counts {
+  font-size: 12px;
+}
+.admin-retention__more {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+@media (max-width: 767px) {
+  .landing .admin-retention__filter .oe-field,
+  .landing .admin-retention__filter .oe-select-wrap {
+    min-width: 0;
+    flex: 1;
+  }
+  .landing .admin-retention__counts > span + span::before {
+    content: ', ';
+  }
+}

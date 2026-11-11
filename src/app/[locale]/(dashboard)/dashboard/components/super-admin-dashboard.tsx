@@ -1,10 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn } from '@openeos/ui';
 
 import { useAdminStats, useAdminRevenueStats, useAdminRecentActivity } from '@/hooks/use-admin';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { AdminTable, CellNone, CellText } from '@/components/shared/admin-table';
+import type { AdminAuditLog } from '@/types/admin';
+import '@/styles/admin-table-wave4.css';
 
 export function SuperAdminDashboard() {
   const t = useTranslations('dashboard.superAdmin');
@@ -14,6 +17,46 @@ export function SuperAdminDashboard() {
   const { data: auditLogs, isLoading: isLoadingLogs } = useAdminRecentActivity();
 
   const isLoading = isLoadingStats || isLoadingRevenue;
+
+  const actionLabel = (log: AdminAuditLog) =>
+    t.has(`actions.${log.action}` as Parameters<typeof t.has>[0])
+      ? t(`actions.${log.action}` as Parameters<typeof t>[0])
+      : t('actions.unknown');
+
+  // Nur lesen: Aktion als Titel, auf dem Telefon Person, Organisation und Zeit in Zeile 2.
+  const columns: DataColumn<AdminAuditLog>[] = [
+    {
+      id: 'action',
+      header: t('recentActivity.columns.action'),
+      mobile: 'title',
+      cell: (log) => <CellText title={actionLabel(log)}>{actionLabel(log)}</CellText>,
+    },
+    {
+      id: 'admin',
+      header: t('recentActivity.columns.admin'),
+      mobile: 'meta',
+      className: 'wave4-mono',
+      cell: (log) => (log.adminUser ? `${log.adminUser.firstName} ${log.adminUser.lastName}` : <CellNone />),
+    },
+    {
+      id: 'organization',
+      header: t('recentActivity.columns.organization'),
+      mobile: 'meta',
+      cell: (log) =>
+        log.organization?.name ? (
+          <CellText title={log.organization.name}>{log.organization.name}</CellText>
+        ) : (
+          <CellNone />
+        ),
+    },
+    {
+      id: 'date',
+      header: t('recentActivity.columns.date'),
+      mobile: 'meta',
+      className: 'wave4-date',
+      cell: (log) => formatDateTime(log.createdAt),
+    },
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -94,70 +137,12 @@ export function SuperAdminDashboard() {
             <p className="empty-state__sub">{t('recentActivity.empty.description')}</p>
           </div>
         ) : (
-          <>
-            {/* Mobile: Card Layout */}
-            <div
-              style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}
-              className="md:hidden"
-            >
-              {auditLogs.map((log) => (
-                <div
-                  key={log.id}
-                  style={{
-                    padding: '12px 20px',
-                    borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                  }}
-                >
-                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                    {t.has(`actions.${log.action}` as Parameters<typeof t.has>[0])
-                      ? t(`actions.${log.action}` as Parameters<typeof t>[0])
-                      : t('actions.unknown')}
-                  </p>
-                  <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: '2px 12px', fontSize: 12, color: 'var(--ink-faint)' }}>
-                    {log.adminUser && (
-                      <span>{log.adminUser.firstName} {log.adminUser.lastName}</span>
-                    )}
-                    {log.organization?.name && (
-                      <span>{log.organization.name}</span>
-                    )}
-                    <span>{formatDateTime(log.createdAt)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop: Table Layout */}
-            <div style={{ overflowX: 'auto' }} className="hidden md:block">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>{t('recentActivity.columns.action')}</th>
-                    <th>{t('recentActivity.columns.admin')}</th>
-                    <th>{t('recentActivity.columns.organization')}</th>
-                    <th>{t('recentActivity.columns.date')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {auditLogs.map((log) => (
-                    <tr key={log.id}>
-                      <td>
-                        {t.has(`actions.${log.action}` as Parameters<typeof t.has>[0])
-                          ? t(`actions.${log.action}` as Parameters<typeof t>[0])
-                          : t('actions.unknown')}
-                      </td>
-                      <td className="mono">
-                        {log.adminUser
-                          ? `${log.adminUser.firstName} ${log.adminUser.lastName}`
-                          : '—'}
-                      </td>
-                      <td>{log.organization?.name ?? '—'}</td>
-                      <td className="mono">{formatDateTime(log.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
+          <AdminTable
+            caption={t('recentActivity.title')}
+            rows={auditLogs}
+            rowKey="id"
+            columns={columns}
+          />
         )}
       </div>
     </div>

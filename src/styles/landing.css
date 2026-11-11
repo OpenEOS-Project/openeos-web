@@ -4774,8 +4774,10 @@ body:has(.landing) {
 .landing .feedback-admin__item {
   display: grid;
   gap: 8px;
-  padding: 16px 0;
+  /* Die Karte hat einen Kopf und damit selbst keinen Innenabstand. */
+  padding: 16px 20px;
   border-top: 1px solid var(--oe-line);
+  min-width: 0;
 }
 .landing .feedback-admin__item:first-child {
   border-top: 0;
@@ -4814,6 +4816,8 @@ body:has(.landing) {
   margin: 0;
   line-height: 1.6;
   white-space: pre-wrap;
+  /* Lange Links und Adressen brechen um, statt die Karte zu sprengen. */
+  overflow-wrap: anywhere;
 }
 .landing .feedback-admin__foot {
   display: flex;
@@ -4825,6 +4829,13 @@ body:has(.landing) {
 .landing .feedback-admin__from {
   font-size: 13px;
   color: var(--mute);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .landing .feedback-admin__item {
+    padding: 14px 16px;
+  }
 }
 .landing .feedback-admin__from:hover {
   color: var(--ink);
