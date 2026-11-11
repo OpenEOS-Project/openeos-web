@@ -3,9 +3,6 @@
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { Icon } from '@openeos/ui';
-import type { IconName } from '@openeos/ui';
-
 import { toast } from '@/components/shared/toast';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
@@ -89,32 +86,4 @@ export function useWebhookActions(organizationId: string, { onDeleted }: { onDel
     testPendingId: test.isPending ? test.variables : undefined,
     dialogs,
   };
-}
-
-/** Symbolknopf; der Name steht im Tooltip und für Screenreader. */
-export function WebhookIconButton({
-  icon,
-  label,
-  onClick,
-  danger,
-  disabled,
-}: {
-  icon: IconName;
-  label: string;
-  onClick: () => void;
-  danger?: boolean;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      className={`btn btn--ghost btn--icon btn--sm${danger ? ' webhook-action--danger' : ''}`}
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      <Icon name={icon} size={16} />
-    </button>
-  );
 }

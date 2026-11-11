@@ -4,14 +4,16 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import '@/styles/api-tokens.css';
 import '@/styles/webhooks.css';
-import { Banner, Icon, Skeleton } from '@openeos/ui';
+import '@/styles/admin-table-wave3.css';
+import { Banner, Icon, Skeleton, type DataColumn, type RowAction } from '@openeos/ui';
 
-import { useBreakpoint } from '@/hooks/use-breakpoint';
+import { AdminTable, CellMain } from '@/components/shared/admin-table';
+
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useWebhookInfo, useWebhooks } from '@/hooks/use-webhooks';
 
-import { Link } from '@/i18n/routing';
+import { getPathname, Link, useRouter } from '@/i18n/routing';
 
 import { DEFAULT_MAX_WEBHOOK_ENDPOINTS, webhookDocsUrl, webhookLimitReached } from '@/lib/webhooks';
 
@@ -21,7 +23,7 @@ import type { WebhookEndpoint } from '@/types/webhook';
 
 import { SettingsSectionHead } from './settings-section-head';
 import { OrganizationIdField } from './organization-id-field';
-import { useWebhookActions, WebhookIconButton } from './webhook-actions';
+import { useWebhookActions } from './webhook-actions';
 import { WebhookStatusPill } from './webhook-ui';
 
 /**
@@ -30,14 +32,14 @@ import { WebhookStatusPill } from './webhook-ui';
  * einer eigenen Seite (/settings/webhooks/[id]). Wie bei den Zugängen
  * sehen nur Admins die Liste; Mitglieder bekommen den Hinweis.
  */
+const deliveriesHref = (endpoint: WebhookEndpoint) => `/settings/webhooks/${endpoint.id}`;
+
 export function OrganizationWebhooksSection() {
   const t = useTranslations('settings.organizationWebhooks');
   const locale = useLocale();
   const { currentOrganization } = useAuthStore();
   const { isAdmin } = usePermissions();
-  /* Ab Tablet-Breite die Tabelle, darunter kompakte Zeilen — nichts soll
-     seitlich scrollen. */
-  const desktop = useBreakpoint('md');
+  const router = useRouter();
   const organizationId = currentOrganization?.organizationId ?? '';
 
   const info = useWebhookInfo(organizationId || undefined, isAdmin);
@@ -50,6 +52,84 @@ export function OrganizationWebhooksSection() {
   const maxEndpoints = info.data?.maxEndpoints ?? DEFAULT_MAX_WEBHOOK_ENDPOINTS;
   const limitReached = webhookLimitReached(list.length, maxEndpoints);
   const serverDisabled = info.data?.enabled === false;
+
+  const label = (endpoint: WebhookEndpoint, action: string) =>
+    t('actionLabel', { action: t(`actions.${action}`), url: endpoint.url });
+
+  const columns: DataColumn<WebhookEndpoint>[] = [
+    {
+      id: 'url',
+      header: t('table.url'),
+      mobile: 'title',
+      cell: (endpoint) => (
+        <CellMain
+          title={
+            <Link href={deliveriesHref(endpoint)} className="webhook-title__url">
+              {endpoint.url}
+            </Link>
+          }
+          titleText={endpoint.url}
+          sub={
+            <span className={endpoint.description ? undefined : 'webhook-title__none'}>
+              {endpoint.description || t('noDescription')}
+            </span>
+          }
+          subText={endpoint.description || undefined}
+        />
+      ),
+    },
+    {
+      id: 'events',
+      header: t('table.events'),
+      mobile: 'meta',
+      className: 'webhooks__nowrap',
+      cell: (endpoint) => t('eventCount', { count: endpoint.eventTypes.length }),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (endpoint) => <WebhookStatusPill endpoint={endpoint} />,
+    },
+    {
+      id: 'lastDelivery',
+      header: t('table.lastDelivery'),
+      mobile: 'meta',
+      className: 'webhooks__nowrap',
+      cell: (endpoint) => <LastDelivery endpoint={endpoint} />,
+    },
+  ];
+
+  const rowActions = (endpoint: WebhookEndpoint): RowAction[] => [
+    {
+      id: 'deliveries',
+      label: label(endpoint, 'deliveries'),
+      icon: 'history',
+      // Ein echter Link (neuer Tab, Adresse kopieren), geöffnet aber im Client.
+      href: getPathname({ href: deliveriesHref(endpoint), locale }),
+      onClick: (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        router.push(deliveriesHref(endpoint));
+      },
+    },
+    { id: 'edit', label: label(endpoint, 'edit'), icon: 'edit', onClick: () => actions.openEdit(endpoint) },
+    {
+      id: 'test',
+      label: label(endpoint, 'test'),
+      icon: 'send',
+      onClick: () => actions.sendTest(endpoint),
+      disabled: serverDisabled || actions.testPendingId === endpoint.id,
+    },
+    { id: 'rotate', label: label(endpoint, 'rotate'), icon: 'refresh', onClick: () => actions.openRotate(endpoint) },
+    {
+      id: 'delete',
+      label: label(endpoint, 'delete'),
+      icon: 'trash',
+      danger: true,
+      onClick: () => actions.openDelete(endpoint),
+    },
+  ];
 
   let body: React.ReactNode;
   if (!isAdmin) {
@@ -99,59 +179,19 @@ export function OrganizationWebhooksSection() {
             <p style={{ margin: 0 }}>{t('empty')}</p>
             <p style={{ margin: '4px 0 0' }}>{t('emptyHint')}</p>
           </div>
-        ) : desktop ? (
-          <div className="api-tokens__scroll">
-            <table className="data-table data-table--compact webhooks__table">
-              <thead>
-                <tr>
-                  <th>{t('table.url')}</th>
-                  <th>{t('table.events')}</th>
-                  <th>{t('table.status')}</th>
-                  <th>{t('table.lastDelivery')}</th>
-                  <th className="text-right">
-                    <span className="oe-sr-only">{t('table.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map((endpoint) => (
-                  <tr key={endpoint.id} data-webhook-id={endpoint.id}>
-                    <td className="webhooks__url-cell">
-                      <EndpointTitle endpoint={endpoint} />
-                    </td>
-                    <td className="webhooks__nowrap">{t('eventCount', { count: endpoint.eventTypes.length })}</td>
-                    <td>
-                      <WebhookStatusPill endpoint={endpoint} />
-                    </td>
-                    <td className="webhooks__nowrap">
-                      <LastDelivery endpoint={endpoint} />
-                    </td>
-                    <td className="text-right">
-                      <EndpointActions endpoint={endpoint} actions={actions} serverDisabled={serverDisabled} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         ) : (
-          <ul className="api-tokens__rows">
-            {list.map((endpoint) => (
-              <li key={endpoint.id} className="webhook-row" data-webhook-id={endpoint.id}>
-                <EndpointTitle endpoint={endpoint} />
-                <div className="api-token-row__meta">
-                  <WebhookStatusPill endpoint={endpoint} />
-                  <span>{t('eventCount', { count: endpoint.eventTypes.length })}</span>
-                  <span>
-                    {t('table.lastDelivery')}: <LastDelivery endpoint={endpoint} />
-                  </span>
-                </div>
-                <div className="webhook-row__actions">
-                  <EndpointActions endpoint={endpoint} actions={actions} serverDisabled={serverDisabled} />
-                </div>
-              </li>
-            ))}
-          </ul>
+          <AdminTable
+            flush={false}
+            className="webhooks-list"
+            caption={t('title')}
+            rows={list}
+            rowKey="id"
+            columns={columns}
+            actions={rowActions}
+            // Zustellungen, Bearbeiten und Test in der Zeile; Secret und Löschen im Menü.
+            inlineActions={3}
+            onRowClick={(endpoint) => router.push(deliveriesHref(endpoint))}
+          />
         )}
       </>
     );
@@ -179,20 +219,6 @@ export function OrganizationWebhooksSection() {
   );
 }
 
-function EndpointTitle({ endpoint }: { endpoint: WebhookEndpoint }) {
-  const t = useTranslations('settings.organizationWebhooks');
-  return (
-    <span className="webhook-title">
-      <Link href={`/settings/webhooks/${endpoint.id}`} className="webhook-title__url" title={endpoint.url}>
-        {endpoint.url}
-      </Link>
-      <span className={`webhook-title__desc${endpoint.description ? '' : ' is-empty'}`}>
-        {endpoint.description || t('noDescription')}
-      </span>
-    </span>
-  );
-}
-
 function LastDelivery({ endpoint }: { endpoint: WebhookEndpoint }) {
   const t = useTranslations('settings.organizationWebhooks.lastDelivery');
   const { formatDateTime } = useLocaleFormat();
@@ -208,40 +234,6 @@ function LastDelivery({ endpoint }: { endpoint: WebhookEndpoint }) {
       {endpoint.lastDeliveryStatus && (
         <span className="webhook-muted">· {t(endpoint.lastDeliveryStatus)}</span>
       )}
-    </span>
-  );
-}
-
-function EndpointActions({
-  endpoint,
-  actions,
-  serverDisabled,
-}: {
-  endpoint: WebhookEndpoint;
-  actions: ReturnType<typeof useWebhookActions>;
-  serverDisabled: boolean;
-}) {
-  const t = useTranslations('settings.organizationWebhooks');
-  const label = (action: string) => t('actionLabel', { action: t(`actions.${action}`), url: endpoint.url });
-  return (
-    <span className="webhook-actions">
-      <Link
-        href={`/settings/webhooks/${endpoint.id}`}
-        className="btn btn--ghost btn--icon btn--sm"
-        title={label('deliveries')}
-        aria-label={label('deliveries')}
-      >
-        <Icon name="history" size={16} />
-      </Link>
-      <WebhookIconButton
-        icon="send"
-        label={label('test')}
-        onClick={() => actions.sendTest(endpoint)}
-        disabled={serverDisabled || actions.testPendingId === endpoint.id}
-      />
-      <WebhookIconButton icon="edit" label={label('edit')} onClick={() => actions.openEdit(endpoint)} />
-      <WebhookIconButton icon="refresh" label={label('rotate')} onClick={() => actions.openRotate(endpoint)} />
-      <WebhookIconButton icon="trash" label={label('delete')} onClick={() => actions.openDelete(endpoint)} danger />
     </span>
   );
 }
