@@ -200,28 +200,26 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
     <div className="app-card app-card--flat">
       <ListHead
         actions={
-          <>
-            <span
-              data-testid="member-seats"
-              className={inviteBlocked ? 'members-list__seats is-full' : 'members-list__seats'}
-              title={seatsHint}
-            >
-              {seatsLabel}
-            </span>
-            <ListAction
-              variant="primary"
-              icon="plus"
-              label={addLabel}
-              onClick={onInviteClick}
-              disabled={inviteBlocked}
-              aria-disabled={inviteBlocked || undefined}
-            />
-          </>
+          <ListAction
+            variant="primary"
+            icon="plus"
+            label={addLabel}
+            onClick={onInviteClick}
+            disabled={inviteBlocked}
+            aria-disabled={inviteBlocked || undefined}
+          />
         }
       >
         {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
-            steht wie bei den Geraeten nur die Anzahl. */}
+            stehen wie bei den Geraeten die Anzahl und die belegten Plätze. */}
         <ListCount>{t('count', { count: members.length })}</ListCount>
+        <span
+          data-testid="member-seats"
+          className={inviteBlocked ? 'members-list__seats is-full' : 'members-list__seats'}
+          title={seatsHint}
+        >
+          {seatsLabel}
+        </span>
       </ListHead>
       {inviteBlocked && (
         <p role="status" style={{ margin: '12px 20px', fontSize: 12, color: 'var(--mute)' }}>

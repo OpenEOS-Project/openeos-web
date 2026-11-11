@@ -187,7 +187,7 @@ export function WaitersContainer() {
     {
       id: 'pin',
       header: t('table.pin'),
-      mobile: 'meta',
+      mobile: 'hidden',
       cell: (waiter) =>
         waiter.hasPin ? (
           <span className="badge badge--success">{t('pin.set', { length: waiter.pinLength ?? 4 })}</span>

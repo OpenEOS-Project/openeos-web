@@ -55,4 +55,4 @@
 }
 
 /* Frist des Löschlaufs („wird am … anonymisiert“) */
-.waiters-due { display: block; margin-top: 4px; font-size: 11px; color: var(--mute); max-width: 14em; }
+.waiters-due { display: block; margin-top: 4px; font-size: 11px; color: var(--mute); white-space: nowrap; }

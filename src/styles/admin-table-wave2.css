@@ -18,9 +18,10 @@
 /* Telefon: Zelle als eigene, umbrechende Zeile unter Zeile 2 (Notizen,
    Zählungen) statt gekürzt zwischen den Punkten. */
 @media (max-width: 767px) {
-  .landing .admin-dt .oe-dt__tr .admin-dt__m-line {
+  .landing .admin-dt .oe-dt__tr .oe-dt__td.admin-dt__m-line {
     order: 5;
     flex: 1 1 100%;
+    max-width: none;
     white-space: normal;
     overflow-wrap: anywhere;
   }
@@ -116,9 +117,10 @@
   font-size: 10px;
 }
 .landing .members-list__seats {
+  display: block;
+  margin-top: 2px;
   font: 12px var(--oe-f-mono);
   color: var(--oe-mute);
-  white-space: nowrap;
 }
 .landing .members-list__seats.is-full {
   color: var(--oe-danger-ink, var(--oe-danger));

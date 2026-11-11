@@ -7,7 +7,7 @@ import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
 import { useOrganization } from '@/hooks/use-organizations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
-import { AdminTable, CellMain, ListAction, ListCount, ListHead } from '@/components/shared/admin-table';
+import { AdminTable, CellMain, CellNone, ListAction, ListCount, ListHead } from '@/components/shared/admin-table';
 import type { PfandType } from '@/types/pfand';
 
 interface PfandListProps {
@@ -72,8 +72,9 @@ export function PfandList({ organizationId, onCreateClick, onSettingsClick, onEd
       id: 'vatRate',
       header: t('table.vatRate'),
       num: true,
-      mobile: 'meta',
-      cell: (type) => (vatExempt ? '–' : `${Number(type.vatRate ?? 19)} %`),
+      // Ohne Umsatzsteuer steht dort nur „–“: auf dem Telefon weglassen.
+      mobile: vatExempt ? 'hidden' : 'meta',
+      cell: (type) => (vatExempt ? <CellNone /> : `${Number(type.vatRate ?? 19)} %`),
     },
     {
       id: 'status',
