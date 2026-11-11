@@ -39,6 +39,7 @@ export interface OperatingModeOrg {
   operatingModeSince?: string | null;
   tseActive?: boolean | null;
   cashAllowed?: boolean | null;
+  tokensAllowed?: boolean | null;
   pricesVisible?: boolean | null;
 }
 
@@ -58,6 +59,11 @@ export interface OperatingModeView {
   tseActive: boolean;
   /** Bargeld an der Kasse (Zahlung, Rückgeld, Kassenlade, Pfand bar). */
   cashAllowed: boolean;
+  /**
+   * Wertmarken verkaufen/annehmen: nur „Alle Funktionen“, in Deutschland
+   * immer mit aktiver Cloud-TSE (auch im Bestand).
+   */
+  tokensAllowed: boolean;
   /** Preise und Beträge anzeigen (alles außer „Nur Bons“). */
   pricesVisible: boolean;
   /** Zahlungen jeder Art (Karte, online, Trinkgeld, Rabatt, Pfand …). */
@@ -93,6 +99,14 @@ export function isCashAllowed(org: OperatingModeOrg | null | undefined): boolean
   return normalizedCountry(org) !== 'DE' || !!org.operatingModeLegacy || !!org.tseActive;
 }
 
+/** Wertmarken erlaubt? Wert der API, sonst dieselbe Regel wie dort. */
+export function isTokensAllowed(org: OperatingModeOrg | null | undefined): boolean {
+  if (!org) return false;
+  if (typeof org.tokensAllowed === 'boolean') return org.tokensAllowed;
+  if (getOperatingMode(org) !== 'full') return false;
+  return normalizedCountry(org) === 'DE' ? !!org.tseActive : isCashAllowed(org);
+}
+
 /** Preise sichtbar? Wert der API, sonst alles außer „Nur Bons“. */
 export function arePricesVisible(org: OperatingModeOrg | null | undefined): boolean {
   if (typeof org?.pricesVisible === 'boolean') return org.pricesVisible;
@@ -113,6 +127,7 @@ export function resolveOperatingMode(org: OperatingModeOrg | null | undefined): 
     country: normalizedCountry(org),
     tseActive: !!org?.tseActive,
     cashAllowed,
+    tokensAllowed: isTokensAllowed(org),
     pricesVisible: arePricesVisible(org),
     paymentsEnabled: mode !== 'orders_only',
     ordersOnly: mode === 'orders_only',

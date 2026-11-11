@@ -33,6 +33,11 @@ export interface VatReportRow {
   depositReturns: number;
   /** Trinkgeld an den Verein (TrinkgeldAG), anteilig je Satz (ältere API: fehlt). */
   tips?: number;
+  /**
+   * Einzweck-Wertmarken (§ 3 Abs. 14 UStG): Steuer beim Verkauf — verkauft
+   * − eingelöst + bei Storno zurückgegeben − zurückgetauscht (ältere API: fehlt).
+   */
+  singlePurposeTokens?: number;
   gross: number;
   tax: number;
   net: number;
@@ -45,6 +50,11 @@ export interface VatReport {
   total: Omit<VatReportRow, 'rate'>;
   /** Trinkgeld angestellter Bedienungen (TrinkgeldAN, nicht steuerbar), nachrichtlich. */
   employeeTips?: number;
+  /**
+   * Mehrzweck-Wertmarken (§ 3 Abs. 15 UStG), nachrichtlich: Verkauf und
+   * Rücktausch (negativ) sind nicht steuerbar (ältere API: fehlt).
+   */
+  multiPurposeTokens?: { sold: number; boughtBack: number };
 }
 
 /** GET reports/small-business: Umsatz in OpenEOS gegen die Grenzen des § 19 UStG. */

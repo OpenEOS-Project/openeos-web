@@ -41,7 +41,7 @@ export interface RefundFormState {
 }
 
 /** Was die Rückgabe auslöst: bar, SumUp-API, manuell (fremdes Gerät), Testmodus. */
-export type RefundMethodKey = 'cash' | 'sumup' | 'card' | 'test';
+export type RefundMethodKey = 'cash' | 'sumup' | 'card' | 'tokens' | 'test';
 
 export interface RefundFormView {
   /** Zahlungen, über die noch etwas erstattet werden kann. */
@@ -81,11 +81,20 @@ export interface RefundFormOptions {
   cashless?: boolean;
 }
 
-/** Zahlungen, über die noch etwas erstattet werden kann (bargeldlos: ohne Bar). */
+/**
+ * Noch erstattbar über eine Zahlung: Geld plus Wertmarken (die gehen als
+ * Marken zurück, nie als Geld).
+ */
+export function paymentRefundable(p: Pick<OrderDetailPayment, 'refundable' | 'tokenRefundable'>): number {
+  return round2(p.refundable + (p.tokenRefundable ?? 0));
+}
+
+/** Zahlungen, über die noch etwas erstattet werden kann (bargeldlos: ohne Bar und Marken). */
 function refundablePayments(order: OrderDetail, options: RefundFormOptions): OrderDetailPayment[] {
-  return order.payments.filter(
-    (p) => p.refundable > 0 && !(options.cashless && paymentKey(p.paymentMethod) === 'cash')
-  );
+  return order.payments
+    .filter((p) => paymentRefundable(p) > 0)
+    .filter((p) => !(options.cashless && ['cash', 'tokens'].includes(paymentKey(p.paymentMethod))))
+    .map((p) => ({ ...p, refundable: paymentRefundable(p) }));
 }
 
 /** „4,50“ → 4.5; leer oder ungültig → NaN. */

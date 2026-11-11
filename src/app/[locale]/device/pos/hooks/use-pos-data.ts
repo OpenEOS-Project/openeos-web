@@ -2,12 +2,15 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { deviceApi } from '@/lib/api-client';
+import { isTokensAllowed } from '@/lib/operating-mode';
+import type { TokenType } from '@/types/token';
 import type { Event } from '@/types/event';
 import type { PosProduct } from '../components/product-visual';
 
 /**
  * Stammdaten der Kasse: Organisation, aktive Veranstaltung, Kategorien und
- * Produkte (nur in der Bestellansicht), Rabatt-Bons und Pfandarten.
+ * Produkte (nur in der Bestellansicht), Rabatt-Bons, Pfandarten und
+ * Markentypen (Wertmarken).
  * Schlüssel wie bisher — Socket-Ereignisse invalidieren dieselben.
  */
 export function usePosData(eventId: string | null, inOrderView: boolean) {
@@ -42,6 +45,14 @@ export function usePosData(eventId: string | null, inOrderView: boolean) {
     queryFn: async () => (await deviceApi.getPfandTypes()).data,
   });
 
+  // Wertmarken: nur wo erlaubt (die API liefert sonst ohnehin nichts).
+  const tokensAllowed = isTokensAllowed(orgData?.data);
+  const { data: tokenTypes = [] } = useQuery({
+    queryKey: ['device-token-types', activeEvent?.id ?? null],
+    queryFn: async () => ((await deviceApi.getTokenTypes(activeEvent?.id)).data ?? []) as TokenType[],
+    enabled: tokensAllowed,
+  });
+
   return {
     orgName: orgData?.data?.name ?? null,
     orgSettings: orgData?.data?.settings,
@@ -54,5 +65,7 @@ export function usePosData(eventId: string | null, inOrderView: boolean) {
     productsLoading,
     vouchers,
     pfandTypes,
+    /** Aktive Markentypen (leer ohne Wertmarken). */
+    tokenTypes: tokensAllowed ? tokenTypes : [],
   };
 }

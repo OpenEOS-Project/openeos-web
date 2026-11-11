@@ -110,6 +110,10 @@ export interface CashSummary {
   pfandPayouts: number;
   /** Barauszahlung von Kartentrinkgeld an Arbeitnehmer (negativ); fehlt bei älteren APIs. */
   tipPayouts?: number;
+  /** Wertmarken bar verkauft (positiv); fehlt bei älteren APIs. */
+  tokenSales?: number;
+  /** Wertmarken-Rücktausch bar (negativ); fehlt bei älteren APIs. */
+  tokenBuybacks?: number;
   differences: number;
   /** Soll-Bestand. */
   expected: number;

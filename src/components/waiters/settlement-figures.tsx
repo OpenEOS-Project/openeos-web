@@ -1,9 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import '@/styles/settlements.css';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { formatTokenCount } from '@/lib/token-admin';
 import type { SettlementCount, SettlementTotals } from '@/types/waiter';
 
 interface SettlementFiguresProps {
@@ -21,6 +22,7 @@ interface SettlementFiguresProps {
  */
 export function SettlementFigures({ totals, cashCounted, difference }: SettlementFiguresProps) {
   const t = useTranslations('waiterSettlement');
+  const locale = useLocale();
   const { formatCurrency } = useLocaleFormat();
   const money = (value: number) => formatCurrency(value);
   const counted = (label: string, c: SettlementCount, negative = false) => (
@@ -33,6 +35,8 @@ export function SettlementFigures({ totals, cashCounted, difference }: Settlemen
   );
 
   const training = totals.training;
+  const tokens = totals.tokens;
+  const tokensReceived = !!tokens && Math.round(tokens.received.amount * 100) !== 0;
   const hasTraining = training.orders > 0 || training.payments > 0;
 
   return (
@@ -66,6 +70,41 @@ export function SettlementFigures({ totals, cashCounted, difference }: Settlemen
             {totals.refunds && counted(t('rows.refundsNonCash'), totals.refunds.nonCash, true)}
             {totals.pfandReturns && counted(t('rows.pfand'), totals.pfandReturns, true)}
           </dl>
+        </section>
+      )}
+
+      {/* Wertmarken: angenommene Marken gibt die Person ab wie Bargeld —
+          sie stehen aber nicht in „Soll bar“. Verkauf bar und Rücktausch
+          dagegen schon. */}
+      {tokens && (
+        <section data-testid="settlement-tokens">
+          <h3>{t('tokens.section')}</h3>
+          <dl>
+            {tokens.receivedByType.map((type) => (
+              <div key={type.tokenTypeId} className="settle-figs__row">
+                <dt>{t('tokens.typeRow', { count: formatTokenCount(type.count, locale), name: type.name })}</dt>
+                <dd>{money(type.amount)}</dd>
+              </div>
+            ))}
+            {tokensReceived && (
+              <div className="settle-figs__row settle-figs__row--total">
+                <dt>
+                  {t('tokens.received')}{' '}
+                  <span className="settle-figs__count">({formatTokenCount(tokens.received.count, locale)})</span>
+                </dt>
+                <dd>{money(tokens.received.amount)}</dd>
+              </div>
+            )}
+            {tokens.sold.count > 0 && counted(t('tokens.sold'), tokens.sold)}
+            {tokens.sold.count > 0 && Math.round((tokens.sold.amount - tokens.soldCash) * 100) !== 0 && (
+              <div className="settle-figs__row settle-figs__row--sub">
+                <dt>{t('tokens.soldCash')}</dt>
+                <dd>{money(tokens.soldCash)}</dd>
+              </div>
+            )}
+            {tokens.boughtBack.count > 0 && counted(t('tokens.boughtBack'), tokens.boughtBack, true)}
+          </dl>
+          {tokensReceived && <p className="settle-figs__hint">{t('tokens.hint')}</p>}
         </section>
       )}
 
