@@ -1863,8 +1863,9 @@
         "label": "Mehrwertsteuer",
         "standard": "{rate} % (Regelsatz)",
         "reduced": "{rate} % (ermäßigt)",
-        "zero": "0 % (steuerfrei)",
-        "exemptHint": "Die Organisation weist keine Umsatzsteuer aus. Umstellbar in den Organisationseinstellungen."
+        "zero": "0 % (steuerfrei, § 19 UStG)",
+        "exemptHint": "Die Organisation weist keine Umsatzsteuer aus. Umstellbar in den Organisationseinstellungen.",
+        "zeroNotTaxable": "0 % (nicht steuerbar)"
       },
       "defaultStockUnit": "Stück",
       "iconSuggest": {
@@ -3010,7 +3011,7 @@
       "orders": "{count, plural, =1 {Bestellung} other {Bestellungen}}",
       "payCash": "Bar",
       "payCard": "Karte",
-      "splitBill": "Rechnung splitten",
+      "splitBill": "Rechnung teilen",
       "titleOrderOnly": "Offene Bestellungen",
       "noOpenOrders": "Keine offenen Bestellungen",
       "noOpenOrdersDescription": "Alle Bestellungen sind abgeholt.",
@@ -3020,7 +3021,7 @@
       "pickedUpDone": "Bestellung abgeschlossen"
     },
     "splitPayment": {
-      "title": "Rechnung splitten",
+      "title": "Rechnung teilen",
       "selectItems": "Artikel auswählen",
       "selectedAmount": "Ausgewählt",
       "paySelected": "Auswahl bezahlen",
@@ -3112,8 +3113,8 @@
       "expired": "Deine Anmeldung ist abgelaufen. Bitte gib deine PIN erneut ein."
     },
     "cashDrawer": {
-      "open": "Schublade öffnen",
-      "opened": "Schublade geöffnet"
+      "open": "Kassenlade öffnen",
+      "opened": "Kassenlade geöffnet"
     },
     "testMode": "Testmodus – Buchungen zählen nicht und werden beim Aktivieren gelöscht",
     "testModeShort": "Testmodus – Buchungen zählen nicht",
@@ -4060,12 +4061,12 @@
       "loadErrorHint": "Die Anzeige versucht es weiter. Prüfe die Netzwerkverbindung, falls es so bleibt.",
       "retry": "Erneut versuchen",
       "reconnecting": "Verbindung getrennt – wird wiederhergestellt …",
-      "serviceColumn": "Bedienungen",
+      "serviceColumn": "Am Tisch",
       "pickupColumn": "Abholung",
       "orders": "{count, plural, one {# Bestellung} other {# Bestellungen}}",
       "items": "{count, plural, one {# Artikel} other {# Artikel}}",
       "pickup": "Abholung",
-      "service": "Bedienung",
+      "service": "Am Tisch",
       "togo": "To-go",
       "priorityRush": "Eilt",
       "priorityHigh": "Hoch",
@@ -4392,11 +4393,11 @@
           "dynamicDescription": "Folgt der Routing-Kette: Produkt-Station → Kategorie-Station → Standard-Drucker dieses Geräts (Fallback). Empfohlen, wenn mehrere Stationen mit eigenen Druckern existieren."
         },
         "cashDrawer": {
-          "title": "Kassenschublade",
-          "description": "Wähle einen Drucker mit Kassenschublade, die bei Barzahlungen automatisch geöffnet wird.",
-          "selectPrinter": "Drucker mit Schublade",
-          "noPrinter": "Keine Kassenschublade",
-          "noPrintersAvailable": "Kein Drucker mit Kassenschublade konfiguriert",
+          "title": "Kassenlade",
+          "description": "Wähle einen Drucker mit Kassenlade, die bei Barzahlungen automatisch geöffnet wird.",
+          "selectPrinter": "Drucker mit Kassenlade",
+          "noPrinter": "Keine Kassenlade",
+          "noPrintersAvailable": "Kein Drucker mit Kassenlade konfiguriert",
           "cashless": "Ohne Bargeld (Betriebsart) öffnet sich die Kassenlade nicht.",
           "orderOnly": "In „Nur Bons“ gibt es keine Kassenlade."
         },
@@ -4455,7 +4456,7 @@
     "ASSISTANT_DISABLED": "Die Assistent-Funktionen sind für deine Organisation ausgeschaltet.",
     "CARD_READER_NOT_LINKED": "Mit diesem Gerät ist kein Kartenleser verknüpft.",
     "CART_ITEM_NOT_FOUND": "Der Artikel ist nicht im Warenkorb.",
-    "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenschublade eingerichtet.",
+    "CASH_DRAWER_NOT_CONFIGURED": "Es ist keine Kassenlade eingerichtet.",
     "CASH_PAYMENTS_DISABLED": "Deine Organisation nutzt „Bargeldlos“. Bargeld kann über OpenEOS weder angenommen noch ausgezahlt werden.",
     "CATEGORY_HAS_PRODUCTS": "Die Kategorie enthält noch {count} Produkte – verschiebe oder lösche sie zuerst.",
     "CATEGORY_IN_USE": "Die Kategorie wird in Bestellungen verwendet und kann nicht gelöscht werden.",
@@ -4607,7 +4608,7 @@
     "PRINTER_ALREADY_ADOPTED": "Dieser Drucker wurde bereits übernommen.",
     "PRINTER_CONNECTION_TYPE_NOT_ALLOWED": "Manuell lassen sich nur Netzwerkdrucker anlegen. USB- und Windows-Drucker findet der Agent selbst.",
     "PRINTER_FINGERPRINT_TAKEN": "An diesem Agent gibt es den Drucker schon.",
-    "PRINTER_HAS_NO_CASH_DRAWER": "An diesem Drucker hängt keine Kassenschublade.",
+    "PRINTER_HAS_NO_CASH_DRAWER": "An diesem Drucker hängt keine Kassenlade.",
     "PRINTER_INACTIVE": "Der Drucker ist deaktiviert.",
     "PRINTER_IP_ADDRESS_REQUIRED": "Für einen Netzwerkdrucker fehlt die IP-Adresse.",
     "PRINTER_NOT_FOUND": "Der Drucker wurde nicht gefunden.",
@@ -5249,11 +5250,11 @@
       "description": "Wähle den Betriebsmodus für deine Installation.",
       "single": {
         "title": "Einzelbetrieb",
-        "description": "Für einen einzelnen Verein oder eine Organisation. Unbegrenzte Credits, keine Abrechnung."
+        "description": "Für einen einzelnen Verein oder eine Organisation. Veranstaltungen werden je Veranstaltungstag freigeschaltet; eine eigene Installation (DEPLOYMENT_MODE=selfhosted) kommt ganz ohne Abrechnung aus."
       },
       "multi": {
         "title": "Multi-Mandanten (SaaS)",
-        "description": "Für mehrere Organisationen mit Credit-System und Abrechnung."
+        "description": "Für mehrere Organisationen, jede schaltet ihre Veranstaltungen je Veranstaltungstag frei."
       }
     },
     "form": {
@@ -5580,7 +5581,7 @@
         "notes": "Notizen"
       },
       "fieldHints": {
-        "waiter_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Bei Bestellungen aus der Verwaltung der Name des Nutzers. Ohne Namen fällt die Zeile samt Beschriftung weg.",
+        "waiter_name": "Wer die Bestellung aufgenommen hat: die Bedienung, die die Runde gesendet hat, sonst die verantwortliche Bedienung, sonst das Mitglied (PIN an der Kasse oder Bestellung aus der Verwaltung), sonst der Name des Geräts. Bei Bedienungen steht der Kurzname, wenn einer hinterlegt ist (Einstellung „Name auf Bons“). Ohne Namen fällt die Zeile samt Beschriftung weg.",
         "device_name": "Name des Geräts, mit dem die Bestellung aufgenommen wurde. Ohne Gerät fällt die Zeile samt Beschriftung weg."
       },
       "props": {
@@ -7614,12 +7615,12 @@
       "revenue": "Umsatz brutto",
       "discounts": "Rabatte",
       "cashExpected": "Soll bar",
-      "drawer": "Schublade {name}",
+      "drawer": "Kassenlade {name}",
       "unknownDevice": "ohne Gerät",
       "counted": "Gezählt",
       "difference": "Differenz"
     },
-    "cashHint": "Nur zur Info: Das Bargeld liegt in der Schublade der genannten Kasse. Gezählt wird wie bisher beim Kassensturz des Geräts.",
+    "cashHint": "Nur zur Info: Das Bargeld liegt in der Kassenlade der genannten Kasse. Gezählt wird wie bisher beim Kassensturz des Geräts.",
     "ordersOnlyHint": "„Nur Bons“: OpenEOS kassiert nicht, die Abrechnung enthält nur Mengen.",
     "training": "Training (nicht im Geld): {orders, plural, one {# Bestellung} other {# Bestellungen}}, {payments, plural, one {# Zahlung} other {# Zahlungen}}",
     "period": {

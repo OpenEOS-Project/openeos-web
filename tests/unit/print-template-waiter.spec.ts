@@ -78,13 +78,17 @@ test.describe('Bon-Element „Bedienung“ / „Gerät“', () => {
     const e = en.printTemplates.designer;
     expect(d.fields.waiter_name).toBe('Bedienung');
     expect(d.fields.device_name).toBe('Gerät');
-    expect(e.fields.waiter_name).toBe('Waiter');
+    expect(e.fields.waiter_name).toBe('Server');
     expect(e.fields.device_name).toBe('Device');
     expect(d.props.conditionWaiterName).toBeTruthy();
-    // Hinweis im Editor: es gibt keine Anmeldung an Geräten, die Bedienung ist das Gerät.
-    expect(d.fieldHints.waiter_name).toContain('Name des Geräts, mit dem die Bestellung aufgenommen wurde');
+    // Hinweis im Editor: „Bedienung“ ist seit den Bedienungen (api #128/#130)
+    // der Runden-Sender ▸ verantwortliche Bedienung ▸ Mitglied ▸ Gerät.
+    expect(d.fieldHints.waiter_name).toContain('die Bedienung, die die Runde gesendet hat');
+    expect(d.fieldHints.waiter_name).toContain('verantwortliche Bedienung');
+    expect(d.fieldHints.waiter_name).toContain('sonst der Name des Geräts');
     expect(d.fieldHints.device_name).toContain('Name des Geräts, mit dem die Bestellung aufgenommen wurde');
-    expect(e.fieldHints.waiter_name).toContain('device the order was taken on');
+    expect(e.fieldHints.waiter_name).toContain('the server who sent the round');
+    expect(e.fieldHints.waiter_name).toContain('otherwise the device name');
     expect(e.props.conditionDeviceName).toBeTruthy();
   });
 

@@ -390,7 +390,7 @@
       }
     },
     "customize": {
-      "button": "Customise",
+      "button": "Customize",
       "title": "Customize Dashboard",
       "description": "Choose which widgets to display on your dashboard and set their order.",
       "enabled": "Active",
@@ -763,7 +763,7 @@
           "effect": "All bookings up to now stay booked with 7 % or 19 %. From now on OpenEOS books tax-free as a small business (key 6), without VAT on the receipt.",
           "confirm": "Create closing and switch"
         },
-        "closingFirst": "Your register has a Cloud TSE. OpenEOS therefore first creates a cash register closing so that all previous transactions are closed with the old tax status.",
+        "closingFirst": "Your till has a Cloud TSE. OpenEOS therefore first creates a cash register closing so that all previous transactions are closed with the old tax status.",
         "limits": "Check the limits with your tax advisor: €25,000 revenue in the previous year and €100,000 in the current year. Already the revenue with which you exceed €100,000 is taxable.",
         "logged": "The change is logged with its time.",
         "changed": "Tax status changed.",
@@ -879,7 +879,7 @@
       "testMode": {
         "title": "Test mode",
         "activeTitle": "Test mode active – no SumUp card payments",
-        "text": "While an event is in test mode, the POS does not start real SumUp card payments: the payment method is greyed out at the POS and the server refuses card reader payments. Cash and manual card bookings keep working; refunds of test orders are only booked."
+        "text": "While an event is in test mode, the till does not start real SumUp card payments: the payment method is grayed out at the till and the server refuses card reader payments. Cash and manual card bookings keep working; refunds of test orders are only booked."
       }
     },
     "organizationNotifications": {
@@ -1694,23 +1694,23 @@
     "printers": {
       "metaTitle": "Printers · Super Admin",
       "title": "Printers",
-      "description": "All printer agents and their printers per organisation — read-only. Pairing, adopting and editing is done by the organisation itself under \"Printers\".",
+      "description": "All printer agents and their printers per organization — read-only. Pairing, adopting and editing is done by the organization itself under \"Printers\".",
       "online": "Online",
       "offline": "Offline",
       "summary": {
         "title": "Overview",
         "agents": "{count, plural, =1 {# agent} other {# agents}}, {online} online"
       },
-      "searchPlaceholder": "Search organisation, agent or printer",
+      "searchPlaceholder": "Search organization, agent or printer",
       "noMatches": "Nothing found.",
-      "noOrganization": "Without organisation (not paired yet)",
+      "noOrganization": "Without organization (not paired yet)",
       "noAgentInfo": "No details from the agent yet",
       "lastSeen": "last seen {when}",
       "discoveredCount": "{count, plural, =1 {# discovered printer} other {# discovered printers}}",
       "noPrinters": "No printer adopted yet.",
       "empty": {
         "title": "No printer agents yet",
-        "description": "As soon as an organisation pairs a printer agent, it shows up here."
+        "description": "As soon as an organization pairs a printer agent, it shows up here."
       },
       "table": {
         "printer": "Printer",
@@ -1892,15 +1892,15 @@
         "areas": "Areas for this event",
         "areasRequired": "Select at least one area.",
         "free": "Enter table number freely",
-        "freeHint": "The POS asks for any number, as before.",
+        "freeHint": "The till asks for any number, as before.",
         "label": "Tables",
         "manage": "Manage tables",
-        "noTables": "No tables have been created yet. Without tables the POS can only book without a table.",
+        "noTables": "No tables have been created yet. Without tables the till can only book without a table.",
         "noTablesInAreas": "There are no active tables in the selected areas.",
         "none": "No tables (counter service)",
-        "noneHint": "All POS devices book at the counter without asking for a table.",
+        "noneHint": "All tills book at the counter without asking for a table.",
         "predefined": "Predefined tables",
-        "predefinedHint": "The POS only offers the tables you created, as a list and on the floor plan.",
+        "predefinedHint": "The till only offers the tables you created, as a list and on the floor plan.",
         "tableCount": "{count, plural, =0 {no tables} one {# table} other {# tables}}"
       },
       "priceTse": "+ {amount} cloud TSE per event",
@@ -2277,8 +2277,9 @@
         "label": "VAT",
         "standard": "{rate}% (standard)",
         "reduced": "{rate}% (reduced)",
-        "zero": "0% (exempt)",
-        "exemptHint": "This organization does not charge VAT. Change it in the organization settings."
+        "zero": "0% (tax-exempt, small business)",
+        "exemptHint": "This organization does not charge VAT. Change it in the organization settings.",
+        "zeroNotTaxable": "0% (not taxable)"
       },
       "defaultStockUnit": "pcs",
       "iconSuggest": {
@@ -2431,8 +2432,8 @@
       },
       "preview": {
         "caution": "Suggestions can contain mistakes – please check them.",
-        "empty": "No products were recognised on the menu.",
-        "emptyTitle": "No products recognised",
+        "empty": "No products were recognized on the menu.",
+        "emptyTitle": "No products recognized",
         "emptyHint": "Try sharper photos – or paste the menu as text.",
         "retry": "Try again",
         "useText": "Enter as text",
@@ -2505,7 +2506,7 @@
     "count": "{count, plural, =0 {No products} =1 {1 product} other {# products}}",
     "favorite": "Favorite",
     "favoriteAdd": "Mark {name} as favorite",
-    "favoriteHint": "Shown at the top of the POS in the “Favorites” category.",
+    "favoriteHint": "Shown at the top of the till in the “Favorites” category.",
     "favoriteRemove": "Remove {name} from favorites",
     "categoryFilter": {
       "label": "Category: {name}",
@@ -2639,13 +2640,13 @@
   },
   "discounts": {
     "title": "Discount Vouchers",
-    "subtitle": "Configure discount vouchers that can be selected at the register",
+    "subtitle": "Configure discount vouchers that can be selected at the till",
     "voucherHint": "Discount vouchers are free discounts from the club (e.g. artist meals), not a payment method. Without a Cloud TSE you must not accept sold tokens or vouchers as payment.",
     "create": "Create voucher",
     "edit": "Edit voucher",
     "empty": {
       "title": "No discount vouchers",
-      "description": "Create discount vouchers that can be redeemed at the register."
+      "description": "Create discount vouchers that can be redeemed at the till."
     },
     "types": {
       "fixed": "Fixed amount",
@@ -2673,11 +2674,11 @@
       "description": "Description",
       "descriptionPlaceholder": "Optional description",
       "type": "Type",
-      "typeFixedHint": "Fixed discount amount deducted at the register.",
-      "typeManualHint": "The amount is entered when redeemed at the register.",
+      "typeFixedHint": "Fixed discount amount deducted at the till.",
+      "typeManualHint": "The amount is entered when redeemed at the till.",
       "amount": "Amount (€)",
       "isActive": "Active",
-      "isActiveHint": "Only active vouchers can be selected at the register.",
+      "isActiveHint": "Only active vouchers can be selected at the till.",
       "allowMultiple": "Multiple per order",
       "allowMultipleHint": "Allows applying the same voucher more than once to one order."
     },
@@ -2718,14 +2719,14 @@
       "namePlaceholder": "e.g. Cup",
       "amount": "Deposit amount (€)",
       "isActive": "Active",
-      "isActiveHint": "Only active deposit types can be used at the register.",
+      "isActiveHint": "Only active deposit types can be used at the till.",
       "vatRate": "VAT rate",
       "vatRateHint": "VAT rate of the drinks/goods this deposit belongs to – usually 19 %.",
       "vatRateExemptHint": "Your organization does not charge VAT – receipts show no VAT. You can change this in the organization settings.",
       "vatRateOptions": {
-        "standard": "{rate} % (standard rate)",
-        "reduced": "{rate} % (reduced rate)",
-        "zero": "0 % (not taxable)"
+        "standard": "{rate}% (standard rate)",
+        "reduced": "{rate}% (reduced rate)",
+        "zero": "0% (not taxable)"
       }
     },
     "deleteConfirm": {
@@ -2836,7 +2837,7 @@
     },
     "pin": {
       "title": "Device PIN",
-      "hint": "The PIN is used for identification at POS devices.",
+      "hint": "The PIN is used for identification at the tills.",
       "set": "Set PIN",
       "remove": "Remove PIN",
       "hasPin": "PIN set",
@@ -3145,9 +3146,9 @@
       "search": "Search",
       "searchPlaceholder": "Number, table or product",
       "paymentFilter": "Payment",
-      "scope": "Register",
+      "scope": "Till",
       "scopeDevice": "This device",
-      "scopeAll": "All registers",
+      "scopeAll": "All tills",
       "range": "Period",
       "rangeToday": "Today",
       "rangeEvent": "Event",
@@ -3189,7 +3190,7 @@
       "reprintTickets": "Kitchen ticket",
       "detailTitle": "Order #{number}",
       "detailLoading": "Order",
-      "actionsDisabled": "Cancelling and refunding is switched off on this register. Use another register or the admin area.",
+      "actionsDisabled": "Cancelling and refunding is switched off on this till. Use another till or the admin area.",
       "payTitle": "Collect order #{number}",
       "testOrder": "Test order: SumUp is not really refunded in test mode.",
       "sectionItems": "Items",
@@ -3338,7 +3339,7 @@
       "logout": "Sign out device",
       "logoutCancel": "Cancel",
       "logoutConfirm": "Sign out",
-      "logoutText": "The register is disconnected from the organization. It then has to be paired again with a new code.",
+      "logoutText": "The till is disconnected from the organization. It then has to be paired again with a new code.",
       "logoutTitle": "Sign out device?",
       "more": "More",
       "openOrders": "Open orders",
@@ -3355,8 +3356,8 @@
       "emergencyClose": "Close"
     },
     "header": {
-      "lock": "Lock register",
-      "locked": "Register locked · enter PIN to unlock",
+      "lock": "Lock till",
+      "locked": "Till locked · enter PIN to unlock",
       "logoAlt": "OpenEOS",
       "noEvent": "No active event",
       "switch": "Change",
@@ -3607,7 +3608,7 @@
       "back": "Back"
     },
     "offline": {
-      "banner": "No connection – sending and checkout work again once the register is online."
+      "banner": "No connection – sending and checkout work again once the till is online."
     },
     "tables": {
       "alreadyPaid": "This table was just paid on another device.",
@@ -3997,7 +3998,7 @@
       "organizationSlugPlaceholder": "e.g. my-club",
       "organizationSlugHint": "Your organization's code (from the URL)",
       "deviceName": "Device Name",
-      "deviceNamePlaceholder": "e.g. Register 1, Counter, Bar",
+      "deviceNamePlaceholder": "e.g. Till 1, Counter, Bar",
       "submit": "Register Device",
       "registering": "Registering...",
       "pendingTitle": "Waiting for Approval",
@@ -4072,12 +4073,12 @@
       "loadErrorHint": "The display keeps trying. If it stays like this, check the network connection.",
       "retry": "Try again",
       "reconnecting": "Disconnected – reconnecting …",
-      "serviceColumn": "Table service",
+      "serviceColumn": "At the table",
       "pickupColumn": "Pickup",
       "orders": "{count, plural, one {# order} other {# orders}}",
       "items": "{count, plural, one {# item} other {# items}}",
       "pickup": "Pickup",
-      "service": "Table service",
+      "service": "At the table",
       "togo": "To go",
       "priorityRush": "Rush",
       "priorityHigh": "High",
@@ -4134,7 +4135,7 @@
       "title": "Approve Device",
       "description": "Enter the 6-digit code displayed on the device.",
       "type": "Device type",
-      "typeHint": "Saved directly on approval – POS devices start in table-service mode and can be changed later in the device settings.",
+      "typeHint": "Saved directly on approval – Tills start in table-service mode and can be changed later in the device settings.",
       "code": "Verification Code",
       "codePlaceholder": "000000",
       "submit": "Approve Device",
@@ -4213,7 +4214,7 @@
       "namePlaceholder": "e.g. Bar till 1",
       "wrongType": "This code does not belong to a {type}. For tills and displays use \"Connect device\" under Devices.",
       "enterCodeDescriptionPrinterAgent": "Enter the six-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
-      "successDescriptionPrinterAgent": "The printer agent now belongs to your organisation. It will show up in the list in a moment and report the printers it finds."
+      "successDescriptionPrinterAgent": "The printer agent now belongs to your organization. It will show up in the list in a moment and report the printers it finds."
     },
     "detail": {
       "tabs": {
@@ -4260,7 +4261,7 @@
         },
         "serviceMode": {
           "title": "Operation",
-          "description": "How the POS books: with tables (table service) or directly at the counter.",
+          "description": "How the till books: with tables (table service) or directly at the counter.",
           "table": "Table Service",
           "tableDescription": "A table is chosen before each order (or \"Without table\").",
           "counter": "Counter",
@@ -4273,14 +4274,14 @@
           "requirePinDescription": "Users must authenticate with a PIN at the device",
           "pinManagedPerMember": "PINs are managed per member under Members",
           "refund": "Cancel & refund",
-          "refundDescription": "Who may cancel items and refund orders on this register.",
+          "refundDescription": "Who may cancel items and refund orders on this till.",
           "refund_allowed": "Allowed",
-          "refund_allowedDescription": "Everyone at the register may cancel and refund.",
+          "refund_allowedDescription": "Everyone at the till may cancel and refund.",
           "refund_pin": "PIN only",
-          "refund_pinDescription": "The register asks for a PIN every time.",
+          "refund_pinDescription": "The till asks for a PIN every time.",
           "refund_pinHint": "PIN of a member with the “Orders” permission or of an admin. Grant permissions under Members.",
           "refund_disabled": "Off",
-          "refund_disabledDescription": "Not possible on this register (reprints and collecting payments still work)."
+          "refund_disabledDescription": "Not possible on this till (reprints and collecting payments still work)."
         },
         "station": {
           "event": "Event",
@@ -4308,7 +4309,7 @@
         "appearance": {
           "title": "Appearance & content",
           "description": "How this display looks and what it shows.",
-          "theme": "Colour scheme",
+          "theme": "Color scheme",
           "themeDark": "Dark",
           "themeLight": "Light",
           "themeAuto": "By time of day",
@@ -4328,7 +4329,7 @@
         },
         "tableArea": "Default area",
         "tableAreaEmpty": "No areas created yet.",
-        "tableAreaHint": "The POS opens this area first, in the table list and on the floor plan.",
+        "tableAreaHint": "The till opens this area first, in the table list and on the floor plan.",
         "tableAreaManage": "Manage tables",
         "tableAreaMissing": "Deleted area",
         "tableAreaNone": "No default area",
@@ -4337,13 +4338,13 @@
           "description": "Only applies to table service."
         },
         "tableSelectView": {
-          "label": "Table selection on the POS",
+          "label": "Table selection on the till",
           "auto": "Automatic ({view})",
           "number": "Enter number",
           "list": "List",
           "map": "Map",
-          "hint": "When opening a table and in the \"Choose table\" sheet, the POS shows exactly this view, without a switch. Automatic: map if the default area has a floor plan, otherwise list.",
-          "hintFree": "The active event uses free table numbers: there the POS always shows the keypad. The choice applies to events with predefined tables.",
+          "hint": "When opening a table and in the \"Choose table\" sheet, the till shows exactly this view, without a switch. Automatic: map if the default area has a floor plan, otherwise list.",
+          "hintFree": "The active event uses free table numbers: there the till always shows the keypad. The choice applies to events with predefined tables.",
           "hintNone": "The active event does not use tables. The choice applies as soon as an event uses predefined tables.",
           "noMap": "\"Map\" becomes available once an area has a floor plan."
         },
@@ -4528,17 +4529,17 @@
     "INVALID_PACKAGE": "The package is invalid.",
     "INVALID_TOKEN": "The link or key is invalid.",
     "INVALID_TOTAL": "The total amount is invalid.",
-    "INVENTORY_ALREADY_COMPLETED": "The stock count is already completed.",
-    "INVENTORY_COMPLETED_CANNOT_CANCEL": "A completed stock count cannot be cancelled.",
-    "INVENTORY_COMPLETED_CANNOT_DELETE": "A completed stock count cannot be deleted.",
-    "INVENTORY_EMPTY": "The stock count has no items to count.",
-    "INVENTORY_IN_PROGRESS": "A stock count is already in progress.",
+    "INVENTORY_ALREADY_COMPLETED": "The stocktake is already completed.",
+    "INVENTORY_COMPLETED_CANNOT_CANCEL": "A completed stocktake cannot be cancelled.",
+    "INVENTORY_COMPLETED_CANNOT_DELETE": "A completed stocktake cannot be deleted.",
+    "INVENTORY_EMPTY": "The stocktake has no items to count.",
+    "INVENTORY_IN_PROGRESS": "A stocktake is already in progress.",
     "INVENTORY_ITEMS_UNCOUNTED": "{count} items have not been counted yet.",
     "INVENTORY_ITEM_NOT_FOUND": "The item was not found.",
-    "INVENTORY_NOT_DRAFT": "This is only possible while the stock count is a draft.",
-    "INVENTORY_NOT_FOUND": "The stock count was not found.",
-    "INVENTORY_NOT_IN_PROGRESS": "This is only possible while the stock count is in progress.",
-    "INVENTORY_PRODUCT_ALREADY_ADDED": "The product is already in the stock count.",
+    "INVENTORY_NOT_DRAFT": "This is only possible while the stocktake is a draft.",
+    "INVENTORY_NOT_FOUND": "The stocktake was not found.",
+    "INVENTORY_NOT_IN_PROGRESS": "This is only possible while the stocktake is in progress.",
+    "INVENTORY_PRODUCT_ALREADY_ADDED": "The product is already in the stocktake.",
     "INVITATION_ALREADY_ACCEPTED": "The invitation has already been accepted.",
     "INVITATION_ALREADY_EXISTS": "An invitation for this email address already exists.",
     "INVITATION_EMAIL_MISMATCH": "This invitation is for a different email address.",
@@ -4589,7 +4590,7 @@
     "ORDER_NOT_FULLY_PAID": "The order must be fully paid.",
     "ORDER_PAID_CANNOT_DELETE": "Paid orders cannot be deleted.",
     "ORDER_PAID_REFUND_REQUIRED": "The order is (partly) paid. Cancel it with a refund.",
-    "ORDER_PAYMENT_REQUIRED": "With \"Pay immediately\" an order is only created together with its payment. Reload the POS and check out again.",
+    "ORDER_PAYMENT_REQUIRED": "With \"Pay immediately\" an order is only created together with its payment. Reload the till and check out again.",
     "ORDER_SESSION_EXPIRED": "The ordering session has expired.",
     "ORDER_SESSION_NOT_FOUND": "The ordering session was not found.",
     "ORGANIZATION_ACCESS_DENIED": "You do not have access to this organization.",
@@ -4648,7 +4649,7 @@
     "REFUND_FAILED": "The refund failed. Nothing was cancelled – please try again later.",
     "REFUND_ITEMS_REQUIRED": "Select at least one item.",
     "REFUND_NOTHING_TO_REFUND": "There is nothing left to refund for this order.",
-    "REFUND_NOT_ALLOWED": "Cancelling and refunding is switched off on this register.",
+    "REFUND_NOT_ALLOWED": "Cancelling and refunding is switched off on this till.",
     "REFUND_NOT_FOUND": "Refund not found.",
     "REFUND_PAYMENT_REQUIRED": "The amount spans several card payments. Refund each payment separately.",
     "REFUND_PIN_NOT_AUTHORIZED": "This PIN may not cancel or refund. It needs a shift lead, the “Orders” permission or admin.",
@@ -4692,7 +4693,7 @@
     "STRIPE_WEBHOOK_SECRET_MISSING": "Online payment is currently unavailable.",
     "SUBSCRIPTION_CONFIG_NOT_FOUND": "The subscription configuration was not found.",
     "SUMUP_API_ERROR": "SumUp rejected the request. Please try again later or check the credentials.",
-    "SUMUP_DISABLED_IN_TEST_MODE": "In test mode the POS does not start real SumUp card payments. Take cash or book the card payment manually.",
+    "SUMUP_DISABLED_IN_TEST_MODE": "In test mode the till does not start real SumUp card payments. Take cash or book the card payment manually.",
     "SUMUP_INVALID_CREDENTIALS": "SumUp credentials invalid – please check",
     "SUMUP_NOT_CONFIGURED": "SumUp is not set up yet. Please enter the API key and merchant code first.",
     "SUMUP_NO_CHECKOUT_URL": "SumUp did not return a checkout page. Please try again.",
@@ -5261,11 +5262,11 @@
       "description": "Choose the operating mode for your installation.",
       "single": {
         "title": "Single Organization",
-        "description": "For a single club or organization. Unlimited credits, no billing."
+        "description": "For a single club or organization. Events are activated per event day; a self-hosted installation (DEPLOYMENT_MODE=selfhosted) has no billing at all."
       },
       "multi": {
         "title": "Multi-Tenant (SaaS)",
-        "description": "For multiple organizations with credit system and billing."
+        "description": "For several organizations, each activating its events per event day."
       }
     },
     "form": {
@@ -5513,8 +5514,8 @@
       "drink": "Drinks",
       "food": "Food"
     },
-    "iconWins": "At the POS the product icon takes precedence over an uploaded image.",
-    "fromCategory": "Without a product icon or image the POS shows the category icon.",
+    "iconWins": "At the till the product icon takes precedence over an uploaded image.",
+    "fromCategory": "Without a product icon or image the till shows the category icon.",
     "close": "Close"
   },
   "printTemplates": {
@@ -5573,7 +5574,7 @@
         "daily_number": "Daily Number",
         "table_number": "Table Number",
         "customer_name": "Customer Name",
-        "waiter_name": "Waiter",
+        "waiter_name": "Server",
         "device_name": "Device",
         "production_station": "Station",
         "order_channel": "Order channel/destination",
@@ -5592,7 +5593,7 @@
         "notes": "Notes"
       },
       "fieldHints": {
-        "waiter_name": "Name of the device the order was taken on. For orders created in the admin area, the name of the user. Without a name the line and its label are left out.",
+        "waiter_name": "Who took the order: the server who sent the round, otherwise the responsible server, otherwise the member (PIN at the till or order from the admin area), otherwise the device name. For servers the short name is printed if one is set (setting “Name on receipts”). Without a name the line and its label are left out.",
         "device_name": "Name of the device the order was taken on. Without a device the line and its label are left out."
       },
       "props": {
@@ -5616,7 +5617,7 @@
         "conditionAlways": "Always show",
         "conditionTableNumber": "Only when table number exists",
         "conditionCustomerName": "Only when customer name exists",
-        "conditionWaiterName": "Only when waiter exists",
+        "conditionWaiterName": "Only when server exists",
         "conditionDeviceName": "Only when device exists",
         "conditionEventName": "Only when event exists",
         "conditionAddress": "Only when address exists",
@@ -5871,12 +5872,12 @@
     }
   },
   "inventory": {
-    "title": "Stocktaking",
+    "title": "Inventory",
     "subtitle": "Stock recording and inventory control for your event",
     "create": "Create stocktake",
     "createAndStart": "Create & Start",
     "creating": "Creating…",
-    "createError": "Failed to create inventory count. Please try again.",
+    "createError": "Failed to create stocktake. Please try again.",
     "noOrg": {
       "title": "No organization selected",
       "description": "Please select an organization first."
@@ -6052,16 +6053,16 @@
     "sumup": {
       "vendor": "Card payments",
       "description": "Card readers at the till and card payments in the online shop.",
-      "longDescription": "SumUp lets you accept card payments at the till: the POS sends the amount to a paired SumUp reader, the guest pays by card or phone, and the order is marked as paid automatically – with a tip if you like.",
+      "longDescription": "SumUp lets you accept card payments at the till: the till sends the amount to a paired SumUp reader, the guest pays by card or phone, and the order is marked as paid automatically – with a tip if you like.",
       "requirements": {
         "account": "A SumUp merchant account",
         "reader": "A SumUp reader that supports POS integration, e.g. the SumUp Solo",
         "apiKey": "An API key and your merchant code from the SumUp dashboard"
       },
-      "deactivateEffect": "While SumUp is deactivated, the POS does not offer card payment. Cash payment keeps working.",
+      "deactivateEffect": "While SumUp is deactivated, the till does not offer card payment. Cash payment keeps working.",
       "screenshots": {
         "configuration": "Configuring the SumUp credentials",
-        "posCardPayment": "Card payment at the POS",
+        "posCardPayment": "Card payment at the till",
         "pairReader": "Pairing a reader"
       }
     },
@@ -6682,7 +6683,7 @@
     "delete": {
       "decorText": "The element is removed from the map.",
       "decorTitle": "Remove {name}?",
-      "text": "The table disappears from the map and the POS. Paid orders keep their table number. If orders are still open, settle them first.",
+      "text": "The table disappears from the map and the till. Paid orders keep their table number. If orders are still open, settle them first.",
       "title": "Delete table {label}?"
     },
     "empty": {
@@ -6697,7 +6698,7 @@
       "empty": "There are no tables in this area yet. Add single tables or a whole series.",
       "hint": "Drag to move, use the handle at the bottom right to resize. Keyboard: arrows move 1 grid step (5 with Shift), Delete removes, Ctrl+D duplicates, Esc clears the selection.",
       "inactive": "inactive",
-      "issues": "{count, plural, one {Table {labels} is} other {Tables {labels} are}} outside the room shape or in a blocked area. The POS still offers {count, plural, one {it} other {them}}.",
+      "issues": "{count, plural, one {Table {labels} is} other {Tables {labels} are}} outside the room shape or in a blocked area. The till still offers {count, plural, one {it} other {them}}.",
       "label": "Floor plan {name}",
       "mobileHint": "Edit the map on a tablet or computer. Here it is view only.",
       "previewLabel": "Floor plan preview {name}",
@@ -6706,7 +6707,7 @@
     },
     "inspector": {
       "active": "Active",
-      "activeHint": "The POS does not offer inactive tables.",
+      "activeHint": "The till does not offer inactive tables.",
       "area": "Area",
       "areaHint": "Moves the table to another area.",
       "close": "Clear selection",
@@ -6720,7 +6721,7 @@
       "outlineDone": "Done",
       "outlineRect": "Rectangle (whole map).",
       "outlineReset": "Reset to rectangle",
-      "outlineText": "Drag the corners to shape the room. Outside, the map is greyed out and hatched; tables there are flagged.",
+      "outlineText": "Drag the corners to shape the room. Outside, the map is grayed out and hatched; tables there are flagged.",
       "outlineTitle": "Room shape",
       "points": "{count, plural, one {# point.} other {# points.}}",
       "pointsHint": "Drag points on the map, insert new ones at the edge midpoints; Delete removes the selected point.",
@@ -7108,7 +7109,7 @@
     },
     "summary": {
       "expected": "Expected cash",
-      "expectedDevice": "Expected cash in this register",
+      "expectedDevice": "Expected cash in this till",
       "openingBalance": "Opening balance",
       "deposits": "Change from the club cash box",
       "withdrawals": "Skimmed to the club cash box",
@@ -7127,7 +7128,7 @@
       "counted": "Counted cash",
       "expected": "Expected cash",
       "expectedLine": "Expected: {expected}",
-      "difference_zero": "Register balances",
+      "difference_zero": "Till balances",
       "difference_plus": "Surplus",
       "difference_minus": "Shortage",
       "differencePending": "Difference",
@@ -7148,9 +7149,9 @@
         "cash_count": "Count the cash and enter the amount."
       },
       "adminText": {
-        "opening_balance": "Cash already in the register when you open – the remaining cash from the last closing.",
-        "deposit": "Change you take from the club cash box and put into the register.",
-        "withdrawal": "Money you take out of the register and hand over to the club cash box (skim).",
+        "opening_balance": "Cash already in the till when you open – the remaining cash from the last closing.",
+        "deposit": "Change you take from the club cash box and put into the till.",
+        "withdrawal": "Money you take out of the till and hand over to the club cash box (skim).",
         "cash_count": "Count the cash of all tills and enter the amount. A deviation from the expected cash is booked as a difference."
       },
       "confirm": {
@@ -7164,7 +7165,7 @@
     },
     "booked": "{type} booked: {amount}",
     "bookedCount": "Cash count booked · difference {difference}",
-    "countNoDifference": "Cash count booked · register balances",
+    "countNoDifference": "Cash count booked · till balances",
     "bookedShort": {
       "opening_balance": "Opening balance booked",
       "deposit": "Change booked",
@@ -7193,15 +7194,15 @@
       "user": "Operator"
     },
     "admin": {
-      "subtitle": "Cash in your register: opening balance, change from the club cash box, skims and cash count per business day.",
+      "subtitle": "Cash in your till: opening balance, change from the club cash box, skims and cash count per business day.",
       "date": "Business day",
       "today": "Today",
-      "expectedTotal": "Expected cash, whole register",
-      "actionsTitle": "Book for the whole register",
+      "expectedTotal": "Expected cash, whole till",
+      "actionsTitle": "Book for the whole till",
       "actionsHint": "Each booking is its own TSE receipt. To book for a single till, use the till itself (menu → Cash book).",
       "actionsPast": "Bookings always go to the current business day – switch to “Today”.",
       "devices": "Per device",
-      "register": "Admin (whole register)",
+      "register": "Admin (whole till)",
       "unknownDevice": "Deleted device",
       "noDevice": "Admin (no device)",
       "entries": "Bookings"
@@ -7264,7 +7265,7 @@
       "subtitle": "Notification of electronic recording systems under § 146a (4) AO",
       "back": "Back to legal",
       "intro": "Since 2025, every electronic cash register and its TSE must be reported to your tax office via ELSTER (§ 146a (4) AO). These are the values you enter there.",
-      "introDeadline": "Report new or decommissioned registers and TSEs within one month.",
+      "introDeadline": "Report new or decommissioned cash registers and TSEs within one month.",
       "elsterLink": "Go to My ELSTER",
       "loadFailed": "The details could not be loaded.",
       "incompleteTitle": "Details incomplete",
@@ -7342,7 +7343,7 @@
       "text": "It was deleted on {closedAt} and is read-only now: reports, orders, cash book and DSFinV-K and TSE exports stay available, changes are no longer possible. The fiscal archive is kept for ten years.",
       "restore": "Cancel deletion",
       "restoreTitle": "Cancel the deletion of “{name}”?",
-      "restoreText": "The organization is fully usable again afterwards: registers, shop and changes work as before, the final deletion is called off.",
+      "restoreText": "The organization is fully usable again afterwards: tills, shop and changes work as before, the final deletion is called off.",
       "restored": "Deletion cancelled. The organization is fully usable again."
     },
     "accountClosure": {
@@ -7415,7 +7416,7 @@
       "open": "Delete organization …",
       "dialogTitle": "Delete “{name}”?",
       "steps": {
-        "readOnly": "From now on the organization is read-only: you can export all data for 30 days, registers and shop are switched off.",
+        "readOnly": "From now on the organization is read-only: you can export all data for 30 days, tills and shop are switched off.",
         "final": "After that we permanently delete products, orders, shift plans, devices and memberships. The admins get e-mails beforehand (an announcement, then 10 days and one day before); until then any admin can cancel the deletion.",
         "fiscal": "The fiscal archive (TSE exports, cash point closings, signed transactions) is kept for ten years."
       },

@@ -12,14 +12,20 @@
  */
 export interface TaxRateOption {
   rate: number;
-  labelKey: 'standard' | 'reduced' | 'zero';
+  /**
+   * `zero`: 0 % bei Organisationen ohne Umsatzsteuer (Kleinunternehmer,
+   * § 19 UStG) — steuerfrei, DSFinV-K-Schlüssel 6. `zeroNotTaxable`: 0 %
+   * bei steuerpflichtigen Organisationen — nicht steuerbar, Schlüssel 5
+   * (so bucht es der DSFinV-K-Export der API).
+   */
+  labelKey: 'standard' | 'reduced' | 'zero' | 'zeroNotTaxable';
 }
 
 const BY_COUNTRY: Record<string, TaxRateOption[]> = {
   DE: [
     { rate: 19, labelKey: 'standard' },
     { rate: 7, labelKey: 'reduced' },
-    { rate: 0, labelKey: 'zero' },
+    { rate: 0, labelKey: 'zeroNotTaxable' },
   ],
 };
 
