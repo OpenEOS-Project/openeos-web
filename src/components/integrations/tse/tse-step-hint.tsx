@@ -83,12 +83,16 @@ export function TseStepHint({ step, eventCheck, unlockEvent, variant, actions = 
     ),
   };
   const action = hint.action ? (hint.action in actions ? actions[hint.action] : defaults[hint.action]) : null;
+  // Im Banner landet alles in dessen <p> (Banner von @openeos/ui) — dort
+  // nur Inline-Elemente, sonst <p>/<div> in <p> (Hydration-Fehler). Die
+  // Klasse macht die Aktionszeile trotzdem zu einem eigenen Block.
+  const FooterTag = variant === 'banner' ? 'span' : 'div';
   const footer =
     action || extra ? (
-      <div className="tse-hint__action">
+      <FooterTag className="tse-hint__action">
         {action}
         {extra}
-      </div>
+      </FooterTag>
     ) : null;
 
   if (variant === 'banner') {
@@ -99,7 +103,7 @@ export function TseStepHint({ step, eventCheck, unlockEvent, variant, actions = 
           icon={<Icon name={TONE_ICON[hint.tone]} />}
           title={t(`${hint.key}.title`, values)}
         >
-          <p>{t(`${hint.key}.text`, values)}</p>
+          <span className="tse-hint__text">{t(`${hint.key}.text`, values)}</span>
           {footer}
         </Banner>
       </div>
