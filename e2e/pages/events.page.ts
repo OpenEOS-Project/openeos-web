@@ -31,6 +31,9 @@ export class EventsPage {
    */
   async rowAction(eventName: string, label: string) {
     const row = this.row(eventName);
+    // Erst die Zeile abwarten — sonst fiele die Prüfung unten zu früh auf
+    // das Menü zurück, in dem Symbol-Aktionen auf dem Desktop fehlen.
+    await expect(row).toBeVisible();
     const inline = row.getByRole('button', { name: label, exact: true });
     if (await inline.isVisible()) {
       await inline.click();
