@@ -15,7 +15,9 @@ import { usePreferences, useUpdatePreferences } from '@/hooks/use-user-settings'
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/index';
 import { DashboardGrid } from './dashboard-grid';
 import { Building, ShoppingBag } from 'lucide-react';
-import { Dropdown, DropdownCaption, DropdownOption, Icon } from '@openeos/ui';
+import { Dropdown, DropdownCaption, DropdownOption, Icon, type DataColumn } from '@openeos/ui';
+import { AdminTable } from '@/components/shared/admin-table';
+import '@/styles/admin-table-wave4.css';
 import { DashboardRangeProvider, rangeFor, type RangeKey } from './dashboard-range';
 import { SuperAdminDashboard } from './super-admin-dashboard';
 import { ListEmpty } from '@/components/shared/list-states';
@@ -137,6 +139,52 @@ export function DashboardContainer() {
     const count = countOrderItems(order);
     return count === null ? '—' : t('recentActivity.itemCount', { count });
   };
+
+  /* Nur lesen. Telefon: Nummer und Betrag in Zeile 1, Status, Uhrzeit und
+     Positionen in Zeile 2. */
+  const recentColumns: DataColumn<Order>[] = [
+    {
+      id: 'number',
+      header: tOrders('columns.orderNumber'),
+      mobile: 'title',
+      className: 'wave4-mono',
+      cell: (order) => `#${order.dailyNumber}`,
+    },
+    {
+      id: 'createdAt',
+      header: tOrders('columns.createdAt'),
+      mobile: 'meta',
+      className: 'wave4-date',
+      cell: (order) => formatTime(order.createdAt),
+    },
+    {
+      id: 'items',
+      header: tOrders('columns.items'),
+      mobile: 'meta',
+      cell: (order) => itemCountLabel(order),
+    },
+    ...(orderOnly
+      ? []
+      : [
+          {
+            id: 'total',
+            header: tOrders('columns.total'),
+            num: true,
+            mobile: 'trailing',
+            cell: (order) => formatCurrency(order.total),
+          } satisfies DataColumn<Order>,
+        ]),
+    {
+      id: 'status',
+      header: tOrders('columns.status'),
+      mobile: 'subtitle',
+      cell: (order) => (
+        <span className={statusBadgeClass[order.status] ?? 'badge badge--neutral'}>
+          {tOrders(`status.${order.status}`)}
+        </span>
+      ),
+    },
+  ];
 
 
   /* Reihenfolge, Groesse und Entfernen schreiben alle denselben
@@ -298,74 +346,12 @@ export function DashboardContainer() {
               <p className="empty-state__sub">{t('recentActivity.empty.description')}</p>
             </div>
           ) : (
-            <>
-              {/* Mobile card list */}
-              <div
-                style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}
-                className="md:hidden"
-              >
-                {recentOrders.map((order) => {
-                  const badgeClass = statusBadgeClass[order.status] ?? 'badge badge--neutral';
-                  return (
-                    <div
-                      key={order.id}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '12px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 8, background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))', color: 'var(--green-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, fontFamily: 'var(--f-mono)', flexShrink: 0 }}>
-                          #{order.dailyNumber}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                            {formatTime(order.createdAt)} · {itemCountLabel(order)}
-                          </div>
-                          {!orderOnly && (
-                            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>
-                              {formatCurrency(order.total)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Desktop table */}
-              <div style={{ overflowX: 'auto' }} className="hidden md:block">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>{tOrders('columns.orderNumber')}</th>
-                      <th>{tOrders('columns.createdAt')}</th>
-                      <th>{tOrders('columns.items')}</th>
-                      {!orderOnly && <th className="text-right">{tOrders('columns.total')}</th>}
-                      <th>{tOrders('columns.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order) => {
-                      const badgeClass = statusBadgeClass[order.status] ?? 'badge badge--neutral';
-                      return (
-                        <tr key={order.id}>
-                          <td className="mono">#{order.dailyNumber}</td>
-                          <td className="mono">{formatTime(order.createdAt)}</td>
-                          <td>{itemCountLabel(order)}</td>
-                          {!orderOnly && <td className="mono text-right">{formatCurrency(order.total)}</td>}
-                          <td>
-                            <span className={badgeClass}>{tOrders(`status.${order.status}`)}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </>
+            <AdminTable
+              caption={t('recentActivity.title')}
+              rows={recentOrders}
+              rowKey="id"
+              columns={recentColumns}
+            />
           )}
         </div>
       </div>

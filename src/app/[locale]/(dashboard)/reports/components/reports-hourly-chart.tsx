@@ -15,6 +15,7 @@ import {
 import type { HourlyReport } from '@/types/report';
 import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
 import { downloadCsv } from './csv-export';
+import { ReportCardHead } from './report-table';
 import { formatReportDay } from './report-labels';
 
 interface ReportsHourlyChartProps {
@@ -138,21 +139,13 @@ export function ReportsHourlyChart({ data, isLoading, orderOnly = false }: Repor
 
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{t('hourly.title')}</h2>
-          <p className="app-card__sub">{orderOnly ? t('orderOnly.hourlySubtitle') : t('hourly.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={!data?.length}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      {/* CSV-Export wie bei den Berichtstabellen als Symbolknopf. */}
+      <ReportCardHead
+        title={t('hourly.title')}
+        subtitle={orderOnly ? t('orderOnly.hourlySubtitle') : t('hourly.subtitle')}
+        onExport={handleExport}
+        exportDisabled={!data?.length}
+      />
 
       {isLoading ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>

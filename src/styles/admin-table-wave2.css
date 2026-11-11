@@ -334,6 +334,11 @@
   .token-event small {
     display: none;
   }
+  /* In Zeile 2 als Text fließen lassen, sonst bleibt nur „…“. */
+  .landing .admin-dt .token-event,
+  .landing .admin-dt .token-event .admin-cell-text {
+    display: inline;
+  }
   .landing .oe-dt__td.token-tx__time {
     font-family: var(--oe-f-sans);
   }

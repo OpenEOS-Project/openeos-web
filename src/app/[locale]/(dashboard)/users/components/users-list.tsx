@@ -2,13 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
-import { Building } from 'lucide-react';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
+import { Building, LockOpen } from 'lucide-react';
 
 import { useAdminUsers, useUnlockUser } from '@/hooks/use-admin';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellNone, CellText, ListCount, ListHead } from '@/components/shared/admin-table';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import type { AdminUser } from '@/types/admin';
+import '@/styles/admin-table-wave4.css';
 
 export function UsersList() {
   const t = useTranslations('users');
@@ -64,192 +66,115 @@ export function UsersList() {
     }
   };
 
-  return (
-    <>
-      {/* Mobile card list */}
-      {/* Kartenliste nur schmal. Das Layout darf NICHT inline stehen:
-          ein inline display:flex schlaegt md:hidden, dadurch standen
-          Karten und Tabelle auf breiten Viewports uebereinander. */}
-      <div className="flex flex-col gap-2.5 md:hidden">
-        {/* Anzahl statt eines zweiten Titels, wie im Kartenkopf der
-            breiten Ansicht und auf den anderen Listen. */}
-        <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: users.length })}</p>
-        {users.map((user) => {
-          const status = getUserStatus(user);
-          const orgs = user.userOrganizations ?? [];
-          return (
-            <button
-              key={user.id}
-              type="button"
-              onClick={() => router.push(`/users/${user.id}`)}
-              className="app-card"
-              style={{ textAlign: 'left', cursor: 'pointer', padding: 14 }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <div style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: '50%',
-                  background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                  color: 'var(--green-ink)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  fontFamily: 'var(--f-mono)',
-                  flexShrink: 0,
-                }}>
-                  {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {user.firstName} {user.lastName}
-                    </span>
-                    <Icon name="chevron-right" size={14} style={{ flexShrink: 0, color: 'var(--ink-faint)' }} />
-                  </div>
-                  <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {user.email}
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                    {getStatusBadge(status)}
-                    {user.isSuperAdmin ? (
-                      <span className="badge badge--info">{t('role.superAdmin')}</span>
-                    ) : orgs.length > 0 ? (
-                      orgs.map((uo) => (
-                        <span key={uo.id} className={`badge ${uo.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
-                          {tMembers(`roles.${uo.role}` as Parameters<typeof tMembers>[0])}
-                        </span>
-                      ))
-                    ) : null}
-                  </div>
-                  {orgs.length > 0 && (
-                    <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      {orgs.map((uo) => (
-                        <span key={uo.id} style={{ fontSize: 11, color: 'var(--ink-faint)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Building size={11} />
-                          {uo.organization?.name ?? '-'}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+  const openUser = (user: AdminUser) => router.push(`/users/${user.id}`);
+  const fullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
 
-      {/* Desktop table */}
-      <div className="app-card app-card--flat hidden md:block">
-        <div className="app-card__head">
-          <div>
-            <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: users.length })}</p>
-          </div>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('table.name')}</th>
-                <th>{t('table.email')}</th>
-                <th>{t('table.status')}</th>
-                <th>{t('table.role')}</th>
-                <th>{t('table.organizations')}</th>
-                <th>{t('table.lastLogin')}</th>
-                <th>{t('table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => {
-                const status = getUserStatus(user);
-                const orgs = user.userOrganizations ?? [];
-                return (
-                  <tr key={user.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                          color: 'var(--green-ink)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          fontFamily: 'var(--f-mono)',
-                          flexShrink: 0,
-                        }}>
-                          {(user.firstName?.[0] || '').toUpperCase()}{(user.lastName?.[0] || '').toUpperCase()}
-                        </div>
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{user.firstName} {user.lastName}</span>
-                      </div>
-                    </td>
-                    <td className="mono" style={{ fontSize: 12 }}>{user.email}</td>
-                    <td>{getStatusBadge(status)}</td>
-                    <td>
-                      {user.isSuperAdmin ? (
-                        <span className="badge badge--info">{t('role.superAdmin')}</span>
-                      ) : orgs.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                          {orgs.map((uo) => (
-                            <span key={uo.id} className={`badge ${uo.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
-                              {tMembers(`roles.${uo.role}` as Parameters<typeof tMembers>[0])}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="badge badge--neutral">{t('role.user')}</span>
-                      )}
-                    </td>
-                    <td>
-                      {orgs.length > 0 ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          {orgs.map((uo) => (
-                            <span key={uo.id} style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: 'var(--ink-faint)' }}>
-                              <Building size={12} />
-                              {uo.organization?.name ?? '-'}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>-</span>
-                      )}
-                    </td>
-                    <td className="mono" style={{ fontSize: 12 }}>{formatDate(user.lastLoginAt)}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ fontSize: 12, padding: '4px 10px' }}
-                          onClick={() => router.push(`/users/${user.id}`)}
-                        >
-                          {t('actions.view')}
-                        </button>
-                        {status === 'locked' && (
-                          <button
-                            type="button"
-                            className="btn btn--ghost"
-                            style={{ fontSize: 12, padding: '4px 10px' }}
-                            onClick={() => handleUnlock(user.id)}
-                            disabled={unlockUser.isPending}
-                          >
-                            {t('actions.unlock')}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
+  const columns: DataColumn<AdminUser>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (user) => (
+        <CellMain
+          media={
+            <span className="wave4-initials wave4-initials--round" aria-hidden>
+              {(user.firstName?.[0] || '').toUpperCase()}
+              {(user.lastName?.[0] || '').toUpperCase()}
+            </span>
+          }
+          title={fullName(user)}
+          titleText={fullName(user)}
+        />
+      ),
+    },
+    {
+      id: 'email',
+      header: t('table.email'),
+      mobile: 'meta',
+      className: 'wave4-mono',
+      cell: (user) => <CellText title={user.email}>{user.email}</CellText>,
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (user) => getStatusBadge(getUserStatus(user)),
+    },
+    {
+      id: 'role',
+      header: t('table.role'),
+      priority: 2,
+      cell: (user) => {
+        const orgs = user.userOrganizations ?? [];
+        if (user.isSuperAdmin) return <span className="badge badge--info">{t('role.superAdmin')}</span>;
+        if (orgs.length === 0) return <span className="badge badge--neutral">{t('role.user')}</span>;
+        return (
+          <span className="users-list__roles">
+            {orgs.map((uo) => (
+              <span key={uo.id} className={`badge ${uo.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
+                {tMembers(`roles.${uo.role}` as Parameters<typeof tMembers>[0])}
+              </span>
+            ))}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'organizations',
+      header: t('table.organizations'),
+      priority: 2,
+      cell: (user) => {
+        const orgs = user.userOrganizations ?? [];
+        if (orgs.length === 0) return <CellNone />;
+        return (
+          <span className="wave4-stack">
+            {orgs.map((uo) => (
+              <span key={uo.id} className="users-list__org" title={uo.organization?.name}>
+                <Building size={12} aria-hidden />
+                <span>{uo.organization?.name ?? '-'}</span>
+              </span>
+            ))}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'lastLogin',
+      header: t('table.lastLogin'),
+      priority: 3,
+      className: 'wave4-date',
+      cell: (user) => formatDate(user.lastLoginAt),
+    },
+  ];
+
+  /* Die ganze Zeile öffnet die Details; „Entsperren“ nur bei gesperrten Konten. */
+  const actions = (user: AdminUser): RowAction[] => [
+    { id: 'view', label: t('actions.view'), icon: 'eye', onClick: () => openUser(user) },
+    {
+      id: 'unlock',
+      label: t('actions.unlock'),
+      icon: <LockOpen />,
+      hidden: getUserStatus(user) !== 'locked',
+      disabled: unlockUser.isPending,
+      onClick: () => void handleUnlock(user.id),
+    },
+  ];
+
+  return (
+    <div className="app-card app-card--flat">
+      {/* Anzahl statt eines zweiten Titels, wie auf den anderen Listen. */}
+      <ListHead>
+        <ListCount>{t('count', { count: users.length })}</ListCount>
+      </ListHead>
+
+      <AdminTable
+        caption={t('title')}
+        rows={users}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        onRowClick={openUser}
+      />
+    </div>
   );
 }

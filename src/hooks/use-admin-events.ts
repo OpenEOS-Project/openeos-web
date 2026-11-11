@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api-client';
 
 interface AdminEventsParams {
@@ -20,6 +20,9 @@ export function useAdminEvents(params?: AdminEventsParams) {
       const response = await adminApi.listAdminEvents(params);
       return response;
     },
+    // Beim Suchen und Filtern die bisherige Seite stehen lassen (abgedunkelt),
+    // statt die Liste samt Suchfeld neu aufzubauen.
+    placeholderData: keepPreviousData,
   });
 }
 

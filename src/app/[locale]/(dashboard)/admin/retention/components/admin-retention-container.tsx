@@ -4,18 +4,20 @@ import { useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { Icon } from '@openeos/ui';
+import { Icon, Select, type DataColumn } from '@openeos/ui';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellNone, CellText } from '@/components/shared/admin-table';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 
 import { adminApi } from '@/lib/api-client';
 import { RETENTION_TRIGGERS, nonZeroCounts, type RetentionRunEntry } from '@/lib/privacy';
 
+import '@/styles/admin-table-wave4.css';
+
 const PAGE = 50;
-const MUTED = 'color-mix(in oklab, var(--ink) 55%, transparent)';
 
 const triggerBadge: Record<RetentionRunEntry['trigger'], string> = {
   scheduled: 'badge badge--neutral',
@@ -52,17 +54,99 @@ export function AdminRetentionContainer() {
   const label = (key: string, group: 'category' | 'trigger') =>
     t.has(`${group}.${key}`) ? t(`${group}.${key}`) : key;
 
+  const columns: DataColumn<RetentionRunEntry>[] = [
+    {
+      id: 'when',
+      header: t('table.when'),
+      mobile: 'trailing',
+      className: 'wave4-date',
+      cell: (run) => formatDateTime(run.startedAt),
+    },
+    {
+      id: 'category',
+      header: t('table.category'),
+      mobile: 'title',
+      cell: (run) => (
+        <CellMain
+          title={label(run.category, 'category')}
+          sub={run.reason || undefined}
+          subText={run.reason || undefined}
+        />
+      ),
+    },
+    {
+      id: 'trigger',
+      header: t('table.trigger'),
+      mobile: 'subtitle',
+      cell: (run) => (
+        <span className="admin-retention__badges">
+          <span className={triggerBadge[run.trigger] ?? 'badge badge--neutral'}>{label(run.trigger, 'trigger')}</span>
+          {run.dryRun && <span className="badge badge--neutral">{t('dryRun')}</span>}
+          {run.status === 'failed' && (
+            <span className="badge badge--error" title={run.error ?? undefined}>
+              {t('failed')}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      id: 'organization',
+      header: t('table.organization'),
+      mobile: 'meta',
+      cell: (run) => {
+        const name = run.organizationName ?? (run.organizationId ? run.organizationId.slice(0, 8) : null);
+        return name ? <CellText title={name}>{name}</CellText> : <CellNone />;
+      },
+    },
+    {
+      id: 'executedBy',
+      header: t('table.executedBy'),
+      mobile: 'meta',
+      priority: 2,
+      cell: (run) =>
+        run.executedBy ? (
+          <span className="wave4-stack">
+            <span>{run.executedBy.name}</span>
+            <span className="wave4-stack__line" title={run.executedBy.email}>
+              {run.executedBy.email}
+            </span>
+          </span>
+        ) : (
+          <CellNone />
+        ),
+    },
+    {
+      id: 'counts',
+      header: t('table.counts'),
+      mobile: 'meta',
+      cell: (run) => {
+        const counts = nonZeroCounts(run.counts);
+        return counts.length === 0 ? (
+          <span className="admin-cell-none">{t('nothing')}</span>
+        ) : (
+          <span className="wave4-stack admin-retention__counts">
+            {counts.map(([key, n]) => (
+              <span key={key} className="tse-mono">
+                {key}: {n}
+              </span>
+            ))}
+          </span>
+        );
+      },
+    },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="app-card app-card--flat" style={{ paddingBottom: 0 }}>
         <div className="app-card__head" style={{ borderBottom: 'none', flexWrap: 'wrap', gap: 12 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
-            <span>{t('filter')}</span>
-            <select
-              className="select"
-              style={{ width: 'auto', minWidth: 200 }}
+          <div className="admin-retention__filter">
+            <span aria-hidden>{t('filter')}</span>
+            <Select
               value={trigger}
               onChange={(e) => setTrigger(e.target.value)}
+              aria-label={t('filter')}
               data-testid="admin-retention-filter"
             >
               {['', ...RETENTION_TRIGGERS].map((value) => (
@@ -70,8 +154,8 @@ export function AdminRetentionContainer() {
                   {value ? label(value, 'trigger') : t('all')}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </div>
           {query.data && (
             <p className="app-card__sub" style={{ margin: 0 }}>
               {t('shown', { shown: runs.length, total })}
@@ -87,86 +171,27 @@ export function AdminRetentionContainer() {
       ) : runs.length === 0 ? (
         <ListEmpty title={t('empty.title')} description={t('empty.description')} icon={<Icon name="trash" size={28} />} />
       ) : (
-        <div className="app-card app-card--flat">
-          <div style={{ overflowX: 'auto' }}>
-            <table className="data-table" data-testid="admin-retention-table">
-              <thead>
-                <tr>
-                  <th>{t('table.when')}</th>
-                  <th>{t('table.category')}</th>
-                  <th>{t('table.trigger')}</th>
-                  <th>{t('table.organization')}</th>
-                  <th>{t('table.executedBy')}</th>
-                  <th>{t('table.counts')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.map((run) => {
-                  const counts = nonZeroCounts(run.counts);
-                  return (
-                    <tr key={run.id} data-testid="admin-retention-row">
-                      <td style={{ whiteSpace: 'nowrap' }}>{formatDateTime(run.startedAt)}</td>
-                      <td>
-                        {label(run.category, 'category')}
-                        {run.reason && (
-                          <div style={{ fontSize: 12, color: MUTED, maxWidth: 260 }}>{run.reason}</div>
-                        )}
-                      </td>
-                      <td>
-                        <span className={triggerBadge[run.trigger] ?? 'badge badge--neutral'}>
-                          {label(run.trigger, 'trigger')}
-                        </span>
-                        {run.dryRun && (
-                          <span className="badge badge--neutral" style={{ marginLeft: 6 }}>
-                            {t('dryRun')}
-                          </span>
-                        )}
-                        {run.status === 'failed' && (
-                          <span className="badge badge--error" style={{ marginLeft: 6 }} title={run.error ?? undefined}>
-                            {t('failed')}
-                          </span>
-                        )}
-                      </td>
-                      <td>{run.organizationName ?? (run.organizationId ? run.organizationId.slice(0, 8) : '–')}</td>
-                      <td>
-                        {run.executedBy ? (
-                          <>
-                            {run.executedBy.name}
-                            <div style={{ fontSize: 12, color: MUTED }}>{run.executedBy.email}</div>
-                          </>
-                        ) : (
-                          '–'
-                        )}
-                      </td>
-                      <td style={{ fontSize: 12 }}>
-                        {counts.length === 0 ? (
-                          <span style={{ color: MUTED }}>{t('nothing')}</span>
-                        ) : (
-                          counts.map(([key, n]) => (
-                            <div key={key} className="tse-mono">
-                              {key}: {n}
-                            </div>
-                          ))
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {query.hasNextPage && (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                disabled={query.isFetchingNextPage}
-                onClick={() => void query.fetchNextPage()}
-              >
-                {t('loadMore')}
-              </button>
-            </div>
-          )}
+        <div className="app-card app-card--flat" data-testid="admin-retention-table">
+          <AdminTable
+            caption={t('title')}
+            rows={runs}
+            rowKey="id"
+            columns={columns}
+            footer={
+              query.hasNextPage ? (
+                <div className="admin-retention__more">
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    disabled={query.isFetchingNextPage}
+                    onClick={() => void query.fetchNextPage()}
+                  >
+                    {t('loadMore')}
+                  </button>
+                </div>
+              ) : undefined
+            }
+          />
         </div>
       )}
     </div>

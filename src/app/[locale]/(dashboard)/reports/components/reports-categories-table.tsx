@@ -2,13 +2,16 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import type { DataColumn } from '@openeos/ui';
 
 import type { CategoryReport, NetSalesSummary } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { AdminTable } from '@/components/shared/admin-table';
 import { netReconciliation } from '@/utils/report-net';
 import { rankByMode } from '@/lib/operating-mode';
 import { downloadCsv } from './csv-export';
-import { ReportsNetFooter } from './reports-net-footer';
+import { ReportsNetSummary } from './reports-net-footer';
+import { PhoneLabel, ReportCardHead, ReportLoading } from './report-table';
 
 interface ReportsCategoriesTableProps {
   data: CategoryReport[] | undefined;
@@ -52,59 +55,61 @@ export function ReportsCategoriesTable({ data: raw, net, isLoading, orderOnly = 
     downloadCsv(t('export.filenames.categories'), headers, rows);
   };
 
+  const columns: DataColumn<CategoryReport>[] = [
+    {
+      id: 'category',
+      header: t('categories.columns.category'),
+      mobile: 'title',
+      cell: (c) => <span title={c.name}>{c.name}</span>,
+    },
+    {
+      id: 'quantity',
+      header: t('categories.columns.quantity'),
+      num: true,
+      mobile: showAmounts ? 'meta' : 'trailing',
+      cell: (c) => <PhoneLabel label={t('categories.columns.quantity')}>{c.quantity}</PhoneLabel>,
+    },
+    ...(showAmounts
+      ? [
+          {
+            id: 'revenue',
+            header: t('categories.columns.revenue'),
+            num: true,
+            mobile: 'trailing',
+            cell: (c) => formatCurrency(c.revenue),
+          } satisfies DataColumn<CategoryReport>,
+        ]
+      : []),
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{t('categories.title')}</h2>
-          <p className="app-card__sub">{orderOnly ? t('orderOnly.categoriesSubtitle') : t('categories.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={!data?.length}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      <ReportCardHead
+        title={t('categories.title')}
+        subtitle={orderOnly ? t('orderOnly.categoriesSubtitle') : t('categories.subtitle')}
+        onExport={handleExport}
+        exportDisabled={!data?.length}
+      />
 
       {isLoading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-          <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
-        </div>
+        <ReportLoading />
       ) : !data || data.length === 0 ? (
         <div className="empty-state">
           <h3 className="empty-state__title">{t('categories.empty')}</h3>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('categories.columns.category')}</th>
-                <th className="text-right">{t('categories.columns.quantity')}</th>
-                {showAmounts && <th className="text-right">{t('categories.columns.revenue')}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((c) => (
-                <tr key={c.categoryId}>
-                  <td>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{c.name}</div>
-                  </td>
-                  <td className="mono text-right">{c.quantity}</td>
-                  {showAmounts && <td className="mono text-right">{formatCurrency(c.revenue)}</td>}
-                </tr>
-              ))}
-            </tbody>
-            {netLines.length > 0 && (
-              <ReportsNetFooter lines={netLines} labelSpan={2} itemsLabel={t('net.categoryItems')} />
-            )}
-          </table>
-          {!orderOnly && <p className="report-net__note">{t('net.note')}</p>}
-        </div>
+        <AdminTable
+          className="report-dt"
+          caption={t('categories.title')}
+          rows={data}
+          rowKey="categoryId"
+          columns={columns}
+          footer={
+            orderOnly ? undefined : (
+              <ReportsNetSummary lines={netLines} itemsLabel={t('net.categoryItems')} note={t('net.note')} />
+            )
+          }
+        />
       )}
     </div>
   );
