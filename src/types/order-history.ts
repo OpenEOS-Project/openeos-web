@@ -137,6 +137,11 @@ export interface OrderDetailPayment {
   cardLastFour: string | null;
   refundedAmount: number;
   refundable: number;
+  /** Mit Wertmarken beglichen (Wert), je Typ; zurückgegeben/noch zurückgebbar. */
+  tokenAmount?: number;
+  tokenLines?: import('./token').PaymentTokenLine[];
+  tokenRefunded?: number;
+  tokenRefundable?: number;
   createdAt: string;
   deviceId: string | null;
   deviceName: string | null;

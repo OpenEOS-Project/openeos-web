@@ -29,6 +29,8 @@ export function getMethodLabel(method: string, t: ReportsT): string {
       return t('paymentMethods.online');
     case 'free':
       return t('paymentMethods.free');
+    case 'tokens':
+      return t('paymentMethods.tokens');
     default:
       return BRAND_METHOD_LABELS[method] ?? method;
   }
