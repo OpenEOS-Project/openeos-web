@@ -1,15 +1,30 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useCanCreateMemberAccount, useMembers } from '@/hooks/use-members';
 import { useOrganization } from '@/hooks/use-organizations';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import {
+  AdminTable,
+  CellMain,
+  CellNone,
+  CellText,
+  ListAction,
+  ListCount,
+  ListHead,
+} from '@/components/shared/admin-table';
 import type { OrganizationPermissions, UserOrganization } from '@/types/auth';
 import { seatUsage } from '@/utils/limits';
+
+import '@/styles/admin-table-wave2.css';
+
+type MemberRow = UserOrganization & {
+  user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null };
+};
 
 interface MembersListProps {
   organizationId: string;
@@ -85,142 +100,134 @@ export function MembersList({ organizationId, onInviteClick, onRemoveClick, onEd
     });
   };
 
+  const fullName = (member: MemberRow) => `${member.user?.firstName ?? ''} ${member.user?.lastName ?? ''}`.trim();
+
+  const columns: DataColumn<MemberRow>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (member) => {
+        const name = fullName(member);
+        const isCurrentUser = member.userId === user?.id;
+        return (
+          <CellMain
+            media={
+              <span className="members-list__avatar" aria-hidden>
+                {(member.user?.firstName?.[0] || '').toUpperCase()}
+                {(member.user?.lastName?.[0] || '').toUpperCase()}
+              </span>
+            }
+            title={
+              <>
+                {name}
+                {isCurrentUser && <span className="members-list__you">{t('list.you')}</span>}
+              </>
+            }
+            titleText={name}
+          />
+        );
+      },
+    },
+    {
+      id: 'email',
+      header: t('table.email'),
+      mobile: 'meta',
+      className: 'members-list__email',
+      cell: (member) =>
+        member.user?.email ? <CellText title={member.user.email}>{member.user.email}</CellText> : <CellNone />,
+    },
+    {
+      id: 'role',
+      header: t('table.role'),
+      mobile: 'subtitle',
+      cell: (member) => (
+        <span className={`badge ${member.role === 'admin' ? 'badge--info' : 'badge--neutral'}`}>
+          {t(`roles.${member.role}`)}
+        </span>
+      ),
+    },
+    {
+      id: 'permissions',
+      header: t('table.permissions'),
+      priority: 2,
+      cell: (member) => {
+        if (member.role === 'admin') return <span className="admin-cell-text--muted">{t('table.allPermissions')}</span>;
+        const active = PERMISSION_KEYS.filter((key) => member.permissions?.[key]);
+        if (active.length === 0) return <CellNone />;
+        return (
+          <span className="members-list__perms">
+            {active.map((key) => (
+              <span key={key} className="badge badge--neutral">
+                {t(`permissions.${key}`)}
+              </span>
+            ))}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'joinedAt',
+      header: t('table.joinedAt'),
+      priority: 3,
+      className: 'admin-dt__date',
+      cell: (member) => formatDate(member.createdAt),
+    },
+  ];
+
+  // Das eigene Konto lässt sich hier weder ändern noch entfernen.
+  const actions = (member: MemberRow): RowAction[] => [
+    {
+      id: 'permissions',
+      label: t('actions.editPermissions'),
+      icon: 'edit',
+      hidden: member.userId === user?.id,
+      onClick: () => onEditPermissionsClick(member),
+    },
+    {
+      id: 'remove',
+      label: t('actions.remove'),
+      icon: 'trash',
+      danger: true,
+      hidden: member.userId === user?.id,
+      onClick: () => onRemoveClick(member),
+    },
+  ];
+
+  const seatsHint = inviteBlocked ? t('seats.fullHint', { limit: seats.limit }) : undefined;
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
-              steht wie bei den Geraeten nur die Anzahl. */}
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: members.length })}</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <span
-            data-testid="member-seats"
-            style={{ fontSize: 12, color: inviteBlocked ? 'var(--danger-ink, var(--danger))' : 'var(--mute)', fontFamily: 'var(--f-mono)' }}
-            title={inviteBlocked ? t('seats.fullHint', { limit: seats.limit }) : undefined}
-          >
-            {seatsLabel}
-          </span>
-          {inviteBlocked ? (
-            /* Ein ausgegrauter Knopf zeigt keinen title; der Hinweis haengt
-               deshalb an einer Huelle, damit er beim Zeigen erscheint. */
-            <span title={t('seats.fullHint', { limit: seats.limit })} style={{ display: 'inline-flex' }}>
-              {inviteButton}
-            </span>
-          ) : (
-            inviteButton
-          )}
-        </div>
-      </div>
+      <ListHead
+        actions={
+          <ListAction
+            variant="primary"
+            icon="plus"
+            label={addLabel}
+            onClick={onInviteClick}
+            disabled={inviteBlocked}
+            aria-disabled={inviteBlocked || undefined}
+          />
+        }
+      >
+        {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
+            stehen wie bei den Geraeten die Anzahl und die belegten Plätze. */}
+        <ListCount>{t('count', { count: members.length })}</ListCount>
+        <span
+          data-testid="member-seats"
+          className={inviteBlocked ? 'members-list__seats is-full' : 'members-list__seats'}
+          title={seatsHint}
+        >
+          {seatsLabel}
+        </span>
+      </ListHead>
       {inviteBlocked && (
-        <p role="status" style={{ margin: '0 20px 12px', fontSize: 12, color: 'var(--mute)' }}>
-          {t('seats.fullHint', { limit: seats.limit })}
+        <p role="status" style={{ margin: '12px 20px', fontSize: 12, color: 'var(--mute)' }}>
+          {seatsHint}
         </p>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th>{t('table.email')}</th>
-              <th>{t('table.role')}</th>
-              <th>{t('table.permissions')}</th>
-              <th>{t('table.joinedAt')}</th>
-              <th>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => {
-              const memberUser = (member as UserOrganization & { user?: { firstName: string; lastName: string; email: string; avatarUrl: string | null } }).user;
-              const isCurrentUser = member.userId === user?.id;
-              const isAdmin = member.role === 'admin';
-              const activePermissions = !isAdmin
-                ? PERMISSION_KEYS.filter((key) => member.permissions?.[key])
-                : [];
-
-              return (
-                <tr key={member.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                        color: 'var(--green-ink)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 11,
-                        fontWeight: 700,
-                        fontFamily: 'var(--f-mono)',
-                        flexShrink: 0,
-                      }}>
-                        {(memberUser?.firstName?.[0] || '').toUpperCase()}{(memberUser?.lastName?.[0] || '').toUpperCase()}
-                      </div>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>
-                        {memberUser?.firstName} {memberUser?.lastName}
-                        {isCurrentUser && (
-                          <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--ink-faint)', fontWeight: 400 }}>{t('list.you')}</span>
-                        )}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="mono" style={{ fontSize: 12 }}>{memberUser?.email}</td>
-                  <td>
-                    <span className={`badge ${isAdmin ? 'badge--info' : 'badge--neutral'}`}>
-                      {t(`roles.${member.role}`)}
-                    </span>
-                  </td>
-                  <td>
-                    {isAdmin ? (
-                      <span style={{ fontSize: 12, color: 'var(--mute)' }}>{t('table.allPermissions')}</span>
-                    ) : activePermissions.length === 0 ? (
-                      <span style={{ fontSize: 12, color: 'var(--mute)' }}>—</span>
-                    ) : (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-                        {activePermissions.map((key) => (
-                          <span key={key} className="badge badge--neutral" style={{ fontSize: 10 }}>
-                            {t(`permissions.${key}`)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </td>
-                  <td className="mono" style={{ fontSize: 12 }}>{formatDate(member.createdAt)}</td>
-                  <td>
-                    {!isCurrentUser && (
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ padding: 6, minWidth: 0 }}
-                          onClick={() => onEditPermissionsClick(member)}
-                          aria-label={t('actions.editPermissions')}
-                          title={t('actions.editPermissions')}
-                        >
-                          <Icon name="edit" size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                          onClick={() => onRemoveClick(member)}
-                          aria-label={t('actions.remove')}
-                          title={t('actions.remove')}
-                        >
-                          <Icon name="trash" size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable caption={t('title')} rows={members as MemberRow[]} rowKey="id" columns={columns} actions={actions} />
     </div>
   );
 }

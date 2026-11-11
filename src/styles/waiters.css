@@ -1,16 +1,11 @@
-/* Bedienungen (Verwaltung): Liste, Formulare, PIN-Anzeige und PIN-Zettel. */
+/* Bedienungen (Verwaltung): Formulare, PIN-Anzeige und PIN-Zettel; die
+   Liste selbst ist eine DataTable (admin-table-wave2.css). */
 
-.waiters-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
 .waiters-limit { margin: 2px 0 0; font: 12px var(--f-mono); color: var(--mute); }
-.waiters-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
-.waiters-toolbar__filter .select { min-width: 200px; }
 .waiters-name { display: flex; align-items: center; gap: 10px; }
 .waiters-name span { display: grid; }
 .waiters-name b { font-size: 13px; white-space: nowrap; }
 .waiters-name small { font-size: 12px; color: var(--mute); }
-.waiters-actions { display: flex; gap: 4px; }
-.waiters-actions .btn { padding: 6px; min-width: 0; }
-.data-table tr.is-inactive td { opacity: .6; }
 .waiter-badge { display: inline-grid; place-items: center; flex-shrink: 0; border-radius: 50%; font-weight: 700; font-family: var(--f-mono); }
 
 .waiters-hint { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-radius: 10px; background: color-mix(in oklab, var(--ink) 4%, transparent); font-size: 13px; color: color-mix(in oklab, var(--ink) 75%, transparent); }
@@ -37,22 +32,6 @@
 .waiters-settings__title { margin: 0; font-size: 15px; }
 .waiters-settings__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 0 20px 20px; }
 
-@media (max-width: 640px) {
-  /* Telefon: jede Bedienung als Karte statt Tabellenzeile. */
-  .landing .waiters-table .data-table thead { display: none; }
-  .landing .waiters-table .data-table,
-  .landing .waiters-table .data-table tbody { display: block; width: 100%; }
-  .landing .waiters-table .data-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 12px 16px; border-bottom: 1px solid color-mix(in oklab, var(--ink) 8%, transparent); background: none; }
-  .landing .waiters-table .data-table td { display: block; padding: 0; border: 0; background: none; }
-  .landing .waiters-table .data-table td:first-child,
-  .landing .waiters-table .data-table td:last-child { flex: 1 1 100%; }
-  .landing .waiters-table .data-table td:nth-child(3),
-  .landing .waiters-table .data-table td:nth-child(5) { flex: 1 1 100%; font-size: 12px; color: var(--mute); }
-  .waiters-toolbar { justify-content: stretch; width: 100%; }
-  .waiters-toolbar > * { flex: 1 1 100%; }
-  .waiters-toolbar__filter .select { width: 100%; min-width: 0; }
-}
-
 /* PIN-Zettel: nur beim Drucken sichtbar (A4, zehn Karten, Schnittlinien). */
 .waiter-pin-sheet { display: none; }
 @media print {
@@ -76,4 +55,4 @@
 }
 
 /* Frist des Löschlaufs („wird am … anonymisiert“) */
-.waiters-due { display: block; margin-top: 4px; font-size: 11px; color: var(--mute); max-width: 14em; }
+.waiters-due { display: block; margin-top: 4px; font-size: 11px; color: var(--mute); white-space: nowrap; }

@@ -6284,7 +6284,8 @@
       "description": "Credit note for {number}"
     },
     "pay": "Pay",
-    "dueOn": "due {date}"
+    "dueOn": "due {date}",
+    "downloadPdf": "Download PDF"
   },
   "integrations": {
     "title": "Integrations",

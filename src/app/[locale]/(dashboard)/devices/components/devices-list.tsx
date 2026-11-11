@@ -1,17 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
+import { Megaphone, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import {
+  AdminTable,
+  CellMain,
+  CellNone,
+  CellText,
+  ListAction,
+  ListCount,
+  ListHead,
+} from '@/components/shared/admin-table';
 import { VerifyDeviceDialog } from './verify-device-dialog';
 import { DeleteDeviceDialog } from './delete-device-dialog';
 import { BroadcastDialog } from './broadcast-dialog';
 import type { Device, DeviceStatus, DeviceClass } from '@/types/device';
+
+import '@/styles/admin-table-wave2.css';
 
 const statusBadgeClass: Record<DeviceStatus, string> = {
   pending: 'badge badge--warning',
@@ -50,39 +62,6 @@ export function DevicesList() {
   const [verifyDevice, setVerifyDevice] = useState<Device | null>(null);
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
-
-  const closeMenu = () => {
-    setOpenMenuId(null);
-    setMenuPos(null);
-  };
-
-  useEffect(() => {
-    if (!openMenuId) return;
-    const handleClose = () => closeMenu();
-    window.addEventListener('scroll', handleClose, true);
-    window.addEventListener('resize', handleClose);
-    return () => {
-      window.removeEventListener('scroll', handleClose, true);
-      window.removeEventListener('resize', handleClose);
-    };
-  }, [openMenuId]);
-
-  const toggleMenu = (deviceId: string, button: HTMLButtonElement) => {
-    if (openMenuId === deviceId) {
-      closeMenu();
-      return;
-    }
-    const rect = button.getBoundingClientRect();
-    const menuHeight = 220;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const openUpward = spaceBelow < menuHeight + 16;
-    const top = openUpward ? Math.max(8, rect.top - menuHeight - 4) : rect.bottom + 4;
-    const right = Math.max(8, window.innerWidth - rect.right);
-    setMenuPos({ top, right });
-    setOpenMenuId(deviceId);
-  };
 
   const { data: devicesData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['devices', organizationId],
@@ -132,227 +111,145 @@ export function DevicesList() {
     );
   }
 
+  const columns: DataColumn<Device>[] = [
+    {
+      id: 'name',
+      header: t('devices.table.name'),
+      mobile: 'title',
+      cell: (device) => {
+        const isOnline = onlineDeviceIds.has(device.id);
+        return (
+          <CellMain
+            media={
+              <span className="devices-list__icon">
+                <Icon name="device" size={18} />
+                <span
+                  className={isOnline ? 'devices-list__dot is-online' : 'devices-list__dot'}
+                  title={isOnline ? t('devices.online') : t('devices.offline')}
+                />
+              </span>
+            }
+            title={device.name}
+            titleText={device.name}
+            sub={device.userAgent || undefined}
+            subText={device.userAgent || undefined}
+            extra={isOnline ? <span className="devices-list__online">{t('devices.online')}</span> : undefined}
+          />
+        );
+      },
+    },
+    {
+      id: 'status',
+      header: t('devices.table.status'),
+      mobile: 'subtitle',
+      cell: (device) => (
+        <span className={statusBadgeClass[device.status]}>{t(`devices.status.${device.status}`)}</span>
+      ),
+    },
+    {
+      id: 'class',
+      header: t('devices.table.class'),
+      mobile: 'meta',
+      cell: (device) => {
+        const label = classLabels[device.type] ? t(classLabels[device.type] as string) : null;
+        if (!label) return <CellNone />;
+        /* "Anzeige" allein sagt nicht, was darauf läuft — die Küchenansicht
+           und der Kundenwarenkorb sind zwei verschiedene Geräte im selben
+           Gehäuse. */
+        const mode =
+          device.type === 'display'
+            ? device.settings?.displayMode === 'station'
+              ? t('devices.list.displayStation')
+              : t('devices.list.displayCustomer')
+            : null;
+        return (
+          <span className="devices-list__class">
+            <CellText muted title={label}>{label}</CellText>
+            {mode && <span className="devices-list__mode">{mode}</span>}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'lastSeen',
+      header: t('devices.table.lastSeen'),
+      mobile: 'meta',
+      priority: 2,
+      className: 'admin-dt__date',
+      cell: (device) => (device.lastSeenAt ? formatDate(device.lastSeenAt) : <CellNone />),
+    },
+  ];
+
+  /* Freigeben steht bei wartenden Geräten vorn (wie bisher als Knopf in
+     der Zeile), danach Bearbeiten und Sperren/Entsperren, Löschen zuletzt. */
+  const actions = (device: Device): RowAction[] => [
+    {
+      id: 'verify',
+      label: t('devices.actions.verify'),
+      icon: <ShieldCheck />,
+      primary: true,
+      hidden: device.status !== 'pending',
+      onClick: () => setVerifyDevice(device),
+    },
+    {
+      id: 'edit',
+      label: t('devices.actions.edit'),
+      icon: 'edit',
+      onClick: () => router.push(`/devices/${device.id}?tab=settings`),
+    },
+    {
+      id: 'block',
+      label: t('devices.actions.block'),
+      icon: 'ban',
+      hidden: device.status !== 'verified',
+      disabled: blockMutation.isPending,
+      onClick: () => blockMutation.mutate(device.id),
+    },
+    {
+      id: 'unblock',
+      label: t('devices.actions.unblock'),
+      icon: 'check-circle',
+      hidden: device.status !== 'blocked',
+      disabled: unblockMutation.isPending,
+      onClick: () => unblockMutation.mutate(device.id),
+    },
+    {
+      id: 'delete',
+      label: t('devices.actions.delete'),
+      icon: 'trash',
+      danger: true,
+      onClick: () => setDeleteDevice(device),
+    },
+  ];
+
   return (
     <>
-      <div className="app-card__head">
-        <div>
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>
-            {t('devices.deviceCount', { count: devices.length })}
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn--ghost" onClick={() => setShowBroadcast(true)}>
-            {t('devices.broadcast.title')}
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => refetch()}
-            disabled={isFetching}
-          >
-            {isFetching ? '...' : t('common.refresh')}
-          </button>
-        </div>
-      </div>
-
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('devices.table.name')}</th>
-              <th>{t('devices.table.status')}</th>
-              <th>{t('devices.table.class')}</th>
-              <th>{t('devices.table.lastSeen')}</th>
-              <th className="text-right">{t('devices.table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {devices.map((device) => {
-              const isOnline = onlineDeviceIds.has(device.id);
-              return (
-                <tr key={device.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <div style={{
-                          width: 36, height: 36, borderRadius: 8,
-                          background: 'color-mix(in oklab, var(--ink) 6%, transparent)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name="device" size={18} />
-                        </div>
-                        <span style={{
-                          position: 'absolute', top: -3, right: -3,
-                          width: 10, height: 10, borderRadius: '50%',
-                          background: isOnline ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 30%, transparent)',
-                          border: '2px solid var(--paper)',
-                        }} title={isOnline ? t('devices.online') : t('devices.offline')} />
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => router.push(`/devices/${device.id}`)}
-                          style={{
-                            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                            fontWeight: 600, color: 'var(--ink)', fontSize: 14,
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--green-ink)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink)')}
-                        >
-                          {device.name}
-                        </button>
-                        {isOnline && (
-                          <span style={{ display: 'block', fontSize: 11, color: 'var(--green-ink)' }}>
-                            {t('devices.online')}
-                          </span>
-                        )}
-                        {device.userAgent && (
-                          <span style={{
-                            display: 'block', fontSize: 11,
-                            color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
-                            maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}>
-                            {device.userAgent}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={statusBadgeClass[device.status]}>
-                      {t(`devices.status.${device.status}`)}
-                    </span>
-                  </td>
-                  <td>
-                    <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 60%, transparent)' }}>
-                      {classLabels[device.type] ? t(classLabels[device.type] as string) : '-'}
-                    </span>
-                    {/* "Anzeige" allein sagt nicht, was darauf läuft — die
-                        Küchenansicht und der Kundenwarenkorb sind zwei
-                        verschiedene Geräte im selben Gehäuse. */}
-                    {device.type === 'display' && (
-                      <span style={{
-                        display: 'block', fontSize: 11,
-                        color: 'color-mix(in oklab, var(--ink) 45%, transparent)',
-                      }}>
-                        {device.settings?.displayMode === 'station'
-                          ? t('devices.list.displayStation')
-                          : t('devices.list.displayCustomer')}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <span className="mono" style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-                      {device.lastSeenAt ? formatDate(device.lastSeenAt) : '-'}
-                    </span>
-                  </td>
-                  <td className="text-right">
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                      {device.status === 'pending' && (
-                        <button
-                          className="btn btn--primary"
-                          style={{ padding: '4px 12px', fontSize: 13 }}
-                          onClick={() => setVerifyDevice(device)}
-                        >
-                          {t('devices.actions.verify')}
-                        </button>
-                      )}
-                      <button
-                        className="btn btn--ghost"
-                        style={{ padding: '4px 10px', fontSize: 13 }}
-                        onClick={(e) => toggleMenu(device.id, e.currentTarget)}
-                        aria-haspopup="menu"
-                        aria-label={t('devices.table.actions')}
-                        aria-expanded={openMenuId === device.id}
-                      >
-                        ···
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {(() => {
-        if (!openMenuId || !menuPos) return null;
-        const device = devices.find((d) => d.id === openMenuId);
-        if (!device) return null;
-        const itemStyle: React.CSSProperties = {
-          display: 'block',
-          width: '100%',
-          textAlign: 'left',
-          padding: '8px 14px',
-          fontSize: 13,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--ink)',
-        };
-        return (
+      <ListHead
+        actions={
           <>
-            <div
-              style={{ position: 'fixed', inset: 0, zIndex: 200 }}
-              onClick={closeMenu}
+            <ListAction icon={<Megaphone />} label={t('devices.broadcast.title')} onClick={() => setShowBroadcast(true)} />
+            <ListAction
+              icon={<Icon name="refresh" className={isFetching ? 'admin-spin' : undefined} />}
+              label={t('common.refresh')}
+              onClick={() => refetch()}
+              disabled={isFetching}
             />
-            <div
-              role="menu"
-              style={{
-                position: 'fixed',
-                top: menuPos.top,
-                right: menuPos.right,
-                zIndex: 210,
-                background: 'var(--paper)',
-                border: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)',
-                borderRadius: 10,
-                boxShadow: '0 8px 24px color-mix(in oklab, var(--ink) 12%, transparent)',
-                minWidth: 180,
-                padding: '4px 0',
-              }}
-            >
-              <button
-                style={itemStyle}
-                onClick={() => { closeMenu(); router.push(`/devices/${device.id}?tab=settings`); }}
-              >
-                {t('devices.actions.edit')}
-              </button>
-              {device.status === 'pending' && (
-                <button
-                  style={itemStyle}
-                  onClick={() => { closeMenu(); setVerifyDevice(device); }}
-                >
-                  {t('devices.actions.verify')}
-                </button>
-              )}
-              {device.status === 'verified' && (
-                <button
-                  style={itemStyle}
-                  onClick={() => { closeMenu(); blockMutation.mutate(device.id); }}
-                  disabled={blockMutation.isPending}
-                >
-                  {t('devices.actions.block')}
-                </button>
-              )}
-              {device.status === 'blocked' && (
-                <button
-                  style={itemStyle}
-                  onClick={() => { closeMenu(); unblockMutation.mutate(device.id); }}
-                  disabled={unblockMutation.isPending}
-                >
-                  {t('devices.actions.unblock')}
-                </button>
-              )}
-              <div style={{ height: 1, background: 'color-mix(in oklab, var(--ink) 8%, transparent)', margin: '4px 0' }} />
-              <button
-                style={{ ...itemStyle, color: 'var(--danger)' }}
-                onClick={() => { closeMenu(); setDeleteDevice(device); }}
-              >
-                {t('devices.actions.delete')}
-              </button>
-            </div>
           </>
-        );
-      })()}
+        }
+      >
+        <ListCount>{t('devices.deviceCount', { count: devices.length })}</ListCount>
+      </ListHead>
+
+      {/* Ein Klick auf die Zeile öffnet das Gerät (vorher der Name als Knopf). */}
+      <AdminTable
+        caption={t('devices.title')}
+        rows={devices}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        onRowClick={(device) => router.push(`/devices/${device.id}`)}
+        rowClassName={(device) => (device.status === 'blocked' ? 'admin-dt__row--muted' : undefined)}
+      />
 
       {verifyDevice && (
         <VerifyDeviceDialog device={verifyDevice} onClose={() => setVerifyDevice(null)} />

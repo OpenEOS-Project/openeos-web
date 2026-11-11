@@ -15,6 +15,8 @@ import type { InventoryCount, InventoryCountItem } from '@/types/inventory';
 
 import { InventoryCompletedView } from './inventory-completed-view';
 
+import '@/styles/admin-table-wave2.css';
+
 interface InventoryCountViewProps {
   eventId: string;
   count: InventoryCount;
@@ -41,6 +43,7 @@ interface ItemRowProps {
 }
 
 function ItemRow({ item, eventId, countId, readOnly }: ItemRowProps) {
+  const t = useTranslations('inventory');
   const [counted, setCounted] = useState<string>(
     item.countedQuantity !== null ? String(item.countedQuantity) : '',
   );
@@ -82,15 +85,15 @@ function ItemRow({ item, eventId, countId, readOnly }: ItemRowProps) {
 
   return (
     <tr style={{ opacity: isSaving ? 0.6 : 1 }}>
-      <td>
+      <td className="inventory-count__product">
         <div style={{ fontWeight: 500, fontSize: 13 }}>
           {item.product?.name ?? item.productId}
         </div>
       </td>
-      <td className="text-right mono" style={{ fontSize: 13 }}>
+      <td className="text-right mono" style={{ fontSize: 13 }} data-label={t('table.expected')}>
         {item.expectedQuantity}
       </td>
-      <td style={{ width: 120 }}>
+      <td className="inventory-count__counted" style={{ width: 120 }} data-label={t('table.counted')}>
         {readOnly ? (
           <span className="mono" style={{ fontSize: 13 }}>
             {item.countedQuantity !== null ? item.countedQuantity : '–'}
@@ -118,7 +121,7 @@ function ItemRow({ item, eventId, countId, readOnly }: ItemRowProps) {
           />
         )}
       </td>
-      <td className="text-right mono" style={{ fontSize: 13 }}>
+      <td className="text-right mono" style={{ fontSize: 13 }} data-label={t('table.difference')}>
         {readOnly ? (
           <DiffCell expected={item.expectedQuantity} counted={item.countedQuantity} />
         ) : (
@@ -128,7 +131,7 @@ function ItemRow({ item, eventId, countId, readOnly }: ItemRowProps) {
           />
         )}
       </td>
-      <td style={{ width: 200 }}>
+      <td className="inventory-count__notes" style={{ width: 200 }} data-label={t('table.notes')}>
         {readOnly ? (
           <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.6 }}>{item.notes ?? ''}</span>
         ) : (
@@ -245,7 +248,7 @@ export function InventoryCountView({
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             {/* Progress indicator */}
             {isInProgress && (
               <div style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
@@ -300,8 +303,11 @@ export function InventoryCountView({
 
       {/* Items table */}
       <div className="app-card app-card--flat">
+        {/* Bleibt eine Eingabetabelle (keine DataTable): je Zeile zwei
+            Eingabefelder, die in der zweizeiligen Telefon-Ansicht keinen
+            Platz hätten. Auf dem Telefon wird jede Zeile per CSS zur Karte. */}
         <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
+          <table className="data-table inventory-count-table">
             <thead>
               <tr>
                 <th>{t('table.product')}</th>
