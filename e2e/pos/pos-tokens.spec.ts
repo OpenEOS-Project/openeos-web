@@ -14,6 +14,10 @@ import { POSPage } from '../pages/pos.page';
  * SHOT_DIR=<ordner> legt Bildschirmfotos ab.
  */
 test.describe.configure({ mode: 'serial' });
+// Die drei Bildschirmgrößen stehen unten selbst — einmal reicht.
+test.beforeEach(() => {
+  test.skip(test.info().project.name !== 'chromium', 'eigene Bildschirmgrößen');
+});
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900 },
@@ -23,6 +27,7 @@ const VIEWPORTS = [
 
 let admin: PosAdmin;
 let device: PairedDevice;
+let markeName = '';
 
 test.beforeAll(async () => {
   admin = await posAdmin();
@@ -37,8 +42,9 @@ test.beforeAll(async () => {
     ],
   });
   const org = admin.organizationId;
+  markeName = `Festmarke ${stamp % 100000}`;
   await apiPost(admin.api, `organizations/${org}/token-types`, admin.headers, {
-    name: `Festmarke ${stamp % 1000}`,
+    name: markeName,
     value: 2,
     color: '#f59e0b',
     buybackAllowed: true,
@@ -67,17 +73,17 @@ for (const [index, viewport] of VIEWPORTS.entries()) {
       const nr = String(index * 10 + 1).padStart(2, '0');
       const pos = new POSPage(page);
       await pos.goto();
-      const marke = page.getByRole('button', { name: /^Eine Festmarke \d+ mehr$/ });
+      const marke = page.getByRole('button', { name: `Eine ${markeName} mehr`, exact: true });
 
-      // 1. Verkaufen: 5 Marken bar.
+      // 1. Verkaufen: 6 Marken bar (eine bleibt für den Rücktausch im Umlauf).
       await pos.openMenu('Wertmarken verkaufen');
       const sale = page.getByTestId('token-sale-sheet');
       await expect(sale).toBeVisible();
-      for (let i = 0; i < 5; i++) await marke.click();
+      for (let i = 0; i < 6; i++) await marke.click();
       await expect(sale).toContainText('Mehrzweck-Gutschein');
       await page.getByRole('button', { name: 'Passend', exact: true }).click();
       await shot(page, `${nr}-${viewport.name}-marken-verkaufen`);
-      await page.getByRole('button', { name: /^10,00\s€ kassieren$/ }).click();
+      await page.getByRole('button', { name: /^12,00\s€ kassieren$/ }).click();
       const done = page.getByTestId('token-done');
       await expect(done).toBeVisible();
       await expect(done).toContainText('Marken verkauft');
@@ -90,7 +96,7 @@ for (const [index, viewport] of VIEWPORTS.entries()) {
       await pos.addProduct('Wurst');
       await pos.checkout();
       await pos.paySheet.getByRole('radio', { name: /^Wertmarken/ }).click();
-      for (let i = 0; i < 3; i++) await pos.paySheet.getByRole('button', { name: /^Eine Festmarke \d+ mehr$/ }).click();
+      for (let i = 0; i < 3; i++) await pos.paySheet.getByRole('button', { name: `Eine ${markeName} mehr`, exact: true }).click();
       await expect(pos.paySheet).toContainText(/Rest 1,00\s€/);
       await shot(page, `${nr}-${viewport.name}-bezahlen-mit-marken`);
       await pos.paySheet.getByRole('button', { name: /^Rest kassieren: 1,00\s€$/ }).click();
@@ -105,7 +111,7 @@ for (const [index, viewport] of VIEWPORTS.entries()) {
       await pos.addProduct('Wurst');
       await pos.checkout();
       await pos.paySheet.getByRole('radio', { name: /^Wertmarken/ }).click();
-      for (let i = 0; i < 2; i++) await pos.paySheet.getByRole('button', { name: /^Eine Festmarke \d+ mehr$/ }).click();
+      for (let i = 0; i < 2; i++) await pos.paySheet.getByRole('button', { name: `Eine ${markeName} mehr`, exact: true }).click();
       await expect(pos.paySheet).toContainText(/Die Marken sind 1,00\s€ zu viel/);
       const pay = pos.paySheet.getByRole('button', { name: 'Mit Wertmarken bezahlen' });
       await expect(pay).toBeDisabled();
