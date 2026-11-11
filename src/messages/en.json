@@ -903,7 +903,7 @@
       },
       "notBooked": {
         "label": "Not activated yet",
-        "hint": "A week before, if the event is still in test mode"
+        "hint": "10 days before, if the event is still in test mode – so you can still cancel free of charge after booking"
       }
     },
     "organizationBranding": {
