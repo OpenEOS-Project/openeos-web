@@ -195,6 +195,9 @@ export function summaryRows(summary: CashSummary): { key: keyof CashSummary; val
     { key: 'pfandPayouts', value: out(summary.pfandPayouts) },
     // Kartentrinkgeld bar an Arbeitnehmer (ältere APIs liefern es nicht).
     ...(summary.tipPayouts === undefined ? [] : [{ key: 'tipPayouts' as const, value: out(summary.tipPayouts) }]),
+    // Wertmarken bar verkauft (rein) bzw. zurückgetauscht (raus) — nur mit Bewegung.
+    ...(summary.tokenSales ? [{ key: 'tokenSales' as const, value: Math.abs(summary.tokenSales) }] : []),
+    ...(summary.tokenBuybacks ? [{ key: 'tokenBuybacks' as const, value: out(summary.tokenBuybacks) }] : []),
     { key: 'differences', value: summary.differences },
   ];
 }

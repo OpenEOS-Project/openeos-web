@@ -32,6 +32,7 @@ import { ReportsCategoriesTable } from './reports-categories-table';
 import { ReportsDevicesTable } from './reports-devices-table';
 import { ReportsWaitersTable } from './reports-waiters-table';
 import { ReportsVatTable } from './reports-vat-table';
+import { ReportsTokensCard } from './reports-tokens-card';
 import { PdfExportButton } from './pdf-export-button';
 import { todayKey } from '@/utils/calendar-date';
 
@@ -144,6 +145,9 @@ export function ReportsContainer() {
       {!orderOnly && (
         <ReportsPaymentsTable data={paymentsReport.data} isLoading={paymentsReport.isLoading} />
       )}
+
+      {/* Wertmarken: verkauft ist kein Umsatz — eigener Posten neben dem Umsatz. */}
+      <ReportsTokensCard organizationId={organizationId} query={reportQuery} orderOnly={orderOnly} />
 
       <ReportsVatTable data={vatReport.data} isLoading={vatReport.isLoading} orderOnly={orderOnly} />
 

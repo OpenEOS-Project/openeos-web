@@ -1,0 +1,52 @@
+/* Wertmarken (Verwaltung): Liste, Formular „Markentyp“ und Auswertung
+   (app/[locale]/(dashboard)/tokens). */
+
+.token-swatch {
+  display: inline-block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in oklab, var(--oe-ink) 15%, transparent);
+  background: var(--oe-paper-2, transparent);
+}
+.token-name { display: flex; align-items: center; gap: 8px; }
+.token-name small { display: block; font-size: 11px; color: var(--oe-mute); font-weight: 400; }
+
+.token-form { display: flex; flex-direction: column; gap: 16px; }
+.token-form__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.token-form__hint { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--oe-mute); }
+.token-form__error { margin: 4px 0 0; font-size: 12px; color: var(--danger); }
+.token-form__legend { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding: 0; }
+
+.token-form__scope { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; }
+.token-form__scope label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+.token-picker {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r-sm, 8px);
+  padding: 4px 0;
+}
+.token-picker__group + .token-picker__group { border-top: 1px solid var(--oe-line); }
+.token-picker__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.token-picker__item--category { font-weight: 600; }
+.token-picker__item--product { padding-left: 32px; }
+.token-picker__item input:disabled + span { opacity: .6; }
+.token-picker__rate { margin-left: auto; font-size: 12px; color: var(--oe-mute); font-variant-numeric: tabular-nums; }
+.token-picker__summary { margin: 6px 0 0; font-size: 12px; color: var(--oe-mute); }
+
+.token-figure { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.3; }
+.token-figure small { font-size: 11px; color: var(--oe-mute); }
+
+.token-report__hints { display: flex; flex-direction: column; gap: 4px; padding: 12px 20px; }
+.token-report__hints p { margin: 0; font-size: 12px; line-height: 1.5; color: var(--oe-mute); }
+.token-report__sub { padding: 16px 20px 4px; margin: 0; font-size: 13px; font-weight: 700; }
