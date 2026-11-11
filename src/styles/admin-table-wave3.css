@@ -105,7 +105,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  white-space: nowrap;
   color: var(--oe-mute);
 }
 .landing .oe-dt__td.printers-list__seen {
