@@ -140,7 +140,8 @@ test.describe('Stripe invoices', () => {
     await adminPage.route(/\/events\/[^/]+\/billing$/, (route) => route.fulfill({ json: { data: billingBody() } }));
 
     await adminPage.reload();
-    await eventsPage.row(eventName).getByRole('button', { name: 'Freischaltung' }).click();
+    // Freischaltung steht im ⋯-Menü der Zeile (DataTable).
+    await eventsPage.rowAction(eventName, 'Freischaltung');
     const dialog = adminPage.getByRole('dialog');
     await expect(dialog.getByTestId('unlock-status')).toHaveText('Freigeschaltet – auf Rechnung bestellt');
     await expect(dialog.getByTestId('unlock-invoice')).toContainText('Rechnung OE-0002 · offen · fällig am 15.01.2099');
