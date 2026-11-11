@@ -1762,8 +1762,10 @@
     },
     "deleteConfirm": {
       "title": "Kategorie löschen",
-      "message": "Bist du sicher, dass du diese Kategorie löschen möchtest? Alle zugehörigen Produkte werden der Standardkategorie zugeordnet.",
-      "confirm": "Löschen"
+      "message": "Die Kategorie „{name}“ wird endgültig gelöscht.",
+      "confirm": "Löschen",
+      "hasProducts": "In „{name}“ {count, plural, one {ist noch ein Produkt} other {sind noch # Produkte}}. Verschieb {count, plural, one {es} other {sie}} in eine andere Kategorie oder lösch {count, plural, one {es} other {sie}} – danach kannst du die Kategorie löschen.",
+      "showProducts": "{count, plural, one {Produkt dieser Kategorie anzeigen} other {Die # Produkte dieser Kategorie anzeigen}}"
     },
     "notifications": {
       "created": "Kategorie erfolgreich erstellt",
@@ -2090,7 +2092,13 @@
     "favorite": "Favorit",
     "favoriteAdd": "{name} als Favorit markieren",
     "favoriteHint": "Erscheint an der Kasse in der Kategorie „Favoriten“ ganz oben.",
-    "favoriteRemove": "{name} nicht mehr als Favorit"
+    "favoriteRemove": "{name} nicht mehr als Favorit",
+    "categoryFilter": {
+      "label": "Kategorie: {name}",
+      "clear": "Alle Produkte zeigen",
+      "emptyTitle": "Keine Produkte in dieser Kategorie",
+      "emptyText": "Die Kategorie ist leer – du kannst sie jetzt löschen."
+    }
   },
   "productionStations": {
     "title": "Standorte",

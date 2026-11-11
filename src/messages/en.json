@@ -2176,8 +2176,10 @@
     },
     "deleteConfirm": {
       "title": "Delete category",
-      "message": "Are you sure you want to delete this category? All associated products will be moved to the default category.",
-      "confirm": "Delete"
+      "message": "The category “{name}” will be deleted permanently.",
+      "confirm": "Delete",
+      "hasProducts": "“{name}” still contains {count, plural, one {a product} other {# products}}. Move {count, plural, one {it} other {them}} to another category or delete {count, plural, one {it} other {them}} – then you can delete the category.",
+      "showProducts": "{count, plural, one {Show the product in this category} other {Show the # products in this category}}"
     },
     "notifications": {
       "created": "Category created successfully",
@@ -2504,7 +2506,13 @@
     "favorite": "Favorite",
     "favoriteAdd": "Mark {name} as favorite",
     "favoriteHint": "Shown at the top of the POS in the “Favorites” category.",
-    "favoriteRemove": "Remove {name} from favorites"
+    "favoriteRemove": "Remove {name} from favorites",
+    "categoryFilter": {
+      "label": "Category: {name}",
+      "clear": "Show all products",
+      "emptyTitle": "No products in this category",
+      "emptyText": "The category is empty – you can delete it now."
+    }
   },
   "productionStations": {
     "title": "Stations",

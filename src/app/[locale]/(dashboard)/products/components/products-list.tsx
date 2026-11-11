@@ -25,6 +25,9 @@ interface ProductsListProps {
   onEditClick: (product: Product) => void;
   onDeleteClick: (product: Product) => void;
   onAdjustStockClick: (product: Product) => void;
+  /** Nur Produkte dieser Kategorie (aus ?category=). */
+  categoryFilter?: string | null;
+  onClearCategoryFilter?: () => void;
 }
 
 export function ProductsList({
@@ -36,11 +39,19 @@ export function ProductsList({
   onEditClick,
   onDeleteClick,
   onAdjustStockClick,
+  categoryFilter = null,
+  onClearCategoryFilter,
 }: ProductsListProps) {
   const t = useTranslations('products');
   const { formatCurrency } = useLocaleFormat();
 
-  const { data: products, isLoading, error } = useProducts(eventId);
+  const { data: allProducts, isLoading, error } = useProducts(eventId);
+  const products = categoryFilter
+    ? allProducts?.filter((product) => product.categoryId === categoryFilter)
+    : allProducts;
+  const filterCategoryName = categoryFilter
+    ? allProducts?.find((product) => product.categoryId === categoryFilter)?.category?.name
+    : undefined;
   const updateProduct = useUpdateProduct();
   const apiErrorMessage = useApiErrorMessage();
 
@@ -59,6 +70,21 @@ export function ProductsList({
 
   if (error) {
     return <ListError />;
+  }
+
+  if (categoryFilter && allProducts && allProducts.length > 0 && (!products || products.length === 0)) {
+    return (
+      <ListEmpty
+        title={t('categoryFilter.emptyTitle')}
+        description={t('categoryFilter.emptyText')}
+        icon={<ShoppingBag size={28} />}
+        action={
+          <button className="btn btn--ghost" onClick={onClearCategoryFilter}>
+            {t('categoryFilter.clear')}
+          </button>
+        }
+      />
+    );
   }
 
   if (!products || products.length === 0) {
@@ -99,6 +125,21 @@ export function ProductsList({
           {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
               steht wie bei den Geraeten nur die Anzahl. */}
           <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: products.length })}</p>
+          {categoryFilter && (
+            <p style={{ fontSize: 12, margin: '4px 0 0', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }} data-testid="products-category-filter">
+              <span className="badge badge--neutral">
+                {t('categoryFilter.label', { name: filterCategoryName ?? '–' })}
+              </span>
+              <button
+                type="button"
+                className="notice-link"
+                style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontSize: 12 }}
+                onClick={onClearCategoryFilter}
+              >
+                {t('categoryFilter.clear')}
+              </button>
+            </p>
+          )}
           {menuImportHint && (
             <p style={{ fontSize: 12, color: 'var(--ink)', opacity: .6, margin: '4px 0 0' }}>
               {t('menuImport.hint')}{' '}
