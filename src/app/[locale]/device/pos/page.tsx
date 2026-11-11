@@ -31,6 +31,7 @@ import { OpenOrdersSheet } from './components/open-orders-sheet';
 import { OrderHistorySheet } from './components/order-history-sheet';
 import { PaySheet } from './components/pay-sheet';
 import { PfandReturnModal } from './components/pfand-return-modal';
+import { TokenSheet } from './components/token-sheet';
 import { PinEntryScreen } from './components/pin-entry-screen';
 import { PosEndedBanner, PosTestModeBanner } from './components/pos-event-selector';
 import { useEventPhase } from '@/lib/event-phase';
@@ -72,6 +73,8 @@ type SheetId =
   | 'split'
   | 'pfand'
   | 'cashbook'
+  | 'tokenSale'
+  | 'tokenBuyback'
   | 'logout'
   | 'table'
   | 'emergency'
@@ -202,6 +205,7 @@ function PosApp() {
     productsLoading,
     vouchers,
     pfandTypes,
+    tokenTypes,
   } = usePosData(eventId, true);
   // Phase der Veranstaltung: „Geplant“ bucht wie der Testmodus
   // Testbestellungen (Testbetrieb bis zum Verkaufsfenster), „Beendet“
@@ -497,6 +501,14 @@ function PosApp() {
     ...(pfandTypes.length > 0 && !orderOnly
       ? [{ id: 'pfand', icon: 'deposit' as const, label: t('menu.pfandReturn'), onSelect: () => setSheet('pfand') }]
       : []),
+    // Wertmarken (nur „Alle Funktionen“, DE mit Cloud-TSE): verkaufen und
+    // — nur Typen mit „Rücktausch erlaubt“, Recht „Erstattung“ — zurücktauschen.
+    ...(tokenTypes.length > 0 && !orderOnly
+      ? [{ id: 'tokenSale', icon: 'ticket' as const, label: t('menu.tokenSale'), disabled: offline, onSelect: () => setSheet('tokenSale') }]
+      : []),
+    ...(tokenTypes.some((type) => type.buybackAllowed) && !orderOnly && may(waiter, 'refund')
+      ? [{ id: 'tokenBuyback', icon: 'ticket' as const, label: t('menu.tokenBuyback'), disabled: offline, onSelect: () => setSheet('tokenBuyback') }]
+      : []),
     // Kassenbuch (Anfangsbestand, Einlage, Entnahme, Kassensturz): nur mit Bargeld.
     ...(operating.cashAllowed && !orderOnly && may(waiter, 'cashbook')
       ? [{ id: 'cashbook', icon: 'note' as const, label: t('menu.cashbook'), onSelect: () => setSheet('cashbook') }]
@@ -707,6 +719,7 @@ function PosApp() {
           }}
           disabled={offline}
           persistKey={UNSAVED_KEY}
+          tokenTypes={tokenTypes}
         />
         )}
         <DoneSheet
@@ -772,6 +785,23 @@ function PosApp() {
             canPrint,
           }}
         />
+        )}
+        {tokenTypes.length > 0 && !orderOnly && (
+          <TokenSheet
+            mode={sheet === 'tokenSale' ? 'sale' : sheet === 'tokenBuyback' ? 'buyback' : null}
+            onClose={() => setSheet(null)}
+            tokenTypes={tokenTypes}
+            eventId={eventId}
+            card={card}
+            disabled={offline}
+            context={{
+              title: orgName || 'OpenEOS',
+              eventName: activeEvent?.name ?? null,
+              deviceName: deviceName || 'POS',
+              isTest,
+              canPrint,
+            }}
+          />
         )}
         {operating.cashAllowed && !orderOnly && (
           <CashbookSheet open={sheet === 'cashbook'} onClose={() => setSheet(null)} disabled={offline} />

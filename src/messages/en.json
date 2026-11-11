@@ -3177,7 +3177,8 @@
         "cash": "Cash",
         "card": "Card",
         "sumup": "SumUp",
-        "discount": "Voucher"
+        "discount": "Voucher",
+        "tokens": "Tokens"
       },
       "reprintSuccess": "Print job has been sent",
       "noPrinter": "No receipt printer set up – counter-receipt not printed",
@@ -3283,7 +3284,8 @@
         "cash": "Hand back cash – the cash drawer opens.",
         "sumup": "Refunded to the guest's card via SumUp.",
         "card": "Refund at the card terminal – booked as refunded manually.",
-        "test": "Test mode: only booked, not really refunded."
+        "test": "Test mode: only booked, not really refunded.",
+        "tokens": "Hand the tokens back to the guest – never cash for them."
       },
       "cancelAndRefundTitle": "Cancel & refund · #{number}",
       "refundTitle": "Refund · #{number}",
@@ -3327,7 +3329,8 @@
       "completeBlocked": "Still being prepared",
       "completedToast": "Order completed",
       "pickedUp": "Picked up",
-      "closedWithoutPayment": "Closed without payment (earlier)"
+      "closedWithoutPayment": "Closed without payment (earlier)",
+      "tokensPaid": "Tokens: {tokens} ({amount})"
     },
     "noActiveEvent": "No active event",
     "menu": {
@@ -3353,7 +3356,9 @@
       "emergency": "Emergency support",
       "emergencyTitle": "Emergency support on your event day",
       "emergencyCall": "Call",
-      "emergencyClose": "Close"
+      "emergencyClose": "Close",
+      "tokenSale": "Sell tokens",
+      "tokenBuyback": "Buy back tokens"
     },
     "header": {
       "lock": "Lock till",
@@ -3516,7 +3521,23 @@
       "noMethod": "No payment method",
       "cashlessNoMethodTitle": "No payment method available",
       "cashlessNoMethodText": "Your organization does not accept cash, and no SumUp card reader is set up on this till. Only orders paid online or in advance can be completed here.",
-      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked."
+      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked.",
+      "tokens": "Tokens",
+      "tokensWithValue": "Tokens · {amount}",
+      "tokensComplete": "Pay with tokens",
+      "tokensRest": "Take the rest: {amount}",
+      "tokensList": "Tokens received",
+      "tokensSinglePurpose": "{rate} % items only",
+      "tokensDecrease": "One {name} less",
+      "tokensIncrease": "One more {name}",
+      "tokensExcessTitle": "The tokens are {amount} too much",
+      "tokensExcessText": "There is no change in tokens. Take one token less – or book the rest as a tip if the guest does without change.",
+      "tokensExcessAsTip": "Book the rest ({amount}) as a tip",
+      "tokensRestHint": "Tokens: {tokens} · still due: {rest} – take the rest in cash or by card.",
+      "tokensCoveredHint": "The tokens cover everything.",
+      "tokensHint": "Enter how many tokens the guest hands over. The rest is paid in cash or by card.",
+      "tokensApplied": "− tokens {amount}",
+      "tokensRestShort": "Rest {amount}"
     },
     "done": {
       "change": "Change {amount}",
@@ -3526,7 +3547,8 @@
         "card": "Card",
         "cash": "Cash",
         "free": "no payment",
-        "sumup": "Card · SumUp"
+        "sumup": "Card · SumUp",
+        "tokens": "Tokens"
       },
       "next": "Next receipt",
       "pfand": "Deposit",
@@ -3537,7 +3559,9 @@
       "sum": "Total",
       "testReceipt": "Test receipt",
       "tip": "Tip",
-      "title": "Paid"
+      "title": "Paid",
+      "methodWithTokens": "{method} + tokens",
+      "tokensPaid": "paid with tokens"
     },
     "hospitality": {
       "title": "Hospitality receipt",
@@ -3725,6 +3749,37 @@
       "settle": "Settle",
       "liveAudit": "Live cash audit",
       "handover": "Hand over table"
+    },
+    "tokens": {
+      "sellTitle": "Sell tokens",
+      "buybackTitle": "Buy back tokens",
+      "sum": "Total",
+      "back": "Back",
+      "empty": "No tokens set up",
+      "buybackEmpty": "Buy-back is not allowed for any token",
+      "buybackInfoTitle": "Cash for tokens",
+      "buybackInfo": "Count the returned tokens. The guest gets the amount in cash and signs the receipt.",
+      "buybackConfirm": "Pay out {amount}",
+      "sellConfirm": "Take {amount}",
+      "sellCard": "{amount} by card",
+      "cardCancel": "Cancel card payment",
+      "cash": "Cash",
+      "card": "Card",
+      "method": "Payment method",
+      "exact": "Exact",
+      "change": "Change: {amount}",
+      "saleHint": "Tokens are not revenue: VAT arises only when they are redeemed (multi-purpose voucher).",
+      "multiPurpose": "Multi-purpose voucher",
+      "singlePurpose": "Single-purpose voucher {rate} %",
+      "decrease": "One {name} less",
+      "increase": "One more {name}",
+      "reason": "Reason (optional), e.g. \"end of the festival\"",
+      "doneTitle": "Tokens",
+      "saleDone": "Tokens sold",
+      "buybackDone": "Tokens bought back",
+      "receiptNote": "Tokens (multi-purpose voucher, not taxable) are not change.",
+      "noPrinter": "No receipt printer for this till",
+      "done": "Done"
     }
   },
   "orders": {
@@ -3853,7 +3908,8 @@
         "cash": "Cash",
         "card": "Card",
         "sumup": "SumUp",
-        "discount": "Voucher"
+        "discount": "Voucher",
+        "tokens": "Tokens"
       },
       "kind": {
         "cancellation": "Cancellation",
@@ -3910,13 +3966,15 @@
         "cash": "Give the cash back – booked as \"paid out in cash\". Take the money from the till.",
         "sumup": "Refunded to the guest's card through SumUp.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
-        "test": "Test mode: only booked, nothing is really refunded."
+        "test": "Test mode: only booked, nothing is really refunded.",
+        "tokens": "The guest gets the tokens back, no cash."
       },
       "method": {
         "cash": "Refund in cash – booked as \"paid out in cash\".",
         "sumup": "Refund through SumUp to the guest's card.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
-        "test": "Test mode – only booked, not refunded at the payment provider."
+        "test": "Test mode – only booked, not refunded at the payment provider.",
+        "tokens": "Tokens back"
       },
       "reasonRequired": "Reason (required)",
       "reasonOptional": "Reason (optional)",

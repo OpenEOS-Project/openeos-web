@@ -3165,7 +3165,8 @@
         "cash": "Bar",
         "card": "Karte",
         "sumup": "SumUp",
-        "discount": "Rabatt-Bon"
+        "discount": "Rabatt-Bon",
+        "tokens": "Wertmarken"
       },
       "reprintSuccess": "Druckauftrag wurde gesendet",
       "noPrinter": "Kein Bondrucker eingerichtet – Gegenbeleg nicht gedruckt",
@@ -3271,7 +3272,8 @@
         "cash": "Bar zurückgeben – die Kassenlade öffnet sich.",
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als manuell erstattet gebucht.",
-        "test": "Testmodus: wird nicht echt erstattet, nur gebucht."
+        "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
+        "tokens": "Die Wertmarken gibst du dem Gast zurück – nie Bargeld dafür."
       },
       "cancelAndRefundTitle": "Stornieren & erstatten · #{number}",
       "refundTitle": "Erstatten · #{number}",
@@ -3315,7 +3317,8 @@
       "completeBlocked": "Noch in Zubereitung",
       "completedToast": "Bestellung abgeschlossen",
       "pickedUp": "Abgeholt",
-      "closedWithoutPayment": "Ohne Zahlung abgeschlossen (früher)"
+      "closedWithoutPayment": "Ohne Zahlung abgeschlossen (früher)",
+      "tokensPaid": "Wertmarken: {tokens} ({amount})"
     },
     "noActiveEvent": "Kein aktives Event",
     "menu": {
@@ -3341,7 +3344,9 @@
       "emergency": "Notfall-Support",
       "emergencyTitle": "Notfall-Support am Veranstaltungstag",
       "emergencyCall": "Anrufen",
-      "emergencyClose": "Schließen"
+      "emergencyClose": "Schließen",
+      "tokenSale": "Wertmarken verkaufen",
+      "tokenBuyback": "Wertmarken zurücktauschen"
     },
     "header": {
       "lock": "Kasse sperren",
@@ -3504,7 +3509,23 @@
       "noMethod": "Keine Zahlart",
       "cashlessNoMethodTitle": "Keine Zahlart verfügbar",
       "cashlessNoMethodText": "Deine Organisation nimmt kein Bargeld an, und an dieser Kasse ist kein SumUp-Lesegerät eingerichtet. Kassieren lässt sich hier nur, was online oder vorab bezahlt ist.",
-      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt."
+      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt.",
+      "tokens": "Wertmarken",
+      "tokensWithValue": "Wertmarken · {amount}",
+      "tokensComplete": "Mit Wertmarken bezahlen",
+      "tokensRest": "Rest kassieren: {amount}",
+      "tokensList": "Erhaltene Wertmarken",
+      "tokensSinglePurpose": "nur {rate} %-Artikel",
+      "tokensDecrease": "Eine {name} weniger",
+      "tokensIncrease": "Eine {name} mehr",
+      "tokensExcessTitle": "Die Marken sind {amount} zu viel",
+      "tokensExcessText": "Wechselgeld in Marken gibt es nicht. Nimm eine Marke weniger – oder buche den Rest als Trinkgeld, wenn der Gast darauf verzichtet.",
+      "tokensExcessAsTip": "Rest {amount} als Trinkgeld buchen",
+      "tokensRestHint": "Marken: {tokens} · noch offen: {rest} – kassiere den Rest bar oder mit Karte.",
+      "tokensCoveredHint": "Die Marken decken alles.",
+      "tokensHint": "Tippe ein, wie viele Marken der Gast dir gibt. Den Rest zahlt er bar oder mit Karte.",
+      "tokensApplied": "− Wertmarken {amount}",
+      "tokensRestShort": "Rest {amount}"
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -3514,7 +3535,8 @@
         "card": "Karte",
         "cash": "Bar",
         "free": "ohne Zahlung",
-        "sumup": "Karte · SumUp"
+        "sumup": "Karte · SumUp",
+        "tokens": "Wertmarken"
       },
       "next": "Nächster Bon",
       "pfand": "Pfand",
@@ -3525,7 +3547,9 @@
       "sum": "Summe",
       "testReceipt": "Testbon",
       "tip": "Trinkgeld",
-      "title": "Bezahlt"
+      "title": "Bezahlt",
+      "methodWithTokens": "{method} + Wertmarken",
+      "tokensPaid": "bezahlt mit Wertmarken"
     },
     "hospitality": {
       "title": "Bewirtungsbeleg",
@@ -3713,6 +3737,37 @@
       "settle": "Abrechnen",
       "liveAudit": "Live-Kassensturz",
       "handover": "Tisch übergeben"
+    },
+    "tokens": {
+      "sellTitle": "Wertmarken verkaufen",
+      "buybackTitle": "Wertmarken zurücktauschen",
+      "sum": "Summe",
+      "back": "Zurück",
+      "empty": "Keine Wertmarken angelegt",
+      "buybackEmpty": "Für keine Marke ist ein Rücktausch erlaubt",
+      "buybackInfoTitle": "Bargeld gegen Marken",
+      "buybackInfo": "Zähle die zurückgegebenen Marken. Der Gast bekommt den Betrag bar und quittiert ihn auf dem Beleg.",
+      "buybackConfirm": "{amount} auszahlen",
+      "sellConfirm": "{amount} kassieren",
+      "sellCard": "{amount} mit Karte",
+      "cardCancel": "Kartenzahlung abbrechen",
+      "cash": "Bar",
+      "card": "Karte",
+      "method": "Zahlart",
+      "exact": "Passend",
+      "change": "Rückgeld: {amount}",
+      "saleHint": "Wertmarken sind kein Umsatz: Die Umsatzsteuer entsteht erst beim Einlösen (Mehrzweck-Gutschein).",
+      "multiPurpose": "Mehrzweck-Gutschein",
+      "singlePurpose": "Einzweck-Gutschein {rate} %",
+      "decrease": "Eine {name} weniger",
+      "increase": "Eine {name} mehr",
+      "reason": "Grund (optional), z. B. „Ende des Festes“",
+      "doneTitle": "Wertmarken",
+      "saleDone": "Marken verkauft",
+      "buybackDone": "Marken zurückgetauscht",
+      "receiptNote": "Wertmarken (Mehrzweck-Gutschein, nicht steuerbar) sind kein Wechselgeld.",
+      "noPrinter": "Kein Bondrucker für diese Kasse",
+      "done": "Fertig"
     }
   },
   "orders": {
@@ -3841,7 +3896,8 @@
         "cash": "Bar",
         "card": "Karte",
         "sumup": "SumUp",
-        "discount": "Rabatt-Bon"
+        "discount": "Rabatt-Bon",
+        "tokens": "Wertmarken"
       },
       "kind": {
         "cancellation": "Storno",
@@ -3898,13 +3954,15 @@
         "cash": "Bar zurückgeben – wird als „bar ausgezahlt“ gebucht. Nimm das Geld aus der Kasse.",
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als „manuell erstattet“ gebucht.",
-        "test": "Testmodus: wird nicht echt erstattet, nur gebucht."
+        "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
+        "tokens": "Der Gast bekommt die Wertmarken zurück, kein Bargeld."
       },
       "method": {
         "cash": "Rückgabe bar – wird als „bar ausgezahlt“ gebucht.",
         "sumup": "Rückgabe über SumUp auf die Karte des Gastes.",
         "card": "Rückgabe am Kartenterminal – wird als „manuell erstattet“ gebucht.",
-        "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet."
+        "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet.",
+        "tokens": "Wertmarken zurück"
       },
       "reasonRequired": "Grund (Pflicht)",
       "reasonOptional": "Grund (optional)",

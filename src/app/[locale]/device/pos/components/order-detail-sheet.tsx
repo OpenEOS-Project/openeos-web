@@ -24,7 +24,6 @@ import { deviceTablesApi } from '@/lib/device-tables-api';
 import { canCompleteOrder } from '@/lib/operating-mode';
 
 import type { OrderDetail, OrderDetailItem } from '@/types/order-history';
-import type { PaymentMethod } from '@/types/payment';
 import type { PosCardMode } from '@/utils/pos-card-mode';
 
 import { useInvalidateOrders, useOrderDetail, useOrderTse, useRefundGate } from '../hooks/use-order-history';
@@ -35,6 +34,7 @@ import { PosTseReceipts } from './pos-tse-receipts';
 import { OrderCancelSheet } from './order-cancel-sheet';
 import { OrderRefundSheet, type RefundPreset } from './order-refund-sheet';
 import { type PayResult, PaySheet } from './pay-sheet';
+import { batchPaymentFields, cashChangeOf } from '../utils/pay-result';
 import { PinPromptSheet } from './pin-prompt-sheet';
 import { PosSheet } from './pos-sheet';
 import { ReceiptHandoutSheet } from './receipt-handout-sheet';
@@ -132,20 +132,11 @@ export function OrderDetailSheet({
 
   const pay = async (result: PayResult) => {
     if (!order) return;
-    const method: PaymentMethod =
-      result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
     let tse: TseReceiptView[] = [];
     try {
       const batch = await deviceTablesApi.payBatch({
         orderIds: [order.id],
-        paymentMethod: method,
-        ...(method === 'cash' && result.amountReceived !== undefined
-          ? { amountReceived: result.amountReceived }
-          : {}),
-        ...(result.tip > 0 ? { tipAmount: result.tip } : {}),
-        ...(result.method === 'sumup' && result.transactionId
-          ? { providerTransactionId: result.transactionId }
-          : {}),
+        ...batchPaymentFields(result),
       });
       tse = reportTse((batch.data?.payments ?? []).map((p) => p.tse));
     } catch (error) {
@@ -160,7 +151,8 @@ export function OrderDetailSheet({
       orderNumber: order.orderNumber,
       amount: order.remaining,
       method: result.method,
-      change: result.amountReceived ? result.amountReceived - order.remaining : 0,
+      change: cashChangeOf(result, order.remaining),
+      tokenValue: result.tokenValue,
       tip: result.tip,
       lines: order.items
         .filter((item) => item.status !== 'cancelled')
@@ -522,9 +514,19 @@ function OrderDetailBody({
                   {p.batchOrderCount && p.batchOrderCount > 1 && (
                     <small>{t('batchPayment', { count: p.batchOrderCount })}</small>
                   )}
+                  {(p.tokenLines ?? []).length > 0 && (
+                    <small>
+                      {t('tokensPaid', {
+                        tokens: (p.tokenLines ?? [])
+                          .map((l) => `${formatCount(l.count)} × ${l.name}`)
+                          .join(', '),
+                        amount: formatPrice(Number(p.tokenAmount ?? 0)),
+                      })}
+                    </small>
+                  )}
                 </span>
                 <span className="pos-oh-lines__sum">
-                  <b>{formatPrice(p.amount)}</b>
+                  <b>{formatPrice(p.amount + Number(p.tokenAmount ?? 0))}</b>
                   {p.refundedAmount > 0 && (
                     <small className="pos-oh-neg">{formatPrice(-p.refundedAmount)}</small>
                   )}
@@ -744,4 +746,10 @@ function buildTimeline(
     out.push({ key: 'cancelled', at: order.cancelledAt, type: 'cancelled', tone: 'danger' });
   }
   return out.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+}
+
+/** Anzahl Marken (Bruchteile mit Komma, bei Aufteilung auf Bestellungen). */
+function formatCount(count: number): string {
+  const rounded = Math.round(Number(count) * 1000) / 1000;
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded).replace('.', ',');
 }
