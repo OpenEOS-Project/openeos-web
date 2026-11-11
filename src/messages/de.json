@@ -6007,7 +6007,8 @@
       "description": "Stornorechnung zu {number}"
     },
     "pay": "Bezahlen",
-    "dueOn": "fällig {date}"
+    "dueOn": "fällig {date}",
+    "downloadPdf": "PDF herunterladen"
   },
   "integrations": {
     "title": "Integrationen",

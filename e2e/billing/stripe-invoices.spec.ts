@@ -99,7 +99,8 @@ test.describe('Stripe invoices', () => {
     );
 
     await adminPage.goto('/invoices');
-    const rows = adminPage.getByTestId('invoice-row');
+    // DataTable: Zeilen über die Rolle, der Kopf enthält keine Nummer.
+    const rows = adminPage.getByRole('row').filter({ hasText: /OE-000\d/ });
     await expect(rows).toHaveCount(4);
 
     const open = rows.filter({ hasText: 'OE-0003' });

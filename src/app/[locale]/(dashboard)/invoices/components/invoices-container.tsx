@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
-import { ExternalLink, FileText } from 'lucide-react';
+import { type DataColumn, type RowAction } from '@openeos/ui';
+import { CreditCard, ExternalLink, FileText } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInvoices } from '@/hooks/use-invoices';
@@ -12,8 +12,11 @@ import { useAuthStore } from '@/stores/auth-store';
 import { formatCurrency } from '@/utils/format';
 import { invoiceDisplayStatus, isInvoicePayable } from '@/utils/stripe-invoice';
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellNone, CellText } from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import type { OrganizationInvoice } from '@/types/billing';
+
+import '@/styles/admin-table-wave2.css';
 
 /* Stripes Statuswerte auf die Abzeichen der Anwendung abgebildet. Ein
    unbekannter Status faellt auf das neutrale Abzeichen zurueck, statt die
@@ -86,113 +89,127 @@ export function InvoicesContainer() {
     );
   }
 
-  return (
-    <div className="app-card">
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.number')}</th>
-              <th>{t('table.date')}</th>
-              <th>{t('table.description')}</th>
-              <th style={{ textAlign: 'right' }}>{t('table.amount')}</th>
-              <th>{t('table.status')}</th>
-              <th>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.map((invoice) => {
-              const status = invoiceDisplayStatus(invoice.status, invoice.dueAt);
-              const payable = invoice.kind === 'invoice' && isInvoicePayable(status) && !!invoice.hostedUrl;
-              return (
-              <tr key={invoice.id} data-testid="invoice-row">
-                <td className="mono">
-                  {invoice.number ?? (
-                    <span style={{ opacity: 0.5 }}>{t('noNumber')}</span>
-                  )}
-                  {invoice.kind === 'credit_note' && (
-                    <div>
-                      <span className="badge badge--warning" style={{ marginTop: 4 }}>
-                        {t('creditNote.badge')}
-                      </span>
-                    </div>
-                  )}
-                </td>
-                <td className="mono">
-                  {invoice.issuedAt ? dateFormat.format(new Date(invoice.issuedAt)) : '–'}
-                </td>
-                <td>
-                  {invoice.kind === 'credit_note' && invoice.relatedInvoiceNumber
-                    ? t('creditNote.description', { number: invoice.relatedInvoiceNumber })
-                    : (invoice.description ?? '–')}
-                </td>
-                <td className="mono" style={{ textAlign: 'right' }}>
-                  {/* Eine Stornorechnung hebt einen Betrag auf — als negativer Wert lesbar. */}
-                  {formatCurrency(invoice.kind === 'credit_note' ? -invoice.total : invoice.total, locale)}
-                </td>
-                <td>
-                  <span className={STATUS_BADGE[status] ?? 'badge'} data-testid="invoice-status">
-                    {t.has(`status.${status}`) ? t(`status.${status}`) : status}
-                  </span>
-                  {/* Nur Rechnungen mit Zahlungsziel (auf Rechnung) haben eines;
-                      bezahlte und stornierte brauchen es nicht mehr. */}
-                  {invoice.dueAt && isInvoicePayable(status) && (
-                    <div
-                      className="mono"
-                      style={{ marginTop: 4, fontSize: 12, color: 'color-mix(in oklab, var(--ink) 55%, transparent)', whiteSpace: 'nowrap' }}
-                    >
-                      {t('dueOn', { date: dateFormat.format(new Date(invoice.dueAt)) })}
-                    </div>
-                  )}
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
-                    {invoice.hasPdf && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--sm"
-                        onClick={() => handleDownload(invoice)}
-                        disabled={downloading === invoice.id}
-                      >
-                        <Icon name="download" size={15} />
-                        {t('download')}
-                      </button>
-                    )}
-                    {payable && (
-                      <a
-                        className="btn btn--primary btn--sm"
-                        href={invoice.hostedUrl ?? undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t('pay')}
-                      </a>
-                    )}
-                    {invoice.hostedUrl && !payable && (
-                      <a
-                        className="btn btn--ghost btn--sm"
-                        href={invoice.hostedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={t('viewAtStripe')}
-                        title={t('viewAtStripe')}
-                        style={{ padding: 6, minWidth: 0 }}
-                      >
-                        <ExternalLink size={15} />
-                      </a>
-                    )}
-                  </div>
-                </td>
-              </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+  const description = (invoice: OrganizationInvoice) =>
+    invoice.kind === 'credit_note' && invoice.relatedInvoiceNumber
+      ? t('creditNote.description', { number: invoice.relatedInvoiceNumber })
+      : invoice.description;
 
-      <p style={{ margin: '12px 16px 0', fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)' }}>
-        {t('issuerNote')}
-      </p>
+  const columns: DataColumn<OrganizationInvoice>[] = [
+    {
+      id: 'number',
+      header: t('table.number'),
+      mobile: 'title',
+      className: 'invoices-list__number',
+      cell: (invoice) => (
+        <CellMain
+          title={invoice.number ?? <span className="admin-cell-text--muted">{t('noNumber')}</span>}
+          titleText={invoice.number ?? undefined}
+          extra={
+            invoice.kind === 'credit_note' ? (
+              <span className="badge badge--warning">{t('creditNote.badge')}</span>
+            ) : undefined
+          }
+        />
+      ),
+    },
+    {
+      id: 'date',
+      header: t('table.date'),
+      mobile: 'meta',
+      className: 'admin-dt__date',
+      cell: (invoice) => (invoice.issuedAt ? dateFormat.format(new Date(invoice.issuedAt)) : <CellNone />),
+    },
+    {
+      id: 'description',
+      header: t('table.description'),
+      mobile: 'meta',
+      cell: (invoice) => {
+        const text = description(invoice);
+        return text ? (
+          <CellText title={text}>{text}</CellText>
+        ) : (
+          <CellNone />
+        );
+      },
+    },
+    {
+      id: 'amount',
+      header: t('table.amount'),
+      num: true,
+      mobile: 'trailing',
+      // Eine Stornorechnung hebt einen Betrag auf — als negativer Wert lesbar.
+      cell: (invoice) => formatCurrency(invoice.kind === 'credit_note' ? -invoice.total : invoice.total, locale),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (invoice) => {
+        const status = invoiceDisplayStatus(invoice.status, invoice.dueAt);
+        return (
+          <span className="invoices-list__status">
+            <span className={STATUS_BADGE[status] ?? 'badge'} data-testid="invoice-status">
+              {t.has(`status.${status}`) ? t(`status.${status}`) : status}
+            </span>
+            {/* Nur Rechnungen mit Zahlungsziel (auf Rechnung) haben eines;
+                bezahlte und stornierte brauchen es nicht mehr. */}
+            {invoice.dueAt && isInvoicePayable(status) && (
+              <span className="invoices-list__due">
+                {t('dueOn', { date: dateFormat.format(new Date(invoice.dueAt)) })}
+              </span>
+            )}
+          </span>
+        );
+      },
+    },
+  ];
+
+  /* Stripe-Seiten öffnen in einem neuen Tab. RowAction kennt kein target:
+     der Link behält seine Adresse (Mittelklick, Kopieren), der Klick
+     öffnet den Tab selbst. */
+  const openInNewTab = (url: string) => (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const actions = (invoice: OrganizationInvoice): RowAction[] => {
+    const status = invoiceDisplayStatus(invoice.status, invoice.dueAt);
+    const payable = invoice.kind === 'invoice' && isInvoicePayable(status) && !!invoice.hostedUrl;
+    const hostedUrl = invoice.hostedUrl ?? '';
+    return [
+      {
+        id: 'pay',
+        label: t('pay'),
+        icon: <CreditCard />,
+        primary: true,
+        hidden: !payable,
+        href: hostedUrl,
+        onClick: openInNewTab(hostedUrl),
+      },
+      {
+        id: 'download',
+        label: t('downloadPdf'),
+        icon: 'download',
+        hidden: !invoice.hasPdf,
+        disabled: downloading === invoice.id,
+        onClick: () => void handleDownload(invoice),
+      },
+      {
+        id: 'stripe',
+        label: t('viewAtStripe'),
+        icon: <ExternalLink />,
+        hidden: !invoice.hostedUrl || payable,
+        href: hostedUrl,
+        onClick: openInNewTab(hostedUrl),
+      },
+    ];
+  };
+
+  return (
+    <div className="app-card app-card--flat invoices-card">
+      <AdminTable caption={t('title')} rows={invoices} rowKey="id" columns={columns} actions={actions} />
+
+      <p className="invoices-list__note">{t('issuerNote')}</p>
     </div>
   );
 }
