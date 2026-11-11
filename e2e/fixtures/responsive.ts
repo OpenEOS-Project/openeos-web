@@ -37,6 +37,7 @@ export async function expectNoHorizontalOverflow(page: Page) {
  * Tooltip), sonst über das ⋯-Menü.
  */
 export async function runRowAction(page: Page, row: Locator, label: string, viewport: Viewport) {
+  await expect(row).toBeVisible();
   const inline = row.getByRole('button', { name: label, exact: true });
   if (!viewport.phone && (await inline.isVisible())) {
     await inline.hover();

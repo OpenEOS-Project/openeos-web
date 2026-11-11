@@ -168,7 +168,8 @@ test.describe('Cloud-TSE coming soon', () => {
       }),
     );
     await events.goto();
-    await events.row(eventName).getByRole('button', { name: 'Aktivieren' }).click();
+    // Symbolknopf in der Zeile bzw. ⋯-Menü (DataTable).
+    await events.rowAction(eventName, 'Aktivieren');
     await expect(adminPage.getByRole('heading', { name: 'Veranstaltung aktivieren' })).toBeVisible();
     const note = adminPage.getByTestId('checkout-tse-coming-soon');
     await expect(note).toContainText('Bald verfügbar');

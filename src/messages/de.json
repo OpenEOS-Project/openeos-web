@@ -921,7 +921,7 @@
       },
       "notBooked": {
         "label": "Noch nicht freigeschaltet",
-        "hint": "Eine Woche vorher, wenn die Veranstaltung noch im Testmodus ist"
+        "hint": "10 Tage vorher, wenn die Veranstaltung noch im Testmodus ist – so kannst du nach dem Buchen noch kostenlos stornieren"
       }
     },
     "organizationBranding": {
