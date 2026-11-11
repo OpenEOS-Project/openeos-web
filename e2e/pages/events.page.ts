@@ -25,6 +25,24 @@ export class EventsPage {
     return this.page.getByRole('row').filter({ hasText: eventName });
   }
 
+  /**
+   * Zeilenaktion: die ersten Aktionen stehen als Symbolknopf in der Zeile,
+   * der Rest (und auf dem Telefon alles) im ⋯-Menü „Weitere Aktionen“.
+   */
+  async rowAction(eventName: string, label: string) {
+    const row = this.row(eventName);
+    // Erst die Zeile abwarten — sonst fiele die Prüfung unten zu früh auf
+    // das Menü zurück, in dem Symbol-Aktionen auf dem Desktop fehlen.
+    await expect(row).toBeVisible();
+    const inline = row.getByRole('button', { name: label, exact: true });
+    if (await inline.isVisible()) {
+      await inline.click();
+      return;
+    }
+    await row.getByRole('button', { name: 'Weitere Aktionen' }).click();
+    await this.page.getByRole('menuitem', { name: label, exact: true }).click();
+  }
+
   async createEvent(data: { name: string; description?: string; startDate: string; endDate?: string }) {
     await this.createButton.click();
     await this.modal.getByRole('textbox', { name: 'Name' }).fill(data.name);

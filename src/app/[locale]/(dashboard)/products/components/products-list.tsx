@@ -2,8 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import '@/styles/products.css';
-import { Button, Icon, Tooltip } from '@openeos/ui';
-import { ShoppingBag } from 'lucide-react';
+import { Icon, IconButton, useMediaQuery, type DataColumn, type RowAction } from '@openeos/ui';
+import { ShoppingBag, Upload } from 'lucide-react';
 import Link from 'next/link';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -12,6 +12,16 @@ import { useProducts, useUpdateProduct } from '@/hooks/use-products';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { toast } from '@/components/shared/toast';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import {
+  AdminTable,
+  CellMain,
+  CellNone,
+  CellText,
+  ListAction,
+  ListCount,
+  ListHead,
+  PHONE_QUERY,
+} from '@/components/shared/admin-table';
 import type { Product } from '@/types/product';
 
 interface ProductsListProps {
@@ -53,6 +63,7 @@ export function ProductsList({
     ? allProducts?.find((product) => product.categoryId === categoryFilter)?.category?.name
     : undefined;
   const updateProduct = useUpdateProduct();
+  const phone = useMediaQuery(PHONE_QUERY);
   const apiErrorMessage = useApiErrorMessage();
 
   /* Favoriten erscheinen an der Kasse in einer eigenen Kategorie ganz
@@ -109,172 +120,151 @@ export function ProductsList({
     );
   }
 
-  const formatPrice = (price: number) => formatCurrency(price);
-
-  const getStatusBadge = (product: Product) => {
+  const statusBadge = (product: Product) => {
     if (!product.isActive) return <span className="badge badge--neutral">{t('status.inactive')}</span>;
     if (!product.isAvailable) return <span className="badge badge--warning">{t('status.unavailable')}</span>;
     if (product.trackInventory && product.stockQuantity <= 0) return <span className="badge badge--error">{t('status.outOfStock')}</span>;
     return <span className="badge badge--success">{t('status.available')}</span>;
   };
 
+  const columns: DataColumn<Product>[] = [
+    {
+      id: 'favorite',
+      header: <span className="oe-sr-only">{t('favorite')}</span>,
+      width: 44,
+      mobile: 'hidden',
+      cell: (product) => {
+        const label = t(product.isFavorite ? 'favoriteRemove' : 'favoriteAdd', { name: product.name });
+        return (
+          <IconButton
+            variant="quiet"
+            size="xs"
+            className={product.isFavorite ? 'products-fav is-on' : 'products-fav'}
+            aria-pressed={!!product.isFavorite}
+            label={label}
+            icon={<Icon name="star" filled={!!product.isFavorite} />}
+            onClick={() => toggleFavorite(product)}
+            disabled={updateProduct.isPending && updateProduct.variables?.id === product.id}
+          />
+        );
+      },
+    },
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (product) => (
+        <CellMain
+          media={<ProductImage product={product} productName={product.name} size="sm" />}
+          title={product.name}
+          titleText={product.name}
+          sub={product.description || undefined}
+          subText={product.description || undefined}
+        />
+      ),
+    },
+    {
+      id: 'category',
+      header: t('table.category'),
+      mobile: 'meta',
+      priority: 2,
+      cell: (product) =>
+        product.category?.name ? (
+          <CellText muted title={product.category.name}>{product.category.name}</CellText>
+        ) : (
+          <CellNone />
+        ),
+    },
+    {
+      id: 'price',
+      header: t('table.price'),
+      num: true,
+      mobile: 'trailing',
+      cell: (product) => formatCurrency(product.price),
+    },
+    {
+      id: 'stock',
+      header: t('table.stock'),
+      num: true,
+      priority: 3,
+      mobile: 'meta',
+      cell: (product) =>
+        product.trackInventory ? `${product.stockQuantity} ${product.stockUnit}` : null,
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (product) => statusBadge(product),
+    },
+  ];
+
+  const actions = (product: Product): RowAction[] => [
+    { id: 'edit', label: t('actions.edit'), icon: 'edit', onClick: () => onEditClick(product) },
+    {
+      id: 'stock',
+      label: t('actions.adjustStock'),
+      icon: 'sliders',
+      hidden: !product.trackInventory,
+      onClick: () => onAdjustStockClick(product),
+    },
+    {
+      id: 'favorite',
+      label: t(product.isFavorite ? 'actions.favoriteRemove' : 'actions.favoriteAdd'),
+      icon: <Icon name="star" filled={!!product.isFavorite} />,
+      // Auf dem Telefon fehlt die Sternspalte; dort steht der Favorit im Menü.
+      hidden: !phone,
+      onClick: () => toggleFavorite(product),
+    },
+    { id: 'delete', label: t('actions.delete'), icon: 'trash', danger: true, onClick: () => onDeleteClick(product) },
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
-              steht wie bei den Geraeten nur die Anzahl. */}
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: products.length })}</p>
-          {categoryFilter && (
-            <p style={{ fontSize: 12, margin: '4px 0 0', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }} data-testid="products-category-filter">
-              <span className="badge badge--neutral">
-                {t('categoryFilter.label', { name: filterCategoryName ?? '–' })}
-              </span>
-              <button
-                type="button"
-                className="notice-link"
-                style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontSize: 12 }}
-                onClick={onClearCategoryFilter}
-              >
-                {t('categoryFilter.clear')}
-              </button>
-            </p>
-          )}
-          {menuImportHint && (
-            <p style={{ fontSize: 12, color: 'var(--ink)', opacity: .6, margin: '4px 0 0' }}>
-              {t('menuImport.hint')}{' '}
-              <Link href="/settings?tab=org-assistant" className="notice-link">
-                {t('menuImport.hintAction')}
-              </Link>
-            </p>
-          )}
-        </div>
-        {/* Nur Symbole; die Beschriftung steht als Sprechblase (Hover/Fokus)
-            und als aria-label. Ein Import-Knopf für Speisekarte und CSV. */}
-        <div className="page-actions">
-          <Tooltip label={t('manageCategories')}>
-            <Button
-              variant="ghost"
-              iconOnly
-              aria-label={t('manageCategories')}
-              onClick={onManageCategoriesClick}
-            >
-              <Icon name="tag" />
-            </Button>
-          </Tooltip>
-          <Tooltip label={t('import.trigger')}>
-            <Button variant="ghost" iconOnly aria-label={t('import.trigger')} onClick={onImportClick}>
-              <Icon name="download" />
-            </Button>
-          </Tooltip>
-          <Tooltip label={t('create')}>
-            <Button variant="primary" iconOnly aria-label={t('create')} onClick={onCreateClick}>
-              <Icon name="plus" />
-            </Button>
-          </Tooltip>
-        </div>
-      </div>
+      <ListHead
+        actions={
+          /* Nur Symbole; die Beschriftung steht als Tooltip (Hover, Fokus,
+             langes Drücken) und als aria-label. Ein Import-Knopf für
+             Speisekarte und CSV. */
+          <>
+            <ListAction icon="tag" label={t('manageCategories')} onClick={onManageCategoriesClick} />
+            {/* Hochladen statt Download-Pfeil: der steht beim Export. */}
+            <ListAction icon={<Upload />} label={t('import.trigger')} onClick={onImportClick} />
+            <ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />
+          </>
+        }
+      >
+        {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
+            steht wie bei den Geraeten nur die Anzahl. */}
+        <ListCount>{t('count', { count: products.length })}</ListCount>
+        {categoryFilter && (
+          <p className="products-list__filter" data-testid="products-category-filter">
+            <span className="badge badge--neutral">
+              {t('categoryFilter.label', { name: filterCategoryName ?? '–' })}
+            </span>
+            <button type="button" className="notice-link products-list__filter-clear" onClick={onClearCategoryFilter}>
+              {t('categoryFilter.clear')}
+            </button>
+          </p>
+        )}
+        {menuImportHint && (
+          <p className="products-list__hint">
+            {t('menuImport.hint')}{' '}
+            <Link href="/settings?tab=org-assistant" className="notice-link">
+              {t('menuImport.hintAction')}
+            </Link>
+          </p>
+        )}
+      </ListHead>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th style={{ width: 44 }}>
-                <span className="oe-sr-only">{t('favorite')}</span>
-              </th>
-              <th>{t('table.name')}</th>
-              <th>{t('table.category')}</th>
-              <th className="text-right">{t('table.price')}</th>
-              <th className="text-right">{t('table.stock')}</th>
-              <th>{t('table.status')}</th>
-              <th style={{ width: 160 }}>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td>
-                  <Button
-                    variant="quiet"
-                    size="sm"
-                    iconOnly
-                    style={product.isFavorite ? { color: 'var(--oe-warn)' } : undefined}
-                    aria-pressed={!!product.isFavorite}
-                    aria-label={t(product.isFavorite ? 'favoriteRemove' : 'favoriteAdd', { name: product.name })}
-                    title={t(product.isFavorite ? 'favoriteRemove' : 'favoriteAdd', { name: product.name })}
-                    onClick={() => toggleFavorite(product)}
-                    disabled={updateProduct.isPending && updateProduct.variables?.id === product.id}
-                  >
-                    <Icon name="star" filled={!!product.isFavorite} />
-                  </Button>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <ProductImage product={product} productName={product.name} size="sm" />
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{product.name}</div>
-                      {product.description && (
-                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
-                          {product.description}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.6 }}>
-                    {product.category?.name || '-'}
-                  </span>
-                </td>
-                <td className="mono text-right">{formatPrice(product.price)}</td>
-                <td className="mono text-right">
-                  {product.trackInventory
-                    ? `${product.stockQuantity} ${product.stockUnit}`
-                    : <span style={{ opacity: 0.4 }}>-</span>
-                  }
-                </td>
-                <td>{getStatusBadge(product)}</td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0 }}
-                      onClick={() => onEditClick(product)}
-                      aria-label={t('actions.edit')}
-                      title={t('actions.edit')}
-                    >
-                      <Icon name="edit" size={16} />
-                    </button>
-                    {product.trackInventory && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0 }}
-                        onClick={() => onAdjustStockClick(product)}
-                        aria-label={t('actions.adjustStock')}
-                        title={t('actions.adjustStock')}
-                      >
-                        <Icon name="sliders" size={16} />
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                      onClick={() => onDeleteClick(product)}
-                      aria-label={t('actions.delete')}
-                      title={t('actions.delete')}
-                    >
-                      <Icon name="trash" size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption={t('title')}
+        rows={products}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        rowClassName={(product) => (product.isActive ? undefined : 'admin-dt__row--muted')}
+      />
     </div>
   );
 }

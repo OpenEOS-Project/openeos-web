@@ -2,9 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Dropdown, DropdownCaption, DropdownOption, Icon, Tooltip } from '@openeos/ui';
+import {
+  Dropdown,
+  DropdownCaption,
+  DropdownOption,
+  Icon,
+  Input,
+  SearchInput,
+  Select,
+  Tooltip,
+  useMediaQuery,
+  type DataColumn,
+} from '@openeos/ui';
 import { ShoppingBag } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { ordersApi, eventsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -16,6 +27,15 @@ import { getOrderChannel, type Order, type OrderChannel, type OrdersExportVarian
 import type { HistoryPaymentFilter } from '@/types/order-history';
 import { STATUS_FILTERS, paymentIcon } from '@/utils/order-history';
 import { OrderDetailModal, displayStatusBadge } from './order-detail-modal';
+import {
+  AdminFilterBar,
+  AdminPager,
+  AdminTable,
+  CellMain,
+  CellNone,
+  ListAction,
+  PHONE_QUERY,
+} from '@/components/shared/admin-table';
 
 const PAYMENT_FILTERS: HistoryPaymentFilter[] = ['cash', 'card', 'sumup', 'discount'];
 
@@ -65,6 +85,7 @@ export function OrdersList() {
   const apiErrorMessage = useApiErrorMessage();
   const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const phone = useMediaQuery(PHONE_QUERY);
 
   // Every filter change invalidates the current page — always jump back to page 1.
   const updateFilter = <T,>(setter: (value: T) => void) => (value: T) => {
@@ -111,12 +132,16 @@ export function OrdersList() {
     data: ordersData,
     isLoading: isLoadingOrders,
     isFetching: isFetchingOrders,
+    isPlaceholderData: isPreviousOrders,
     refetch: refetchOrders,
   } = useQuery({
     queryKey: ['orders', organizationId, statusFilter, paymentFilter, channelFilter, eventFilter, dateFrom, dateTo, query, page],
     queryFn: () => ordersApi.list(organizationId!, listParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
+    // Beim Filtern die bisherige Liste stehen lassen (abgedunkelt), statt
+    // alles samt Filterzeile und offenem Filter-Sheet neu aufzubauen.
+    placeholderData: keepPreviousData,
   });
 
   const orders = ordersData?.data || [];
@@ -133,6 +158,7 @@ export function OrdersList() {
     queryFn: () => ordersApi.stats(organizationId!, filterParams as never),
     enabled: !!organizationId,
     refetchInterval: 10000,
+    placeholderData: keepPreviousData,
   });
 
   const stats = statsData?.data;
@@ -180,6 +206,151 @@ export function OrdersList() {
     return null;
   };
 
+  const columns: DataColumn<Order>[] = [
+    {
+      id: 'order',
+      header: t('orders.columns.orderNumber'),
+      mobile: 'title',
+      cell: (order) => {
+        const title = order.tableNumber
+          ? t('orders.tableLabel', { table: order.tableNumber })
+          : order.customerName || `#${order.dailyNumber}`;
+        return (
+          <CellMain
+            media={<span className="orders-list__no">#{order.dailyNumber}</span>}
+            title={title}
+            titleText={title}
+            sub={<span className="orders-list__number">{order.orderNumber}</span>}
+          />
+        );
+      },
+    },
+    {
+      id: 'channel',
+      header: t('orders.columns.channel'),
+      priority: 2,
+      cell: (order) => {
+        const channel = getOrderChannel(order);
+        const creator = creatorLabel(order);
+        return (
+          <span className="orders-list__channel">
+            <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
+            {order.waiter && (
+              <span data-testid="order-waiter" title={order.waiter.name} className="orders-list__waiter">
+                <i aria-hidden style={{ background: order.waiter.color ?? 'var(--oe-ink)' }} />
+                {order.waiter.name}
+              </span>
+            )}
+            {creator && <span className="orders-list__creator" title={creator}>{creator}</span>}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'items',
+      header: t('orders.columns.items'),
+      priority: 3,
+      cell: (order) =>
+        order.items && order.items.length > 0 ? (
+          <span className="orders-list__items">
+            {order.items.slice(0, 2).map((item) => (
+              <span
+                key={item.id}
+                // Stornierte Positionen durchgestrichen, wie in der Kasse.
+                className={item.status === 'cancelled' ? 'is-cancelled' : undefined}
+                title={`${item.quantity}x ${item.productName}`}
+              >
+                {item.quantity}x {item.productName}
+              </span>
+            ))}
+            {order.items.length > 2 && (
+              <span className="orders-list__more">+{order.items.length - 2} {t('orders.moreItems')}</span>
+            )}
+          </span>
+        ) : (
+          <CellNone />
+        ),
+    },
+    {
+      id: 'status',
+      header: t('orders.columns.status'),
+      mobile: 'subtitle',
+      cell: (order) => {
+        const display = order.displayStatus ?? 'in_kitchen';
+        return <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>;
+      },
+    },
+    {
+      id: 'payment',
+      header: t('orders.columns.payment'),
+      // Kleine Symbole: auf Tablet und Telefon (Zeile 2) sichtbar lassen.
+      mobile: 'meta',
+      cell: (order) => {
+        const methods = [...new Set((order as Order & { paymentMethods?: string[] }).paymentMethods ?? [])];
+        return (
+          <span className="orders-list__payment">
+            {methods.map((m) => (
+              <span key={m} title={t(`orders.history.payment.${m === 'cash' ? 'cash' : m.startsWith('sumup') ? 'sumup' : 'card'}`)}>
+                <Icon name={paymentIcon(m)} size={16} />
+              </span>
+            ))}
+            {Number(order.discountAmount) > 0 && (
+              <span title={t('orders.history.payment.discount')}>
+                <Icon name="percent" size={16} />
+              </span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'total',
+      header: t('orders.columns.total'),
+      num: true,
+      mobile: 'trailing',
+      cell: (order) => (
+        <span className="orders-list__total">
+          <strong>{formatCurrency(order.total)}</strong>
+          {Number(order.refundedAmount) > 0 && (
+            <span className="orders-list__refunded">
+              {t('orders.history.refunded')}: {formatCurrency(-Number(order.refundedAmount))}
+            </span>
+          )}
+          {order.paidAmount > 0 && order.paidAmount < order.total && (
+            <span className="orders-list__paid">
+              {t('orders.paid')}: {formatCurrency(order.paidAmount)}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      id: 'createdAt',
+      header: t('orders.columns.createdAt'),
+      mobile: 'meta',
+      className: 'orders-list__date',
+      cell: (order) => formatDateTime(order.createdAt),
+    },
+  ];
+
+  const activeFilters = [
+    statusFilter !== 'all',
+    paymentFilter !== 'all',
+    channelFilter !== 'all',
+    !!dateFrom,
+    !!dateTo,
+    eventFilter !== 'all',
+  ].filter(Boolean).length;
+  const resetFilters = () => {
+    setStatusFilter('all');
+    setPaymentFilter('all');
+    setChannelFilter('all');
+    setDateFrom('');
+    setDateTo('');
+    setEventFilter('all');
+    setPage(1);
+  };
+
   if (isLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
@@ -195,7 +366,7 @@ export function OrdersList() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
           gap: 12,
           padding: '16px 20px',
           borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
@@ -207,21 +378,60 @@ export function OrdersList() {
         <SummaryTile label={t('orders.summary.pfand')} value={formatCurrency(summary.pfand)} />
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-        <input
-          className="input"
-          type="search"
-          style={{ flex: '2 1 200px', minWidth: 0 }}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('orders.filters.searchPlaceholder')}
-          aria-label={t('orders.filters.searchPlaceholder')}
-        />
-
-        <select
-          className="select"
-          style={{ flex: '1 1 140px', minWidth: 0 }}
+      {/* Filter: Suche immer sichtbar, die übrigen Felder auf dem Telefon
+          hinter dem Filter-Knopf (Sheet). */}
+      <AdminFilterBar
+        leading={
+          <SearchInput
+            className="orders-list__search"
+            icon={<Icon name="search" />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('orders.filters.searchPlaceholder')}
+            aria-label={t('orders.filters.searchPlaceholder')}
+          />
+        }
+        activeCount={activeFilters}
+        onReset={resetFilters}
+        actions={
+          <>
+            <span className="orders-list__count">{t('orders.orderCount', { count: summary.count })}</span>
+            {/* Nur Symbole, Beschriftung als Tooltip bei Zeigen, Fokus oder
+                langem Drücken. Exportiert wird, was die Filter zeigen. */}
+            {mayExport && (
+              <Tooltip label={t('orders.export.trigger')} placement="bottom">
+                <Dropdown
+                  triggerVariant="icon"
+                  align="end"
+                  aria-label={t('orders.export.trigger')}
+                  trigger={<Icon name={exporting ? 'refresh' : 'download'} className={exporting ? 'admin-spin' : undefined} />}
+                >
+                  <DropdownCaption>{t('orders.export.caption', { count: summary.count })}</DropdownCaption>
+                  {EXPORT_VARIANTS.map((variant) => (
+                    <DropdownOption
+                      key={variant}
+                      disabled={exporting || summary.count === 0}
+                      onClick={() => void handleExport(variant)}
+                      meta={t(`orders.export.${variant}Hint`)}
+                    >
+                      {t(`orders.export.${variant}`)}
+                    </DropdownOption>
+                  ))}
+                </Dropdown>
+              </Tooltip>
+            )}
+            <ListAction
+              icon={<Icon name="refresh" className={isFetching ? 'admin-spin' : undefined} />}
+              label={t('common.refresh')}
+              onClick={() => refetch()}
+              disabled={isFetching}
+            />
+          </>
+        }
+      >
+        {/* Auf dem Telefon stehen die Felder im Sheet, dort mit Beschriftung. */}
+        <Select
+          label={phone ? t('orders.columns.status') : undefined}
           value={statusFilter}
           onChange={(e) => updateFilter(setStatusFilter)(e.target.value)}
           aria-label={t('orders.columns.status')}
@@ -232,11 +442,10 @@ export function OrdersList() {
               {t(`orders.displayStatus.${f.id}`)}
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          className="select"
-          style={{ flex: '1 1 140px', minWidth: 0 }}
+        <Select
+          label={phone ? t('orders.columns.payment') : undefined}
           value={paymentFilter}
           onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as HistoryPaymentFilter | 'all')}
           aria-label={t('orders.columns.payment')}
@@ -247,34 +456,32 @@ export function OrdersList() {
               {t(`orders.history.payment.${m}`)}
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          className="select"
-          style={{ flex: '1 1 140px', minWidth: 0 }}
+        <Select
+          label={phone ? t('orders.columns.channel') : undefined}
           value={channelFilter}
           onChange={(e) => updateFilter(setChannelFilter)(e.target.value as OrderChannel | 'all')}
+          aria-label={t('orders.columns.channel')}
         >
           <option value="all">{t('orders.filters.allChannels')}</option>
           <option value="service">{t('orders.channel.service')}</option>
           <option value="counter">{t('orders.channel.counter')}</option>
           <option value="online">{t('orders.channel.online')}</option>
-        </select>
+        </Select>
 
-        <input
-          className="input"
+        <Input
+          label={phone ? t('orders.filters.dateFrom') : undefined}
           type="date"
-          style={{ flex: '1 1 140px', minWidth: 0 }}
           value={dateFrom}
           max={dateTo || undefined}
           onChange={(e) => updateFilter(setDateFrom)(e.target.value)}
           aria-label={t('orders.filters.dateFrom')}
           title={t('orders.filters.dateFrom')}
         />
-        <input
-          className="input"
+        <Input
+          label={phone ? t('orders.filters.dateTo') : undefined}
           type="date"
-          style={{ flex: '1 1 140px', minWidth: 0 }}
           value={dateTo}
           min={dateFrom || undefined}
           onChange={(e) => updateFilter(setDateTo)(e.target.value)}
@@ -283,265 +490,42 @@ export function OrdersList() {
         />
 
         {events.length > 0 && (
-          <select
-            className="select"
-            style={{ flex: '1 1 140px', minWidth: 0 }}
+          <Select
+            label={phone ? t('orders.filters.event') : undefined}
             value={eventFilter}
             onChange={(e) => updateFilter(setEventFilter)(e.target.value)}
+            aria-label={t('orders.filters.allEvents')}
           >
             <option value="all">{t('orders.filters.allEvents')}</option>
             {events.map((event) => (
               <option key={event.id} value={event.id}>{event.name}</option>
             ))}
-          </select>
+          </Select>
         )}
+      </AdminFilterBar>
 
-        <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          {t('orders.orderCount', { count: summary.count })}
-        </span>
-
-        {/* Wie die Aktionen der Produkte: nur Symbole, Beschriftung als
-            Sprechblase bei Zeigen oder Fokus. */}
-        <div className="page-actions" style={{ flexShrink: 0 }}>
-          {mayExport && (
-            /* Für Screenreader steht die Beschriftung im Auslöser.
-               Exportiert wird, was die Filter zeigen. */
-            <Tooltip label={t('orders.export.trigger')}>
-              <Dropdown
-                triggerVariant="quiet"
-                align="end"
-                trigger={
-                  <>
-                    <Icon
-                      name={exporting ? 'refresh' : 'download'}
-                      size={18}
-                      style={exporting ? { animation: 'spin 0.75s linear infinite' } : undefined}
-                    />
-                    <span className="oe-sr-only">{t('orders.export.trigger')}</span>
-                  </>
-                }
-              >
-                <DropdownCaption>{t('orders.export.caption', { count: summary.count })}</DropdownCaption>
-                {EXPORT_VARIANTS.map((variant) => (
-                  <DropdownOption
-                    key={variant}
-                    disabled={exporting || summary.count === 0}
-                    onClick={() => void handleExport(variant)}
-                    meta={t(`orders.export.${variant}Hint`)}
-                  >
-                    {t(`orders.export.${variant}`)}
-                  </DropdownOption>
-                ))}
-              </Dropdown>
-            </Tooltip>
-          )}
-
-          <button
-            className="btn btn--ghost"
-            style={{ padding: 8, minWidth: 0, flexShrink: 0 }}
-            onClick={() => refetch()}
-            disabled={isFetching}
-            aria-label={t('common.refresh')}
-            title={t('common.refresh')}
-          >
-            <Icon
-              name="refresh"
-              size={18}
-              style={isFetching ? { animation: 'spin 0.75s linear infinite' } : undefined}
-            />
-          </button>
-        </div>
-      </div>
-
-      {orders.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state__icon">
-            <ShoppingBag size={28} />
+      <AdminTable
+        caption={t('orders.title')}
+        rows={orders}
+        rowKey="id"
+        columns={columns}
+        onRowClick={(order) => setSelectedOrder(order)}
+        loading={isPreviousOrders && isFetchingOrders}
+        empty={
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <ShoppingBag size={28} />
+            </div>
+            <h3 className="empty-state__title">{t('orders.noOrders')}</h3>
+            <p className="empty-state__sub">{t('orders.noOrdersDescription')}</p>
           </div>
-          <h3 className="empty-state__title">{t('orders.noOrders')}</h3>
-          <p className="empty-state__sub">{t('orders.noOrdersDescription')}</p>
-        </div>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('orders.columns.orderNumber')}</th>
-                <th>{t('orders.columns.channel')}</th>
-                <th>{t('orders.columns.items')}</th>
-                <th>{t('orders.columns.status')}</th>
-                <th>{t('orders.columns.payment')}</th>
-                <th className="text-right">{t('orders.columns.total')}</th>
-                <th>{t('orders.columns.createdAt')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order: Order) => {
-                const display = order.displayStatus ?? 'in_kitchen';
-                const methods = [...new Set((order as Order & { paymentMethods?: string[] }).paymentMethods ?? [])];
-                const channel = getOrderChannel(order);
-                const creator = creatorLabel(order);
-
-                return (
-                  <tr
-                    key={order.id}
-                    onClick={() => setSelectedOrder(order)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 8,
-                            background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                            color: 'var(--green-ink)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 11,
-                            fontWeight: 700,
-                            fontFamily: 'var(--f-mono)',
-                            flexShrink: 0,
-                          }}
-                        >
-                          #{order.dailyNumber}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>
-                            {order.tableNumber
-                              ? t('orders.tableLabel', { table: order.tableNumber })
-                              : order.customerName || `#${order.dailyNumber}`}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', fontFamily: 'var(--f-mono)' }}>{order.orderNumber}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={channelBadge[channel]}>{t(`orders.channel.${channel}`)}</span>
-                      {order.waiter && (
-                        <div
-                          data-testid="order-waiter"
-                          title={order.waiter.name}
-                          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, marginTop: 4 }}
-                        >
-                          <i
-                            aria-hidden
-                            style={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: '50%',
-                              flexShrink: 0,
-                              background: order.waiter.color ?? 'var(--ink)',
-                            }}
-                          />
-                          {order.waiter.name}
-                        </div>
-                      )}
-                      {creator && (
-                        <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)', marginTop: 4 }}>
-                          {creator}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      {order.items && order.items.length > 0 ? (
-                        <div>
-                          {order.items.slice(0, 2).map((item) => (
-                            <div
-                              key={item.id}
-                              style={{
-                                fontSize: 13,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                maxWidth: 200,
-                                // Stornierte Positionen durchgestrichen, wie in der Kasse.
-                                textDecoration: item.status === 'cancelled' ? 'line-through' : undefined,
-                                opacity: item.status === 'cancelled' ? 0.55 : undefined,
-                              }}
-                            >
-                              {item.quantity}x {item.productName}
-                            </div>
-                          ))}
-                          {order.items.length > 2 && (
-                            <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
-                              +{order.items.length - 2} {t('orders.moreItems')}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ color: 'color-mix(in oklab, var(--ink) 35%, transparent)' }}>-</span>
-                      )}
-                    </td>
-                    <td>
-                      <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>
-                    </td>
-                    <td>
-                      <span style={{ display: 'inline-flex', gap: 6, color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                        {methods.map((m) => (
-                          <span key={m} title={t(`orders.history.payment.${m === 'cash' ? 'cash' : m.startsWith('sumup') ? 'sumup' : 'card'}`)}>
-                            <Icon name={paymentIcon(m)} size={16} />
-                          </span>
-                        ))}
-                        {Number(order.discountAmount) > 0 && (
-                          <span title={t('orders.history.payment.discount')}>
-                            <Icon name="percent" size={16} />
-                          </span>
-                        )}
-                      </span>
-                    </td>
-                    <td className="mono text-right">
-                      <div style={{ fontWeight: 600 }}>{formatCurrency(order.total)}</div>
-                      {Number(order.refundedAmount) > 0 && (
-                        <div style={{ fontSize: 11, color: 'var(--danger)' }}>
-                          {t('orders.history.refunded')}: {formatCurrency(-Number(order.refundedAmount))}
-                        </div>
-                      )}
-                      {order.paidAmount > 0 && order.paidAmount < order.total && (
-                        <div style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 40%, transparent)' }}>
-                          {t('orders.paid')}: {formatCurrency(order.paidAmount)}
-                        </div>
-                      )}
-                    </td>
-                    <td className="mono">{formatDateTime(order.createdAt)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {meta && orders.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, padding: '12px 20px' }}>
-          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-            {t('orders.orderCount', { count: meta.total })}
-          </span>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button
-              className="btn btn--ghost"
-              style={{ fontSize: 13 }}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={!meta.hasPrev}
-            >
-              {t('orders.pagination.prev')}
-            </button>
-            <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', padding: '0 8px' }}>
-              {t('orders.pagination.pageOf', { page: meta.page, totalPages: meta.totalPages })}
-            </span>
-            <button
-              className="btn btn--ghost"
-              style={{ fontSize: 13 }}
-              onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-              disabled={!meta.hasNext}
-            >
-              {t('orders.pagination.next')}
-            </button>
-          </div>
-        </div>
-      )}
+        }
+        footer={
+          meta && meta.total > PAGE_LIMIT ? (
+            <AdminPager page={meta.page} pageSize={PAGE_LIMIT} total={meta.total} onChange={(p) => setPage(p)} />
+          ) : undefined
+        }
+      />
 
       <OrderDetailModal
         order={selectedOrder}

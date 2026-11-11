@@ -124,7 +124,7 @@ test.describe('Event activation cancellation', () => {
     await adminPage.reload();
     await expect(adminPage.getByRole('heading', { name: 'Veranstaltungen', level: 1 })).toBeVisible();
 
-    await eventsPage.row(eventName).getByRole('button', { name: 'Freischaltung' }).click();
+    await eventsPage.rowAction(eventName, 'Freischaltung');
     const dialog = adminPage.getByRole('dialog');
     await expect(dialog.getByRole('heading', { name: 'Freischaltung' })).toBeVisible();
     await expect(dialog.getByTestId('unlock-status')).toHaveText('Freigeschaltet – bezahlt per Karte oder Lastschrift');
@@ -177,7 +177,7 @@ test.describe('Event activation cancellation', () => {
     );
 
     await adminPage.reload();
-    await eventsPage.row(eventName).getByRole('button', { name: 'Freischaltung' }).click();
+    await eventsPage.rowAction(eventName, 'Freischaltung');
     const dialog = adminPage.getByRole('dialog');
     await expect(
       dialog.getByText(
@@ -211,7 +211,7 @@ test.describe('Event activation cancellation', () => {
     );
 
     await adminPage.reload();
-    await eventsPage.row(eventName).getByRole('button', { name: 'Freischaltung' }).click();
+    await eventsPage.rowAction(eventName, 'Freischaltung');
     const dialog = adminPage.getByRole('dialog');
     await dialog.getByRole('button', { name: 'Freischaltung stornieren' }).click();
     await dialog.getByRole('button', { name: 'Jetzt stornieren' }).click();

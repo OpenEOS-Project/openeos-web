@@ -1,7 +1,7 @@
 /* Produkte-Seite: der gemeinsame Import-Dialog
    (products/components/import-dialog.tsx) mit den Reitern „Speisekarte“
    und „CSV“. Die Vorschau des Speisekarten-Imports steht in assistant.css.
-   Die Symbol-Aktionen im Kartenkopf (.page-actions) stehen in globals.css. */
+   Die Symbol-Aktionen im Kartenkopf stehen in admin-table.css. */
 
 /* ---------- Import-Dialog ---------- */
 /* .landing .modal__panel setzt 520px; die Vorschau-Tabelle braucht Breite. */
@@ -62,4 +62,30 @@
   .landing .import-dialog__panel .modal__foot .btn {
     flex: 1 1 auto;
   }
+}
+
+/* Produktliste (DataTable): Stern als Favoriten-Schalter, Filter- und
+   Assistent-Hinweis im Kartenkopf. */
+.landing .products-fav.is-on {
+  color: var(--oe-warn);
+}
+.landing .products-list__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+.landing .products-list__filter-clear {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+.landing .products-list__hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--oe-mute);
 }
