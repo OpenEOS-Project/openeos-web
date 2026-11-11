@@ -165,9 +165,29 @@
 }
 
 @media (max-width: 767px) {
-  /* Leere Zellen (Komponente ohne Ausgabe) in Zeile 2 samt Trennpunkt weg. */
-  .landing .admin-dt .oe-dt__m-l2:empty {
+  /* Leere Zellen (Komponente ohne Ausgabe oder nur „–“) in Zeile 2 samt
+     Trennpunkt weg. */
+  .landing .admin-dt .oe-dt__m-l2:empty,
+  .landing .admin-dt .oe-dt__m-l2:has(> .admin-cell-none:only-child) {
     display: none;
+  }
+  /* Zeile 2 bleibt eine Zeile: Teile wachsen höchstens bis zu ihrem
+     Inhalt und teilen sich den Rest, lange Teile werden gekürzt, statt in
+     eine dritte Zeile (mit Trennpunkt vorn) umzubrechen. */
+  .landing .admin-dt .oe-dt__tr .oe-dt__m-l2 {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: max-content;
+  }
+  .landing .admin-dt .oe-dt__tr .oe-dt__m-sub {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+  /* Blockige Inhalte (gekürzter Text, Namenszelle) fließen in Zeile 2
+     hinter dem Trennpunkt weiter. */
+  .landing .admin-dt .oe-dt__m-l2 > .admin-cell-text,
+  .landing .admin-dt .oe-dt__m-l2 > .admin-cell-main {
+    display: inline;
   }
   .landing .admin-dt--flush .oe-dt__tr {
     padding-inline-start: 16px;
