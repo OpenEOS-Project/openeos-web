@@ -385,13 +385,9 @@
 .tse-export__sha {
   font-size: 11px;
 }
-@media (max-width: 520px) {
-  .tse-export__dl-text {
-    display: none;
-  }
-}
 
-/* Vorgänge: Tabelle ab Tablet, darunter zweizeilige Zeilen */
+/* Vorgänge (DataTable): gewählte Zeile hervorgehoben, ihre TSE-Angaben
+   im Feld unter der Tabelle. */
 .tse-tx__toolbar {
   display: flex;
   align-items: center;
@@ -400,48 +396,39 @@
   gap: 8px;
   margin-bottom: 8px;
 }
-.tse-tx__table-wrap {
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: auto;
-}
-.landing .data-table.tse-tx__table {
-  table-layout: auto;
-}
-.landing .data-table.tse-tx__table th,
-.landing .data-table.tse-tx__table td {
-  padding: 6px 8px;
-  font-size: 13px;
+.landing .oe-dt__td.tse-tx-list__time,
+.landing .oe-dt__td.closings-list__z {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  vertical-align: middle;
 }
-.landing .data-table.tse-tx__table th:first-child,
-.landing .data-table.tse-tx__table td:first-child {
-  padding-left: 0;
-}
-.landing .data-table.tse-tx__table th:last-child,
-.landing .data-table.tse-tx__table td:last-child {
-  padding-right: 0;
-}
-.tse-tx__row {
-  cursor: pointer;
-}
-.tse-tx__row.is-open td {
+.landing .tse-tx-list .oe-dt__tr.is-open .oe-dt__td {
   background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
 }
-.tse-tx__link {
-  all: unset;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
+@media (max-width: 767px) {
+  .landing .oe-dt__td.tse-tx-list__time {
+    font-family: var(--oe-f-sans);
+  }
+  .landing .tse-tx-list .oe-dt__tr.is-open {
+    background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
+  }
 }
-.tse-tx__link:focus-visible {
-  outline: 2px solid var(--oe-green-ink);
-  outline-offset: 2px;
-  border-radius: 2px;
+.tse-tx__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--oe-line);
+  border-radius: var(--oe-r);
+  scroll-margin: 16px;
 }
-.landing .data-table.tse-tx__table tr.tse-tx__detail td {
-  white-space: normal;
-  padding: 8px 0 14px;
+.tse-tx__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
 }
 .tse-tx__detail-body {
   display: flex;
@@ -465,54 +452,6 @@
 }
 .tse-tx__process dd {
   margin: 0;
-}
-.tse-tx__rows {
-  display: none;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.tse-tx-row {
-  border-top: 1px solid var(--oe-line);
-}
-.tse-tx-row:first-child {
-  border-top: 0;
-}
-.tse-tx-row__main {
-  all: unset;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  padding: 10px 0;
-  cursor: pointer;
-}
-.tse-tx-row__main:focus-visible {
-  outline: 2px solid var(--oe-green-ink);
-  outline-offset: 2px;
-}
-.tse-tx-row__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-.tse-tx-row__amount {
-  margin-left: auto;
-  font-weight: 600;
-}
-.tse-tx-row .tse-tx__detail-body {
-  padding-bottom: 12px;
-}
-@media (max-width: 767px) {
-  .tse-tx__table-wrap {
-    display: none;
-  }
-  .tse-tx__rows {
-    display: flex;
-    flex-direction: column;
-  }
 }
 .tse-pager {
   display: flex;
@@ -770,19 +709,6 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-}
-.closings__card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0;
-}
-.closings__card-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 .nachschau__tip > :last-child {
   flex: 0 0 auto;

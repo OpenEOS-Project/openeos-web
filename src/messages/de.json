@@ -891,7 +891,8 @@
         "deleteConfirmTitle": "Kartenleser löschen?",
         "deleteConfirmMessage": "„{name}“ wird von SumUp entkoppelt und kann danach keine Zahlungen mehr annehmen. Zum erneuten Verwenden muss er neu gekoppelt werden.",
         "renameReader": "Kartenleser „{name}“ umbenennen",
-        "deleteReader": "Kartenleser „{name}“ löschen"
+        "deleteReader": "Kartenleser „{name}“ löschen",
+        "statusHeader": "Status"
       },
       "testMode": {
         "title": "Testmodus",
@@ -6320,7 +6321,8 @@
         "page": "Seite {page} von {pages}",
         "processType": "Vorgangstyp",
         "processData": "Vorgangsdaten",
-        "terminal": "Terminal"
+        "terminal": "Terminal",
+        "detailTitle": "{kind} vom {time}"
       },
       "exports": {
         "title": "Exporte",

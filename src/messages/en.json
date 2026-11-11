@@ -891,7 +891,8 @@
         "deleteConfirmTitle": "Delete card reader?",
         "deleteConfirmMessage": "\"{name}\" will be unpaired from SumUp and can no longer take payments. To use it again, it has to be paired anew.",
         "renameReader": "Rename card reader \"{name}\"",
-        "deleteReader": "Delete card reader \"{name}\""
+        "deleteReader": "Delete card reader \"{name}\"",
+        "statusHeader": "Status"
       },
       "testMode": {
         "title": "Test mode",
@@ -6332,7 +6333,8 @@
         "page": "Page {page} of {pages}",
         "processType": "Process type",
         "processData": "Process data",
-        "terminal": "Terminal"
+        "terminal": "Terminal",
+        "detailTitle": "{kind} on {time}"
       },
       "exports": {
         "title": "Exports",
