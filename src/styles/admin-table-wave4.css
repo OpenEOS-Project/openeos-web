@@ -1,0 +1,155 @@
+/* Admin-Listen, Welle 4: Super-Admin-Listen und die Tabellen in
+   Auswertung und Dashboard. Ergänzt admin-table.css. */
+
+/* Kürzel bzw. Initialen vor dem Namen (Organisationen, Benutzer). */
+.wave4-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+  font: 700 12px var(--oe-f-mono);
+}
+.wave4-initials--round {
+  border-radius: 50%;
+}
+
+/* Mono-Spalten (Slug, E-Mail) und Datumsspalten: Tabellenziffern, kein Umbruch. */
+.landing .oe-dt__td.wave4-mono,
+.landing .oe-dt__td.wave4-date {
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.landing .oe-dt__td.wave4-date {
+  white-space: nowrap;
+}
+
+/* Mehrzeilige Zelle (Badge, darunter Hinweise). */
+.wave4-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+.wave4-stack__line {
+  font-size: 11px;
+  color: var(--oe-mute);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .wave4-initials {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .landing .oe-dt__td.wave4-mono,
+  .landing .oe-dt__td.wave4-date {
+    font-family: var(--oe-f-sans);
+  }
+  /* In Zeile 2 des Eintrags: alles in einer Zeile, Zusatzzeilen weg. */
+  .landing .admin-dt .wave4-stack {
+    display: inline;
+  }
+  .landing .admin-dt .wave4-stack__line {
+    display: none;
+  }
+}
+
+/* Benutzer: Rollen als Badges, Organisationen untereinander. */
+.users-list__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.users-list__org {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 220px;
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+.users-list__org > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.users-list__org svg {
+  flex: none;
+}
+
+/* Super-Admin · Veranstaltungen */
+.landing .admin-events__search {
+  width: 100%;
+  min-width: 0;
+}
+.landing .admin-events__count {
+  font-size: 13px;
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+.landing .oe-dt__td.admin-events__revenue {
+  font-weight: 600;
+}
+.admin-events__note {
+  max-width: 140px;
+}
+@media (max-width: 767px) {
+  .landing .admin-events__count {
+    display: none;
+  }
+  .landing .oe-dt__td.admin-events__revenue {
+    font-family: var(--oe-f-sans);
+  }
+}
+
+/* Suchfeld im Kartenkopf (Drucker, TSE). */
+.landing .wave4-search {
+  width: 280px;
+  max-width: 100%;
+}
+/* Zusatzzeile, die umbrechen darf (längere Hinweise). */
+.wave4-stack__line--wrap {
+  max-width: 320px;
+  white-space: normal;
+  font-size: 12px;
+}
+/* Nur auf dem Desktop (auf dem Telefon steht dasselbe in einer eigenen Spalte). */
+@media (max-width: 767px) {
+  .landing .admin-dt .wave4-desktop-only {
+    display: none;
+  }
+  .landing .wave4-search {
+    width: 100%;
+  }
+}
+
+/* Super-Admin · Drucker: Status mit Punkt. */
+.admin-printers__online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--oe-mute);
+}
+
+/* Super-Admin · TSE: überfällige Abmeldung rot hinterlegt. */
+.landing .admin-dt .admin-tse__row--overdue .oe-dt__td {
+  background: color-mix(in oklab, var(--danger) 7%, transparent);
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .oe-dt__tr.admin-tse__row--overdue {
+    background: color-mix(in oklab, var(--danger) 7%, transparent);
+  }
+  .landing .admin-dt .admin-tse__row--overdue .oe-dt__td {
+    background: none;
+  }
+}

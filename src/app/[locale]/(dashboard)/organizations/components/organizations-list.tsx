@@ -2,14 +2,16 @@
 
 import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { Building } from 'lucide-react';
-import { Segment } from '@openeos/ui';
+import { Building, Globe, Trash2 } from 'lucide-react';
+import { Segment, type DataColumn, type RowAction } from '@openeos/ui';
 
 import { useAdminOrganizations } from '@/hooks/use-organizations';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellText, ListAction, ListCount, ListHead } from '@/components/shared/admin-table';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { operatingModeLabelValue } from '@/lib/operating-mode';
 import type { Organization } from '@/types';
+import '@/styles/admin-table-wave4.css';
 
 interface OrganizationsListProps {
   onCreateClick: () => void;
@@ -70,23 +72,6 @@ export function OrganizationsList({
       </span>
     ) : null;
 
-  const purgeButton = (org: Organization, size: 'sm' | 'md') =>
-    org.closure?.purged ? null : (
-      <button
-        type="button"
-        className="btn btn--ghost"
-        style={{
-          fontSize: size === 'sm' ? 11 : 12,
-          padding: size === 'sm' ? '3px 8px' : '4px 10px',
-          color: 'var(--red, var(--danger))',
-        }}
-        onClick={() => onPurgeClick(org)}
-        data-testid="purge-organization"
-      >
-        {tPrivacy('purge')}
-      </button>
-    );
-
   if (isLoading) {
     return withFilter(<ListLoading />);
   }
@@ -118,194 +103,109 @@ export function OrganizationsList({
     );
   }
 
+  /** Währung und Betriebsart, wie bisher unter dem Namen. */
+  const details = (org: Organization) =>
+    [org.settings?.currency || 'EUR', org.operatingMode ? tMode(`names.${operatingModeLabelValue(org)}`) : null]
+      .filter(Boolean)
+      .join(' · ');
+
+  const columns: DataColumn<Organization>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (org) => (
+        <CellMain
+          media={
+            <span className="wave4-initials" aria-hidden>
+              {org.name.substring(0, 2).toUpperCase()}
+            </span>
+          }
+          title={org.name}
+          titleText={org.name}
+          sub={details(org)}
+          extra={closureBadge(org)}
+        />
+      ),
+    },
+    {
+      // Telefon: Löschtermin vorn in Zeile 2 (die Zusätze der Namenszelle fehlen dort).
+      id: 'closure',
+      header: tPrivacy('filter'),
+      mobile: 'subtitle',
+      className: 'admin-dt__phone-only',
+      cell: (org) => closureBadge(org),
+    },
+    {
+      id: 'slug',
+      header: t('table.slug'),
+      mobile: 'meta',
+      className: 'wave4-mono',
+      cell: (org) => <CellText title={org.slug}>{org.slug}</CellText>,
+    },
+    {
+      // Telefon: Währung und Betriebsart.
+      id: 'details',
+      header: t('form.currency'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only',
+      cell: (org) => details(org),
+    },
+    {
+      id: 'createdAt',
+      header: t('table.createdAt'),
+      mobile: 'meta',
+      className: 'wave4-date',
+      cell: (org) => formatDate(org.createdAt),
+    },
+  ];
+
+  /* Bearbeiten und Mitglieder als Symbol in der Zeile, Betriebsart und das
+     Löschen im Menü. Gelöschte Organisationen: nur „Endgültig löschen“
+     (solange noch nicht geschehen). */
+  const actions = (org: Organization): RowAction[] => [
+    { id: 'edit', label: t('actions.edit'), icon: 'edit', hidden: !!org.closure, onClick: () => onEditClick(org) },
+    {
+      id: 'members',
+      label: t('actions.manageMembers'),
+      icon: 'users',
+      hidden: !!org.closure,
+      onClick: () => onManageMembersClick(org),
+    },
+    {
+      id: 'operatingMode',
+      label: t('actions.operatingMode'),
+      icon: <Globe />,
+      hidden: !!org.closure,
+      onClick: () => onOperatingModeClick(org),
+    },
+    {
+      id: 'delete',
+      label: t('actions.delete'),
+      icon: 'trash',
+      danger: true,
+      hidden: !!org.closure,
+      onClick: () => onDeleteClick(org),
+    },
+    {
+      id: 'purge',
+      label: tPrivacy('purge'),
+      icon: <Trash2 />,
+      danger: true,
+      hidden: !!org.closure?.purged,
+      onClick: () => onPurgeClick(org),
+    },
+  ];
+
   return (
     <>
       {filter}
-      {/* Mobile card list */}
-      {/* Kartenliste nur schmal. Das Layout darf NICHT inline stehen:
-          ein inline display:flex schlaegt md:hidden, dadurch standen
-          Karten und Tabelle auf breiten Viewports uebereinander. */}
-      <div className="flex flex-col gap-2.5 md:hidden">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: organizations.length })}</p>
-          <button type="button" className="btn btn--primary" onClick={onCreateClick}>
-            {t('create')}
-          </button>
-        </div>
-        {organizations.map((org) => (
-          <div key={org.id} className="app-card" style={{ padding: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-              <div style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                color: 'var(--green-ink)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 13,
-                fontWeight: 700,
-                flexShrink: 0,
-              }}>
-                {org.name.substring(0, 2).toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {org.name}
-                </p>
-                <p className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '2px 0 6px' }}>{org.slug}</p>
-                {closureBadge(org)}
-                <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--ink-faint)' }}>
-                  <span>{org.settings?.currency || 'EUR'}</span>
-                  {org.operatingMode && <span>{tMode(`names.${operatingModeLabelValue(org)}`)}</span>}
-                  <span>{formatDate(org.createdAt)}</span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                {!org.closure && (
-                  <>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  style={{ fontSize: 11, padding: '3px 8px' }}
-                  onClick={() => onEditClick(org)}
-                >
-                  {t('actions.edit')}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  style={{ fontSize: 11, padding: '3px 8px' }}
-                  onClick={() => onManageMembersClick(org)}
-                >
-                  {t('actions.manageMembers')}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  style={{ fontSize: 11, padding: '3px 8px' }}
-                  onClick={() => onOperatingModeClick(org)}
-                >
-                  {t('actions.operatingMode')}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  style={{ fontSize: 11, padding: '3px 8px', color: 'var(--red, var(--danger))' }}
-                  onClick={() => onDeleteClick(org)}
-                >
-                  {t('actions.delete')}
-                </button>
-                  </>
-                )}
-                {purgeButton(org, 'sm')}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <div className="app-card app-card--flat">
+        <ListHead actions={<ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />}>
+          <ListCount>{t('count', { count: organizations.length })}</ListCount>
+        </ListHead>
 
-      {/* Desktop table */}
-      <div className="app-card app-card--flat hidden md:block">
-        <div className="app-card__head">
-          <div>
-            <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: organizations.length })}</p>
-          </div>
-          <button type="button" className="btn btn--primary" onClick={onCreateClick}>
-            {t('create')}
-          </button>
-        </div>
-
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('table.name')}</th>
-                <th>{t('table.slug')}</th>
-                <th>{t('table.createdAt')}</th>
-                <th>{t('table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {organizations.map((org) => (
-                <tr key={org.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 10,
-                        background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                        color: 'var(--green-ink)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        flexShrink: 0,
-                      }}>
-                        {org.name.substring(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
-                          {org.name} {closureBadge(org)}
-                        </p>
-                        <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: 0 }}>
-                          {org.settings?.currency || 'EUR'}
-                          {org.operatingMode ? ` · ${tMode(`names.${operatingModeLabelValue(org)}`)}` : ''}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="mono" style={{ fontSize: 12 }}>{org.slug}</td>
-                  <td className="mono" style={{ fontSize: 12 }}>{formatDate(org.createdAt)}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {!org.closure && (
-                        <>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ fontSize: 12, padding: '4px 10px' }}
-                        onClick={() => onEditClick(org)}
-                      >
-                        {t('actions.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ fontSize: 12, padding: '4px 10px' }}
-                        onClick={() => onManageMembersClick(org)}
-                      >
-                        {t('actions.manageMembers')}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ fontSize: 12, padding: '4px 10px' }}
-                        onClick={() => onOperatingModeClick(org)}
-                      >
-                        {t('actions.operatingMode')}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ fontSize: 12, padding: '4px 10px', color: 'var(--red, var(--danger))' }}
-                        onClick={() => onDeleteClick(org)}
-                      >
-                        {t('actions.delete')}
-                      </button>
-                        </>
-                      )}
-                      {purgeButton(org, 'md')}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable caption={t('title')} rows={organizations} rowKey="id" columns={columns} actions={actions} />
       </div>
     </>
   );

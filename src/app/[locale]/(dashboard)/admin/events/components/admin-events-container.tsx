@@ -1,9 +1,17 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
-import { FileDown, MailCheck, Send } from 'lucide-react';
+import {
+  Icon,
+  Input,
+  SearchInput,
+  Select,
+  useMediaQuery,
+  type DataColumn,
+  type RowAction,
+} from '@openeos/ui';
+import { BadgePercent, FileDown, MailCheck, Send } from 'lucide-react';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import {
   useAdminEvents,
@@ -16,7 +24,14 @@ import {
 } from '@/hooks/use-admin-events';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
-import { ListLoading, ListEmpty } from '@/components/shared/list-states';
+import { ListLoading } from '@/components/shared/list-states';
+import {
+  AdminFilterBar,
+  AdminPager,
+  AdminTable,
+  CellMain,
+  PHONE_QUERY,
+} from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import { adminApi } from '@/lib/api-client';
 import type { AdminEventListItem } from '@/types/admin';
@@ -28,6 +43,9 @@ import { CancelBillingModal } from './cancel-billing-modal';
 import { EventPhaseBadge, EventPhaseHint } from '@/components/shared/event-phase';
 import { toDayKey, toIsoAtMidnight } from '@/lib/event-schedule';
 import type { EventStatus } from '@/types/event';
+import '@/styles/admin-table-wave4.css';
+
+const PAGE_LIMIT = 20;
 
 const statusBadge: Record<string, string> = {
   active: 'badge badge--success',
@@ -79,11 +97,12 @@ function StripeInvoiceCell({ event }: { event: AdminEventListItem }) {
   const status = invoiceDisplayStatus(event.invoiceStatus ?? 'open', event.invoiceDueAt);
   const label = event.invoiceNumber ?? event.stripeInvoiceId;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }} data-testid="admin-event-invoice">
+    /* Telefon: nur das Badge in Zeile 2 (wave4-stack), die Zusatzzeilen fallen weg. */
+    <span className="wave4-stack" data-testid="admin-event-invoice">
       <span className={invoiceStatusBadge[status] ?? 'badge badge--neutral'}>
         {t.has(`invoiceStatus.${status}`) ? t(`invoiceStatus.${status}`) : status}
       </span>
-      <span className="mono" style={{ fontSize: 11 }}>
+      <span className="wave4-stack__line mono">
         {event.invoiceHostedUrl ? (
           <a href={event.invoiceHostedUrl} target="_blank" rel="noopener noreferrer">
             {label}
@@ -93,96 +112,12 @@ function StripeInvoiceCell({ event }: { event: AdminEventListItem }) {
         )}
       </span>
       {event.invoiceDueAt && isInvoicePayable(status) && (
-        <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-          {t('invoiceDue', { date: formatDate(event.invoiceDueAt) })}
-        </span>
+        <span className="wave4-stack__line">{t('invoiceDue', { date: formatDate(event.invoiceDueAt) })}</span>
       )}
       {status === 'paid' && event.invoicePaidAt && (
-        <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-          {t('invoicePaid', { date: formatDate(event.invoicePaidAt) })}
-        </span>
+        <span className="wave4-stack__line">{t('invoicePaid', { date: formatDate(event.invoicePaidAt) })}</span>
       )}
-    </div>
-  );
-}
-
-/**
- * Was der Super-Admin mit einer Stripe-Rechnung tun kann: Mail erneut
- * senden, als außerhalb bezahlt verbuchen (beides nur solange offen), PDF.
- */
-function StripeInvoiceActions({
-  event,
-  onMarkPaid,
-}: {
-  event: AdminEventListItem;
-  onMarkPaid: () => void;
-}) {
-  const t = useTranslations('admin.events');
-  const tRoot = useTranslations();
-  const apiErrorMessage = useApiErrorMessage();
-  const resend = useResendEventInvoice();
-  const [downloading, setDownloading] = useState(false);
-  const status = invoiceDisplayStatus(event.invoiceStatus ?? 'open', event.invoiceDueAt);
-  const open = isInvoicePayable(status);
-
-  const handleResend = () => {
-    resend.mutate(event.id, {
-      onSuccess: () => toast.success(t('toasts.invoiceResent')),
-      onError: (err) => toast.error(apiErrorMessage(err, tRoot('errors.generic'))),
-    });
-  };
-
-  const handlePdf = async () => {
-    setDownloading(true);
-    try {
-      const blob = await adminApi.eventInvoicePdf(event.id);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${event.invoiceNumber ?? event.stripeInvoiceId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error(t('toasts.downloadFailed'));
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  /* Nur Symbole mit Beschriftung im Tooltip bzw. für Screenreader: die
-     Spalte trägt sonst drei lange Knöpfe und drängt die Tabelle aus dem Bild. */
-  const iconButton = (
-    label: string,
-    onClick: () => void,
-    icon: ReactNode,
-    testId: string,
-    disabled = false,
-  ) => (
-    <button
-      type="button"
-      className="btn btn--ghost btn--icon"
-      style={{ fontSize: 12 }}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      title={label}
-      data-testid={testId}
-    >
-      {icon}
-    </button>
-  );
-
-  return (
-    <>
-      {event.invoiceHasPdf &&
-        iconButton(t('actions.invoicePdf'), () => void handlePdf(), <FileDown size={15} aria-hidden="true" />, 'admin-event-invoice-pdf', downloading)}
-      {open &&
-        iconButton(t('actions.resendInvoice'), handleResend, <Send size={15} aria-hidden="true" />, 'admin-event-invoice-resend', resend.isPending)}
-      {open &&
-        iconButton(t('actions.markInvoicePaid'), onMarkPaid, <MailCheck size={15} aria-hidden="true" />, 'admin-event-invoice-mark-paid')}
-    </>
+    </span>
   );
 }
 
@@ -556,6 +491,8 @@ export function AdminEventsContainer() {
   const t = useTranslations('admin.events');
   const tRoot = useTranslations();
   const { formatCurrency, formatDate } = useLocaleFormat();
+  const apiErrorMessage = useApiErrorMessage();
+  const phone = useMediaQuery(PHONE_QUERY);
   const statusLabel = statusLabels(tRoot);
   const billingStatusLabel = billingStatusLabels(tRoot);
   const [search, setSearch] = useState('');
@@ -572,220 +509,323 @@ export function AdminEventsContainer() {
   const [cancelBillingEvent, setCancelBillingEvent] = useState<AdminEventListItem | null>(null);
   const [markPaidEvent, setMarkPaidEvent] = useState<AdminEventListItem | null>(null);
 
+  // Stripe-Rechnung: erneut senden bzw. PDF laden (Wartezustand je Zeile).
+  const resend = useResendEventInvoice();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const invoicedParam =
     invoicedFilter === 'yes' ? true : invoicedFilter === 'no' ? false : undefined;
 
-  const { data, isLoading } = useAdminEvents({
+  const { data, isLoading, isFetching, isPlaceholderData } = useAdminEvents({
     search: search || undefined,
     status: statusFilter || undefined,
     from: from || undefined,
     to: to || undefined,
     invoiced: invoicedParam,
     page,
-    limit: 20,
+    limit: PAGE_LIMIT,
   });
 
   const events = data?.data ?? [];
   const meta = data?.meta;
 
+  // Jede Filteränderung beginnt wieder auf Seite 1.
+  const updateFilter = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    setPage(1);
+  };
+  const activeFilters = [statusFilter, invoicedFilter, from, to].filter(Boolean).length;
+  const resetFilters = () => {
+    setStatusFilter('');
+    setInvoicedFilter('');
+    setFrom('');
+    setTo('');
+    setPage(1);
+  };
+
+  const handleResend = (event: AdminEventListItem) => {
+    resend.mutate(event.id, {
+      onSuccess: () => toast.success(t('toasts.invoiceResent')),
+      onError: (err) => toast.error(apiErrorMessage(err, tRoot('errors.generic'))),
+    });
+  };
+
+  const handlePdf = async (event: AdminEventListItem) => {
+    setDownloadingId(event.id);
+    try {
+      const blob = await adminApi.eventInvoicePdf(event.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${event.invoiceNumber ?? event.stripeInvoiceId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t('toasts.downloadFailed'));
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   if (isLoading) {
     return <ListLoading />;
   }
 
+  const formatRange = (event: AdminEventListItem) =>
+    `${formatDate(event.startDate)}${event.endDate && event.endDate !== event.startDate ? ` – ${formatDate(event.endDate)}` : ''}`;
+
+  const columns: DataColumn<AdminEventListItem>[] = [
+    {
+      id: 'event',
+      header: t('table.event'),
+      mobile: 'title',
+      cell: (event) => (
+        <CellMain title={event.name} titleText={event.name} sub={event.organizationName} subText={event.organizationName} />
+      ),
+    },
+    {
+      // Telefon: die Organisation vorn in Zeile 2 (Desktop: unter dem Namen).
+      id: 'organization',
+      header: t('table.organization'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only',
+      cell: (event) => event.organizationName,
+    },
+    {
+      id: 'date',
+      header: t('table.date'),
+      priority: 2,
+      className: 'wave4-date',
+      cell: (event) => formatRange(event),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (event) =>
+        event.phase ? (
+          <span className="wave4-stack">
+            <EventPhaseBadge event={{ ...event, status: event.status as EventStatus }} />
+            <EventPhaseHint
+              event={{ ...event, status: event.status as EventStatus }}
+              className="wave4-stack__line admin-events__hint"
+            />
+          </span>
+        ) : (
+          <span className={statusBadge[event.status] ?? 'badge badge--neutral'}>
+            {statusLabel[event.status] ?? event.status}
+          </span>
+        ),
+    },
+    {
+      id: 'orders',
+      header: t('table.orders'),
+      num: true,
+      priority: 3,
+      cell: (event) => event.orderCount,
+    },
+    {
+      id: 'revenue',
+      header: t('table.revenue'),
+      num: true,
+      mobile: 'trailing',
+      className: 'admin-events__revenue',
+      cell: (event) => formatCurrency(event.revenueTotal),
+    },
+    {
+      id: 'payment',
+      header: t('table.payment'),
+      mobile: 'meta',
+      cell: (event) => (
+        <span className={billingStatusBadge[event.billingStatus ?? 'none'] ?? 'badge badge--neutral'}>
+          {billingStatusLabel[event.billingStatus ?? 'none'] ?? event.billingStatus}
+        </span>
+      ),
+    },
+    {
+      id: 'invoiced',
+      header: t('table.invoiced'),
+      mobile: 'meta',
+      cell: (event) =>
+        event.stripeInvoiceId ? (
+          /* Auf Rechnung über Stripe: Nummer, Zahlungsstand und
+             Fälligkeit kommen von Stripe, nicht aus einem Vermerk. */
+          <StripeInvoiceCell event={event} />
+        ) : event.invoicedAt ? (
+          <span className="wave4-stack">
+            <span className="badge badge--success">{formatDate(event.invoicedAt)}</span>
+            {/* Altfall: auf Rechnung, aber die Rechnung wurde außerhalb
+                von OpenEOS gestellt und hier nur vermerkt. */}
+            {event.billingStatus === 'invoice' && (
+              <span className="wave4-stack__line" data-testid="admin-event-manual-invoice">{t('manualInvoice')}</span>
+            )}
+            {event.invoiceNote && (
+              <span className="wave4-stack__line admin-events__note" title={event.invoiceNote}>
+                {event.invoiceNote}
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="badge badge--neutral">{tRoot('common.no')}</span>
+        ),
+    },
+  ];
+
+  /* Je Zeile zuerst, was zur Abrechnung ansteht (Stripe-Rechnung: PDF,
+     erneut senden, als bezahlt markieren; sonst abrechnen bzw.
+     zurücksetzen), dann Erlassen und Verschieben; Storno/Erstattung zuletzt. */
+  const actions = (event: AdminEventListItem): RowAction[] => {
+    const stripe = !!event.stripeInvoiceId;
+    const invoiceOpen = stripe && isInvoicePayable(invoiceDisplayStatus(event.invoiceStatus ?? 'open', event.invoiceDueAt));
+    return [
+      {
+        id: 'invoicePdf',
+        label: t('actions.invoicePdf'),
+        icon: <FileDown />,
+        hidden: !stripe || !event.invoiceHasPdf,
+        disabled: downloadingId === event.id,
+        onClick: () => void handlePdf(event),
+      },
+      {
+        id: 'resendInvoice',
+        label: t('actions.resendInvoice'),
+        icon: <Send />,
+        hidden: !invoiceOpen,
+        disabled: resend.isPending && resend.variables === event.id,
+        onClick: () => handleResend(event),
+      },
+      {
+        id: 'markInvoicePaid',
+        label: t('actions.markInvoicePaid'),
+        icon: <MailCheck />,
+        hidden: !invoiceOpen,
+        onClick: () => setMarkPaidEvent(event),
+      },
+      {
+        id: 'invoice',
+        label: t('actions.invoice'),
+        icon: 'receipt',
+        primary: true,
+        hidden: stripe || !!event.invoicedAt,
+        onClick: () => setMarkEvent(event),
+      },
+      {
+        id: 'reset',
+        label: t('actions.reset'),
+        icon: 'undo',
+        hidden: stripe || !event.invoicedAt,
+        onClick: () => setUnmarkEvent(event),
+      },
+      {
+        id: 'waive',
+        label: t('actions.waive'),
+        icon: <BadgePercent />,
+        hidden: !(event.billingStatus === 'none' || event.billingStatus === 'pending' || !event.billingStatus),
+        onClick: () => setWaiveEventTarget(event),
+      },
+      {
+        id: 'moveDates',
+        label: t('actions.moveDates'),
+        icon: 'calendar',
+        hidden: !event.phaseDetails?.datesLocked,
+        onClick: () => setMoveDatesEvent(event),
+      },
+      {
+        id: 'cancelBilling',
+        label: t('actions.cancelBilling'),
+        icon: 'ban',
+        danger: true,
+        hidden: !(event.billingStatus === 'paid' || event.billingStatus === 'invoice'),
+        onClick: () => setCancelBillingEvent(event),
+      },
+    ];
+  };
+
   return (
     <>
-      {/* Filters */}
-      <div className="app-card" style={{ padding: '16px 20px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          <input
-            type="text"
-            className="input"
-            placeholder={t('filters.searchPlaceholder')}
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            style={{ minWidth: 200, flex: '1 1 200px' }}
-          />
-          <select
-            className="select"
+      <div className="app-card app-card--flat">
+        {/* Suche immer sichtbar, die übrigen Filter auf dem Telefon im Sheet. */}
+        <AdminFilterBar
+          leading={
+            <SearchInput
+              className="admin-events__search"
+              icon={<Icon name="search" />}
+              value={search}
+              onChange={(e) => updateFilter(setSearch)(e.target.value)}
+              placeholder={t('filters.searchPlaceholder')}
+              aria-label={t('filters.searchPlaceholder')}
+            />
+          }
+          activeCount={activeFilters}
+          onReset={resetFilters}
+          actions={
+            meta ? <span className="admin-events__count">{t('pagination.total', { count: meta.total })}</span> : undefined
+          }
+        >
+          <Select
+            label={phone ? t('table.status') : undefined}
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            onChange={(e) => updateFilter(setStatusFilter)(e.target.value)}
+            aria-label={t('table.status')}
           >
             <option value="">{t('filters.allStatuses')}</option>
             <option value="active">{t('status.active')}</option>
             <option value="inactive">{t('status.inactive')}</option>
             <option value="test">{t('status.test')}</option>
-          </select>
-          <select
-            className="select"
+          </Select>
+          <Select
+            label={phone ? t('table.invoiced') : undefined}
             value={invoicedFilter}
-            onChange={(e) => { setInvoicedFilter(e.target.value); setPage(1); }}
+            onChange={(e) => updateFilter(setInvoicedFilter)(e.target.value)}
+            aria-label={t('table.invoiced')}
           >
             <option value="">{t('filters.allInvoiced')}</option>
             <option value="yes">{t('filters.invoiced')}</option>
             <option value="no">{t('filters.notInvoiced')}</option>
-          </select>
-          <input
+          </Select>
+          <Input
+            label={phone ? tRoot('orders.filters.dateFrom') : undefined}
             type="date"
-            className="input"
             value={from}
-            onChange={(e) => { setFrom(e.target.value); setPage(1); }}
+            onChange={(e) => updateFilter(setFrom)(e.target.value)}
+            aria-label={tRoot('orders.filters.dateFrom')}
+            title={tRoot('orders.filters.dateFrom')}
           />
-          <input
+          <Input
+            label={phone ? tRoot('orders.filters.dateTo') : undefined}
             type="date"
-            className="input"
             value={to}
-            onChange={(e) => { setTo(e.target.value); setPage(1); }}
+            onChange={(e) => updateFilter(setTo)(e.target.value)}
+            aria-label={tRoot('orders.filters.dateTo')}
+            title={tRoot('orders.filters.dateTo')}
           />
-        </div>
-      </div>
+        </AdminFilterBar>
 
-      {/* Table */}
-      {events.length === 0 ? (
-        <ListEmpty
-          title={t('empty.title')}
-          description={t('empty.description')}
-          icon={
-            <Icon name="calendar" size={28} />
+        <AdminTable
+          caption={t('title')}
+          rows={events}
+          rowKey="id"
+          columns={columns}
+          actions={actions}
+          loading={isPlaceholderData && isFetching}
+          empty={
+            <div className="empty-state">
+              <div className="empty-state__icon">
+                <Icon name="calendar" size={28} />
+              </div>
+              <h3 className="empty-state__title">{t('empty.title')}</h3>
+              <p className="empty-state__sub">{t('empty.description')}</p>
+            </div>
+          }
+          footer={
+            meta && meta.totalPages > 1 ? (
+              <AdminPager page={page} pageSize={PAGE_LIMIT} total={meta.total} onChange={(p) => setPage(p)} />
+            ) : undefined
           }
         />
-      ) : (
-        <div className="app-card app-card--flat">
-          <div style={{ overflowX: 'auto' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>{t('table.event')}</th>
-                  <th>{t('table.organization')}</th>
-                  <th>{t('table.date')}</th>
-                  <th>{t('table.status')}</th>
-                  <th className="text-right">{t('table.orders')}</th>
-                  <th className="text-right">{t('table.revenue')}</th>
-                  <th>{t('table.payment')}</th>
-                  <th>{t('table.invoiced')}</th>
-                  <th className="text-right">{t('table.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event) => (
-                  <tr key={event.id}>
-                    <td style={{ fontWeight: 600 }}>{event.name}</td>
-                    <td>{event.organizationName}</td>
-                    <td className="mono">
-                      {formatDate(event.startDate)}
-                      {event.endDate && event.endDate !== event.startDate ? ` – ${formatDate(event.endDate)}` : ''}
-                    </td>
-                    <td>
-                      {event.phase ? (
-                        <>
-                          <EventPhaseBadge event={{ ...event, status: event.status as EventStatus }} />
-                          <EventPhaseHint event={{ ...event, status: event.status as EventStatus }} />
-                        </>
-                      ) : (
-                        <span className={statusBadge[event.status] ?? 'badge badge--neutral'}>
-                          {statusLabel[event.status] ?? event.status}
-                        </span>
-                      )}
-                    </td>
-                    <td className="mono text-right">{event.orderCount}</td>
-                    <td className="mono text-right" style={{ fontWeight: 600 }}>{formatCurrency(event.revenueTotal)}</td>
-                    <td>
-                      <span className={billingStatusBadge[event.billingStatus ?? 'none'] ?? 'badge badge--neutral'}>
-                        {billingStatusLabel[event.billingStatus ?? 'none'] ?? event.billingStatus}
-                      </span>
-                    </td>
-                    <td>
-                      {event.stripeInvoiceId ? (
-                        /* Auf Rechnung über Stripe: Nummer, Zahlungsstand und
-                           Fälligkeit kommen von Stripe, nicht aus einem Vermerk. */
-                        <StripeInvoiceCell event={event} />
-                      ) : event.invoicedAt ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <span className="badge badge--success">{formatDate(event.invoicedAt)}</span>
-                          {/* Altfall: auf Rechnung, aber die Rechnung wurde außerhalb
-                              von OpenEOS gestellt und hier nur vermerkt. */}
-                          {event.billingStatus === 'invoice' && (
-                            <span style={{ fontSize: 11 }} data-testid="admin-event-manual-invoice">{t('manualInvoice')}</span>
-                          )}
-                          {event.invoiceNote && (
-                            <span style={{ fontSize: 11, color: 'color-mix(in oklab, var(--ink) 45%, transparent)', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {event.invoiceNote}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="badge badge--neutral">{tRoot('common.no')}</span>
-                      )}
-                    </td>
-                    <td className="text-right">
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                        {event.stripeInvoiceId ? (
-                          <StripeInvoiceActions event={event} onMarkPaid={() => setMarkPaidEvent(event)} />
-                        ) : event.invoicedAt ? (
-                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setUnmarkEvent(event)}>
-                            {t('actions.reset')}
-                          </button>
-                        ) : (
-                          <button className="btn btn--primary" style={{ fontSize: 12 }} onClick={() => setMarkEvent(event)}>
-                            {t('actions.invoice')}
-                          </button>
-                        )}
-                        {(event.billingStatus === 'none' || event.billingStatus === 'pending' || !event.billingStatus) && (
-                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setWaiveEventTarget(event)}>
-                            {t('actions.waive')}
-                          </button>
-                        )}
-                        {event.phaseDetails?.datesLocked && (
-                          <button
-                            className="btn btn--ghost"
-                            style={{ fontSize: 12 }}
-                            onClick={() => setMoveDatesEvent(event)}
-                            data-testid="admin-event-move-dates"
-                          >
-                            {t('actions.moveDates')}
-                          </button>
-                        )}
-                        {(event.billingStatus === 'paid' || event.billingStatus === 'invoice') && (
-                          <button className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setCancelBillingEvent(event)}>
-                            {t('actions.cancelBilling')}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px' }}>
-          <span style={{ fontSize: 13, color: 'color-mix(in oklab, var(--ink) 45%, transparent)' }}>
-            {t('pagination.total', { count: meta.total })}
-          </span>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button
-              className="btn btn--ghost"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={!meta.hasPrev}
-            >
-              {tRoot('common.previous')}
-            </button>
-            <span style={{ fontSize: 13, padding: '0 8px' }}>
-              {t('pagination.page', { page, totalPages: meta.totalPages })}
-            </span>
-            <button
-              className="btn btn--ghost"
-              onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-              disabled={!meta.hasNext}
-            >
-              {tRoot('common.next')}
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Modals */}
       {markEvent && (

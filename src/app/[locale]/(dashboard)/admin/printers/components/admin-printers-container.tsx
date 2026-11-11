@@ -3,9 +3,10 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Icon } from '@openeos/ui';
+import { Icon, SearchInput, type DataColumn, type RowAction } from '@openeos/ui';
 
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain } from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -13,6 +14,7 @@ import { adminApi } from '@/lib/api-client';
 import type { AdminPrinterOverviewAgent, Printer } from '@/types/printer';
 import { formatAgentInfo, formatPrinterConnection } from '@/utils/printer-connection';
 import { formatTimeAgo } from '@/utils/time-ago';
+import '@/styles/admin-table-wave4.css';
 
 const MUTED = 'color-mix(in oklab, var(--ink) 55%, transparent)';
 
@@ -114,9 +116,9 @@ export function AdminPrintersContainer() {
               {tPrinters('printerCount', { count: totals.printers })}
             </p>
           </div>
-          <input
-            className="input"
-            style={{ maxWidth: 280 }}
+          <SearchInput
+            className="wave4-search"
+            icon={<Icon name="search" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('searchPlaceholder')}
@@ -177,6 +179,78 @@ function AgentBlock({
   const t = useTranslations('admin.printers');
   const tPrinters = useTranslations('printers');
   const info = formatAgentInfo(agent.agentInfo);
+  const isOnline = (printer: Printer) => agent.isOnline && printer.isOnline;
+
+  const columns: DataColumn<Printer>[] = [
+    {
+      id: 'printer',
+      header: t('table.printer'),
+      mobile: 'title',
+      cell: (printer) => {
+        const sub = `${printer.paperWidth} mm${printer.hasCashDrawer ? ` · ${tPrinters('cashDrawer')}` : ''}${
+          !printer.isActive ? ` · ${tPrinters('inactive')}` : ''
+        }`;
+        return <CellMain title={printer.name} titleText={printer.name} sub={sub} subText={sub} />;
+      },
+    },
+    {
+      id: 'type',
+      header: t('table.type'),
+      mobile: 'subtitle',
+      cell: (printer) => (
+        <span className={typeBadgeClass[printer.type] ?? 'badge badge--neutral'}>
+          {tPrinters(`types.${printer.type}`)}
+        </span>
+      ),
+    },
+    {
+      id: 'connection',
+      header: t('table.connection'),
+      mobile: 'meta',
+      cell: (printer) => {
+        const connection = formatPrinterConnection(printer.connectionType, printer.connectionConfig);
+        return (
+          <span className="wave4-stack">
+            <span>{tPrinters(`connectionTypes.${printer.connectionType}`)}</span>
+            {connection && (
+              <span className="wave4-stack__line mono" title={connection}>
+                {connection}
+              </span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'online',
+      header: t('table.online'),
+      mobile: 'meta',
+      cell: (printer) => (
+        <span className="admin-printers__online">
+          <OnlineDot online={isOnline(printer)} />
+          <span>{isOnline(printer) ? t('online') : t('offline')}</span>
+        </span>
+      ),
+    },
+    {
+      id: 'lastSeen',
+      header: t('table.lastSeen'),
+      priority: 2,
+      className: 'wave4-date',
+      cell: (printer) => formatDateTime(printer.lastSeenAt),
+    },
+  ];
+
+  // Einzige Aktion: Testdruck als Hilfe für den Support.
+  const actions = (printer: Printer): RowAction[] => [
+    {
+      id: 'testPrint',
+      label: t('actions.testPrint'),
+      icon: 'print',
+      disabled: !isOnline(printer) || testPrintPending,
+      onClick: () => onTestPrint(printer),
+    },
+  ];
 
   return (
     <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
@@ -197,66 +271,14 @@ function AgentBlock({
       {agent.printers.length === 0 ? (
         <p style={{ fontSize: 13, color: MUTED, margin: '0 20px 14px' }}>{t('noPrinters')}</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('table.printer')}</th>
-                <th>{t('table.type')}</th>
-                <th>{t('table.connection')}</th>
-                <th>{t('table.online')}</th>
-                <th>{t('table.lastSeen')}</th>
-                <th className="text-right">{t('table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {agent.printers.map((printer) => {
-                const connection = formatPrinterConnection(printer.connectionType, printer.connectionConfig);
-                const online = agent.isOnline && printer.isOnline;
-                return (
-                  <tr key={printer.id}>
-                    <td>
-                      <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--ink)' }}>{printer.name}</span>
-                      <span style={{ display: 'block', fontSize: 12, color: MUTED }}>
-                        {printer.paperWidth} mm{printer.hasCashDrawer ? ` · ${tPrinters('cashDrawer')}` : ''}
-                        {!printer.isActive ? ` · ${tPrinters('inactive')}` : ''}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={typeBadgeClass[printer.type] ?? 'badge badge--neutral'}>
-                        {tPrinters(`types.${printer.type}`)}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: 13 }}>{tPrinters(`connectionTypes.${printer.connectionType}`)}</span>
-                      {connection && (
-                        <span style={{ display: 'block', fontSize: 12, color: MUTED, fontFamily: 'var(--f-mono)' }}>{connection}</span>
-                      )}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <OnlineDot online={online} />
-                        <span style={{ fontSize: 13, color: MUTED }}>{online ? t('online') : t('offline')}</span>
-                      </div>
-                    </td>
-                    <td style={{ color: MUTED, fontSize: 13 }}>{formatDateTime(printer.lastSeenAt)}</td>
-                    <td className="text-right">
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--sm"
-                        disabled={!online || testPrintPending}
-                        onClick={() => onTestPrint(printer)}
-                      >
-                        <Icon name="print" size={14} />
-                        {t('actions.testPrint')}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          caption={agent.name}
+          rows={agent.printers}
+          rowKey="id"
+          columns={columns}
+          actions={actions}
+          rowClassName={(printer) => (printer.isActive ? undefined : 'admin-dt__row--muted')}
+        />
       )}
     </div>
   );
