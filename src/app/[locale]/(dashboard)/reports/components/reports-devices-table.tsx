@@ -1,10 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { DataColumn } from '@openeos/ui';
 
 import type { DeviceReport } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { AdminTable } from '@/components/shared/admin-table';
 import { downloadCsv } from './csv-export';
+import { PhoneLabel, ReportCardHead, ReportLoading } from './report-table';
 
 interface ReportsDevicesTableProps {
   data: DeviceReport[] | undefined;
@@ -30,55 +33,56 @@ export function ReportsDevicesTable({ data, isLoading, orderOnly = false }: Repo
     downloadCsv(t('export.filenames.devices'), headers, rows);
   };
 
+  const columns: DataColumn<DeviceReport>[] = [
+    {
+      id: 'device',
+      header: t('devices.columns.device'),
+      mobile: 'title',
+      cell: (d) => <span title={d.name}>{d.name}</span>,
+    },
+    {
+      id: 'orders',
+      header: t('devices.columns.orders'),
+      num: true,
+      mobile: showAmounts ? 'meta' : 'trailing',
+      cell: (d) => <PhoneLabel label={t('devices.columns.orders')}>{d.orders}</PhoneLabel>,
+    },
+    ...(showAmounts
+      ? [
+          {
+            id: 'revenue',
+            header: t('devices.columns.revenue'),
+            num: true,
+            mobile: 'trailing',
+            cell: (d) => formatCurrency(d.revenue),
+          } satisfies DataColumn<DeviceReport>,
+        ]
+      : []),
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{orderOnly ? t('orderOnly.devicesTitle') : t('devices.title')}</h2>
-          <p className="app-card__sub">{t('devices.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={!data?.length}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      <ReportCardHead
+        title={orderOnly ? t('orderOnly.devicesTitle') : t('devices.title')}
+        subtitle={t('devices.subtitle')}
+        onExport={handleExport}
+        exportDisabled={!data?.length}
+      />
 
       {isLoading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-          <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
-        </div>
+        <ReportLoading />
       ) : !data || data.length === 0 ? (
         <div className="empty-state">
           <h3 className="empty-state__title">{t('devices.empty')}</h3>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('devices.columns.device')}</th>
-                <th className="text-right">{t('devices.columns.orders')}</th>
-                {showAmounts && <th className="text-right">{t('devices.columns.revenue')}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d) => (
-                <tr key={d.deviceId ?? 'unknown'}>
-                  <td>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{d.name}</div>
-                  </td>
-                  <td className="mono text-right">{d.orders}</td>
-                  {showAmounts && <td className="mono text-right">{formatCurrency(d.revenue)}</td>}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          className="report-dt"
+          caption={orderOnly ? t('orderOnly.devicesTitle') : t('devices.title')}
+          rows={data}
+          rowKey={(d) => d.deviceId ?? 'unknown'}
+          columns={columns}
+        />
       )}
     </div>
   );

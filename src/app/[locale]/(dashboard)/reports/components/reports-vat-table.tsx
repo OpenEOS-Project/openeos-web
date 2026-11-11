@@ -1,10 +1,16 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import type { DataColumn } from '@openeos/ui';
 
-import type { VatReport } from '@/types/report';
+import type { VatReport, VatReportRow } from '@/types/report';
 import { formatCurrency } from '@/utils/format';
+import { AdminTable } from '@/components/shared/admin-table';
 import { downloadCsv } from './csv-export';
+import { PhoneLabel, ReportCardHead, ReportLoading } from './report-table';
+
+/** Zeile der Tabelle: ein Steuersatz oder (rate = null) die Summe. */
+type VatLine = Omit<VatReportRow, 'rate'> & { rate: number | null };
 
 interface ReportsVatTableProps {
   data: VatReport | undefined;
@@ -61,28 +67,62 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
     downloadCsv(t('export.filenames.vat'), headers, csvRows);
   };
 
+  /* Die Summe bleibt wie bisher die letzte Zeile der Tabelle (DataTable
+     kennt keine Summenzeile im Fuß); so steht jede Summe unter ihrer Spalte. */
+  const lines: VatLine[] = data ? [...rows, { ...data.total, rate: null }] : [];
+  const amount = (line: VatLine, key: keyof Omit<VatReportRow, 'rate'>) => money(line[key] ?? 0);
+
+  const columns: DataColumn<VatLine>[] = [
+    {
+      id: 'rate',
+      header: t('vat.columns.rate'),
+      mobile: 'title',
+      cell: (line) => (line.rate === null ? t('vat.total') : t('vat.rate', { rate: line.rate })),
+    },
+    { id: 'goods', header: t('vat.columns.goods'), num: true, priority: 2, cell: (line) => amount(line, 'goods') },
+    { id: 'deposits', header: t('vat.columns.deposits'), num: true, priority: 3, cell: (line) => amount(line, 'deposits') },
+    {
+      id: 'depositReturns',
+      header: t('vat.columns.depositReturns'),
+      num: true,
+      priority: 3,
+      cell: (line) => amount(line, 'depositReturns'),
+    },
+    {
+      id: 'tips',
+      header: <span title={t('vat.columns.tipsHint')}>{t('vat.columns.tips')}</span>,
+      num: true,
+      priority: 2,
+      cell: (line) => amount(line, 'tips'),
+    },
+    { id: 'gross', header: t('vat.columns.gross'), num: true, mobile: 'trailing', cell: (line) => amount(line, 'gross') },
+    {
+      id: 'net',
+      header: t('vat.columns.net'),
+      num: true,
+      mobile: 'meta',
+      cell: (line) => <PhoneLabel label={t('vat.columns.net')}>{amount(line, 'net')}</PhoneLabel>,
+    },
+    {
+      id: 'tax',
+      header: t('vat.columns.tax'),
+      num: true,
+      mobile: 'meta',
+      cell: (line) => <PhoneLabel label={t('vat.columns.tax')}>{amount(line, 'tax')}</PhoneLabel>,
+    },
+  ];
+
   return (
     <div className="app-card app-card--flat" data-testid="reports-vat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{t('vat.title')}</h2>
-          <p className="app-card__sub">{t('vat.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={rows.length === 0}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      <ReportCardHead
+        title={t('vat.title')}
+        subtitle={t('vat.subtitle')}
+        onExport={handleExport}
+        exportDisabled={rows.length === 0}
+      />
 
       {isLoading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-          <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
-        </div>
+        <ReportLoading />
       ) : !data || rows.length === 0 ? (
         <div className="empty-state">
           <h3 className="empty-state__title">{t('vat.empty')}</h3>
@@ -90,70 +130,18 @@ export function ReportsVatTable({ data, isLoading, orderOnly = false }: ReportsV
       ) : (
         <>
           {data.vatExempt && (
-            <p className="app-card__sub" style={{ padding: '0 20px 12px' }}>
+            <p className="app-card__sub" style={{ padding: '12px 20px' }}>
               {t('vat.exempt')}
             </p>
           )}
-          <div style={{ overflowX: 'auto' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>{t('vat.columns.rate')}</th>
-                  <th className="text-right">{t('vat.columns.goods')}</th>
-                  <th className="text-right">{t('vat.columns.deposits')}</th>
-                  <th className="text-right">{t('vat.columns.depositReturns')}</th>
-                  <th className="text-right" title={t('vat.columns.tipsHint')}>{t('vat.columns.tips')}</th>
-                  <th className="text-right">{t('vat.columns.gross')}</th>
-                  <th className="text-right">{t('vat.columns.net')}</th>
-                  <th className="text-right">{t('vat.columns.tax')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.rate}>
-                    <td>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
-                        {t('vat.rate', { rate: r.rate })}
-                      </div>
-                    </td>
-                    <td className="mono text-right">{money(r.goods)}</td>
-                    <td className="mono text-right">{money(r.deposits)}</td>
-                    <td className="mono text-right">{money(r.depositReturns)}</td>
-                    <td className="mono text-right">{money(r.tips ?? 0)}</td>
-                    <td className="mono text-right">{money(r.gross)}</td>
-                    <td className="mono text-right">{money(r.net)}</td>
-                    <td className="mono text-right">{money(r.tax)}</td>
-                  </tr>
-                ))}
-                <tr>
-                  <td>
-                    <b>{t('vat.total')}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.goods)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.deposits)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.depositReturns)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.tips ?? 0)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.gross)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.net)}</b>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(data.total.tax)}</b>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <AdminTable
+            className="report-dt"
+            caption={t('vat.title')}
+            rows={lines}
+            rowKey={(line) => (line.rate === null ? 'total' : String(line.rate))}
+            columns={columns}
+            rowClassName={(line) => (line.rate === null ? 'report-dt__total' : undefined)}
+          />
           {hasLegacyDeposit && !data.vatExempt && (
             <p className="app-card__sub" style={{ padding: '12px 20px' }}>
               {t('vat.legacyHint')}

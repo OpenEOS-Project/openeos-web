@@ -2,13 +2,16 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import type { DataColumn } from '@openeos/ui';
 
 import type { NetSalesSummary, ProductReport } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { AdminTable, CellText } from '@/components/shared/admin-table';
 import { netReconciliation } from '@/utils/report-net';
 import { rankByMode } from '@/lib/operating-mode';
 import { downloadCsv } from './csv-export';
-import { ReportsNetFooter } from './reports-net-footer';
+import { ReportsNetSummary } from './reports-net-footer';
+import { PhoneLabel, ReportCardHead, ReportLoading } from './report-table';
 
 interface ReportsProductsTableProps {
   data: ProductReport[] | undefined;
@@ -56,63 +59,79 @@ export function ReportsProductsTable({ data, net, isLoading, orderOnly = false }
     downloadCsv(t('export.filenames.products'), headers, rows);
   };
 
+  const columns: DataColumn<ProductReport>[] = [
+    {
+      id: 'product',
+      header: t('products.columns.product'),
+      mobile: 'title',
+      cell: (p) => <span title={p.productName}>{p.productName}</span>,
+    },
+    {
+      id: 'category',
+      header: t('products.columns.category'),
+      mobile: 'meta',
+      cell: (p) => (
+        <CellText muted title={p.categoryName}>
+          {p.categoryName}
+        </CellText>
+      ),
+    },
+    {
+      id: 'quantity',
+      header: t('products.columns.quantity'),
+      num: true,
+      mobile: showAmounts ? 'meta' : 'trailing',
+      cell: (p) => <PhoneLabel label={t('products.columns.quantity')}>{p.quantitySold}</PhoneLabel>,
+    },
+    ...(showAmounts
+      ? ([
+          {
+            id: 'revenue',
+            header: t('products.columns.revenue'),
+            num: true,
+            mobile: 'trailing',
+            cell: (p) => formatCurrency(p.revenue),
+          },
+          {
+            id: 'avgPrice',
+            header: t('products.columns.avgPrice'),
+            num: true,
+            priority: 2,
+            mobile: 'meta',
+            cell: (p) => <PhoneLabel label={t('products.columns.avgPrice')}>{formatCurrency(p.averagePrice)}</PhoneLabel>,
+          },
+        ] satisfies DataColumn<ProductReport>[])
+      : []),
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{t('products.title')}</h2>
-          <p className="app-card__sub">{orderOnly ? t('orderOnly.productsSubtitle') : t('products.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={!sorted.length}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      <ReportCardHead
+        title={t('products.title')}
+        subtitle={orderOnly ? t('orderOnly.productsSubtitle') : t('products.subtitle')}
+        onExport={handleExport}
+        exportDisabled={!sorted.length}
+      />
 
       {isLoading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-          <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
-        </div>
+        <ReportLoading />
       ) : sorted.length === 0 ? (
         <div className="empty-state">
           <h3 className="empty-state__title">{t('products.empty')}</h3>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('products.columns.product')}</th>
-                <th>{t('products.columns.category')}</th>
-                <th className="text-right">{t('products.columns.quantity')}</th>
-                {showAmounts && <th className="text-right">{t('products.columns.revenue')}</th>}
-                {showAmounts && <th className="text-right">{t('products.columns.avgPrice')}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((p) => (
-                <tr key={p.productId}>
-                  <td>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{p.productName}</div>
-                  </td>
-                  <td style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>{p.categoryName}</td>
-                  <td className="mono text-right">{p.quantitySold}</td>
-                  {showAmounts && <td className="mono text-right">{formatCurrency(p.revenue)}</td>}
-                  {showAmounts && <td className="mono text-right">{formatCurrency(p.averagePrice)}</td>}
-                </tr>
-              ))}
-            </tbody>
-            {netLines.length > 0 && (
-              <ReportsNetFooter lines={netLines} labelSpan={3} trailing={1} itemsLabel={t('net.items')} />
-            )}
-          </table>
-          {!orderOnly && <p className="report-net__note">{t('net.note')}</p>}
-        </div>
+        <AdminTable
+          className="report-dt"
+          caption={t('products.title')}
+          rows={sorted}
+          rowKey="productId"
+          columns={columns}
+          footer={
+            orderOnly ? undefined : (
+              <ReportsNetSummary lines={netLines} itemsLabel={t('net.items')} note={t('net.note')} />
+            )
+          }
+        />
       )}
     </div>
   );

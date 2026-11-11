@@ -5237,18 +5237,46 @@ body:has(.landing) {
 }
 
 /* ── Auswertung: Abgleich Produkte/Kategorien ↔ Umsatz netto ───────── */
-.landing .report-net__row td {
+/* Steht im Fuß der DataTable: Zeilen rechtsbündig, Hinweis darunter. */
+.landing .report-net {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 4px 0;
+}
+.landing .report-net__list {
+  margin: 0 0 0 auto;
+  width: 100%;
+  max-width: 380px;
+  display: grid;
+}
+.landing .report-net__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
   font-size: 13px;
   color: var(--mute);
-  border-top: 1px solid var(--oe-line-2);
 }
-.landing .report-net__row[data-strong] td {
+.landing .report-net__row + .report-net__row {
+  border-top: 1px solid var(--oe-line);
+}
+.landing .report-net__row dt,
+.landing .report-net__row dd {
+  margin: 0;
+}
+.landing .report-net__row dd {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.landing .report-net__row[data-strong] {
   font-weight: 700;
   color: var(--ink);
 }
 .landing .report-net__note {
   margin: 0;
-  padding: 10px 16px 14px;
   font-size: 12px;
   color: var(--mute);
 }

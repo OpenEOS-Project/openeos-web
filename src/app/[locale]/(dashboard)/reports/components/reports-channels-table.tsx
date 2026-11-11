@@ -1,10 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { DataColumn } from '@openeos/ui';
 
 import type { ChannelReport } from '@/types/report';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
+import { AdminTable } from '@/components/shared/admin-table';
 import { downloadCsv } from './csv-export';
+import { PhoneLabel, ReportCardHead, ReportLoading } from './report-table';
 import { getChannelLabel } from './report-labels';
 
 interface ReportsChannelsTableProps {
@@ -35,59 +38,63 @@ export function ReportsChannelsTable({ data, isLoading, orderOnly = false }: Rep
     downloadCsv(t('export.filenames.channels'), headers, rows);
   };
 
+  const columns: DataColumn<ChannelReport>[] = [
+    {
+      id: 'channel',
+      header: t('channels.columns.channel'),
+      mobile: 'title',
+      cell: (c) => getChannelLabel(c.channel, t),
+    },
+    {
+      id: 'orders',
+      header: t('channels.columns.orders'),
+      num: true,
+      mobile: showAmounts ? 'meta' : 'trailing',
+      cell: (c) => <PhoneLabel label={t('channels.columns.orders')}>{c.orders}</PhoneLabel>,
+    },
+    ...(showAmounts
+      ? ([
+          {
+            id: 'revenue',
+            header: t('channels.columns.revenue'),
+            num: true,
+            mobile: 'trailing',
+            cell: (c) => formatCurrency(c.revenue),
+          },
+          {
+            id: 'avgReceipt',
+            header: t('channels.columns.avgReceipt'),
+            num: true,
+            mobile: 'meta',
+            cell: (c) => <PhoneLabel label={t('channels.columns.avgReceipt')}>{formatCurrency(c.avgReceipt)}</PhoneLabel>,
+          },
+        ] satisfies DataColumn<ChannelReport>[])
+      : []),
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{orderOnly ? t('orderOnly.channelsTitle') : t('channels.title')}</h2>
-          <p className="app-card__sub">{t('channels.subtitle')}</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          style={{ fontSize: 13 }}
-          onClick={handleExport}
-          disabled={!data?.length}
-        >
-          {t('export.csv')}
-        </button>
-      </div>
+      <ReportCardHead
+        title={orderOnly ? t('orderOnly.channelsTitle') : t('channels.title')}
+        subtitle={t('channels.subtitle')}
+        onExport={handleExport}
+        exportDisabled={!data?.length}
+      />
 
       {isLoading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-          <div style={{ color: 'var(--ink)', opacity: 0.5 }}>{t('loading')}</div>
-        </div>
+        <ReportLoading />
       ) : !data || data.length === 0 ? (
         <div className="empty-state">
           <h3 className="empty-state__title">{t('channels.empty')}</h3>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('channels.columns.channel')}</th>
-                <th className="text-right">{t('channels.columns.orders')}</th>
-                {showAmounts && <th className="text-right">{t('channels.columns.revenue')}</th>}
-                {showAmounts && <th className="text-right">{t('channels.columns.avgReceipt')}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((c) => (
-                <tr key={c.channel}>
-                  <td>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
-                      {getChannelLabel(c.channel, t)}
-                    </div>
-                  </td>
-                  <td className="mono text-right">{c.orders}</td>
-                  {showAmounts && <td className="mono text-right">{formatCurrency(c.revenue)}</td>}
-                  {showAmounts && <td className="mono text-right">{formatCurrency(c.avgReceipt)}</td>}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          className="report-dt"
+          caption={orderOnly ? t('orderOnly.channelsTitle') : t('channels.title')}
+          rows={data}
+          rowKey="channel"
+          columns={columns}
+        />
       )}
     </div>
   );

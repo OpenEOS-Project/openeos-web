@@ -189,3 +189,85 @@
     content: ', ';
   }
 }
+
+/* Auswertung: Tabellen in den Berichtskarten. */
+.landing .report-dt .oe-dt__foot {
+  background: transparent;
+}
+/* Summenzeile (Umsatzsteuer) als letzte Zeile der Tabelle. */
+.landing .admin-dt .report-dt__total .oe-dt__td {
+  font-weight: 700;
+  border-top: 1px solid var(--oe-line-2);
+}
+/* Anteil (Zahlarten): Balken und Prozent. */
+.report-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.report-share__bar {
+  width: 60px;
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--oe-ink) 8%, transparent);
+  overflow: hidden;
+}
+.report-share__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #12b76a;
+}
+.report-share__value {
+  min-width: 40px;
+  text-align: right;
+}
+/* Bedienung: Farbpunkt mit Kürzel vor dem Namen. */
+.report-waiter__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+/* Zahl mit zweiter Zeile (Kassiert: Bar und Karte darunter). */
+.report-num-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.report-num-stack__sub {
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .oe-dt__m-l2 [data-phone-label]::before {
+    content: attr(data-phone-label) '\00a0';
+  }
+  .report-share__bar,
+  .report-num-stack__sub {
+    display: none;
+  }
+  .report-num-stack {
+    display: inline;
+  }
+  .landing .report-net__list {
+    max-width: none;
+  }
+}
+/* Bedienungen: viele Zahlenspalten — Überschriften dürfen umbrechen. */
+.landing .report-dt--wide .oe-dt__th {
+  white-space: normal;
+}
+
+/* Dashboard · Niedriger Lagerbestand */
+.low-stock__value {
+  font-weight: 700;
+}
+.low-stock__value.is-low {
+  color: var(--red-ink, var(--danger));
+}
