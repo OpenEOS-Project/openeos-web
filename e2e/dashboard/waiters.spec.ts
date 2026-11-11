@@ -16,6 +16,7 @@ const SHOTS = process.env.WAITERS_SHOTS_DIR;
  * in der Zeile, alles Weitere im ⋯-Menü „Weitere Aktionen“.
  */
 async function rowAction(page: Page, row: Locator, label: string) {
+  await expect(row).toBeVisible();
   const inline = row.getByRole('button', { name: label, exact: true });
   if (await inline.isVisible()) {
     await inline.click();
