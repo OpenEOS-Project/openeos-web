@@ -133,14 +133,14 @@ test.describe('Webhooks settings', () => {
     // Zeilen mit Zellen — ohne die Kopfzeile.
     const bodyRows = table.getByRole('row').filter({ has: page.getByRole('cell') });
     await expect(bodyRows).toHaveCount(2);
-    await expect(table.getByText('ping')).toBeVisible();
-    await expect(table.getByText('Zugestellt')).toBeVisible();
+    await expect(table.getByText('ping', { exact: true })).toBeVisible();
+    await expect(table.getByText('Zugestellt', { exact: true })).toBeVisible();
     await expect(page.getByText('2 Zustellungen')).toBeVisible();
 
     await page.getByLabel('Status').selectOption({ label: 'Fehlgeschlagen' });
     await expect(bodyRows).toHaveCount(1);
     const failedRow = bodyRows.first();
-    await expect(failedRow.getByText('order.paid')).toBeVisible();
+    await expect(failedRow.getByText('order.paid', { exact: true })).toBeVisible();
     await expect(failedRow.getByText('Zeitüberschreitung (10 s)')).toBeVisible();
     await expect(failedRow.getByText('8/8')).toBeVisible();
     expect(api.requests.some((r) => r.method === 'GET' && r.path.includes('status=failed'))).toBe(true);
@@ -158,7 +158,7 @@ test.describe('Webhooks settings', () => {
 
     await page.getByLabel('Status').selectOption({ label: 'Alle Status' });
     await expect(bodyRows).toHaveCount(3);
-    await expect(table.getByText('Ausstehend')).toBeVisible();
+    await expect(table.getByText('Ausstehend', { exact: true })).toBeVisible();
 
     // Secret erneuern: Rückfrage mit 24 h, dann einmalige Anzeige.
     await page.getByRole('button', { name: 'Secret erneuern' }).click();
