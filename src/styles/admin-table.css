@@ -1,0 +1,378 @@
+/* Admin-Listen: Ergänzungen zu DataTable/FilterBar/DataPager aus
+   @openeos/ui (.oe-dt, .oe-filterbar, .oe-pager). Die Tabelle selbst
+   kommt fertig aus dem Paket; hier nur, was die Oberfläche drumherum
+   braucht: bündig in einer .app-card, Namenszellen mit Symbol und
+   gekürzten Zeilen, der Kartenkopf mit Symbolknöpfen. */
+
+/* In einer Karte: kein zweiter Rahmen, Einzug wie der Kartenkopf (20 px). */
+.landing .oe-dt.admin-dt--flush {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.landing .admin-dt--flush .oe-dt__th {
+  border-radius: 0 !important;
+}
+@media (min-width: 768px) {
+  .landing .admin-dt--flush .oe-dt__th:first-child,
+  .landing .admin-dt--flush .oe-dt__td:first-child {
+    padding-inline-start: 20px;
+  }
+  .landing .admin-dt--flush .oe-dt__th:last-child,
+  .landing .admin-dt--flush .oe-dt__td:last-child {
+    padding-inline-end: 14px;
+  }
+}
+.landing .admin-dt .oe-dt__td {
+  color: var(--oe-ink);
+}
+/* Gedämpfte Zeile (inaktiv, gesperrt). */
+.landing .admin-dt .admin-dt__row--muted .oe-dt__td:not(.oe-dt__td--actions) {
+  opacity: 0.6;
+}
+.landing .admin-dt .oe-dt__foot {
+  padding-inline: 20px 14px;
+}
+
+/* Namenszelle: Symbol, Titel und zweite Zeile, beide gekürzt. */
+.admin-cell-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.admin-cell-main__media {
+  flex: none;
+  display: inline-flex;
+}
+.admin-cell-main__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.admin-cell-main__title {
+  font-weight: 600;
+  color: var(--oe-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-cell-main__sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--oe-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-cell-main__extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+  font-weight: 400;
+}
+/* Gekürzter Text in einer Nebenspalte; Breite über --admin-cell-max. */
+.admin-cell-text {
+  display: block;
+  max-width: var(--admin-cell-max, 240px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-cell-text--muted,
+.admin-cell-none {
+  color: var(--oe-mute);
+}
+
+/* Kopf der Listenkarte: Anzahl links, Symbolknöpfe rechts — auch auf
+   dem Telefon in einer Zeile. */
+.landing .app-card__head.admin-list-head {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.landing .admin-list-head__main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.landing .admin-list-head__count {
+  margin: 0;
+  font-size: 13px;
+  color: var(--oe-mute);
+}
+.landing .admin-list-head__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Spalte nur für die Telefon-Ansicht (zweite Zeile des Eintrags). */
+@media (min-width: 768px) {
+  .landing .admin-dt .admin-dt__phone-only {
+    display: none;
+  }
+}
+
+/* Menü-Auslöser als Symbol (z. B. Export) im Kartenkopf oder in der
+   Filterzeile: so groß und gerahmt wie die Symbolknöpfe daneben. */
+.landing .admin-list-head__actions .oe-dd__trigger--icon,
+.landing .admin-filterbar .oe-filterbar__actions .oe-dd__trigger--icon {
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--oe-line-2);
+  border-radius: var(--oe-r-sm);
+  background: transparent;
+  color: var(--oe-ink);
+}
+.landing .admin-list-head__actions .oe-dd__trigger--icon:hover,
+.landing .admin-filterbar .oe-filterbar__actions .oe-dd__trigger--icon:hover {
+  background: color-mix(in oklab, var(--oe-ink) 5%, transparent);
+}
+.landing .admin-list-head__actions .oe-dd__trigger--icon svg,
+.landing .admin-filterbar .oe-filterbar__actions .oe-dd__trigger--icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Filterzeile in einer Karte. */
+.landing .admin-filterbar {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--oe-line);
+}
+/* Desktop: Suche und Aktionen in Zeile 1, die Filterfelder darunter. */
+.landing .admin-filterbar .oe-filterbar__actions {
+  order: 1;
+}
+.landing .admin-filterbar .oe-filterbar__fields {
+  order: 2;
+  flex: 1 1 100%;
+}
+.landing .admin-filterbar .oe-filterbar__fields:empty {
+  display: none;
+}
+.landing .admin-filterbar .oe-filterbar__fields > * {
+  flex: 1 1 140px;
+  min-width: 0;
+  max-width: 220px;
+}
+.landing .oe-filterbar__sheet > * {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  /* Leere Zellen (Komponente ohne Ausgabe) in Zeile 2 samt Trennpunkt weg. */
+  .landing .admin-dt .oe-dt__m-l2:empty {
+    display: none;
+  }
+  .landing .admin-dt--flush .oe-dt__tr {
+    padding-inline-start: 16px;
+  }
+  /* Ohne Aktionsspalte braucht die Zeile rechts keinen Platz für das ⋯. */
+  .landing .admin-dt .oe-dt__tr:not(:has(.oe-dt__td--actions)) {
+    padding-inline-end: 16px;
+  }
+  .landing .admin-dt .admin-cell-main {
+    gap: 8px;
+  }
+  /* Zweite Zeile der Namenszelle bleibt auf dem Desktop; auf dem
+     Telefon trägt Zeile 2 des Eintrags (subtitle/meta) die Details. */
+  .landing .admin-dt .admin-cell-main__sub,
+  .landing .admin-dt .admin-cell-main__extra {
+    display: none;
+  }
+  .landing .admin-dt .admin-cell-main__media img,
+  .landing .admin-dt .admin-cell-main__media > * {
+    max-height: 28px;
+  }
+  .landing .admin-filterbar {
+    padding: 12px 16px;
+  }
+  .landing .admin-list-head.app-card__head {
+    padding: 14px 16px;
+  }
+}
+
+/* Standort einer Kategorie als kleiner Chip unter dem Namen. */
+.category-station-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in oklab, var(--oe-ink) 15%, transparent);
+  background: color-mix(in oklab, var(--oe-ink) 8%, transparent);
+  color: var(--oe-ink);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Veranstaltungen: Kalendersymbol vor dem Namen, Phasenhinweis unter dem Badge. */
+.events-list__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+}
+.events-list__phase {
+  display: inline-block;
+}
+.landing .events-list__hint {
+  white-space: nowrap;
+}
+.landing .oe-dt__td.events-list__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .events-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+  /* Auf dem Telefon steht der Hinweis in einer eigenen Spalte (Zeile 2). */
+  .landing .admin-dt .events-list__hint {
+    display: none;
+  }
+  .landing .admin-dt .events-list__hint-inline {
+    display: inline;
+    margin: 0 !important;
+  }
+  .landing .oe-dt__td.events-list__date {
+    font-family: var(--oe-f-sans);
+  }
+}
+
+/* Dreht ein Symbol, solange etwas lädt (Aktualisieren, Export). */
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.admin-spin {
+  animation: admin-spin 0.75s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-spin {
+    animation: none;
+  }
+}
+
+/* Bestellungen: Kacheln, Filter und Tabelle füllen die Karte selbst. */
+.landing .app-card.orders-card {
+  padding: 0;
+}
+.landing .orders-list__search {
+  width: 100%;
+  min-width: 0;
+}
+.landing .orders-list__count {
+  font-size: 13px;
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+.orders-list__no {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+  font: 700 11px var(--oe-f-mono);
+}
+.orders-list__number {
+  font-family: var(--oe-f-mono);
+  font-size: 11px;
+}
+.orders-list__channel,
+.orders-list__items,
+.orders-list__total {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.orders-list__channel {
+  align-items: flex-start;
+}
+.orders-list__waiter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.orders-list__waiter i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.orders-list__creator,
+.orders-list__more {
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+.orders-list__items > span {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.orders-list__items > .is-cancelled {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+.orders-list__payment {
+  display: inline-flex;
+  gap: 6px;
+  color: var(--oe-mute);
+}
+.orders-list__total {
+  align-items: flex-end;
+}
+.orders-list__refunded,
+.orders-list__paid {
+  font-size: 11px;
+  font-weight: 400;
+}
+.orders-list__refunded {
+  color: var(--oe-danger, var(--danger));
+}
+.orders-list__paid {
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.orders-list__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .landing .orders-list__count {
+    display: none;
+  }
+  .orders-list__no {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .orders-list__total {
+    display: inline;
+  }
+  .orders-list__refunded,
+  .orders-list__paid {
+    display: none;
+  }
+  .landing .oe-dt__td.orders-list__date {
+    font-family: var(--oe-f-sans);
+  }
+}

@@ -22,7 +22,7 @@ export default async function OrdersPage() {
         </div>
       </div>
 
-      <div className="app-card app-card--flat">
+      <div className="app-card app-card--flat orders-card">
         <OrdersList />
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
 import { BadgeCheck, Building, ExternalLink, FlaskConical, Pause, Play } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
@@ -9,6 +9,7 @@ import { useEvents } from '@/hooks/use-events';
 import { shopUrlForEvent } from '@/lib/shop-url';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import { AdminTable, CellMain, ListAction, ListCount, ListHead } from '@/components/shared/admin-table';
 import { LegalInfoWarning } from '@/components/shared/legal-info-warning';
 import { EventPhaseBadge, EventPhaseHint } from '@/components/shared/event-phase';
 import { EventEmergencySupportNotice } from '@/components/shared/event-emergency-support-notice';
@@ -101,18 +102,110 @@ export function EventsList({
     return `${start} – ${formatDate(endDate)}`;
   };
 
+  const isUnlocked = (event: Event) =>
+    event.billingStatus === 'paid' || event.billingStatus === 'invoice' || event.billingStatus === 'waived';
+
+  const columns: DataColumn<Event>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (event) => (
+        <CellMain
+          media={
+            <span className="events-list__icon" aria-hidden>
+              <Icon name="calendar" size={16} />
+            </span>
+          }
+          title={event.name}
+          titleText={event.name}
+          sub={event.description || undefined}
+          subText={event.description || undefined}
+        />
+      ),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (event) => (
+        /* Phase statt Status: eine bezahlte Veranstaltung vor ihrem Termin
+           ist „Geplant“ (Testbetrieb), danach „Beendet“. */
+        <span className="events-list__phase">
+          <EventPhaseBadge event={event} />
+          <EventPhaseHint event={event} className="events-list__hint" />
+        </span>
+      ),
+    },
+    {
+      id: 'date',
+      header: t('table.date'),
+      mobile: 'meta',
+      className: 'events-list__date',
+      cell: (event) => formatDateTime(event.startDate, event.endDate),
+    },
+    {
+      // Telefon: der Phasenhinweis als eigener Teil der zweiten Zeile.
+      id: 'phaseHint',
+      header: t('table.status'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only',
+      cell: (event) => <EventPhaseHint event={event} className="events-list__hint-inline" />,
+    },
+  ];
+
+  /* Häufiges zuerst: Bearbeiten und der passende Statuswechsel stehen als
+     Symbol in der Zeile, der Rest (Freischaltung, Shop, Löschen) im Menü. */
+  const actions = (event: Event): RowAction[] => [
+    { id: 'edit', label: t('actions.edit'), icon: 'edit', onClick: () => onEditClick(event) },
+    {
+      id: 'activate',
+      label: t('actions.activate'),
+      icon: <Play />,
+      primary: true,
+      hidden: !(event.status === 'inactive' || event.status === 'test'),
+      disabled: activatingEventId === event.id,
+      onClick: () => onActivateClick(event),
+    },
+    {
+      id: 'testMode',
+      label: t('actions.testMode'),
+      icon: <FlaskConical />,
+      hidden: event.status !== 'inactive',
+      onClick: () => onSetTestModeClick(event),
+    },
+    {
+      id: 'deactivate',
+      label: t('actions.deactivate'),
+      icon: <Pause />,
+      hidden: !(event.status === 'active' || event.status === 'test'),
+      onClick: () => onDeactivateClick(event),
+    },
+    {
+      id: 'unlock',
+      label: t('actions.unlock'),
+      icon: <BadgeCheck />,
+      hidden: !onUnlockClick || !isUnlocked(event),
+      onClick: () => onUnlockClick?.(event),
+    },
+    {
+      id: 'shop',
+      label: t('actions.openShop'),
+      icon: <ExternalLink />,
+      hidden: !event.settings?.shop?.enabled,
+      // Neuer Tab wie zuvor (RowAction kennt kein target).
+      onClick: () => window.open(shopUrlForEvent(event.id), '_blank', 'noopener,noreferrer'),
+    },
+    { id: 'delete', label: t('actions.delete'), icon: 'trash', danger: true, onClick: () => onDeleteClick(event) },
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
-              steht wie bei den Geraeten nur die Anzahl. */}
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: events.length })}</p>
-        </div>
-        <button className="btn btn--primary" onClick={onCreateClick}>
-          {t('create')}
-        </button>
-      </div>
+      {/* Titel und Untertitel standen schon im Seitenkopf darueber; hier
+          steht wie bei den Geraeten nur die Anzahl. */}
+      <ListHead actions={<ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />}>
+        <ListCount>{t('count', { count: events.length })}</ListCount>
+      </ListHead>
 
       <EventEmergencySupportNotice organizationId={organizationId} events={events} wrapperClassName="events-list__legal" />
 
@@ -124,142 +217,13 @@ export function EventsList({
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th>{t('table.status')}</th>
-              <th>{t('table.date')}</th>
-              <th style={{ width: 160 }}>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((event) => (
-              <tr key={event.id}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 8,
-                      background: 'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
-                      color: 'var(--green-ink)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      <Icon name="calendar" size={16} />
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{event.name}</div>
-                      {event.description && (
-                        <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>
-                          {event.description}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  {/* Phase statt Status: eine bezahlte Veranstaltung vor
-                      ihrem Termin ist „Geplant“ (Testbetrieb), danach
-                      „Beendet“. */}
-                  <EventPhaseBadge event={event} />
-                  <EventPhaseHint event={event} />
-                </td>
-                <td className="mono">{formatDateTime(event.startDate, event.endDate)}</td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0 }}
-                      onClick={() => onEditClick(event)}
-                      aria-label={t('actions.edit')}
-                      title={t('actions.edit')}
-                    >
-                      <Icon name="edit" size={16} />
-                    </button>
-                    {event.settings?.shop?.enabled && (
-                      <a
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
-                        href={shopUrlForEvent(event.id)}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        aria-label={t('actions.openShop')}
-                        title={t('actions.openShop')}
-                      >
-                        <ExternalLink size={16} />
-                      </a>
-                    )}
-                    {onUnlockClick &&
-                      (event.billingStatus === 'paid' ||
-                        event.billingStatus === 'invoice' ||
-                        event.billingStatus === 'waived') && (
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)' }}
-                          onClick={() => onUnlockClick(event)}
-                          aria-label={t('actions.unlock')}
-                          title={t('actions.unlock')}
-                        >
-                          <BadgeCheck size={16} />
-                        </button>
-                      )}
-                    {(event.status === 'inactive' || event.status === 'test') && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0, color: 'var(--green-ink)', opacity: activatingEventId === event.id ? 0.5 : 1 }}
-                        onClick={() => onActivateClick(event)}
-                        disabled={activatingEventId === event.id}
-                        aria-label={t('actions.activate')}
-                        title={t('actions.activate')}
-                      >
-                        <Play size={16} />
-                      </button>
-                    )}
-                    {event.status === 'inactive' && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0 }}
-                        onClick={() => onSetTestModeClick(event)}
-                        aria-label={t('actions.testMode')}
-                        title={t('actions.testMode')}
-                      >
-                        <FlaskConical size={16} />
-                      </button>
-                    )}
-                    {(event.status === 'active' || event.status === 'test') && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0 }}
-                        onClick={() => onDeactivateClick(event)}
-                        aria-label={t('actions.deactivate')}
-                        title={t('actions.deactivate')}
-                      >
-                        <Pause size={16} />
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                      onClick={() => onDeleteClick(event)}
-                      aria-label={t('actions.delete')}
-                      title={t('actions.delete')}
-                    >
-                      <Icon name="trash" size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption={t('title')}
+        rows={events}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+      />
     </div>
   );
 }

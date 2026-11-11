@@ -80,7 +80,7 @@ test.describe('Events', () => {
       const eventName = unique('Aktivierung');
       await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
-      await eventsPage.row(eventName).getByRole('button', { name: 'Aktivieren' }).click();
+      await eventsPage.rowAction(eventName, 'Aktivieren');
       await eventsPage.expectStatus(eventName, 'Aktiv');
       await expect(eventsPage.modal).toHaveCount(0);
 
@@ -95,10 +95,10 @@ test.describe('Events', () => {
       const eventName = unique('Testlauf');
       await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
-      await eventsPage.row(eventName).getByRole('button', { name: 'Testmodus' }).click();
+      await eventsPage.rowAction(eventName, 'Testmodus');
       await eventsPage.expectStatus(eventName, 'Testmodus');
 
-      await eventsPage.row(eventName).getByRole('button', { name: 'Deaktivieren' }).click();
+      await eventsPage.rowAction(eventName, 'Deaktivieren');
       await eventsPage.expectStatus(eventName, 'Inaktiv');
     });
 
@@ -108,12 +108,12 @@ test.describe('Events', () => {
 
       const first = unique('Erstes');
       await eventsPage.createEvent({ name: first, startDate: todayKey() });
-      await eventsPage.row(first).getByRole('button', { name: 'Aktivieren' }).click();
+      await eventsPage.rowAction(first, 'Aktivieren');
       await eventsPage.expectStatus(first, 'Aktiv');
 
       const second = unique('Zweites');
       await eventsPage.createEvent({ name: second, startDate: todayKey() });
-      await eventsPage.row(second).getByRole('button', { name: 'Aktivieren' }).click();
+      await eventsPage.rowAction(second, 'Aktivieren');
       await eventsPage.expectStatus(second, 'Aktiv');
       await eventsPage.expectStatus(first, 'Inaktiv');
     });
@@ -127,7 +127,7 @@ test.describe('Events', () => {
       const eventName = unique('Loeschen');
       await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
-      await eventsPage.row(eventName).getByRole('button', { name: 'Löschen' }).click();
+      await eventsPage.rowAction(eventName, 'Löschen');
       await expect(eventsPage.modal.getByRole('heading', { name: 'Veranstaltung löschen' })).toBeVisible();
       await eventsPage.modal.getByRole('button', { name: 'Löschen' }).click();
 
@@ -147,7 +147,7 @@ test.describe('Events', () => {
       const eventName = unique('Behalten');
       await eventsPage.createEvent({ name: eventName, startDate: todayKey() });
 
-      await eventsPage.row(eventName).getByRole('button', { name: 'Löschen' }).click();
+      await eventsPage.rowAction(eventName, 'Löschen');
       await eventsPage.modal.getByRole('button', { name: 'Abbrechen' }).click();
       await expect(eventsPage.modal).toHaveCount(0);
       await expect(eventsPage.row(eventName)).toBeVisible();

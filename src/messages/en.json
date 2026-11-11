@@ -31,6 +31,23 @@
     "sourceCode": {
       "label": "Source code (AGPL-3.0)",
       "title": "OpenEOS is free software under the AGPL-3.0-or-later. Get the source code here."
+    },
+    "table": {
+      "actions": "Actions",
+      "more": "More actions",
+      "loading": "Loading",
+      "empty": "No entries",
+      "filter": "Filter",
+      "filterTitle": "Filters",
+      "resetFilters": "Reset",
+      "applyFilters": "Apply",
+      "pagerPrev": "Previous",
+      "pagerNext": "Next",
+      "pagerInfo": "{from}–{to} of {total}",
+      "pagerInfoEmpty": "0 entries",
+      "pagerPage": "Page {page} of {pages}",
+      "pagerNav": "Pages",
+      "pagerPerPage": "per page"
     }
   },
   "auth": {
@@ -2314,7 +2331,9 @@
       "edit": "Edit",
       "delete": "Delete",
       "toggleAvailability": "Toggle availability",
-      "adjustStock": "Adjust stock"
+      "adjustStock": "Adjust stock",
+      "favoriteAdd": "Mark as favorite",
+      "favoriteRemove": "Remove from favorites"
     },
     "deleteConfirm": {
       "title": "Delete product",
@@ -3760,7 +3779,8 @@
       "allEvents": "All events",
       "searchPlaceholder": "Number, table or product",
       "dateFrom": "From (date)",
-      "dateTo": "To (date)"
+      "dateTo": "To (date)",
+      "event": "Event"
     },
     "columns": {
       "orderNumber": "Order",
