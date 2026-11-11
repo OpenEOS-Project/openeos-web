@@ -1,11 +1,19 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useDiscountVouchers } from '@/hooks/use-discount-vouchers';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import {
+  AdminTable,
+  CellMain,
+  CellText,
+  ListAction,
+  ListCount,
+  ListHead,
+} from '@/components/shared/admin-table';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 
 interface DiscountsListProps {
@@ -53,88 +61,76 @@ export function DiscountsList({
 
   const formatAmount = (voucher: DiscountVoucher) => {
     if (voucher.type === 'manual') {
-      return <span style={{ opacity: 0.6 }}>{t('table.manualAmount')}</span>;
+      return <span className="admin-cell-text--muted">{t('table.manualAmount')}</span>;
     }
     return formatCurrency(Number(voucher.amount ?? 0));
   };
 
+  const columns: DataColumn<DiscountVoucher>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (voucher) => (
+        <CellMain
+          title={voucher.name}
+          titleText={voucher.name}
+          sub={voucher.description || undefined}
+          subText={voucher.description || undefined}
+        />
+      ),
+    },
+    {
+      id: 'type',
+      header: t('table.type'),
+      mobile: 'meta',
+      cell: (voucher) => (
+        <CellText muted title={t(`types.${voucher.type}`)}>
+          {t(`types.${voucher.type}`)}
+        </CellText>
+      ),
+    },
+    {
+      id: 'amount',
+      header: t('table.amount'),
+      num: true,
+      mobile: 'trailing',
+      cell: (voucher) => formatAmount(voucher),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (voucher) =>
+        voucher.isActive ? (
+          <span className="badge badge--success">{t('status.active')}</span>
+        ) : (
+          <span className="badge badge--neutral">{t('status.inactive')}</span>
+        ),
+    },
+  ];
+
+  const actions = (voucher: DiscountVoucher): RowAction[] => [
+    { id: 'edit', label: t('actions.edit'), icon: 'edit', onClick: () => onEditClick(voucher) },
+    { id: 'delete', label: t('actions.delete'), icon: 'trash', danger: true, onClick: () => onDeleteClick(voucher) },
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          {/* Nur die Anzahl wie bei Produkten und Geraeten — Titel und
-              Untertitel stehen schon im Seitenkopf darueber. */}
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: vouchers.length })}</p>
-        </div>
-        <button className="btn btn--primary" onClick={onCreateClick}>
-          {t('create')}
-        </button>
-      </div>
+      {/* Nur die Anzahl wie bei Produkten und Geraeten — Titel und
+          Untertitel stehen schon im Seitenkopf darueber. */}
+      <ListHead actions={<ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />}>
+        <ListCount>{t('count', { count: vouchers.length })}</ListCount>
+      </ListHead>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th>{t('table.type')}</th>
-              <th className="text-right">{t('table.amount')}</th>
-              <th>{t('table.status')}</th>
-              <th style={{ width: 120 }}>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vouchers.map((voucher) => (
-              <tr key={voucher.id}>
-                <td>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{voucher.name}</div>
-                  {voucher.description && (
-                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>
-                      {voucher.description}
-                    </div>
-                  )}
-                </td>
-                <td>
-                  <span style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
-                    {t(`types.${voucher.type}`)}
-                  </span>
-                </td>
-                <td className="mono text-right">{formatAmount(voucher)}</td>
-                <td>
-                  {voucher.isActive ? (
-                    <span className="badge badge--success">{t('status.active')}</span>
-                  ) : (
-                    <span className="badge badge--neutral">{t('status.inactive')}</span>
-                  )}
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0 }}
-                      onClick={() => onEditClick(voucher)}
-                      aria-label={t('actions.edit')}
-                      title={t('actions.edit')}
-                    >
-                      <Icon name="edit" size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                      onClick={() => onDeleteClick(voucher)}
-                      aria-label={t('actions.delete')}
-                      title={t('actions.delete')}
-                    >
-                      <Icon name="trash" size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption={t('title')}
+        rows={vouchers}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        rowClassName={(voucher) => (voucher.isActive ? undefined : 'admin-dt__row--muted')}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 /* Kassenbuch in der Verwaltung (app/[locale]/(dashboard)/cashbook). Mobil
    zuerst: alles untereinander, ab Tablet Soll-Bestand und Buchungen
-   nebeneinander, die Buchungsliste ab Tablet als Tabelle. */
+   nebeneinander. Die Buchungsliste ist eine DataTable (auf dem Telefon
+   zweizeilige Einträge, siehe admin-table-wave2.css). */
 
 .cb {
   display: flex;
@@ -180,63 +181,6 @@
 .cb-amount[data-tone='minus'] {
   color: var(--oe-danger-ink, var(--oe-danger));
 }
-.cb-note {
-  font-size: 12px;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.cb-table-wrap {
-  overflow-x: auto;
-}
-.landing .data-table.cb-table th,
-.landing .data-table.cb-table td {
-  padding: 6px 8px;
-  font-size: 13px;
-  vertical-align: top;
-}
-.landing .data-table.cb-table td {
-  white-space: nowrap;
-}
-.landing .data-table.cb-table td.cb-note {
-  white-space: normal;
-  min-width: 140px;
-}
-.cb-cards {
-  display: none;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.cb-card {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 0;
-  border-top: 1px solid var(--oe-line);
-}
-.cb-card:first-child {
-  border-top: 0;
-}
-.cb-card__head {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 14px;
-}
-.cb-card__amount {
-  font-weight: 600;
-}
-@media (max-width: 767px) {
-  .cb-table-wrap {
-    display: none;
-  }
-  .cb-cards {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
 /* Kassensturz: Soll und Differenz (Dialog) */
 .cb-diff {
   display: grid;

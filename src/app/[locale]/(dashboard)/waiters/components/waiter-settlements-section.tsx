@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon, Segment } from '@openeos/ui';
+import { Icon, Segment, type DataColumn } from '@openeos/ui';
 
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellNone, CellText } from '@/components/shared/admin-table';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { SettlementFigures } from '@/components/waiters/settlement-figures';
@@ -18,6 +19,8 @@ import type { WaiterSettlement } from '@/types/waiter';
 
 import { WaiterBadge } from './waiter-badge';
 import { WaiterLiveAudit } from './waiter-live-audit';
+
+import '@/styles/admin-table-wave2.css';
 
 interface WaiterSettlementsSectionProps {
   organizationId: string;
@@ -47,6 +50,86 @@ export function WaiterSettlementsSection({ organizationId, eventId, highlight, o
     onCloseHighlight?.();
   };
 
+  const columns: DataColumn<WaiterSettlement>[] = [
+    {
+      id: 'number',
+      header: t('list.number'),
+      mobile: 'subtitle',
+      className: 'waiter-settlements__number',
+      cell: (s) => (
+        <span className="waiter-settlements__badges">
+          {s.number ? <span className="mono">Nr. {s.number}</span> : <span className="badge badge--neutral">{t('list.training')}</span>}
+          {s.tse && (
+            <span
+              className={`badge ${s.tse.failed ? 'badge--warning' : 'badge--success'}`}
+              title={s.tse.failed ? t('tse.failed') : t('tse.signedNoNumber')}
+            >
+              {s.tse.failed ? t('tse.badgeFailed') : t('tse.badge')}
+            </span>
+          )}
+          {s.forced && (
+            <span className="badge badge--warning" title={s.note ?? undefined}>
+              {t('list.forced')}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      id: 'waiter',
+      header: t('list.waiter'),
+      mobile: 'title',
+      cell: (s) => (
+        <CellMain
+          media={<WaiterBadge name={s.subject.name} color={s.subject.color} />}
+          title={s.subject.name}
+          titleText={s.subject.name}
+          sub={s.eventName || undefined}
+          subText={s.eventName || undefined}
+        />
+      ),
+    },
+    {
+      id: 'period',
+      header: t('list.period'),
+      mobile: 'meta',
+      className: 'admin-dt__date',
+      cell: (s) => `${s.periodFrom ? formatDateTime(s.periodFrom) : t('list.fromStart')} – ${formatDateTime(s.periodTo)}`,
+    },
+    {
+      id: 'collected',
+      header: t('list.collected'),
+      num: true,
+      mobile: 'trailing',
+      cell: (s) => (s.totals.payments ? formatCurrency(s.totals.payments.total.amount) : '—'),
+    },
+    {
+      id: 'cashExpected',
+      header: t('list.cashExpected'),
+      num: true,
+      priority: 2,
+      cell: (s) => (s.cashExpected === null ? '—' : formatCurrency(s.cashExpected)),
+    },
+    {
+      id: 'settledBy',
+      header: t('list.settledBy'),
+      priority: 3,
+      cell: (s) =>
+        s.settledBy?.name || s.deviceName ? (
+          <span className="waiter-settlements__by">
+            <CellText title={s.settledBy?.name ?? undefined}>{s.settledBy?.name ?? '—'}</CellText>
+            {s.deviceName && (
+              <CellText muted title={s.deviceName}>
+                {s.deviceName}
+              </CellText>
+            )}
+          </span>
+        ) : (
+          <CellNone />
+        ),
+    },
+  ];
+
   let body;
   if (list.isLoading) body = <ListLoading />;
   else if (list.error) body = <ListError />;
@@ -58,74 +141,23 @@ export function WaiterSettlementsSection({ organizationId, eventId, highlight, o
     );
   else
     body = (
-      <div className="waiters-table" style={{ overflowX: 'auto' }}>
-        <table className="data-table" data-testid="waiter-settlements-table">
-          <thead>
-            <tr>
-              <th>{t('list.number')}</th>
-              <th>{t('list.waiter')}</th>
-              <th>{t('list.period')}</th>
-              <th className="text-right">{t('list.collected')}</th>
-              <th className="text-right">{t('list.cashExpected')}</th>
-              <th>{t('list.settledBy')}</th>
-              <th>{t('list.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {settlements.map((s) => (
-              <tr key={s.id}>
-                <td className="mono">
-                  {s.number ? `Nr. ${s.number}` : <span className="badge badge--neutral">{t('list.training')}</span>}
-                  {s.tse && (
-                    <span
-                      className={`badge ${s.tse.failed ? 'badge--warning' : 'badge--success'}`}
-                      style={{ marginLeft: 6 }}
-                      title={s.tse.failed ? t('tse.failed') : t('tse.signedNoNumber')}
-                    >
-                      {s.tse.failed ? t('tse.badgeFailed') : t('tse.badge')}
-                    </span>
-                  )}
-                  {s.forced && (
-                    <span className="badge badge--warning" style={{ marginLeft: 6 }} title={s.note ?? undefined}>
-                      {t('list.forced')}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <div className="waiters-name">
-                    <WaiterBadge name={s.subject.name} color={s.subject.color} />
-                    <span>
-                      <b>{s.subject.name}</b>
-                      {s.eventName && <small>{s.eventName}</small>}
-                    </span>
-                  </div>
-                </td>
-                <td className="mono" style={{ fontSize: 12 }}>
-                  {s.periodFrom ? formatDateTime(s.periodFrom) : t('list.fromStart')} – {formatDateTime(s.periodTo)}
-                </td>
-                <td className="mono text-right">
-                  {s.totals.payments ? formatCurrency(s.totals.payments.total.amount) : '—'}
-                </td>
-                <td className="mono text-right">{s.cashExpected === null ? '—' : formatCurrency(s.cashExpected)}</td>
-                <td style={{ fontSize: 13 }}>
-                  {s.settledBy?.name ?? '—'}
-                  {s.deviceName && <small style={{ display: 'block', opacity: 0.6 }}>{s.deviceName}</small>}
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn btn--ghost"
-                    onClick={() => setOpen(s)}
-                    aria-label={t('list.open', { number: s.number ?? '–' })}
-                    title={t('list.open', { number: s.number ?? '–' })}
-                  >
-                    <Icon name="eye" size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div data-testid="waiter-settlements-table">
+        <AdminTable
+          caption={t('list.title')}
+          rows={settlements}
+          rowKey="id"
+          columns={columns}
+          actions={(s) => [
+            {
+              id: 'open',
+              label: t('list.open', { number: s.number ?? '–' }),
+              icon: 'eye',
+              onClick: () => setOpen(s),
+            },
+          ]}
+          // Die ganze Zeile öffnet die Einzelansicht (auch per Tastatur).
+          onRowClick={(s) => setOpen(s)}
+        />
       </div>
     );
 

@@ -1,9 +1,11 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
 
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellText, ListAction, ListHead } from '@/components/shared/admin-table';
+import '@/styles/admin-table-wave2.css';
 import { useEvents } from '@/hooks/use-events';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useTokenTypes } from '@/hooks/use-token-types';
@@ -57,106 +59,107 @@ export function TokenTypeList({ organizationId, onCreateClick, onEditClick, onDe
     );
   };
 
+  const columns: DataColumn<TokenType>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (type) => (
+        <CellMain
+          media={
+            <span className="token-swatch" style={type.color ? { background: type.color } : undefined} aria-hidden="true" />
+          }
+          title={type.name}
+          titleText={type.name}
+          sub={type.inUse ? t('inUse') : undefined}
+        />
+      ),
+    },
+    { id: 'value', header: t('table.value'), num: true, mobile: 'trailing', cell: (type) => formatCurrency(Number(type.value)) },
+    { id: 'kind', header: t('table.kind'), mobile: 'subtitle', cell: (type) => kindBadge(type) },
+    {
+      id: 'event',
+      header: t('table.event'),
+      mobile: 'meta',
+      cell: (type) => {
+        const restricted = type.allowedCategoryIds.length + type.allowedProductIds.length > 0;
+        const name = eventName(type.eventId);
+        return (
+          <span className="token-event">
+            <CellText title={name}>{name}</CellText>
+            {restricted && (
+              <small>
+                {t('restrictedSummary', {
+                  categories: type.allowedCategoryIds.length,
+                  products: type.allowedProductIds.length,
+                })}
+              </small>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'buyback',
+      header: t('table.buyback'),
+      priority: 2,
+      cell: (type) =>
+        type.buybackAllowed ? (
+          <span className="badge badge--neutral">{t('buyback.allowed')}</span>
+        ) : (
+          <span className="admin-cell-text--muted">{t('buyback.notAllowed')}</span>
+        ),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'meta',
+      cell: (type) =>
+        type.isActive ? (
+          <span className="badge badge--success">{t('status.active')}</span>
+        ) : (
+          <span className="badge badge--neutral">{t('status.inactive')}</span>
+        ),
+    },
+  ];
+
+  const actions = (type: TokenType): RowAction[] => [
+    { id: 'edit', label: t('actions.edit'), icon: 'edit', onClick: () => onEditClick(type) },
+    {
+      // Benutzte Marken werden nur deaktiviert, nicht gelöscht.
+      id: type.inUse ? 'deactivate' : 'delete',
+      label: type.inUse ? t('actions.deactivate') : t('actions.delete'),
+      icon: type.inUse ? 'ban' : 'trash',
+      danger: true,
+      onClick: () => onDeleteClick(type),
+    },
+  ];
+
   return (
     <div className="app-card app-card--flat" data-testid="token-type-list">
-      <div className="app-card__head">
-        <div>
-          <h2 className="app-card__title">{t('types.title')}</h2>
-          <p className="app-card__sub">{t('count', { count: types.length })}</p>
-        </div>
-        <button className="btn btn--primary" onClick={onCreateClick} data-testid="token-type-create">
-          {t('create')}
-        </button>
-      </div>
+      <ListHead
+        actions={
+          <ListAction
+            variant="primary"
+            icon="plus"
+            label={t('create')}
+            onClick={onCreateClick}
+            data-testid="token-type-create"
+          />
+        }
+      >
+        <h2 className="app-card__title">{t('types.title')}</h2>
+        <p className="app-card__sub">{t('count', { count: types.length })}</p>
+      </ListHead>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th className="text-right">{t('table.value')}</th>
-              <th>{t('table.kind')}</th>
-              <th>{t('table.event')}</th>
-              <th>{t('table.buyback')}</th>
-              <th>{t('table.status')}</th>
-              <th style={{ width: 120 }}>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {types.map((type) => {
-              const restricted = type.allowedCategoryIds.length + type.allowedProductIds.length > 0;
-              return (
-                <tr key={type.id} data-testid={`token-type-row-${type.id}`}>
-                  <td>
-                    <div className="token-name">
-                      <span
-                        className="token-swatch"
-                        style={type.color ? { background: type.color } : undefined}
-                        aria-hidden="true"
-                      />
-                      <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>
-                        {type.name}
-                        {type.inUse && <small>{t('inUse')}</small>}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="mono text-right">{formatCurrency(Number(type.value))}</td>
-                  <td>{kindBadge(type)}</td>
-                  <td style={{ fontSize: 13 }}>
-                    {eventName(type.eventId)}
-                    {restricted && (
-                      <div style={{ fontSize: 11, color: 'var(--oe-mute)' }}>
-                        {t('restrictedSummary', {
-                          categories: type.allowedCategoryIds.length,
-                          products: type.allowedProductIds.length,
-                        })}
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    {type.buybackAllowed ? (
-                      <span className="badge badge--neutral">{t('buyback.allowed')}</span>
-                    ) : (
-                      <span style={{ color: 'var(--oe-mute)' }}>{t('buyback.notAllowed')}</span>
-                    )}
-                  </td>
-                  <td>
-                    {type.isActive ? (
-                      <span className="badge badge--success">{t('status.active')}</span>
-                    ) : (
-                      <span className="badge badge--neutral">{t('status.inactive')}</span>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0 }}
-                        onClick={() => onEditClick(type)}
-                        aria-label={t('actions.edit')}
-                        title={t('actions.edit')}
-                      >
-                        <Icon name="edit" size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                        onClick={() => onDeleteClick(type)}
-                        aria-label={type.inUse ? t('actions.deactivate') : t('actions.delete')}
-                        title={type.inUse ? t('actions.deactivate') : t('actions.delete')}
-                      >
-                        <Icon name={type.inUse ? 'ban' : 'trash'} size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption={t('types.title')}
+        rows={types}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        rowClassName={(type) => (type.isActive ? undefined : 'admin-dt__row--muted')}
+      />
     </div>
   );
 }

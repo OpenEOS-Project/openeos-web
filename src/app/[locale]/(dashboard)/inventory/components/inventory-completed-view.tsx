@@ -1,12 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn } from '@openeos/ui';
 import { ArrowLeft } from 'lucide-react';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInventoryCount } from '@/hooks/use-inventory';
-import type { InventoryCount } from '@/types/inventory';
+import { AdminTable, CellMain, CellText } from '@/components/shared/admin-table';
+import type { InventoryCount, InventoryCountItem } from '@/types/inventory';
+
+import '@/styles/admin-table-wave2.css';
 
 interface InventoryCompletedViewProps {
   eventId: string;
@@ -45,6 +48,69 @@ export function InventoryCompletedView({
   const items = [...(resolvedCount.items ?? [])].sort(
     (a, b) => (a.countedQuantity ?? 0) - (b.countedQuantity ?? 0),
   );
+
+  const diffOf = (item: InventoryCountItem) =>
+    item.countedQuantity !== null ? item.countedQuantity - item.expectedQuantity : null;
+
+  const itemColumns: DataColumn<InventoryCountItem>[] = [
+    {
+      id: 'product',
+      header: t('table.product'),
+      mobile: 'title',
+      cell: (item) => {
+        const name = item.product?.name ?? item.productId;
+        return <CellMain title={name} titleText={name} />;
+      },
+    },
+    {
+      id: 'expected',
+      header: t('table.expected'),
+      num: true,
+      cell: (item) => item.expectedQuantity,
+    },
+    {
+      id: 'counted',
+      header: t('table.counted'),
+      num: true,
+      cell: (item) =>
+        item.countedQuantity !== null ? item.countedQuantity : <span className="admin-cell-none">–</span>,
+    },
+    {
+      id: 'difference',
+      header: t('table.difference'),
+      num: true,
+      mobile: 'trailing',
+      cell: (item) => {
+        const diff = diffOf(item);
+        if (diff === null) return <span className="admin-cell-none">–</span>;
+        return (
+          <span className="inventory-diff" data-tone={diff < 0 ? 'minus' : diff > 0 ? 'plus' : 'zero'}>
+            {diff > 0 ? `+${diff}` : diff}
+          </span>
+        );
+      },
+    },
+    {
+      // Telefon: Gezählt und Erwartet mit Beschriftung in Zeile 2.
+      id: 'quantities',
+      header: t('table.counted'),
+      mobile: 'subtitle',
+      className: 'admin-dt__phone-only',
+      cell: (item) =>
+        `${t('table.counted')} ${item.countedQuantity ?? '–'} / ${t('table.expected')} ${item.expectedQuantity}`,
+    },
+    {
+      id: 'notes',
+      header: t('table.notes'),
+      mobile: 'meta',
+      cell: (item) =>
+        item.notes ? (
+          <CellText muted title={item.notes}>
+            {item.notes}
+          </CellText>
+        ) : null,
+    },
+  ];
 
   const handleExportCsv = () => {
     const header = `${t('csv.product')};${t('csv.counted')};${t('csv.difference')};${t('csv.notes')}`;
@@ -145,58 +211,13 @@ export function InventoryCompletedView({
             <p className="app-card__sub">{t('completed.listSubtitle')}</p>
           </div>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('table.product')}</th>
-                <th className="text-right">{t('table.expected')}</th>
-                <th className="text-right">{t('table.counted')}</th>
-                <th className="text-right">{t('table.difference')}</th>
-                <th>{t('table.notes')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '32px 0', color: 'var(--ink)', opacity: 0.5 }}>
-                    {t('empty.noItems')}
-                  </td>
-                </tr>
-              ) : (
-                items.map((item) => {
-                  const diff =
-                    item.countedQuantity !== null
-                      ? item.countedQuantity - item.expectedQuantity
-                      : null;
-                  const diffColor = diff === null ? undefined : diff < 0 ? 'var(--danger)' : diff > 0 ? '#16a34a' : undefined;
-
-                  return (
-                    <tr key={item.id}>
-                      <td>
-                        <div style={{ fontWeight: 500, fontSize: 13 }}>
-                          {item.product?.name ?? item.productId}
-                        </div>
-                      </td>
-                      <td className="text-right mono" style={{ fontSize: 13 }}>
-                        {item.expectedQuantity}
-                      </td>
-                      <td className="text-right mono" style={{ fontSize: 13 }}>
-                        {item.countedQuantity !== null ? item.countedQuantity : <span style={{ opacity: 0.4 }}>–</span>}
-                      </td>
-                      <td className="text-right mono" style={{ fontSize: 13, color: diffColor, fontWeight: diff !== null && diff !== 0 ? 600 : undefined }}>
-                        {diff !== null ? (diff > 0 ? `+${diff}` : diff) : <span style={{ opacity: 0.4 }}>–</span>}
-                      </td>
-                      <td style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.6 }}>
-                        {item.notes ?? ''}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          caption={t('completed.listTitle')}
+          rows={items}
+          rowKey="id"
+          columns={itemColumns}
+          empty={t('empty.noItems')}
+        />
       </div>
     </div>
   );

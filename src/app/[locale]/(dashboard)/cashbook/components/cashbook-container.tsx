@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Banner, Icon, type IconName } from '@openeos/ui';
+import { Banner, Icon, type DataColumn, type IconName } from '@openeos/ui';
 
 import { ListError, ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellNone, CellText } from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCashbookDay, useCreateCashbookEntry } from '@/hooks/use-dsfinvk';
@@ -17,6 +18,7 @@ import type { CashbookEntryType, CashbookEntryView, CashSummary, CreateCashbookE
 import { CashbookEntryDialog } from './cashbook-entry-dialog';
 
 import '@/styles/cashbook.css';
+import '@/styles/admin-table-wave2.css';
 
 export const CASHBOOK_ICONS: Record<CashbookEntryType, IconName> = {
   opening_balance: 'cash',
@@ -72,6 +74,89 @@ export function CashbookContainer() {
   // Je Gerät (Schublade); die Zeile ohne Gerät enthält nur Buchungen der
   // Verwaltung (Barzahlungen, Kassenbuch ohne Gerät) und steht am Ende.
   const devices = [...data.devices].sort((a, b) => Number(!a.deviceId) - Number(!b.deviceId));
+
+  const counted = (entry: CashbookEntryView) => entry.type === 'cash_count' && entry.countedAmount !== null;
+
+  const entryColumns: DataColumn<CashbookEntryView>[] = [
+    {
+      id: 'time',
+      header: t('col.time'),
+      mobile: 'meta',
+      className: 'admin-dt__date',
+      cell: (entry) => <EntryTime entry={entry} />,
+    },
+    {
+      id: 'device',
+      header: t('col.device'),
+      mobile: 'meta',
+      cell: (entry) => {
+        const label = deviceLabel(entry, t);
+        return <CellText title={label}>{label}</CellText>;
+      },
+    },
+    {
+      id: 'type',
+      header: t('col.type'),
+      mobile: 'title',
+      cell: (entry) => (
+        <CellMain
+          media={<Icon name={CASHBOOK_ICONS[entry.type]} size={16} className="cb-dt__icon" />}
+          title={t(`types.${entry.type}`)}
+        />
+      ),
+    },
+    {
+      id: 'amount',
+      header: t('col.amount'),
+      num: true,
+      mobile: 'trailing',
+      cell: (entry) => <EntryAmount entry={entry} />,
+    },
+    {
+      id: 'countedExpected',
+      header: t('col.countedExpected'),
+      num: true,
+      priority: 2,
+      cell: (entry) =>
+        counted(entry) ? `${formatCurrency(entry.countedAmount ?? 0)} / ${formatCurrency(entry.expectedAmount ?? 0)}` : <CellNone />,
+    },
+    {
+      id: 'note',
+      header: t('col.note'),
+      // Telefon: die Notiz ungekürzt in einer eigenen Zeile.
+      mobile: 'meta',
+      className: 'admin-dt__m-line cb-dt__note',
+      cell: (entry) =>
+        entry.note ? (
+          <CellText muted title={entry.note}>
+            {entry.note}
+          </CellText>
+        ) : (
+          <span className="admin-cell-none cb-dt__none">–</span>
+        ),
+    },
+    {
+      id: 'user',
+      header: t('col.user'),
+      mobile: 'meta',
+      priority: 2,
+      cell: (entry) => (entry.userName ? <CellText title={entry.userName}>{entry.userName}</CellText> : <CellNone />),
+    },
+    {
+      // Telefon: Kassensturz als „Gezählt … von Soll …“ in einer eigenen Zeile.
+      id: 'countedOf',
+      header: t('col.countedExpected'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only admin-dt__m-line',
+      cell: (entry) =>
+        counted(entry)
+          ? t('countedOf', {
+              counted: formatCurrency(entry.countedAmount ?? 0),
+              expected: formatCurrency(entry.expectedAmount ?? 0),
+            })
+          : null,
+    },
+  ];
 
   return (
     <div className="cb" data-testid="cashbook-admin">
@@ -158,69 +243,16 @@ export function CashbookContainer() {
         {entries.length === 0 ? (
           <p className="tse-empty">{t('entriesEmpty')}</p>
         ) : (
-          <>
-            <div className="cb-table-wrap">
-              <table className="data-table cb-table" data-testid="cashbook-entries">
-                <thead>
-                  <tr>
-                    <th>{t('col.time')}</th>
-                    <th>{t('col.device')}</th>
-                    <th>{t('col.type')}</th>
-                    <th className="text-right">{t('col.amount')}</th>
-                    <th className="text-right">{t('col.countedExpected')}</th>
-                    <th>{t('col.note')}</th>
-                    <th>{t('col.user')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entries.map((entry) => (
-                    <tr key={entry.id}>
-                      <td className="mono">
-                        <EntryTime entry={entry} />
-                      </td>
-                      <td>{deviceLabel(entry, t)}</td>
-                      <td>{t(`types.${entry.type}`)}</td>
-                      <td className="text-right mono">
-                        <EntryAmount entry={entry} />
-                      </td>
-                      <td className="text-right mono">
-                        {entry.type === 'cash_count' && entry.countedAmount !== null
-                          ? `${formatCurrency(entry.countedAmount)} / ${formatCurrency(entry.expectedAmount ?? 0)}`
-                          : '–'}
-                      </td>
-                      <td className="cb-note">{entry.note ?? '–'}</td>
-                      <td>{entry.userName ?? '–'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <ul className="cb-cards">
-              {entries.map((entry) => (
-                <li key={entry.id} className="cb-card">
-                  <div className="cb-card__head">
-                    <b>{t(`types.${entry.type}`)}</b>
-                    <span className="mono cb-card__amount">
-                      <EntryAmount entry={entry} />
-                    </span>
-                  </div>
-                  <span className="cb-muted">
-                    <EntryTime entry={entry} /> · {deviceLabel(entry, t)}
-                    {entry.userName ? ` · ${entry.userName}` : ''}
-                  </span>
-                  {entry.type === 'cash_count' && entry.countedAmount !== null && (
-                    <span className="cb-muted">
-                      {t('countedOf', {
-                        counted: formatCurrency(entry.countedAmount),
-                        expected: formatCurrency(entry.expectedAmount ?? 0),
-                      })}
-                    </span>
-                  )}
-                  {entry.note && <span className="cb-note">{entry.note}</span>}
-                </li>
-              ))}
-            </ul>
-          </>
+          <div data-testid="cashbook-entries">
+            <AdminTable
+              flush={false}
+              dense
+              caption={t('admin.entries')}
+              rows={entries}
+              rowKey="id"
+              columns={entryColumns}
+            />
+          </div>
         )}
       </section>
 

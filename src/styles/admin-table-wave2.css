@@ -1,0 +1,340 @@
+/* Admin-Listen, zweite Welle (DataTable aus @openeos/ui): Geräte,
+   Mitglieder, Bedienungen, Rabatt-Bons, Pfand, Kassenbuch, Inventur,
+   Rechnungen. Allgemeines steht in admin-table.css. */
+
+/* Datums-/Zeitspalten: Mono und ohne Umbruch, auf dem Telefon (Zeile 2)
+   wieder in der Grundschrift. */
+.landing .oe-dt__td.admin-dt__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .landing .oe-dt__td.admin-dt__date {
+    font-family: var(--oe-f-sans);
+  }
+}
+
+/* Telefon: Zelle als eigene, umbrechende Zeile unter Zeile 2 (Notizen,
+   Zählungen) statt gekürzt zwischen den Punkten. */
+@media (max-width: 767px) {
+  .landing .admin-dt .oe-dt__tr .oe-dt__td.admin-dt__m-line {
+    order: 5;
+    flex: 1 1 100%;
+    max-width: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .landing .admin-dt .oe-dt__tr .admin-dt__m-line::before {
+    content: none !important;
+  }
+}
+
+/* ---------- Geräte ---------- */
+.devices-list__icon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-ink) 6%, transparent);
+  color: var(--oe-ink);
+}
+.devices-list__dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--oe-ink) 30%, transparent);
+  border: 2px solid var(--oe-paper);
+}
+.devices-list__dot.is-online {
+  background: var(--oe-green-ink);
+}
+.devices-list__online {
+  font-size: 11px;
+  color: var(--oe-green-ink);
+}
+.devices-list__class {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.devices-list__mode {
+  font-size: 11px;
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .devices-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .landing .admin-dt .devices-list__class {
+    display: inline;
+  }
+  .landing .admin-dt .devices-list__class .admin-cell-text {
+    display: inline;
+  }
+  .landing .admin-dt .devices-list__mode::before {
+    content: " · ";
+  }
+}
+
+/* ---------- Mitglieder ---------- */
+.members-list__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+  font: 700 11px var(--oe-f-mono);
+}
+.members-list__you {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.members-list__email {
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+}
+.members-list__perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.members-list__perms .badge {
+  font-size: 10px;
+}
+.landing .members-list__seats {
+  display: block;
+  margin-top: 2px;
+  font: 12px var(--oe-f-mono);
+  color: var(--oe-mute);
+}
+.landing .members-list__seats.is-full {
+  color: var(--oe-danger-ink, var(--oe-danger));
+}
+@media (max-width: 767px) {
+  .members-list__avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .landing .oe-dt__td.members-list__email {
+    font-family: var(--oe-f-sans);
+  }
+}
+
+/* ---------- Bedienungen ---------- */
+/* Die Filterzeile ist der Kartenkopf (kein .app-card__head): ohne
+   Polsterung der Karte, wie bei den Bestellungen. */
+.landing .app-card.waiters-card {
+  padding: 0;
+}
+/* Kopf als Filterzeile: Anzahl, Veranstaltungsfilter und Anlegen in einer
+   Zeile (der Filter steht nicht wie bei den Bestellungen darunter). */
+.landing .admin-filterbar.waiters-filterbar .oe-filterbar__fields {
+  order: 0;
+  flex: 0 1 280px;
+}
+.landing .admin-filterbar.waiters-filterbar .oe-filterbar__fields > * {
+  flex: 1 1 auto;
+  max-width: none;
+}
+.waiters-filterbar__count {
+  min-width: 0;
+}
+.landing .waiters-filterbar__count .admin-list-head__count {
+  margin: 0;
+}
+.landing .oe-dt__td.waiters-list__scope {
+  --admin-cell-max: 180px;
+}
+@media (max-width: 767px) {
+  /* Die Löschfrist steht auf dem Telefon in einer eigenen Zeile. */
+  .landing .admin-dt .oe-dt__m-trailing .waiters-due {
+    display: none;
+  }
+}
+.waiter-settlements__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+.waiter-settlements__by {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.waiter-settlements__by .admin-cell-text--muted {
+  font-size: 12px;
+}
+@media (max-width: 767px) {
+  /* Initialenkreis wie die übrigen Symbole auf dem Telefon (28 px). */
+  .landing .admin-dt .admin-cell-main__media .waiter-badge {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 10px !important;
+  }
+  .landing .admin-dt .waiter-settlements__badges {
+    display: inline;
+  }
+  .landing .admin-dt .waiter-settlements__badges > * + * {
+    margin-inline-start: 4px;
+  }
+}
+
+/* ---------- Kassenbuch ---------- */
+.cb-dt__icon {
+  color: var(--oe-green-ink);
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .oe-dt__tr .cb-dt__note:has(.cb-dt__none) {
+    display: none;
+  }
+  .landing .admin-dt .cb-dt__note .admin-cell-text {
+    max-width: none;
+    white-space: normal;
+  }
+}
+
+/* ---------- Inventur ---------- */
+.inventory-diff[data-tone='minus'] {
+  color: var(--oe-danger-ink, var(--oe-danger));
+  font-weight: 600;
+}
+.inventory-diff[data-tone='plus'] {
+  color: var(--oe-green-ink);
+  font-weight: 600;
+}
+/* Zählen (Eingabetabelle, keine DataTable): auf dem Telefon jede Zeile
+   als Karte — Produkt oben, Erwartet/Gezählt/Differenz nebeneinander,
+   die Notiz darunter; nichts scrollt waagerecht. */
+@media (max-width: 767px) {
+  .landing .data-table.inventory-count-table thead {
+    display: none;
+  }
+  .landing .data-table.inventory-count-table,
+  .landing .data-table.inventory-count-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .landing .data-table.inventory-count-table tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--oe-line);
+  }
+  .landing .data-table.inventory-count-table td {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    width: auto !important;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    text-align: start;
+  }
+  .landing .data-table.inventory-count-table td[colspan] {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+  .landing .data-table.inventory-count-table td[data-label]::before {
+    content: attr(data-label);
+    font: 500 10px var(--oe-f-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--oe-mute);
+  }
+  .landing .data-table.inventory-count-table .inventory-count__product,
+  .landing .data-table.inventory-count-table .inventory-count__notes {
+    grid-column: 1 / -1;
+  }
+  .landing .data-table.inventory-count-table input {
+    min-height: 36px;
+  }
+}
+
+/* ---------- Rechnungen ---------- */
+.landing .app-card.invoices-card {
+  padding: 0;
+}
+.landing .oe-dt__td.invoices-list__number .admin-cell-main__title {
+  font-family: var(--oe-f-mono);
+}
+.invoices-list__status {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.invoices-list__due {
+  font: 12px var(--oe-f-mono);
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+.landing .invoices-list__note {
+  margin: 0;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--oe-line);
+  font-size: 12px;
+  color: var(--oe-mute);
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .invoices-list__status {
+    display: inline;
+  }
+  .landing .admin-dt .invoices-list__due {
+    margin-inline-start: 6px;
+    font-family: var(--oe-f-sans);
+  }
+  .landing .invoices-list__note {
+    padding: 12px 16px 14px;
+  }
+}
+
+/* ---------- Wertmarken ---------- */
+.token-event,
+.token-kind {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.token-kind {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.token-event small {
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.token-tx__time,
+.landing .oe-dt__td.token-tx__number {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .token-event small {
+    display: none;
+  }
+  .landing .oe-dt__td.token-tx__time {
+    font-family: var(--oe-f-sans);
+  }
+}
