@@ -40,13 +40,14 @@
 .live-audit__bar > span { flex: 1 1 220px; opacity: .75; }
 .live-audit__drawers { display: grid; gap: 2px; font-size: 12px; }
 .live-audit__drawers span { white-space: nowrap; }
-.live-audit__total td { font-weight: 700; }
+.live-audit__total .oe-dt__td { font-weight: 700; }
 .live-audit__cards { display: none; list-style: none; margin: 0; padding: 0 20px 16px; }
 .live-audit__card { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid color-mix(in oklab, currentColor 10%, transparent); }
 .live-audit__card dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0; font-size: 13px; }
 .live-audit__card dt { opacity: .7; }
 .live-audit__card dd { margin: 0; text-align: right; font-family: var(--f-mono, var(--oe-f-mono)); }
-@media (max-width: 720px) {
+/* Telefon wie DataTable (≤ 767 px): Karten statt Tabelle. */
+@media (max-width: 767px) {
   .live-audit__table { display: none; }
   .live-audit__cards { display: block; }
 }
@@ -55,3 +56,6 @@
 .pos-live-audit__cash small { font-size: 11px; opacity: .7; }
 .pos-live-audit__cash b { font: 700 16px var(--oe-f-mono); font-variant-numeric: tabular-nums; }
 .pos-live-audit__tips { display: grid; gap: 6px; margin-top: 4px; justify-items: start; }
+/* Live-Kassensturz als DataTable: lange Spaltenköpfe dürfen umbrechen,
+   damit alle Beträge ab Tablet nebeneinander passen. */
+.landing .live-audit__table .oe-dt__th { white-space: normal; vertical-align: bottom; }

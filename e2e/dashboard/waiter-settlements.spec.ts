@@ -115,9 +115,11 @@ test.describe('Kellnerabrechnung (Verwaltung)', () => {
   test('exports what is stored about a server as CSV', async ({ adminPage: page }) => {
     await page.goto('/waiters');
     const row = page.getByTestId('waiters-table').getByRole('row').filter({ hasText: ben.name });
+    // Die Auskunft steht im ⋯-Menü der Zeile.
+    await row.getByRole('button', { name: 'Weitere Aktionen' }).click();
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      row.getByRole('button', { name: `Auskunft über ${ben.name} exportieren (CSV)` }).click(),
+      page.getByRole('menuitem', { name: `Auskunft über ${ben.name} exportieren (CSV)` }).click(),
     ]);
     const text = (await readFile((await download.path())!)).toString('utf8');
     expect(download.suggestedFilename()).toMatch(/auskunft\.csv$/);

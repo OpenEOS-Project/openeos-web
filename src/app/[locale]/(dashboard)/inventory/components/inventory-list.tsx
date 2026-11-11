@@ -1,12 +1,22 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn, type RowAction } from '@openeos/ui';
 import { useIntlLocale } from '@/hooks/use-locale-format';
 
 import { useInventoryCounts, useDeleteInventoryCount } from '@/hooks/use-inventory';
 import { ListLoading, ListError, ListEmpty } from '@/components/shared/list-states';
+import {
+  AdminTable,
+  CellMain,
+  CellText,
+  ListAction,
+  ListCount,
+  ListHead,
+} from '@/components/shared/admin-table';
 import type { InventoryCount, InventoryCountStatus } from '@/types/inventory';
+
+import '@/styles/admin-table-wave2.css';
 
 interface InventoryListProps {
   eventId: string;
@@ -52,8 +62,7 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
   const { data: counts, isLoading, error } = useInventoryCounts(eventId);
   const deleteCount = useDeleteInventoryCount(eventId);
 
-  const handleDelete = async (e: React.MouseEvent, countId: string) => {
-    e.stopPropagation();
+  const handleDelete = async (countId: string) => {
     if (!confirm(t('deleteConfirm.message'))) return;
     try {
       await deleteCount.mutateAsync(countId);
@@ -87,77 +96,84 @@ export function InventoryList({ eventId, onCreateClick, onSelectCount }: Invento
     );
   }
 
+  const columns: DataColumn<InventoryCount>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (count) => (
+        <CellMain
+          title={count.name}
+          titleText={count.name}
+          sub={count.notes || undefined}
+          subText={count.notes || undefined}
+        />
+      ),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'subtitle',
+      cell: (count) => <StatusBadge status={count.status} />,
+    },
+    {
+      id: 'createdAt',
+      header: t('table.createdAt'),
+      mobile: 'meta',
+      className: 'admin-dt__date',
+      cell: (count) => formatDate(count.createdAt, locale),
+    },
+    {
+      id: 'itemCount',
+      header: t('table.itemCount'),
+      num: true,
+      mobile: 'trailing',
+      cell: (count) => (count.items ? count.items.length : '–'),
+    },
+    {
+      id: 'completedBy',
+      header: t('table.completedBy'),
+      priority: 2,
+      cell: (count) => {
+        const name = formatUserName(count.completedByUser);
+        return (
+          <CellText muted title={name}>
+            {name}
+          </CellText>
+        );
+      },
+    },
+  ];
+
+  // Nur Entwürfe lassen sich löschen.
+  const actions = (count: InventoryCount): RowAction[] => [
+    {
+      id: 'delete',
+      label: tCommon('delete'),
+      icon: 'trash',
+      danger: true,
+      hidden: count.status !== 'draft',
+      onClick: () => void handleDelete(count.id),
+    },
+  ];
+
   return (
     <div className="app-card app-card--flat">
-      <div className="app-card__head">
-        <div>
-          {/* Nur die Anzahl wie bei Produkten und Geraeten — Titel und
-              Untertitel stehen schon im Seitenkopf darueber. */}
-          <p style={{ fontSize: 13, color: 'var(--ink)', opacity: .6 }}>{t('count', { count: counts.length })}</p>
-        </div>
-        <button className="btn btn--primary" onClick={onCreateClick}>
-          {t('create')}
-        </button>
-      </div>
+      {/* Nur die Anzahl wie bei Produkten und Geraeten — Titel und
+          Untertitel stehen schon im Seitenkopf darueber. */}
+      <ListHead actions={<ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />}>
+        <ListCount>{t('count', { count: counts.length })}</ListCount>
+      </ListHead>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th>{t('table.status')}</th>
-              <th>{t('table.createdAt')}</th>
-              <th className="text-right">{t('table.itemCount')}</th>
-              <th>{t('table.completedBy')}</th>
-              <th style={{ width: 64 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {counts.map((count) => (
-              <tr
-                key={count.id}
-                style={{ cursor: 'pointer' }}
-                onClick={() => onSelectCount(count)}
-              >
-                <td>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{count.name}</div>
-                  {count.notes && (
-                    <div style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>
-                      {count.notes}
-                    </div>
-                  )}
-                </td>
-                <td>
-                  <StatusBadge status={count.status} />
-                </td>
-                <td style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
-                  {formatDate(count.createdAt, locale)}
-                </td>
-                <td className="text-right" style={{ fontSize: 13 }}>
-                  {count.items ? count.items.length : '–'}
-                </td>
-                <td style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.7 }}>
-                  {formatUserName(count.completedByUser)}
-                </td>
-                <td>
-                  {count.status === 'draft' && (
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ padding: 6, minWidth: 0, color: 'var(--danger)' }}
-                      onClick={(e) => handleDelete(e, count.id)}
-                      aria-label={tCommon('delete')}
-                      title={tCommon('delete')}
-                    >
-                      <Icon name="trash" size={16} />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Ein Klick auf die Zeile öffnet die Inventur. */}
+      <AdminTable
+        caption={t('title')}
+        rows={counts}
+        rowKey="id"
+        columns={columns}
+        actions={actions}
+        onRowClick={(count) => onSelectCount(count)}
+      />
     </div>
   );
 }

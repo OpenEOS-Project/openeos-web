@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn } from '@openeos/ui';
 
 import { downloadCsv } from '@/app/[locale]/(dashboard)/reports/components/csv-export';
 import { ListLoading } from '@/components/shared/list-states';
+import { AdminTable, CellMain, CellText } from '@/components/shared/admin-table';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useLiveCashAudit } from '@/hooks/use-waiters';
@@ -17,6 +18,9 @@ import { TipPayoutModal } from './tip-payout-modal';
 import { WaiterBadge } from './waiter-badge';
 
 import '@/styles/settlements.css';
+
+/** Zeile der Tabelle: eine Bedienung oder die Summe am Ende. */
+type AuditLine = LiveCashAuditRow | 'total';
 
 interface WaiterLiveAuditProps {
   organizationId: string;
@@ -105,6 +109,77 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
     );
   };
 
+  /* Die Summenzeile steht als letzte Zeile in der Tabelle, damit die
+     Beträge unter ihren Spalten stehen. */
+  const columns: DataColumn<AuditLine>[] = [
+    {
+      id: 'waiter',
+      header: t('col.waiter'),
+      mobile: 'title',
+      cell: (line) =>
+        line === 'total' ? (
+          t('total')
+        ) : (
+          <CellMain
+            media={<WaiterBadge name={line.subject.name} color={line.subject.color} />}
+            title={line.subject.name}
+            titleText={line.subject.name}
+            sub={line.periodFrom ? t('since', { from: formatDateTime(line.periodFrom) }) : undefined}
+          />
+        ),
+    },
+    {
+      id: 'cashExpected',
+      header: t('col.cashExpected'),
+      num: true,
+      mobile: 'trailing',
+      cell: (line) =>
+        line === 'total' ? formatCurrency(data?.total.cashExpected ?? 0) : <b>{money(line.cashExpected)}</b>,
+    },
+    {
+      id: 'drawers',
+      header: t('col.drawers'),
+      mobile: 'meta',
+      cell: (line) => (line === 'total' ? null : drawers(line)),
+    },
+    { id: 'card', header: t('col.card'), num: true, cell: (line) => (line === 'total' ? null : money(line.payments?.card.amount)) },
+    {
+      id: 'tips',
+      header: t('col.tips'),
+      num: true,
+      cell: (line) => (line === 'total' ? formatCurrency(data?.total.tips ?? 0) : money(line.tips)),
+    },
+    // Wertmarken nur, wenn jemand Marken hat (wie bisher).
+    ...(showTokens
+      ? [
+          {
+            id: 'tokens',
+            header: t('col.tokens'),
+            num: true,
+            cell: (line: AuditLine) => (line === 'total' ? null : tokensCell(line)),
+          } satisfies DataColumn<AuditLine>,
+        ]
+      : []),
+    { id: 'openTables', header: t('col.openTables'), num: true, cell: (line) => (line === 'total' ? null : line.openTables) },
+    { id: 'openCardTips', header: t('col.openCardTips'), num: true, cell: (line) => (line === 'total' ? null : cardTips(line)) },
+    {
+      id: 'lastSettlement',
+      header: t('col.lastSettlement'),
+      priority: 2,
+      cell: (line) => {
+        if (line === 'total') return null;
+        const text = line.lastSettlement
+          ? t('lastSettlement', { number: line.lastSettlement.number ?? '–', at: formatDateTime(line.lastSettlement.createdAt) })
+          : t('noSettlement');
+        return (
+          <CellText muted title={text}>
+            {text}
+          </CellText>
+        );
+      },
+    },
+  ];
+
   let body;
   if (audit.isLoading) body = <ListLoading />;
   else if (audit.error || !data)
@@ -122,62 +197,17 @@ export function WaiterLiveAudit({ organizationId, eventId }: WaiterLiveAuditProp
   else
     body = (
       <>
-        <div className="waiters-table live-audit__table" style={{ overflowX: 'auto' }}>
-          <table className="data-table" data-testid="live-audit-table">
-            <thead>
-              <tr>
-                <th>{t('col.waiter')}</th>
-                <th className="text-right">{t('col.cashExpected')}</th>
-                <th>{t('col.drawers')}</th>
-                <th className="text-right">{t('col.card')}</th>
-                <th className="text-right">{t('col.tips')}</th>
-                {showTokens && <th className="text-right">{t('col.tokens')}</th>}
-                <th className="text-right">{t('col.openTables')}</th>
-                <th className="text-right">{t('col.openCardTips')}</th>
-                <th>{t('col.lastSettlement')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.rows.map((row) => (
-                <tr key={row.subject.id}>
-                  <td>
-                    <div className="waiters-name">
-                      <WaiterBadge name={row.subject.name} color={row.subject.color} />
-                      <span>
-                        <b>{row.subject.name}</b>
-                        {row.periodFrom && <small>{t('since', { from: formatDateTime(row.periodFrom) })}</small>}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="mono text-right">
-                    <b>{money(row.cashExpected)}</b>
-                  </td>
-                  <td>{drawers(row)}</td>
-                  <td className="mono text-right">{money(row.payments?.card.amount)}</td>
-                  <td className="mono text-right">{money(row.tips)}</td>
-                  {showTokens && <td className="mono text-right">{tokensCell(row)}</td>}
-                  <td className="mono text-right">{row.openTables}</td>
-                  <td className="mono text-right">{cardTips(row)}</td>
-                  <td style={{ fontSize: 13 }}>
-                    {row.lastSettlement
-                      ? t('lastSettlement', { number: row.lastSettlement.number ?? '–', at: formatDateTime(row.lastSettlement.createdAt) })
-                      : t('noSettlement')}
-                  </td>
-                </tr>
-              ))}
-              <tr className="live-audit__total">
-                <td>{t('total')}</td>
-                <td className="mono text-right">{formatCurrency(data.total.cashExpected)}</td>
-                <td />
-                <td />
-                <td className="mono text-right">{formatCurrency(data.total.tips)}</td>
-                {showTokens && <td />}
-                <td />
-                <td />
-                <td />
-              </tr>
-            </tbody>
-          </table>
+        {/* Ab Tablet eine Tabelle; auf dem Telefon Karten mit allen Beträgen
+            (für die Kassen-Nachschau zählt jeder Wert, die zweizeilige
+            Telefon-Ansicht der DataTable würde die meisten ausblenden). */}
+        <div className="live-audit__table" data-testid="live-audit-table">
+          <AdminTable<AuditLine>
+            caption={t('title')}
+            rows={[...data.rows, 'total']}
+            rowKey={(line) => (line === 'total' ? 'total' : line.subject.id)}
+            columns={columns}
+            rowClassName={(line) => (line === 'total' ? 'live-audit__total' : undefined)}
+          />
         </div>
         <ul className="live-audit__cards" data-testid="live-audit-cards">
           {data.rows.map((row) => (
