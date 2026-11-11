@@ -33,7 +33,7 @@ export function TemplatesTab() {
   return (
     <div>
       {/* Type tab bar */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
         {TEMPLATE_TYPES.map((id) => (
           <button
             key={id}

@@ -34,94 +34,25 @@
   color: var(--oe-mute);
 }
 
-/* Dichte Tabelle ab Tablet-Breite: alles auf einen Blick, keine breiten
-   Spalten. Der Wrapper fängt Ausreißer ab, braucht aber bei 768px nicht zu
-   scrollen. */
-.api-tokens__scroll {
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: auto;
-}
-.landing .data-table.api-tokens__table {
-  table-layout: auto;
-}
-.landing .data-table.api-tokens__table th,
-.landing .data-table.api-tokens__table td {
-  padding: 6px 8px;
-  font-size: 13px;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-/* Spaltentitel dürfen umbrechen („Zuletzt genutzt“), sonst tragen sie
-   auf 768px mehr Breite als die Daten darunter. */
-.landing .data-table.api-tokens__table th {
-  white-space: normal;
-  line-height: 1.2;
-}
-.landing .data-table.api-tokens__table th:first-child,
-.landing .data-table.api-tokens__table td:first-child {
-  padding-left: 0;
-}
-.landing .data-table.api-tokens__table th:last-child,
-.landing .data-table.api-tokens__table td:last-child {
-  padding-right: 0;
-  width: 1%;
-}
-/* Nur Name und Berechtigungen dürfen umbrechen; die Berechtigungen
-   bekommen die übrige Breite, damit die Chips nebeneinander stehen. */
-.landing .data-table.api-tokens__table td:first-child,
-.landing .data-table.api-tokens__table .api-token__scopes-cell {
-  white-space: normal;
-}
-.landing .data-table.api-tokens__table .api-token__scopes-cell {
-  width: 99%;
-}
-.api-token__title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-.api-token__title .api-token__name {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Tablet (768–1023px): die Tabelle muss ohne seitliches Scrollen passen —
-   der Name wird früher gekürzt, „Angelegt“ steht erst ab Desktop. */
-.api-token__stack {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.api-token__prefix--sub {
+/* Liste (DataTable): Schlüssel unter dem Namen, Berechtigungen als
+   Chips. Telefon: Zeile 2 mit Status und letzter Nutzung, die Chips
+   darunter in voller Breite (umbrechend statt abgeschnitten). */
+.api-tokens-list__phone-label {
   display: none;
 }
-@media (max-width: 1023px) {
-  .landing .data-table.api-tokens__table th,
-  .landing .data-table.api-tokens__table td {
-    padding: 6px 6px;
+@media (max-width: 767px) {
+  .api-tokens-list__phone-label {
+    display: inline;
   }
-  .api-token__title .api-token__name {
-    max-width: 120px;
+  .landing .api-tokens-list .oe-dt__tr .oe-dt__td.api-tokens-list__scopes {
+    order: 5;
+    flex: 1 1 100%;
+    margin-top: 4px;
+    white-space: normal;
   }
-  .api-token__prefix--sub {
-    display: block;
+  .landing .api-tokens-list .oe-dt__tr .oe-dt__td.api-tokens-list__scopes::before {
+    content: none !important;
   }
-  .landing .data-table.api-tokens__table th:nth-child(2),
-  .landing .data-table.api-tokens__table td:nth-child(2),
-  .landing .data-table.api-tokens__table th:nth-child(4),
-  .landing .data-table.api-tokens__table td:nth-child(4) {
-    display: none;
-  }
-}
-.api-token--inactive {
-  opacity: 0.55;
-}
-.api-token__name {
-  font-weight: 600;
-  color: var(--oe-ink);
-  overflow-wrap: anywhere;
 }
 .api-token__prefix {
   font: 500 11.5px var(--oe-f-mono);
@@ -140,6 +71,9 @@
 .api-token__date {
   font-variant-numeric: tabular-nums;
   color: color-mix(in oklab, var(--oe-ink) 75%, transparent);
+}
+.landing .oe-dt__td.api-token__date {
+  white-space: nowrap;
 }
 .api-token__scopes {
   display: flex;
@@ -164,63 +98,6 @@
 .api-token__scope--write {
   color: var(--oe-info-ink, var(--oe-ink));
   background: color-mix(in oklab, var(--oe-info) 12%, transparent);
-}
-.api-token__revoke {
-  color: var(--oe-danger);
-}
-
-/* Kompakte Zeilen unter Tablet-Breite: Name + Status, darunter Präfix,
-   Berechtigungen und letzte Nutzung; Aktion rechts. Kein seitliches
-   Scrollen. */
-.api-tokens__rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-}
-.api-token-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 0;
-  border-top: 1px solid var(--oe-line);
-}
-.api-token-row:first-child {
-  border-top: 0;
-}
-.api-token-row__main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.api-token-row__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.api-token-row__head .api-token__name {
-  font-size: 14px;
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-}
-.api-token-row__meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  font-size: 12px;
-  color: var(--oe-mute);
-}
-.api-token-row__used {
-  white-space: nowrap;
-}
-.api-token-row__actions {
-  flex: none;
 }
 
 /* Dialog: Scopes als Kästchen mit Beschreibung, Ablauf mit Vorgaben. */

@@ -4,13 +4,16 @@ import { useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { Icon } from '@openeos/ui';
+import { Icon, type DataColumn } from '@openeos/ui';
 
+import { AdminTable, CellMain, ListAction, ListHead } from '@/components/shared/admin-table';
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
 
 import { usePrinterAgents, usePrinterLiveUpdates, usePrinters } from '@/hooks/use-printers';
 
 import { useAuthStore } from '@/stores/auth-store';
+import type { Printer } from '@/types/printer';
+import '@/styles/admin-table-wave3.css';
 
 import { AgentSetupSteps, ConnectAgentDialog } from './connect-agent-dialog';
 import { PrinterAgentCard } from './printer-agent-card';
@@ -49,6 +52,21 @@ export function PrintersList() {
     <ConnectAgentDialog onClose={() => setConnectOpen(false)} />
   ) : null;
 
+  const orphanColumns: DataColumn<Printer>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (printer) => <CellMain title={printer.name} titleText={printer.name} />,
+    },
+    {
+      id: 'type',
+      header: t('table.type'),
+      mobile: 'subtitle',
+      cell: (printer) => <span className="admin-cell-text--muted">{t(`types.${printer.type}`)}</span>,
+    },
+  ];
+
   const body =
     agents.length === 0 ? (
       <ListEmpty
@@ -75,19 +93,23 @@ export function PrintersList() {
       />
     ) : (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div className="app-card app-card--flat" style={{ paddingBottom: 0 }}>
-          <div className="app-card__head" style={{ borderBottom: 'none' }}>
-            <div>
-              <h2 className="app-card__title">{t('agents.title')}</h2>
-              <p className="app-card__sub">
-                {t('agents.count', { count: agents.length })} ·{' '}
-                {t('printerCount', { count: printers.length })}
-              </p>
-            </div>
-            <button type="button" className="btn btn--primary" onClick={() => setConnectOpen(true)}>
-              {t('agents.connect.cta')}
-            </button>
-          </div>
+        {/* Nur der Kopf: Überblick und „Agent verbinden“. */}
+        <div className="app-card app-card--flat printers-overview">
+          <ListHead
+            actions={
+              <ListAction
+                variant="primary"
+                icon="plus"
+                label={t('agents.connect.cta')}
+                onClick={() => setConnectOpen(true)}
+              />
+            }
+          >
+            <h2 className="app-card__title">{t('agents.title')}</h2>
+            <p className="app-card__sub">
+              {t('agents.count', { count: agents.length })} · {t('printerCount', { count: printers.length })}
+            </p>
+          </ListHead>
         </div>
 
         {agents.map((agent) => (
@@ -107,25 +129,12 @@ export function PrintersList() {
                 <p className="app-card__sub">{t('orphans.description')}</p>
               </div>
             </div>
-            <ul
-              style={{
-                margin: 0,
-                padding: '0 20px 16px',
-                listStyle: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
-              }}
-            >
-              {orphans.map((p) => (
-                <li key={p.id} style={{ fontSize: 13, color: 'var(--ink)' }}>
-                  {p.name}{' '}
-                  <span style={{ color: 'color-mix(in oklab, var(--ink) 55%, transparent)' }}>
-                    ({t(`types.${p.type}`)})
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <AdminTable
+              caption={t('orphans.title')}
+              rows={orphans}
+              rowKey="id"
+              columns={orphanColumns}
+            />
           </div>
         )}
       </div>

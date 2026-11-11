@@ -106,7 +106,8 @@ export function FloorEditor({
       },
       wall: t('shapes.wall'),
       outline: t('shapes.outline'),
-      point: t('floorTools.point'),
+      // Platzhalter bleibt stehen, die FloorPlan ersetzt {n} selbst.
+      point: t('floorTools.point', { n: '{n}' }),
       addPoint: t('floorTools.addPoint'),
       drawWall: t('floorTools.drawWall'),
       drawZone: t('floorTools.drawZone'),

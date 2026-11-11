@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Banner, Icon } from '@openeos/ui';
+import { Banner, Icon, type DataColumn, type RowAction } from '@openeos/ui';
 
 import { SettingsSectionHead } from '@/app/[locale]/(dashboard)/settings/components/settings-section-head';
+import { AdminTable } from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useCreateClosing, useDsfinvkClosings } from '@/hooks/use-dsfinvk';
@@ -289,19 +290,76 @@ export function TseClosingsCard({ organizationId }: { organizationId: string }) 
     </>
   );
 
-  const downloadButton = (closing: CashPointClosingView) => (
-    <button
-      type="button"
-      className="btn btn--ghost"
-      onClick={() => void download(closing)}
-      disabled={downloading === closing.id}
-      aria-label={t('downloadLabel', { zNr: closing.zNr })}
-      data-testid="closing-download"
-    >
-      <Icon name="download" />
-      <span className="tse-export__dl-text">{downloading === closing.id ? t('downloading') : t('download')}</span>
-    </button>
-  );
+  const columns: DataColumn<CashPointClosingView>[] = [
+    {
+      id: 'zNr',
+      header: t('col.zNr'),
+      mobile: 'title',
+      className: 'closings-list__z',
+      cell: (closing) => `Z${closing.zNr}`,
+    },
+    {
+      id: 'businessDate',
+      header: t('col.businessDate'),
+      mobile: 'meta',
+      cell: (closing) => (
+        <>
+          {formatDate(closing.businessDate)}
+          {closing.trigger === 'manual' && <span className="tse-muted"> · {t('manual')}</span>}
+        </>
+      ),
+    },
+    {
+      id: 'gross',
+      header: t('col.gross'),
+      num: true,
+      mobile: 'trailing',
+      cell: (closing) => formatCurrency(centsToEuros(salesGrossCents(closing.totals))),
+    },
+    {
+      id: 'cash',
+      header: <span title={t('col.cashHint')}>{t('col.cash')}</span>,
+      num: true,
+      cell: (closing) => formatCurrency(centsToEuros(closing.totals.cashCents)),
+    },
+    {
+      id: 'transactions',
+      header: t('col.transactions'),
+      cell: (closing) => (
+        <span className="closings__count">
+          {closing.transactionCount}
+          {badges(closing)}
+        </span>
+      ),
+    },
+    {
+      // Telefon: Bargeld und Vorgänge mit Beschriftung in Zeile 2.
+      id: 'summary',
+      header: t('col.transactions'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only',
+      cell: (closing) => (
+        <span className="closings__count">
+          {t('cardLine', {
+            cash: formatCurrency(centsToEuros(closing.totals.cashCents)),
+            count: closing.transactionCount,
+          })}
+          {badges(closing)}
+        </span>
+      ),
+    },
+  ];
+
+  const actions = (closing: CashPointClosingView): RowAction[] => [
+    {
+      id: 'download',
+      label: t('downloadLabel', { zNr: closing.zNr }),
+      icon:
+        downloading === closing.id ? <Icon name="refresh" className="admin-spin" /> : 'download',
+      disabled: downloading === closing.id,
+      onClick: () => void download(closing),
+    },
+  ];
 
   return (
     <div className="app-card" data-testid="tse-closings">
@@ -338,64 +396,15 @@ export function TseClosingsCard({ organizationId }: { organizationId: string }) 
         <p className="tse-empty">{closings.isLoading ? t('loading') : t('empty')}</p>
       ) : (
         <>
-          <div className="tse-tx__table-wrap">
-            <table className="data-table tse-tx__table closings__table">
-              <thead>
-                <tr>
-                  <th>{t('col.zNr')}</th>
-                  <th>{t('col.businessDate')}</th>
-                  <th className="text-right">{t('col.gross')}</th>
-                  <th className="text-right" title={t('col.cashHint')}>{t('col.cash')}</th>
-                  <th>{t('col.transactions')}</th>
-                  <th className="text-right">
-                    <span className="oe-sr-only">{t('col.download')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((closing) => (
-                  <tr key={closing.id}>
-                    <td className="mono">Z{closing.zNr}</td>
-                    <td>
-                      {formatDate(closing.businessDate)}
-                      {closing.trigger === 'manual' && <span className="tse-muted"> · {t('manual')}</span>}
-                    </td>
-                    <td className="text-right mono">{formatCurrency(centsToEuros(salesGrossCents(closing.totals)))}</td>
-                    <td className="text-right mono">{formatCurrency(centsToEuros(closing.totals.cashCents))}</td>
-                    <td>
-                      <span className="closings__count">
-                        {closing.transactionCount}
-                        {badges(closing)}
-                      </span>
-                    </td>
-                    <td className="text-right">{downloadButton(closing)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <ul className="tse-tx__rows">
-            {items.map((closing) => (
-              <li key={closing.id} className="tse-tx-row closings__card">
-                <div className="closings__card-main">
-                  <span className="tse-tx-row__head">
-                    <b>Z{closing.zNr}</b>
-                    <span>{formatDate(closing.businessDate)}</span>
-                    <span className="tse-tx-row__amount mono">{formatCurrency(centsToEuros(salesGrossCents(closing.totals)))}</span>
-                  </span>
-                  <span className="tse-muted closings__count">
-                    {t('cardLine', {
-                      cash: formatCurrency(centsToEuros(closing.totals.cashCents)),
-                      count: closing.transactionCount,
-                    })}
-                    {badges(closing)}
-                  </span>
-                </div>
-                {downloadButton(closing)}
-              </li>
-            ))}
-          </ul>
+          <AdminTable
+            flush={false}
+            className="closings-list"
+            caption={t('title')}
+            rows={items}
+            rowKey="id"
+            columns={columns}
+            actions={actions}
+          />
 
           {items.length >= limit && (
             <div className="tse-pager">

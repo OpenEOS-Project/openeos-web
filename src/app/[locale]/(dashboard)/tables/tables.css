@@ -231,15 +231,27 @@
   }
 }
 
-/* ---------- Liste ---------- */
+/* ---------- Liste (DataTable aus @openeos/ui) ---------- */
 
-.tables-list {
-  overflow-x: auto;
+/* Zur Sicherheit bei schmalen Tablets: lieber in der Liste scrollen als
+   die Seite verbreitern (Felder brauchen ihre Mindestbreite). */
+@media (min-width: 768px) {
+  .landing .tables-list.oe-dt {
+    overflow-x: auto;
+  }
 }
 
 .tables-list .oe-input,
 .tables-list .oe-select {
   min-width: 0;
+}
+
+/* Die Bezeichnung ist ein Feld, kein gekürzter Text. */
+.landing .tables-list .oe-dt__td--title {
+  max-width: none;
+  width: auto;
+  overflow: visible;
+  font-weight: 400;
 }
 
 .tables-list__label {
@@ -251,68 +263,74 @@
   max-width: 88px;
 }
 
-.tables-list__actions {
-  text-align: end;
-  width: 1%;
+.tables-list__field-label {
+  display: none;
 }
 
-.tables-list.oe-table-wrap .oe-table th.oe-table__num {
-  text-align: end;
-}
-
-.tables-list tr.is-inactive .tables-list__label {
+.landing .tables-list .is-inactive .tables-list__label {
   color: var(--oe-mute);
 }
 
 /* Telefon: jede Zeile als Karte mit beschrifteten Feldern. */
 @media (max-width: 767px) {
-  .tables-list {
-    overflow: visible;
-  }
-
-  .tables-list thead {
-    display: none;
-  }
-
-  .tables-list table,
-  .tables-list tbody {
-    display: block;
-  }
-
-  .tables-list tr {
+  .landing .tables-list.oe-dt .oe-dt__tr {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.6fr) auto;
     grid-template-areas:
       'label seats open del'
       'area shape active active';
     gap: 8px 10px;
+    align-items: start;
     padding: 12px 14px;
-    border-bottom: 1px solid var(--oe-line);
   }
 
-  .tables-list td:nth-child(1) { grid-area: label; }
-  .tables-list td:nth-child(2) { grid-area: area; }
-  .tables-list td:nth-child(3) { grid-area: seats; }
-  .tables-list td:nth-child(4) { grid-area: shape; }
-  .tables-list td:nth-child(5) { grid-area: active; }
-  .tables-list td:nth-child(6) { grid-area: open; }
-  .tables-list td:nth-child(7) { grid-area: del; }
-
-  .tables-list tbody tr:last-child {
-    border-bottom: 0;
+  .landing .tables-list.oe-dt .oe-dt__tr::before {
+    content: none;
   }
 
-  .tables-list td,
-  .tables-list.oe-table-wrap .oe-table td {
+  .landing .tables-list.oe-dt .oe-dt__tr .oe-dt__td {
+    overflow: visible;
+    white-space: normal;
+    font-size: inherit;
+    font-weight: 400;
+    color: var(--oe-ink);
+  }
+
+  /* Kein Trennpunkt zwischen den Feldern der zweiten Zeile. */
+  .landing .tables-list.oe-dt .oe-dt__tr .oe-dt__td.oe-dt__m-l2::before {
+    content: none !important;
+  }
+
+  .landing .tables-list .tables-list__c-label { grid-area: label; }
+  .landing .tables-list .tables-list__c-area { grid-area: area; }
+  .landing .tables-list .tables-list__c-seats { grid-area: seats; }
+  .landing .tables-list .tables-list__c-shape { grid-area: shape; }
+  .landing .tables-list .tables-list__c-active { grid-area: active; }
+  .landing .tables-list .tables-list__c-open { grid-area: open; }
+
+  .landing .tables-list.oe-dt .oe-dt__tr .oe-dt__td--actions {
+    grid-area: del;
+    position: static;
+    align-self: end;
+    justify-self: end;
+  }
+
+  /* Nur „Löschen“: als Knopf in der Karte statt im ⋯-Menü. */
+  .landing .tables-list .oe-btn.oe-dt__inline {
+    display: inline-flex;
+  }
+
+  .landing .tables-list .oe-dd.oe-dt__more--m {
+    display: none;
+  }
+
+  .tables-list__field {
     display: grid;
     gap: 4px;
-    padding: 0;
-    border: 0;
-    text-align: start;
   }
 
-  .tables-list td[data-label]::before {
-    content: attr(data-label);
+  .tables-list__field-label {
+    display: block;
     font: 500 11px var(--oe-f-mono);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -322,16 +340,6 @@
   .tables-list__label,
   .tables-list__seats {
     max-width: none;
-  }
-
-  .tables-list__actions {
-    width: auto;
-    align-content: end;
-    justify-items: end;
-  }
-
-  .tables-list.oe-table-wrap .oe-table td.oe-table__num {
-    text-align: start;
   }
 
   .tables-preview {

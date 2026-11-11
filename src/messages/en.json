@@ -892,7 +892,8 @@
         "deleteConfirmTitle": "Delete card reader?",
         "deleteConfirmMessage": "\"{name}\" will be unpaired from SumUp and can no longer take payments. To use it again, it has to be paired anew.",
         "renameReader": "Rename card reader \"{name}\"",
-        "deleteReader": "Delete card reader \"{name}\""
+        "deleteReader": "Delete card reader \"{name}\"",
+        "statusHeader": "Status"
       },
       "testMode": {
         "title": "Test mode",
@@ -5264,7 +5265,14 @@
     },
     "list": {
       "copyPublicLink": "Copy public link",
-      "copied": "Copied!"
+      "copied": "Copied!",
+      "columns": {
+        "name": "Name",
+        "jobs": "Jobs",
+        "event": "Event",
+        "status": "Status",
+        "createdAt": "Created"
+      }
     },
     "detail": {
       "pdfFileName": "shift-plan",
@@ -6591,7 +6599,8 @@
         "page": "Page {page} of {pages}",
         "processType": "Process type",
         "processData": "Process data",
-        "terminal": "Terminal"
+        "terminal": "Terminal",
+        "detailTitle": "{kind} on {time}"
       },
       "exports": {
         "title": "Exports",

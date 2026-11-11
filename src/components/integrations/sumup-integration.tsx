@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Banner, Icon } from '@openeos/ui';
+import { Banner, Icon, type DataColumn, type RowAction } from '@openeos/ui';
 import { CircleAlert } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi, sumupApi } from '@/lib/api-client';
@@ -11,6 +11,7 @@ import type { SumUpReader } from '@/types/sumup';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
+import { AdminTable, CellMain, ListAction, ListHead } from '@/components/shared/admin-table';
 import { useIntegrationErrorMessage } from '@/hooks/use-integrations';
 import { useActiveEvent } from '@/hooks/use-events';
 import { useEventPhase } from '@/lib/event-phase';
@@ -173,6 +174,49 @@ export function SumUpIntegration() {
     affiliateKey !== (sumupSettings?.affiliateKey || '') ||
     appId !== (sumupSettings?.appId || '');
 
+  const readerColumns: DataColumn<SumUpReader>[] = [
+    {
+      id: 'name',
+      header: t('readers.readerName'),
+      mobile: 'title',
+      cell: (reader) => {
+        const sub = [
+          reader.device?.identifier ? `${t('readers.serialNumber')}: ${reader.device.identifier}` : null,
+          reader.device?.model ? `${t('readers.model')}: ${reader.device.model}` : null,
+        ]
+          .filter(Boolean)
+          .join(' · ');
+        return <CellMain title={reader.name} titleText={reader.name} sub={sub || undefined} subText={sub || undefined} />;
+      },
+    },
+    {
+      id: 'status',
+      header: t('readers.statusHeader'),
+      mobile: 'subtitle',
+      cell: (reader) => <ReaderStatusBadge status={reader.status} t={t} />,
+    },
+  ];
+
+  const readerActions = (reader: SumUpReader): RowAction[] => [
+    {
+      id: 'rename',
+      label: t('readers.renameReader', { name: reader.name }),
+      icon: 'edit',
+      onClick: () => {
+        setRenamingReader(reader);
+        setNewReaderName(reader.name);
+      },
+    },
+    {
+      id: 'delete',
+      label: t('readers.deleteReader', { name: reader.name }),
+      icon: 'trash',
+      danger: true,
+      disabled: deleteReaderMutation.isPending,
+      onClick: () => setDeletingReader(reader),
+    },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Credentials Card */}
@@ -276,89 +320,53 @@ export function SumUpIntegration() {
       </Banner>
 
       {/* Readers Card */}
-      <div className="app-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600 }}>{t('readers.title')}</h3>
-          {isConfigured && (
-            <button type="button" className="btn btn--ghost" style={{ fontSize: 12 }} onClick={() => setShowPairDialog(true)}>
-              <Icon name="plus" />
-              {t('readers.pairReader')}
-            </button>
-          )}
-        </div>
+      <div className="app-card app-card--flat">
+        <ListHead
+          actions={
+            isConfigured ? (
+              <ListAction icon="plus" label={t('readers.pairReader')} onClick={() => setShowPairDialog(true)} />
+            ) : undefined
+          }
+        >
+          <h3 className="app-card__title">{t('readers.title')}</h3>
+        </ListHead>
 
-        <div style={{ padding: 20 }}>
-          {!isConfigured ? (
-            <div className="empty-state">
-              <div className="empty-state__icon">
-                <CircleAlert size={24} />
+        {isConfigured && !readersQuery.isError && !readersQuery.isLoading && readersQuery.data && readersQuery.data.length > 0 ? (
+          <AdminTable
+            caption={t('readers.title')}
+            rows={readersQuery.data}
+            rowKey="id"
+            columns={readerColumns}
+            actions={readerActions}
+          />
+        ) : (
+          <div style={{ padding: 20 }}>
+            {!isConfigured ? (
+              <div className="empty-state">
+                <div className="empty-state__icon">
+                  <CircleAlert size={24} />
+                </div>
+                <p className="empty-state__sub">{t('readers.notConfigured')}</p>
               </div>
-              <p className="empty-state__sub">{t('readers.notConfigured')}</p>
-            </div>
-          ) : readersQuery.isError ? (
-            <div role="alert" style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
-              {integrationError(readersQuery.error, tCommon('error'))}
-            </div>
-          ) : readersQuery.isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
-              <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            </div>
-          ) : readersQuery.data && readersQuery.data.length > 0 ? (
-            <table className="data-table">
-              <tbody>
-                {readersQuery.data.map((reader) => (
-                  <tr key={reader.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontWeight: 500 }}>{reader.name}</span>
-                        <ReaderStatusBadge status={reader.status} t={t} />
-                      </div>
-                      {(reader.device?.identifier || reader.device?.model) && (
-                        <div style={{ fontSize: 12, color: 'color-mix(in oklab, var(--ink) 50%, transparent)', marginTop: 2, display: 'flex', gap: 12 }}>
-                          {reader.device?.identifier && <span>{t('readers.serialNumber')}: {reader.device.identifier}</span>}
-                          {reader.device?.model && <span>{t('readers.model')}: {reader.device.model}</span>}
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ padding: '4px 8px' }}
-                          onClick={() => { setRenamingReader(reader); setNewReaderName(reader.name); }}
-                          aria-label={t('readers.renameReader', { name: reader.name })}
-                          title={t('readers.rename')}
-                        >
-                          <Icon name="edit" size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn--ghost"
-                          style={{ padding: '4px 8px', color: 'var(--danger)' }}
-                          onClick={() => setDeletingReader(reader)}
-                          disabled={deleteReaderMutation.isPending}
-                          aria-label={t('readers.deleteReader', { name: reader.name })}
-                          title={t('readers.delete')}
-                        >
-                          <Icon name="trash" size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="empty-state">
-              <div className="empty-state__icon">
-                <Icon name="card" size={24} />
+            ) : readersQuery.isError ? (
+              <div role="alert" style={{ borderRadius: 8, background: 'color-mix(in oklab, var(--danger) 10%, transparent)', padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
+                {integrationError(readersQuery.error, tCommon('error'))}
               </div>
-              <p className="empty-state__sub">{t('readers.empty')}</p>
-            </div>
-          )}
-        </div>
+            ) : readersQuery.isLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite' }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-state__icon">
+                  <Icon name="card" size={24} />
+                </div>
+                <p className="empty-state__sub">{t('readers.empty')}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Pair Reader Dialog */}

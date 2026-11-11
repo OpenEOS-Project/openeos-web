@@ -31,64 +31,28 @@
   overflow-wrap: anywhere;
 }
 
-/* Liste */
-.landing .data-table.webhooks__table {
-  table-layout: auto;
-}
-.landing .data-table.webhooks__table th,
-.landing .data-table.webhooks__table td {
-  padding: 6px 8px;
-  font-size: 13px;
-  vertical-align: middle;
-}
-.landing .data-table.webhooks__table th {
-  line-height: 1.2;
-}
-.landing .data-table.webhooks__table th:first-child,
-.landing .data-table.webhooks__table td:first-child {
-  padding-left: 0;
-}
-.landing .data-table.webhooks__table th:last-child,
-.landing .data-table.webhooks__table td:last-child {
-  padding-right: 0;
-  width: 1%;
+/* Liste (DataTable): Adresse in Mono, darunter die Beschreibung — auch
+   auf dem Telefon, dort als zweite Zeile im Titel des Eintrags. */
+.landing .oe-dt__td.webhooks__nowrap {
   white-space: nowrap;
-}
-.webhooks__url-cell {
-  width: 99%;
-  max-width: 0; /* lässt die Adresse kürzen statt die Tabelle zu verbreitern */
-}
-.webhooks__nowrap {
-  white-space: nowrap;
-}
-.webhook-title {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
 }
 .webhook-title__url {
   font: 500 12.5px/1.4 var(--oe-f-mono);
   color: var(--oe-ink);
   text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .webhook-title__url:hover {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.webhook-title__desc {
-  font-size: 12px;
-  color: color-mix(in oklab, var(--oe-ink) 70%, transparent);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.webhook-title__desc.is-empty {
+.webhook-title__none {
   color: var(--oe-mute);
   font-style: italic;
+}
+@media (max-width: 767px) {
+  .landing .admin-dt.webhooks-list .admin-cell-main__sub {
+    display: block;
+  }
 }
 .webhook-last {
   display: inline-flex;
@@ -106,31 +70,8 @@
 .webhook-last__dot.is-failed {
   background: var(--oe-danger);
 }
-.webhook-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
 .landing .btn.webhook-action--danger {
   color: var(--oe-danger);
-}
-
-/* Kompakte Zeilen unter Tablet-Breite */
-.webhook-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 0;
-  border-top: 1px solid var(--oe-line);
-  min-width: 0;
-}
-.webhook-row:first-child {
-  border-top: 0;
-}
-.webhook-row__actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-right: -6px;
 }
 
 /* Dialog: Ereignisse nach Gruppen */
@@ -274,99 +215,45 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
-.webhook-deliveries {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-}
-.webhook-deliveries__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
 .webhook-deliveries__title {
   margin: 0 0 2px;
   font-size: 15px;
   font-weight: 700;
   color: var(--oe-ink);
 }
-.webhook-deliveries__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
+.webhook-deliveries__state {
+  margin: 0;
+  padding: 16px 20px;
 }
-.webhook-filter {
+.webhook-deliveries__count {
+  white-space: nowrap;
+}
+/* Ohne Suchfeld stehen die Filter links in Zeile 1, die Anzahl rechts. */
+.landing .webhook-deliveries .admin-filterbar .oe-filterbar__fields {
+  order: 0;
+  flex: 1 1 auto;
+}
+.landing .oe-dt__td.webhook-deliveries__event {
+  min-width: 160px;
+}
+.webhook-deliveries__event-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1 1 180px;
   min-width: 0;
-  max-width: 280px;
-  font-size: 12px;
-  color: var(--oe-mute);
 }
-.webhook-filter select {
-  width: 100%;
-}
-.webhook-deliveries__row {
-  cursor: pointer;
-}
-.webhook-deliveries__row:hover td {
-  background: color-mix(in oklab, var(--oe-ink) 3%, transparent);
-}
-.webhook-deliveries__event {
-  min-width: 160px;
+.webhook-deliveries__event-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .webhook-deliveries__error {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
+  font-weight: 400;
   color: var(--oe-danger);
-}
-.webhook-delivery-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  padding: 10px 0;
-  border: 0;
-  border-top: 1px solid var(--oe-line);
-  background: transparent;
-  text-align: left;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  min-width: 0;
-}
-li:first-child > .webhook-delivery-row {
-  border-top: 0;
-}
-.webhook-delivery-row__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.webhook-delivery-row__head .webhook-event-code {
-  flex: 1;
-  min-width: 0;
-}
-.webhook-delivery-row__chevron {
-  flex: none;
-  color: var(--oe-mute);
-}
-.webhook-pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.webhook-pager__nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 /* Detaildialog einer Zustellung */
