@@ -113,6 +113,25 @@ test.describe('cash book', () => {
     expect(rows.map((r) => r.value)).toEqual([150, 50, -100, 71.6, -3, -2, -0.5]);
   });
 
+  test('summary rows show tip payouts when the API sends them', () => {
+    const base = {
+      openingBalance: 0,
+      deposits: 0,
+      withdrawals: 0,
+      cashSales: 40,
+      cashRefunds: 0,
+      pfandPayouts: 0,
+      differences: 0,
+      expected: 34.8,
+      lastCount: null,
+    };
+    expect(summaryRows(base).some((r) => r.key === 'tipPayouts')).toBe(false);
+    const rows = summaryRows({ ...base, tipPayouts: 5.2 });
+    expect(rows.find((r) => r.key === 'tipPayouts')?.value).toBe(-5.2);
+    expect(rows.map((r) => r.key).indexOf('tipPayouts')).toBe(rows.map((r) => r.key).indexOf('pfandPayouts') + 1);
+    expect(summaryRows({ ...base, tipPayouts: 0 }).find((r) => r.key === 'tipPayouts')?.value).toBe(0);
+  });
+
   test('sales revenue leaves out cash movements, deposit and tips', () => {
     const line = (gvTyp: string, grossCents: number) => ({ gvTyp, gvName: '', vatKey: 1, grossCents, netCents: 0, vatCents: 0 });
     expect(

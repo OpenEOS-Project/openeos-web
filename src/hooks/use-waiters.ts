@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { waitersApi } from '@/lib/api-client';
-import type { BulkCreateWaitersData, CreateWaiterData, SettleWaiterData, UpdateWaiterData } from '@/types/waiter';
+import type {
+  BulkCreateWaitersData,
+  CreateWaiterData,
+  SettleWaiterData,
+  TipPayoutData,
+  UpdateWaiterData,
+} from '@/types/waiter';
 
 const key = (organizationId: string) => ['organizations', organizationId, 'waiters'] as const;
 
@@ -108,5 +114,41 @@ export function useReprintSettlement(organizationId: string) {
   return useMutation({
     mutationFn: async ({ settlementId, printerId }: { settlementId: string; printerId?: string }) =>
       (await waitersApi.reprintSettlement(organizationId, settlementId, printerId)).data,
+  });
+}
+
+// ------------------------------------------------ Live-Kassensturz, Trinkgeld
+
+const liveKey = (organizationId: string) => [...settlementsKey(organizationId), 'live'] as const;
+
+/** Live-Kassensturz (Soll je Bedienung seit der letzten Abrechnung). */
+export function useLiveCashAudit(organizationId: string | undefined, eventId?: string | null, enabled = true) {
+  return useQuery({
+    queryKey: [...liveKey(organizationId ?? ''), eventId ?? 'current'],
+    queryFn: async () => (await waitersApi.liveCashAudit(organizationId!, eventId ?? undefined)).data,
+    enabled: !!organizationId && enabled,
+    retry: false,
+  });
+}
+
+/** Kartentrinkgeld einer Bedienung (Arbeitnehmer?, offen, Auszahlungen). */
+export function useTipPayoutStatus(organizationId: string, waiterId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: [...key(organizationId), 'tip-payouts', waiterId],
+    queryFn: async () => (await waitersApi.tipPayouts(organizationId, waiterId!)).data,
+    enabled: !!organizationId && !!waiterId && enabled,
+    retry: false,
+  });
+}
+
+export function usePayOutTips(organizationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ waiterId, data }: { waiterId: string; data: TipPayoutData }) =>
+      waitersApi.payOutTips(organizationId, waiterId, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: settlementsKey(organizationId) });
+      void queryClient.invalidateQueries({ queryKey: key(organizationId) });
+    },
   });
 }

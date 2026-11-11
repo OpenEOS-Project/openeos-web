@@ -180,13 +180,95 @@ export interface WaiterSettlement {
   deviceId: string | null;
   deviceName: string | null;
   printedAt: string | null;
+  /**
+   * Cloud-TSE: als `SonstigerVorgang` abgesichert (Soll, Ist, Differenz).
+   * null ohne TSE bzw. bei Training; fehlt bei älteren API-Versionen.
+   */
+  tse?: SettlementTse | null;
   createdAt: string;
+}
+
+export interface SettlementTse {
+  status: string;
+  /** Nicht signiert (TSE nicht erreichbar). */
+  failed: boolean;
+  bonNumber: number | null;
+  transactionNumber: number | null;
+  signatureCounter: number | null;
+  finishTime: string | null;
 }
 
 export interface SettleWaiterData {
   eventId?: string;
   countedCash?: number | null;
   force?: boolean;
+  note?: string | null;
+  printerId?: string;
+  /** Offenes Kartentrinkgeld gleich bar auszahlen (nur Arbeitnehmer). */
+  payOutCardTips?: boolean;
+}
+
+/** `meta` beim Abrechnen. */
+export interface SettleMeta {
+  printed: boolean;
+  /** Mit `payOutCardTips`: die Auszahlung, sonst null (fehlt bei älteren APIs). */
+  tipPayout?: TipPayout | null;
+}
+
+// ------------------------------------------------ Live-Kassensturz
+
+/** Zeile des Live-Kassensturzes: eine Bedienung seit ihrer letzten Abrechnung. */
+export interface LiveCashAuditRow {
+  subject: SettlementSubject;
+  periodFrom: string | null;
+  /** Soll bar seit der letzten Abrechnung; null bei „Nur Bons“. */
+  cashExpected: number | null;
+  cashByDevice?: Array<{ deviceId: string | null; deviceName: string | null; amount: number }>;
+  payments?: { cash: SettlementCount; card: SettlementCount; other: SettlementCount; total: SettlementCount };
+  tips: number | null;
+  refunds?: { cash: SettlementCount; nonCash: SettlementCount; total: SettlementCount };
+  pfandReturns?: SettlementCount;
+  openTables: number;
+  /** Nur Arbeitnehmer (Lohnkonto): noch nicht ausgezahltes Kartentrinkgeld; sonst null. */
+  openCardTips: number | null;
+  lastSettlement: { id: string; number: number | null; createdAt: string } | null;
+}
+
+/** GET …/waiter-settlements/live bzw. /device-api/waiter/live-cash-audit */
+export interface LiveCashAudit {
+  generatedAt: string;
+  eventId: string | null;
+  eventName: string | null;
+  rows: LiveCashAuditRow[];
+  total: { cashExpected: number; payments: number; tips: number };
+}
+
+// ------------------------------------------- Kartentrinkgeld auszahlen
+
+export interface TipPayout {
+  id: string;
+  waiterId: string;
+  waiterName: string;
+  amount: number;
+  isTest: boolean;
+  settlementId: string | null;
+  deviceId: string | null;
+  note: string | null;
+  tse: import('@/types/tse').TseReceiptView | null;
+  createdAt: string;
+}
+
+/** GET …/waiters/:waiterId/tip-payouts */
+export interface TipPayoutStatus {
+  isEmployee: boolean;
+  openCardTips: number;
+  payouts: TipPayout[];
+}
+
+export interface TipPayoutData {
+  /** Euro; ohne: das ganze offene Kartentrinkgeld. */
+  amount?: number;
+  eventId?: string;
   note?: string | null;
   printerId?: string;
 }
