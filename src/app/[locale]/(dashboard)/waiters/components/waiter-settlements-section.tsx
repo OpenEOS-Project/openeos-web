@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, Segment } from '@openeos/ui';
 
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import { ListError, ListLoading } from '@/components/shared/list-states';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import { toast } from '@/components/shared/toast';
 import { SettlementFigures } from '@/components/waiters/settlement-figures';
+import { SettlementTseLine } from '@/components/waiters/settlement-tse';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePrinters } from '@/hooks/use-printers';
@@ -16,6 +17,7 @@ import { useReprintSettlement, useWaiterSettlements } from '@/hooks/use-waiters'
 import type { WaiterSettlement } from '@/types/waiter';
 
 import { WaiterBadge } from './waiter-badge';
+import { WaiterLiveAudit } from './waiter-live-audit';
 
 interface WaiterSettlementsSectionProps {
   organizationId: string;
@@ -26,12 +28,17 @@ interface WaiterSettlementsSectionProps {
   onCloseHighlight?: () => void;
 }
 
-/** „Abrechnungen“ unter Bedienungen: Liste, Einzelansicht, Nachdruck. */
+/**
+ * „Abrechnungen“ unter Bedienungen: Liste, Einzelansicht, Kopie drucken —
+ * und daneben der Live-Kassensturz (Soll je Bedienung seit der letzten
+ * Abrechnung, für eine Kassen-Nachschau).
+ */
 export function WaiterSettlementsSection({ organizationId, eventId, highlight, onCloseHighlight }: WaiterSettlementsSectionProps) {
   const t = useTranslations('waiterSettlement');
   const { formatCurrency, formatDateTime } = useLocaleFormat();
   const list = useWaiterSettlements(organizationId, eventId ? { eventId } : undefined);
   const [open, setOpen] = useState<WaiterSettlement | null>(null);
+  const [view, setView] = useState<'settlements' | 'live'>('settlements');
   const shown = open ?? highlight ?? null;
   const settlements = list.data ?? [];
 
@@ -69,6 +76,15 @@ export function WaiterSettlementsSection({ organizationId, eventId, highlight, o
               <tr key={s.id}>
                 <td className="mono">
                   {s.number ? `Nr. ${s.number}` : <span className="badge badge--neutral">{t('list.training')}</span>}
+                  {s.tse && (
+                    <span
+                      className={`badge ${s.tse.failed ? 'badge--warning' : 'badge--success'}`}
+                      style={{ marginLeft: 6 }}
+                      title={s.tse.failed ? t('tse.failed') : t('tse.signedNoNumber')}
+                    >
+                      {s.tse.failed ? t('tse.badgeFailed') : t('tse.badge')}
+                    </span>
+                  )}
                   {s.forced && (
                     <span className="badge badge--warning" style={{ marginLeft: 6 }} title={s.note ?? undefined}>
                       {t('list.forced')}
@@ -115,15 +131,26 @@ export function WaiterSettlementsSection({ organizationId, eventId, highlight, o
 
   return (
     <section className="app-card app-card--flat" aria-labelledby="waiter-settlements-title" data-testid="waiter-settlements">
-      <div className="app-card__head">
+      <div className="app-card__head" style={{ flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h2 id="waiter-settlements-title" className="waiters-settings__title">
             {t('list.title')}
           </h2>
-          <p className="waiters-form__hint">{t('list.description')}</p>
+          <p className="waiters-form__hint">
+            {view === 'live' ? t('live.description') : t('list.description')} {t('list.electronicOnly')}
+          </p>
         </div>
+        <Segment<'settlements' | 'live'>
+          aria-label={t('list.views')}
+          value={view}
+          onChange={setView}
+          options={[
+            { id: 'settlements', label: t('list.tabSettlements') },
+            { id: 'live', label: t('list.tabLive') },
+          ]}
+        />
       </div>
-      {body}
+      {view === 'live' ? <WaiterLiveAudit organizationId={organizationId} eventId={eventId} /> : body}
       {shown && <SettlementDetailModal organizationId={organizationId} settlement={shown} onClose={close} />}
     </section>
   );
@@ -180,6 +207,7 @@ function SettlementDetailModal({
                 device: settlement.deviceName ?? t('detail.dashboard'),
               })}
             </p>
+            <SettlementTseLine tse={settlement.tse} />
             <SettlementFigures
               totals={settlement.totals}
               cashCounted={settlement.cashCounted}
@@ -222,7 +250,7 @@ function SettlementDetailModal({
           </button>
           <button type="button" className="btn btn--primary" onClick={doReprint} disabled={reprint.isPending}>
             <Icon name="print" size={16} />
-            {t('detail.reprint')}
+            {t('detail.copy')}
           </button>
         </div>
       </ModalPanel>

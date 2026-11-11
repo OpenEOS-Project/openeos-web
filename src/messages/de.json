@@ -254,6 +254,18 @@
       "useVerificationCode": "Mit Verifizierungscode anmelden",
       "useRecoveryCode": "Wiederherstellungscode verwenden",
       "backToLogin": "Zurück zur Anmeldung"
+    },
+    "verifyEmailChange": {
+      "loading": "Wir bestätigen deine neue E-Mail-Adresse …",
+      "successTitle": "E-Mail-Adresse geändert",
+      "successMessage": "Ab jetzt meldest du dich mit {email} an.",
+      "successMessageNoEmail": "Ab jetzt meldest du dich mit deiner neuen Adresse an.",
+      "errorTitle": "Änderung nicht bestätigt",
+      "errorHint": "Fordere in den Einstellungen unter Konto einfach einen neuen Link an. Deine bisherige Adresse gilt weiter.",
+      "missingToken": "Im Link fehlt der Bestätigungscode. Öffne bitte den Link aus der Mail.",
+      "error": "Das hat nicht geklappt. Bitte versuch es noch einmal.",
+      "toSettings": "Zu den Einstellungen",
+      "toLogin": "Zur Anmeldung"
     }
   },
   "sidebar": {
@@ -599,7 +611,7 @@
       "changeEmailDescription": "Deine aktuelle E-Mail-Adresse ist {email}",
       "newEmail": "Neue E-Mail-Adresse",
       "currentPassword": "Aktuelles Passwort",
-      "emailChangeRequested": "Bestätigungslink wurde an die neue E-Mail-Adresse gesendet",
+      "emailChangeRequested": "Bestätigungslink an die neue Adresse gesendet.",
       "changePassword": "Passwort ändern",
       "changePasswordDescription": "Aktualisiere dein Passwort regelmäßig für mehr Sicherheit.",
       "newPassword": "Neues Passwort",
@@ -613,8 +625,17 @@
         "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
         "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
         "confirmPasswordRequired": "Passwort-Bestätigung ist erforderlich",
-        "passwordMismatch": "Passwörter stimmen nicht überein"
-      }
+        "passwordMismatch": "Passwörter stimmen nicht überein",
+        "passwordWeak": "Das Passwort braucht Groß- und Kleinbuchstaben und eine Zahl.",
+        "passwordTooLong": "Das Passwort darf höchstens 72 Zeichen haben."
+      },
+      "setPassword": "Passwort festlegen",
+      "setPasswordDescription": "Bisher meldest du dich nur per Anmeldelink an. Mit einem Passwort kannst du dich auch direkt anmelden – der Anmeldelink funktioniert weiter.",
+      "passwordSet": "Passwort festgelegt. Du kannst dich jetzt auch mit Passwort anmelden.",
+      "passwordRules": "Mindestens 8 Zeichen, mit Groß- und Kleinbuchstaben und einer Zahl.",
+      "newEmailHint": "Wir schicken einen Bestätigungslink an die neue Adresse. Bis du ihn öffnest, meldest du dich weiter mit der bisherigen an.",
+      "noPasswordEmailHint": "Du meldest dich per Anmeldelink an – ein Passwort brauchst du hier nicht.",
+      "pendingEmail": "Bestätigung ausstehend für {email} – öffne den Link in der Mail an diese Adresse."
     },
     "security": {
       "title": "Sicherheit",
@@ -1384,6 +1405,13 @@
       "saving": "Speichern …",
       "saved": "Steuerangaben gespeichert.",
       "saveFailed": "Die Steuerangaben konnten nicht gespeichert werden."
+    },
+    "organizationReadOnly": "Nur Admins deiner Organisation können diese Angaben ändern. Du siehst sie hier zum Nachlesen.",
+    "organizationId": {
+      "label": "Organisations-ID",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "hint": "Steht in den REST-Pfaden der API, z. B. <path></path>."
     }
   },
   "theme": {
@@ -1734,8 +1762,10 @@
     },
     "deleteConfirm": {
       "title": "Kategorie löschen",
-      "message": "Bist du sicher, dass du diese Kategorie löschen möchtest? Alle zugehörigen Produkte werden der Standardkategorie zugeordnet.",
-      "confirm": "Löschen"
+      "message": "Die Kategorie „{name}“ wird endgültig gelöscht.",
+      "confirm": "Löschen",
+      "hasProducts": "In „{name}“ {count, plural, one {ist noch ein Produkt} other {sind noch # Produkte}}. Verschieb {count, plural, one {es} other {sie}} in eine andere Kategorie oder lösch {count, plural, one {es} other {sie}} – danach kannst du die Kategorie löschen.",
+      "showProducts": "{count, plural, one {Produkt dieser Kategorie anzeigen} other {Die # Produkte dieser Kategorie anzeigen}}"
     },
     "notifications": {
       "created": "Kategorie erfolgreich erstellt",
@@ -2063,7 +2093,13 @@
     "favorite": "Favorit",
     "favoriteAdd": "{name} als Favorit markieren",
     "favoriteHint": "Erscheint an der Kasse in der Kategorie „Favoriten“ ganz oben.",
-    "favoriteRemove": "{name} nicht mehr als Favorit"
+    "favoriteRemove": "{name} nicht mehr als Favorit",
+    "categoryFilter": {
+      "label": "Kategorie: {name}",
+      "clear": "Alle Produkte zeigen",
+      "emptyTitle": "Keine Produkte in dieser Kategorie",
+      "emptyText": "Die Kategorie ist leer – du kannst sie jetzt löschen."
+    }
   },
   "productionStations": {
     "title": "Standorte",
@@ -3675,6 +3711,7 @@
       "tableOwner": "Bedienung: {name}",
       "summary": "Mein Zwischenstand",
       "settle": "Abrechnen",
+      "liveAudit": "Live-Kassensturz",
       "handover": "Tisch übergeben"
     }
   },
@@ -4780,7 +4817,11 @@
     "WAITER_SETTLEMENT_NOT_FOUND": "Abrechnung nicht gefunden.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
-    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher."
+    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
+    "TIP_PAYOUT_AMOUNT_INVALID": "Der Betrag passt nicht: höchstens das offene Kartentrinkgeld und mehr als 0 €.",
+    "CURRENT_PASSWORD_REQUIRED": "Gib dein aktuelles Passwort ein.",
+    "EMAIL_CHANGE_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -6562,7 +6603,8 @@
     "twoFactor": "Zwei-Faktor-Anmeldung",
     "shifts": "Schichtpläne",
     "invitation": "Einladung",
-    "tables": "Tische"
+    "tables": "Tische",
+    "verifyEmailChange": "Neue E-Mail-Adresse bestätigen"
   },
   "tables": {
     "areas": {
@@ -7062,6 +7104,7 @@
       "cashSales": "Barverkäufe",
       "cashRefunds": "Bar-Erstattungen",
       "pfandPayouts": "Pfand-Auszahlungen",
+      "tipPayouts": "Trinkgeld-Auszahlungen",
       "differences": "Differenzen",
       "lastCount": "Letzter Kassensturz um {time}: gezählt {counted}, Differenz {difference}",
       "lastCountShort": "Letzter Kassensturz: {counted} gezählt, Differenz {difference}",
@@ -7628,7 +7671,7 @@
       "settled": "Abrechnung Nr. {number} für {name} gespeichert.",
       "settledTraining": "Training-Abrechnung für {name} gespeichert.",
       "notPrinted": "Kein Bon gedruckt: Drucker nicht erreichbar.",
-      "reprinted": "Nachdruck geschickt.",
+      "reprinted": "Kopie wird gedruckt.",
       "summaryPrinted": "Zwischenstand wird gedruckt.",
       "receivedTable": "Tisch {table} wurde dir übergeben.",
       "receivedOrder": "{count, plural, one {Eine Bestellung wurde} other {# Bestellungen wurden}} dir übergeben."
@@ -7640,7 +7683,11 @@
     },
     "list": {
       "title": "Abrechnungen",
-      "description": "Abgeschlossene Kellnerabrechnungen, neueste zuerst. Sie lassen sich nicht ändern; ein Nachdruck ist jederzeit möglich.",
+      "description": "Abgeschlossene Kellnerabrechnungen, neueste zuerst. Sie lassen sich nicht ändern; eine Kopie kannst du jederzeit drucken.",
+      "electronicOnly": "Kellnerabrechnungen werden ausschließlich elektronisch erzeugt und aufbewahrt.",
+      "views": "Ansicht",
+      "tabSettlements": "Abrechnungen",
+      "tabLive": "Live-Kassensturz",
       "empty": "Noch keine Abrechnungen.",
       "number": "Nr.",
       "waiter": "Bedienung",
@@ -7662,7 +7709,77 @@
       "forced": "Trotz offener Tische abgerechnet",
       "note": "Notiz: {note}",
       "devicePrinter": "Bondrucker der Kasse",
-      "reprint": "Nachdruck"
+      "copy": "Kopie drucken"
+    },
+    "tse": {
+      "signed": "TSE-gesichert (TA-Nr. {number})",
+      "signedNoNumber": "TSE-gesichert",
+      "failed": "TSE nicht erreichbar – Abrechnung ohne Signatur",
+      "bon": "Beleg-Nr. {bon}",
+      "badge": "TSE",
+      "badgeFailed": "ohne TSE"
+    },
+    "live": {
+      "title": "Live-Kassensturz",
+      "description": "Live-Kassensturz: das Soll jeder Bedienung seit ihrer letzten Abrechnung, aus den Buchungen berechnet.",
+      "hint": "Für eine Kassen-Nachschau: das Soll jeder Bedienung seit ihrer letzten Abrechnung.",
+      "stamp": "Stand {at} · {event}",
+      "noEventName": "laufende Veranstaltung",
+      "refresh": "Aktualisieren",
+      "refreshing": "Wird aktualisiert …",
+      "csv": "CSV",
+      "csvFilename": "live-kassensturz",
+      "close": "Schließen",
+      "cancel": "Abbrechen",
+      "col": {
+        "waiter": "Bedienung",
+        "cashExpected": "Soll bar",
+        "drawers": "Wo das Bargeld liegt",
+        "card": "Karte",
+        "tips": "Trinkgeld",
+        "openTables": "Offene Tische",
+        "openCardTips": "Kartentrinkgeld offen",
+        "lastSettlement": "Letzte Abrechnung"
+      },
+      "noDevice": "ohne Gerät",
+      "volunteerTitle": "Ehrenamtlich: Trinkgeld gehört dem Verein",
+      "payOut": "Auszahlen",
+      "payOutTips": "Kartentrinkgeld {amount} auszahlen",
+      "loadFailed": "Der Live-Kassensturz konnte nicht geladen werden.",
+      "empty": "Seit den letzten Abrechnungen hat noch niemand kassiert.",
+      "noEvent": "Gerade läuft keine Veranstaltung.",
+      "since": "seit {from}",
+      "lastSettlement": "Nr. {number} · {at}",
+      "noSettlement": "noch keine",
+      "total": "Summe",
+      "totalCash": "Soll bar gesamt",
+      "totalTips": "Trinkgeld gesamt",
+      "posLine": "Karte {card} · Trinkgeld {tips} · {tables, plural, =0 {keine offenen Tische} one {# offener Tisch} other {# offene Tische}}",
+      "tipsHint": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein."
+    },
+    "tipPayout": {
+      "title": "Kartentrinkgeld für {name}",
+      "intro": "Offenes Kartentrinkgeld: {open}.",
+      "amount": "Betrag bar auszahlen",
+      "amountHint": "Höchstens {open}.",
+      "note": "Notiz (optional)",
+      "printer": "Quittung drucken auf",
+      "noPrint": "Nicht drucken",
+      "effect": "OpenEOS bucht einen eigenen Beleg (Trinkgeld an Angestellte, bar) und mindert den Soll-Bestand der Kasse. Lass die Quittung unterschreiben.",
+      "nothingOpen": "Gerade ist kein Kartentrinkgeld offen.",
+      "history": "Bisherige Auszahlungen",
+      "bon": "Beleg-Nr. {bon}",
+      "submit": "{amount} auszahlen",
+      "paid": "{amount} Kartentrinkgeld an {name} ausgezahlt.",
+      "notPrinted": "Keine Quittung gedruckt: Drucker nicht erreichbar.",
+      "notPrintedPos": "Keine Quittung gedruckt – diese Kasse hat keinen Bondrucker.",
+      "failed": "Auszahlen hat nicht geklappt.",
+      "loadFailed": "Das Kartentrinkgeld konnte nicht geladen werden.",
+      "volunteer": "Diese Bedienung ist ehrenamtlich (kein „Arbeitnehmer (Lohnkonto)“). Ihr Trinkgeld gehört dem Verein – eine Weitergabe wäre eine Zuwendung des Vereins und kein Trinkgeld.",
+      "volunteerShort": "Ehrenamtlich: Das Trinkgeld gehört dem Verein und wird nicht ausgezahlt.",
+      "checkbox": "Offenes Kartentrinkgeld ({amount}) bar auszahlen",
+      "checkboxHint": "Eigener Beleg mit Quittung, nur für Arbeitnehmer (Lohnkonto). Das Bargeld kommt aus der Schublade.",
+      "confirm": "{amount} bar an {name} auszahlen? Die Quittung kommt aus dem Bondrucker."
     }
   }
 }

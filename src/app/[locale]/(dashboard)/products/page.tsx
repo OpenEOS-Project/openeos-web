@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -26,7 +27,10 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <ProductsContainer />
+        {/* useSearchParams (Filter ?category=) braucht eine Suspense-Grenze. */}
+        <Suspense>
+          <ProductsContainer />
+        </Suspense>
       </div>
     </ModuleGuard>
   );

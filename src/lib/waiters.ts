@@ -1,5 +1,8 @@
 import type {
+  LiveCashAudit,
+  LiveCashAuditRow,
   PosWaiter,
+  SettlementTse,
   WaiterMode,
   WaiterPermissionKey,
   WaiterPermissions,
@@ -232,4 +235,59 @@ export function handoverTargets<T extends { id: string }>(tiles: T[], excludeId:
  */
 export function employeeFlagPatch(previous: boolean | undefined, next: boolean): { isEmployee?: boolean } {
   return (previous === true) === next ? {} : { isEmployee: next };
+}
+
+// ------------------------------------------ Kassen-Nachschau, Trinkgeld
+
+/**
+ * TSE-Zustand einer Kellnerabrechnung (Cloud-TSE, `SonstigerVorgang`):
+ * `signed` mit TA-Nr., `failed` (TSE nicht erreichbar) oder `null` (ohne
+ * TSE, Training, ältere API).
+ */
+export function settlementTseState(
+  tse: SettlementTse | null | undefined,
+): { kind: 'signed'; transactionNumber: number | null; bonNumber: number | null } | { kind: 'failed' } | null {
+  if (!tse) return null;
+  if (tse.failed || tse.status === 'failed' || tse.status === 'pending') return { kind: 'failed' };
+  return { kind: 'signed', transactionNumber: tse.transactionNumber, bonNumber: tse.bonNumber };
+}
+
+/**
+ * Kartentrinkgeld auszahlen anbieten? Nur bei Arbeitnehmern (die API
+ * liefert `openCardTips` sonst als null) und wenn etwas offen ist.
+ */
+export function canPayOutCardTips(openCardTips: number | null | undefined): boolean {
+  return typeof openCardTips === 'number' && Math.round(openCardTips * 100) > 0;
+}
+
+/** Wo das Bargeld einer Bedienung liegt: Schubladen mit Betrag, größte zuerst. */
+export function liveAuditDrawers(
+  row: Pick<LiveCashAuditRow, 'cashByDevice'>,
+): Array<{ deviceId: string | null; deviceName: string | null; amount: number }> {
+  return (row.cashByDevice ?? [])
+    .filter((d) => Math.round(d.amount * 100) !== 0)
+    .sort((a, b) => b.amount - a.amount);
+}
+
+/**
+ * CSV-Zeilen des Live-Kassensturzes (Beträge als Zahl, Schubladen als
+ * „Name: Betrag“): Bedienung, Soll bar, Schubladen, Karte, Trinkgeld,
+ * offene Tische, offenes Kartentrinkgeld, letzte Abrechnung.
+ */
+export function liveAuditCsvRows(
+  audit: Pick<LiveCashAudit, 'rows'>,
+  labels: { noDevice: string },
+): Array<Array<string | number>> {
+  return audit.rows.map((row) => [
+    row.subject.name,
+    row.cashExpected ?? '',
+    liveAuditDrawers(row)
+      .map((d) => `${d.deviceName ?? labels.noDevice}: ${d.amount.toFixed(2)}`)
+      .join('; '),
+    row.payments?.card.amount ?? '',
+    row.tips ?? '',
+    row.openTables,
+    row.openCardTips ?? '',
+    row.lastSettlement?.number ?? '',
+  ]);
 }

@@ -641,8 +641,24 @@ export const waitersApi = {
       `/organizations/${orgId}/waiters/${waiterId}/summary${eventId ? `?eventId=${eventId}` : ''}`
     ),
   settle: (orgId: string, waiterId: string, data: import('@/types/waiter').SettleWaiterData) =>
-    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: { printed: boolean } }>(
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: import('@/types/waiter').SettleMeta }>(
       `/organizations/${orgId}/waiters/${waiterId}/settlements`,
+      data
+    ),
+  /** Live-Kassensturz: Soll jeder Bedienung seit ihrer letzten Abrechnung. */
+  liveCashAudit: (orgId: string, eventId?: string) =>
+    apiClient.get<ApiResponse<import('@/types/waiter').LiveCashAudit>>(
+      `/organizations/${orgId}/waiter-settlements/live${eventId ? `?eventId=${eventId}` : ''}`
+    ),
+  /** Kartentrinkgeld einer Bedienung: Arbeitnehmer?, offen, Auszahlungen. */
+  tipPayouts: (orgId: string, waiterId: string) =>
+    apiClient.get<ApiResponse<import('@/types/waiter').TipPayoutStatus>>(
+      `/organizations/${orgId}/waiters/${waiterId}/tip-payouts`
+    ),
+  /** Kartentrinkgeld bar auszahlen (nur Arbeitnehmer). */
+  payOutTips: (orgId: string, waiterId: string, data: import('@/types/waiter').TipPayoutData) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').TipPayout> & { meta?: { printed: boolean } }>(
+      `/organizations/${orgId}/waiters/${waiterId}/tip-payouts`,
       data
     ),
   transferTables: (orgId: string, waiterId: string, toWaiterId: string, eventId?: string) =>
@@ -1080,15 +1096,18 @@ export const userSettingsApi = {
     apiClient.delete<ApiResponse<import('@/types/auth').User>>('/users/me/avatar'),
 
   // Password
+  /* PATCH /auth/change-password — den frueher hier angesprochenen
+     POST /users/me/password gab es in der API nie (404). */
   changePassword: (data: import('@/types/settings').ChangePasswordDto) =>
-    apiClient.post<ApiResponse<void>>('/users/me/password', data),
+    apiClient.patch<ApiResponse<void>>('/auth/change-password', data),
 
   // Email
   requestEmailChange: (data: import('@/types/settings').ChangeEmailDto) =>
     apiClient.post<ApiResponse<void>>('/users/me/email/change', data),
 
+  // Oeffentlich: der Link aus der Mail wird oft ohne Sitzung geoeffnet.
   verifyEmailChange: (token: string) =>
-    apiClient.post<ApiResponse<import('@/types/auth').User>>('/users/me/email/verify', { token }),
+    apiClient.post<ApiResponse<import('@/types/auth').User>>('/users/me/email/verify', { token }, { skipAuth: true }),
 
   // Preferences
   getPreferences: () =>
@@ -1951,9 +1970,27 @@ export const deviceApi = {
       waiterId ? { waiterId } : {},
       { useDeviceAuth: true }
     ),
-  settleWaiter: (data: { waiterId?: string; force?: boolean; note?: string | null; print?: boolean }) =>
-    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: { printed: boolean } }>(
+  settleWaiter: (data: {
+    waiterId?: string;
+    force?: boolean;
+    note?: string | null;
+    print?: boolean;
+    payOutCardTips?: boolean;
+  }) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').WaiterSettlement> & { meta?: import('@/types/waiter').SettleMeta }>(
       '/device-api/waiter/settlements',
+      data,
+      { useDeviceAuth: true }
+    ),
+  /** Live-Kassensturz (nur Schichtleitung/Admin, sonst 403). */
+  getLiveCashAudit: () =>
+    apiClient.get<ApiResponse<import('@/types/waiter').LiveCashAudit>>('/device-api/waiter/live-cash-audit', {
+      useDeviceAuth: true,
+    }),
+  /** Kartentrinkgeld bar auszahlen (Schichtleitung; nur Arbeitnehmer). */
+  payOutWaiterTips: (data: { waiterId?: string; amount?: number; note?: string | null }) =>
+    apiClient.post<ApiResponse<import('@/types/waiter').TipPayout> & { meta?: { printed: boolean } }>(
+      '/device-api/waiter/tip-payouts',
       data,
       { useDeviceAuth: true }
     ),

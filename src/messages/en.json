@@ -254,6 +254,18 @@
       "useVerificationCode": "Sign in with verification code",
       "useRecoveryCode": "Use a recovery code",
       "backToLogin": "Back to login"
+    },
+    "verifyEmailChange": {
+      "loading": "Confirming your new email address …",
+      "successTitle": "Email address changed",
+      "successMessage": "From now on you sign in with {email}.",
+      "successMessageNoEmail": "From now on you sign in with your new address.",
+      "errorTitle": "Change not confirmed",
+      "errorHint": "Just request a new link in Settings under Account. Your current address stays valid.",
+      "missingToken": "The link has no confirmation code. Please open the link from the email.",
+      "error": "That didn't work. Please try again.",
+      "toSettings": "Go to settings",
+      "toLogin": "Go to sign-in"
     }
   },
   "sidebar": {
@@ -599,7 +611,7 @@
       "changeEmailDescription": "Your current email address is {email}",
       "newEmail": "New email address",
       "currentPassword": "Current password",
-      "emailChangeRequested": "Confirmation link sent to the new email address",
+      "emailChangeRequested": "Confirmation link sent to the new address.",
       "changePassword": "Change password",
       "changePasswordDescription": "Update your password regularly for better security.",
       "newPassword": "New password",
@@ -613,8 +625,17 @@
         "currentPasswordRequired": "Current password is required",
         "passwordTooShort": "Password must be at least 8 characters",
         "confirmPasswordRequired": "Password confirmation is required",
-        "passwordMismatch": "Passwords do not match"
-      }
+        "passwordMismatch": "Passwords do not match",
+        "passwordWeak": "The password needs upper- and lowercase letters and a number.",
+        "passwordTooLong": "The password can have at most 72 characters."
+      },
+      "setPassword": "Set password",
+      "setPasswordDescription": "So far you only sign in with a sign-in link. With a password you can also sign in directly – the sign-in link keeps working.",
+      "passwordSet": "Password set. You can now also sign in with your password.",
+      "passwordRules": "At least 8 characters, with upper- and lowercase letters and a number.",
+      "newEmailHint": "We send a confirmation link to the new address. Until you open it, you keep signing in with your current one.",
+      "noPasswordEmailHint": "You sign in with a sign-in link – no password needed here.",
+      "pendingEmail": "Confirmation pending for {email} – open the link in the email sent to that address."
     },
     "security": {
       "title": "Security",
@@ -1396,6 +1417,13 @@
       "saving": "Saving …",
       "saved": "Tax details saved.",
       "saveFailed": "The tax details could not be saved."
+    },
+    "organizationReadOnly": "Only admins of your organization can change these details. They are shown here for reference.",
+    "organizationId": {
+      "label": "Organization ID",
+      "copy": "Copy",
+      "copied": "Copied",
+      "hint": "Part of the API's REST paths, e.g. <path></path>."
     }
   },
   "billing": {
@@ -2148,8 +2176,10 @@
     },
     "deleteConfirm": {
       "title": "Delete category",
-      "message": "Are you sure you want to delete this category? All associated products will be moved to the default category.",
-      "confirm": "Delete"
+      "message": "The category “{name}” will be deleted permanently.",
+      "confirm": "Delete",
+      "hasProducts": "“{name}” still contains {count, plural, one {a product} other {# products}}. Move {count, plural, one {it} other {them}} to another category or delete {count, plural, one {it} other {them}} – then you can delete the category.",
+      "showProducts": "{count, plural, one {Show the product in this category} other {Show the # products in this category}}"
     },
     "notifications": {
       "created": "Category created successfully",
@@ -2477,7 +2507,13 @@
     "favorite": "Favorite",
     "favoriteAdd": "Mark {name} as favorite",
     "favoriteHint": "Shown at the top of the till in the “Favorites” category.",
-    "favoriteRemove": "Remove {name} from favorites"
+    "favoriteRemove": "Remove {name} from favorites",
+    "categoryFilter": {
+      "label": "Category: {name}",
+      "clear": "Show all products",
+      "emptyTitle": "No products in this category",
+      "emptyText": "The category is empty – you can delete it now."
+    }
   },
   "productionStations": {
     "title": "Stations",
@@ -3687,6 +3723,7 @@
       "tableOwner": "Server: {name}",
       "summary": "My running total",
       "settle": "Settle",
+      "liveAudit": "Live cash audit",
       "handover": "Hand over table"
     }
   },
@@ -4792,7 +4829,11 @@
     "WAITER_SETTLEMENT_NOT_FOUND": "Settlement not found.",
     "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
     "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
-    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first."
+    "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first.",
+    "TIP_PAYOUT_NOT_EMPLOYEE": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club.",
+    "TIP_PAYOUT_AMOUNT_INVALID": "The amount does not fit: at most the open card tips and more than €0.",
+    "CURRENT_PASSWORD_REQUIRED": "Enter your current password.",
+    "EMAIL_CHANGE_LINK_INVALID": "The confirmation link is invalid or has expired."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -6574,7 +6615,8 @@
     "twoFactor": "Two-factor sign-in",
     "shifts": "Shift plans",
     "invitation": "Invitation",
-    "tables": "Tables"
+    "tables": "Tables",
+    "verifyEmailChange": "Confirm new email address"
   },
   "tables": {
     "areas": {
@@ -7074,6 +7116,7 @@
       "cashSales": "Cash sales",
       "cashRefunds": "Cash refunds",
       "pfandPayouts": "Deposit payouts",
+      "tipPayouts": "Tip payouts",
       "differences": "Differences",
       "lastCount": "Last cash count at {time}: counted {counted}, difference {difference}",
       "lastCountShort": "Last cash count: {counted} counted, difference {difference}",
@@ -7640,7 +7683,7 @@
       "settled": "Settlement no. {number} for {name} saved.",
       "settledTraining": "Training settlement for {name} saved.",
       "notPrinted": "No receipt printed: printer not reachable.",
-      "reprinted": "Reprint sent.",
+      "reprinted": "Copy is being printed.",
       "summaryPrinted": "Running total is being printed.",
       "receivedTable": "Table {table} was handed over to you.",
       "receivedOrder": "{count, plural, one {An order was} other {# orders were}} handed over to you."
@@ -7652,7 +7695,11 @@
     },
     "list": {
       "title": "Settlements",
-      "description": "Completed server settlements, newest first. They cannot be changed; a reprint is possible at any time.",
+      "description": "Completed server settlements, newest first. They cannot be changed; you can print a copy at any time.",
+      "electronicOnly": "Server settlements are created and kept electronically only.",
+      "views": "View",
+      "tabSettlements": "Settlements",
+      "tabLive": "Live cash audit",
       "empty": "No settlements yet.",
       "number": "No.",
       "waiter": "Server",
@@ -7674,7 +7721,77 @@
       "forced": "Settled despite open tables",
       "note": "Note: {note}",
       "devicePrinter": "Till receipt printer",
-      "reprint": "Reprint"
+      "copy": "Print copy"
+    },
+    "tse": {
+      "signed": "Secured by the TSE (TA no. {number})",
+      "signedNoNumber": "Secured by the TSE",
+      "failed": "TSE unreachable – settlement without signature",
+      "bon": "Receipt no. {bon}",
+      "badge": "TSE",
+      "badgeFailed": "no TSE"
+    },
+    "live": {
+      "title": "Live cash audit",
+      "description": "Live cash audit: what each server should have since their last settlement, calculated from the bookings.",
+      "hint": "For a cash inspection: what each server should have since their last settlement.",
+      "stamp": "As of {at} · {event}",
+      "noEventName": "running event",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing …",
+      "csv": "CSV",
+      "csvFilename": "live-cash-audit",
+      "close": "Close",
+      "cancel": "Cancel",
+      "col": {
+        "waiter": "Server",
+        "cashExpected": "Expected cash",
+        "drawers": "Where the cash is",
+        "card": "Card",
+        "tips": "Tips",
+        "openTables": "Open tables",
+        "openCardTips": "Open card tips",
+        "lastSettlement": "Last settlement"
+      },
+      "noDevice": "no device",
+      "volunteerTitle": "Volunteer: tips belong to the club",
+      "payOut": "Pay out",
+      "payOutTips": "Pay out card tips {amount}",
+      "loadFailed": "The live cash audit could not be loaded.",
+      "empty": "Nobody has collected anything since the last settlements.",
+      "noEvent": "No event is running right now.",
+      "since": "since {from}",
+      "lastSettlement": "No. {number} · {at}",
+      "noSettlement": "none yet",
+      "total": "Total",
+      "totalCash": "Expected cash total",
+      "totalTips": "Tips total",
+      "posLine": "Card {card} · tips {tips} · {tables, plural, =0 {no open tables} one {# open table} other {# open tables}}",
+      "tipsHint": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club."
+    },
+    "tipPayout": {
+      "title": "Card tips for {name}",
+      "intro": "Open card tips: {open}.",
+      "amount": "Amount to pay out in cash",
+      "amountHint": "At most {open}.",
+      "note": "Note (optional)",
+      "printer": "Print receipt on",
+      "noPrint": "Do not print",
+      "effect": "OpenEOS books a separate receipt (tips to employees, cash) and lowers the expected cash of the register. Have the receipt signed.",
+      "nothingOpen": "There are no open card tips right now.",
+      "history": "Previous payouts",
+      "bon": "Receipt no. {bon}",
+      "submit": "Pay out {amount}",
+      "paid": "{amount} card tips paid out to {name}.",
+      "notPrinted": "No receipt printed: printer not reachable.",
+      "notPrintedPos": "No receipt printed – this till has no receipt printer.",
+      "failed": "Paying out did not work.",
+      "loadFailed": "The card tips could not be loaded.",
+      "volunteer": "This server is a volunteer (not “Employee (payroll account)”). Their tips belong to the club – passing them on would be a payment by the club, not a tip.",
+      "volunteerShort": "Volunteer: tips belong to the club and are not paid out.",
+      "checkbox": "Pay out open card tips ({amount}) in cash",
+      "checkboxHint": "Separate receipt with signature line, only for employees (payroll account). The cash comes from the drawer.",
+      "confirm": "Pay out {amount} in cash to {name}? The receipt comes from the receipt printer."
     }
   }
 }

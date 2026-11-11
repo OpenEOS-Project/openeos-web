@@ -19,23 +19,27 @@ import {
 } from '@dnd-kit/sortable';
 import { Icon } from '@openeos/ui';
 
-import { useCategories, useDeleteCategory, useReorderCategories } from '@/hooks/use-categories';
+import { useCategories, useReorderCategories } from '@/hooks/use-categories';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Category } from '@/types/category';
 
 import { CategoryFormModal } from '@/components/shared/category-form-modal';
+import { CategoryDeleteDialog } from '@/components/shared/category-delete-dialog';
 import { CategorySortableRow } from './category-sortable-row';
 
 interface CategoriesManagementModalProps {
   isOpen: boolean;
   eventId: string;
   onClose: () => void;
+  /** Produkte einer Kategorie zeigen (Filter auf der Produktseite). */
+  onShowProducts?: (categoryId: string) => void;
 }
 
 export function CategoriesManagementModal({
   isOpen,
   eventId,
   onClose,
+  onShowProducts,
 }: CategoriesManagementModalProps) {
   const t = useTranslations('categories');
   const tCommon = useTranslations('common');
@@ -45,7 +49,6 @@ export function CategoriesManagementModal({
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
 
   const { data: categories, isLoading } = useCategories(eventId);
-  const deleteCategory = useDeleteCategory();
   const reorderCategories = useReorderCategories();
 
   /* Die Reihenfolge liegt waehrend des Ziehens lokal, damit die Zeile
@@ -92,16 +95,6 @@ export function CategoriesManagementModal({
 
   const handleDeleteClick = (category: Category) => {
     setDeletingCategory(category);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!deletingCategory) return;
-    try {
-      await deleteCategory.mutateAsync({ eventId, id: deletingCategory.id });
-      setDeletingCategory(null);
-    } catch {
-      // Error is handled by the mutation
-    }
   };
 
   const handleFormClose = () => {
@@ -189,32 +182,22 @@ export function CategoriesManagementModal({
       />
 
       {deletingCategory && (
-        <div className="modal__overlay" style={{ zIndex: 60 }} onClick={() => setDeletingCategory(null)}>
-          <div className="modal__panel modal__panel--sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal__head">
-              <h2>{t('deleteConfirm.title')}</h2>
-            </div>
-            <div className="modal__body">
-              <p style={{ fontSize: 14, color: 'var(--ink)', opacity: 0.7 }}>
-                {t('deleteConfirm.message')}
-              </p>
-            </div>
-            <div className="modal__foot">
-              <button type="button" className="btn btn--ghost" onClick={() => setDeletingCategory(null)}>
-                {tCommon('cancel')}
-              </button>
-              <button
-                type="button"
-                className="btn btn--primary"
-                style={{ background: 'var(--danger)' }}
-                onClick={handleDeleteConfirm}
-                disabled={deleteCategory.isPending}
-              >
-                {deleteCategory.isPending ? tCommon('deleting') : tCommon('delete')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <CategoryDeleteDialog
+          eventId={eventId}
+          category={deletingCategory}
+          /* Über dem Kategorien-Dialog (.modal__overlay: z-index 100) — mit
+             60 lag die Rückfrage bisher unsichtbar dahinter. */
+          zIndex={110}
+          onClose={() => setDeletingCategory(null)}
+          onShowProducts={
+            onShowProducts
+              ? (categoryId) => {
+                  setDeletingCategory(null);
+                  onShowProducts(categoryId);
+                }
+              : undefined
+          }
+        />
       )}
     </>
   );

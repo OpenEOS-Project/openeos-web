@@ -11,7 +11,10 @@ import { isValidTaxNumber, isValidVatId, missingMasterData, normalizeVatId } fro
 import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationSettings } from '@/types/organization';
 
+import { usePermissions } from '@/hooks/use-permissions';
+
 import { SettingsSectionHead } from './settings-section-head';
+import { OrgReadOnlyNotice, OrgSettingsFieldset } from './org-settings-readonly';
 
 /**
  * Steuerangaben der Organisation: offizieller Name, Steuernummer und
@@ -27,6 +30,7 @@ export function OrganizationTaxSection() {
   const settings = (organization?.settings ?? {}) as OrganizationSettings;
   const isGermany = (organization?.country ?? '').toUpperCase() === 'DE';
   const save = useUpdateCurrentOrganizationSettings();
+  const { isAdmin } = usePermissions();
 
   const initial = {
     legalName: settings.legalName ?? '',
@@ -75,6 +79,7 @@ export function OrganizationTaxSection() {
   return (
     <div className="app-card" data-testid="settings-tax">
       <SettingsSectionHead icon="landmark" title={t('title')} description={t('description')} />
+      {!isAdmin && <OrgReadOnlyNotice />}
 
       {isGermany && (
         <div style={{ marginBottom: 16 }}>
@@ -88,6 +93,7 @@ export function OrganizationTaxSection() {
       )}
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }} noValidate>
+        <OrgSettingsFieldset disabled={!isAdmin}>
         <div className="auth-field">
           <label className="auth-field__label" htmlFor="tax-legal-name">{t('legalName')}</label>
           <input
@@ -136,12 +142,15 @@ export function OrganizationTaxSection() {
           </div>
         </div>
         <p className="auth-field__hint" style={{ margin: '-8px 0 0' }}>{t('eitherHint')}</p>
+        </OrgSettingsFieldset>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-          <button type="submit" className="btn btn--primary" disabled={!dirty || save.isPending} data-testid="settings-tax-save">
-            {save.isPending ? t('saving') : t('save')}
-          </button>
-        </div>
+        {isAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+            <button type="submit" className="btn btn--primary" disabled={!dirty || save.isPending} data-testid="settings-tax-save">
+              {save.isPending ? t('saving') : t('save')}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

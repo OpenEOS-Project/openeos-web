@@ -16,10 +16,12 @@ interface WaiterChipProps {
   onSummary?: () => void;
   /** „Abrechnen“ (Schichtleitung bzw. Admin). */
   onSettle?: () => void;
+  /** „Live-Kassensturz“ (Schichtleitung bzw. Admin). */
+  onLiveAudit?: () => void;
 }
 
 /** Kopf-Chip „Wer bedient?“ mit Farbe und Kurzname (bedienungen-plan.md §6). */
-export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut, onSummary, onSettle }: WaiterChipProps) {
+export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut, onSummary, onSettle, onLiveAudit }: WaiterChipProps) {
   const t = useTranslations('pos.waiter');
   const label = waiterLabel(waiter);
   const color = waiter.color ?? 'var(--oe-ink)';
@@ -41,6 +43,11 @@ export function WaiterChip({ waiter, shared, onSwitch, onLock, onSignOut, onSumm
       {onSettle && (
         <DropdownOption icon={<Icon name="receipt" />} onClick={onSettle}>
           {t('settle')}
+        </DropdownOption>
+      )}
+      {onLiveAudit && (
+        <DropdownOption icon={<Icon name="cash" />} onClick={onLiveAudit}>
+          {t('liveAudit')}
         </DropdownOption>
       )}
     </>
