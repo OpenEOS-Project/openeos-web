@@ -12,6 +12,7 @@ import {
   Keypad,
   Prompt,
   Spinner,
+  Stepper,
   type ChoiceOption,
 } from '@openeos/ui';
 import { useDeviceOperatingMode } from '@/hooks/use-operating-mode';
@@ -20,20 +21,31 @@ import { deviceApi } from '@/lib/api-client';
 import { useDeviceStore } from '@/stores/device-store';
 import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
+import { tokenTenders, tokenValue, tokensValueCents, type TokenTender, type TokenType } from '@/types/token';
 import { shouldOpenCashDrawer } from '@/utils/cash-drawer';
 import { initialPayMethod, type PayMethod, type PosCardMode } from '@/utils/pos-card-mode';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { useSumupCheckout } from '../hooks/use-sumup-checkout';
 import { PosSheet } from './pos-sheet';
 
-type Method = PayMethod;
+/** `tokens`: Wertmarken eingeben (vollständig mit Marken: Abschluss ohne Geld). */
+type Method = PayMethod | 'tokens';
 
 export interface PayResult {
-  /** `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` = Betrag 0. */
-  method: 'cash' | 'card' | 'sumup' | 'free';
+  /**
+   * `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` =
+   * Betrag 0, `tokens` = nur mit Wertmarken bezahlt.
+   */
+  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens';
   amountReceived?: number;
   tip: number;
   transactionId?: string | null;
+  /** Vom Gast erhaltene Wertmarken (der Rest geht über `method`). */
+  tokens?: TokenTender[];
+  /** Marken mehr wert als offen: Rest als Trinkgeld gebucht. */
+  tokenExcessAsTip?: boolean;
+  /** Wert der Marken (Euro), für das Abschluss-Blatt. */
+  tokenValue?: number;
 }
 
 export interface PayDiscount {
@@ -65,6 +77,11 @@ interface PaySheetProps {
   onPay: (result: PayResult) => Promise<void>;
   /** Offline: Abschließen gesperrt. */
   disabled?: boolean;
+  /**
+   * Markentypen (Wertmarken), die die Kasse annimmt — leer/fehlend ohne
+   * Wertmarken (nur „Alle Funktionen“, in DE mit Cloud-TSE).
+   */
+  tokenTypes?: TokenType[];
   /**
    * Schlüssel in `sessionStorage`, unter dem eine erfolgreiche, aber nicht
    * gespeicherte Kartenzahlung liegt — nach Neuladen bleibt „Erneut
@@ -133,6 +150,7 @@ export function PaySheet({
   onPay,
   disabled = false,
   persistKey,
+  tokenTypes = [],
 }: PaySheetProps) {
   const t = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
@@ -157,8 +175,26 @@ export function PaySheet({
   /** Kartenzahlung gelungen, Buchung gescheitert — nur „Erneut speichern“. */
   const [unsaved, setUnsaved] = useState<PayResult | null>(null);
   const drawerOpened = useRef(false);
+  /** Wertmarken je Typ (Stück) und ob ein Überschuss Trinkgeld wird. */
+  const [tokenCounts, setTokenCounts] = useState<Record<string, number>>({});
+  const [excessAsTip, setExcessAsTip] = useState(false);
+  const tokenCents = tokensValueCents(tokenTypes, tokenCounts);
+  const amountCents = Math.round(amount * 100);
+  /** Geld, das nach den Marken noch offen ist. */
+  const moneyDue = Math.max(0, amountCents - tokenCents) / 100;
+  /** Marken mehr wert als offen (Wechselgeld in Marken gibt es nicht). */
+  const tokenExcess = Math.max(0, tokenCents - amountCents) / 100;
+  const tokenFields = (): Pick<PayResult, 'tokens' | 'tokenExcessAsTip' | 'tokenValue'> =>
+    tokenCents > 0
+      ? {
+          tokens: tokenTenders(tokenCounts),
+          tokenValue: tokenCents / 100,
+          ...(tokenExcess > 0 ? { tokenExcessAsTip: true } : {}),
+        }
+      : {};
 
-  const run = async (result: PayResult) => {
+  const run = async (base: PayResult) => {
+    const result = base.tokens ? base : { ...base, ...tokenFields() };
     setBusy(true);
     try {
       await onPay(result);
@@ -177,6 +213,10 @@ export function PaySheet({
   const sumup = useSumupCheckout(({ transactionId }) => {
     void run({ method: 'sumup', tip, transactionId });
   });
+  const setTokenCount = (id: string, count: number) => {
+    setTokenCounts((prev) => ({ ...prev, [id]: Math.max(0, Math.min(999, count)) }));
+    setExcessAsTip(false);
+  };
 
   // Beim Öffnen zurücksetzen.
   useEffect(() => {
@@ -189,6 +229,8 @@ export function PaySheet({
     setManual(null);
     setManualValue('');
     setUnsaved(readUnsaved(persistKey));
+    setTokenCounts({});
+    setExcessAsTip(false);
     drawerOpened.current = false;
     sumup.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -216,9 +258,10 @@ export function PaySheet({
   }, [open, cashless, method, amount, deviceSettings]);
 
   const givenAmount = given ? parseInt(given, 10) / 100 : 0;
-  const change = givenAmount - amount;
-  const quick = useMemo(() => quickAmounts(amount), [amount]);
-  const roundUpTip = Math.max(0, Math.round((Math.ceil(amount - 0.0001) - amount) * 100) / 100);
+  // Bar und Karte kassieren nur, was nach den Wertmarken offen ist.
+  const change = givenAmount - moneyDue;
+  const quick = useMemo(() => quickAmounts(moneyDue), [moneyDue]);
+  const roundUpTip = Math.max(0, Math.round((Math.ceil(moneyDue - 0.0001) - moneyDue) * 100) / 100);
   const cardBusy = sumup.busy || sumup.state === 'success';
   const locked = busy || cardBusy || !!unsaved;
 
@@ -246,8 +289,17 @@ export function PaySheet({
           },
         ]
       : []),
+    ...(tokenTypes.length > 0
+      ? [
+          {
+            id: 'tokens' as const,
+            label: tokenCents > 0 ? t('tokensWithValue', { amount: formatPrice(tokenCents / 100) }) : t('tokens'),
+            icon: 'ticket' as const,
+          },
+        ]
+      : []),
     ...(discount && discount.vouchers.length > 0
-      ? [{ id: 'discount' as const, label: t('discount'), icon: 'ticket' as const }]
+      ? [{ id: 'discount' as const, label: t('discount'), icon: 'percent' as const }]
       : []),
   ];
 
@@ -316,6 +368,36 @@ export function PaySheet({
         {t('completeFree')}
       </Button>
     );
+  } else if (tokenCents > 0 && moneyDue <= 0) {
+    // Vollständig mit Wertmarken bezahlt (ggf. Überschuss als Trinkgeld).
+    primary = (
+      <Button
+        variant="primary"
+        size="lg"
+        className="oe-grow"
+        loading={busy}
+        disabled={disabled || (tokenExcess > 0 && !excessAsTip)}
+        onClick={() => run({ method: 'tokens', tip: 0, ...tokenFields() })}
+      >
+        {!busy && <Icon name="check" />}
+        {t('tokensComplete')}
+      </Button>
+    );
+  } else if (method === 'tokens') {
+    // Marken decken nicht alles: weiter zur Zahlart für den Rest.
+    const restMethod: Method | null = !cashless ? 'cash' : card && card !== 'sumup_test' ? 'card' : null;
+    primary = (
+      <Button
+        variant="primary"
+        size="lg"
+        className="oe-grow"
+        disabled={!restMethod}
+        onClick={() => restMethod && setMethod(restMethod)}
+      >
+        <Icon name="arrow-right" />
+        {tokenCents > 0 ? t('tokensRest', { amount: formatPrice(moneyDue) }) : t('continue')}
+      </Button>
+    );
   } else if (method === 'cash') {
     primary = (
       <Button
@@ -341,7 +423,7 @@ export function PaySheet({
         onClick={() => run({ method: 'card', tip: 0 })}
       >
         {!busy && <Icon name="check" />}
-        {t('cardManual', { amount: formatPrice(amount) })}
+        {t('cardManual', { amount: formatPrice(moneyDue) })}
       </Button>
     );
   } else if (method === 'card' && card === 'sumup') {
@@ -357,12 +439,12 @@ export function PaySheet({
         className="oe-grow"
         loading={busy || sumup.state === 'success'}
         disabled={disabled}
-        onClick={() => sumup.start(amount + tip)}
+        onClick={() => sumup.start(moneyDue + tip)}
       >
         {!(busy || sumup.state === 'success') && <Icon name="contactless" />}
         {sumup.state === 'failed' || sumup.state === 'cancelled'
           ? t('cardRetry')
-          : t('cardStart', { amount: formatPrice(amount + tip) })}
+          : t('cardStart', { amount: formatPrice(moneyDue + tip) })}
       </Button>
     );
   } else if (method === 'discount' && firstMethod && firstMethod !== 'discount') {
@@ -388,7 +470,7 @@ export function PaySheet({
     right = (
       <Banner tone="danger" icon={<Icon name="alert" />} title={t('unsavedTitle')}>
         {t('unsavedText', {
-          amount: formatPrice(amount + unsaved.tip),
+          amount: formatPrice(Math.max(0, amount - (unsaved.tokenValue ?? 0)) + unsaved.tip),
           id: unsaved.transactionId ?? '-',
         })}
       </Banner>
@@ -396,6 +478,69 @@ export function PaySheet({
   } else if (amount <= 0) {
     right = (
       <Prompt icon="check-circle" title={t('freeTitle')} text={t('freeText')} />
+    );
+  } else if (method === 'tokens') {
+    right = (
+      <>
+        <ul className="pos-list" aria-label={t('tokensList')}>
+          {tokenTypes.map((type) => {
+            const count = tokenCounts[type.id] || 0;
+            return (
+              <li key={type.id} className="pos-list__row">
+                <span className="pos-list__main">
+                  <b>
+                    {type.color && (
+                      <span
+                        aria-hidden
+                        style={{
+                          display: 'inline-block',
+                          width: 12,
+                          height: 12,
+                          borderRadius: 999,
+                          background: type.color,
+                          marginRight: 8,
+                          verticalAlign: 'middle',
+                        }}
+                      />
+                    )}
+                    {type.name}
+                  </b>
+                  <small>
+                    {formatPrice(tokenValue(type))}
+                    {type.kind === 'single_purpose' ? ` · ${t('tokensSinglePurpose', { rate: Number(type.vatRate) })}` : ''}
+                  </small>
+                </span>
+                <Stepper
+                  value={count}
+                  onDecrement={() => setTokenCount(type.id, count - 1)}
+                  onIncrement={() => setTokenCount(type.id, count + 1)}
+                  labels={{
+                    decrease: t('tokensDecrease', { name: type.name }),
+                    increase: t('tokensIncrease', { name: type.name }),
+                  }}
+                />
+              </li>
+            );
+          })}
+        </ul>
+        {tokenExcess > 0 ? (
+          <Banner tone="warn" icon={<Icon name="alert" />} title={t('tokensExcessTitle', { amount: formatPrice(tokenExcess) })}>
+            <p>{t('tokensExcessText')}</p>
+            <label className="pos-check">
+              <input type="checkbox" checked={excessAsTip} onChange={(e) => setExcessAsTip(e.target.checked)} />{' '}
+              {t('tokensExcessAsTip', { amount: formatPrice(tokenExcess) })}
+            </label>
+          </Banner>
+        ) : (
+          <p className="pos-hint">
+            {tokenCents > 0
+              ? moneyDue > 0
+                ? t('tokensRestHint', { tokens: formatPrice(tokenCents / 100), rest: formatPrice(moneyDue) })
+                : t('tokensCoveredHint')
+              : t('tokensHint')}
+          </p>
+        )}
+      </>
     );
   } else if (method === 'cash') {
     right = (
@@ -412,7 +557,7 @@ export function PaySheet({
           </span>
         </div>
         <div className="pos-quick">
-          <Button variant="secondary" onClick={() => pickQuick(amount)}>
+          <Button variant="secondary" onClick={() => pickQuick(moneyDue)}>
             {t('exact')}
           </Button>
           {quick.map((value) => (
@@ -430,7 +575,7 @@ export function PaySheet({
       </>
     );
   } else if (method === 'card' && card === 'manual') {
-    right = <Prompt icon="card" title={t('cardManualTitle')} text={t('cardManualText', { amount: formatPrice(amount) })} />;
+    right = <Prompt icon="card" title={t('cardManualTitle')} text={t('cardManualText', { amount: formatPrice(moneyDue) })} />;
   } else if (method === 'card' && card === 'sumup') {
     if (sumup.busy || sumup.state === 'success') {
       right = (
@@ -440,7 +585,7 @@ export function PaySheet({
           text={
             sumup.state === 'initiating'
               ? t('cardProcessing')
-              : t('cardWaitText', { amount: formatPrice(amount + tip) })
+              : t('cardWaitText', { amount: formatPrice(moneyDue + tip) })
           }
         >
           <Spinner />
@@ -465,7 +610,7 @@ export function PaySheet({
                   active={customTip === null && tip === roundUpTip}
                   onClick={() => { setCustomTip(null); setTip(roundUpTip); }}
                 >
-                  {t('tipRoundUp', { amount: formatPrice(amount + roundUpTip) })}
+                  {t('tipRoundUp', { amount: formatPrice(moneyDue + roundUpTip) })}
                 </Chip>
               )}
               {TIP_PRESETS.map((preset) => (
@@ -499,7 +644,7 @@ export function PaySheet({
           <Prompt
             icon="contactless"
             title={t('cardReadyTitle')}
-            text={t('cardWaitText', { amount: formatPrice(amount + tip) })}
+            text={t('cardWaitText', { amount: formatPrice(moneyDue + tip) })}
           />
         </>
       );
@@ -573,6 +718,13 @@ export function PaySheet({
             <span className="oe-label">{t('due')}</span>
             <b className="oe-due__amount">{formatPrice(amount)}</b>
             {pfandIncluded > 0 && <small>{t('inclPfand', { amount: formatPrice(pfandIncluded) })}</small>}
+            {tokenCents > 0 && (
+              <small className="pos-pay__tokens">
+                {t('tokensApplied', { amount: formatPrice(Math.min(tokenCents / 100, amount)) })}
+                {' · '}
+                <b>{t('tokensRestShort', { amount: formatPrice(moneyDue) })}</b>
+              </small>
+            )}
           </div>
           {discount && discount.applied.length > 0 && (
             <Chips className="pos-applied">

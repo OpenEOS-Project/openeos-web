@@ -297,6 +297,10 @@ export interface PaymentsBatchData {
   paymentMethod: PaymentMethod;
   amountReceived?: number;
   tipAmount?: number;
+  /** Vom Gast erhaltene Wertmarken (Rest kassiert `paymentMethod`). */
+  tokens?: import('@/types/token').TokenTender[];
+  /** Marken mehr wert als offen: Rest als Trinkgeld (kein Wechselgeld in Marken). */
+  tokenExcessAsTip?: boolean;
   providerTransactionId?: string;
   metadata?: Record<string, unknown>;
   discountAmount?: number;

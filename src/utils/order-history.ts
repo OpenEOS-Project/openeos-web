@@ -51,13 +51,15 @@ export const ITEM_STATUS_TONE: Record<OrderItemStatus, BadgeTone> = {
 
 export function paymentIcon(method: PaymentMethod | string): IconName {
   if (method === 'cash') return 'cash';
+  if (method === 'tokens') return 'ticket';
   if (method === 'sumup_terminal' || method === 'sumup_online') return 'contactless';
   return 'card';
 }
 
-/** Zahlart-Schlüssel für Texte (cash, card, sumup). */
-export function paymentKey(method: PaymentMethod | string): 'cash' | 'card' | 'sumup' {
+/** Zahlart-Schlüssel für Texte (cash, card, sumup, tokens = Wertmarken). */
+export function paymentKey(method: PaymentMethod | string): 'cash' | 'card' | 'sumup' | 'tokens' {
   if (method === 'cash') return 'cash';
+  if (method === 'tokens') return 'tokens';
   if (method === 'sumup_terminal' || method === 'sumup_online') return 'sumup';
   return 'card';
 }
@@ -69,8 +71,8 @@ export function paymentKey(method: PaymentMethod | string): 'cash' | 'card' | 's
  */
 export function paymentBadges(
   row: Pick<OrderHistoryRow, 'paymentMethods' | 'discountAmount'>
-): { key: 'cash' | 'card' | 'sumup' | 'discount'; icon: IconName }[] {
-  const out: { key: 'cash' | 'card' | 'sumup' | 'discount'; icon: IconName }[] = [];
+): { key: 'cash' | 'card' | 'sumup' | 'tokens' | 'discount'; icon: IconName }[] {
+  const out: { key: 'cash' | 'card' | 'sumup' | 'tokens' | 'discount'; icon: IconName }[] = [];
   for (const method of row.paymentMethods ?? []) {
     const key = paymentKey(method);
     if (!out.some((b) => b.key === key)) out.push({ key, icon: paymentIcon(method) });

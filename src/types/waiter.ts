@@ -113,6 +113,25 @@ export interface SettlementCount {
   amount: number;
 }
 
+/**
+ * Wertmarken einer Abrechnung: angenommen (eingelöst) je Typ — die Person
+ * gibt sie ab wie Bargeld, sie stehen aber nicht in „Soll bar“ —, selbst
+ * verkauft (davon bar) und zurückgetauscht (bar).
+ */
+export interface SettlementTokens {
+  received: SettlementCount;
+  receivedByType: Array<{
+    tokenTypeId: string;
+    name: string;
+    unitValue: number;
+    count: number;
+    amount: number;
+  }>;
+  sold: SettlementCount;
+  soldCash: number;
+  boughtBack: SettlementCount;
+}
+
 /** Schnappschuss der Zahlen (bedienungen-plan.md §7); „Nur Bons“: nur Mengen. */
 export interface SettlementTotals {
   operatingMode: 'full' | 'cashless' | 'orders_only';
@@ -120,6 +139,8 @@ export interface SettlementTotals {
   tips?: number;
   refunds?: { cash: SettlementCount; nonCash: SettlementCount; total: SettlementCount };
   pfandReturns?: SettlementCount;
+  /** Nur mit Bewegung (ältere API: fehlt). */
+  tokens?: SettlementTokens;
   taken: { orders: number; items: number; revenue?: number; discounts?: number };
   cashExpected?: number;
   cashByDevice?: Array<{ deviceId: string | null; deviceName: string | null; amount: number }>;
@@ -228,6 +249,8 @@ export interface LiveCashAuditRow {
   tips: number | null;
   refunds?: { cash: SettlementCount; nonCash: SettlementCount; total: SettlementCount };
   pfandReturns?: SettlementCount;
+  /** Wertmarken seit der letzten Abrechnung (nur mit Bewegung). */
+  tokens?: SettlementTokens;
   openTables: number;
   /** Nur Arbeitnehmer (Lohnkonto): noch nicht ausgezahltes Kartentrinkgeld; sonst null. */
   openCardTips: number | null;

@@ -579,6 +579,7 @@
     "inventory": "Inventur",
     "discounts": "Rabatt-Bons",
     "pfand": "Pfand",
+    "tokens": "Wertmarken",
     "support": "Support",
     "adminEvents": "Events & Abrechnung",
     "adminTse": "Cloud-TSE",
@@ -2355,6 +2356,177 @@
     },
     "count": "{count, plural, =0 {Keine Pfand-Typen} =1 {1 Pfand-Typ} other {# Pfand-Typen}}"
   },
+  "tokens": {
+    "title": "Wertmarken",
+    "subtitle": "Marken, die Gäste an der Kasse kaufen und wie Bargeld einlösen – mit Auswertung, was noch im Umlauf ist",
+    "notAllowed": {
+      "title": "An der Kasse gibt es gerade keine Wertmarken",
+      "ordersOnly": "In der Betriebsart „Nur Bons“ kassiert OpenEOS nicht – deshalb gibt es auch keine Wertmarken. Markentypen kannst du trotzdem schon anlegen.",
+      "cashless": "Wertmarken werden an Geldes statt angenommen, wie Bargeld. In „Bargeldlos“ gibt es sie deshalb nicht, nur in „Alle Funktionen“. Markentypen kannst du trotzdem schon anlegen.",
+      "tseRequired": "Wer Wertmarken an Geldes statt annimmt, hat eine Kassenfunktion wie bei Bargeld. In Deutschland gehen Wertmarken deshalb nur in „Alle Funktionen“ mit einer aktiven Cloud-TSE. Markentypen kannst du trotzdem schon anlegen.",
+      "link": "Betriebsart ansehen"
+    },
+    "create": "Markentyp anlegen",
+    "edit": "Markentyp bearbeiten",
+    "count": "{count, plural, =0 {Keine Markentypen} one {# Markentyp} other {# Markentypen}}",
+    "types": {
+      "title": "Markentypen"
+    },
+    "empty": {
+      "title": "Noch keine Wertmarken",
+      "description": "Leg Markentypen an, z. B. eine 2-€-Marke. Gäste kaufen sie an der Kasse und bezahlen damit wie mit Bargeld."
+    },
+    "table": {
+      "name": "Name",
+      "value": "Nennwert",
+      "kind": "Art",
+      "event": "Gilt für",
+      "buyback": "Rücktausch",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "kind": {
+      "multi": "Mehrzweck",
+      "single": "Einzweck {rate}"
+    },
+    "allEvents": "Alle Veranstaltungen",
+    "unknownEvent": "Unbekannte Veranstaltung",
+    "restrictedSummary": "Nur Auswahl: {categories, plural, one {# Kategorie} other {# Kategorien}}, {products, plural, one {# Artikel} other {# Artikel}}",
+    "inUse": "schon gebucht – Nennwert und Art fest",
+    "buyback": {
+      "allowed": "Erlaubt",
+      "notAllowed": "–"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "deactivate": "Deaktivieren"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "z. B. 2-€-Marke",
+      "value": "Nennwert (€)",
+      "valueHint": "Verkaufspreis und Einlösewert zugleich.",
+      "color": "Farbe",
+      "colorHint": "So findet dein Team die Marke an der Kasse schneller – am besten die Farbe der echten Marke.",
+      "kind": "Art der Marke",
+      "kindMulti": {
+        "name": "Mehrzweckgutschein",
+        "badge": "Standard",
+        "text": "Für alles einlösbar, z. B. Speisen (7 %) und Getränke (19 %). Der Verkauf der Marke ist kein Umsatz – die Umsatzsteuer entsteht erst beim Einlösen, mit dem Satz der Ware."
+      },
+      "kindSingle": {
+        "name": "Einzweckgutschein",
+        "text": "Nur für Artikel mit genau einem Steuersatz, z. B. nur Getränke zu 19 %. Die Umsatzsteuer entsteht schon beim Verkauf der Marke; beim Einlösen fällt keine mehr an."
+      },
+      "smallBusinessHint": "Deine Organisation weist keine Umsatzsteuer aus (Kleinunternehmer). Wertmarken buchst du deshalb immer als Mehrzweckgutschein.",
+      "vatRate": "Steuersatz",
+      "vatRatePick": "Satz wählen",
+      "vatRateHint": "Alle Artikel, für die die Marke gilt, müssen genau diesen Satz haben.",
+      "event": "Veranstaltung",
+      "eventHint": "Leer = für alle Veranstaltungen. Für eine Auswahl von Kategorien oder Artikeln wähle die Veranstaltung.",
+      "restriction": "Einlösbar für",
+      "restrictionAll": "Alle Artikel",
+      "restrictionAllRate": "Alle Artikel mit {rate}",
+      "restrictionSome": "Nur ausgewählte Kategorien und Artikel",
+      "restrictionNeedsEvent": "Kategorien und Artikel gehören zu einer Veranstaltung – wähle zuerst die Veranstaltung.",
+      "noCatalog": "Diese Veranstaltung hat noch keine Kategorien.",
+      "wholeCategory": "{name} – ganze Kategorie ({count, plural, one {# Artikel} other {# Artikel}})",
+      "selectionSummary": "{categories, plural, =0 {Keine ganze Kategorie} one {# ganze Kategorie} other {# ganze Kategorien}} · {products, plural, one {# Artikel} other {# Artikel}} insgesamt",
+      "buyback": "Rücktausch erlauben",
+      "buybackHint": "Gäste können übrige Marken an der Kasse gegen Bargeld zurücktauschen – als eigene Buchung mit Beleg. Ein Rücktausch jederzeit und ohne Bedingungen macht die Marke zur Guthabenkarte. Leg deshalb Bedingungen fest (z. B. nur am Ende des Festes, nur unbeschädigte Marken) und beschreib sie in deiner Verfahrensdokumentation.",
+      "isActive": "Aktiv",
+      "isActiveHint": "Nur aktive Marken gibt es an der Kasse.",
+      "sortOrder": "Reihenfolge",
+      "sortOrderHint": "Kleinere Zahlen stehen an der Kasse weiter vorn.",
+      "lockedHint": "Von dieser Marke sind schon welche im Umlauf. Nennwert, Art und Steuersatz bleiben deshalb fest – beim Einzweckgutschein auch Veranstaltung und Auswahl. Für andere Werte legst du einen neuen Markentyp an.",
+      "errors": {
+        "nameRequired": "Gib der Marke einen Namen.",
+        "nameTooLong": "Der Name darf höchstens {max} Zeichen haben.",
+        "valueRange": "Der Nennwert liegt zwischen 0,01 € und 1.000 € (höchstens zwei Nachkommastellen).",
+        "smallBusiness": "Als Kleinunternehmer buchst du Wertmarken immer als Mehrzweckgutschein.",
+        "rateRequired": "Wähle den Steuersatz, für den der Einzweckgutschein gilt.",
+        "restrictionRequiresEvent": "Kategorien und Artikel gehören zu einer Veranstaltung. Wähle die Veranstaltung – oder lass die Auswahl leer.",
+        "noProducts": "In der Auswahl sind keine Artikel. Wähle Artikel aus, für die die Marke gilt.",
+        "mixedRates": "Ein Einzweckgutschein geht nur, wenn alle gewählten Artikel denselben Steuersatz haben ({rate}). Gefunden: {rates}. Nimm einen Mehrzweckgutschein oder passe die Auswahl an."
+      }
+    },
+    "deleteConfirm": {
+      "title": "Markentyp löschen",
+      "message": "Möchtest du den Markentyp „{name}“ wirklich löschen?",
+      "confirm": "Löschen"
+    },
+    "deactivate": {
+      "title": "Markentyp deaktivieren",
+      "message": "„{name}“ wurde schon verkauft oder angenommen und lässt sich deshalb nicht löschen – Verkauf und Einlösung bleiben so nachvollziehbar. Deaktiviere die Marke stattdessen: Dann gibt es sie an der Kasse nicht mehr.",
+      "alreadyInactive": "„{name}“ wurde schon verkauft oder angenommen und lässt sich deshalb nicht löschen. Die Marke ist bereits deaktiviert.",
+      "confirm": "Deaktivieren"
+    },
+    "toast": {
+      "created": "„{name}“ angelegt.",
+      "updated": "„{name}“ gespeichert.",
+      "deleted": "„{name}“ gelöscht.",
+      "deactivated": "„{name}“ deaktiviert."
+    },
+    "report": {
+      "title": "Auswertung",
+      "subtitle": "Je Markentyp: verkauft, eingelöst, zurückgegeben, Rücktausch und im Umlauf (ohne Training).",
+      "loading": "Lädt …",
+      "loadFailed": "Die Auswertung konnte nicht geladen werden.",
+      "empty": "Noch keine Markentypen – leg oben einen an.",
+      "columns": {
+        "type": "Marke",
+        "event": "Veranstaltung",
+        "sold": "Verkauft",
+        "redeemed": "Eingelöst",
+        "returned": "Zurückgegeben",
+        "boughtBack": "Rücktausch",
+        "outstanding": "Im Umlauf"
+      },
+      "pieces": "{count} Stk.",
+      "total": "Summe",
+      "kindMulti": "Mehrzweck",
+      "kindSingle": "Einzweck",
+      "byEventTitle": "Je Veranstaltung",
+      "noEvent": "ohne Veranstaltung",
+      "hints": {
+        "notRevenue": "Verkaufte Wertmarken sind kein Umsatz. Umsatz entsteht erst beim Einlösen, mit der Ware (beim Einzweckgutschein ist die Umsatzsteuer schon beim Verkauf fällig).",
+        "returned": "Zurückgegeben: bei Storno oder Erstattung einer mit Marken bezahlten Bestellung an den Gast zurückgegeben.",
+        "outstanding": "Im Umlauf: verkauft − eingelöst + zurückgegeben − Rücktausch, also Marken, die Gäste noch haben.",
+        "outstandingPeriod": "Im Umlauf: verkauft − eingelöst + zurückgegeben − Rücktausch, nur mit den Buchungen im gewählten Zeitraum."
+      },
+      "csv": "CSV",
+      "csvFilename": "wertmarken",
+      "csvCount": "Stück"
+    },
+    "transactions": {
+      "title": "Verkauf und Rücktausch",
+      "subtitle": "Die letzten {limit} Vorgänge, neueste zuerst.",
+      "filter": "Art",
+      "loading": "Lädt …",
+      "loadFailed": "Die Vorgänge konnten nicht geladen werden.",
+      "empty": "Keine Vorgänge im Zeitraum.",
+      "columns": {
+        "time": "Zeit",
+        "number": "Nr.",
+        "kind": "Art",
+        "tokens": "Marken",
+        "amount": "Betrag",
+        "method": "Zahlart",
+        "actor": "Von"
+      },
+      "kind": {
+        "all": "Alle",
+        "sale": "Verkauf",
+        "buyback": "Rücktausch"
+      },
+      "test": "Training"
+    }
+  },
   "support": {
     "title": "Support",
     "subtitle": "Chatte direkt mit unserem Support-Team.",
@@ -3185,7 +3357,8 @@
         "cash": "Bar",
         "card": "Karte",
         "sumup": "SumUp",
-        "discount": "Rabatt-Bon"
+        "discount": "Rabatt-Bon",
+        "tokens": "Wertmarken"
       },
       "reprintSuccess": "Druckauftrag wurde gesendet",
       "noPrinter": "Kein Bondrucker eingerichtet – Gegenbeleg nicht gedruckt",
@@ -3291,7 +3464,8 @@
         "cash": "Bar zurückgeben – die Kassenlade öffnet sich.",
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als manuell erstattet gebucht.",
-        "test": "Testmodus: wird nicht echt erstattet, nur gebucht."
+        "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
+        "tokens": "Die Wertmarken gibst du dem Gast zurück – nie Bargeld dafür."
       },
       "cancelAndRefundTitle": "Stornieren & erstatten · #{number}",
       "refundTitle": "Erstatten · #{number}",
@@ -3335,7 +3509,8 @@
       "completeBlocked": "Noch in Zubereitung",
       "completedToast": "Bestellung abgeschlossen",
       "pickedUp": "Abgeholt",
-      "closedWithoutPayment": "Ohne Zahlung abgeschlossen (früher)"
+      "closedWithoutPayment": "Ohne Zahlung abgeschlossen (früher)",
+      "tokensPaid": "Wertmarken: {tokens} ({amount})"
     },
     "noActiveEvent": "Kein aktives Event",
     "menu": {
@@ -3361,7 +3536,9 @@
       "emergency": "Notfall-Support",
       "emergencyTitle": "Notfall-Support am Veranstaltungstag",
       "emergencyCall": "Anrufen",
-      "emergencyClose": "Schließen"
+      "emergencyClose": "Schließen",
+      "tokenSale": "Wertmarken verkaufen",
+      "tokenBuyback": "Wertmarken zurücktauschen"
     },
     "header": {
       "lock": "Kasse sperren",
@@ -3524,7 +3701,23 @@
       "noMethod": "Keine Zahlart",
       "cashlessNoMethodTitle": "Keine Zahlart verfügbar",
       "cashlessNoMethodText": "Deine Organisation nimmt kein Bargeld an, und an dieser Kasse ist kein SumUp-Lesegerät eingerichtet. Kassieren lässt sich hier nur, was online oder vorab bezahlt ist.",
-      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt."
+      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt.",
+      "tokens": "Wertmarken",
+      "tokensWithValue": "Wertmarken · {amount}",
+      "tokensComplete": "Mit Wertmarken bezahlen",
+      "tokensRest": "Rest kassieren: {amount}",
+      "tokensList": "Erhaltene Wertmarken",
+      "tokensSinglePurpose": "nur {rate} %-Artikel",
+      "tokensDecrease": "Eine {name} weniger",
+      "tokensIncrease": "Eine {name} mehr",
+      "tokensExcessTitle": "Die Marken sind {amount} zu viel",
+      "tokensExcessText": "Wechselgeld in Marken gibt es nicht. Nimm eine Marke weniger – oder buche den Rest als Trinkgeld, wenn der Gast darauf verzichtet.",
+      "tokensExcessAsTip": "Rest {amount} als Trinkgeld buchen",
+      "tokensRestHint": "Marken: {tokens} · noch offen: {rest} – kassiere den Rest bar oder mit Karte.",
+      "tokensCoveredHint": "Die Marken decken alles.",
+      "tokensHint": "Tippe ein, wie viele Marken der Gast dir gibt. Den Rest zahlt er bar oder mit Karte.",
+      "tokensApplied": "abzgl. Wertmarken {amount}",
+      "tokensRestShort": "Rest {amount}"
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -3534,7 +3727,8 @@
         "card": "Karte",
         "cash": "Bar",
         "free": "ohne Zahlung",
-        "sumup": "Karte · SumUp"
+        "sumup": "Karte · SumUp",
+        "tokens": "Wertmarken"
       },
       "next": "Nächster Bon",
       "pfand": "Pfand",
@@ -3545,7 +3739,9 @@
       "sum": "Summe",
       "testReceipt": "Testbon",
       "tip": "Trinkgeld",
-      "title": "Bezahlt"
+      "title": "Bezahlt",
+      "methodWithTokens": "{method} + Wertmarken",
+      "tokensPaid": "bezahlt mit Wertmarken"
     },
     "hospitality": {
       "title": "Bewirtungsbeleg",
@@ -3733,6 +3929,37 @@
       "settle": "Abrechnen",
       "liveAudit": "Live-Kassensturz",
       "handover": "Tisch übergeben"
+    },
+    "tokens": {
+      "sellTitle": "Wertmarken verkaufen",
+      "buybackTitle": "Wertmarken zurücktauschen",
+      "sum": "Summe",
+      "back": "Zurück",
+      "empty": "Keine Wertmarken angelegt",
+      "buybackEmpty": "Für keine Marke ist ein Rücktausch erlaubt",
+      "buybackInfoTitle": "Bargeld gegen Marken",
+      "buybackInfo": "Zähle die zurückgegebenen Marken. Der Gast bekommt den Betrag bar und quittiert ihn auf dem Beleg.",
+      "buybackConfirm": "{amount} auszahlen",
+      "sellConfirm": "{amount} kassieren",
+      "sellCard": "{amount} mit Karte",
+      "cardCancel": "Kartenzahlung abbrechen",
+      "cash": "Bar",
+      "card": "Karte",
+      "method": "Zahlart",
+      "exact": "Passend",
+      "change": "Rückgeld: {amount}",
+      "saleHint": "Wertmarken sind kein Umsatz: Die Umsatzsteuer entsteht erst beim Einlösen (Mehrzweck-Gutschein).",
+      "multiPurpose": "Mehrzweck-Gutschein",
+      "singlePurpose": "Einzweck-Gutschein {rate} %",
+      "decrease": "Eine {name} weniger",
+      "increase": "Eine {name} mehr",
+      "reason": "Grund (optional), z. B. „Ende des Festes“",
+      "doneTitle": "Wertmarken",
+      "saleDone": "Marken verkauft",
+      "buybackDone": "Marken zurückgetauscht",
+      "receiptNote": "Wertmarken (Mehrzweck-Gutschein, nicht steuerbar) sind kein Wechselgeld.",
+      "noPrinter": "Kein Bondrucker für diese Kasse",
+      "done": "Fertig"
     }
   },
   "orders": {
@@ -3862,7 +4089,8 @@
         "cash": "Bar",
         "card": "Karte",
         "sumup": "SumUp",
-        "discount": "Rabatt-Bon"
+        "discount": "Rabatt-Bon",
+        "tokens": "Wertmarken"
       },
       "kind": {
         "cancellation": "Storno",
@@ -3919,13 +4147,15 @@
         "cash": "Bar zurückgeben – wird als „bar ausgezahlt“ gebucht. Nimm das Geld aus der Kasse.",
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als „manuell erstattet“ gebucht.",
-        "test": "Testmodus: wird nicht echt erstattet, nur gebucht."
+        "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
+        "tokens": "Der Gast bekommt die Wertmarken zurück, kein Bargeld."
       },
       "method": {
         "cash": "Rückgabe bar – wird als „bar ausgezahlt“ gebucht.",
         "sumup": "Rückgabe über SumUp auf die Karte des Gastes.",
         "card": "Rückgabe am Kartenterminal – wird als „manuell erstattet“ gebucht.",
-        "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet."
+        "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet.",
+        "tokens": "Wertmarken zurück"
       },
       "reasonRequired": "Grund (Pflicht)",
       "reasonOptional": "Grund (optional)",
@@ -4753,6 +4983,23 @@
     "COUNTRY_UNCHANGED": "Die Organisation hat dieses Land schon.",
     "ORDER_CLOSED_WITHOUT_PAYMENT": "Diese Bestellung wurde schon ohne Zahlung abgeschlossen (außerhalb von OpenEOS bezahlt). Lade die offenen Bestellungen neu.",
     "TSE_REQUIRED_FOR_CASH": "Bargeld geht in Deutschland nur mit einer aktiven Cloud-TSE. Kassiere per Karte oder online.",
+    "TSE_REQUIRED_FOR_TOKENS": "Wertmarken gehen in Deutschland nur mit einer aktiven Cloud-TSE: Wer Marken an Geldes statt annimmt, hat eine Kassenfunktion wie bei Bargeld.",
+    "TOKEN_TYPE_NOT_FOUND": "Diesen Markentyp gibt es nicht (mehr). Lade die Seite neu.",
+    "TOKEN_TYPE_INACTIVE": "{tokenType} ist deaktiviert und wird gerade weder verkauft noch angenommen.",
+    "TOKEN_TYPE_IN_USE": "Diese Marke wurde schon verkauft oder angenommen. Deaktiviere sie, statt sie zu löschen – Verkauf und Einlösung bleiben so nachvollziehbar.",
+    "TOKEN_TYPE_LOCKED": "Von dieser Marke sind schon welche im Umlauf. Nennwert, Art und Steuersatz bleiben deshalb fest – leg für andere Werte einen neuen Markentyp an.",
+    "TOKEN_RESTRICTION_REQUIRES_EVENT": "Kategorien und Artikel gehören zu einer Veranstaltung. Wähle die Veranstaltung, für die die Marke gilt – oder lass die Auswahl leer.",
+    "TOKEN_SINGLE_PURPOSE_SMALL_BUSINESS": "Als Kleinunternehmer buchst du Wertmarken immer als Mehrzweckgutschein (keine Umsatzsteuer, einheitlich).",
+    "TOKEN_SINGLE_PURPOSE_RATE_REQUIRED": "Ein Einzweckgutschein braucht den einen Steuersatz, für den er gilt (z. B. 19 % für Getränke).",
+    "TOKEN_SINGLE_PURPOSE_NO_PRODUCTS": "In den gewählten Kategorien bzw. Artikeln sind keine Artikel. Wähle Artikel aus, für die die Marke gilt.",
+    "TOKEN_SINGLE_PURPOSE_MIXED_RATES": "Ein Einzweckgutschein geht nur, wenn alle zugeordneten Artikel denselben Steuersatz haben. Gefunden: {rates}. Nimm einen Mehrzweckgutschein oder passe die Auswahl an.",
+    "TOKEN_NOT_ELIGIBLE": "Mindestens eine Marke gilt hier nicht – für eine andere Veranstaltung oder nicht für diese Artikel. Nimm weniger Marken und kassiere den Rest anders.",
+    "TOKEN_OVERPAYMENT": "Die Marken sind {excess, number, ::currency/EUR} mehr wert als der offene Betrag. Wechselgeld in Marken gibt es nicht: Nimm weniger Marken oder buche den Rest als Trinkgeld.",
+    "TOKEN_AMOUNT_INSUFFICIENT": "Die Marken reichen nicht: {missing, number, ::currency/EUR} sind noch offen. Kassiere den Rest bar oder mit Karte.",
+    "TOKEN_BUYBACK_NOT_ALLOWED": "Für {tokenType} ist kein Rücktausch vorgesehen. Schalte ihn in der Verwaltung unter Wertmarken frei, wenn ihr Marken zurücknehmt.",
+    "TOKEN_BUYBACK_EXCEEDS_OUTSTANDING": "Von {tokenType} sind laut OpenEOS nur {max} Stück im Umlauf – mehr kannst du nicht zurücktauschen.",
+    "TOKEN_TRANSACTION_NOT_FOUND": "Diesen Vorgang gibt es nicht (mehr).",
+    "TOKEN_LINES_INVALID": "Die Auswahl der Marken passt nicht. Prüfe Marken, Kategorien und Artikel.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "„Alle Funktionen“ gibt es in Deutschland nur mit einer aktiven Cloud-TSE.",
     "COUNTRY_REQUIRED": "Lege zuerst das Land deiner Organisation fest.",
     "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland in den Betriebsarten „Nur Bons“ und „Bargeldlos“.",
@@ -5781,7 +6028,8 @@
       "sumupOnline": "SumUp Online",
       "voucher": "Gutschein",
       "online": "Online",
-      "free": "Kostenlos"
+      "free": "Kostenlos",
+      "tokens": "Wertmarken"
     },
     "channelLabels": {
       "pos": "Kasse",
@@ -5850,6 +6098,8 @@
       "exempt": "Deine Organisation weist keine Umsatzsteuer aus (z. B. Kleinunternehmer). Alle Beträge stehen deshalb bei 0 % ohne Steuer.",
       "legacyHint": "Pfand von vor November 2026 wurde ohne Umsatzsteuer gebucht und steht unverändert bei 0 %. Rückgaben gegen diesen Altsaldo stehen ebenfalls bei 0 % – sie mindern keine Umsatzsteuer.",
       "employeeTips": "Trinkgeld an angestellte Bedienungen (nicht steuerbar): {amount}",
+      "singlePurposeTokens": "Einzweck-Marken: Die Umsatzsteuer entsteht schon beim Verkauf der Marke. Eingelöste Marken mindern die Spalte wieder, die Ware steht dafür unter „Ware“ – so wird nichts doppelt versteuert.",
+      "multiPurposeTokens": "Mehrzweck-Wertmarken (nicht steuerbar): verkauft {sold}, zurückgetauscht {boughtBack}. Die Umsatzsteuer entsteht beim Einlösen und steht mit der Ware unter „Ware“.",
       "total": "Summe",
       "rate": "{rate} %",
       "columns": {
@@ -5859,10 +6109,25 @@
         "depositReturns": "Pfand-Rückgabe",
         "tips": "Trinkgeld",
         "tipsHint": "Trinkgeld an den Verein – anteilig zum Steuersatz der Ware",
+        "singlePurposeTokens": "Einzweck-Marken",
+        "singlePurposeTokensHint": "Einzweck-Wertmarken: Steuer beim Verkauf – verkauft − eingelöst + zurückgegeben − Rücktausch",
         "gross": "Brutto",
         "net": "Netto",
         "tax": "Umsatzsteuer"
       }
+    },
+    "tokens": {
+      "title": "Wertmarken",
+      "subtitle": "Verkaufte Marken sind kein Umsatz – Umsatz entsteht erst beim Einlösen und steckt dann im Gesamtumsatz.",
+      "details": "Details",
+      "pieces": "{count} Stk.",
+      "sold": "Wertmarken verkauft",
+      "soldSub": "{pieces} · kein Umsatz",
+      "redeemed": "Eingelöst",
+      "redeemedSub": "{pieces} · im Umsatz enthalten",
+      "boughtBack": "Rücktausch",
+      "outstanding": "Im Umlauf",
+      "outstandingSub": "{pieces} noch bei Gästen"
     },
     "waiters": {
       "title": "Bedienungen",
@@ -7134,6 +7399,8 @@
       "cashRefunds": "Bar-Erstattungen",
       "pfandPayouts": "Pfand-Auszahlungen",
       "tipPayouts": "Trinkgeld-Auszahlungen",
+      "tokenSales": "Wertmarken verkauft (bar)",
+      "tokenBuybacks": "Wertmarken-Rücktausch",
       "differences": "Differenzen",
       "lastCount": "Letzter Kassensturz um {time}: gezählt {counted}, Differenz {difference}",
       "lastCountShort": "Letzter Kassensturz: {counted} gezählt, Differenz {difference}",
@@ -7649,6 +7916,15 @@
       "counted": "Gezählt",
       "difference": "Differenz"
     },
+    "tokens": {
+      "section": "Wertmarken",
+      "typeRow": "{count} × {name}",
+      "received": "Marken abgeben",
+      "sold": "Marken verkauft",
+      "soldCash": "davon bar",
+      "boughtBack": "Rücktausch bar",
+      "hint": "Angenommene Wertmarken gibst du ab wie Bargeld. Sie sind aber kein Bargeld und stehen deshalb nicht in „Soll bar“."
+    },
     "cashHint": "Nur zur Info: Das Bargeld liegt in der Kassenlade der genannten Kasse. Gezählt wird wie bisher beim Kassensturz des Geräts.",
     "ordersOnlyHint": "„Nur Bons“: OpenEOS kassiert nicht, die Abrechnung enthält nur Mengen.",
     "training": "Training (nicht im Geld): {orders, plural, one {# Bestellung} other {# Bestellungen}}, {payments, plural, one {# Zahlung} other {# Zahlungen}}",
@@ -7766,6 +8042,7 @@
         "drawers": "Wo das Bargeld liegt",
         "card": "Karte",
         "tips": "Trinkgeld",
+        "tokens": "Marken abgeben",
         "openTables": "Offene Tische",
         "openCardTips": "Kartentrinkgeld offen",
         "lastSettlement": "Letzte Abrechnung"
