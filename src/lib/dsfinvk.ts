@@ -193,6 +193,8 @@ export function summaryRows(summary: CashSummary): { key: keyof CashSummary; val
     { key: 'cashSales', value: summary.cashSales },
     { key: 'cashRefunds', value: out(summary.cashRefunds) },
     { key: 'pfandPayouts', value: out(summary.pfandPayouts) },
+    // Kartentrinkgeld bar an Arbeitnehmer (ältere APIs liefern es nicht).
+    ...(summary.tipPayouts === undefined ? [] : [{ key: 'tipPayouts' as const, value: out(summary.tipPayouts) }]),
     { key: 'differences', value: summary.differences },
   ];
 }

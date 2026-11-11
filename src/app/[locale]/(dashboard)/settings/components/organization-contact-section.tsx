@@ -12,7 +12,9 @@ import { useAuthStore } from '@/stores/auth-store';
 import { organizationsApi } from '@/lib/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { OrganizationSettings } from '@/types/organization';
+import { usePermissions } from '@/hooks/use-permissions';
 import { SettingsSectionHead } from './settings-section-head';
+import { OrgReadOnlyNotice, OrgSettingsFieldset } from './org-settings-readonly';
 
 function createContactSchema(t: (key: string) => string) {
   return z.object({
@@ -30,6 +32,7 @@ export function OrganizationContactSection() {
   const t = useTranslations('settings.organizationContact');
   const contactSchema = useMemo(() => createContactSchema(t), [t]);
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
+  const { isAdmin } = usePermissions();
   const queryClient = useQueryClient();
 
   const settings = (currentOrganization?.organization?.settings || {}) as OrganizationSettings;
@@ -72,8 +75,10 @@ export function OrganizationContactSection() {
   return (
     <div className="app-card">
       <SettingsSectionHead icon="contact-round" title={t('title')} description={t('description')} />
+      {!isAdmin && <OrgReadOnlyNotice />}
 
       <form onSubmit={handleSubmit((data) => updateOrg.mutateAsync(data))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <OrgSettingsFieldset disabled={!isAdmin}>
         <div className="auth-field">
           <label className="auth-field__label" htmlFor="address">{t('address')}</label>
           <input id="address" className="input" placeholder={t('placeholders.address')} {...register('address')} />
@@ -113,12 +118,15 @@ export function OrganizationContactSection() {
           <input id="website" type="url" className={`input${errors.website ? ' input--error' : ''}`} placeholder={t('placeholders.website')} {...register('website')} />
           {errors.website && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.website.message}</p>}
         </div>
+        </OrgSettingsFieldset>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-          <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
-            {updateOrg.isPending ? t('saving') : t('saveChanges')}
-          </button>
-        </div>
+        {isAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+            <button type="submit" className="btn btn--primary" disabled={!isDirty || updateOrg.isPending}>
+              {updateOrg.isPending ? t('saving') : t('saveChanges')}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

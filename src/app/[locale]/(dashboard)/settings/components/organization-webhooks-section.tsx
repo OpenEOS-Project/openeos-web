@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { WebhookEndpoint } from '@/types/webhook';
 
 import { SettingsSectionHead } from './settings-section-head';
+import { OrganizationIdField } from './organization-id-field';
 import { useWebhookActions, WebhookIconButton } from './webhook-actions';
 import { WebhookStatusPill } from './webhook-ui';
 
@@ -167,6 +168,8 @@ export function OrganizationWebhooksSection() {
             {t('docsLink')}
           </a>
         </div>
+
+        <OrganizationIdField example="webhooks" />
 
         {body}
       </div>

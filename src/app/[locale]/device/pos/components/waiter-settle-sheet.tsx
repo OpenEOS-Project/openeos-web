@@ -6,13 +6,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Banner, Button, Icon, Spinner } from '@openeos/ui';
 
 import { SettlementFigures } from '@/components/waiters/settlement-figures';
+import { SettlementTseLine } from '@/components/waiters/settlement-tse';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { deviceApi } from '@/lib/api-client';
-import { isLeadWaiter, settlementBlocked, textOn, waiterInitials } from '@/lib/waiters';
+import { canPayOutCardTips, isLeadWaiter, settlementBlocked, textOn, waiterInitials } from '@/lib/waiters';
 import { ApiException } from '@/types/api';
-import type { DeviceWaiterTile, PosWaiter, SettlementOpenTable, WaiterSettlement } from '@/types/waiter';
+import type { DeviceWaiterTile, PosWaiter, SettlementOpenTable, TipPayout, WaiterSettlement } from '@/types/waiter';
 
 import { PosSheet } from './pos-sheet';
 import { usePosToast } from './pos-toast';
@@ -57,7 +58,10 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
   const [busy, setBusy] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [handover, setHandover] = useState<SettlementOpenTable | null>(null);
-  const [done, setDone] = useState<{ settlement: WaiterSettlement; printed: boolean } | null>(null);
+  const [done, setDone] = useState<{ settlement: WaiterSettlement; printed: boolean; tipPayout: TipPayout | null } | null>(
+    null,
+  );
+  const [payOutTips, setPayOutTips] = useState(false);
 
   // Beim Öffnen frisch beginnen.
   useEffect(() => {
@@ -67,6 +71,7 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
     setForce(false);
     setNote('');
     setDone(null);
+    setPayOutTips(false);
   }, [open, mode]);
 
   const summary = useQuery({
@@ -83,6 +88,20 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
   const ownSubject = !subjectId || subjectId === me.waiterId;
 
   const pickable = lead ? tiles : [];
+
+  // Kartentrinkgeld (nur Arbeitnehmer): offenen Betrag kennt der
+  // Live-Kassensturz, den nur die Schichtleitung sieht.
+  const liveAudit = useQuery({
+    queryKey: ['device-live-cash-audit'],
+    queryFn: async () => (await deviceApi.getLiveCashAudit()).data,
+    enabled: open && settling && lead && !done,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const subjectWaiterId = data?.subject.waiterId ?? null;
+  const openCardTips =
+    liveAudit.data?.rows.find((row) => !!subjectWaiterId && row.subject.waiterId === subjectWaiterId)?.openCardTips ?? null;
+  const offerTipPayout = settling && lead && canPayOutCardTips(openCardTips);
   const subjectName = data?.subject.name ?? me.name;
 
   const print = async () => {
@@ -104,8 +123,10 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
         waiterId: ownSubject ? undefined : subjectId,
         force: openTables.length > 0 ? force : undefined,
         note: note.trim() || null,
+        ...(offerTipPayout && payOutTips ? { payOutCardTips: true } : {}),
       });
-      setDone({ settlement: res.data, printed: res.meta?.printed === true });
+      setDone({ settlement: res.data, printed: res.meta?.printed === true, tipPayout: res.meta?.tipPayout ?? null });
+      void queryClient.invalidateQueries({ queryKey: ['device-live-cash-audit'] });
       void queryClient.invalidateQueries({ queryKey: ['device-waiter-summary'] });
     } catch (error) {
       if (error instanceof ApiException && error.reason === 'WAITER_OPEN_TABLES') void summary.refetch();
@@ -133,6 +154,12 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
             : t('done.training', { name: done.settlement.subject.name })}
         </Banner>
         <p className="pos-hint">{done.printed ? t('done.printed') : t('done.notPrinted')}</p>
+        <SettlementTseLine tse={done.settlement.tse} />
+        {done.tipPayout && (
+          <p className="pos-hint" data-testid="pos-settle-tip-payout-done">
+            {t('tipPayout.paid', { amount: formatPrice(done.tipPayout.amount), name: done.settlement.subject.name })}
+          </p>
+        )}
         <SettlementFigures totals={done.settlement.totals} />
       </div>
     );
@@ -167,6 +194,7 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
                       setSubjectId(tile.id === me.waiterId ? undefined : tile.id);
                       setForce(false);
                       setNote('');
+                      setPayOutTips(false);
                     }}
                   >
                     <span
@@ -235,6 +263,15 @@ export function WaiterSettleSheet({ mode, onClose, me, tiles, disabled = false }
               </div>
             )}
             {settling && !rights.canForce && <p className="pos-hint">{t('openTables.leadHint')}</p>}
+          </div>
+        )}
+        {offerTipPayout && openCardTips !== null && (
+          <div className="settle-tips" data-testid="pos-settle-tip-payout">
+            <label>
+              <input type="checkbox" checked={payOutTips} onChange={(e) => setPayOutTips(e.target.checked)} />
+              <span>{t('tipPayout.checkbox', { amount: formatPrice(openCardTips) })}</span>
+            </label>
+            <p>{t('tipPayout.checkboxHint')}</p>
           </div>
         )}
         {!settling && !rights.canSettle && <p className="pos-hint">{t('settleHint')}</p>}

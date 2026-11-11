@@ -61,6 +61,14 @@ export interface User {
   /** Letzter Widerruf der Einwilligung. */
   newsletterOptOutAt?: string | null;
   userOrganizations: UserOrganization[];
+  /**
+   * Konto hat ein Passwort. false: Anmeldung nur per Anmeldelink — Passwort
+   * und E-Mail-Adresse ändern dann ohne aktuelles Passwort. Fehlt bei
+   * älteren API-Versionen; dann gilt es als vorhanden.
+   */
+  hasPassword?: boolean;
+  /** Neue Adresse, deren Bestätigung noch aussteht. */
+  pendingEmail?: string | null;
   /** Nur in GET /auth/me: wirksame Höchstzahl an Organisationen (0 = unbegrenzt). */
   organizationLimit?: number;
   /** Nur in GET /auth/me: Mitgliedschaften des Benutzers, egal welche Rolle. */

@@ -121,13 +121,15 @@ export interface UpdateProfileDto {
 }
 
 export interface ChangePasswordDto {
-  currentPassword: string;
+  /** Nur bei Konten mit Passwort (`User.hasPassword`). */
+  currentPassword?: string;
   newPassword: string;
 }
 
 export interface ChangeEmailDto {
   newEmail: string;
-  password: string;
+  /** Nur bei Konten mit Passwort (`User.hasPassword`). */
+  password?: string;
 }
 
 export interface VerifyEmailChangeDto {

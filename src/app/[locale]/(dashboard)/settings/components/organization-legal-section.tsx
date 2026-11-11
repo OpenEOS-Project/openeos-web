@@ -20,7 +20,10 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { OrganizationSettings } from '@/types/organization';
 import { ApiException } from '@/types/api';
 
+import { usePermissions } from '@/hooks/use-permissions';
+
 import { SettingsSectionHead } from './settings-section-head';
+import { OrgReadOnlyNotice, OrgSettingsFieldset } from './org-settings-readonly';
 
 import '@/styles/legal.css';
 
@@ -80,6 +83,7 @@ export function OrganizationLegalSection() {
   const t = useTranslations('settings.organizationLegal');
   const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
+  const { isAdmin } = usePermissions();
   const queryClient = useQueryClient();
 
   const settings = (currentOrganization?.organization?.settings || {}) as OrganizationSettings;
@@ -295,6 +299,7 @@ export function OrganizationLegalSection() {
   return (
     <div className="app-card" id="org-legal">
       <SettingsSectionHead icon="scale" title={t('title')} description={t('description')} />
+      {!isAdmin && <OrgReadOnlyNotice />}
 
       {!complete && (
         <div className="legal-warning" role="status" style={{ marginBottom: 16 }}>
@@ -332,6 +337,7 @@ export function OrganizationLegalSection() {
       </div>
 
       <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }} noValidate>
+        <OrgSettingsFieldset disabled={!isAdmin} gap={20}>
         {renderNotice('imprint')}
         {renderNotice('privacy')}
 
@@ -356,18 +362,22 @@ export function OrganizationLegalSection() {
           )}
         </label>
 
+        </OrgSettingsFieldset>
+
         {footerPreview}
 
         {submitError && <div className="auth-form__error">{submitError}</div>}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
-          {justSaved && !isDirty && (
-            <span role="status" style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('saved')}</span>
-          )}
-          <button type="submit" className="btn btn--primary" disabled={!isDirty || save.isPending}>
-            {save.isPending ? t('saving') : t('save')}
-          </button>
-        </div>
+        {isAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, paddingTop: 12, borderTop: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)' }}>
+            {justSaved && !isDirty && (
+              <span role="status" style={{ fontSize: 13, color: 'var(--green-ink)' }}>{t('saved')}</span>
+            )}
+            <button type="submit" className="btn btn--primary" disabled={!isDirty || save.isPending}>
+              {save.isPending ? t('saving') : t('save')}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

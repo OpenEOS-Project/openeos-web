@@ -69,6 +69,33 @@ test.describe('Settings', () => {
 
       await expect(form.getByText('Passwörter stimmen nicht überein')).toBeVisible();
     });
+
+    test('asks for upper- and lowercase letters and a number', async ({ adminPage }) => {
+      await openSettings(adminPage);
+      await adminPage.getByRole('tab', { name: 'Konto' }).click();
+
+      const form = adminPage.locator('form').filter({ has: adminPage.getByRole('button', { name: 'Passwort ändern' }) });
+      await form.getByLabel('Aktuelles Passwort').fill(TEST_ADMIN.password);
+      await form.getByLabel('Neues Passwort').fill('nurkleinbuchstaben');
+      await form.getByLabel('Passwort bestätigen').fill('nurkleinbuchstaben');
+      await form.getByRole('button', { name: 'Passwort ändern' }).click();
+
+      await expect(form.getByText('Das Passwort braucht Groß- und Kleinbuchstaben und eine Zahl.')).toBeVisible();
+    });
+
+    // Ein falsches aktuelles Passwort blieb frueher stumm (Fehler verschluckt).
+    test('reports a wrong current password', async ({ adminPage }) => {
+      await openSettings(adminPage);
+      await adminPage.getByRole('tab', { name: 'Konto' }).click();
+
+      const form = adminPage.locator('form').filter({ has: adminPage.getByRole('button', { name: 'Passwort ändern' }) });
+      await form.getByLabel('Aktuelles Passwort').fill('GanzFalsch123');
+      await form.getByLabel('Neues Passwort').fill('NeuesPasswort1!');
+      await form.getByLabel('Passwort bestätigen').fill('NeuesPasswort1!');
+      await form.getByRole('button', { name: 'Passwort ändern' }).click();
+
+      await expect(adminPage.getByText('Das Passwort ist falsch.')).toBeVisible();
+    });
   });
 
   test.describe('Security', () => {
@@ -118,6 +145,41 @@ test.describe('Settings', () => {
       await openSettings(memberPage);
       await memberPage.getByRole('tab', { name: 'Organisation' }).click();
       await expect(memberPage.getByRole('textbox', { name: 'Name' })).toHaveValue(TEST_ORG.name);
+    });
+
+    // Speichern darf nur ein Admin. Frueher sahen Mitglieder dieselben
+    // Formulare und bekamen erst beim Speichern einen Fehler.
+    test('members see the organization details read-only', async ({ memberPage }) => {
+      await openSettings(memberPage);
+      await memberPage.getByRole('tab', { name: 'Organisation' }).click();
+
+      const notice = memberPage.getByTestId('org-readonly-notice');
+      await expect(notice).toBeVisible();
+      await expect(memberPage.getByRole('textbox', { name: 'Name' })).toBeDisabled();
+      await expect(memberPage.getByRole('button', { name: 'Änderungen speichern' })).toHaveCount(0);
+
+      for (const tab of ['Kontakt', 'Steuerangaben', 'Rechtliche Angaben']) {
+        await memberPage.getByRole('tab', { name: tab }).click();
+        await expect(notice).toBeVisible();
+        await expect(memberPage.getByRole('button', { name: /^(Änderungen speichern|Speichern)$/ })).toHaveCount(0);
+      }
+      await memberPage.getByRole('tab', { name: 'Kontakt' }).click();
+      await expect(memberPage.getByRole('textbox', { name: 'Telefon' })).toBeDisabled();
+    });
+
+    test('shows the organization ID for REST paths', async ({ adminPage }) => {
+      await openSettings(adminPage);
+      await adminPage.getByRole('tab', { name: 'Organisation' }).click();
+      await expect(adminPage.getByTestId('org-readonly-notice')).toHaveCount(0);
+
+      await adminPage.getByRole('tab', { name: 'Zugänge' }).click();
+      const field = adminPage.getByTestId('organization-id');
+      await expect(field).toBeVisible();
+      await expect(field.locator('.org-id__value')).toHaveText(/^[0-9a-f-]{36}$/);
+      await expect(field).toContainText('/api/organizations/');
+
+      await adminPage.getByRole('tab', { name: 'Webhooks' }).click();
+      await expect(adminPage.getByTestId('organization-id')).toContainText('/webhooks');
     });
 
     // Der Admin aus der Ersteinrichtung ist Super-Admin. Frueher bekam er

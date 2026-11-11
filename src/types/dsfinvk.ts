@@ -108,6 +108,8 @@ export interface CashSummary {
   cashSales: number;
   cashRefunds: number;
   pfandPayouts: number;
+  /** Barauszahlung von Kartentrinkgeld an Arbeitnehmer (negativ); fehlt bei älteren APIs. */
+  tipPayouts?: number;
   differences: number;
   /** Soll-Bestand. */
   expected: number;
