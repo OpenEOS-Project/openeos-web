@@ -283,7 +283,8 @@ export function OrdersList() {
     {
       id: 'payment',
       header: t('orders.columns.payment'),
-      priority: 2,
+      // Kleine Symbole: auf Tablet und Telefon (Zeile 2) sichtbar lassen.
+      mobile: 'meta',
       cell: (order) => {
         const methods = [...new Set((order as Order & { paymentMethods?: string[] }).paymentMethods ?? [])];
         return (
