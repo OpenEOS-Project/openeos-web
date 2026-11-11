@@ -1,0 +1,135 @@
+/* Admin-Listen, zweite Welle (DataTable aus @openeos/ui): Geräte,
+   Mitglieder, Bedienungen, Rabatt-Bons, Pfand, Kassenbuch, Inventur,
+   Rechnungen. Allgemeines steht in admin-table.css. */
+
+/* Datums-/Zeitspalten: Mono und ohne Umbruch, auf dem Telefon (Zeile 2)
+   wieder in der Grundschrift. */
+.landing .oe-dt__td.admin-dt__date {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .landing .oe-dt__td.admin-dt__date {
+    font-family: var(--oe-f-sans);
+  }
+}
+
+/* Telefon: Zelle als eigene, umbrechende Zeile unter Zeile 2 (Notizen,
+   Zählungen) statt gekürzt zwischen den Punkten. */
+@media (max-width: 767px) {
+  .landing .admin-dt .oe-dt__tr .admin-dt__m-line {
+    order: 5;
+    flex: 1 1 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .landing .admin-dt .oe-dt__tr .admin-dt__m-line::before {
+    content: none !important;
+  }
+}
+
+/* ---------- Geräte ---------- */
+.devices-list__icon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-ink) 6%, transparent);
+  color: var(--oe-ink);
+}
+.devices-list__dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--oe-ink) 30%, transparent);
+  border: 2px solid var(--oe-paper);
+}
+.devices-list__dot.is-online {
+  background: var(--oe-green-ink);
+}
+.devices-list__online {
+  font-size: 11px;
+  color: var(--oe-green-ink);
+}
+.devices-list__class {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.devices-list__mode {
+  font-size: 11px;
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .landing .admin-dt .devices-list__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .landing .admin-dt .devices-list__class {
+    display: inline;
+  }
+  .landing .admin-dt .devices-list__class .admin-cell-text {
+    display: inline;
+  }
+  .landing .admin-dt .devices-list__mode::before {
+    content: " · ";
+  }
+}
+
+/* ---------- Mitglieder ---------- */
+.members-list__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--oe-green-soft) 60%, var(--oe-paper));
+  color: var(--oe-green-ink);
+  font: 700 11px var(--oe-f-mono);
+}
+.members-list__you {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.members-list__email {
+  font-family: var(--oe-f-mono);
+  font-size: 12px;
+}
+.members-list__perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.members-list__perms .badge {
+  font-size: 10px;
+}
+.landing .members-list__seats {
+  font: 12px var(--oe-f-mono);
+  color: var(--oe-mute);
+  white-space: nowrap;
+}
+.landing .members-list__seats.is-full {
+  color: var(--oe-danger-ink, var(--oe-danger));
+}
+@media (max-width: 767px) {
+  .members-list__avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .landing .oe-dt__td.members-list__email {
+    font-family: var(--oe-f-sans);
+  }
+}
