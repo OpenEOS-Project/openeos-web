@@ -309,7 +309,7 @@ export function WaitersContainer() {
 
   return (
     <>
-      <div className="app-card app-card--flat">
+      <div className="app-card app-card--flat waiters-card">
         {/* Kopf: Anzahl links, der Veranstaltungsfilter (Telefon: im Sheet)
             und die Symbolknöpfe zum Anlegen rechts. */}
         <AdminFilterBar

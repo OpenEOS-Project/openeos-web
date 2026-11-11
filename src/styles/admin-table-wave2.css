@@ -135,6 +135,11 @@
 }
 
 /* ---------- Bedienungen ---------- */
+/* Die Filterzeile ist der Kartenkopf (kein .app-card__head): ohne
+   Polsterung der Karte, wie bei den Bestellungen. */
+.landing .app-card.waiters-card {
+  padding: 0;
+}
 /* Kopf als Filterzeile: Anzahl, Veranstaltungsfilter und Anlegen in einer
    Zeile (der Filter steht nicht wie bei den Bestellungen darunter). */
 .landing .admin-filterbar.waiters-filterbar .oe-filterbar__fields {
