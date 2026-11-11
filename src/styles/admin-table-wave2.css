@@ -306,3 +306,35 @@
     padding: 12px 16px 14px;
   }
 }
+
+/* ---------- Wertmarken ---------- */
+.token-event,
+.token-kind {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.token-kind {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.token-event small {
+  font-size: 11px;
+  color: var(--oe-mute);
+}
+.landing .oe-dt__td.token-tx__time,
+.landing .oe-dt__td.token-tx__number {
+  font-family: var(--oe-f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .token-event small {
+    display: none;
+  }
+  .landing .oe-dt__td.token-tx__time {
+    font-family: var(--oe-f-sans);
+  }
+}

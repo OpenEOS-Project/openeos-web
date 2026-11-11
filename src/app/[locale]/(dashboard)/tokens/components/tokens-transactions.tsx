@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { type DataColumn } from '@openeos/ui';
 
 import { getMethodLabel } from '@/app/[locale]/(dashboard)/reports/components/report-labels';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { useTokenTransactions, type TokenReportQuery } from '@/hooks/use-token-types';
 import { signedTransactionAmount, tokenLinesLabel } from '@/lib/token-admin';
+import { AdminTable, CellMain, CellNone } from '@/components/shared/admin-table';
+import '@/styles/admin-table-wave2.css';
+import type { TokenTransaction } from '@/types/token';
 
 const LIMIT = 50;
 
@@ -21,6 +25,34 @@ export function TokensTransactions({ organizationId, query }: { organizationId: 
   const [kind, setKind] = useState<'' | 'sale' | 'buyback'>('');
   const list = useTokenTransactions(organizationId, { ...query, kind: kind || undefined, limit: LIMIT });
   const rows = list.data ?? [];
+
+  const columns: DataColumn<TokenTransaction>[] = [
+    { id: 'time', header: t('columns.time'), mobile: 'meta', className: 'token-tx__time', cell: (tx) => formatDateTime(tx.createdAt) },
+    { id: 'number', header: t('columns.number'), priority: 3, className: 'token-tx__number', cell: (tx) => tx.transactionNumber },
+    {
+      id: 'kind',
+      header: t('columns.kind'),
+      mobile: 'subtitle',
+      cell: (tx) => (
+        <span className="token-kind">
+          <span className={tx.kind === 'buyback' ? 'badge badge--warning' : 'badge badge--success'}>{t(`kind.${tx.kind}`)}</span>
+          {tx.isTest && <span className="badge badge--neutral">{t('test')}</span>}
+        </span>
+      ),
+    },
+    {
+      id: 'tokens',
+      header: t('columns.tokens'),
+      mobile: 'title',
+      cell: (tx) => {
+        const label = tokenLinesLabel(tx.lines, locale);
+        return <CellMain title={label} titleText={label} sub={tx.reason ?? undefined} subText={tx.reason ?? undefined} />;
+      },
+    },
+    { id: 'amount', header: t('columns.amount'), num: true, mobile: 'trailing', cell: (tx) => formatCurrency(signedTransactionAmount(tx)) },
+    { id: 'method', header: t('columns.method'), mobile: 'meta', cell: (tx) => getMethodLabel(tx.paymentMethod, tReports) },
+    { id: 'actor', header: t('columns.actor'), priority: 2, cell: (tx) => tx.actorName ?? <CellNone /> },
+  ];
 
   let body;
   if (list.isLoading)
@@ -43,47 +75,13 @@ export function TokensTransactions({ organizationId, query }: { organizationId: 
     );
   else
     body = (
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table" data-testid="tokens-transactions">
-          <thead>
-            <tr>
-              <th>{t('columns.time')}</th>
-              <th>{t('columns.number')}</th>
-              <th>{t('columns.kind')}</th>
-              <th>{t('columns.tokens')}</th>
-              <th className="text-right">{t('columns.amount')}</th>
-              <th>{t('columns.method')}</th>
-              <th>{t('columns.actor')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((tx) => (
-              <tr key={tx.id}>
-                <td style={{ fontSize: 13, whiteSpace: 'nowrap' }}>{formatDateTime(tx.createdAt)}</td>
-                <td className="mono" style={{ fontSize: 13 }}>
-                  {tx.transactionNumber}
-                </td>
-                <td>
-                  <span className={tx.kind === 'buyback' ? 'badge badge--warning' : 'badge badge--success'}>
-                    {t(`kind.${tx.kind}`)}
-                  </span>
-                  {tx.isTest && (
-                    <span className="badge badge--neutral" style={{ marginLeft: 4 }}>
-                      {t('test')}
-                    </span>
-                  )}
-                </td>
-                <td style={{ fontSize: 13 }}>
-                  {tokenLinesLabel(tx.lines, locale)}
-                  {tx.reason && <div style={{ fontSize: 11, color: 'var(--oe-mute)' }}>{tx.reason}</div>}
-                </td>
-                <td className="mono text-right">{formatCurrency(signedTransactionAmount(tx))}</td>
-                <td style={{ fontSize: 13 }}>{getMethodLabel(tx.paymentMethod, tReports)}</td>
-                <td style={{ fontSize: 13 }}>{tx.actorName ?? '–'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div data-testid="tokens-transactions">
+        <AdminTable<TokenTransaction>
+          caption={t('title')}
+          rows={rows}
+          rowKey="id"
+          columns={columns}
+        />
       </div>
     );
 
