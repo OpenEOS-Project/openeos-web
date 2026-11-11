@@ -2,10 +2,19 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Icon } from '@openeos/ui';
+import { Icon, Select, useMediaQuery, type DataColumn, type RowAction } from '@openeos/ui';
 
 import '@/styles/waiters.css';
+import '@/styles/admin-table-wave2.css';
 import { ListEmpty, ListError, ListLoading } from '@/components/shared/list-states';
+import {
+  AdminFilterBar,
+  AdminTable,
+  CellMain,
+  CellText,
+  ListAction,
+  PHONE_QUERY,
+} from '@/components/shared/admin-table';
 import { toast } from '@/components/shared/toast';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useEvents } from '@/hooks/use-events';
@@ -44,6 +53,7 @@ export function WaitersContainer() {
   const [settling, setSettling] = useState<Waiter | null>(null);
   const [settled, setSettled] = useState<WaiterSettlement | null>(null);
   const [exporting, setExporting] = useState<string | null>(null);
+  const phone = useMediaQuery(PHONE_QUERY);
 
   const { data: events = [] } = useEvents(organizationId);
   const list = useWaiters(organizationId || undefined, eventFilter === 'all' ? null : eventFilter);
@@ -129,29 +139,143 @@ export function WaitersContainer() {
       ? new Date(value).toLocaleString(locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
       : '—';
 
-  const toolbar = (
-    <div className="waiters-toolbar">
-      <label className="waiters-toolbar__filter">
-        <span className="oe-sr-only">{t('filter.label')}</span>
-        <select className="select" value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} aria-label={t('filter.label')}>
-          <option value="all">{t('filter.all')}</option>
-          {events.map((event) => (
-            <option key={event.id} value={event.id}>
-              {t('filter.event', { name: event.name })}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="button" className="btn btn--ghost" onClick={() => setBulkOpen(true)}>
-        <Icon name="users" size={16} />
-        {t('actions.bulk')}
-      </button>
-      <button type="button" className="btn btn--primary" onClick={() => setFormFor('new')}>
-        <Icon name="plus" size={16} />
-        {t('actions.create')}
-      </button>
-    </div>
-  );
+  const columns: DataColumn<Waiter>[] = [
+    {
+      id: 'name',
+      header: t('table.name'),
+      mobile: 'title',
+      cell: (waiter) => (
+        <CellMain
+          media={<WaiterBadge name={waiter.name} color={waiter.color} />}
+          title={waiter.name}
+          titleText={waiter.name}
+          sub={waiter.shortName || undefined}
+        />
+      ),
+    },
+    {
+      id: 'role',
+      header: t('table.role'),
+      mobile: 'subtitle',
+      cell: (waiter) => (
+        <span className="waiters-role">
+          <span className={`badge ${waiter.role === 'lead' ? 'badge--info' : 'badge--neutral'}`}>
+            {t(`roles.${waiter.role}`)}
+          </span>
+          {waiter.isEmployee && (
+            <span className="badge badge--neutral" title={t('form.isEmployee')} data-testid="waiter-employee-badge">
+              {t('employeeBadge')}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      id: 'scope',
+      header: t('table.scope'),
+      mobile: 'meta',
+      className: 'waiters-list__scope',
+      cell: (waiter) => {
+        const scope = eventName(waiter.eventId);
+        return (
+          <CellText muted title={scope}>
+            {scope}
+          </CellText>
+        );
+      },
+    },
+    {
+      id: 'pin',
+      header: t('table.pin'),
+      mobile: 'meta',
+      cell: (waiter) =>
+        waiter.hasPin ? (
+          <span className="badge badge--success">{t('pin.set', { length: waiter.pinLength ?? 4 })}</span>
+        ) : (
+          <span className="badge badge--warning">{t('pin.missing')}</span>
+        ),
+    },
+    {
+      id: 'lastUsed',
+      header: t('table.lastUsed'),
+      priority: 3,
+      className: 'admin-dt__date',
+      cell: (waiter) => formatDate(waiter.lastUsedAt),
+    },
+    {
+      id: 'status',
+      header: t('table.status'),
+      mobile: 'trailing',
+      cell: (waiter) => (
+        <>
+          <span className={`badge ${waiter.isActive ? 'badge--success' : 'badge--neutral'}`}>
+            {waiter.isActive ? t('status.active') : t('status.inactive')}
+          </span>
+          {waiter.anonymizeDueAt && (
+            <small className="waiters-due" data-testid="waiter-anonymize-due">
+              {t('anonymizeDue', { date: formatDay(waiter.anonymizeDueAt) })}
+            </small>
+          )}
+        </>
+      ),
+    },
+    {
+      // Telefon: die Löschfrist als eigene Zeile unter dem Eintrag.
+      id: 'anonymizeDue',
+      header: t('table.status'),
+      mobile: 'meta',
+      className: 'admin-dt__phone-only admin-dt__m-line',
+      cell: (waiter) =>
+        waiter.anonymizeDueAt ? t('anonymizeDue', { date: formatDay(waiter.anonymizeDueAt) }) : null,
+    },
+  ];
+
+  /* Abrechnen und Bearbeiten stehen als Symbol in der Zeile, der Rest
+     (neue PIN, (de)aktivieren, Auskunft, Löschen) im ⋯-Menü. */
+  const actions = (waiter: Waiter): RowAction[] => [
+    {
+      id: 'settle',
+      label: t('actions.settle', { name: waiter.name }),
+      icon: 'receipt',
+      onClick: () => setSettling(waiter),
+    },
+    {
+      id: 'edit',
+      label: t('actions.edit', { name: waiter.name }),
+      icon: 'edit',
+      onClick: () => setFormFor(waiter),
+    },
+    {
+      id: 'resetPin',
+      label: t('actions.resetPin', { name: waiter.name }),
+      icon: 'refresh',
+      hidden: !waiter.isActive,
+      disabled: resetPin.isPending,
+      onClick: () => handleResetPin(waiter),
+    },
+    {
+      id: 'toggleActive',
+      label: waiter.isActive
+        ? t('actions.deactivate', { name: waiter.name })
+        : t('actions.activate', { name: waiter.name }),
+      icon: waiter.isActive ? 'ban' : 'check-circle',
+      onClick: () => handleToggleActive(waiter),
+    },
+    {
+      id: 'export',
+      label: t('actions.export', { name: waiter.name }),
+      icon: 'download',
+      disabled: exporting === waiter.id,
+      onClick: () => void handleExport(waiter),
+    },
+    {
+      id: 'delete',
+      label: t('actions.delete', { name: waiter.name }),
+      icon: 'trash',
+      danger: true,
+      onClick: () => setDeleting(waiter),
+    },
+  ];
 
   let body;
   if (list.isLoading) body = <ListLoading />;
@@ -171,158 +295,58 @@ export function WaitersContainer() {
     );
   else
     body = (
-      <div className="waiters-table" style={{ overflowX: 'auto' }}>
-        <table className="data-table" data-testid="waiters-table">
-          <thead>
-            <tr>
-              <th>{t('table.name')}</th>
-              <th>{t('table.role')}</th>
-              <th>{t('table.scope')}</th>
-              <th>{t('table.pin')}</th>
-              <th>{t('table.lastUsed')}</th>
-              <th>{t('table.status')}</th>
-              <th>{t('table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {waiters.map((waiter) => (
-              <tr key={waiter.id} className={waiter.isActive ? undefined : 'is-inactive'}>
-                <td>
-                  <div className="waiters-name">
-                    <WaiterBadge name={waiter.name} color={waiter.color} />
-                    <span>
-                      <b>{waiter.name}</b>
-                      {waiter.shortName && <small>{waiter.shortName}</small>}
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <span className="waiters-role">
-                    <span className={`badge ${waiter.role === 'lead' ? 'badge--info' : 'badge--neutral'}`}>
-                      {t(`roles.${waiter.role}`)}
-                    </span>
-                    {waiter.isEmployee && (
-                      <span className="badge badge--neutral" title={t('form.isEmployee')} data-testid="waiter-employee-badge">
-                        {t('employeeBadge')}
-                      </span>
-                    )}
-                  </span>
-                </td>
-                <td style={{ fontSize: 13 }}>{eventName(waiter.eventId)}</td>
-                <td>
-                  {waiter.hasPin ? (
-                    <span className="badge badge--success">{t('pin.set', { length: waiter.pinLength ?? 4 })}</span>
-                  ) : (
-                    <span className="badge badge--warning">{t('pin.missing')}</span>
-                  )}
-                </td>
-                <td className="mono" style={{ fontSize: 12 }}>
-                  {formatDate(waiter.lastUsedAt)}
-                </td>
-                <td>
-                  <span className={`badge ${waiter.isActive ? 'badge--success' : 'badge--neutral'}`}>
-                    {waiter.isActive ? t('status.active') : t('status.inactive')}
-                  </span>
-                  {waiter.anonymizeDueAt && (
-                    <small className="waiters-due" data-testid="waiter-anonymize-due">
-                      {t('anonymizeDue', { date: formatDay(waiter.anonymizeDueAt) })}
-                    </small>
-                  )}
-                </td>
-                <td>
-                  <div className="waiters-actions">
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      onClick={() => setSettling(waiter)}
-                      aria-label={t('actions.settle', { name: waiter.name })}
-                      title={t('actions.settle', { name: waiter.name })}
-                    >
-                      <Icon name="receipt" size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      onClick={() => setFormFor(waiter)}
-                      aria-label={t('actions.edit', { name: waiter.name })}
-                      title={t('actions.edit', { name: waiter.name })}
-                    >
-                      <Icon name="edit" size={16} />
-                    </button>
-                    {waiter.isActive && (
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        onClick={() => handleResetPin(waiter)}
-                        disabled={resetPin.isPending}
-                        aria-label={t('actions.resetPin', { name: waiter.name })}
-                        title={t('actions.resetPin', { name: waiter.name })}
-                      >
-                        <Icon name="refresh" size={16} />
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      onClick={() => handleToggleActive(waiter)}
-                      aria-label={
-                        waiter.isActive
-                          ? t('actions.deactivate', { name: waiter.name })
-                          : t('actions.activate', { name: waiter.name })
-                      }
-                      title={
-                        waiter.isActive
-                          ? t('actions.deactivate', { name: waiter.name })
-                          : t('actions.activate', { name: waiter.name })
-                      }
-                    >
-                      <Icon name={waiter.isActive ? 'ban' : 'check-circle'} size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      onClick={() => void handleExport(waiter)}
-                      disabled={exporting === waiter.id}
-                      aria-label={t('actions.export', { name: waiter.name })}
-                      title={t('actions.export', { name: waiter.name })}
-                    >
-                      <Icon name="download" size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      style={{ color: 'var(--danger)' }}
-                      onClick={() => setDeleting(waiter)}
-                      aria-label={t('actions.delete', { name: waiter.name })}
-                      title={t('actions.delete', { name: waiter.name })}
-                    >
-                      <Icon name="trash" size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div data-testid="waiters-table">
+        <AdminTable
+          caption={t('title')}
+          rows={waiters}
+          rowKey="id"
+          columns={columns}
+          actions={actions}
+          rowClassName={(waiter) => (waiter.isActive ? undefined : 'admin-dt__row--muted')}
+        />
       </div>
     );
 
   return (
     <>
       <div className="app-card app-card--flat">
-        <div className="app-card__head waiters-head">
-          <div>
-            <p style={{ fontSize: 13, color: 'var(--ink)', opacity: 0.6, margin: 0 }}>
-              {t('count', { count: waiters.length })}
-            </p>
-            {limitLabel && (
-              <p className="waiters-limit" data-testid="waiter-limit">
-                {limitLabel}
-              </p>
-            )}
-          </div>
-          {toolbar}
-        </div>
+        {/* Kopf: Anzahl links, der Veranstaltungsfilter (Telefon: im Sheet)
+            und die Symbolknöpfe zum Anlegen rechts. */}
+        <AdminFilterBar
+          className="waiters-filterbar"
+          leading={
+            <div className="waiters-filterbar__count">
+              <p className="admin-list-head__count">{t('count', { count: waiters.length })}</p>
+              {limitLabel && (
+                <p className="waiters-limit" data-testid="waiter-limit">
+                  {limitLabel}
+                </p>
+              )}
+            </div>
+          }
+          activeCount={eventFilter === 'all' ? 0 : 1}
+          onReset={() => setEventFilter('all')}
+          actions={
+            <>
+              <ListAction icon="users" label={t('actions.bulk')} onClick={() => setBulkOpen(true)} />
+              <ListAction variant="primary" icon="plus" label={t('actions.create')} onClick={() => setFormFor('new')} />
+            </>
+          }
+        >
+          <Select
+            label={phone ? t('filter.label') : undefined}
+            value={eventFilter}
+            onChange={(e) => setEventFilter(e.target.value)}
+            aria-label={t('filter.label')}
+          >
+            <option value="all">{t('filter.all')}</option>
+            {events.map((event) => (
+              <option key={event.id} value={event.id}>
+                {t('filter.event', { name: event.name })}
+              </option>
+            ))}
+          </Select>
+        </AdminFilterBar>
         {body}
       </div>
 

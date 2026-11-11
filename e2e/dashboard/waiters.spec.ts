@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { pairPosDevice, posAdmin } from '../fixtures/pos';
 
 /*
@@ -10,6 +10,20 @@ import { pairPosDevice, posAdmin } from '../fixtures/pos';
  * 390x844 und 768x1024).
  */
 const SHOTS = process.env.WAITERS_SHOTS_DIR;
+
+/**
+ * Zeilenaktion der Liste: Abrechnen und Bearbeiten stehen als Symbolknopf
+ * in der Zeile, alles Weitere im ⋯-Menü „Weitere Aktionen“.
+ */
+async function rowAction(page: Page, row: Locator, label: string) {
+  const inline = row.getByRole('button', { name: label, exact: true });
+  if (await inline.isVisible()) {
+    await inline.click();
+    return;
+  }
+  await row.getByRole('button', { name: 'Weitere Aktionen' }).click();
+  await page.getByRole('menuitem', { name: label, exact: true }).click();
+}
 
 async function shot(page: Page, name: string) {
   if (!SHOTS) return;
@@ -61,17 +75,18 @@ test.describe('Bedienungen (Verwaltung)', () => {
     await expect(benRow).toContainText('Schichtleitung');
 
     // Neue PIN für Anna (einmalig angezeigt).
-    await page.getByRole('button', { name: `Neue PIN für ${names[0]}` }).click();
+    const annaRow = table.getByRole('row').filter({ hasText: names[0] });
+    await rowAction(page, annaRow, `Neue PIN für ${names[0]}`);
     const newPin = page.getByRole('dialog', { name: 'Neue PIN' });
     await expect(newPin.locator('.waiters-reveal__pin')).toHaveText(/^\d{4,6}$/);
     await newPin.getByRole('button', { name: 'Fertig' }).click();
 
     // Deaktivieren und löschen (ohne Buchungen: wirklich weg).
-    await page.getByRole('button', { name: `${names[2]} deaktivieren` }).click();
     const leaRow = table.getByRole('row').filter({ hasText: names[2] });
+    await rowAction(page, leaRow, `${names[2]} deaktivieren`);
     await expect(leaRow).toContainText('Deaktiviert');
     await expect(leaRow).toContainText('Keine PIN');
-    await page.getByRole('button', { name: `${names[2]} löschen` }).click();
+    await rowAction(page, leaRow, `${names[2]} löschen`);
     await page.getByRole('dialog', { name: `${names[2]} löschen?` }).getByRole('button', { name: 'Löschen' }).click();
     await expect(table.getByText(names[2], { exact: true })).toHaveCount(0);
   });

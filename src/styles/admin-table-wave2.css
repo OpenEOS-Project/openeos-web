@@ -133,3 +133,58 @@
     font-family: var(--oe-f-sans);
   }
 }
+
+/* ---------- Bedienungen ---------- */
+/* Kopf als Filterzeile: Anzahl, Veranstaltungsfilter und Anlegen in einer
+   Zeile (der Filter steht nicht wie bei den Bestellungen darunter). */
+.landing .admin-filterbar.waiters-filterbar .oe-filterbar__fields {
+  order: 0;
+  flex: 0 1 280px;
+}
+.landing .admin-filterbar.waiters-filterbar .oe-filterbar__fields > * {
+  flex: 1 1 auto;
+  max-width: none;
+}
+.waiters-filterbar__count {
+  min-width: 0;
+}
+.landing .waiters-filterbar__count .admin-list-head__count {
+  margin: 0;
+}
+.landing .oe-dt__td.waiters-list__scope {
+  --admin-cell-max: 180px;
+}
+@media (max-width: 767px) {
+  /* Die Löschfrist steht auf dem Telefon in einer eigenen Zeile. */
+  .landing .admin-dt .oe-dt__m-trailing .waiters-due {
+    display: none;
+  }
+}
+.waiter-settlements__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+.waiter-settlements__by {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.waiter-settlements__by .admin-cell-text--muted {
+  font-size: 12px;
+}
+@media (max-width: 767px) {
+  /* Initialenkreis wie die übrigen Symbole auf dem Telefon (28 px). */
+  .landing .admin-dt .admin-cell-main__media .waiter-badge {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 10px !important;
+  }
+  .landing .admin-dt .waiter-settlements__badges {
+    display: inline;
+  }
+  .landing .admin-dt .waiter-settlements__badges > * + * {
+    margin-inline-start: 4px;
+  }
+}
