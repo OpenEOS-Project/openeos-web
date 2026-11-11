@@ -3696,7 +3696,7 @@
       "tokensRestHint": "Marken: {tokens} · noch offen: {rest} – kassiere den Rest bar oder mit Karte.",
       "tokensCoveredHint": "Die Marken decken alles.",
       "tokensHint": "Tippe ein, wie viele Marken der Gast dir gibt. Den Rest zahlt er bar oder mit Karte.",
-      "tokensApplied": "− Wertmarken {amount}",
+      "tokensApplied": "abzgl. Wertmarken {amount}",
       "tokensRestShort": "Rest {amount}"
     },
     "done": {

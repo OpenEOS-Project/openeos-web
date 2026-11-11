@@ -518,7 +518,7 @@ function OrderDetailBody({
                     <small>
                       {t('tokensPaid', {
                         tokens: (p.tokenLines ?? [])
-                          .map((l) => `${formatCount(l.count)} × ${l.name}`)
+                          .map((l) => `${formatCount(l.count)} x ${l.name}`)
                           .join(', '),
                         amount: formatPrice(Number(p.tokenAmount ?? 0)),
                       })}

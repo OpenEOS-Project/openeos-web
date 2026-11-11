@@ -14,10 +14,6 @@ import { POSPage } from '../pages/pos.page';
  * SHOT_DIR=<ordner> legt Bildschirmfotos ab.
  */
 test.describe.configure({ mode: 'serial' });
-// Die drei Bildschirmgrößen stehen unten selbst — einmal reicht.
-test.beforeEach(() => {
-  test.skip(test.info().project.name !== 'chromium', 'eigene Bildschirmgrößen');
-});
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900 },
@@ -29,7 +25,9 @@ let admin: PosAdmin;
 let device: PairedDevice;
 let markeName = '';
 
-test.beforeAll(async () => {
+test.beforeAll(async ({}, testInfo) => {
+  // Die drei Bildschirmgrößen stehen unten selbst — einmal reicht.
+  test.skip(testInfo.project.name !== 'chromium', 'eigene Bildschirmgrößen');
   admin = await posAdmin();
   const stamp = Date.now();
   await createPosEvent(admin, {
@@ -53,7 +51,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await admin.api.dispose();
+  await admin?.api.dispose();
 });
 
 async function shot(page: Page, name: string) {

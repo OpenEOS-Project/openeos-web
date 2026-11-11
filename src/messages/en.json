@@ -3708,7 +3708,7 @@
       "tokensRestHint": "Tokens: {tokens} · still due: {rest} – take the rest in cash or by card.",
       "tokensCoveredHint": "The tokens cover everything.",
       "tokensHint": "Enter how many tokens the guest hands over. The rest is paid in cash or by card.",
-      "tokensApplied": "− tokens {amount}",
+      "tokensApplied": "less tokens {amount}",
       "tokensRestShort": "Rest {amount}"
     },
     "done": {
