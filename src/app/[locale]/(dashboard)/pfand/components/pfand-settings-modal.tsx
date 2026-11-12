@@ -40,10 +40,7 @@ export function PfandSettingsModal({ isOpen, onClose }: PfandSettingsModalProps)
     mutationFn: async (next: Partial<PfandPolicy>) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, {
-        settings: {
-          ...currentOrganization.organization?.settings,
-          pfand: { ...policy, ...next },
-        },
+        settings: { pfand: { ...policy, ...next } },
       });
       return response.data;
     },

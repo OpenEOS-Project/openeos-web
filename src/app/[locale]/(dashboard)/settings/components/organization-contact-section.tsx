@@ -43,8 +43,9 @@ export function OrganizationContactSection() {
     mutationFn: async (data: ContactFormData) => {
       if (!currentOrganization) throw new Error('No organization');
       const response = await organizationsApi.update(currentOrganization.organizationId, {
-        // Bestehende Felder (z. B. ein altes Freitext-Land) bleiben stehen.
-        settings: { ...settings, contact: { ...settings.contact, ...data } },
+        // Nur `contact`; die API fuehrt `settings` eine Ebene tief zusammen,
+        // bestehende Felder im Abschnitt bleiben stehen.
+        settings: { contact: { ...settings.contact, ...data } } as OrganizationSettings,
       });
       return response.data;
     },
