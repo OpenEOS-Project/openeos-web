@@ -4795,6 +4795,7 @@
     "DEVICE_NOT_VERIFIED": "Das Gerät ist noch nicht freigegeben.",
     "DEVICE_TOKEN_INVALID": "Die Anmeldung des Geräts ist ungültig. Bitte kopple es erneut.",
     "DEVICE_TOKEN_MISSING": "Das Gerät ist nicht angemeldet.",
+    "DEVICE_TYPE_NOT_ALLOWED": "Diese Funktion gibt es für diesen Gerätetyp nicht. Prüfe den Gerätetyp unter Geräte.",
     "DEVICE_VERIFICATION_CODE_INVALID": "Der Bestätigungscode ist ungültig.",
     "DEVICE_WRONG_ORGANIZATION": "Das Gerät gehört nicht zu dieser Organisation.",
     "DISCOUNT_VOUCHER_AMOUNT_REQUIRED": "Ein fester Rabatt-Bon benötigt einen Betrag.",
