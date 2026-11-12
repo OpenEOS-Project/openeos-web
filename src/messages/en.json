@@ -72,7 +72,7 @@
       "resendVerificationSent": "Confirmation email has been resent.",
       "errors": {
         "invalidCredentials": "Invalid email or password",
-        "accountLocked": "Your account has been locked. Please try again later.",
+        "accountLocked": "Too many wrong passwords: password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
         "emailRequired": "Email is required",
         "passwordRequired": "Password is required",
         "invalidEmail": "Invalid email address",
@@ -4699,7 +4699,7 @@
   },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "The account is deactivated.",
-    "ACCOUNT_LOCKED": "The account is locked for {minutes} minutes.",
+    "ACCOUNT_LOCKED": "Password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
     "ACCOUNT_TEMPORARILY_LOCKED": "The account is temporarily locked.",
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Only admins can create accounts with an initial password.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Only admins can edit admins.",
