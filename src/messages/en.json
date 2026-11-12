@@ -4743,6 +4743,7 @@
     "DEVICE_NOT_VERIFIED": "The device has not been approved yet.",
     "DEVICE_TOKEN_INVALID": "The device sign-in is invalid. Please pair it again.",
     "DEVICE_TOKEN_MISSING": "The device is not signed in.",
+    "DEVICE_TYPE_NOT_ALLOWED": "This function is not available for this device type. Check the device type under Devices.",
     "DEVICE_VERIFICATION_CODE_INVALID": "The verification code is invalid.",
     "DEVICE_WRONG_ORGANIZATION": "The device does not belong to this organization.",
     "DISCOUNT_VOUCHER_AMOUNT_REQUIRED": "A fixed discount voucher needs an amount.",
