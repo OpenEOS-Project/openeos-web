@@ -139,6 +139,7 @@
 .menu-import__caution {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 0;
   font-size: 13px;
@@ -464,4 +465,25 @@
 .menu-import__row-field .menu-import__variant .input--modifier {
   flex: none;
   width: 72px;
+}
+
+/* Kennzeichnung „KI-generierter Vorschlag“ (Art. 50 KI-VO) — klein, aber
+   immer lesbar; components/shared/ai-suggestion-label.tsx. */
+.ai-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--oe-ink) 18%, transparent);
+  background: color-mix(in oklab, var(--oe-ink) 4%, transparent);
+  color: var(--oe-ink);
+  font: 500 11px/16px var(--oe-f-mono, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ai-label svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }

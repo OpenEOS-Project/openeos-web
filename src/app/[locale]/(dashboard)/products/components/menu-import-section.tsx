@@ -26,6 +26,7 @@ import {
 import { useOrganization } from '@/hooks/use-organizations';
 import { usePfandTypes } from '@/hooks/use-pfand-types';
 
+import { AiSuggestionLabel } from '@/components/shared/ai-suggestion-label';
 import { quotaLine } from '@/lib/assistant';
 import {
   EMPTY_MENU_SUGGESTION,
@@ -779,8 +780,8 @@ export function MenuImportSection({ eventId, onClose, onWideChange }: MenuImport
       <>
         {preview.rows.length > 0 && (
           <p className="menu-import__caution">
-            <Icon name="info" />
-            {t('preview.caution')}
+            <AiSuggestionLabel />
+            <span>{t('preview.caution')}</span>
           </p>
         )}
         {warnings.length > 0 && (
