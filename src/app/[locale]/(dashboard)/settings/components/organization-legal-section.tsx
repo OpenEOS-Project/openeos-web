@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, FileText } from 'lucide-react';
 
@@ -10,6 +10,7 @@ import { Link } from '@/i18n/routing';
 import { unfilledTemplatePlaceholders } from '@/lib/shop-privacy-template';
 import { organizationsApi } from '@/lib/api-client';
 import { LegalText } from '@/components/public-legal/legal-text';
+import { SettingToggle } from '@/components/shared/setting-toggle';
 import {
   LEGAL_LIMITS,
   isHttpUrl,
@@ -40,6 +41,7 @@ interface FormState {
   imprint: NoticeState;
   privacy: NoticeState;
   contactEmail: string;
+  withdrawalRight: boolean;
 }
 
 type FieldKey = 'imprintUrl' | 'imprintText' | 'privacyUrl' | 'privacyText' | 'contactEmail';
@@ -54,6 +56,7 @@ function fromSettings(legal: OrganizationLegalSettings | undefined): FormState {
     imprint: toNotice(legal?.imprintUrl, legal?.imprintText),
     privacy: toNotice(legal?.privacyUrl, legal?.privacyText),
     contactEmail: legal?.contactEmail ?? '',
+    withdrawalRight: legal?.withdrawalRight === true,
   };
 }
 
@@ -69,6 +72,7 @@ function toPayload(form: FormState): OrganizationLegalSettings {
   if (privacy.url) out.privacyUrl = privacy.url;
   if (privacy.text) out.privacyText = privacy.text;
   if (form.contactEmail.trim()) out.contactEmail = form.contactEmail.trim();
+  if (form.withdrawalRight) out.withdrawalRight = true;
   return out;
 }
 
@@ -81,6 +85,7 @@ function toPayload(form: FormState): OrganizationLegalSettings {
  */
 export function OrganizationLegalSection() {
   const t = useTranslations('settings.organizationLegal');
+  const locale = useLocale();
   const apiErrorMessage = useApiErrorMessage();
   const { currentOrganization, setCurrentOrganization } = useAuthStore();
   const { isAdmin } = usePermissions();
@@ -361,6 +366,30 @@ export function OrganizationLegalSection() {
             <span className="auth-field__hint">{t('contactEmailHint')}</span>
           )}
         </label>
+
+        {/* § 356a BGB: nur wenn ein Widerrufsrecht besteht, braucht der
+            Shop die Widerrufsfunktion. Für Speisen und Getränke zu einer
+            Veranstaltung ist das in aller Regel nicht der Fall. */}
+        <SettingToggle
+          label={t('withdrawalRight')}
+          hint={t.rich('withdrawalRightHint', {
+            link: (chunks) => (
+              <a
+                href={locale === 'en' ? 'https://docs.openeos.de/en/einstellungen#widerrufsrecht' : 'https://docs.openeos.de/einstellungen#widerrufsrecht'}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
+          checked={form.withdrawalRight}
+          onChange={(checked) => {
+            setForm((f) => ({ ...f, withdrawalRight: checked }));
+            setJustSaved(false);
+          }}
+          disabled={!isAdmin}
+        />
 
         </OrgSettingsFieldset>
 

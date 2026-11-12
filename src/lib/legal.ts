@@ -16,6 +16,8 @@ export interface OrganizationLegalSettings {
   privacyUrl?: string;
   privacyText?: string;
   contactEmail?: string;
+  /** Besteht für Shop-Bestellungen ein Widerrufsrecht (§ 356a BGB)? */
+  withdrawalRight?: boolean;
 }
 
 /** Was oeffentliche Endpunkte ausliefern (`data.legal`). */
@@ -27,6 +29,8 @@ export interface PublicLegalInfo {
   privacyText: string | null;
   contactEmail: string | null;
   complete: boolean;
+  /** Widerrufsfunktion im Shop (API seit 2026-11). */
+  withdrawalRight?: boolean;
   platform: { imprintUrl: string | null; privacyUrl: string | null };
 }
 
