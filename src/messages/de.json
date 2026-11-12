@@ -2583,7 +2583,7 @@
       "adminHint": "Administratoren haben automatisch Zugriff auf alle Module.",
       "reports": "Auswertung",
       "inventory": "Inventur",
-      "orders": "Bestellungen (stornieren & erstatten)",
+      "orders": "Bestellungen (stornieren, erstatten, bezahlte ändern)",
       "waiters": "Bedienungen"
     },
     "form": {
@@ -4758,6 +4758,7 @@
     "HANDOFF_STATION_NOT_FOUND": "Der Übergabe-Standort wurde nicht gefunden oder gehört nicht zur selben Veranstaltung.",
     "INSUFFICIENT_CREDITS": "Nicht genug Guthaben.",
     "INSUFFICIENT_PERMISSIONS": "Dafür fehlt dir die Berechtigung.",
+    "ORDERS_PERMISSION_REQUIRED": "Dafür brauchst du das Recht „Bestellungen“ – frag einen Admin.",
     "INSUFFICIENT_STOCK": "Nicht genügend Bestand verfügbar.",
     "INSUFFICIENT_STOCK_FOR_PRODUCT": "Nicht genügend Bestand für „{product}“.",
     "INSUFFICIENT_UNPAID_QUANTITY": "Von „{product}“ ist nicht mehr genug unbezahlte Menge offen.",
