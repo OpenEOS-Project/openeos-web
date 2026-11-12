@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building, CircleCheck, Globe, House, User } from 'lucide-react';
+import { Building, CircleCheck, Globe, House, KeyRound, User } from 'lucide-react';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Button } from '@/components/ui/buttons/button';
@@ -76,6 +76,27 @@ export default function SetupPage() {
   }, [nurEinzelbetrieb]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /* Einrichtungscode: steht im Protokoll der API (oder in SETUP_TOKEN).
+     Aeltere Server kennen ihn nicht, dann bleibt das Feld weg. */
+  const tokenRequired = !!setupStatus?.tokenRequired;
+  const [setupToken, setSetupToken] = useState('');
+  const tokenField = tokenRequired ? (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 text-sm font-medium text-secondary">
+        <KeyRound className="h-4 w-4" />
+        {t('token.sectionTitle')}
+      </div>
+      <Input
+        label={t('token.label')}
+        value={setupToken}
+        onChange={setSetupToken}
+        hint={t('token.hint')}
+        placeholder="XXXX-XXXX-XXXX"
+        isRequired
+        autoComplete="off"
+      />
+    </div>
+  ) : null;
 
   // Redirect if setup is not required
   useEffect(() => {
@@ -126,7 +147,7 @@ export default function SetupPage() {
           firstName: singleData.firstName,
           lastName: singleData.lastName,
           organizationName: singleData.organizationName,
-        });
+        }, setupToken);
       } else {
         await setupApi.complete({
           mode: 'multi',
@@ -134,7 +155,7 @@ export default function SetupPage() {
           password: data.password,
           firstName: data.firstName,
           lastName: data.lastName,
-        });
+        }, setupToken);
       }
 
       // Refetch setup status
@@ -265,6 +286,8 @@ export default function SetupPage() {
                   {error}
                 </div>
               )}
+
+              {tokenField}
 
               {/* Admin Section */}
               <div className="space-y-4">
@@ -407,6 +430,8 @@ export default function SetupPage() {
                   {error}
                 </div>
               )}
+
+              {tokenField}
 
               {/* Super Admin Section */}
               <div className="space-y-4">

@@ -5095,6 +5095,7 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "SETUP_TOKEN_INVALID": "Der Einrichtungscode stimmt nicht. Du findest ihn im Protokoll der API oder in SETUP_TOKEN.",
     "ORGANIZATION_SETTING_NOT_UPDATABLE": "Diese Einstellung änderst du in ihrem eigenen Bereich. Lade die Seite neu und versuch es noch einmal.",
     "ORGANIZATION_SETTINGS_INVALID": "Diese Einstellung ist ungültig. Prüf die Angaben und versuch es noch einmal.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
@@ -5530,6 +5531,7 @@
     "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
   "setup": {
+    "token": {"sectionTitle": "Einrichtungscode", "label": "Einrichtungscode", "hint": "Steht beim ersten Start im Protokoll der API (z. B. docker compose logs api) oder in SETUP_TOKEN."},
     "title": "Willkommen bei OpenEOS",
     "submit": "Einrichtung abschließen",
     "modeSelect": {
