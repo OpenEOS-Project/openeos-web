@@ -5094,6 +5094,8 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "ORGANIZATION_SETTING_NOT_UPDATABLE": "Diese Einstellung änderst du in ihrem eigenen Bereich. Lade die Seite neu und versuch es noch einmal.",
+    "ORGANIZATION_SETTINGS_INVALID": "Diese Einstellung ist ungültig. Prüf die Angaben und versuch es noch einmal.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
     "TIP_PAYOUT_AMOUNT_INVALID": "Der Betrag passt nicht: höchstens das offene Kartentrinkgeld und mehr als 0 €.",
     "CURRENT_PASSWORD_REQUIRED": "Gib dein aktuelles Passwort ein.",
