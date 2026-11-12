@@ -4376,11 +4376,11 @@
     },
     "verifyDialog": {
       "title": "Gerät freigeben",
-      "description": "Gib den 6-stelligen Code ein, der auf dem Gerät angezeigt wird.",
+      "description": "Gib den achtstelligen Code ein, der auf dem Gerät angezeigt wird.",
       "type": "Gerätetyp",
       "typeHint": "Wird direkt bei der Freigabe gespeichert – Kassen starten im Modus „Bedienung“ und können später in den Geräte-Einstellungen angepasst werden.",
       "code": "Verifizierungscode",
-      "codePlaceholder": "000000",
+      "codePlaceholder": "00000000",
       "submit": "Gerät freigeben",
       "invalidCode": "Ungültiger Verifizierungscode"
     },
@@ -4407,7 +4407,7 @@
       "link": "Registrierungslink",
       "instructions": "So registrierst du ein neues Gerät:",
       "step1": "Öffne den Link oder scanne den QR-Code auf dem Gerät",
-      "step2": "Das Gerät zeigt eine sechsstellige Zahl an",
+      "step2": "Das Gerät zeigt eine achtstellige Zahl an (15 Minuten gültig)",
       "step3": "Diese Zahl über „Gerät verbinden“ eingeben – fertig",
       "copy": "Kopieren",
       "copied": "Kopiert"
@@ -4433,7 +4433,7 @@
     },
     "verify": {
       "title": "Gerät verbinden",
-      "enterCodeDescription": "Gib den sechsstelligen Code ein, der auf dem Gerät steht.",
+      "enterCodeDescription": "Gib den achtstelligen Code ein, der auf dem Gerät steht.",
       "code": "Verifizierungscode",
       "lookup": "Gerät suchen",
       "deviceNotFound": "Gerät nicht gefunden oder bereits verknüpft",
@@ -4444,7 +4444,7 @@
       "deviceType": "Gerätetyp",
       "link": "Verknüpfen",
       "linkFailed": "Verknüpfung fehlgeschlagen",
-      "invalidCode": "Bitte gib einen 6-stelligen Code ein",
+      "invalidCode": "Bitte gib den achtstelligen Code ein",
       "enterName": "Bitte gib einen Namen ein",
       "success": "Erfolgreich verknüpft!",
       "successDescription": "Das Gerät wurde erfolgreich mit deiner Organisation verknüpft.",
@@ -4456,7 +4456,7 @@
       "cta": "Gerät verbinden",
       "namePlaceholder": "z. B. Kasse Theke 1",
       "wrongType": "Dieser Code gehört zu keinem {type}. Für Kassen und Displays nutze „Gerät verbinden“ unter Geräte.",
-      "enterCodeDescriptionPrinterAgent": "Gib den sechsstelligen Code ein, den der Agent beim Start anzeigt (Konsole, Logdatei oder http://localhost:8080 auf dem Rechner).",
+      "enterCodeDescriptionPrinterAgent": "Gib den achtstelligen Code ein, den der Agent beim Start anzeigt (Konsole, Logdatei oder http://localhost:8080 auf dem Rechner).",
       "successDescriptionPrinterAgent": "Der Drucker-Agent gehört jetzt zu deiner Organisation. Er erscheint gleich in der Liste und meldet die Drucker, die er findet."
     },
     "detail": {
@@ -4843,6 +4843,9 @@
     "ORGANIZATION_NOT_SPECIFIED": "Es ist keine Organisation ausgewählt.",
     "ORG_NOT_FOUND": "Die Organisation wurde nicht gefunden.",
     "PAIRING_CODE_UNAVAILABLE": "Derzeit kann kein Kopplungscode vergeben werden. Bitte versuche es später erneut.",
+    "PAIRING_CODE_ATTEMPTS_EXCEEDED": "Mit diesem Code gab es zu viele Versuche. Warte, bis das Gerät einen neuen Code anzeigt.",
+    "PAIRING_CODE_EXPIRED": "Der Kopplungscode ist abgelaufen. Das Gerät zeigt gleich einen neuen.",
+    "PENDING_DEVICE_LIMIT_REACHED": "Gerade warten zu viele Geräte auf die Kopplung. Verknüpfe zuerst die wartenden Geräte oder versuche es später noch einmal.",
     "PASSWORD_INCORRECT": "Das Passwort ist falsch.",
     "PASSWORD_LOGIN_UNAVAILABLE": "Für dieses Konto ist kein Passwort gesetzt. Bitte melde dich per Anmeldelink an.",
     "PAYMENT_ALREADY_REFUNDED": "Die Zahlung wurde bereits erstattet.",
@@ -5674,7 +5677,7 @@
         "steps": {
           "download": "Agent für Windows oder Linux herunterladen.",
           "install": "Auf dem PC installieren und starten (Windows: als Dienst, Linux: install.sh).",
-          "code": "Der Agent zeigt beim Start einen sechsstelligen Code.",
+          "code": "Der Agent zeigt beim Start einen achtstelligen Code.",
           "enter": "Code hier eingeben — der Agent erscheint danach in der Liste."
         },
         "downloadWindows": "Download Windows",

@@ -239,7 +239,12 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
 
             if (typeof window !== 'undefined') {
               const typ = klasse === 'display' ? 'display' : 'pos';
-              window.location.href = `/device/pair?type=${typ}&grund=entfernt`;
+              /* Abgelaufener Kopplungscode (15 Minuten): kein Hinweis
+                 auf ein entferntes Gerät, einfach einen neuen Code holen. */
+              const abgelaufen = error.reason === 'PAIRING_CODE_EXPIRED';
+              window.location.href = abgelaufen
+                ? `/device/pair?type=${typ}`
+                : `/device/pair?type=${typ}&grund=entfernt`;
             }
             return null;
           }
