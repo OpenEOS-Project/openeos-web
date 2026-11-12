@@ -27,6 +27,16 @@ export interface LegalVersions {
   enabled: boolean;
   siteUrl: string;
   documents: Record<LegalDocumentKey, LegalDocumentVersion>;
+  /**
+   * Einsatzbedingungen der Cloud-TSE (Umgebungsschutzkonzept); nur wenn die
+   * Cloud-TSE auf diesem Server verfügbar ist, sonst `null`/fehlt.
+   */
+  tseConditions?: TseConditions | null;
+}
+
+export interface TseConditions {
+  url: string | null;
+  text: string | null;
 }
 
 export interface LegalAcceptanceState {
