@@ -2997,7 +2997,7 @@
       "adminHint": "Administrators automatically have access to all modules.",
       "reports": "Reports",
       "inventory": "Inventory",
-      "orders": "Orders (cancel & refund)",
+      "orders": "Orders (cancel, refund, edit paid orders)",
       "waiters": "Servers"
     },
     "form": {
@@ -4770,6 +4770,7 @@
     "HANDOFF_STATION_NOT_FOUND": "The handoff station was not found or belongs to a different event.",
     "INSUFFICIENT_CREDITS": "Not enough credits.",
     "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
+    "ORDERS_PERMISSION_REQUIRED": "This needs the “Orders” permission – ask an admin.",
     "INSUFFICIENT_STOCK": "Not enough stock available.",
     "INSUFFICIENT_STOCK_FOR_PRODUCT": "Not enough stock for \"{product}\".",
     "INSUFFICIENT_UNPAID_QUANTITY": "Not enough unpaid quantity left for \"{product}\".",
