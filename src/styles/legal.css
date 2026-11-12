@@ -228,6 +228,9 @@
 .landing .legal-card__more {
   margin: 14px 0 0;
   font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
 }
 .landing .legal-card__more a,
 .landing .legal-intro a {

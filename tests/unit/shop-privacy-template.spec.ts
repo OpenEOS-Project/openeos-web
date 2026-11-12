@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 
 import { SHOP_PRIVACY_TEMPLATE_SOURCE } from '@/content/legal/muster-datenschutzhinweise-shop';
 import {
+  dataActUrl,
   fallbackLegalVersions,
   formatLegalVersion,
   subprocessorsUrl,
@@ -42,7 +43,7 @@ test.describe('shop privacy template', () => {
   });
 
   test('intro, stand and guidance are read for the club', () => {
-    expect(template.stand).toBe('Stand: 4. November 2026');
+    expect(template.stand).toBe('Stand: 12. November 2026');
     expect(template.intro).toHaveLength(1);
     expect(template.intro[0]).toMatch(/^Dieses Muster stellt LUXCODE/);
     expect(template.guidance).toHaveLength(6);
@@ -52,9 +53,10 @@ test.describe('shop privacy template', () => {
   });
 
   test('every placeholder becomes a field', () => {
-    expect(template.fields.map((f) => f.kind)).toEqual(['name', 'address', 'email', 'text', 'text', 'payment', 'text', 'text']);
+    expect(template.fields.map((f) => f.kind)).toEqual(['name', 'address', 'email', 'text', 'text', 'text', 'text']);
     expect(template.fields[3].label).toBe('Vertretungsberechtigte Person, z. B. Vorstand nach § 26 BGB');
-    expect(template.fields[5].placeholder).toBe('[SumUp und/oder PayPal, nicht Genutztes streichen]');
+    // Seit 12.11.2026 nennt das Muster SumUp fest – kein Auswahlfeld mehr.
+    expect(template.fields.some((f) => f.kind === 'payment')).toBe(false);
   });
 
   test('filling replaces all placeholders, empty ones stay visible', () => {
@@ -65,14 +67,14 @@ test.describe('shop privacy template', () => {
     };
     const partial = fillShopPrivacyTemplate(template, values);
     expect(partial).toContain('TSV Musterstadt e.V.\nHauptstraße 1\n12345 Musterstadt\nE-Mail: info@tsv.example');
-    expect(missingTemplateFields(template, values)).toHaveLength(5);
-    expect(unfilledTemplatePlaceholders(partial, template)).toHaveLength(5);
+    expect(missingTemplateFields(template, values)).toHaveLength(4);
+    expect(unfilledTemplatePlaceholders(partial, template)).toHaveLength(4);
 
     for (const field of template.fields.slice(3)) values[field.id] = field.kind === 'payment' ? 'SumUp' : 'Wert';
     const full = fillShopPrivacyTemplate(template, values);
     expect(missingTemplateFields(template, values)).toEqual([]);
     expect(unfilledTemplatePlaceholders(full, template)).toEqual([]);
-    expect(full).toContain('abgewickelt: SumUp.');
+    expect(full).toContain('von unserem Zahlungsdienstleister SumUp abgewickelt.');
     expect(full).not.toMatch(/\{\{|\[/);
   });
 
@@ -112,6 +114,11 @@ test.describe('legal versions', () => {
     expect(fallback.documents.agb.url).toBe('https://openeos.de/agb');
     expect(fallback.documents.privacy.versionUrl).toBe('https://openeos.de/datenschutz');
     expect(fallback.documents.imprint.pdfUrl).toBeNull();
+    expect(fallback.documents.anlage1.url).toBe('https://openeos.de/leistungsbeschreibung');
+  });
+
+  test('Data Act page on the legal site', () => {
+    expect(dataActUrl('https://staging.openeos.de/')).toBe('https://staging.openeos.de/data-act');
   });
 
   test('API answer is used and gaps are filled', () => {

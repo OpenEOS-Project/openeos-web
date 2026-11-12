@@ -169,7 +169,7 @@
           "summaryOrganization": "Organization",
           "newsletter": "I'd like to receive occasional OpenEOS news by email. You can unsubscribe at any time.",
           "summaryCountry": "Country",
-          "confirmBusiness": "I confirm that I am acting as a business, a legal entity under public law or a registered association and that I am authorized to represent the organization.",
+          "confirmBusiness": "I confirm that I am acting for a company, a public body, an association (registered or not), a foundation or another organization – not as a consumer – and that I am authorized to represent it.",
           "acceptTerms": "I have read and accept the <agb>terms and conditions (AGB)</agb> and the <avv>data processing agreement (AVV)</avv>.",
           "privacyHint": "How we process your data is described in our <privacy>privacy policy</privacy>.",
           "germanNote": "The legal texts are available in German only; the German version is binding."
@@ -7544,6 +7544,7 @@
       "documentsText": "These texts apply to your use of OpenEOS. Older versions remain available under their date. The texts are in German.",
       "documents": {
         "agb": "Terms and conditions (AGB)",
+        "anlage1": "Annex 1 to the terms: service description and price list",
         "avv": "Data processing agreement (AVV)",
         "privacy": "Privacy policy",
         "imprint": "Imprint"
@@ -7556,6 +7557,7 @@
       "outdated": "outdated",
       "notAccepted": "Not accepted by you yet.",
       "subprocessors": "Subprocessors (AVV annex B)",
+      "dataAct": "Data Act: locations, data export and switching",
       "elsterTitle": "Details for the tax office notification (ELSTER)",
       "elsterText": "Software, register serial number and TSE – the values you enter in ELSTER.",
       "shopTitle": "Legal texts for your shop",
