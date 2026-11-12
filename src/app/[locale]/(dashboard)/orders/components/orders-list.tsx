@@ -25,7 +25,7 @@ import { toast } from '@/components/shared/toast';
 import { saveBlob } from '@/lib/dsfinvk';
 import { getOrderChannel, type Order, type OrderChannel, type OrdersExportVariant } from '@/types/order';
 import type { HistoryPaymentFilter } from '@/types/order-history';
-import { STATUS_FILTERS, paymentIcon } from '@/utils/order-history';
+import { STATUS_FILTERS, paymentIcon, paymentKey } from '@/utils/order-history';
 import { OrderDetailModal, displayStatusBadge } from './order-detail-modal';
 import {
   AdminFilterBar,
@@ -290,7 +290,7 @@ export function OrdersList() {
         return (
           <span className="orders-list__payment">
             {methods.map((m) => (
-              <span key={m} title={t(`orders.history.payment.${m === 'cash' ? 'cash' : m.startsWith('sumup') ? 'sumup' : 'card'}`)}>
+              <span key={m} title={t(`orders.history.payment.${paymentKey(m)}`)}>
                 <Icon name={paymentIcon(m)} size={16} />
               </span>
             ))}

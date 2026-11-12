@@ -3370,7 +3370,8 @@
         "card": "Card",
         "sumup": "SumUp",
         "discount": "Voucher",
-        "tokens": "Tokens"
+        "tokens": "Tokens",
+        "paypal": "PayPal"
       },
       "reprintSuccess": "Print job has been sent",
       "noPrinter": "No receipt printer set up – counter-receipt not printed",
@@ -3477,7 +3478,8 @@
         "sumup": "Refunded to the guest's card via SumUp.",
         "card": "Refund at the card terminal – booked as refunded manually.",
         "test": "Test mode: only booked, not really refunded.",
-        "tokens": "Hand the tokens back to the guest – never cash for them."
+        "tokens": "Hand the tokens back to the guest – never cash for them.",
+        "paypal": "PayPal is no longer connected. Refund the amount yourself in your PayPal account; OpenEOS books it as \"refunded manually\"."
       },
       "cancelAndRefundTitle": "Cancel & refund · #{number}",
       "refundTitle": "Refund · #{number}",
@@ -4102,7 +4104,8 @@
         "card": "Card",
         "sumup": "SumUp",
         "discount": "Voucher",
-        "tokens": "Tokens"
+        "tokens": "Tokens",
+        "paypal": "PayPal"
       },
       "kind": {
         "cancellation": "Cancellation",
@@ -4160,14 +4163,16 @@
         "sumup": "Refunded to the guest's card through SumUp.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
         "test": "Test mode: only booked, nothing is really refunded.",
-        "tokens": "The guest gets the tokens back, no cash."
+        "tokens": "The guest gets the tokens back, no cash.",
+        "paypal": "PayPal is no longer connected. Refund the amount yourself in your PayPal account; OpenEOS books it as \"refunded manually\"."
       },
       "method": {
         "cash": "Refund in cash – booked as \"paid out in cash\".",
         "sumup": "Refund through SumUp to the guest's card.",
         "card": "Refund at the card terminal – booked as \"refunded manually\".",
         "test": "Test mode – only booked, not refunded at the payment provider.",
-        "tokens": "Tokens back"
+        "tokens": "Tokens back",
+        "paypal": "Earlier PayPal payment – booked as \"refunded manually\"."
       },
       "reasonRequired": "Reason (required)",
       "reasonOptional": "Reason (optional)",
@@ -4861,8 +4866,6 @@
     "PAYMENT_NOT_FOUND": "The payment was not found.",
     "PAYMENT_NOT_REFUNDABLE": "Only completed payments can be refunded.",
     "PAYMENT_PENDING": "The payment has not been completed yet.",
-    "PAYPAL_NOT_CONFIGURED": "PayPal is not set up for this organization.",
-    "PAYPAL_ORDER_ID_INVALID": "The PayPal order ID is invalid.",
     "PERMISSIONS_EXCEED_OWN": "You can only grant permissions you have yourself.",
     "PIN_ALREADY_IN_USE": "This PIN is already used by another member.",
     "PIN_INVALID": "The PIN is invalid.",

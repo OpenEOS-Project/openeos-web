@@ -37,8 +37,12 @@ export interface ShopPrivacyTemplate {
   guidance: string[];
 }
 
-/** Die drei Zahlungsdienstleister-Varianten des Musters. */
-export const PAYMENT_PROVIDER_OPTIONS = ['SumUp', 'PayPal', 'SumUp und PayPal'] as const;
+/**
+ * Auswahl für den Zahlungsdienstleister-Platzhalter des Musters. Nur SumUp:
+ * die PayPal-Anbindung ist seit 1.8 entfernt (der Platzhaltertext des
+ * vendorten Musters nennt PayPal noch, bis die Rechtstexte nachziehen).
+ */
+export const PAYMENT_PROVIDER_OPTIONS = ['SumUp'] as const;
 
 const ORG_PLACEHOLDERS: Record<string, TemplateFieldKind> = {
   '{{kunde.name}}': 'name',

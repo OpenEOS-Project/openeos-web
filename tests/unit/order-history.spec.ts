@@ -48,6 +48,10 @@ test.describe('order history (POS + admin)', () => {
     expect(
       paymentBadges({ paymentMethods: ['card'], discountAmount: 0 }).map((b) => b.icon)
     ).toEqual(['card']);
+    // Frühere PayPal-Zahlungen bleiben als PayPal erkennbar.
+    expect(
+      paymentBadges({ paymentMethods: ['paypal'], discountAmount: 0 }).map((b) => [b.key, b.icon])
+    ).toEqual([['paypal', 'card']]);
   });
 
   test('place: table, counter or to-go', () => {

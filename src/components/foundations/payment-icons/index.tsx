@@ -31,7 +31,6 @@ export { default as LightcoinIcon } from "./lightcoin-icon";
 export { default as MaestroIcon } from "./maestro-icon";
 export { default as MastercardIcon } from "./mastercard-icon";
 export { default as PayoneerIcon } from "./payoneer-icon";
-export { default as PayPalIcon } from "./paypal-icon";
 export { default as PaysafeIcon } from "./paysafe-icon";
 export { default as QiwiIcon } from "./qiwi-icon";
 export { default as RazorpayIcon } from "./razorpay-icon";
