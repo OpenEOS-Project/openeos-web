@@ -71,8 +71,8 @@ test.describe('POS - Point of Sale', () => {
       await expect(device.getByRole('heading', { name: 'Kasse verbinden' })).toBeVisible();
 
       const codeLabel = device.getByLabel('Kopplungscode');
-      // Sechs Ziffern am Stueck, ohne Gruppierung.
-      await expect(codeLabel).toHaveText(/^\d{6}$/);
+      // Acht Ziffern am Stueck, ohne Gruppierung.
+      await expect(codeLabel).toHaveText(/^\d{8}$/);
       const code = (await codeLabel.textContent())!;
 
       // Der Weg ueber den QR-Code: die Adresse traegt den Code schon.
