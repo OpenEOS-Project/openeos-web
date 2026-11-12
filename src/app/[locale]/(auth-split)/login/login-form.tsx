@@ -121,7 +121,7 @@ export function LoginForm() {
             setError(t('errors.invalidCredentials'));
             break;
           case 'ACCOUNT_LOCKED':
-            setError(t('errors.accountLocked'));
+            setError(t('errors.accountLocked', { minutes: Number(err.params?.minutes ?? 15) }));
             break;
           case 'EMAIL_NOT_VERIFIED':
             setError(t('errors.emailNotVerified'));

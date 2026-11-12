@@ -72,7 +72,7 @@
       "resendVerificationSent": "Bestätigungs-E-Mail wurde erneut gesendet.",
       "errors": {
         "invalidCredentials": "Ungültige E-Mail oder Passwort",
-        "accountLocked": "Dein Konto wurde gesperrt. Bitte versuche es später erneut.",
+        "accountLocked": "Zu viele falsche Passwörter: Die Anmeldung mit Passwort pausiert für {minutes} Minuten. Mit dem Anmeldelink per E-Mail kommst du sofort rein.",
         "emailRequired": "E-Mail ist erforderlich",
         "passwordRequired": "Passwort ist erforderlich",
         "invalidEmail": "Ungültige E-Mail-Adresse",
@@ -2583,7 +2583,7 @@
       "adminHint": "Administratoren haben automatisch Zugriff auf alle Module.",
       "reports": "Auswertung",
       "inventory": "Inventur",
-      "orders": "Bestellungen (stornieren & erstatten)",
+      "orders": "Bestellungen (stornieren, erstatten, bezahlte ändern)",
       "waiters": "Bedienungen"
     },
     "form": {
@@ -4687,7 +4687,7 @@
   },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "Das Konto ist deaktiviert.",
-    "ACCOUNT_LOCKED": "Das Konto ist für {minutes} Minuten gesperrt.",
+    "ACCOUNT_LOCKED": "Die Anmeldung mit Passwort pausiert für {minutes} Minuten. Mit dem Anmeldelink per E-Mail kommst du sofort rein.",
     "ACCOUNT_TEMPORARILY_LOCKED": "Das Konto ist vorübergehend gesperrt.",
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Nur Admins können Konten mit Startpasswort anlegen.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Nur Admins können Admins bearbeiten.",
@@ -4758,6 +4758,7 @@
     "HANDOFF_STATION_NOT_FOUND": "Der Übergabe-Standort wurde nicht gefunden oder gehört nicht zur selben Veranstaltung.",
     "INSUFFICIENT_CREDITS": "Nicht genug Guthaben.",
     "INSUFFICIENT_PERMISSIONS": "Dafür fehlt dir die Berechtigung.",
+    "ORDERS_PERMISSION_REQUIRED": "Dafür brauchst du das Recht „Bestellungen“ – frag einen Admin.",
     "INSUFFICIENT_STOCK": "Nicht genügend Bestand verfügbar.",
     "INSUFFICIENT_STOCK_FOR_PRODUCT": "Nicht genügend Bestand für „{product}“.",
     "INSUFFICIENT_UNPAID_QUANTITY": "Von „{product}“ ist nicht mehr genug unbezahlte Menge offen.",
@@ -5093,6 +5094,8 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "ORGANIZATION_SETTING_NOT_UPDATABLE": "Diese Einstellung änderst du in ihrem eigenen Bereich. Lade die Seite neu und versuch es noch einmal.",
+    "ORGANIZATION_SETTINGS_INVALID": "Diese Einstellung ist ungültig. Prüf die Angaben und versuch es noch einmal.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
     "TIP_PAYOUT_AMOUNT_INVALID": "Der Betrag passt nicht: höchstens das offene Kartentrinkgeld und mehr als 0 €.",
     "CURRENT_PASSWORD_REQUIRED": "Gib dein aktuelles Passwort ein.",

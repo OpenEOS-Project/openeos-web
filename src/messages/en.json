@@ -72,7 +72,7 @@
       "resendVerificationSent": "Confirmation email has been resent.",
       "errors": {
         "invalidCredentials": "Invalid email or password",
-        "accountLocked": "Your account has been locked. Please try again later.",
+        "accountLocked": "Too many wrong passwords: password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
         "emailRequired": "Email is required",
         "passwordRequired": "Password is required",
         "invalidEmail": "Invalid email address",
@@ -2997,7 +2997,7 @@
       "adminHint": "Administrators automatically have access to all modules.",
       "reports": "Reports",
       "inventory": "Inventory",
-      "orders": "Orders (cancel & refund)",
+      "orders": "Orders (cancel, refund, edit paid orders)",
       "waiters": "Servers"
     },
     "form": {
@@ -4699,7 +4699,7 @@
   },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "The account is deactivated.",
-    "ACCOUNT_LOCKED": "The account is locked for {minutes} minutes.",
+    "ACCOUNT_LOCKED": "Password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
     "ACCOUNT_TEMPORARILY_LOCKED": "The account is temporarily locked.",
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Only admins can create accounts with an initial password.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Only admins can edit admins.",
@@ -4770,6 +4770,7 @@
     "HANDOFF_STATION_NOT_FOUND": "The handoff station was not found or belongs to a different event.",
     "INSUFFICIENT_CREDITS": "Not enough credits.",
     "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
+    "ORDERS_PERMISSION_REQUIRED": "This needs the “Orders” permission – ask an admin.",
     "INSUFFICIENT_STOCK": "Not enough stock available.",
     "INSUFFICIENT_STOCK_FOR_PRODUCT": "Not enough stock for \"{product}\".",
     "INSUFFICIENT_UNPAID_QUANTITY": "Not enough unpaid quantity left for \"{product}\".",
@@ -5105,6 +5106,8 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
     "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first.",
+    "ORGANIZATION_SETTING_NOT_UPDATABLE": "This setting is changed in its own section. Reload the page and try again.",
+    "ORGANIZATION_SETTINGS_INVALID": "This setting is invalid. Check your input and try again.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club.",
     "TIP_PAYOUT_AMOUNT_INVALID": "The amount does not fit: at most the open card tips and more than €0.",
     "CURRENT_PASSWORD_REQUIRED": "Enter your current password.",

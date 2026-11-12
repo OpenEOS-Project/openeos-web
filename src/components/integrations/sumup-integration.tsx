@@ -58,8 +58,9 @@ export function SumUpIntegration() {
     mutationFn: async () => {
       if (!currentOrganization) throw new Error('No organization');
 
+      // Nur der eigene Abschnitt: die API fuehrt `settings` eine Ebene tief
+      // zusammen, andere Abschnitte bleiben stehen.
       const settingsUpdate: Record<string, unknown> = {
-        ...currentOrganization.organization?.settings,
         sumup: {
           apiKey,
           merchantCode,
