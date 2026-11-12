@@ -1,6 +1,10 @@
 // Enums
-/** `tokens`: nur mit Wertmarken bezahlt (Betrag 0, Wert in `tokenAmount`). */
-export type PaymentMethod = 'cash' | 'card' | 'sumup_terminal' | 'sumup_online' | 'tokens';
+/**
+ * `tokens`: nur mit Wertmarken bezahlt (Betrag 0, Wert in `tokenAmount`).
+ * `paypal`: nur frühere Zahlungen – die PayPal-Anbindung ist seit 1.8
+ * entfernt, neu gebucht wird PayPal nicht mehr.
+ */
+export type PaymentMethod = 'cash' | 'card' | 'sumup_terminal' | 'sumup_online' | 'tokens' | 'paypal';
 export type PaymentProvider = 'CASH' | 'CARD' | 'SUMUP' | 'TOKENS';
 export type PaymentTransactionStatus = 'pending' | 'authorized' | 'captured' | 'failed' | 'refunded';
 

@@ -3362,7 +3362,8 @@
         "card": "Karte",
         "sumup": "SumUp",
         "discount": "Rabatt-Bon",
-        "tokens": "Wertmarken"
+        "tokens": "Wertmarken",
+        "paypal": "PayPal"
       },
       "reprintSuccess": "Druckauftrag wurde gesendet",
       "noPrinter": "Kein Bondrucker eingerichtet – Gegenbeleg nicht gedruckt",
@@ -3469,7 +3470,8 @@
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als manuell erstattet gebucht.",
         "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
-        "tokens": "Die Wertmarken gibst du dem Gast zurück – nie Bargeld dafür."
+        "tokens": "Die Wertmarken gibst du dem Gast zurück – nie Bargeld dafür.",
+        "paypal": "PayPal ist nicht mehr angebunden. Erstatte den Betrag selbst in deinem PayPal-Konto; OpenEOS bucht ihn als „manuell erstattet“."
       },
       "cancelAndRefundTitle": "Stornieren & erstatten · #{number}",
       "refundTitle": "Erstatten · #{number}",
@@ -4094,7 +4096,8 @@
         "card": "Karte",
         "sumup": "SumUp",
         "discount": "Rabatt-Bon",
-        "tokens": "Wertmarken"
+        "tokens": "Wertmarken",
+        "paypal": "PayPal"
       },
       "kind": {
         "cancellation": "Storno",
@@ -4152,14 +4155,16 @@
         "sumup": "Wird über SumUp auf die Karte des Gastes erstattet.",
         "card": "Am Kartenterminal erstatten – wird als „manuell erstattet“ gebucht.",
         "test": "Testmodus: wird nicht echt erstattet, nur gebucht.",
-        "tokens": "Der Gast bekommt die Wertmarken zurück, kein Bargeld."
+        "tokens": "Der Gast bekommt die Wertmarken zurück, kein Bargeld.",
+        "paypal": "PayPal ist nicht mehr angebunden. Erstatte den Betrag selbst in deinem PayPal-Konto; OpenEOS bucht ihn als „manuell erstattet“."
       },
       "method": {
         "cash": "Rückgabe bar – wird als „bar ausgezahlt“ gebucht.",
         "sumup": "Rückgabe über SumUp auf die Karte des Gastes.",
         "card": "Rückgabe am Kartenterminal – wird als „manuell erstattet“ gebucht.",
         "test": "Testmodus – nur gebucht, nicht beim Zahlungsanbieter erstattet.",
-        "tokens": "Wertmarken zurück"
+        "tokens": "Wertmarken zurück",
+        "paypal": "Frühere PayPal-Zahlung – wird als „manuell erstattet“ gebucht."
       },
       "reasonRequired": "Grund (Pflicht)",
       "reasonOptional": "Grund (optional)",
@@ -4858,8 +4863,6 @@
     "PAYMENT_NOT_FOUND": "Die Zahlung wurde nicht gefunden.",
     "PAYMENT_NOT_REFUNDABLE": "Nur abgeschlossene Zahlungen können erstattet werden.",
     "PAYMENT_PENDING": "Die Zahlung ist noch nicht abgeschlossen.",
-    "PAYPAL_NOT_CONFIGURED": "PayPal ist für diese Organisation nicht eingerichtet.",
-    "PAYPAL_ORDER_ID_INVALID": "Die PayPal-Bestellnummer ist ungültig.",
     "PERMISSIONS_EXCEED_OWN": "Du kannst nur Berechtigungen weitergeben, die du selbst hast.",
     "PIN_ALREADY_IN_USE": "Diese PIN wird bereits von einem anderen Mitglied verwendet.",
     "PIN_INVALID": "Die PIN ist ungültig.",
