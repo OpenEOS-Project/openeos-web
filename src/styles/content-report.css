@@ -1,0 +1,204 @@
+/* „Inhalt melden“ (app/[locale]/report) — öffentliche Seite im Stil der
+   Helferseiten. */
+.landing .content-report {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.landing .content-report__head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+}
+.landing .content-report__main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+.landing .content-report__card {
+  width: 100%;
+  max-width: 560px;
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.landing .content-report__card form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.landing .content-report__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.landing .content-report__title svg {
+  width: 22px;
+  height: 22px;
+  color: var(--mute);
+}
+.landing .content-report__title h1,
+.landing .content-report__done h1 {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.landing .content-report__intro,
+.landing .content-report__hint,
+.landing .content-report__contact {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+.landing .content-report__intro {
+  font-size: 14px;
+}
+.landing .content-report__hint {
+  margin-top: 4px;
+}
+.landing .content-report__textarea {
+  min-height: 120px;
+  resize: vertical;
+  font: inherit;
+}
+.landing .content-report__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 560px) {
+  .landing .content-report__row {
+    grid-template-columns: 1fr;
+  }
+  .landing .content-report__card {
+    padding: 22px 18px 20px;
+  }
+}
+.landing .content-report__check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.landing .content-report__check input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.landing .content-report__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in oklab, #dc2626 12%, transparent);
+  color: #b91c1c;
+  font-size: 13px;
+}
+.landing .content-report__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.landing .content-report__contact {
+  padding-top: 12px;
+  border-top: 1px solid var(--oe-line, color-mix(in oklab, var(--ink) 10%, transparent));
+}
+.landing .content-report__done {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+}
+.landing .content-report__done svg {
+  width: 44px;
+  height: 44px;
+  color: var(--green-ink);
+}
+.landing .content-report__done p {
+  margin: 0;
+  color: var(--mute);
+  font-size: 15px;
+}
+
+/* Super-Admin: Meldungen bearbeiten (admin/reports). */
+.landing .content-report__status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--warn, #b45309) 16%, transparent);
+  color: var(--ink);
+}
+.landing .content-report__status--in_review {
+  background: color-mix(in oklab, var(--green-ink) 14%, transparent);
+}
+.landing .content-report__status--closed {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+}
+.landing .content-report__target {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mute);
+  overflow-wrap: anywhere;
+}
+.landing .content-report__target a {
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.landing .content-report__target svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.landing .content-report__editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--ink) 3%, transparent);
+}
+.landing .content-report__editor .auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.landing .content-report__editor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .landing .content-report__editor-row {
+    grid-template-columns: 1fr;
+  }
+}
+.landing .content-report__textarea--small {
+  min-height: 0;
+  resize: vertical;
+  font: inherit;
+}
+.landing .content-report__editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.landing .content-report__ok {
+  margin: 0;
+  font-size: 13px;
+  color: var(--green-ink);
+}
+.landing .content-report__hint a,
+.landing .content-report__contact a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

@@ -589,6 +589,7 @@
     "adminTse": "Cloud-TSE",
     "adminRetention": "Deletion log",
     "adminSupport": "Support requests",
+    "adminReports": "Content reports",
     "adminFeedback": "Feedback",
     "tables": "Tables",
     "cashbook": "Cash book",
@@ -1536,6 +1537,66 @@
         "send": "Send"
       }
     },
+    "reports": {
+      "title": "Content reports",
+      "description": "Reports via “Report content” from shops and helper pages (Digital Services Act): review, decide, give reasons.",
+      "filterLabel": "Status",
+      "filter": { "open": "Open", "in_review": "In review", "closed": "Closed", "all": "All" },
+      "status": { "open": "Open", "in_review": "In review", "closed": "Closed" },
+      "target": {
+        "shop": "Shop “{event}” of {organization}",
+        "helper_page": "Helper page “{plan}” of {organization}",
+        "unknown": "Page not assigned"
+      },
+      "goodFaith": "good faith confirmed",
+      "notNotified": "not delivered",
+      "notNotifiedHint": "The notification to the operator address was not sent – check the address in the settings.",
+      "handle": "Handle",
+      "close": "Close",
+      "loading": "Loading …",
+      "empty": "No reports in this selection.",
+      "forbidden": "Only the platform administration can see content reports.",
+      "error": "The reports could not be loaded. Please try again later.",
+      "fields": {
+        "status": "Status",
+        "action": "Action",
+        "decision": "Decision",
+        "facts": "Facts",
+        "ground": "Legal or contractual ground",
+        "redress": "Redress"
+      },
+      "placeholders": {
+        "decision": "e.g. “The content violates § 9 JuSchG and was removed.” or “No violation found.”",
+        "facts": "Which facts and circumstances did you review?",
+        "ground": "e.g. terms clause 6.7 or the violated provision"
+      },
+      "actions": {
+        "undecided": "Not decided yet",
+        "none": "No action",
+        "hide_content": "Remove/hide content (manually)",
+        "disable_shop": "Block page (shop off or helper page offline)"
+      },
+      "disableHintShop": "Saving turns off the shop of this event. The club can turn it back on – talk to them first.",
+      "disableHintHelper": "Saving moves the helper page back to draft; it is no longer public.",
+      "hideHint": "Remove or hide the content yourself (e.g. product or text) – only the decision is recorded here.",
+      "actionApplied": "Action carried out on {date}.",
+      "save": "Save",
+      "saving": "Saving …",
+      "saved": "Saved.",
+      "saveFailed": "Could not be saved.",
+      "saveFirst": "Save first",
+      "notifyReporter": "Send decision to reporter",
+      "notifyOrganization": "Send reasons to club",
+      "notifiedReporter": "The decision was sent to the reporter.",
+      "notifiedOrganization": "The statement of reasons was sent to the club admins.",
+      "notifyFailed": "The e-mail could not be sent.",
+      "sent": {
+        "receipt": "Receipt confirmation {date}",
+        "noReceipt": "No receipt confirmation sent",
+        "reporter": "Decision to reporter {date}",
+        "organization": "Reasons to club {date}"
+      }
+    },
     "feedback": {
       "title": "Enquiries",
       "description": "Feedback, ideas and requests from the website.",
@@ -1821,6 +1882,7 @@
         "auth_records": "Access records",
         "audit_logs": "Logs",
         "support_messages": "Support chat",
+        "content_reports": "Content reports",
         "contact_requests": "Website enquiries",
         "receipt_links": "Receipt links",
         "assistant_imports": "Assistant imports",
@@ -4730,6 +4792,8 @@
     "CATEGORY_NOT_FOUND": "The category was not found.",
     "CHECKOUT_NOT_FOUND": "The checkout was not found.",
     "CONFLICT": "This conflicts with the current state. Please reload the page.",
+    "CONTENT_REPORT_NOT_FOUND": "The report was not found.",
+    "CONTENT_REPORTS_PAUSED": "We are receiving a lot of reports right now. Please try again later.",
     "CONTACT_MESSAGE_NOT_FOUND": "The message was not found.",
     "CREDITS_REQUIRED": "Credits are required for this action.",
     "DEPOSIT_RETURN_AMOUNT_INVALID": "The return amount must be greater than 0.",
@@ -7149,7 +7213,39 @@
     "search": "Search icons, e.g. beer or fries",
     "title": "Choose icon"
   },
+  "contentReport": {
+    "title": "Report content",
+    "intro": "Have you found content in a shop or on a helper page run with OpenEOS that you believe is illegal? Report it here. We review every report and tell you our decision by e-mail.",
+    "url": "Location (address of the page)",
+    "urlHint": "If you came here via the “Report content” link, the address is already filled in.",
+    "reason": "What is it about?",
+    "reasonChoose": "Please choose",
+    "reasons": {
+      "illegal": "Illegal content (general)",
+      "intellectual_property": "Copyright, trademark or other IP rights",
+      "personal_rights": "Personality rights or data protection",
+      "consumer_protection": "Consumer protection or misleading information",
+      "youth_protection": "Protection of minors (e.g. alcohol, tobacco)",
+      "fraud": "Fraud or counterfeit",
+      "other": "Other"
+    },
+    "description": "Explanation",
+    "descriptionPlaceholder": "Which content exactly, and why do you believe it is illegal?",
+    "name": "Your name",
+    "email": "Your e-mail address",
+    "goodFaith": "I confirm that I am submitting this report in good faith and that the information is accurate and complete to the best of my knowledge.",
+    "privacy": "We only use your details to handle the report and to reply to you. More in the <link>privacy policy</link>.",
+    "privacyNoLink": "We only use your details to handle the report and to reply to you.",
+    "submit": "Send report",
+    "sending": "Sending …",
+    "incomplete": "Please fill in all required fields and confirm the statement.",
+    "failed": "The report could not be sent. Please try again later.",
+    "sentTitle": "Thank you for your report",
+    "sentText": "We have received it and will review it. A confirmation of receipt is on its way by e-mail; we will also tell you our decision by e-mail.",
+    "contact": "Single point of contact under Art. 11 and 12 Digital Services Act for authorities and users: <mail>{email}</mail> (German, English)."
+  },
   "publicLegal": {
+    "reportContent": "Report content",
     "imprint": "Imprint",
     "privacy": "Privacy",
     "responsible": "Responsible: <b>{organization}</b>",
