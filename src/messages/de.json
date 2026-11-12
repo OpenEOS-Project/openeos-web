@@ -72,7 +72,7 @@
       "resendVerificationSent": "Bestätigungs-E-Mail wurde erneut gesendet.",
       "errors": {
         "invalidCredentials": "Ungültige E-Mail oder Passwort",
-        "accountLocked": "Dein Konto wurde gesperrt. Bitte versuche es später erneut.",
+        "accountLocked": "Zu viele falsche Passwörter: Die Anmeldung mit Passwort pausiert für {minutes} Minuten. Mit dem Anmeldelink per E-Mail kommst du sofort rein.",
         "emailRequired": "E-Mail ist erforderlich",
         "passwordRequired": "Passwort ist erforderlich",
         "invalidEmail": "Ungültige E-Mail-Adresse",
@@ -4687,7 +4687,7 @@
   },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "Das Konto ist deaktiviert.",
-    "ACCOUNT_LOCKED": "Das Konto ist für {minutes} Minuten gesperrt.",
+    "ACCOUNT_LOCKED": "Die Anmeldung mit Passwort pausiert für {minutes} Minuten. Mit dem Anmeldelink per E-Mail kommst du sofort rein.",
     "ACCOUNT_TEMPORARILY_LOCKED": "Das Konto ist vorübergehend gesperrt.",
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Nur Admins können Konten mit Startpasswort anlegen.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Nur Admins können Admins bearbeiten.",
