@@ -11,7 +11,7 @@ import { Select } from '@/components/ui/select/select';
 import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import type { DeviceClass, PendingDeviceLookup } from '@/types/device';
-import { normalizePairingCode, PAIRING_CODE_LENGTH } from '@/utils/pairing-code';
+import { isCompletePairingCode, normalizePairingCode } from '@/utils/pairing-code';
 
 /* 'admin' fehlt hier bewusst — der Wert wurde nirgends ausgewertet und
    schickte das Geraet in dieselbe Ansicht wie eine Kasse. */
@@ -92,7 +92,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig, fixedType }: DeviceLinkFl
      Zahl schon übergeben und soll sie nicht abtippen. */
   useEffect(() => {
     const ausUrl = normalizePairingCode(codeAusUrl);
-    if (ausUrl.length === PAIRING_CODE_LENGTH) suchen.mutate(ausUrl);
+    if (isCompletePairingCode(ausUrl)) suchen.mutate(ausUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeAusUrl]);
 
@@ -189,7 +189,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig, fixedType }: DeviceLinkFl
       className="device-link__form"
       onSubmit={(e) => {
         e.preventDefault();
-        if (code.length !== PAIRING_CODE_LENGTH) return setFehler(t('verify.invalidCode'));
+        if (!isCompletePairingCode(code)) return setFehler(t('verify.invalidCode'));
         setFehler(null);
         suchen.mutate(code);
       }}
@@ -221,7 +221,7 @@ export function DeviceLinkFlow({ codeAusUrl, onFertig, fixedType }: DeviceLinkFl
       <button
         type="submit"
         className="btn btn--primary btn--block"
-        disabled={code.length !== PAIRING_CODE_LENGTH || suchen.isPending}
+        disabled={!isCompletePairingCode(code) || suchen.isPending}
       >
         {suchen.isPending ? <Loader className="animate-spin" /> : t('verify.lookup')}
       </button>

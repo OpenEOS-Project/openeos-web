@@ -83,9 +83,11 @@ export function useUpdateCurrentOrganizationSettings() {
     mutationFn: async (patch: Partial<OrganizationSettings>) => {
       const current = useAuthStore.getState().currentOrganization;
       if (!current) throw new Error('No organization');
-      const settings = (current.organization?.settings ?? {}) as OrganizationSettings;
+      // Nur die geaenderten Abschnitte: die API fuehrt `settings` eine Ebene
+      // tief zusammen und lehnt Aenderungen an Abschnitten mit eigenem
+      // Endpunkt ab (ein veralteter Stand im Store saehe so aus).
       const response = await organizationsApi.update(current.organizationId, {
-        settings: { ...settings, ...patch },
+        settings: patch as OrganizationSettings,
       });
       return response.data;
     },
