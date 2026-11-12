@@ -589,6 +589,7 @@
     "adminTse": "Cloud-TSE",
     "adminRetention": "Löschprotokoll",
     "adminSupport": "Support-Anfragen",
+    "adminReports": "Inhaltsmeldungen",
     "adminFeedback": "Zuschriften",
     "tables": "Tische",
     "cashbook": "Kassenbuch",
@@ -2868,6 +2869,66 @@
         "send": "Senden"
       }
     },
+    "reports": {
+      "title": "Inhaltsmeldungen",
+      "description": "Meldungen über „Inhalt melden“ aus Shops und von Helferseiten (Digital Services Act): prüfen, entscheiden, begründen.",
+      "filterLabel": "Status",
+      "filter": { "open": "Offen", "in_review": "In Prüfung", "closed": "Abgeschlossen", "all": "Alle" },
+      "status": { "open": "Offen", "in_review": "In Prüfung", "closed": "Abgeschlossen" },
+      "target": {
+        "shop": "Shop „{event}“ von {organization}",
+        "helper_page": "Helferseite „{plan}“ von {organization}",
+        "unknown": "Seite nicht zugeordnet"
+      },
+      "goodFaith": "in gutem Glauben bestätigt",
+      "notNotified": "nicht zugestellt",
+      "notNotifiedHint": "Die Benachrichtigung an die Betreiber-Adresse ging nicht raus – prüfe die Adresse in den Einstellungen.",
+      "handle": "Bearbeiten",
+      "close": "Schließen",
+      "loading": "Wird geladen …",
+      "empty": "Keine Meldungen in dieser Auswahl.",
+      "forbidden": "Inhaltsmeldungen sieht nur die Plattform-Verwaltung.",
+      "error": "Die Meldungen konnten nicht geladen werden. Bitte später erneut versuchen.",
+      "fields": {
+        "status": "Status",
+        "action": "Maßnahme",
+        "decision": "Entscheidung",
+        "facts": "Sachverhalt",
+        "ground": "Rechtliche bzw. vertragliche Grundlage",
+        "redress": "Rechtsbehelfe"
+      },
+      "placeholders": {
+        "decision": "z. B. „Der Inhalt verstößt gegen § 9 JuSchG und wurde entfernt.“ oder „Kein Verstoß erkennbar.“",
+        "facts": "Welche Tatsachen und Umstände hast du geprüft?",
+        "ground": "z. B. AGB Ziffer 6.7 oder die verletzte Vorschrift"
+      },
+      "actions": {
+        "undecided": "Noch nicht entschieden",
+        "none": "Keine Maßnahme",
+        "hide_content": "Inhalt entfernen/ausblenden (von Hand)",
+        "disable_shop": "Seite sperren (Shop aus bzw. Helferseite offline)"
+      },
+      "disableHintShop": "Beim Speichern wird der Shop dieser Veranstaltung abgeschaltet. Der Verein kann ihn wieder einschalten – sprich dich vorher mit ihm ab.",
+      "disableHintHelper": "Beim Speichern wird die Helferseite in den Entwurf zurückgesetzt und ist nicht mehr öffentlich.",
+      "hideHint": "Entferne oder verberge den Inhalt selbst (z. B. Produkt oder Text) – hier wird nur die Entscheidung festgehalten.",
+      "actionApplied": "Maßnahme ausgeführt am {date}.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert …",
+      "saved": "Gespeichert.",
+      "saveFailed": "Konnte nicht gespeichert werden.",
+      "saveFirst": "Erst speichern",
+      "notifyReporter": "Entscheidung an Meldenden senden",
+      "notifyOrganization": "Begründung an Verein senden",
+      "notifiedReporter": "Die Entscheidung ging an den Meldenden.",
+      "notifiedOrganization": "Die Begründung ging an die Admins des Vereins.",
+      "notifyFailed": "Die E-Mail konnte nicht verschickt werden.",
+      "sent": {
+        "receipt": "Eingangsbestätigung {date}",
+        "noReceipt": "Keine Eingangsbestätigung verschickt",
+        "reporter": "Entscheidung an Meldenden {date}",
+        "organization": "Begründung an Verein {date}"
+      }
+    },
     "feedback": {
       "title": "Zuschriften",
       "description": "Rückmeldungen, Wünsche und Anfragen von der Website.",
@@ -3153,6 +3214,7 @@
         "auth_records": "Zugangsdaten",
         "audit_logs": "Protokolle",
         "support_messages": "Support-Chat",
+        "content_reports": "Inhaltsmeldungen",
         "contact_requests": "Website-Anfragen",
         "receipt_links": "Beleg-Links",
         "assistant_imports": "Assistent-Importe",
@@ -4718,6 +4780,8 @@
     "CATEGORY_NOT_FOUND": "Die Kategorie wurde nicht gefunden.",
     "CHECKOUT_NOT_FOUND": "Der Bezahlvorgang wurde nicht gefunden.",
     "CONFLICT": "Die Aktion steht im Konflikt mit dem aktuellen Stand. Bitte lade die Seite neu.",
+    "CONTENT_REPORT_NOT_FOUND": "Die Meldung wurde nicht gefunden.",
+    "CONTENT_REPORTS_PAUSED": "Gerade gehen sehr viele Meldungen ein. Bitte versuch es später noch einmal.",
     "CONTACT_MESSAGE_NOT_FOUND": "Die Nachricht wurde nicht gefunden.",
     "CREDITS_REQUIRED": "Für diese Aktion ist Guthaben erforderlich.",
     "DEPOSIT_RETURN_AMOUNT_INVALID": "Der Rückgabebetrag muss größer als 0 sein.",
@@ -7130,7 +7194,39 @@
     "search": "Icons durchsuchen, z. B. Bier oder Pommes",
     "title": "Icon wählen"
   },
+  "contentReport": {
+    "title": "Inhalt melden",
+    "intro": "Hast du in einem Shop oder auf einer Helferseite, die mit OpenEOS betrieben wird, einen Inhalt gefunden, der deiner Meinung nach rechtswidrig ist? Melde ihn hier. Wir prüfen jede Meldung und sagen dir per E-Mail, wie wir entschieden haben.",
+    "url": "Fundstelle (Adresse der Seite)",
+    "urlHint": "Kommst du über den Link „Inhalt melden“, ist die Adresse schon eingetragen.",
+    "reason": "Worum geht es?",
+    "reasonChoose": "Bitte auswählen",
+    "reasons": {
+      "illegal": "Rechtswidriger Inhalt (allgemein)",
+      "intellectual_property": "Urheber-, Marken- oder sonstige Schutzrechte",
+      "personal_rights": "Persönlichkeitsrechte oder Datenschutz",
+      "consumer_protection": "Verbraucherschutz oder irreführende Angaben",
+      "youth_protection": "Jugendschutz (z. B. Alkohol, Tabak)",
+      "fraud": "Betrug oder Fälschung",
+      "other": "Sonstiges"
+    },
+    "description": "Begründung",
+    "descriptionPlaceholder": "Welcher Inhalt genau, und warum ist er deiner Meinung nach rechtswidrig?",
+    "name": "Dein Name",
+    "email": "Deine E-Mail-Adresse",
+    "goodFaith": "Ich bestätige, dass ich diese Meldung in gutem Glauben abgebe und meine Angaben nach bestem Wissen richtig und vollständig sind.",
+    "privacy": "Deine Angaben verwenden wir nur, um die Meldung zu bearbeiten und dir zu antworten. Mehr dazu in der <link>Datenschutzerklärung</link>.",
+    "privacyNoLink": "Deine Angaben verwenden wir nur, um die Meldung zu bearbeiten und dir zu antworten.",
+    "submit": "Meldung absenden",
+    "sending": "Wird gesendet …",
+    "incomplete": "Bitte fülle alle Pflichtfelder aus und bestätige die Erklärung.",
+    "failed": "Die Meldung konnte nicht gesendet werden. Bitte versuch es später noch einmal.",
+    "sentTitle": "Danke für deine Meldung",
+    "sentText": "Wir haben sie erhalten und prüfen sie. Eine Eingangsbestätigung ist per E-Mail unterwegs; über unsere Entscheidung informieren wir dich ebenfalls per E-Mail.",
+    "contact": "Zentrale Kontaktstelle nach Art. 11 und 12 Digital Services Act für Behörden und Nutzer: <mail>{email}</mail> (Deutsch, Englisch)."
+  },
   "publicLegal": {
+    "reportContent": "Inhalt melden",
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "responsible": "Verantwortlich: <b>{organization}</b>",

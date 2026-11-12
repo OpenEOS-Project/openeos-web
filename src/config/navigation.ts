@@ -5,6 +5,7 @@ import {
   ChartLine,
   ClipboardCheck,
   Coins,
+  Flag,
   Inbox,
   LayoutDashboard,
   LayoutGrid,
@@ -90,6 +91,13 @@ export const superAdminNavItems: NavItemType[] = [
     href: '/admin/feedback',
     saasOnly: true,
     icon: Inbox,
+  },
+  {
+    // Meldungen rechtswidriger Inhalte (Art. 16 DSA) – auch eigene
+    // Installationen hosten Shops und Helferseiten.
+    labelKey: 'adminReports',
+    href: '/admin/reports',
+    icon: Flag,
   },
 ];
 
