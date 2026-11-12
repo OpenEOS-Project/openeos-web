@@ -72,7 +72,7 @@ test.describe('POS - Point of Sale', () => {
 
       const codeLabel = device.getByLabel('Kopplungscode');
       // Sechs Ziffern am Stueck, ohne Gruppierung.
-      await expect(codeLabel).toHaveText(/^\d{6}$/);
+      await expect(codeLabel).toHaveText(/^\d{8}$/);
       const code = (await codeLabel.textContent())!;
 
       // Der Weg ueber den QR-Code: die Adresse traegt den Code schon.
