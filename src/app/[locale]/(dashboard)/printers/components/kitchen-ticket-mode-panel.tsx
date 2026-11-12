@@ -40,7 +40,6 @@ export function KitchenTicketModePanel() {
         templateId: null,
       };
       const mergedSettings = {
-        ...currentSettings,
         orderFlow: {
           ...orderFlow,
           kitchenTicketPrinting: { ...kitchen, mode: next },

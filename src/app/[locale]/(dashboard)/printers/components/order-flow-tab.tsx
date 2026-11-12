@@ -104,8 +104,8 @@ export function OrderFlowTab() {
   // Helper to build merged settings payload
   function buildPayload(patch: NonNullable<OrganizationSettings['orderFlow']>) {
     const current = currentOrganization?.organization?.settings ?? {} as OrganizationSettings;
+    // Nur `orderFlow`: die API fuehrt `settings` eine Ebene tief zusammen.
     return {
-      ...current,
       orderFlow: {
         ...(current.orderFlow ?? {}),
         ...patch,
