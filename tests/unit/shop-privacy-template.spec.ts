@@ -114,6 +114,14 @@ test.describe('legal versions', () => {
     expect(fallback.documents.imprint.pdfUrl).toBeNull();
   });
 
+  test('TSE conditions pass through, absent means none', () => {
+    expect(withLegalFallback({ siteUrl: 'https://openeos.de' } as never).tseConditions).toBeNull();
+    expect(
+      withLegalFallback({ siteUrl: 'https://openeos.de', tseConditions: { url: null, text: null } } as never)
+        .tseConditions,
+    ).toEqual({ url: null, text: null });
+  });
+
   test('API answer is used and gaps are filled', () => {
     const versions = withLegalFallback({
       enabled: false,

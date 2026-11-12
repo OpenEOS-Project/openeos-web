@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowRight, ExternalLink, FileDown, FileText, Landmark, ShoppingBag } from 'lucide-react';
+import { ArrowRight, ExternalLink, FileDown, FileText, Landmark, ShieldCheck, ShoppingBag } from 'lucide-react';
 
 import { Link } from '@/i18n/routing';
 import { useLegalStatus, useLegalVersions } from '@/hooks/use-legal';
@@ -98,6 +98,34 @@ export function LegalOverview() {
               <ExternalLink aria-hidden="true" />
             </a>
           </p>
+        </section>
+      )}
+
+      {versions.tseConditions && (
+        <section className="app-card" aria-labelledby="legal-tse-title" data-testid="legal-tse-conditions">
+          <h2 id="legal-tse-title" className="legal-card__title legal-card__title--icon">
+            <ShieldCheck aria-hidden="true" />
+            {t('tseConditionsTitle')}
+          </h2>
+          {versions.tseConditions.text ? (
+            versions.tseConditions.text
+              .split(/\n\s*\n/)
+              .map((paragraph, index) => (
+                <p key={index} className="legal-card__text legal-card__text--pre">
+                  {paragraph}
+                </p>
+              ))
+          ) : (
+            <p className="legal-card__text">{t('tseConditionsPending')}</p>
+          )}
+          {versions.tseConditions.url && (
+            <p className="legal-card__more">
+              <a href={versions.tseConditions.url} target="_blank" rel="noopener noreferrer">
+                {t('tseConditionsOpen')}
+                <ExternalLink aria-hidden="true" />
+              </a>
+            </p>
+          )}
         </section>
       )}
 

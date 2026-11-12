@@ -57,7 +57,12 @@ export function withLegalFallback(data: Partial<LegalVersions> | null | undefine
       pdfUrl: doc.pdfUrl || null,
     };
   }
-  return { enabled: data.enabled !== false, siteUrl: fallback.siteUrl, documents };
+  return {
+    enabled: data.enabled !== false,
+    siteUrl: fallback.siteUrl,
+    documents,
+    tseConditions: data.tseConditions ?? null,
+  };
 }
 
 /** Stand „2026-11-04“ als Datum der Oberfläche, ohne Zeitzonen-Verschiebung. */
