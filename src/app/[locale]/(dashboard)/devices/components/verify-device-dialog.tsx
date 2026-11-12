@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { devicesApi } from '@/lib/api-client';
 import { DialogCloseButton } from '@/components/shared/dialog-close-button';
 import type { Device, DeviceClass } from '@/types/device';
-import { normalizePairingCode } from '@/utils/pairing-code';
+import { isCompletePairingCode, normalizePairingCode } from '@/utils/pairing-code';
 
 interface VerifyDeviceDialogProps {
   device: Device;
@@ -106,7 +106,7 @@ export function VerifyDeviceDialog({ device, onClose }: VerifyDeviceDialogProps)
             <button
               type="submit"
               className="btn btn--primary"
-              disabled={!code.trim() || verifyMutation.isPending}
+              disabled={!isCompletePairingCode(code) || verifyMutation.isPending}
             >
               {verifyMutation.isPending ? tCommon('saving') : t('verifyDialog.submit')}
             </button>

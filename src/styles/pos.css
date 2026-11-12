@@ -641,7 +641,8 @@ body:has(.pos-root) { overscroll-behavior: none; }
      Fernseher richtig — auf einem hochkanten Telefon ist die Hoehe die
      grosse Seite, und der Code wuchs dort auf 118px und brach in drei
      Zeilen um. Die schmalere Seite entscheidet jetzt mit. */
-  font-size: clamp(40px, min(14vh, 14vw), 150px);
+  /* Acht Ziffern: an der Breite etwas kleiner als frueher bei sechs. */
+  font-size: clamp(36px, min(14vh, 11vw), 150px);
   font-weight: 700;
   /* Etwas Luft zusaetzlich zur festen Ziffernbreite. Sie steht auch hinter
      der letzten Ziffer und schob den Code optisch nach links — der
