@@ -72,7 +72,7 @@
       "resendVerificationSent": "Confirmation email has been resent.",
       "errors": {
         "invalidCredentials": "Invalid email or password",
-        "accountLocked": "Your account has been locked. Please try again later.",
+        "accountLocked": "Too many wrong passwords: password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
         "emailRequired": "Email is required",
         "passwordRequired": "Password is required",
         "invalidEmail": "Invalid email address",
@@ -2997,7 +2997,7 @@
       "adminHint": "Administrators automatically have access to all modules.",
       "reports": "Reports",
       "inventory": "Inventory",
-      "orders": "Orders (cancel & refund)",
+      "orders": "Orders (cancel, refund, edit paid orders)",
       "waiters": "Servers"
     },
     "form": {
@@ -4388,11 +4388,11 @@
     },
     "verifyDialog": {
       "title": "Approve Device",
-      "description": "Enter the 6-digit code displayed on the device.",
+      "description": "Enter the eight-digit code displayed on the device.",
       "type": "Device type",
       "typeHint": "Saved directly on approval – Tills start in table-service mode and can be changed later in the device settings.",
       "code": "Verification Code",
-      "codePlaceholder": "000000",
+      "codePlaceholder": "00000000",
       "submit": "Approve Device",
       "invalidCode": "Invalid verification code"
     },
@@ -4419,7 +4419,7 @@
       "link": "Registration Link",
       "instructions": "How to register a new device:",
       "step1": "Open the link or scan the QR code on the device",
-      "step2": "The device shows a six-digit number",
+      "step2": "The device shows an eight-digit number (valid for 15 minutes)",
       "step3": "Enter that number under \"Connect device\" – done",
       "copy": "Copy",
       "copied": "Copied"
@@ -4445,7 +4445,7 @@
     },
     "verify": {
       "title": "Connect device",
-      "enterCodeDescription": "Enter the six-digit code shown on the device.",
+      "enterCodeDescription": "Enter the eight-digit code shown on the device.",
       "code": "Verification Code",
       "lookup": "Find Device",
       "deviceNotFound": "Device not found or already linked",
@@ -4456,7 +4456,7 @@
       "deviceType": "Device Type",
       "link": "Link",
       "linkFailed": "Linking failed",
-      "invalidCode": "Please enter a 6-digit code",
+      "invalidCode": "Please enter the eight-digit code",
       "enterName": "Please enter a name",
       "success": "Successfully Linked!",
       "successDescription": "The device has been successfully linked to your organization.",
@@ -4468,7 +4468,7 @@
       "cta": "Connect device",
       "namePlaceholder": "e.g. Bar till 1",
       "wrongType": "This code does not belong to a {type}. For tills and displays use \"Connect device\" under Devices.",
-      "enterCodeDescriptionPrinterAgent": "Enter the six-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
+      "enterCodeDescriptionPrinterAgent": "Enter the eight-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
       "successDescriptionPrinterAgent": "The printer agent now belongs to your organization. It will show up in the list in a moment and report the printers it finds."
     },
     "detail": {
@@ -4699,7 +4699,7 @@
   },
   "apiErrors": {
     "ACCOUNT_INACTIVE": "The account is deactivated.",
-    "ACCOUNT_LOCKED": "The account is locked for {minutes} minutes.",
+    "ACCOUNT_LOCKED": "Password login is paused for {minutes} minutes. The login link by e-mail gets you in right away.",
     "ACCOUNT_TEMPORARILY_LOCKED": "The account is temporarily locked.",
     "ADMIN_REQUIRED_FOR_START_PASSWORD": "Only admins can create accounts with an initial password.",
     "ADMIN_REQUIRED_TO_EDIT_ADMIN": "Only admins can edit admins.",
@@ -4743,6 +4743,7 @@
     "DEVICE_NOT_VERIFIED": "The device has not been approved yet.",
     "DEVICE_TOKEN_INVALID": "The device sign-in is invalid. Please pair it again.",
     "DEVICE_TOKEN_MISSING": "The device is not signed in.",
+    "DEVICE_TYPE_NOT_ALLOWED": "This function is not available for this device type. Check the device type under Devices.",
     "DEVICE_VERIFICATION_CODE_INVALID": "The verification code is invalid.",
     "DEVICE_WRONG_ORGANIZATION": "The device does not belong to this organization.",
     "DISCOUNT_VOUCHER_AMOUNT_REQUIRED": "A fixed discount voucher needs an amount.",
@@ -4770,6 +4771,7 @@
     "HANDOFF_STATION_NOT_FOUND": "The handoff station was not found or belongs to a different event.",
     "INSUFFICIENT_CREDITS": "Not enough credits.",
     "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
+    "ORDERS_PERMISSION_REQUIRED": "This needs the “Orders” permission – ask an admin.",
     "INSUFFICIENT_STOCK": "Not enough stock available.",
     "INSUFFICIENT_STOCK_FOR_PRODUCT": "Not enough stock for \"{product}\".",
     "INSUFFICIENT_UNPAID_QUANTITY": "Not enough unpaid quantity left for \"{product}\".",
@@ -4855,6 +4857,9 @@
     "ORGANIZATION_NOT_SPECIFIED": "No organization selected.",
     "ORG_NOT_FOUND": "The organization was not found.",
     "PAIRING_CODE_UNAVAILABLE": "No pairing code can be issued right now. Please try again later.",
+    "PAIRING_CODE_ATTEMPTS_EXCEEDED": "Too many attempts with this code. Wait until the device shows a new code.",
+    "PAIRING_CODE_EXPIRED": "The pairing code has expired. The device will show a new one shortly.",
+    "PENDING_DEVICE_LIMIT_REACHED": "Too many devices are waiting to be paired right now. Link the waiting devices first or try again later.",
     "PASSWORD_INCORRECT": "The password is incorrect.",
     "PASSWORD_LOGIN_UNAVAILABLE": "This account has no password. Please sign in with a sign-in link.",
     "PAYMENT_ALREADY_REFUNDED": "The payment has already been refunded.",
@@ -5103,6 +5108,8 @@
     "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first.",
     "SETUP_TOKEN_INVALID": "The setup code is wrong. You find it in the API log or in SETUP_TOKEN.",
+    "ORGANIZATION_SETTING_NOT_UPDATABLE": "This setting is changed in its own section. Reload the page and try again.",
+    "ORGANIZATION_SETTINGS_INVALID": "This setting is invalid. Check your input and try again.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club.",
     "TIP_PAYOUT_AMOUNT_INVALID": "The amount does not fit: at most the open card tips and more than €0.",
     "CURRENT_PASSWORD_REQUIRED": "Enter your current password.",
@@ -5688,7 +5695,7 @@
         "steps": {
           "download": "Download the agent for Windows or Linux.",
           "install": "Install and start it on the PC (Windows: as a service, Linux: install.sh).",
-          "code": "On start-up the agent shows a six-digit code.",
+          "code": "On start-up the agent shows an eight-digit code.",
           "enter": "Enter the code here — the agent then appears in the list."
         },
         "downloadWindows": "Download for Windows",
