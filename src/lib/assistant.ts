@@ -37,3 +37,12 @@ export function quotaLine(quota: AssistantQuota | null | undefined): QuotaLine {
   if (remaining === 0) return { kind: 'exhausted', limit: quota.limit };
   return { kind: 'remaining', remaining, limit: quota.limit };
 }
+
+/**
+ * Stammt mindestens ein Vorschlag aus dem Sprachmodell? Dann trägt er die
+ * Kennzeichnung „KI-generierter Vorschlag“ (Art. 50 KI-VO). Treffer aus dem
+ * Icon-Verzeichnis (Wortvergleich, `lexical`) sind keine KI-Ausgabe.
+ */
+export function hasModelSuggestion(suggestions: readonly { source?: string }[] | null | undefined): boolean {
+  return !!suggestions?.some((suggestion) => suggestion.source === 'model');
+}
