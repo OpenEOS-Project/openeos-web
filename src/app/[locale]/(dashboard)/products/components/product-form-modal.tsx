@@ -27,6 +27,8 @@ import type { Product, ProductOptionGroup } from '@/types/product';
 
 import { CategoryFormModal } from '@/components/shared/category-form-modal';
 import { SettingToggle } from '@/components/shared/setting-toggle';
+import { AiSuggestionLabel } from '@/components/shared/ai-suggestion-label';
+import { hasModelSuggestion } from '@/lib/assistant';
 import { PriceInput } from '@/components/shared/price-input';
 import { useOrganization } from '@/hooks/use-organizations';
 import { taxRatesFor } from '@/lib/tax-rates';
@@ -381,6 +383,9 @@ export function ProductFormModal({ isOpen, eventId, product, onClose }: ProductF
                   {suggestedFor && !iconSuggestions.isPending && (
                     <div className="icon-suggest" role="group" aria-label={t('form.iconSuggest.title', { name: suggestedFor })}>
                       <span>{suggested.length > 0 ? t('form.iconSuggest.title', { name: suggestedFor }) : t('form.iconSuggest.none')}</span>
+                      {/* Nur Modell-Treffer sind KI-generiert; Treffer aus dem
+                          Icon-Verzeichnis (Wortvergleich) nicht. */}
+                      {hasModelSuggestion(suggested) && <AiSuggestionLabel />}
                       {suggested.length > 0 && (
                         <div className="icon-suggest__options">
                           {suggested.map((suggestion) => {

@@ -28,6 +28,10 @@
       "title": "Keine Organisation ausgewählt",
       "description": "Bitte wähle zuerst eine Organisation aus."
     },
+    "aiSuggestion": {
+      "label": "KI-generierter Vorschlag",
+      "title": "Dieser Vorschlag wurde von einem KI-Sprachmodell erzeugt. Prüfe ihn, bevor du ihn übernimmst."
+    },
     "sourceCode": {
       "label": "Quellcode (AGPL-3.0)",
       "title": "OpenEOS ist freie Software unter der AGPL-3.0-or-later. Hier findest du den Quellcode."
