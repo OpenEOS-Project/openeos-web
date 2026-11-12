@@ -4388,11 +4388,11 @@
     },
     "verifyDialog": {
       "title": "Approve Device",
-      "description": "Enter the 6-digit code displayed on the device.",
+      "description": "Enter the eight-digit code displayed on the device.",
       "type": "Device type",
       "typeHint": "Saved directly on approval – Tills start in table-service mode and can be changed later in the device settings.",
       "code": "Verification Code",
-      "codePlaceholder": "000000",
+      "codePlaceholder": "00000000",
       "submit": "Approve Device",
       "invalidCode": "Invalid verification code"
     },
@@ -4419,7 +4419,7 @@
       "link": "Registration Link",
       "instructions": "How to register a new device:",
       "step1": "Open the link or scan the QR code on the device",
-      "step2": "The device shows a six-digit number",
+      "step2": "The device shows an eight-digit number (valid for 15 minutes)",
       "step3": "Enter that number under \"Connect device\" – done",
       "copy": "Copy",
       "copied": "Copied"
@@ -4445,7 +4445,7 @@
     },
     "verify": {
       "title": "Connect device",
-      "enterCodeDescription": "Enter the six-digit code shown on the device.",
+      "enterCodeDescription": "Enter the eight-digit code shown on the device.",
       "code": "Verification Code",
       "lookup": "Find Device",
       "deviceNotFound": "Device not found or already linked",
@@ -4456,7 +4456,7 @@
       "deviceType": "Device Type",
       "link": "Link",
       "linkFailed": "Linking failed",
-      "invalidCode": "Please enter a 6-digit code",
+      "invalidCode": "Please enter the eight-digit code",
       "enterName": "Please enter a name",
       "success": "Successfully Linked!",
       "successDescription": "The device has been successfully linked to your organization.",
@@ -4468,7 +4468,7 @@
       "cta": "Connect device",
       "namePlaceholder": "e.g. Bar till 1",
       "wrongType": "This code does not belong to a {type}. For tills and displays use \"Connect device\" under Devices.",
-      "enterCodeDescriptionPrinterAgent": "Enter the six-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
+      "enterCodeDescriptionPrinterAgent": "Enter the eight-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
       "successDescriptionPrinterAgent": "The printer agent now belongs to your organization. It will show up in the list in a moment and report the printers it finds."
     },
     "detail": {
@@ -4855,6 +4855,9 @@
     "ORGANIZATION_NOT_SPECIFIED": "No organization selected.",
     "ORG_NOT_FOUND": "The organization was not found.",
     "PAIRING_CODE_UNAVAILABLE": "No pairing code can be issued right now. Please try again later.",
+    "PAIRING_CODE_ATTEMPTS_EXCEEDED": "Too many attempts with this code. Wait until the device shows a new code.",
+    "PAIRING_CODE_EXPIRED": "The pairing code has expired. The device will show a new one shortly.",
+    "PENDING_DEVICE_LIMIT_REACHED": "Too many devices are waiting to be paired right now. Link the waiting devices first or try again later.",
     "PASSWORD_INCORRECT": "The password is incorrect.",
     "PASSWORD_LOGIN_UNAVAILABLE": "This account has no password. Please sign in with a sign-in link.",
     "PAYMENT_ALREADY_REFUNDED": "The payment has already been refunded.",
@@ -5686,7 +5689,7 @@
         "steps": {
           "download": "Download the agent for Windows or Linux.",
           "install": "Install and start it on the PC (Windows: as a service, Linux: install.sh).",
-          "code": "On start-up the agent shows a six-digit code.",
+          "code": "On start-up the agent shows an eight-digit code.",
           "enter": "Enter the code here — the agent then appears in the list."
         },
         "downloadWindows": "Download for Windows",
