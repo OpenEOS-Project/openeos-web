@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { io, type Socket } from 'socket.io-client';
+import { sessionSocketOptions } from '@/lib/session-socket';
 
 import { apiClient, ordersApi } from '@/lib/api-client';
 import { getApiBaseUrl } from '@/lib/runtime-config';
@@ -250,13 +251,10 @@ export function useTablesLiveUpdates(organizationId: string, isBusy: () => boole
   useEffect(() => {
     if (!organizationId || typeof window === 'undefined') return;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const socket: Socket = io(getApiBaseUrl(), {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      // Als Funktion: bei jedem Wiederverbinden das aktuelle Token.
-      auth: (cb) => cb({ token: apiClient.getAccessToken() ?? undefined }),
-      reconnectionDelayMax: 10_000,
-    });
+    const socket: Socket = io(
+      getApiBaseUrl(),
+      sessionSocketOptions(() => apiClient.getAccessToken()),
+    );
     const join = () => socket.emit('joinRoom', { organizationId });
     const refresh = () => {
       clearTimeout(timer);
