@@ -6,7 +6,8 @@
  * API nennt nur die gültige Fassung und die Adressen dazu.
  */
 
-export type LegalDocumentKey = 'agb' | 'avv' | 'privacy' | 'imprint';
+/** `anlage1`: Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste). */
+export type LegalDocumentKey = 'agb' | 'anlage1' | 'avv' | 'privacy' | 'imprint';
 
 /** Dokumente, die bei Registrierung und Buchung angenommen werden. */
 export type AcceptableLegalDocument = 'agb' | 'avv';

@@ -169,7 +169,7 @@
           "summaryOrganization": "Organisation",
           "newsletter": "Ich möchte gelegentlich Neuigkeiten zu OpenEOS per E-Mail erhalten. Abbestellen geht jederzeit.",
           "summaryCountry": "Land",
-          "confirmBusiness": "Ich bestätige, dass ich als Unternehmer, juristische Person des öffentlichen Rechts oder eingetragener Verein handle und zur Vertretung der Organisation berechtigt bin.",
+          "confirmBusiness": "Ich bestätige, dass ich für ein Unternehmen, eine Behörde, einen Verein (eingetragen oder nicht), eine Stiftung oder eine sonstige Organisation handle – nicht als Verbraucher – und sie vertreten darf.",
           "acceptTerms": "Ich habe die <agb>AGB</agb> und den <avv>Auftragsverarbeitungsvertrag</avv> gelesen und akzeptiere sie.",
           "privacyHint": "Wie wir deine Daten verarbeiten, steht in der <privacy>Datenschutzerklärung</privacy>.",
           "germanNote": "Die Rechtstexte gibt es nur auf Deutsch."
@@ -7539,6 +7539,7 @@
       "documentsText": "Für die Nutzung von OpenEOS gelten diese Texte. Ältere Fassungen bleiben unter ihrem Datum abrufbar.",
       "documents": {
         "agb": "Allgemeine Geschäftsbedingungen (AGB)",
+        "anlage1": "Anlage 1 zu den AGB: Leistungsbeschreibung und Preisliste",
         "avv": "Auftragsverarbeitungsvertrag (AVV)",
         "privacy": "Datenschutzerklärung",
         "imprint": "Impressum"
@@ -7551,6 +7552,7 @@
       "outdated": "nicht mehr aktuell",
       "notAccepted": "Von dir noch nicht akzeptiert.",
       "subprocessors": "Unterauftragsverarbeiter (AVV Anhang B)",
+      "dataAct": "Data Act: Standorte, Datenexport und Anbieterwechsel",
       "elsterTitle": "Angaben für die Finanzamt-Meldung (ELSTER)",
       "elsterText": "Software, Seriennummer der Kasse und TSE – die Werte, die du in ELSTER einträgst.",
       "shopTitle": "Rechtstexte für deinen Shop",

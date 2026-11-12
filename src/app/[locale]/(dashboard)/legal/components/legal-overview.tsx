@@ -7,7 +7,7 @@ import { Link } from '@/i18n/routing';
 import { useLegalStatus, useLegalVersions } from '@/hooks/use-legal';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
-import { formatLegalVersion, LEGAL_DOCUMENT_KEYS, subprocessorsUrl } from '@/lib/legal-platform';
+import { dataActUrl, formatLegalVersion, LEGAL_DOCUMENT_KEYS, subprocessorsUrl } from '@/lib/legal-platform';
 import { useAuthStore } from '@/stores/auth-store';
 import type { LegalDocumentKey } from '@/types/legal';
 
@@ -95,6 +95,10 @@ export function LegalOverview() {
           <p className="legal-card__more">
             <a href={localize(subprocessorsUrl(versions.documents.avv.url))} target="_blank" rel="noopener noreferrer">
               {t('subprocessors')}
+              <ExternalLink aria-hidden="true" />
+            </a>
+            <a href={localize(dataActUrl(versions.siteUrl))} target="_blank" rel="noopener noreferrer">
+              {t('dataAct')}
               <ExternalLink aria-hidden="true" />
             </a>
           </p>
