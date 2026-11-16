@@ -5107,6 +5107,7 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "The counted amount is invalid.",
     "WAITER_TRANSFER_INVALID": "Cannot hand over: only open tables can be handed over to an active server.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "With a Cloud TSE you can only change the tax status with a cash register closing – OpenEOS asks you first.",
+    "SETUP_TOKEN_INVALID": "The setup code is wrong. You find it in the API log or in SETUP_TOKEN.",
     "ORGANIZATION_SETTING_NOT_UPDATABLE": "This setting is changed in its own section. Reload the page and try again.",
     "ORGANIZATION_SETTINGS_INVALID": "This setting is invalid. Check your input and try again.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club.",
@@ -5542,6 +5543,7 @@
     "count": "{count, plural, =0 {No shift plans} =1 {1 shift plan} other {# shift plans}}"
   },
   "setup": {
+    "token": {"sectionTitle": "Setup code", "label": "Setup code", "hint": "Printed to the API log on first start (e.g. docker compose logs api) or set in SETUP_TOKEN."},
     "title": "Welcome to OpenEOS",
     "submit": "Complete Setup",
     "modeSelect": {
