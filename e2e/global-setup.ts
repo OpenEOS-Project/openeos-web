@@ -38,7 +38,10 @@ async function globalSetup(config: FullConfig) {
     }
 
     if (status.required) {
-      await apiPost(api, 'setup', {}, {
+      // Einrichtungscode: in CI per SETUP_TOKEN an die API gegeben, lokal
+      // aus dem Protokoll der API (E2E_SETUP_TOKEN=...).
+      const setupToken = process.env.E2E_SETUP_TOKEN ?? '';
+      await apiPost(api, 'setup', setupToken ? { 'X-Setup-Token': setupToken } : {}, {
         mode: 'single',
         email: TEST_ADMIN.email,
         password: TEST_ADMIN.password,
