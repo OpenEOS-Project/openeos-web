@@ -27,12 +27,13 @@ test.describe('Two-factor sign-in', () => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     // Gehostete Installationen beginnen beim Anmeldelink.
+    await loginPage.emailInput.waitFor();
     const usePassword = page.getByRole('button', { name: 'Doch mit Passwort anmelden' });
     if (await usePassword.isVisible().catch(() => false)) await usePassword.click();
     await loginPage.login('kim@example.org', 'irgendein-Passwort-1');
     await expect(page).toHaveURL(/\/2fa-verify\?/);
 
-    await page.getByLabel('Verifizierungscode').fill('123456');
+    await page.locator('input[autocomplete="one-time-code"]').fill('123456');
     await page.getByText('Diesem Gerät für 30 Tage vertrauen').click();
     await page.getByRole('button', { name: 'Verifizieren' }).click();
     await expect.poll(() => sent.length).toBe(2);
