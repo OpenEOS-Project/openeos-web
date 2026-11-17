@@ -99,6 +99,12 @@ const SOON_TEXT =
   'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.';
 
 test.describe('Cloud-TSE coming soon', () => {
+  // Stop the response patches before the page closes, so a request still in
+  // flight at the end of a test does not fail it.
+  test.afterEach(async ({ adminPage }) => {
+    await adminPage.unrouteAll({ behavior: 'ignoreErrors' });
+  });
+
   test('hosted without provider: catalog, info dialog, TSE page and operating modes say „Bald verfügbar“', async ({
     adminPage,
   }) => {
