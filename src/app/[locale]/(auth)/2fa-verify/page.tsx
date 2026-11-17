@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input/input';
 import { Label } from '@/components/ui/input/label';
 import { Checkbox } from '@/components/ui/checkbox/checkbox';
 import { twoFactorApi, authApi, apiClient } from '@/lib/api-client';
-import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { useAuthStore } from '@/stores/auth-store';
 
 function createVerifySchema(t: (key: string) => string) {
@@ -91,7 +90,7 @@ export default function TwoFactorVerifyPage() {
     else if (ua.includes('Android')) os = 'Android';
     else if (ua.includes('iOS')) os = 'iOS';
 
-    return t('deviceInfo', { browser, os });
+    return { deviceName: t('deviceInfo', { browser, os }), browser, os };
   };
 
   const onSubmit = async (data: VerifyFormData) => {
@@ -110,8 +109,10 @@ export default function TwoFactorVerifyPage() {
       const response = await twoFactorApi.verify2FA({
         code: data.code,
         trustDevice: data.trustDevice,
-        deviceFingerprint: data.trustDevice ? getDeviceFingerprint() : undefined,
-        deviceInfo: data.trustDevice ? getDeviceInfo() : undefined,
+        // Vertraut wird das Gerät über ein Cookie, das die API nach diesem
+        // Aufruf setzt; Name, Browser und System dienen nur der Liste unter
+        // Einstellungen → Sicherheit.
+        ...(data.trustDevice ? getDeviceInfo() : {}),
       });
 
       const { user, accessToken } = response.data;

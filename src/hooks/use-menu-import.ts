@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type Socket, io } from 'socket.io-client';
+import { sessionSocketOptions } from '@/lib/session-socket';
 
 import { assistantKeys } from '@/hooks/use-assistant';
 import { categoryKeys } from '@/hooks/use-categories';
@@ -56,12 +57,10 @@ export function useMenuImport(organizationId: string, eventId: string, id: strin
 
   useEffect(() => {
     if (!pending || !organizationId || typeof window === 'undefined') return;
-    const socket: Socket = io(getApiBaseUrl(), {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      auth: (cb) => cb({ token: apiClient.getAccessToken() ?? undefined }),
-      reconnectionDelayMax: 10_000,
-    });
+    const socket: Socket = io(
+      getApiBaseUrl(),
+      sessionSocketOptions(() => apiClient.getAccessToken()),
+    );
     const join = () => socket.emit('joinRoom', { organizationId });
     const onUpdate = (event: { id: string; eventId: string; status: MenuImport['status'] }) => {
       if (event.id !== id) return;

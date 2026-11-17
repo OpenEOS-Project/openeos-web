@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { io, type Socket } from 'socket.io-client';
+import { sessionSocketOptions } from '@/lib/session-socket';
 
 import { apiClient, printerAgentsApi, printersApi } from '@/lib/api-client';
 import { getApiBaseUrl } from '@/lib/runtime-config';
@@ -166,13 +167,10 @@ export function usePrinterLiveUpdates(organizationId: string) {
   useEffect(() => {
     if (!organizationId || typeof window === 'undefined') return;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const socket: Socket = io(getApiBaseUrl(), {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      // As a function: the current token on every reconnect.
-      auth: (cb) => cb({ token: apiClient.getAccessToken() ?? undefined }),
-      reconnectionDelayMax: 10_000,
-    });
+    const socket: Socket = io(
+      getApiBaseUrl(),
+      sessionSocketOptions(() => apiClient.getAccessToken()),
+    );
     const join = () => socket.emit('joinRoom', { organizationId });
     const refresh = () => {
       clearTimeout(timer);

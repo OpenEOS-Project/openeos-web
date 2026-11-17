@@ -8,7 +8,6 @@ import { ArrowRight, TabletSmartphone, Tv } from 'lucide-react';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { Link } from '@/i18n/routing';
 import { apiClient, authApi } from '@/lib/api-client';
-import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { useAuthStore } from '@/stores/auth-store';
 import { ApiException } from '@/types/api';
 import { isTwoFactorRequired } from '@/types/auth';
@@ -91,14 +90,9 @@ export function LoginForm() {
     setResendStatus('idle');
 
     try {
-      /* Der Fingerabdruck entscheidet, ob dieses Gerät als vertraut gilt
-         und der zweite Faktor entfallen darf. Ohne ihn fragte die
-         Anmeldung auch auf dem eigenen Rechner jedes Mal nach. */
-      const response = await authApi.login({
-        email,
-        password,
-        deviceFingerprint: getDeviceFingerprint(),
-      });
+      /* Ob der zweite Faktor entfällt, entscheidet die API allein am
+         httpOnly-Cookie eines vertrauten Geräts (credentials: 'include'). */
+      const response = await authApi.login({ email, password });
 
       if (isTwoFactorRequired(response.data)) {
         const params = new URLSearchParams({

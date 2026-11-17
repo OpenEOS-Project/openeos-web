@@ -1,6 +1,6 @@
 # Muster: Datenschutzhinweise für den Online-Shop eines OpenEOS-Kunden
 
-**Stand: 4. November 2026**
+**Stand: 12. November 2026**
 
 Dieses Muster stellt LUXCODE by Lukas Lukic-Spitznagel seinen Kunden (Vereinen und Gastronomiebetrieben) zur Verfügung, damit sie es in ihrem OpenEOS-Online-Shop, auf ihren Helferseiten und an der Kasse verwenden können. Verantwortlich für die Datenverarbeitung im Shop ist der Kunde, nicht LUXCODE. Der Kunde muss die Felder in eckigen Klammern ausfüllen und das Muster auf seine Verhältnisse prüfen. Die Felder mit geschweiften Klammern sind die Angaben der Organisation (Name, Anschrift, Kontakt-E-Mail); derzeit trägt der Kunde sie selbst ein.
 
@@ -25,7 +25,7 @@ E-Mail: {{kunde.email}}
 
 **Kasse und Belege.** An unserer Kasse werden Ihre Einkäufe elektronisch erfasst. Nehmen wir Bargeld an, werden sie mit einer technischen Sicherheitseinrichtung (TSE) signiert, wie es das Steuerrecht vorschreibt (§ 146a Abgabenordnung). Dabei werden der Verkaufsvorgang, Zeitpunkt, Betrag und Zahlungsart gespeichert. Ihr Name wird an der Kasse nur erfasst, wenn Sie ihn für die Ausgabe Ihrer Bestellung angeben. Rechtsgrundlage ist Art. 6 Abs. 1 Buchstabe c DSGVO (rechtliche Verpflichtung).
 
-**Zahlung.** Wenn Sie mit Karte oder online bezahlen, wird die Zahlung von unserem Zahlungsdienstleister abgewickelt: [SumUp und/oder PayPal, nicht Genutztes streichen]. Wir erhalten von dort nur die Bestätigung der Zahlung, den Betrag, eine Transaktionsnummer und gegebenenfalls Kartenmarke und letzte vier Ziffern, keine vollständigen Kartendaten. Für die Verarbeitung Ihrer Zahlungsdaten ist der Zahlungsdienstleister selbst verantwortlich; seine Datenschutzhinweise finden Sie auf seiner Website.
+**Zahlung.** Wenn Sie mit Karte oder online bezahlen, wird die Zahlung von unserem Zahlungsdienstleister SumUp abgewickelt. Wir erhalten von dort nur die Bestätigung der Zahlung, den Betrag, eine Transaktionsnummer und gegebenenfalls Kartenmarke und letzte vier Ziffern, keine vollständigen Kartendaten. Für die Verarbeitung Ihrer Zahlungsdaten ist der Zahlungsdienstleister selbst verantwortlich; seine Datenschutzhinweise finden Sie auf seiner Website.
 
 ## 3. Wer die Daten für uns verarbeitet
 
