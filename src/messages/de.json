@@ -1008,6 +1008,8 @@
       "contactEmail": "Kontakt für Datenschutzfragen (optional)",
       "contactEmailPlaceholder": "datenschutz@dein-verein.de",
       "contactEmailHint": "Erscheint neben Impressum und Datenschutz.",
+      "withdrawalRight": "Für Bestellungen besteht ein Widerrufsrecht",
+      "withdrawalRightHint": "Nur einschalten, wenn deine Gäste die Bestellung widerrufen können – etwa bei Merchandise oder Waren ohne Veranstaltungsbezug. Für Speisen und Getränke zu einer Veranstaltung besteht in aller Regel kein Widerrufsrecht (§ 312g Abs. 2 Nr. 2 und 9 BGB). Eingeschaltet zeigt der Shop „Vertrag widerrufen“; Widerrufe gehen per E-Mail an dich. Ob ein Widerrufsrecht besteht, entscheidest du als Verkäufer – <link>mehr dazu</link>.",
       "footerPreview": "Vorschau der Fußzeile",
       "footerPreviewLabel": "Vorschau der Fußzeile im Shop und auf den Helferseiten",
       "footerResponsible": "Verantwortlich: {organization}",

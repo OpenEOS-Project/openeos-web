@@ -1008,6 +1008,8 @@
       "contactEmail": "Contact for privacy questions (optional)",
       "contactEmailPlaceholder": "privacy@your-club.org",
       "contactEmailHint": "Shown next to the imprint and privacy links.",
+      "withdrawalRight": "Orders come with a right of withdrawal",
+      "withdrawalRightHint": "Only turn this on if your guests can withdraw from their orders – e.g. for merchandise or goods not tied to the event. Food and drinks for an event are generally exempt (§ 312g (2) no. 2 and 9 BGB). When on, the shop shows “Vertrag widerrufen” (withdraw from contract) and withdrawals reach you by e-mail. As the seller you decide whether a right of withdrawal exists – <link>learn more</link>.",
       "footerPreview": "Footer preview",
       "footerPreviewLabel": "Preview of the footer in the shop and on the helper pages",
       "footerResponsible": "Responsible: {organization}",
