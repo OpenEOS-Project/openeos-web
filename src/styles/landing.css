@@ -1554,6 +1554,22 @@ body:has(.landing) {
   border-color: var(--green-ink);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 22%, transparent);
 }
+/* Kontrollkästchen und Optionsfelder in einem .auth-field (z. B. die
+   Artikelauswahl der Wertmarken) bekommen nicht die Feldmaße von oben,
+   sonst werden sie 100 % breit und schieben die Beschriftung zur Seite. */
+.landing .auth-field input[type='checkbox'],
+.landing .auth-field input[type='radio'] {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  flex: none;
+  border: revert;
+  border-radius: revert;
+  background: revert;
+  box-shadow: none;
+  accent-color: var(--green-ink);
+}
 .landing .auth-field--error input { border-color: var(--danger); }
 .landing .auth-field--error input:focus {
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 18%, transparent);
