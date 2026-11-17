@@ -216,6 +216,19 @@
   font-weight: 650;
   color: var(--ink);
 }
+.landing .legal-card__title--icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.landing .legal-card__title--icon svg {
+  width: 18px;
+  height: 18px;
+  color: var(--mute);
+}
+.landing .legal-card__text--pre {
+  white-space: pre-line;
+}
 .landing .legal-card__title--spaced {
   margin-top: 24px;
 }

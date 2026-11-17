@@ -121,6 +121,14 @@ test.describe('legal versions', () => {
     expect(dataActUrl('https://staging.openeos.de/')).toBe('https://staging.openeos.de/data-act');
   });
 
+  test('TSE conditions pass through, absent means none', () => {
+    expect(withLegalFallback({ siteUrl: 'https://openeos.de' } as never).tseConditions).toBeNull();
+    expect(
+      withLegalFallback({ siteUrl: 'https://openeos.de', tseConditions: { url: null, text: null } } as never)
+        .tseConditions,
+    ).toEqual({ url: null, text: null });
+  });
+
   test('API answer is used and gaps are filled', () => {
     const versions = withLegalFallback({
       enabled: false,
