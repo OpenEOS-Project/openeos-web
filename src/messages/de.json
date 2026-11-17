@@ -169,7 +169,7 @@
           "summaryOrganization": "Organisation",
           "newsletter": "Ich möchte gelegentlich Neuigkeiten zu OpenEOS per E-Mail erhalten. Abbestellen geht jederzeit.",
           "summaryCountry": "Land",
-          "confirmBusiness": "Ich bestätige, dass ich als Unternehmer, juristische Person des öffentlichen Rechts oder eingetragener Verein handle und zur Vertretung der Organisation berechtigt bin.",
+          "confirmBusiness": "Ich bestätige, dass ich für ein Unternehmen, eine Behörde, einen Verein (eingetragen oder nicht), eine Stiftung oder eine sonstige Organisation handle – nicht als Verbraucher – und sie vertreten darf.",
           "acceptTerms": "Ich habe die <agb>AGB</agb> und den <avv>Auftragsverarbeitungsvertrag</avv> gelesen und akzeptiere sie.",
           "privacyHint": "Wie wir deine Daten verarbeiten, steht in der <privacy>Datenschutzerklärung</privacy>.",
           "germanNote": "Die Rechtstexte gibt es nur auf Deutsch."
@@ -1008,6 +1008,8 @@
       "contactEmail": "Kontakt für Datenschutzfragen (optional)",
       "contactEmailPlaceholder": "datenschutz@dein-verein.de",
       "contactEmailHint": "Erscheint neben Impressum und Datenschutz.",
+      "withdrawalRight": "Für Bestellungen besteht ein Widerrufsrecht",
+      "withdrawalRightHint": "Nur einschalten, wenn deine Gäste die Bestellung widerrufen können – etwa bei Merchandise oder Waren ohne Veranstaltungsbezug. Für Speisen und Getränke zu einer Veranstaltung besteht in aller Regel kein Widerrufsrecht (§ 312g Abs. 2 Nr. 2 und 9 BGB). Eingeschaltet zeigt der Shop „Vertrag widerrufen“; Widerrufe gehen per E-Mail an dich. Ob ein Widerrufsrecht besteht, entscheidest du als Verkäufer – <link>mehr dazu</link>.",
       "footerPreview": "Vorschau der Fußzeile",
       "footerPreviewLabel": "Vorschau der Fußzeile im Shop und auf den Helferseiten",
       "footerResponsible": "Verantwortlich: {organization}",
@@ -5098,6 +5100,7 @@
     "WAITER_SETTLEMENT_COUNTED_INVALID": "Der gezählte Betrag ist ungültig.",
     "WAITER_TRANSFER_INVALID": "Übergeben geht nicht: Nur offene Tische lassen sich an eine aktive Bedienung übergeben.",
     "VAT_STATUS_CHANGE_REQUIRES_CLOSING": "Mit Cloud-TSE wechselst du den Steuerstatus nur mit Kassenabschluss – OpenEOS fragt dich vorher.",
+    "SETUP_TOKEN_INVALID": "Der Einrichtungscode stimmt nicht. Du findest ihn im Protokoll der API oder in SETUP_TOKEN.",
     "ORGANIZATION_SETTING_NOT_UPDATABLE": "Diese Einstellung änderst du in ihrem eigenen Bereich. Lade die Seite neu und versuch es noch einmal.",
     "ORGANIZATION_SETTINGS_INVALID": "Diese Einstellung ist ungültig. Prüf die Angaben und versuch es noch einmal.",
     "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
@@ -5533,6 +5536,7 @@
     "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
   "setup": {
+    "token": {"sectionTitle": "Einrichtungscode", "label": "Einrichtungscode", "hint": "Steht beim ersten Start im Protokoll der API (z. B. docker compose logs api) oder in SETUP_TOKEN."},
     "title": "Willkommen bei OpenEOS",
     "submit": "Einrichtung abschließen",
     "modeSelect": {
@@ -7542,6 +7546,7 @@
       "documentsText": "Für die Nutzung von OpenEOS gelten diese Texte. Ältere Fassungen bleiben unter ihrem Datum abrufbar.",
       "documents": {
         "agb": "Allgemeine Geschäftsbedingungen (AGB)",
+        "anlage1": "Anlage 1 zu den AGB: Leistungsbeschreibung und Preisliste",
         "avv": "Auftragsverarbeitungsvertrag (AVV)",
         "privacy": "Datenschutzerklärung",
         "imprint": "Impressum"
@@ -7554,6 +7559,7 @@
       "outdated": "nicht mehr aktuell",
       "notAccepted": "Von dir noch nicht akzeptiert.",
       "subprocessors": "Unterauftragsverarbeiter (AVV Anhang B)",
+      "dataAct": "Data Act: Standorte, Datenexport und Anbieterwechsel",
       "elsterTitle": "Angaben für die Finanzamt-Meldung (ELSTER)",
       "elsterText": "Software, Seriennummer der Kasse und TSE – die Werte, die du in ELSTER einträgst.",
       "shopTitle": "Rechtstexte für deinen Shop",

@@ -377,7 +377,7 @@ export const apiClient = new ApiClient();
 
 // Auth API
 export const authApi = {
-  login: (credentials: { email: string; password: string; deviceFingerprint?: string }) =>
+  login: (credentials: { email: string; password: string }) =>
     apiClient.post<ApiResponse<import('@/types/auth').LoginResponse>>('/auth/login', credentials, {
       skipAuth: true,
     }),
@@ -2778,11 +2778,15 @@ export const setupApi = {
     ),
 
   // Complete initial setup (create first admin + organization)
-  complete: (data: import('@/types/setup').CompleteSetupData) =>
+  complete: (data: import('@/types/setup').CompleteSetupData, setupToken?: string) =>
     apiClient.post<ApiResponse<import('@/types/setup').SetupResponse>>(
       '/setup',
       data,
-      { skipAuth: true }
+      {
+        skipAuth: true,
+        // Einrichtungscode aus dem Protokoll der API (bzw. SETUP_TOKEN).
+        ...(setupToken?.trim() ? { headers: { 'X-Setup-Token': setupToken.trim() } } : {}),
+      }
     ),
 };
 

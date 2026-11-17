@@ -155,8 +155,10 @@ export interface VerifyEmailOtpSetupDto {
 export interface Verify2FADto {
   code: string;
   trustDevice?: boolean;
-  deviceFingerprint?: string;
-  deviceInfo?: string;
+  /** Nur für die Liste der vertrauten Geräte. */
+  deviceName?: string;
+  browser?: string;
+  os?: string;
 }
 
 export interface Disable2FADto {

@@ -25,6 +25,8 @@ export interface DeploymentInfo {
 export interface SetupStatus {
   required: boolean;
   reason?: string;
+  /** Die Einrichtung verlangt den Einrichtungscode aus dem Protokoll der API. */
+  tokenRequired?: boolean;
   deployment?: DeploymentInfo;
 }
 
