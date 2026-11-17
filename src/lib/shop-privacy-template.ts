@@ -38,9 +38,8 @@ export interface ShopPrivacyTemplate {
 }
 
 /**
- * Auswahl für den Zahlungsdienstleister-Platzhalter des Musters. Nur SumUp:
- * die PayPal-Anbindung ist seit 1.8 entfernt (der Platzhaltertext des
- * vendorten Musters nennt PayPal noch, bis die Rechtstexte nachziehen).
+ * Auswahl für einen Zahlungsdienstleister-Platzhalter im Muster. Nur SumUp:
+ * die PayPal-Anbindung ist seit 1.8 entfernt.
  */
 export const PAYMENT_PROVIDER_OPTIONS = ['SumUp'] as const;
 
@@ -94,7 +93,7 @@ export function parseShopPrivacyTemplate(source: string = SHOP_PRIVACY_TEMPLATE_
     fields.push({
       id: `field-${fields.length}`,
       placeholder,
-      kind: /SumUp|PayPal/.test(label) ? 'payment' : 'text',
+      kind: /SumUp/.test(label) ? 'payment' : 'text',
       label,
     });
   }
