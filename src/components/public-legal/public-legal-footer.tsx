@@ -1,11 +1,13 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Flag } from 'lucide-react';
 
 import { Link } from '@/i18n/routing';
 import { SourceCodeLink } from '@/components/shared/source-code-link';
 import { localizePlatformUrl, type PublicLegalInfo } from '@/lib/legal';
+import { reportHref } from '@/lib/content-reports-api';
 
 type LegalKind = 'imprint' | 'privacy';
 
@@ -51,8 +53,34 @@ export function ClubLegalLink({
   );
 }
 
+/**
+ * „Inhalt melden“ (Melde- und Abhilfeverfahren, Art. 16 DSA) mit der
+ * aktuellen Seite als Fundstelle. Die Adresse kommt erst im Browser dazu,
+ * damit Server- und Browser-HTML gleich bleiben.
+ */
+export function ReportContentLink() {
+  const t = useTranslations('publicLegal');
+  const [here, setHere] = useState<string | null>(null);
+  useEffect(() => {
+    setHere(window.location.href);
+  }, []);
+  return (
+    <Link href={reportHref(here)} className="public-legal__report" data-testid="report-content-link">
+      <Flag aria-hidden="true" />
+      {t('reportContent')}
+    </Link>
+  );
+}
+
 /** "Bereitgestellt mit OpenEOS" mit Impressum/Datenschutz der Plattform. */
-export function PoweredByOpenEos({ legal }: { legal: PublicLegalInfo | null | undefined }) {
+export function PoweredByOpenEos({
+  legal,
+  reportable = false,
+}: {
+  legal: PublicLegalInfo | null | undefined;
+  /** Zeigt die Seite Inhalte eines Vereins? Dann „Inhalt melden“. */
+  reportable?: boolean;
+}) {
   const t = useTranslations('publicLegal');
   const locale = useLocale();
   const imprint = legal?.platform.imprintUrl;
@@ -74,6 +102,12 @@ export function PoweredByOpenEos({ legal }: { legal: PublicLegalInfo | null | un
           <a href={localizePlatformUrl(privacy, locale)} target="_blank" rel="noopener noreferrer" aria-label={t('platformPrivacyLabel')}>
             {t('privacy')}
           </a>
+        </>
+      )}
+      {reportable && (
+        <>
+          <span aria-hidden="true">·</span>
+          <ReportContentLink />
         </>
       )}
       {/* AGPL-3.0 § 13: Quellcode auch auf den oeffentlichen Seiten anbieten */}
@@ -134,7 +168,8 @@ export function PublicLegalFooter({
         )}
         {aside && <div className="public-legal__aside">{aside}</div>}
       </div>
-      <PoweredByOpenEos legal={legal} />
+      {/* Jede Seite mit dieser Fusszeile zeigt Inhalte eines Vereins. */}
+      <PoweredByOpenEos legal={legal} reportable />
     </footer>
   );
 }
