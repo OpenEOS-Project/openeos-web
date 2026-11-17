@@ -40,8 +40,16 @@ export interface RefundFormState {
   confirmStarted: boolean;
 }
 
-/** Was die Rückgabe auslöst: bar, SumUp-API, manuell (fremdes Gerät), Testmodus. */
-export type RefundMethodKey = 'cash' | 'sumup' | 'card' | 'tokens' | 'test';
+/**
+ * Was die Rückgabe auslöst: bar, SumUp-API, manuell (fremdes Gerät, frühere
+ * PayPal-Zahlung – PayPal ist nicht mehr angebunden), Testmodus.
+ */
+export type RefundMethodKey = 'cash' | 'sumup' | 'card' | 'tokens' | 'paypal' | 'test';
+
+/** Rückgabe nur als „manuell erstattet“ (kein Anbieteraufruf möglich). */
+export function refundOnlyManual(method: RefundMethodKey | null): boolean {
+  return method === 'paypal';
+}
 
 export interface RefundFormView {
   /** Zahlungen, über die noch etwas erstattet werden kann. */

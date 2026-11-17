@@ -14,7 +14,7 @@ import { useOperatingMode } from '@/hooks/use-operating-mode';
 import { ApiException } from '@/types/api';
 import { type OrderDetail, REFUND_REASON_CODES, type RefundReasonCode, type RefundResult } from '@/types/order-history';
 import { paymentIcon, paymentKey } from '@/utils/order-history';
-import type { RefundMode, RefundPreset } from '@/utils/refund-form';
+import { refundOnlyManual, type RefundMode, type RefundPreset } from '@/utils/refund-form';
 
 import { QtyStepper, ReasonFields, StartedWarning, muted } from './order-action-parts';
 
@@ -40,7 +40,8 @@ interface ProviderFailure {
  * oder alles, optional zugleich stornieren; Grund ist Pflicht. Rückgabe je
  * ursprünglicher Zahlart: bar wird als „bar ausgezahlt“ gebucht, SumUp
  * über die SumUp-API (bei Ablehnung erneut oder „manuell erstattet“),
- * fremdes Kartengerät manuell. Vor dem Buchen ein Bestätigungsschritt.
+ * fremdes Kartengerät manuell. Frühere PayPal-Zahlungen (Anbindung
+ * entfernt) nur als „manuell erstattet“. Vor dem Buchen ein Bestätigungsschritt.
  */
 export function OrderRefundDialog({ organizationId, order, preset, onClose, onDone }: OrderRefundDialogProps) {
   const t = useTranslations('orders.refund');
@@ -56,6 +57,7 @@ export function OrderRefundDialog({ organizationId, order, preset, onClose, onDo
   const { payments, maxAmount, methodPayment, method, items, started, hasDeposit, preview, amountInvalid } = form.view;
 
   const [step, setStep] = useState<Step>('form');
+  const onlyManual = refundOnlyManual(method);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [failure, setFailure] = useState<ProviderFailure | null>(null);
@@ -176,11 +178,17 @@ export function OrderRefundDialog({ organizationId, order, preset, onClose, onDo
               <button
                 type="button"
                 className={cancelItems ? 'btn btn--danger' : 'btn btn--primary'}
-                onClick={() => void submit(false)}
+                onClick={() => void submit(onlyManual)}
                 disabled={busy}
               >
                 <Icon name={cancelItems ? 'ban' : 'undo'} size={16} />
-                {busy ? t('booking') : cancelItems ? t('confirmCancelAction') : t('confirmAction')}
+                {busy
+                  ? t('booking')
+                  : onlyManual
+                    ? t('markManual')
+                    : cancelItems
+                      ? t('confirmCancelAction')
+                      : t('confirmAction')}
               </button>
             </div>
           </>

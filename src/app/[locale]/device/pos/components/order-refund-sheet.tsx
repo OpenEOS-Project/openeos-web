@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { ITEM_STATUS_TONE, paymentIcon, paymentKey } from '@/utils/order-history';
-import type { RefundMode, RefundPreset } from '@/utils/refund-form';
+import { refundOnlyManual, type RefundMode, type RefundPreset } from '@/utils/refund-form';
 import {
   Badge,
   Banner,
@@ -98,6 +98,8 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
   }, [failure]);
 
   const canSubmit = !busy && form.view.ready;
+  // Frühere PayPal-Zahlung: PayPal ist nicht mehr angebunden, nur „manuell erstattet“.
+  const onlyManual = refundOnlyManual(method);
 
   const submit = (manual: boolean) =>
     run(async (actor) => {
@@ -224,10 +226,10 @@ export function OrderRefundSheet({ preset, order, onClose, run, onDone }: OrderR
             size="lg"
             disabled={!canSubmit}
             loading={busy}
-            onClick={() => void submit(false)}
+            onClick={() => void submit(onlyManual)}
           >
             {!busy && <Icon name={cancelItems ? 'ban' : 'undo'} />}
-            {cancelItems ? t('cancelAndRefundConfirm') : t('refundConfirm')}
+            {onlyManual ? t('markManual') : cancelItems ? t('cancelAndRefundConfirm') : t('refundConfirm')}
           </Button>
         </>
       }

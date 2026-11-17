@@ -37,8 +37,11 @@ export interface ShopPrivacyTemplate {
   guidance: string[];
 }
 
-/** Die drei Zahlungsdienstleister-Varianten des Musters. */
-export const PAYMENT_PROVIDER_OPTIONS = ['SumUp', 'PayPal', 'SumUp und PayPal'] as const;
+/**
+ * Auswahl für einen Zahlungsdienstleister-Platzhalter im Muster. Nur SumUp:
+ * die PayPal-Anbindung ist seit 1.8 entfernt.
+ */
+export const PAYMENT_PROVIDER_OPTIONS = ['SumUp'] as const;
 
 const ORG_PLACEHOLDERS: Record<string, TemplateFieldKind> = {
   '{{kunde.name}}': 'name',
@@ -90,7 +93,7 @@ export function parseShopPrivacyTemplate(source: string = SHOP_PRIVACY_TEMPLATE_
     fields.push({
       id: `field-${fields.length}`,
       placeholder,
-      kind: /SumUp|PayPal/.test(label) ? 'payment' : 'text',
+      kind: /SumUp/.test(label) ? 'payment' : 'text',
       label,
     });
   }

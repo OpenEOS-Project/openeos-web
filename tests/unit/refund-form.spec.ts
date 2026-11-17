@@ -7,6 +7,7 @@ import {
   parseAmount,
   refundFormView,
   refundMethod,
+  refundOnlyManual,
   refundPayload,
   toggleAllCancelItems,
 } from '@/utils/refund-form';
@@ -183,6 +184,15 @@ test.describe('refund form (POS + admin)', () => {
     expect(refundMethod(order(), payment('c', { paymentMethod: 'card' }))).toBe('card');
     expect(refundMethod(order({ isTest: true }), payment('d', { paymentMethod: 'sumup_terminal' }))).toBe('test');
     expect(refundMethod(order({ isTest: true }), payment('e'))).toBe('cash');
+  });
+
+  test('earlier PayPal payments (integration removed) can only be booked as refunded manually', () => {
+    expect(refundMethod(order(), payment('p', { paymentMethod: 'paypal' }))).toBe('paypal');
+    expect(refundOnlyManual('paypal')).toBe(true);
+    expect(refundOnlyManual('sumup')).toBe(false);
+    expect(refundOnlyManual('card')).toBe(false);
+    expect(refundOnlyManual(null)).toBe(false);
+    expect(refundMethod(order({ isTest: true }), payment('q', { paymentMethod: 'paypal' }))).toBe('test');
   });
 
   test('cancel items: single item preselected, select all, payload', () => {

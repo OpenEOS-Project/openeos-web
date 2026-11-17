@@ -56,10 +56,16 @@ export function paymentIcon(method: PaymentMethod | string): IconName {
   return 'card';
 }
 
-/** Zahlart-Schlüssel für Texte (cash, card, sumup, tokens = Wertmarken). */
-export function paymentKey(method: PaymentMethod | string): 'cash' | 'card' | 'sumup' | 'tokens' {
+/**
+ * Zahlart-Schlüssel für Texte (cash, card, sumup, tokens = Wertmarken,
+ * paypal = frühere PayPal-Zahlungen; die Anbindung ist seit 1.8 entfernt).
+ */
+export type PaymentKey = 'cash' | 'card' | 'sumup' | 'tokens' | 'paypal';
+
+export function paymentKey(method: PaymentMethod | string): PaymentKey {
   if (method === 'cash') return 'cash';
   if (method === 'tokens') return 'tokens';
+  if (method === 'paypal') return 'paypal';
   if (method === 'sumup_terminal' || method === 'sumup_online') return 'sumup';
   return 'card';
 }
@@ -71,8 +77,8 @@ export function paymentKey(method: PaymentMethod | string): 'cash' | 'card' | 's
  */
 export function paymentBadges(
   row: Pick<OrderHistoryRow, 'paymentMethods' | 'discountAmount'>
-): { key: 'cash' | 'card' | 'sumup' | 'tokens' | 'discount'; icon: IconName }[] {
-  const out: { key: 'cash' | 'card' | 'sumup' | 'tokens' | 'discount'; icon: IconName }[] = [];
+): { key: PaymentKey | 'discount'; icon: IconName }[] {
+  const out: { key: PaymentKey | 'discount'; icon: IconName }[] = [];
   for (const method of row.paymentMethods ?? []) {
     const key = paymentKey(method);
     if (!out.some((b) => b.key === key)) out.push({ key, icon: paymentIcon(method) });
