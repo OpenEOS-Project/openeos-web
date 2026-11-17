@@ -13,12 +13,13 @@ export const FALLBACK_LEGAL_SITE = 'https://openeos.de';
 /** Pfade der Rechtstexte auf der Website. */
 export const LEGAL_DOCUMENT_PATHS: Record<LegalDocumentKey, string> = {
   agb: '/agb',
+  anlage1: '/leistungsbeschreibung',
   avv: '/avv',
   privacy: '/datenschutz',
   imprint: '/impressum',
 };
 
-export const LEGAL_DOCUMENT_KEYS: LegalDocumentKey[] = ['agb', 'avv', 'privacy', 'imprint'];
+export const LEGAL_DOCUMENT_KEYS: LegalDocumentKey[] = ['agb', 'anlage1', 'avv', 'privacy', 'imprint'];
 
 function fallbackDocument(key: LegalDocumentKey, site: string): LegalDocumentVersion {
   const url = `${site}${LEGAL_DOCUMENT_PATHS[key]}`;
@@ -32,6 +33,7 @@ export function fallbackLegalVersions(site: string = FALLBACK_LEGAL_SITE): Legal
     siteUrl: site,
     documents: {
       agb: fallbackDocument('agb', site),
+      anlage1: fallbackDocument('anlage1', site),
       avv: fallbackDocument('avv', site),
       privacy: fallbackDocument('privacy', site),
       imprint: fallbackDocument('imprint', site),
@@ -71,6 +73,11 @@ export function formatLegalVersion(version: string | null | undefined, locale: s
     month: 'long',
     year: 'numeric',
   }).format(date);
+}
+
+/** Informationsseite nach dem Data Act (Standorte, Export, Wechsel) auf der Website. */
+export function dataActUrl(siteUrl: string): string {
+  return `${siteUrl.replace(/\/+$/, '')}/data-act`;
 }
 
 /** Sprungmarke auf Anhang B des AVV (Unterauftragsverarbeiter). */
