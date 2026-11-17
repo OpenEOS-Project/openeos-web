@@ -198,9 +198,9 @@ export function operatingModeLabelValue(org: OperatingModeOrg | null | undefined
 
 /**
  * Hinweis zum Bestand:
- * - `de`: Bestand in Deutschland oder ohne Land → deutlicher Hinweis auf
- *   die TSE-Pflicht mit der Bitte um Land und Betriebsart (Dashboard und
- *   Einstellungen),
+ * - `de`: Bestand in Deutschland oder ohne Land, ohne aktive TSE →
+ *   deutlicher Hinweis auf die TSE-Pflicht mit der Bitte um Land und
+ *   Betriebsart (Dashboard und Einstellungen),
  * - `confirm`: Bestand außerhalb Deutschlands → sanfte Bitte, die
  *   Betriebsart zu bestätigen (nur in den Einstellungen),
  * - `null`: kein Bestand.
@@ -210,7 +210,9 @@ export type LegacyNoticeKind = 'de' | 'confirm';
 export function legacyNoticeKind(org: OperatingModeOrg | null | undefined): LegacyNoticeKind | null {
   if (!org?.operatingModeLegacy || getOperatingMode(org) !== 'full') return null;
   const country = normalizedCountry(org);
-  return !country || country === 'DE' ? 'de' : 'confirm';
+  if (country && country !== 'DE') return 'confirm';
+  // Mit aktiver Cloud-TSE ist Bargeld in Deutschland zulässig – kein Hinweis.
+  return org.tseActive ? null : 'de';
 }
 
 /** Länderhinweis in der Karte „Betriebsart“ (immer „keine Steuerberatung“). */

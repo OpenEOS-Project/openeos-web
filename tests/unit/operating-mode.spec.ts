@@ -93,8 +93,11 @@ test.describe('operating mode matrix (country × mode × legacy × TSE)', () => 
             expect(switchIsOneWay(org, 'full')).toBe(false);
 
             expect(certificateAvailable(org)).toBe(country === 'DE' && mode !== 'full');
-            expect(legacyNoticeKind(org)).toBe(legacy ? (country === 'DE' ? 'de' : 'confirm') : null);
-            expect(dashboardNoticeKind(org)).toBe(legacy && country === 'DE' ? 'legacy_de' : null);
+            // Bestand in Deutschland: Hinweis nur ohne aktive TSE.
+            expect(legacyNoticeKind(org)).toBe(
+              legacy ? (country === 'DE' ? (tseActive ? null : 'de') : 'confirm') : null,
+            );
+            expect(dashboardNoticeKind(org)).toBe(legacy && country === 'DE' && !tseActive ? 'legacy_de' : null);
             expect(operatingModeLabelValue(org)).toBe(legacy ? 'full_legacy' : mode);
           });
         }
