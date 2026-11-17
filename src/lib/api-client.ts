@@ -82,11 +82,7 @@ export function filenameFromDisposition(header: string | null): string | null {
  * per CORS freigibt.
  */
 async function authorizedDownload(path: string): Promise<import('@/types/dsfinvk').DownloadedFile> {
-  const token = apiClient.getAccessToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    credentials: 'include',
-  });
+  const res = await apiClient.authorizedFetch(path);
   if (!res.ok) throw await apiExceptionFromResponse(res);
   return {
     blob: await res.blob(),
@@ -250,6 +246,23 @@ class ApiClient {
     })();
 
     return this.refreshPromise;
+  }
+
+  /**
+   * fetch für Uploads und Datei-Downloads (FormData, Blob), die nicht über
+   * request() laufen: Token nur, wenn vorhanden (sonst trägt das httpOnly-
+   * Cookie die Anmeldung), Cookies immer mitsenden und bei 401 einmal das
+   * Token erneuern und wiederholen. `path` ist relativ zu API_URL.
+   */
+  async authorizedFetch(path: string, init: RequestInit = {}, isRetry = false): Promise<Response> {
+    const token = this.getAccessToken();
+    const headers = new Headers(init.headers);
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    const response = await fetch(`${API_URL}${path}`, { ...init, headers, credentials: 'include' });
+    if (response.status === 401 && !isRetry && (await this.refreshAccessToken())) {
+      return this.authorizedFetch(path, init, true);
+    }
+    return response;
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}, isRetry = false): Promise<T> {
@@ -511,11 +524,7 @@ export const organizationsApi = {
 
   /** Herstellerbescheinigung (Deutschland, „Nur Bons“/„Bargeldlos“) als PDF, mit JWT. */
   operatingModeCertificate: async (id: string): Promise<Blob> => {
-    const token = apiClient.getAccessToken();
-    const res = await fetch(`${API_URL}/organizations/${id}/operating-mode/certificate.pdf`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
+    const res = await apiClient.authorizedFetch(`/organizations/${id}/operating-mode/certificate.pdf`);
     if (!res.ok) throw await apiExceptionFromResponse(res);
     return res.blob();
   },
@@ -563,13 +572,9 @@ export const organizationsApi = {
   uploadLogo: async (orgId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(
-      `${API_URL}/organizations/${orgId}/uploads/image?category=organization`,
-      {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiClient.getAccessToken()}` },
-        body: formData,
-      },
+    const response = await apiClient.authorizedFetch(
+      `/organizations/${orgId}/uploads/image?category=organization`,
+      { method: 'POST', body: formData },
     );
     if (!response.ok) throw await apiExceptionFromResponse(response);
     const json = (await response.json()) as ApiResponse<{ url: string; filename: string }>;
@@ -585,12 +590,9 @@ export const organizationsApi = {
       const filename = currentLogoUrl.split('/').pop();
       if (filename) {
         try {
-          await fetch(
-            `${API_URL}/organizations/${orgId}/uploads/${encodeURIComponent(filename)}?category=organization`,
-            {
-              method: 'DELETE',
-              headers: { Authorization: `Bearer ${apiClient.getAccessToken()}` },
-            },
+          await apiClient.authorizedFetch(
+            `/organizations/${orgId}/uploads/${encodeURIComponent(filename)}?category=organization`,
+            { method: 'DELETE' },
           );
         } catch {
           // Best-effort: even if file deletion fails, clear the URL on the org.
@@ -897,12 +899,7 @@ export const billingApi = {
   /** Holt das PDF mit angehängtem JWT. Ein window.open der URL wäre anonym
    *  und liefe in ein 401 — dasselbe Muster wie beim Schichtplan-Export. */
   invoicePdf: async (organizationId: string, invoiceId: string): Promise<Blob> => {
-    const url = `${API_URL}/organizations/${organizationId}/billing/invoices/${invoiceId}/pdf`;
-    const token = apiClient.getAccessToken();
-    const res = await fetch(url, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
+    const res = await apiClient.authorizedFetch(`/organizations/${organizationId}/billing/invoices/${invoiceId}/pdf`);
     if (!res.ok) {
       throw await apiExceptionFromResponse(res);
     }
@@ -951,15 +948,9 @@ export const uploadsApi = {
   uploadProductImage: async (organizationId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(
-      `${API_URL}/organizations/${organizationId}/uploads/image?category=product`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiClient.getAccessToken()}`,
-        },
-        body: formData,
-      },
+    const response = await apiClient.authorizedFetch(
+      `/organizations/${organizationId}/uploads/image?category=product`,
+      { method: 'POST', body: formData },
     );
     if (!response.ok) throw await apiExceptionFromResponse(response);
     return response.json() as Promise<ApiResponse<{ url: string }>>;
@@ -1056,15 +1047,9 @@ export const menuImportsApi = {
     const formData = new FormData();
     for (const file of input.files ?? []) formData.append('files', file);
     if (input.text) formData.append('text', input.text);
-    const token = apiClient.getAccessToken();
-    const response = await fetch(
-      `${API_URL}/organizations/${organizationId}/events/${eventId}/menu-imports`,
-      {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        credentials: 'include',
-        body: formData,
-      }
+    const response = await apiClient.authorizedFetch(
+      `/organizations/${organizationId}/events/${eventId}/menu-imports`,
+      { method: 'POST', body: formData },
     );
     if (!response.ok) throw await apiExceptionFromResponse(response);
     return response.json() as Promise<ApiResponse<{ id: string; status: 'queued' }>>;
@@ -1127,13 +1112,7 @@ export const userSettingsApi = {
   uploadAvatar: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(`${API_URL}/users/me/avatar`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiClient.getAccessToken()}`,
-      },
-      body: formData,
-    });
+    const response = await apiClient.authorizedFetch('/users/me/avatar', { method: 'POST', body: formData });
     if (!response.ok) throw await apiExceptionFromResponse(response);
     return response.json() as Promise<ApiResponse<import('@/types/auth').User>>;
   },
@@ -1539,11 +1518,7 @@ export const adminApi = {
 
   /** Das Rechnungs-PDF mit angehängtem JWT — ein nackter Link liefe in ein 401. */
   eventInvoicePdf: async (id: string): Promise<Blob> => {
-    const token = apiClient.getAccessToken();
-    const res = await fetch(`${API_URL}/admin/events/${id}/invoice/pdf`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
+    const res = await apiClient.authorizedFetch(`/admin/events/${id}/invoice/pdf`);
     if (!res.ok) {
       throw await apiExceptionFromResponse(res);
     }
@@ -2289,12 +2264,7 @@ export const shiftsApi = {
    *  a Blob ready for object-URL download. A plain window.open of the URL
    *  is anonymous and would 401. */
   exportPdf: async (organizationId: string, planId: string): Promise<Blob> => {
-    const url = `${API_URL}/organizations/${organizationId}/shift-plans/${planId}/export/pdf`;
-    const token = apiClient.getAccessToken();
-    const res = await fetch(url, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
+    const res = await apiClient.authorizedFetch(`/organizations/${organizationId}/shift-plans/${planId}/export/pdf`);
     if (!res.ok) {
       throw await apiExceptionFromResponse(res);
     }
@@ -2671,11 +2641,7 @@ export const tseApi = {
 
   /** TAR-Datei des Exports (`X-Checksum-SHA256` im Header). */
   downloadExport: async (organizationId: string, exportId: string): Promise<{ blob: Blob; sha256: string | null }> => {
-    const token = apiClient.getAccessToken();
-    const res = await fetch(`${API_URL}/organizations/${organizationId}/tse/exports/${exportId}/download`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    });
+    const res = await apiClient.authorizedFetch(`/organizations/${organizationId}/tse/exports/${exportId}/download`);
     if (!res.ok) throw await apiExceptionFromResponse(res);
     return { blob: await res.blob(), sha256: res.headers.get('X-Checksum-SHA256') };
   },
