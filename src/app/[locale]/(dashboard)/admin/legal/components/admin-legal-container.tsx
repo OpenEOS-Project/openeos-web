@@ -282,11 +282,11 @@ function AnnounceForm({ overview }: { overview: LegalAnnouncementOverview }) {
             </Banner>
           ) : (
             <Banner tone="danger" title={t('preview.problems')}>
-              <ul className="admin-legal__problems" data-testid="admin-legal-problems">
+              <span className="admin-legal__problems" data-testid="admin-legal-problems">
                 {current.problems.map((p, i) => (
-                  <li key={i}>{p.message}</li>
+                  <span key={i}>{p.message}</span>
                 ))}
-              </ul>
+              </span>
             </Banner>
           )}
           <p className="admin-legal__subject">

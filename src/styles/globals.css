@@ -263,6 +263,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 .legal-announcement__dismiss:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
 .legal-announcement__dismiss svg { width: 16px; height: 16px; }
+/* Schmal liegt oben rechts der schwebende Menüknopf – Platz für ihn lassen. */
+@media (max-width: 960px) {
+  .landing .legal-announcement { padding-right: 60px; }
+}
 .privacy-closure-banner p { font-size: 13px; }
 .privacy-closure-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .privacy-danger { border-color: color-mix(in oklab, var(--danger, #c0392b) 35%, transparent); }
