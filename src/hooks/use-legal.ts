@@ -9,10 +9,17 @@ import { localizePlatformUrl } from '@/lib/legal';
 import { legalApi } from '@/lib/legal-api';
 import { fallbackLegalVersions, withLegalFallback } from '@/lib/legal-platform';
 import { useAuthStore } from '@/stores/auth-store';
-import type { LegalAcceptData, LegalDocumentKey, LegalStatus, LegalVersions } from '@/types/legal';
+import type {
+  LegalAcceptData,
+  LegalDocumentKey,
+  LegalStatus,
+  LegalVersions,
+  UpcomingLegalChange,
+} from '@/types/legal';
 
 export const LEGAL_VERSIONS_KEY = ['legal', 'versions'] as const;
 export const LEGAL_STATUS_KEY = ['legal', 'status'] as const;
+export const LEGAL_ANNOUNCEMENTS_KEY = ['legal', 'announcements'] as const;
 
 export interface UseLegalVersionsResult {
   versions: LegalVersions;
@@ -99,6 +106,44 @@ export function usePurchaseTermsAcceptance(organizationId: string) {
   }, [skip, accept, organizationId]);
 
   return { accept: run, isPending: accept.isPending };
+}
+
+/**
+ * Angekündigte neue Fassungen, die noch nicht gelten (Hinweis im
+ * Dashboard). Nur Admins einer Organisation bekommen welche; für alle
+ * anderen fragt die Oberfläche gar nicht erst.
+ */
+export function useUpcomingLegalChanges() {
+  const user = useAuthStore((s) => s.user);
+  const { versions, isLoaded } = useLegalVersions();
+  const isAdmin = !!user?.userOrganizations?.some((uo) => uo.role === 'admin');
+  return useQuery({
+    queryKey: LEGAL_ANNOUNCEMENTS_KEY,
+    queryFn: async () => (await legalApi.announcements()).data,
+    enabled: isAdmin && isLoaded && versions.enabled,
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+  });
+}
+
+/** Hinweis auf eine Ankündigung ausblenden (sofort, dann am Konto speichern). */
+export function useDismissLegalAnnouncement() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await legalApi.dismissAnnouncement(id);
+    },
+    onMutate: (id: string) => {
+      const previous = queryClient.getQueryData<UpcomingLegalChange[]>(LEGAL_ANNOUNCEMENTS_KEY);
+      queryClient.setQueryData<UpcomingLegalChange[]>(LEGAL_ANNOUNCEMENTS_KEY, (list) =>
+        (list ?? []).filter((c) => c.id !== id),
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(LEGAL_ANNOUNCEMENTS_KEY, context.previous);
+    },
+  });
 }
 
 /** Angaben für die Mitteilung der Kasse ans Finanzamt (ELSTER). */

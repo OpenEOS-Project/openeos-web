@@ -93,6 +93,13 @@ export const superAdminNavItems: NavItemType[] = [
     icon: Inbox,
   },
   {
+    // Neue Fassungen der Rechtstexte ankündigen (Mail an alle Admins).
+    labelKey: 'adminLegal',
+    href: '/admin/legal',
+    saasOnly: true,
+    icon: Scale,
+  },
+  {
     // Meldungen rechtswidriger Inhalte (Art. 16 DSA) – auch eigene
     // Installationen hosten Shops und Helferseiten.
     labelKey: 'adminReports',

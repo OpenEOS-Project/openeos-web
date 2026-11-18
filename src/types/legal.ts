@@ -49,10 +49,102 @@ export interface LegalAcceptanceState {
   acceptedPdfUrl: string | null;
 }
 
+/** Angekündigte Änderung, mit der die geltende AGB-/AVV-Fassung kam. */
+export interface LegalChange {
+  /** Fassung = Tag des Inkrafttretens (JJJJ-MM-TT). */
+  version: string;
+  documents: LegalDocumentKey[];
+  /** Zeitpunkt der Ankündigung (Mail). */
+  announcedAt: string;
+  summaryDe: string;
+  summaryEn: string | null;
+  /** Nur mit ausdrücklicher Zustimmung wirksam — dann nicht aufschiebbar. */
+  explicitConsent: boolean;
+}
+
 /** GET /legal/status, POST /legal/accept */
 export interface LegalStatus {
   required: boolean;
   documents: Record<AcceptableLegalDocument, LegalAcceptanceState>;
+  /** Fehlt bei älteren API-Ständen. */
+  change?: LegalChange | null;
+}
+
+/** GET /legal/announcements — angekündigt, noch nicht in Kraft. */
+export interface UpcomingLegalChange {
+  id: string;
+  documents: LegalDocumentKey[];
+  version: string;
+  summaryDe: string;
+  summaryEn: string | null;
+  explicitConsent: boolean;
+  announcedAt: string;
+  links: Partial<Record<LegalDocumentKey, { versionUrl: string; pdfUrl: string; previousUrl: string | null }>>;
+}
+
+// ── Super-Admin: Ankündigungen ─────────────────────────────────────────
+
+export interface LegalAnnouncementInput {
+  documents: LegalDocumentKey[];
+  version: string;
+  summaryDe: string;
+  summaryEn?: string;
+  shortNotice?: boolean;
+  explicitConsent?: boolean;
+}
+
+export interface LegalAnnouncementProblem {
+  field: 'documents' | 'version' | 'summaryDe' | 'summaryEn' | 'website';
+  message: string;
+  document?: LegalDocumentKey;
+}
+
+/** POST /admin/legal-announcements/preview */
+export interface LegalAnnouncementPreview {
+  valid: boolean;
+  problems: LegalAnnouncementProblem[];
+  subject: string;
+  html: string;
+  recipients: number;
+  previousVersions: Partial<Record<LegalDocumentKey, string>>;
+}
+
+export interface LegalAnnouncementStats {
+  total: number;
+  pending: number;
+  sending: number;
+  sent: number;
+  failed: number;
+}
+
+export interface LegalAnnouncement {
+  id: string;
+  documents: LegalDocumentKey[];
+  version: string;
+  previousVersions: Partial<Record<LegalDocumentKey, string>>;
+  summaryDe: string;
+  summaryEn: string | null;
+  shortNotice: boolean;
+  explicitConsent: boolean;
+  createdAt: string;
+  createdByEmail: string;
+  inForce: boolean;
+  stats: LegalAnnouncementStats;
+  failures: { email: string; error: string | null }[];
+}
+
+/** GET /admin/legal-announcements */
+export interface LegalAnnouncementOverview {
+  initialVersion: string;
+  siteUrl: string;
+  versions: Record<LegalDocumentKey, string>;
+  today: string;
+  noticeDays: number;
+  earliestContractVersion: string;
+  emailEnabled: boolean;
+  contactEmail: string;
+  recipients: number;
+  announcements: LegalAnnouncement[];
 }
 
 export type LegalAcceptContext = 'reacceptance' | 'purchase';

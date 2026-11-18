@@ -596,7 +596,8 @@
     "legal": "Legal",
     "legalElster": "ELSTER details",
     "legalShop": "Shop legal texts",
-    "waiters": "Servers"
+    "waiters": "Servers",
+    "adminLegal": "Legal texts"
   },
   "settings": {
     "title": "Settings",
@@ -1912,6 +1913,73 @@
       "empty": {
         "title": "No entries yet",
         "description": "Deletion runs and deletions show up here as soon as there are any."
+      }
+    },
+    "legal": {
+      "metaTitle": "Legal texts",
+      "title": "Legal texts",
+      "description": "Announce new versions of the terms, service description, data processing agreement, privacy policy and imprint. All admins receive an e-mail and see a notice in the app until the change takes effect.",
+      "emailDisabled": {
+        "title": "E-mail delivery not configured",
+        "text": "Without EMAIL_ENABLED the e-mails stay queued until delivery is set up."
+      },
+      "documents": {
+        "agb": "Terms and conditions (AGB)",
+        "anlage1": "Annex 1 – service description and price list",
+        "avv": "Data processing agreement (AVV)",
+        "privacy": "Privacy policy",
+        "imprint": "Imprint"
+      },
+      "current": {
+        "title": "Versions in effect",
+        "baseline": "Versions up to {date} are the initial set: they are not announced and do not ask anyone to confirm again."
+      },
+      "form": {
+        "title": "Announce a new version",
+        "intro": "First publish the new version on the website (content/legal/de/…/YYYY-MM-DD.md). The preview checks that it is reachable. The date is the effective date – from then on the new version applies automatically.",
+        "documents": "Changed documents",
+        "version": "New version (effective date)",
+        "versionHint": "Date of the “Stand” line, tomorrow at the earliest.",
+        "versionHintContract": "Date of the “Stand” line. Terms, service description and AVV need six weeks’ notice – {date} at the earliest.",
+        "shortNotice": "Shorter notice: change required by law or authorities",
+        "explicitConsent": "Explicit consent required (main obligations, fees or AVV clause 12.4) – the e-mail asks for consent instead of pointing out the right to object",
+        "summaryDe": "What changes? (German)",
+        "summaryDeHint": "Short and clear, shown as is in the e-mail and notice. 10 to 4000 characters.",
+        "summaryEn": "Summary in English (optional)",
+        "summaryEnHint": "For the English interface and as an addition in the e-mail.",
+        "preview": "Check and preview",
+        "checking": "Checking …"
+      },
+      "preview": {
+        "ok": "All good",
+        "problems": "Not yet",
+        "recipients": "{count, plural, =0 {There are no admins yet.} one {The e-mail goes to # admin.} other {The e-mail goes to # admins (once per address).}}",
+        "subject": "Subject",
+        "mailTitle": "E-mail preview",
+        "send": "{count, plural, one {Announce and send to # admin} other {Announce and send to # admins}}",
+        "stale": "You changed something – check the preview again."
+      },
+      "confirm": {
+        "title": "Announce the new version?",
+        "send": "Announce now",
+        "text": "{count, plural, one {# admin receives} other {# admins receive}} the e-mail. The new version applies from {date}. An announcement cannot be withdrawn."
+      },
+      "created": "Announced. The e-mails are on their way.",
+      "previewFailed": "The preview did not work.",
+      "createFailed": "That did not work.",
+      "list": {
+        "title": "Announcements",
+        "empty": "No announcements yet.",
+        "inForce": "in effect since {date}",
+        "upcoming": "applies from {date}",
+        "shortNotice": "shorter notice",
+        "explicitConsent": "consent required",
+        "created": "Announced on {date} by {email}",
+        "stats": "{sent} of {total} e-mails sent · {open} open · {failed} failed",
+        "failures": "{count, plural, one {# failed e-mail} other {# failed e-mails}}",
+        "retryHint": "With “Versand unterbrochen” it is unclear whether the e-mail arrived – sending again may deliver it twice. The six-week period runs from receipt.",
+        "retry": "Send failed ones again",
+        "retried": "{count, plural, =0 {Nothing to queue.} one {# e-mail will be sent again.} other {# e-mails will be sent again.}}"
       }
     }
   },
@@ -7647,7 +7715,14 @@
       "accept": "Accept and continue",
       "saving": "Saving …",
       "logout": "Log out",
-      "error": "That did not work. Please try again."
+      "error": "That did not work. Please try again.",
+      "titleAgb": "New terms and conditions",
+      "titleAvv": "New data processing agreement",
+      "subtitleSince": "In effect since {date}",
+      "textSince": "A new version has been in effect since {date}. We informed you by e-mail on {announced}. Please read the new version and confirm it. What has changed:",
+      "objectionNote": "For your customer account the change counts as accepted unless you object in text form within six weeks of our notice, e.g. by e-mail to {email}. If you object, the contract continues on the previous terms; LUXCODE may then terminate it with one month's notice to the end of a month.",
+      "consentNote": "This change only takes effect for your customer account with your consent. If you do not agree, the previous terms continue to apply – please write to us at {email}.",
+      "later": "Remind me later"
     },
     "overview": {
       "documentsTitle": "OpenEOS contracts and legal texts",
@@ -7750,6 +7825,26 @@
       "saving": "Saving …",
       "saveFailed": "The text could not be saved.",
       "saved": "Done. You can find the text under <link>Settings → Legal information (shop & helper pages)</link> and edit it further there."
+    },
+    "announcement": {
+      "title": "{documents}: new version from {date}",
+      "and": "and",
+      "textContract": "A new version applies from {date}. We sent you an e-mail about it.",
+      "textInfo": "A new version applies from {date}. You do not need to do anything.",
+      "showSummary": "What changes?",
+      "hideSummary": "Show less",
+      "newVersion": "{document}: new version",
+      "previousVersion": "previous version",
+      "objectionNote": "For your customer account the change counts as accepted unless you object in text form within six weeks of our e-mail (hello@openeos.de).",
+      "consentNote": "This change only takes effect for your customer account with your consent – we will ask you in the app from the effective date.",
+      "dismiss": "Hide notice",
+      "documents": {
+        "agb": "Terms and conditions",
+        "anlage1": "Service description and price list",
+        "avv": "Data processing agreement",
+        "privacy": "Privacy policy",
+        "imprint": "Imprint"
+      }
     }
   },
   "privacy": {
