@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -33,6 +33,7 @@ function isHttpUrl(value: string): boolean {
  */
 function ReportForm() {
   const t = useTranslations('contentReport');
+  const ta = useTranslations('publicA11y');
   const locale = useLocale();
   const apiErrorMessage = useApiErrorMessage();
   const params = useSearchParams();
@@ -48,7 +49,13 @@ function ReportForm() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-
+  /** Fehler an den Feldern erst nach dem ersten Absenden zeigen. */
+  const [attempted, setAttempted] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const sentRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (sent) sentRef.current?.focus();
+  }, [sent]);
   useEffect(() => {
     const prefill = params.get('url');
     if (prefill && isHttpUrl(prefill)) setUrl(prefill);
@@ -70,18 +77,37 @@ function ReportForm() {
   const contactEmail = platform?.contactEmail || null;
   const privacyUrl = platform?.privacyUrl ? localizePlatformUrl(platform.privacyUrl, locale) : null;
 
-  const valid =
-    isHttpUrl(url) &&
-    !!reason &&
-    description.trim().length >= 20 &&
-    name.trim().length >= 2 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) &&
-    goodFaith;
+  /* Fehler je Feld, am Feld angezeigt und per aria-describedby verknüpft
+     (WCAG 3.3.1, 3.3.3). Der Absenden-Button bleibt bedienbar. */
+  const fieldErrors = {
+    url: isHttpUrl(url) ? null : ta('report.url'),
+    reason: reason ? null : ta('report.reason'),
+    description: description.trim().length >= 20 ? null : ta('report.description'),
+    name: name.trim().length >= 2 ? null : ta('report.name'),
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? null : ta('report.email'),
+    goodFaith: goodFaith ? null : ta('report.goodFaith'),
+  };
+  type Field = keyof typeof fieldErrors;
+  const valid = Object.values(fieldErrors).every((e) => !e);
+  const fieldError = (key: Field) => (attempted ? fieldErrors[key] : null);
+  const describedBy = (key: Field, hint?: string) =>
+    [fieldError(key) ? `report-${key}-error` : null, hint].filter(Boolean).join(' ') || undefined;
+  const ids: Record<Field, string> = {
+    url: 'report-url',
+    reason: 'report-reason',
+    description: 'report-description',
+    name: 'report-name',
+    email: 'report-email',
+    goodFaith: 'report-good-faith',
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!valid || !reason) {
-      setError(t('incomplete'));
+      setAttempted(true);
+      setError(null);
+      const first = (Object.keys(fieldErrors) as Field[]).find((key) => fieldErrors[key]);
+      if (first) formRef.current?.querySelector<HTMLElement>(`#${ids[first]}`)?.focus();
       return;
     }
     setPending(true);
@@ -116,20 +142,23 @@ function ReportForm() {
           {sent ? (
             <div className="content-report__done" role="status" data-testid="content-report-sent">
               <CircleCheck aria-hidden="true" />
-              <h1>{t('sentTitle')}</h1>
+              <h1 ref={sentRef} tabIndex={-1}>
+                {t('sentTitle')}
+              </h1>
               <p>{t('sentText')}</p>
             </div>
           ) : (
-            <form onSubmit={submit} noValidate>
+            <form onSubmit={submit} noValidate ref={formRef}>
               <div className="content-report__title">
                 <Flag aria-hidden="true" />
                 <h1>{t('title')}</h1>
               </div>
               <p className="content-report__intro">{t('intro')}</p>
+              <p className="content-report__hint">{ta('requiredHint')}</p>
 
               <div className="auth-field">
                 <label className="auth-field__label" htmlFor="report-url">
-                  {t('url')} *
+                  {t('url')} <span aria-hidden="true">*</span>
                 </label>
                 <input
                   id="report-url"
@@ -140,13 +169,16 @@ function ReportForm() {
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://"
                   required
+                  aria-invalid={fieldError('url') ? true : undefined}
+                  aria-describedby={describedBy('url', 'report-url-hint')}
                 />
-                <p className="content-report__hint">{t('urlHint')}</p>
+                <FieldError id="report-url-error" message={fieldError('url')} />
+                <p className="content-report__hint" id="report-url-hint">{t('urlHint')}</p>
               </div>
 
               <div className="auth-field">
                 <label className="auth-field__label" htmlFor="report-reason">
-                  {t('reason')} *
+                  {t('reason')} <span aria-hidden="true">*</span>
                 </label>
                 <select
                   id="report-reason"
@@ -154,6 +186,8 @@ function ReportForm() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value as ContentReportReason)}
                   required
+                  aria-invalid={fieldError('reason') ? true : undefined}
+                  aria-describedby={describedBy('reason')}
                 >
                   <option value="">{t('reasonChoose')}</option>
                   {CONTENT_REPORT_REASONS.map((key) => (
@@ -162,11 +196,12 @@ function ReportForm() {
                     </option>
                   ))}
                 </select>
+                <FieldError id="report-reason-error" message={fieldError('reason')} />
               </div>
 
               <div className="auth-field">
                 <label className="auth-field__label" htmlFor="report-description">
-                  {t('description')} *
+                  {t('description')} <span aria-hidden="true">*</span>
                 </label>
                 <textarea
                   id="report-description"
@@ -177,13 +212,16 @@ function ReportForm() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('descriptionPlaceholder')}
                   required
+                  aria-invalid={fieldError('description') ? true : undefined}
+                  aria-describedby={describedBy('description')}
                 />
+                <FieldError id="report-description-error" message={fieldError('description')} />
               </div>
 
               <div className="content-report__row">
                 <div className="auth-field">
                   <label className="auth-field__label" htmlFor="report-name">
-                    {t('name')} *
+                    {t('name')} <span aria-hidden="true">*</span>
                   </label>
                   <input
                     id="report-name"
@@ -193,11 +231,14 @@ function ReportForm() {
                     maxLength={200}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    aria-invalid={fieldError('name') ? true : undefined}
+                    aria-describedby={describedBy('name')}
                   />
+                  <FieldError id="report-name-error" message={fieldError('name')} />
                 </div>
                 <div className="auth-field">
                   <label className="auth-field__label" htmlFor="report-email">
-                    {t('email')} *
+                    {t('email')} <span aria-hidden="true">*</span>
                   </label>
                   <input
                     id="report-email"
@@ -208,7 +249,10 @@ function ReportForm() {
                     maxLength={255}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    aria-invalid={fieldError('email') ? true : undefined}
+                    aria-describedby={describedBy('email')}
                   />
+                  <FieldError id="report-email-error" message={fieldError('email')} />
                 </div>
               </div>
 
@@ -225,9 +269,20 @@ function ReportForm() {
               </div>
 
               <label className="content-report__check">
-                <input type="checkbox" checked={goodFaith} onChange={(e) => setGoodFaith(e.target.checked)} />
-                <span>{t('goodFaith')}</span>
+                <input
+                  id="report-good-faith"
+                  type="checkbox"
+                  checked={goodFaith}
+                  onChange={(e) => setGoodFaith(e.target.checked)}
+                  required
+                  aria-invalid={fieldError('goodFaith') ? true : undefined}
+                  aria-describedby={describedBy('goodFaith')}
+                />
+                <span>
+                  {t('goodFaith')} <span aria-hidden="true">*</span>
+                </span>
               </label>
+              <FieldError id="report-goodFaith-error" message={fieldError('goodFaith')} />
 
               <p className="content-report__hint">
                 {privacyUrl
@@ -247,7 +302,13 @@ function ReportForm() {
                 </p>
               )}
 
-              <button type="submit" className="btn btn--primary btn--block" disabled={pending || !valid}>
+              {attempted && !valid && (
+                <p className="public-field-error" role="alert">
+                  {ta('fixFields')}
+                </p>
+              )}
+
+              <button type="submit" className="btn btn--primary btn--block" disabled={pending} aria-busy={pending}>
                 {pending ? t('sending') : t('submit')}
               </button>
             </form>
@@ -264,6 +325,16 @@ function ReportForm() {
         </div>
       </main>
     </div>
+  );
+}
+
+/** Fehlermeldung unter einem Feld (per aria-describedby verknüpft). */
+function FieldError({ id, message }: { id: string; message: string | null }) {
+  if (!message) return null;
+  return (
+    <p className="public-field-error" id={id}>
+      {message}
+    </p>
   );
 }
 

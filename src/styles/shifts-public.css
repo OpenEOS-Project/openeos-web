@@ -489,3 +489,102 @@
 .legal-text h4 { font-size: 15px; font-weight: 700; margin: 16px 0 4px; }
 .legal-text p { margin: 0 0 12px; }
 .legal-text a { color: var(--green-ink); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ==========================================================
+   Barrierefreiheit der öffentlichen Seiten (Helferseiten,
+   „Inhalt melden“, digitaler Beleg) — WCAG 2.1 AA.
+   ========================================================== */
+
+/* Gedämpfter Text: 4,5:1 auch auf --paper-2 und getönten Flächen
+   (--oe-mute aus @openeos/ui erreicht dort nur ~4,1:1). */
+.shifts-public {
+  --mute: #52564e;
+  --mute-2: #52564e;
+}
+
+/* Sichtbarer Tastaturfokus (WCAG 2.4.7) */
+.shifts-public :focus-visible {
+  outline: 3px solid var(--green-ink);
+  outline-offset: 2px;
+}
+.shifts-public .auth-field input:focus-visible,
+.shifts-public .auth-field select:focus-visible,
+.shifts-public .auth-field textarea:focus-visible,
+.shifts-public .input:focus-visible,
+.shifts-public .select:focus-visible {
+  outline: 3px solid var(--green-ink);
+  outline-offset: 1px;
+}
+/* Rahmen von Eingabefeldern mit mindestens 3:1 (WCAG 1.4.11) */
+.shifts-public .auth-field input:not([type='checkbox']):not([type='radio']),
+.shifts-public .auth-field select,
+.shifts-public .auth-field textarea,
+.shifts-public .input,
+.shifts-public .select {
+  border-color: color-mix(in oklab, var(--ink) 45%, transparent);
+}
+.shifts-public .auth-field--error input,
+.shifts-public .auth-field--error textarea,
+.shifts-public [aria-invalid='true'] {
+  border-color: #b13838 !important;
+  border-width: 2px;
+}
+.shifts-public .auth-error,
+.shifts-public .public-field-error {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b13838;
+  margin: 0;
+}
+
+/* „Zum Inhalt springen“ (WCAG 2.4.1) */
+.shifts-public .skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 14px;
+}
+.shifts-public .skip-link:focus {
+  top: 12px;
+}
+.shifts-public main:focus,
+.shifts-public h1:focus,
+.shifts-public h2:focus {
+  outline: none;
+}
+
+.shifts-public .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Bewegung reduzieren (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .shifts-public *,
+  .shifts-public *::before,
+  .shifts-public *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Links in der Fusszeile mindestens 24 px hoch (WCAG 2.5.8) */
+.shifts-public .public-legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}

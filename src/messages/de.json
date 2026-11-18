@@ -6971,6 +6971,8 @@
     "endBeforeStart": "Das Ende darf nicht vor dem Beginn liegen"
   },
   "pageTitles": {
+    "contentReport": "Inhalt melden",
+    "helperSignup": "Helferplanung",
     "login": "Anmelden",
     "register": "Konto erstellen",
     "forgotPassword": "Passwort vergessen",
@@ -8206,6 +8208,22 @@
       "checkbox": "Offenes Kartentrinkgeld ({amount}) bar auszahlen",
       "checkboxHint": "Eigener Beleg mit Quittung, nur für Arbeitnehmer (Lohnkonto). Das Bargeld kommt aus der Schublade.",
       "confirm": "{amount} bar an {name} auszahlen? Die Quittung kommt aus dem Bondrucker."
+    }
+  },
+  "publicA11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "requiredHint": "Pflichtfelder sind mit * markiert.",
+    "fixFields": "Bitte prüfe die markierten Felder.",
+    "sending": "Wird gesendet …",
+    "qrCode": "QR-Code",
+    "removeShift": "{job} am {date}, {time} entfernen",
+    "report": {
+      "url": "Bitte gib die Adresse der Seite an (beginnt mit https://).",
+      "reason": "Bitte wähle aus, worum es geht.",
+      "description": "Bitte beschreibe den Inhalt und warum er rechtswidrig ist (mindestens 20 Zeichen).",
+      "name": "Bitte gib deinen Namen an (mindestens 2 Zeichen).",
+      "email": "Bitte gib eine gültige E-Mail-Adresse an, z. B. name@beispiel.de.",
+      "goodFaith": "Bitte bestätige die Erklärung."
     }
   }
 }

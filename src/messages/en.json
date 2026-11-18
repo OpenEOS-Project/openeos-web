@@ -6983,6 +6983,8 @@
     "endBeforeStart": "The end must not be before the start"
   },
   "pageTitles": {
+    "contentReport": "Report content",
+    "helperSignup": "Volunteer sign-up",
     "login": "Sign in",
     "register": "Create account",
     "forgotPassword": "Forgot password",
@@ -8218,6 +8220,22 @@
       "checkbox": "Pay out open card tips ({amount}) in cash",
       "checkboxHint": "Separate receipt with signature line, only for employees (payroll account). The cash comes from the drawer.",
       "confirm": "Pay out {amount} in cash to {name}? The receipt comes from the receipt printer."
+    }
+  },
+  "publicA11y": {
+    "skipToContent": "Skip to content",
+    "requiredHint": "Fields marked * are required.",
+    "fixFields": "Please check the highlighted fields.",
+    "sending": "Sending …",
+    "qrCode": "QR code",
+    "removeShift": "Remove {job} on {date}, {time}",
+    "report": {
+      "url": "Please enter the address of the page (starting with https://).",
+      "reason": "Please choose what this is about.",
+      "description": "Please describe the content and why it is illegal (at least 20 characters).",
+      "name": "Please enter your name (at least 2 characters).",
+      "email": "Please enter a valid email address, e.g. name@example.com.",
+      "goodFaith": "Please confirm the statement."
     }
   }
 }
