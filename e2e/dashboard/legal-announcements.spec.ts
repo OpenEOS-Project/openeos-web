@@ -141,6 +141,8 @@ test.describe('Legal text announcements', () => {
             today: '2026-11-18',
             noticeDays: 42,
             earliestContractVersion: '2026-12-30',
+            avvAnnexNoticeDays: 28,
+            earliestAvvAnnexVersion: '2026-12-16',
             emailEnabled: true,
             contactEmail: 'hello@openeos.de',
             recipients: 3,
@@ -180,6 +182,18 @@ test.describe('Legal text announcements', () => {
     await expect(page.getByRole('heading', { name: 'Rechtstexte', level: 1 })).toBeVisible();
     await expect(page.getByText('Noch keine Ankündigung.')).toBeVisible();
 
+    // AVV: Zustimmung nach Ziffer 12.4, ausser nur Anhang B/C (Ziffer 6.3).
+    const avv = page.getByRole('group', { name: 'Geänderte Dokumente' }).getByText('Auftragsverarbeitungsvertrag', {
+      exact: true,
+    });
+    await avv.click();
+    await expect(page.getByTestId('admin-legal-avv-hint')).toContainText('AVV Ziffer 12.4');
+    await page.getByTestId('admin-legal-avv-annexes-only').click();
+    await expect(page.getByTestId('admin-legal-avv-hint')).toContainText('vier Wochen');
+    await expect(page.getByText('frühestens zum 16. Dezember 2026')).toBeVisible();
+    await avv.click();
+    await expect(page.getByTestId('admin-legal-avv-hint')).toHaveCount(0);
+
     await page
       .getByRole('group', { name: 'Geänderte Dokumente' })
       .getByText('AGB', { exact: true })
@@ -210,6 +224,7 @@ test.describe('Legal text announcements', () => {
       summaryDe: 'Ziffer 5 wird klarer gefasst.',
       shortNotice: false,
       explicitConsent: false,
+      avvAnnexesOnly: false,
     });
   });
 
@@ -241,6 +256,7 @@ test.describe('Legal text announcements', () => {
       acceptedVersion: version,
       acceptedAt: version ? '2026-11-18T10:00:00.000Z' : null,
       upToDate: version === '2027-01-15',
+      reacceptanceRequired: version !== '2027-01-15',
       acceptedUrl: version ? `${SITE}/agb/${version}` : null,
       acceptedPdfUrl: null,
     });
@@ -252,6 +268,7 @@ test.describe('Legal text announcements', () => {
             documents: {
               agb: state('2026-11-18'),
               avv: { ...state('2027-01-15'), currentVersion: '2026-11-18' },
+              anlage1: { ...state('2027-01-15'), currentVersion: '2026-11-18' },
             },
             change: {
               version: '2027-01-15',
@@ -279,10 +296,85 @@ test.describe('Legal text announcements', () => {
     await expect(page.getByTestId('legal-reacceptance-objection')).toContainText(
       'hello@openeos.de'
     );
+    // Nur das geänderte Dokument wird genannt.
+    await expect(page.getByTestId('legal-reacceptance-checkbox-label')).toHaveText(
+      'Ich habe die AGB gelesen und akzeptiere sie.'
+    );
+    await expect(dialog.getByRole('link', { name: /Auftragsverarbeitungsvertrag/ })).toHaveCount(0);
 
     // „Später erinnern“ schließt den Dialog für einen Tag.
     await page.getByTestId('legal-reacceptance-later').click();
     await expect(dialog).toHaveCount(0);
     required = false;
+  });
+  test('an AVV annex change names only the AVV and records only it', async ({ page }) => {
+    await mockLegal(page);
+    await page.route('**/api/legal/announcements', (route) =>
+      route.fulfill({ json: { data: [] } })
+    );
+    let required = true;
+    const flag = async (route: import('@playwright/test').Route) => {
+      const response = await route.fetch();
+      const json = (await response.json()) as {
+        data?: Record<string, unknown> & { user?: Record<string, unknown> };
+      };
+      if (json.data) {
+        json.data.legalReacceptanceRequired = required;
+        if (json.data.user) json.data.user.legalReacceptanceRequired = required;
+      }
+      await route.fulfill({ response, json });
+    };
+    await page.route('**/api/auth/login', flag);
+    await page.route('**/api/auth/me', flag);
+    const state = (current: string, accepted: string) => ({
+      currentVersion: current,
+      acceptedVersion: accepted,
+      acceptedAt: '2026-11-18T10:00:00.000Z',
+      upToDate: accepted >= current,
+      reacceptanceRequired: required && accepted < current,
+      acceptedUrl: null,
+      acceptedPdfUrl: null,
+    });
+    const status = () => ({
+      required,
+      documents: {
+        agb: state('2026-11-18', '2026-11-18'),
+        avv: state('2027-01-15', required ? '2026-11-18' : '2027-01-15'),
+        anlage1: state('2026-11-18', '2026-11-18'),
+      },
+      change: {
+        version: '2027-01-15',
+        documents: ['avv'],
+        announcedAt: '2026-11-18T10:00:00.000Z',
+        summaryDe: 'Neuer Unterauftragsverarbeiter für den Mailversand.',
+        summaryEn: null,
+        explicitConsent: false,
+        avvAnnexesOnly: true,
+      },
+    });
+    await page.route('**/api/legal/status', (route) => route.fulfill({ json: { data: status() } }));
+    const accepted: Record<string, unknown>[] = [];
+    await page.route('**/api/legal/accept', (route) => {
+      accepted.push(route.request().postDataJSON() as Record<string, unknown>);
+      required = false;
+      return route.fulfill({ json: { data: status() } });
+    });
+
+    await page.goto('/login');
+    await page.evaluate(() => window.localStorage.clear());
+    await loginAs(page, TEST_ADMIN);
+    const dialog = page.getByTestId('legal-reacceptance-dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { name: 'Neuer Auftragsverarbeitungsvertrag' })).toBeVisible();
+    await expect(page.getByTestId('legal-reacceptance-checkbox-label')).toHaveText(
+      'Ich habe den Auftragsverarbeitungsvertrag gelesen und akzeptiere ihn.'
+    );
+    await expect(page.getByTestId('legal-reacceptance-objection-avv')).toContainText('vier Wochen');
+    await expect(page.getByTestId('legal-reacceptance-objection')).toHaveCount(0);
+
+    await page.getByTestId('legal-reacceptance-checkbox').check();
+    await page.getByTestId('legal-reacceptance-accept').click();
+    await expect(dialog).toHaveCount(0);
+    expect(accepted).toEqual([{ context: 'reacceptance', documents: ['avv'] }]);
   });
 });

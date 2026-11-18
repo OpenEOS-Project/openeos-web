@@ -9,8 +9,12 @@
 /** `anlage1`: Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste). */
 export type LegalDocumentKey = 'agb' | 'anlage1' | 'avv' | 'privacy' | 'imprint';
 
-/** Dokumente, die bei Registrierung und Buchung angenommen werden. */
-export type AcceptableLegalDocument = 'agb' | 'avv';
+/**
+ * Dokumente, die bei Registrierung und Buchung angenommen werden. Anlage 1
+ * ist Teil der AGB; die API führt sie als eigenes Dokument, damit eine
+ * Änderung nur der Anlage 1 erneut bestätigt werden kann.
+ */
+export type AcceptableLegalDocument = 'agb' | 'avv' | 'anlage1';
 
 export interface LegalDocumentVersion {
   /** Stand der Fassung, JJJJ-MM-TT; leer, solange die API nichts geliefert hat. */
@@ -45,6 +49,8 @@ export interface LegalAcceptanceState {
   acceptedVersion: string | null;
   acceptedAt: string | null;
   upToDate: boolean;
+  /** Muss jetzt (erneut) angenommen werden? Fehlt bei älteren API-Ständen. */
+  reacceptanceRequired?: boolean;
   acceptedUrl: string | null;
   acceptedPdfUrl: string | null;
 }
@@ -60,12 +66,15 @@ export interface LegalChange {
   summaryEn: string | null;
   /** Nur mit ausdrücklicher Zustimmung wirksam — dann nicht aufschiebbar. */
   explicitConsent: boolean;
+  /** Vom AVV nur Anhang B/C: Widerspruchsrecht nach AVV Ziffer 6.3. */
+  avvAnnexesOnly?: boolean;
 }
 
 /** GET /legal/status, POST /legal/accept */
 export interface LegalStatus {
   required: boolean;
-  documents: Record<AcceptableLegalDocument, LegalAcceptanceState>;
+  /** `anlage1` fehlt bei älteren API-Ständen. */
+  documents: Record<'agb' | 'avv', LegalAcceptanceState> & { anlage1?: LegalAcceptanceState };
   /** Fehlt bei älteren API-Ständen. */
   change?: LegalChange | null;
 }
@@ -78,6 +87,7 @@ export interface UpcomingLegalChange {
   summaryDe: string;
   summaryEn: string | null;
   explicitConsent: boolean;
+  avvAnnexesOnly?: boolean;
   announcedAt: string;
   links: Partial<Record<LegalDocumentKey, { versionUrl: string; pdfUrl: string; previousUrl: string | null }>>;
 }
@@ -91,10 +101,19 @@ export interface LegalAnnouncementInput {
   summaryEn?: string;
   shortNotice?: boolean;
   explicitConsent?: boolean;
+  /** Vom AVV nur Anhang B/C (Verfahren nach AVV Ziffer 6.3). */
+  avvAnnexesOnly?: boolean;
 }
 
 export interface LegalAnnouncementProblem {
-  field: 'documents' | 'version' | 'summaryDe' | 'summaryEn' | 'website';
+  field:
+    | 'documents'
+    | 'version'
+    | 'summaryDe'
+    | 'summaryEn'
+    | 'website'
+    | 'explicitConsent'
+    | 'avvAnnexesOnly';
   message: string;
   document?: LegalDocumentKey;
 }
@@ -126,6 +145,7 @@ export interface LegalAnnouncement {
   summaryEn: string | null;
   shortNotice: boolean;
   explicitConsent: boolean;
+  avvAnnexesOnly?: boolean;
   createdAt: string;
   createdByEmail: string;
   inForce: boolean;
@@ -141,6 +161,9 @@ export interface LegalAnnouncementOverview {
   today: string;
   noticeDays: number;
   earliestContractVersion: string;
+  /** Frist und frühestes Datum, wenn sich vom AVV nur Anhang B/C ändert. */
+  avvAnnexNoticeDays?: number;
+  earliestAvvAnnexVersion?: string;
   emailEnabled: boolean;
   contactEmail: string;
   recipients: number;

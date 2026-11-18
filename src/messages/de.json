@@ -3280,7 +3280,11 @@
         "summaryEn": "Zusammenfassung auf Englisch (optional)",
         "summaryEnHint": "Für die englische Oberfläche und als Zusatz in der Mail.",
         "preview": "Prüfen und Vorschau",
-        "checking": "Wird geprüft …"
+        "checking": "Wird geprüft …",
+        "versionHintAvvAnnex": "Datum der „Stand“-Zeile. Änderungen nur der Anhänge B/C des AVV mindestens vier Wochen vorher ankündigen (AVV Ziffer 6.3) – frühestens zum {date}.",
+        "avvAnnexesOnly": "Nur Anhang B/C geändert (Verfahren nach AVV Ziffer 6.3)",
+        "avvConsentHint": "Änderungen des AVV werden nur mit Zustimmung des Kunden in Textform wirksam (AVV Ziffer 12.4) – wähle „Ausdrückliche Zustimmung“. Ausgenommen sind Änderungen von Anhang B (Unterauftragsverarbeiter) und Anhang C (technische und organisatorische Maßnahmen): Dann wähle „Nur Anhang B/C geändert“.",
+        "avvAnnexesOnlyHint": "Keine Zustimmung nötig: Die Mail informiert mindestens vier Wochen vorher und weist auf das Widerspruchsrecht hin (vier Wochen ab Zugang; ohne Einigung kann jede Seite nach AVV Ziffer 6.4 kündigen). Bei einem neuen Unterauftragsverarbeiter gehören Name, Anschrift, Leistung und Verarbeitungsort in die Zusammenfassung."
       },
       "preview": {
         "ok": "Alles in Ordnung",
@@ -3311,7 +3315,8 @@
         "failures": "{count, plural, one {# gescheiterte Mail} other {# gescheiterte Mails}}",
         "retryHint": "Bei „Versand unterbrochen“ ist unklar, ob die Mail ankam – erneut senden kann sie doppelt zustellen. Die Frist von sechs Wochen läuft ab Zugang.",
         "retry": "Gescheiterte erneut senden",
-        "retried": "{count, plural, =0 {Nichts einzureihen.} one {# Mail wird erneut gesendet.} other {# Mails werden erneut gesendet.}}"
+        "retried": "{count, plural, =0 {Nichts einzureihen.} one {# Mail wird erneut gesendet.} other {# Mails werden erneut gesendet.}}",
+        "avvAnnexesOnly": "AVV nur Anhang B/C"
       }
     }
   },
@@ -7690,10 +7695,11 @@
       "title": "Neue AGB und neuer Auftragsverarbeitungsvertrag",
       "subtitle": "Stand {date}",
       "subtitleNoDate": "Aktuelle Fassung",
-      "text": "Wir haben unsere AGB und den Auftragsverarbeitungsvertrag (AVV) überarbeitet. Damit du OpenEOS für deine Organisation weiter nutzen kannst, lies bitte die neuen Fassungen und bestätige sie.",
+      "text": "Wir haben {documents} überarbeitet. Damit du OpenEOS für deine Organisation weiter nutzen kannst, lies bitte die neuen Fassungen und bestätige sie.",
       "documents": {
         "agb": "Allgemeine Geschäftsbedingungen (AGB)",
-        "avv": "Auftragsverarbeitungsvertrag (AVV)"
+        "avv": "Auftragsverarbeitungsvertrag (AVV)",
+        "anlage1": "Anlage 1 zu den AGB – Leistungsbeschreibung und Preisliste"
       },
       "version": "Fassung vom {date}",
       "currentVersion": "Aktuelle Fassung",
@@ -7701,7 +7707,7 @@
       "previous": "Deine bisher akzeptierte Fassung vom {date}",
       "acceptedOn": "akzeptiert am {date}",
       "germanNote": "Die Rechtstexte gibt es nur auf Deutsch.",
-      "checkbox": "Ich habe die AGB und den Auftragsverarbeitungsvertrag gelesen und akzeptiere sie.",
+      "checkbox": "Ich habe {documents} gelesen und akzeptiere {pronoun, select, ihn {ihn} other {sie}}.",
       "accept": "Akzeptieren und weiter",
       "saving": "Wird gespeichert …",
       "logout": "Abmelden",
@@ -7712,7 +7718,11 @@
       "textSince": "Seit dem {date} gilt eine neue Fassung. Wir haben dich am {announced} per E-Mail darüber informiert. Bitte lies die neue Fassung und bestätige sie. Das hat sich geändert:",
       "objectionNote": "Für dein Kundenkonto gilt die Änderung als angenommen, wenn du nicht innerhalb von sechs Wochen nach unserer Mitteilung in Textform widersprichst, z. B. per E-Mail an {email}. Widersprichst du, läuft der Vertrag zu den bisherigen Bedingungen weiter; LUXCODE kann ihn dann mit einer Frist von einem Monat zum Monatsende kündigen.",
       "consentNote": "Diese Änderung wird für dein Kundenkonto nur mit deiner Zustimmung wirksam. Stimmst du nicht zu, gelten die bisherigen Bedingungen weiter – schreib uns dann bitte an {email}.",
-      "later": "Später erinnern"
+      "later": "Später erinnern",
+      "titleAnlage1": "Neue Leistungsbeschreibung und Preisliste",
+      "titleMany": "Neue Fassungen unserer Vertragsbedingungen",
+      "names": {"agb": "die AGB", "avv": "den Auftragsverarbeitungsvertrag", "anlage1": "die Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste)"},
+      "objectionNoteAvvAnnex": "Am Auftragsverarbeitungsvertrag haben sich nur Anhang B (Unterauftragsverarbeiter) bzw. Anhang C (technische und organisatorische Maßnahmen) geändert (AVV Ziffer 6.3). Die Änderung gilt als genehmigt, wenn du nicht innerhalb von vier Wochen nach unserer Mitteilung in Textform widersprichst, z. B. per E-Mail an {email}. Widersprichst du und findet sich keine Lösung, kann jede Seite den Nutzungsvertrag mit einer Frist von einem Monat zum Monatsende kündigen (AVV Ziffer 6.4)."
     },
     "overview": {
       "documentsTitle": "Verträge und Rechtstexte von OpenEOS",
@@ -7834,7 +7844,8 @@
         "avv": "Auftragsverarbeitungsvertrag",
         "privacy": "Datenschutzerklärung",
         "imprint": "Impressum"
-      }
+      },
+      "objectionNoteAvvAnnex": "Am Auftragsverarbeitungsvertrag ändern sich nur Anhang B/C: Die Änderung gilt als genehmigt, wenn du nicht innerhalb von vier Wochen nach unserer E-Mail in Textform widersprichst (hello@openeos.de)."
     }
   },
   "privacy": {

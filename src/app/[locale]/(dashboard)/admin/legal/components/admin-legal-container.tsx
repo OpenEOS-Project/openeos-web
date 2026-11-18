@@ -44,6 +44,7 @@ interface FormState {
   summaryEn: string;
   shortNotice: boolean;
   explicitConsent: boolean;
+  avvAnnexesOnly: boolean;
 }
 
 const EMPTY: FormState = {
@@ -53,6 +54,7 @@ const EMPTY: FormState = {
   summaryEn: '',
   shortNotice: false,
   explicitConsent: false,
+  avvAnnexesOnly: false,
 };
 
 function toInput(form: FormState): LegalAnnouncementInput {
@@ -64,6 +66,7 @@ function toInput(form: FormState): LegalAnnouncementInput {
     ...(form.summaryEn.trim() ? { summaryEn: form.summaryEn } : {}),
     shortNotice: contract && form.shortNotice,
     explicitConsent: contract && form.explicitConsent,
+    avvAnnexesOnly: form.documents.includes('avv') && form.avvAnnexesOnly,
   };
 }
 
@@ -177,6 +180,13 @@ function AnnounceForm({ overview }: { overview: LegalAnnouncementOverview }) {
     set('documents', on ? [...form.documents, d] : form.documents.filter((x) => x !== d));
 
   const earliest = formatLegalVersion(overview.earliestContractVersion, locale);
+  /* AVV: Zustimmung nach Ziffer 12.4 – ausser nur Anhang B/C (Ziffer 6.3). */
+  const avv = form.documents.includes('avv');
+  const annexOnly = avv && form.avvAnnexesOnly;
+  const sixWeeks = form.documents.some((d) => CONTRACT.includes(d) && !(d === 'avv' && annexOnly));
+  const earliestAnnex = overview.earliestAvvAnnexVersion
+    ? formatLegalVersion(overview.earliestAvvAnnexVersion, locale)
+    : null;
 
   return (
     <section className="app-card admin-legal__card" aria-labelledby="admin-legal-new">
@@ -213,7 +223,11 @@ function AnnounceForm({ overview }: { overview: LegalAnnouncementOverview }) {
           type="date"
           label={t('form.version')}
           hint={
-            contract ? t('form.versionHintContract', { date: earliest }) : t('form.versionHint')
+            sixWeeks
+              ? t('form.versionHintContract', { date: earliest })
+              : annexOnly && earliestAnnex
+                ? t('form.versionHintAvvAnnex', { date: earliestAnnex })
+                : t('form.versionHint')
           }
           value={form.version}
           min={overview.today}
@@ -237,6 +251,20 @@ function AnnounceForm({ overview }: { overview: LegalAnnouncementOverview }) {
             >
               {t('form.explicitConsent')}
             </Checkbox>
+            {avv && (
+              <>
+                <Checkbox
+                  checked={form.avvAnnexesOnly}
+                  onChange={(e) => set('avvAnnexesOnly', e.target.checked)}
+                  data-testid="admin-legal-avv-annexes-only"
+                >
+                  {t('form.avvAnnexesOnly')}
+                </Checkbox>
+                <p className="admin-legal__muted" data-testid="admin-legal-avv-hint">
+                  {annexOnly ? t('form.avvAnnexesOnlyHint') : t('form.avvConsentHint')}
+                </p>
+              </>
+            )}
           </div>
         )}
 
@@ -375,6 +403,9 @@ function AnnouncementList({ announcements }: { announcements: LegalAnnouncement[
                   </span>
                   {a.shortNotice && (
                     <span className="badge badge--warning">{t('list.shortNotice')}</span>
+                  )}
+                  {a.avvAnnexesOnly && (
+                    <span className="badge badge--neutral">{t('list.avvAnnexesOnly')}</span>
                   )}
                   {a.explicitConsent && (
                     <span className="badge badge--neutral">{t('list.explicitConsent')}</span>

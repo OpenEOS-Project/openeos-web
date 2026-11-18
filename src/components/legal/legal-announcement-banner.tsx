@@ -107,11 +107,22 @@ function AnnouncementNotice({ change }: { change: UpcomingLegalChange }) {
                 );
               })}
             </ul>
-            {contract && (
-              <p className="legal-announcement__note">
-                {t(change.explicitConsent ? 'consentNote' : 'objectionNote')}
-              </p>
-            )}
+            {contract &&
+              (change.explicitConsent ? (
+                <p className="legal-announcement__note">{t('consentNote')}</p>
+              ) : (
+                <>
+                  {/* AVV nur Anhang B/C: vier Wochen nach AVV Ziffer 6.3, sonst AGB 13.4. */}
+                  {documents.some((d) => d === 'agb' || d === 'anlage1' || (d === 'avv' && !change.avvAnnexesOnly)) && (
+                    <p className="legal-announcement__note">{t('objectionNote')}</p>
+                  )}
+                  {change.avvAnnexesOnly && documents.includes('avv') && (
+                    <p className="legal-announcement__note" data-testid="legal-announcement-avv-annex-note">
+                      {t('objectionNoteAvvAnnex')}
+                    </p>
+                  )}
+                </>
+              ))}
           </div>
         )}
       </div>

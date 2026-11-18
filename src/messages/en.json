@@ -1948,7 +1948,11 @@
         "summaryEn": "Summary in English (optional)",
         "summaryEnHint": "For the English interface and as an addition in the e-mail.",
         "preview": "Check and preview",
-        "checking": "Checking …"
+        "checking": "Checking …",
+        "versionHintAvvAnnex": "Date of the “Stand” line. Changes of AVV annexes B/C only need four weeks’ notice (AVV clause 6.3) – {date} at the earliest.",
+        "avvAnnexesOnly": "Only annex B/C changed (procedure under AVV clause 6.3)",
+        "avvConsentHint": "Changes of the AVV only take effect with the customer’s consent in text form (AVV clause 12.4) – select “Explicit consent required”. Changes of annex B (sub-processors) and annex C (technical and organisational measures) are excepted: then select “Only annex B/C changed”.",
+        "avvAnnexesOnlyHint": "No consent needed: the e-mail informs at least four weeks ahead and points out the right to object (four weeks from receipt; without agreement either party may terminate under AVV clause 6.4). For a new sub-processor, put its name, address, service and place of processing into the summary."
       },
       "preview": {
         "ok": "All good",
@@ -1979,7 +1983,8 @@
         "failures": "{count, plural, one {# failed e-mail} other {# failed e-mails}}",
         "retryHint": "With “Versand unterbrochen” it is unclear whether the e-mail arrived – sending again may deliver it twice. The six-week period runs from receipt.",
         "retry": "Send failed ones again",
-        "retried": "{count, plural, =0 {Nothing to queue.} one {# e-mail will be sent again.} other {# e-mails will be sent again.}}"
+        "retried": "{count, plural, =0 {Nothing to queue.} one {# e-mail will be sent again.} other {# e-mails will be sent again.}}",
+        "avvAnnexesOnly": "AVV annex B/C only"
       }
     }
   },
@@ -7702,10 +7707,11 @@
       "title": "New terms and conditions and data processing agreement",
       "subtitle": "As of {date}",
       "subtitleNoDate": "Current version",
-      "text": "We have revised our terms and conditions (AGB) and the data processing agreement (AVV). To keep using OpenEOS for your organization, please read the new versions and confirm them.",
+      "text": "We have revised {documents}. To keep using OpenEOS for your organization, please read the new versions and confirm them.",
       "documents": {
         "agb": "Terms and conditions (AGB)",
-        "avv": "Data processing agreement (AVV)"
+        "avv": "Data processing agreement (AVV)",
+        "anlage1": "Annex 1 to the terms and conditions – service description and price list"
       },
       "version": "Version of {date}",
       "currentVersion": "Current version",
@@ -7713,7 +7719,7 @@
       "previous": "The version you accepted previously, dated {date}",
       "acceptedOn": "accepted on {date}",
       "germanNote": "The legal texts are available in German only; the German version is binding.",
-      "checkbox": "I have read and accept the terms and conditions and the data processing agreement.",
+      "checkbox": "I have read and accept {documents}.",
       "accept": "Accept and continue",
       "saving": "Saving …",
       "logout": "Log out",
@@ -7724,7 +7730,11 @@
       "textSince": "A new version has been in effect since {date}. We informed you by e-mail on {announced}. Please read the new version and confirm it. What has changed:",
       "objectionNote": "For your customer account the change counts as accepted unless you object in text form within six weeks of our notice, e.g. by e-mail to {email}. If you object, the contract continues on the previous terms; LUXCODE may then terminate it with one month's notice to the end of a month.",
       "consentNote": "This change only takes effect for your customer account with your consent. If you do not agree, the previous terms continue to apply – please write to us at {email}.",
-      "later": "Remind me later"
+      "later": "Remind me later",
+      "titleAnlage1": "New service description and price list",
+      "titleMany": "New versions of our contract terms",
+      "names": {"agb": "the terms and conditions", "avv": "the data processing agreement", "anlage1": "annex 1 to the terms and conditions (service description and price list)"},
+      "objectionNoteAvvAnnex": "Only annex B (sub-processors) or annex C (technical and organisational measures) of the data processing agreement has changed (AVV clause 6.3). The change counts as approved unless you object in text form within four weeks of our notice, e.g. by e-mail to {email}. If you object and no solution is found, either party may terminate the contract with one month's notice to the end of a month (AVV clause 6.4)."
     },
     "overview": {
       "documentsTitle": "OpenEOS contracts and legal texts",
@@ -7846,7 +7856,8 @@
         "avv": "Data processing agreement",
         "privacy": "Privacy policy",
         "imprint": "Imprint"
-      }
+      },
+      "objectionNoteAvvAnnex": "Only annex B/C of the data processing agreement changes: the change counts as approved unless you object in text form within four weeks of our e-mail (hello@openeos.de)."
     }
   },
   "privacy": {
