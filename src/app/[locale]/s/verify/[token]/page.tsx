@@ -77,7 +77,8 @@ export default function VerifyEmailPage() {
       </header>
 
       {/* Body */}
-      <main style={{
+      {/* Ergebnis der Bestätigung wird angesagt (WCAG 4.1.3). */}
+      <main aria-live="polite" style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '2rem 1rem',
       }}>
@@ -91,9 +92,9 @@ export default function VerifyEmailPage() {
                   'color-mix(in oklab, var(--green-soft) 60%, var(--paper))',
                   <Loader style={{ width: 28, height: 28, color: 'var(--green-ink)', animation: 'spin 1s linear infinite' }} />
                 )}
-                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                <h1 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.loading')}
-                </h2>
+                </h1>
                 <p style={{ color: 'var(--mute)', fontSize: 15 }}>{t('shifts.verify.pleaseWait')}</p>
               </>
             )}
@@ -105,9 +106,9 @@ export default function VerifyEmailPage() {
                   'color-mix(in oklab, var(--green-soft) 70%, transparent)',
                   <CircleCheck style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
                 )}
-                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                <h1 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.successTitle')}
-                </h2>
+                </h1>
                 <p style={{ color: 'var(--mute)', fontSize: 15, marginBottom: '1.5rem' }}>
                   {resultData.status === 'pending_approval'
                     ? t('shifts.verify.pendingApproval')
@@ -129,9 +130,9 @@ export default function VerifyEmailPage() {
                   'color-mix(in oklab, #d24545 12%, transparent)',
                   <CircleX style={{ width: 28, height: 28, color: '#d24545' }} />
                 )}
-                <h2 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
+                <h1 className="section-title" style={{ fontSize: 'clamp(20px,4vw,28px)', marginBottom: 10 }}>
                   {t('shifts.verify.errorTitle')}
-                </h2>
+                </h1>
                 <p style={{ color: 'var(--mute)', fontSize: 15 }}>
                   {errorMessage || t('shifts.verify.errorDescription')}
                 </p>

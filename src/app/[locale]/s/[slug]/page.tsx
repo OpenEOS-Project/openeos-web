@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useIntlLocale } from '@/hooks/use-locale-format';
@@ -87,6 +87,7 @@ export default function PublicShiftPlanPage() {
   const t = useTranslations();
   const tp = useTranslations('shifts.publicPage');
   const tValidation = useTranslations('shifts.validation');
+  const ta = useTranslations('publicA11y');
   const apiErrorMessage = useApiErrorMessage();
   const locale = useIntlLocale();
   const formSchema = useMemo(() => createRegistrationSchema(tValidation), [tValidation]);
@@ -98,7 +99,17 @@ export default function PublicShiftPlanPage() {
   // Mobil and Liste only — matrix/calendar were dropped because they require
   // horizontal scrolling once the plan has many jobs.
   const [viewMode, setViewMode] = useState<'mobile' | 'list'>('mobile');
-
+  // Beim Wechsel zwischen Auswahl, Formular und Bestätigung den Fokus auf
+  // die neue Überschrift setzen (WCAG 2.4.3) — sonst steht er im Nichts.
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const firstStepRender = useRef(true);
+  useEffect(() => {
+    if (firstStepRender.current) {
+      firstStepRender.current = false;
+      return;
+    }
+    stepHeadingRef.current?.focus();
+  }, [step]);
   const {
     control,
     handleSubmit,
@@ -347,11 +358,11 @@ export default function PublicShiftPlanPage() {
   if (isLoading) {
     return (
       <>
-        <div className="shifts-public__logo-bar">
+        <header className="shifts-public__logo-bar">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo_dark.png" alt="OpenEOS" />
-        </div>
-        <main className="shifts-public-wrap" style={{ flex: 1, paddingTop: 32, paddingBottom: 80 }}>
+        </header>
+        <main className="shifts-public-wrap" aria-busy="true" style={{ flex: 1, paddingTop: 32, paddingBottom: 80 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[1, 2, 3].map((i) => (
               <div
@@ -370,10 +381,10 @@ export default function PublicShiftPlanPage() {
   if (isError || !plan) {
     return (
       <>
-        <div className="shifts-public__logo-bar">
+        <header className="shifts-public__logo-bar">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo_dark.png" alt="OpenEOS" />
-        </div>
+        </header>
         <main className="shifts-public-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 64, paddingBottom: 64 }}>
           <div className="shifts-public__card" style={{ maxWidth: 440, width: '100%', textAlign: 'center' }}>
             <div className="shifts-public__card-body" style={{ padding: '2.5rem 2rem' }}>
@@ -384,9 +395,9 @@ export default function PublicShiftPlanPage() {
               }}>
                 <CircleAlert style={{ width: 28, height: 28, color: '#d24545' }} />
               </div>
-              <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', marginBottom: 12 }}>
+              <h1 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', marginBottom: 12 }}>
                 {t('shifts.public.notFound')}
-              </h2>
+              </h1>
               <p style={{ color: 'var(--mute)', fontSize: 15, margin: 0 }}>{t('shifts.public.notFoundDescription')}</p>
             </div>
           </div>
@@ -399,15 +410,17 @@ export default function PublicShiftPlanPage() {
   if (step === 'success') {
     return (
       <>
-        <div className="shifts-public__logo-bar">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo_dark.png" alt="OpenEOS" />
-        </div>
-        <header className="shifts-public__context">
-          <span className="shifts-public__context-label">
-            {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
-          </span>
-          <span className="shifts-public__context-meta mono">{tp('registeredBadge')}</span>
+        <header>
+          <div className="shifts-public__logo-bar">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo_dark.png" alt="OpenEOS" />
+          </div>
+          <div className="shifts-public__context">
+            <span className="shifts-public__context-label">
+              {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
+            </span>
+            <span className="shifts-public__context-meta mono">{tp('registeredBadge')}</span>
+          </div>
         </header>
 
         <main className="shifts-public-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 32, paddingBottom: 32 }}>
@@ -420,19 +433,23 @@ export default function PublicShiftPlanPage() {
               }}>
                 <CircleCheck style={{ width: 28, height: 28, color: 'var(--green-ink)' }} />
               </div>
-              <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', margin: '0 0 10px' }}>
+              <h1
+                ref={stepHeadingRef}
+                tabIndex={-1}
+                style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, letterSpacing: '-0.01em', margin: '0 0 10px' }}
+              >
                 {t('shifts.public.registrationSuccess')}
-              </h2>
+              </h1>
               <p style={{ color: 'var(--mute)', fontSize: 15, margin: 0 }}>{t('shifts.public.checkEmail')}</p>
 
               {registeredShiftsData.length > 0 && (
                 <div style={{ marginTop: '2rem', textAlign: 'left' }}>
-                  <p style={{
-                    fontFamily: 'var(--f-mono)', fontSize: 11, textTransform: 'uppercase',
-                    letterSpacing: '.06em', color: 'var(--mute)', marginBottom: 10,
+                  <h2 style={{
+                    fontFamily: 'var(--f-mono)', fontSize: 11, textTransform: 'uppercase', fontWeight: 400,
+                    letterSpacing: '.06em', color: 'var(--mute)', margin: '0 0 10px',
                   }}>
                     {t('shifts.public.yourShifts')}
-                  </p>
+                  </h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {registeredShiftsData.map(({ job, shift }) => (
                       <div
@@ -456,6 +473,7 @@ export default function PublicShiftPlanPage() {
                           <button
                             type="button"
                             onClick={() => openGoogleCalendar({ job, shift })}
+                            aria-label={`${t('shifts.public.addToGoogleCalendar')}: ${job.name}, ${formatWeekday(shift.date)} ${formatTime(shift.startTime)}–${formatTime(shift.endTime)}`}
                             style={{
                               marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6,
                               fontSize: 13, color: 'var(--green-ink)', background: 'none', border: 0,
@@ -502,23 +520,24 @@ export default function PublicShiftPlanPage() {
   // ── Main page ────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Logo bar */}
-      <div className="shifts-public__logo-bar">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo_dark.png" alt="OpenEOS" />
-      </div>
-
-      {/* Dark context strip */}
-      <header className="shifts-public__context">
-        <span className="shifts-public__context-label">
-          {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
-        </span>
-        <span className="shifts-public__context-meta mono">
-          {plan.event ? formatEventDates(plan.event.startDate, plan.event.endDate).toLocaleUpperCase(locale) : tp('openRegistration')}
-        </span>
+      <a href="#main" className="skip-link">{ta('skipToContent')}</a>
+      <header>
+        {/* Logo bar */}
+        <div className="shifts-public__logo-bar">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo_dark.png" alt="OpenEOS" />
+        </div>
+        {/* Dark context strip */}
+        <div className="shifts-public__context">
+          <span className="shifts-public__context-label">
+            {tp.rich('contextLabel', { organization: plan.organization.name, b: (chunks) => <b>{chunks}</b> })}
+          </span>
+          <span className="shifts-public__context-meta mono">
+            {plan.event ? formatEventDates(plan.event.startDate, plan.event.endDate).toLocaleUpperCase(locale) : tp('openRegistration')}
+          </span>
+        </div>
       </header>
-
-      <main className="shifts-public-wrap" style={{ flex: 1, paddingBottom: step === 'select' ? 96 : 32 }}>
+      <main id="main" tabIndex={-1} className="shifts-public-wrap" style={{ flex: 1, paddingBottom: step === 'select' ? 96 : 32 }}>
         {step === 'select' && (
           <>
             {/* Hero */}
@@ -527,7 +546,7 @@ export default function PublicShiftPlanPage() {
                 {plan.organization.logoUrl ? (
                   <Image
                     src={plan.organization.logoUrl}
-                    alt={plan.organization.name}
+                    alt=""
                     width={28}
                     height={28}
                     style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }}
@@ -543,7 +562,7 @@ export default function PublicShiftPlanPage() {
                   </>
                 )}
               </div>
-              <h1>{plan.name}</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1}>{plan.name}</h1>
               {plan.description && (
                 <p className="shifts-public__hero-desc">{plan.description}</p>
               )}
@@ -559,7 +578,7 @@ export default function PublicShiftPlanPage() {
 
             {/* Toolbar */}
             <div className="shifts-public__toolbar">
-              <span className="shifts-public__counter">
+              <span className="shifts-public__counter" role="status" aria-live="polite">
                 {selectedShifts.size > 0 ? tp('selectedCount', { count: selectedShifts.size }) : ''}
               </span>
               <div className="shifts-public__view-toggle">
@@ -569,6 +588,7 @@ export default function PublicShiftPlanPage() {
                     type="button"
                     onClick={() => setViewMode(mode)}
                     className={viewMode === mode ? 'is-active' : ''}
+                    aria-pressed={viewMode === mode}
                   >
                     {mode === 'mobile'
                       ? <><LayoutGrid style={{ width: 14, height: 14 }} />{tp('cardsView')}</>
@@ -632,13 +652,16 @@ export default function PublicShiftPlanPage() {
                               : hasOverlap
                               ? 'color-mix(in oklab, #f59e0b 10%, transparent)'
                               : 'var(--paper)';
-                            const cellBorder = isSelected ? 'var(--green-ink)' : 'color-mix(in oklab, var(--ink) 12%, transparent)';
+                            const cellBorder = isSelected ? 'var(--green-ink)' : isDisabled ? 'color-mix(in oklab, var(--ink) 20%, transparent)' : 'color-mix(in oklab, var(--ink) 45%, transparent)';
 
                             return (
                               <button
                                 key={shift.id}
                                 type="button"
                                 disabled={isDisabled}
+                                aria-pressed={isSelected}
+                                aria-label={`${job.name}, ${dateObj.toLocaleDateString(locale, { weekday: 'long', day: '2-digit', month: '2-digit' })}, ${formatTime(shift.startTime)}–${formatTime(shift.endTime)}`}
+                                aria-describedby={`shift-state-${shift.id}`}
                                 onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
                                 style={{
                                   display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
@@ -646,7 +669,6 @@ export default function PublicShiftPlanPage() {
                                   padding: '12px 12px', borderRadius: 'var(--r-sm)',
                                   border: `1.5px solid ${cellBorder}`, background: cellBg,
                                   cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                  opacity: isDisabled && !isSelected ? 0.6 : 1,
                                   fontFamily: 'inherit', transition: 'background .15s, border-color .15s',
                                   minHeight: 86, width: '100%', textAlign: 'left',
                                 }}
@@ -668,7 +690,7 @@ export default function PublicShiftPlanPage() {
                                     {job.description}
                                   </div>
                                 )}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                <div id={`shift-state-${shift.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                   {isSelected ? (
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--green-ink)', fontSize: 12, fontWeight: 600 }}>
                                       <CircleCheck style={{ width: 14, height: 14 }} />
@@ -722,6 +744,7 @@ export default function PublicShiftPlanPage() {
                             key={shift.id}
                             type="button"
                             disabled={isDisabled}
+                            aria-pressed={isSelected}
                             onClick={() => handleShiftToggle(shift.id, shift.isFull, hasOverlap)}
                             className={`shifts-public__shift-row${isSelected ? ' is-selected' : ''}`}
                           >
@@ -769,7 +792,7 @@ export default function PublicShiftPlanPage() {
                                 </div>
 
                                 {hasOverlap && overlappingShift && (
-                                  <p style={{ marginTop: 6, fontSize: 12, color: '#8a5e10' }}>
+                                  <p style={{ marginTop: 6, fontSize: 12, color: '#7a520c' }}>
                                     {t('shifts.public.overlapsWith', {
                                       job: overlappingShift.job.name,
                                       time: `${formatTime(overlappingShift.shift.startTime)} – ${formatTime(overlappingShift.shift.endTime)}`,
@@ -794,7 +817,7 @@ export default function PublicShiftPlanPage() {
                 role="region"
                 aria-label={t('shifts.public.continue')}
               >
-                <span className="shifts-public__continue-pill-count">{selectedShifts.size}</span>
+                <span className="shifts-public__continue-pill-count" aria-hidden="true">{selectedShifts.size}</span>
                 <span className="shifts-public__continue-pill-label">
                   {tp('pillLabel', { count: selectedShifts.size })}
                 </span>
@@ -824,7 +847,9 @@ export default function PublicShiftPlanPage() {
 
             <div className="shifts-public__card" style={{ marginTop: 12 }}>
               <div className="shifts-public__card-head">
-                <h2 className="shifts-public__card-title">{t('shifts.public.yourDetails')}</h2>
+                <h1 className="shifts-public__card-title" ref={stepHeadingRef} tabIndex={-1}>
+                  {t('shifts.public.yourDetails')}
+                </h1>
               </div>
               <div className="shifts-public__card-body">
                 {/* Selected shifts summary */}
@@ -833,9 +858,9 @@ export default function PublicShiftPlanPage() {
                   background: 'color-mix(in oklab, var(--green-soft) 40%, var(--paper))',
                   border: '1px solid color-mix(in oklab, var(--green) 20%, transparent)',
                 }}>
-                  <p style={{ fontFamily: 'var(--f-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--green-ink)', marginBottom: 8 }}>
+                  <h2 style={{ fontFamily: 'var(--f-mono)', fontSize: 11, fontWeight: 400, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--green-ink)', margin: '0 0 8px' }}>
                     {t('shifts.public.selectedShifts')}
-                  </p>
+                  </h2>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {Array.from(selectedShifts).map((shiftId) => {
                       const found = plan.jobs
@@ -858,9 +883,10 @@ export default function PublicShiftPlanPage() {
                   </ul>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <p style={{ fontSize: 12, color: 'var(--mute)', margin: 0 }}>{ta('requiredHint')}</p>
                   {error && (
-                    <div style={{
+                    <div role="alert" style={{
                       padding: '10px 14px', borderRadius: 'var(--r)',
                       background: 'color-mix(in oklab, #d24545 10%, transparent)',
                       fontSize: 14, color: '#b13838',
@@ -873,15 +899,20 @@ export default function PublicShiftPlanPage() {
                     name="name"
                     control={control}
                     render={({ field }) => (
-                      <label className={`auth-field${errors.name ? ' auth-field--error' : ''}`}>
-                        <span>{t('shifts.public.name')}</span>
+                      <div className={`auth-field${errors.name ? ' auth-field--error' : ''}`}>
+                        <label htmlFor="helper-name">{t('shifts.public.name')} <span aria-hidden="true">*</span></label>
                         <input
                           {...field}
+                          id="helper-name"
                           type="text"
+                          autoComplete="name"
+                          required
+                          aria-invalid={errors.name ? true : undefined}
+                          aria-describedby={errors.name ? 'helper-name-error' : undefined}
                           placeholder={t('shifts.public.namePlaceholder')}
                         />
-                        {errors.name && <span className="auth-error">{errors.name.message}</span>}
-                      </label>
+                        {errors.name && <span className="auth-error" id="helper-name-error">{errors.name.message}</span>}
+                      </div>
                     )}
                   />
 
@@ -889,15 +920,20 @@ export default function PublicShiftPlanPage() {
                     name="email"
                     control={control}
                     render={({ field }) => (
-                      <label className={`auth-field${errors.email ? ' auth-field--error' : ''}`}>
-                        <span>{t('shifts.public.email')}</span>
+                      <div className={`auth-field${errors.email ? ' auth-field--error' : ''}`}>
+                        <label htmlFor="helper-email">{t('shifts.public.email')} <span aria-hidden="true">*</span></label>
                         <input
                           {...field}
+                          id="helper-email"
                           type="email"
+                          autoComplete="email"
+                          required
+                          aria-invalid={errors.email ? true : undefined}
+                          aria-describedby={errors.email ? 'helper-email-error' : 'helper-email-hint'}
                           placeholder={t('shifts.public.emailPlaceholder')}
                         />
-                        {errors.email && <span className="auth-error">{errors.email.message}</span>}
-                      </label>
+                        {errors.email && <span className="auth-error" id="helper-email-error">{errors.email.message}</span>}
+                      </div>
                     )}
                   />
 
@@ -909,6 +945,7 @@ export default function PublicShiftPlanPage() {
                         <span>{t('shifts.public.phone')}</span>
                         <input
                           {...field}
+                          autoComplete="tel"
                           type="tel"
                           placeholder={t('shifts.public.phonePlaceholder')}
                         />
@@ -930,14 +967,14 @@ export default function PublicShiftPlanPage() {
                             font: 'inherit', padding: '14px 16px', width: '100%',
                             border: '1px solid color-mix(in oklab, var(--ink) 14%, transparent)',
                             borderRadius: 'var(--r)', background: 'var(--paper)', color: 'var(--ink)',
-                            fontSize: 15, resize: 'vertical', outline: 'none',
+                            fontSize: 15, resize: 'vertical',
                           }}
                         />
                       </label>
                     )}
                   />
 
-                  <p style={{ fontSize: 12, color: 'var(--mute)', margin: 0 }}>
+                  <p id="helper-email-hint" style={{ fontSize: 12, color: 'var(--mute)', margin: 0 }}>
                     {t('shifts.public.emailHint')}
                   </p>
 
@@ -951,7 +988,7 @@ export default function PublicShiftPlanPage() {
                     disabled={registerMutation.isPending}
                     style={{ opacity: registerMutation.isPending ? 0.7 : 1, cursor: registerMutation.isPending ? 'not-allowed' : 'pointer' }}
                   >
-                    {registerMutation.isPending ? '…' : t('shifts.public.register')}
+                    {registerMutation.isPending ? ta('sending') : t('shifts.public.register')}
                   </button>
                 </form>
               </div>

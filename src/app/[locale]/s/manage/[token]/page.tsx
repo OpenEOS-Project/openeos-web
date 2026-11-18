@@ -42,6 +42,7 @@ export default function HelperManagePage() {
   const { token } = useParams() as { token: string };
   const t = useTranslations('shifts.helperManage');
   const tCommon = useTranslations();
+  const ta = useTranslations('publicA11y');
   const apiErrorMessage = useApiErrorMessage();
   const locale = useIntlLocale();
   const formatDate = (iso: string) => formatDateFor(iso, locale);
@@ -108,9 +109,10 @@ export default function HelperManagePage() {
 
   if (isLoading) {
     return (
-      <main style={pageStyle}>
+      <main style={pageStyle} aria-busy="true">
         <div style={cardStyle}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite', margin: '0 auto' }} />
+          <h1 className="sr-only">{tCommon('common.loading')}</h1>
+          <div aria-hidden="true" style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid var(--green-ink)', borderTopColor: 'transparent', animation: 'spin 0.75s linear infinite', margin: '0 auto' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </main>
@@ -145,13 +147,13 @@ export default function HelperManagePage() {
         </p>
 
         {toast && (
-          <div style={{ marginTop: 16, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #10b981 12%, transparent)', color: '#065f46', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div role="status" style={{ marginTop: 16, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #10b981 12%, transparent)', color: '#065f46', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
             <CircleCheck style={{ width: 14, height: 14 }} />
             <span>{toast}</span>
           </div>
         )}
         {error && (
-          <div style={{ marginTop: 16, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>
+          <div role="alert" style={{ marginTop: 16, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 8%, var(--paper))', color: '#b91c1c', fontSize: 13 }}>
             {error}
           </div>
         )}
@@ -189,7 +191,7 @@ export default function HelperManagePage() {
                         {formatTime(reg.startTime)}–{formatTime(reg.endTime)}
                       </span>
                       {overlaps && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#b45309', fontWeight: 600 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#92400e', fontWeight: 600 }}>
                           <CircleAlert style={{ width: 12, height: 12 }} />
                           {tCommon('shifts.public.overlap')}
                         </span>
@@ -199,7 +201,7 @@ export default function HelperManagePage() {
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    style={{ padding: 6, width: 32, height: 32, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}
+                    style={{ padding: 6, width: 32, height: 32, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#b91c1c' }}
                     onClick={() => {
                       if (confirm(t('confirmRemove', { job: reg.jobName, date: formatDate(reg.date), time: `${formatTime(reg.startTime)}–${formatTime(reg.endTime)}` }))) {
                         removeMutation.mutate(reg.id);
@@ -207,7 +209,7 @@ export default function HelperManagePage() {
                     }}
                     disabled={removeMutation.isPending}
                     title={t('removeTitle')}
-                    aria-label={t('removeLabel')}
+                    aria-label={ta('removeShift', { job: reg.jobName, date: formatDate(reg.date), time: `${formatTime(reg.startTime)}–${formatTime(reg.endTime)}` })}
                   >
                     <Trash style={{ width: 16, height: 16 }} />
                   </button>
@@ -222,6 +224,7 @@ export default function HelperManagePage() {
           className="btn btn--primary"
           style={{ marginTop: 18, width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
           onClick={() => setPickerOpen((v) => !v)}
+          aria-expanded={pickerOpen}
         >
           <Plus style={{ width: 16, height: 16 }} />
           <span>{pickerOpen ? t('closeList') : t('addMore')}</span>
@@ -259,7 +262,7 @@ export default function HelperManagePage() {
           </section>
         )}
 
-        <p style={{ marginTop: 24, textAlign: 'center', fontSize: 11, color: 'var(--mute-2, #999)' }}>
+        <p style={{ marginTop: 24, textAlign: 'center', fontSize: 12, color: 'var(--mute)' }}>
           {t('linkValidity')}
         </p>
       </div>

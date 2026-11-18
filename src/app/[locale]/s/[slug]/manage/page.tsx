@@ -22,6 +22,7 @@ export default function HelperManageRequestPage() {
   const { slug } = useParams() as { slug: string };
   const t = useTranslations('shifts.manageRequest');
   const tLegal = useTranslations('publicLegal');
+  const ta = useTranslations('publicA11y');
   // Nur fuer Impressum/Datenschutz des Vereins — dieselbe Abfrage wie die
   // Planseite, landet also meist schon im Cache.
   const { data: planData } = useQuery({
@@ -71,9 +72,16 @@ export default function HelperManageRequestPage() {
 
             <form onSubmit={submit} style={{ marginTop: 20 }}>
               <div className="auth-field">
-                <label className="auth-field__label">{t('email')} *</label>
+                <label className="auth-field__label" htmlFor="manage-request-email">
+                  {t('email')} <span aria-hidden="true">*</span>
+                </label>
                 <input
+                  id="manage-request-email"
                   type="email"
+                  autoComplete="email"
+                  required
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? 'manage-request-error' : undefined}
                   className="input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -85,7 +93,7 @@ export default function HelperManageRequestPage() {
                 <PrivacyFormHint legal={legal} slug={slug} purpose={tLegal('purposeMagicLink')} />
               </div>
               {error && (
-                <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 12%, transparent)', color: '#dc2626', fontSize: 13 }}>
+                <div id="manage-request-error" role="alert" style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'color-mix(in oklab, #dc2626 8%, var(--paper))', color: '#b91c1c', fontSize: 13 }}>
                   {error}
                 </div>
               )}
@@ -96,7 +104,7 @@ export default function HelperManageRequestPage() {
                 disabled={pending}
               >
                 <Mail style={{ width: 16, height: 16 }} />
-                <span>{pending ? '…' : t('sendLink')}</span>
+                <span>{pending ? ta('sending') : t('sendLink')}</span>
               </button>
             </form>
           </>

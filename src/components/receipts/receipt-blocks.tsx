@@ -1,11 +1,12 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { QRCodeSVG } from 'qrcode.react';
-
 import type { ReceiptBlock } from '@/types/receipt';
 
 /** Bausteine eines digitalen Belegs (wie PDF und Mail aus der API). */
 export function ReceiptBlocks({ blocks }: { blocks: ReceiptBlock[] }) {
+  const ta = useTranslations('publicA11y');
   return (
     <div className="rb">
       {blocks.map((b, i) => {
@@ -55,7 +56,15 @@ export function ReceiptBlocks({ blocks }: { blocks: ReceiptBlock[] }) {
           case 'qr':
             return (
               <div key={i} className="rb__qr">
-                <QRCodeSVG value={b.value} size={140} level="Q" marginSize={1} />
+                {/* Grafik mit Namen; die Bildunterschrift steht darunter (WCAG 1.1.1). */}
+                <QRCodeSVG
+                  value={b.value}
+                  size={140}
+                  level="Q"
+                  marginSize={1}
+                  role="img"
+                  aria-label={b.caption ? `${ta('qrCode')}: ${b.caption}` : ta('qrCode')}
+                />
                 {b.caption && <span className="rb__muted">{b.caption}</span>}
               </div>
             );
