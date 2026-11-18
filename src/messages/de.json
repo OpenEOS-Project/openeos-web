@@ -5306,7 +5306,7 @@
       "name": "Name",
       "namePlaceholder": "Dein vollständiger Name",
       "email": "E-Mail",
-      "emailPlaceholder": "ihre@email.de",
+      "emailPlaceholder": "deine@email.de",
       "phone": "Telefon (optional)",
       "phonePlaceholder": "+49 123 4567890",
       "notes": "Anmerkungen (optional)",
