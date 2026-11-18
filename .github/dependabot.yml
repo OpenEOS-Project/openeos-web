@@ -8,6 +8,8 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    # PRs gegen dev: main ist Produktion und bekommt nur, was auf Staging lief.
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -21,17 +23,27 @@ updates:
         update-types: ["minor", "patch"]
     # Major-Updates kommen einzeln: die will man einzeln lesen.
     labels: ["dependencies"]
+    ignore:
+      # @types/node folgt der Node-Laufzeit (LTS-Linie im Dockerfile).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
+    ignore:
+      # Nur LTS-Linien von Node (gerade Majors); ungerade sind kurzlebig.
+      - dependency-name: "node"
+        versions: [">= 25, < 26", ">= 27, < 28", ">= 29, < 30", ">= 31, < 32"]
     labels: ["dependencies", "docker"]
 
   # Die Actions selbst altern genauso — und sie laufen mit Schreibrechten.
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"

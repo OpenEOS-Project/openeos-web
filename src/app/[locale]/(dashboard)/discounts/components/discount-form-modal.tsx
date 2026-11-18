@@ -23,10 +23,10 @@ function createVoucherSchema(t: (key: string) => string) {
       name: z.string().min(1, t('nameRequired')).max(255),
       description: z.string().optional(),
       type: z.enum(['fixed', 'manual']),
-      amount: z.coerce.number().min(0).optional(),
+      amount: z.coerce.number<number>().min(0).optional(),
       isActive: z.boolean(),
       allowMultiplePerOrder: z.boolean(),
-      sortOrder: z.coerce.number().min(0).optional(),
+      sortOrder: z.coerce.number<number>().min(0).optional(),
     })
     .refine((data) => data.type !== 'fixed' || (data.amount !== undefined && data.amount > 0), {
       message: t('amountRequired'),
