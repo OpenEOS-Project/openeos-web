@@ -596,7 +596,8 @@
     "legal": "Rechtliches",
     "legalElster": "ELSTER-Angaben",
     "legalShop": "Shop-Rechtstexte",
-    "waiters": "Bedienungen"
+    "waiters": "Bedienungen",
+    "adminLegal": "Rechtstexte"
   },
   "settings": {
     "title": "Einstellungen",
@@ -3244,6 +3245,73 @@
       "empty": {
         "title": "Noch keine Einträge",
         "description": "Hier erscheinen die Löschläufe und Löschungen, sobald es welche gibt."
+      }
+    },
+    "legal": {
+      "metaTitle": "Rechtstexte",
+      "title": "Rechtstexte",
+      "description": "Neue Fassungen von AGB, Leistungsbeschreibung, Auftragsverarbeitungsvertrag, Datenschutzerklärung und Impressum ankündigen. Alle Admins bekommen eine E-Mail und sehen bis zum Inkrafttreten einen Hinweis in der App.",
+      "emailDisabled": {
+        "title": "Mailversand nicht eingerichtet",
+        "text": "Ohne EMAIL_ENABLED bleiben die Mails in der Warteschlange, bis der Versand eingerichtet ist."
+      },
+      "documents": {
+        "agb": "AGB",
+        "anlage1": "Anlage 1 – Leistungsbeschreibung und Preisliste",
+        "avv": "Auftragsverarbeitungsvertrag (AVV)",
+        "privacy": "Datenschutzerklärung",
+        "imprint": "Impressum"
+      },
+      "current": {
+        "title": "Geltende Fassungen",
+        "baseline": "Die Fassungen bis zum {date} sind die Ausgangsfassung: Sie werden nicht angekündigt und lösen keine erneute Bestätigung aus."
+      },
+      "form": {
+        "title": "Neue Fassung ankündigen",
+        "intro": "Lege zuerst die neue Fassung auf der Website ab (content/legal/de/…/JJJJ-MM-TT.md). Die Vorschau prüft, ob sie abrufbar ist. Das Datum ist der Tag des Inkrafttretens – ab dann gilt die neue Fassung automatisch.",
+        "documents": "Geänderte Dokumente",
+        "version": "Neue Fassung (Tag des Inkrafttretens)",
+        "versionHint": "Datum der „Stand“-Zeile, frühestens morgen.",
+        "versionHintContract": "Datum der „Stand“-Zeile. AGB, Leistungsbeschreibung und AVV mindestens sechs Wochen vorher ankündigen – frühestens zum {date}.",
+        "shortNotice": "Kürzere Frist: gesetzlich oder behördlich veranlasste Änderung",
+        "explicitConsent": "Ausdrückliche Zustimmung nötig (Hauptleistungen, Vergütung oder AVV nach Ziffer 12.4) – die Mail fragt nach Zustimmung statt auf das Widerspruchsrecht hinzuweisen",
+        "summaryDe": "Was ändert sich? (Deutsch)",
+        "summaryDeHint": "Kurz und verständlich, steht so in Mail und Hinweis. 10 bis 4000 Zeichen.",
+        "summaryEn": "Zusammenfassung auf Englisch (optional)",
+        "summaryEnHint": "Für die englische Oberfläche und als Zusatz in der Mail.",
+        "preview": "Prüfen und Vorschau",
+        "checking": "Wird geprüft …"
+      },
+      "preview": {
+        "ok": "Alles in Ordnung",
+        "problems": "So geht es noch nicht",
+        "recipients": "{count, plural, =0 {Es gibt noch keine Admins.} one {Die Mail geht an # Admin.} other {Die Mail geht an # Admins (je Adresse einmal).}}",
+        "subject": "Betreff",
+        "mailTitle": "Vorschau der E-Mail",
+        "send": "{count, plural, one {Ankündigen und an # Admin senden} other {Ankündigen und an # Admins senden}}",
+        "stale": "Du hast etwas geändert – prüfe die Vorschau noch einmal."
+      },
+      "confirm": {
+        "title": "Neue Fassung ankündigen?",
+        "send": "Jetzt ankündigen",
+        "text": "{count, plural, one {# Admin bekommt} other {# Admins bekommen}} die E-Mail. Ab dem {date} gilt die neue Fassung. Eine Ankündigung lässt sich nicht zurücknehmen."
+      },
+      "created": "Angekündigt. Die Mails gehen jetzt raus.",
+      "previewFailed": "Die Vorschau hat nicht geklappt.",
+      "createFailed": "Das hat nicht geklappt.",
+      "list": {
+        "title": "Ankündigungen",
+        "empty": "Noch keine Ankündigung.",
+        "inForce": "gilt seit {date}",
+        "upcoming": "gilt ab {date}",
+        "shortNotice": "kürzere Frist",
+        "explicitConsent": "Zustimmung nötig",
+        "created": "Angekündigt am {date} von {email}",
+        "stats": "{sent} von {total} Mails gesendet · {open} offen · {failed} gescheitert",
+        "failures": "{count, plural, one {# gescheiterte Mail} other {# gescheiterte Mails}}",
+        "retryHint": "Bei „Versand unterbrochen“ ist unklar, ob die Mail ankam – erneut senden kann sie doppelt zustellen. Die Frist von sechs Wochen läuft ab Zugang.",
+        "retry": "Gescheiterte erneut senden",
+        "retried": "{count, plural, =0 {Nichts einzureihen.} one {# Mail wird erneut gesendet.} other {# Mails werden erneut gesendet.}}"
       }
     }
   },
@@ -7637,7 +7705,14 @@
       "accept": "Akzeptieren und weiter",
       "saving": "Wird gespeichert …",
       "logout": "Abmelden",
-      "error": "Das hat nicht geklappt. Bitte versuche es noch einmal."
+      "error": "Das hat nicht geklappt. Bitte versuche es noch einmal.",
+      "titleAgb": "Neue AGB",
+      "titleAvv": "Neuer Auftragsverarbeitungsvertrag",
+      "subtitleSince": "Gilt seit {date}",
+      "textSince": "Seit dem {date} gilt eine neue Fassung. Wir haben dich am {announced} per E-Mail darüber informiert. Bitte lies die neue Fassung und bestätige sie. Das hat sich geändert:",
+      "objectionNote": "Für dein Kundenkonto gilt die Änderung als angenommen, wenn du nicht innerhalb von sechs Wochen nach unserer Mitteilung in Textform widersprichst, z. B. per E-Mail an {email}. Widersprichst du, läuft der Vertrag zu den bisherigen Bedingungen weiter; LUXCODE kann ihn dann mit einer Frist von einem Monat zum Monatsende kündigen.",
+      "consentNote": "Diese Änderung wird für dein Kundenkonto nur mit deiner Zustimmung wirksam. Stimmst du nicht zu, gelten die bisherigen Bedingungen weiter – schreib uns dann bitte an {email}.",
+      "later": "Später erinnern"
     },
     "overview": {
       "documentsTitle": "Verträge und Rechtstexte von OpenEOS",
@@ -7740,6 +7815,26 @@
       "saving": "Wird übernommen …",
       "saveFailed": "Der Text konnte nicht übernommen werden.",
       "saved": "Übernommen. Du findest den Text jetzt unter <link>Einstellungen → Rechtliche Angaben (Shop & Helferseiten)</link> und kannst ihn dort weiter bearbeiten."
+    },
+    "announcement": {
+      "title": "{documents}: neue Fassung ab {date}",
+      "and": "und",
+      "textContract": "Ab dem {date} gilt eine neue Fassung. Wir haben dir dazu eine E-Mail geschickt.",
+      "textInfo": "Ab dem {date} gilt eine neue Fassung. Du musst nichts tun.",
+      "showSummary": "Was ändert sich?",
+      "hideSummary": "Weniger anzeigen",
+      "newVersion": "{document}: neue Fassung",
+      "previousVersion": "bisherige Fassung",
+      "objectionNote": "Für dein Kundenkonto gilt die Änderung als angenommen, wenn du nicht innerhalb von sechs Wochen nach unserer E-Mail in Textform widersprichst (hello@openeos.de).",
+      "consentNote": "Diese Änderung wird für dein Kundenkonto nur mit deiner Zustimmung wirksam – wir fragen dich ab dem Stichtag in der App.",
+      "dismiss": "Hinweis ausblenden",
+      "documents": {
+        "agb": "AGB",
+        "anlage1": "Leistungsbeschreibung und Preisliste",
+        "avv": "Auftragsverarbeitungsvertrag",
+        "privacy": "Datenschutzerklärung",
+        "imprint": "Impressum"
+      }
     }
   },
   "privacy": {

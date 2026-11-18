@@ -3,6 +3,7 @@
 import { Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { LegalAnnouncementBanner } from '@/components/legal/legal-announcement-banner';
 import { OrganizationClosureBanner } from '@/components/privacy/organization-closure-banner';
 import { ToastViewport } from '@/components/shared/toast';
 import { useSidebarStore } from '@/stores/sidebar-store';
@@ -42,6 +43,7 @@ export function AppShell({ children }: AppShellProps) {
         <main className="app-content">
           {!isFullscreen && <AppBreadcrumbs />}
           <OrganizationClosureBanner />
+          <LegalAnnouncementBanner />
           {children}
         </main>
       </div>

@@ -242,6 +242,31 @@ input[type="search"]::-webkit-search-cancel-button {
 /* Datenschutz zum Selbstbedienen: Hinweis gelöschter Organisationen und
    Gefahrenbereiche (Konto bzw. Organisation löschen). */
 .privacy-closure-banner { margin-bottom: 16px; }
+/* Angekündigte neue Fassung der Rechtstexte (Admins, bis zum Inkrafttreten). */
+.legal-announcement { margin-bottom: 16px; align-items: flex-start; }
+.legal-announcement__body { flex: 1; min-width: 0; }
+.legal-announcement__text { margin: 4px 0 0; font-size: 13px; }
+.legal-announcement__toggle {
+  padding: 0; border: 0; background: none; font: inherit; color: inherit;
+  text-decoration: underline; cursor: pointer;
+}
+.legal-announcement__details { margin-top: 10px; font-size: 13px; }
+.legal-announcement__summary { margin: 0 0 8px; white-space: pre-line; }
+.legal-announcement__links { margin: 0 0 8px; padding: 0; list-style: none; display: grid; gap: 4px; }
+.legal-announcement__links a { display: inline-flex; align-items: center; gap: 4px; color: inherit; text-decoration: underline; }
+.legal-announcement__links svg { width: 12px; height: 12px; }
+.legal-announcement__note { margin: 0; color: var(--ink-faint); }
+.legal-announcement__dismiss {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; margin: -4px -4px 0 8px; border: 0; border-radius: 6px;
+  background: none; color: inherit; cursor: pointer;
+}
+.legal-announcement__dismiss:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
+.legal-announcement__dismiss svg { width: 16px; height: 16px; }
+/* Schmal liegt oben rechts der schwebende Menüknopf – Platz für ihn lassen. */
+@media (max-width: 960px) {
+  .landing .legal-announcement { padding-right: 60px; }
+}
 .privacy-closure-banner p { font-size: 13px; }
 .privacy-closure-banner__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .privacy-danger { border-color: color-mix(in oklab, var(--danger, #c0392b) 35%, transparent); }
