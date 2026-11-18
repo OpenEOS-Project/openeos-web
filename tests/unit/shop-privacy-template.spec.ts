@@ -43,7 +43,7 @@ test.describe('shop privacy template', () => {
   });
 
   test('intro, stand and guidance are read for the club', () => {
-    expect(template.stand).toBe('Stand: 12. November 2026');
+    expect(template.stand).toBe('Stand: 18. November 2026');
     expect(template.intro).toHaveLength(1);
     expect(template.intro[0]).toMatch(/^Dieses Muster stellt LUXCODE/);
     expect(template.guidance).toHaveLength(6);

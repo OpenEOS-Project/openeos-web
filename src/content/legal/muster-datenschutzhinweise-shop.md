@@ -1,6 +1,6 @@
 # Muster: Datenschutzhinweise für den Online-Shop eines OpenEOS-Kunden
 
-**Stand: 12. November 2026**
+**Stand: 18. November 2026**
 
 Dieses Muster stellt LUXCODE by Lukas Lukic-Spitznagel seinen Kunden (Vereinen und Gastronomiebetrieben) zur Verfügung, damit sie es in ihrem OpenEOS-Online-Shop, auf ihren Helferseiten und an der Kasse verwenden können. Verantwortlich für die Datenverarbeitung im Shop ist der Kunde, nicht LUXCODE. Der Kunde muss die Felder in eckigen Klammern ausfüllen und das Muster auf seine Verhältnisse prüfen. Die Felder mit geschweiften Klammern sind die Angaben der Organisation (Name, Anschrift, Kontakt-E-Mail); derzeit trägt der Kunde sie selbst ein.
 
@@ -29,7 +29,7 @@ E-Mail: {{kunde.email}}
 
 ## 3. Wer die Daten für uns verarbeitet
 
-Unser Kassensystem und der Online-Shop laufen auf der Software OpenEOS, die von LUXCODE by Lukas Lukic-Spitznagel, Brunnenstraße 6, 78112 St. Georgen im Schwarzwald, als Dienstleister für uns betrieben wird. LUXCODE verarbeitet Ihre Daten nur in unserem Auftrag und nach unseren Weisungen auf Grundlage eines Auftragsverarbeitungsvertrags. Die Server stehen in Deutschland (IONOS SE, Montabaur; Datensicherungen bei Hetzner Online GmbH, Gunzenhausen); E-Mails werden über einen Server der Hetzner Online GmbH in Finnland versandt. Nehmen wir Bargeld an, erfolgt die Signatur der Kassenvorgänge über die zertifizierte Cloud-TSE der Swissbit AG, ebenfalls in einem deutschen Rechenzentrum. Der Online-Shop und die Helferseiten sind über den Dienst Cloudflare, Inc. (USA) erreichbar, der Anfragen weiterleitet und dabei Ihre IP-Adresse verarbeitet; eine Übermittlung in die USA stützt sich auf die Standardvertragsklauseln der EU-Kommission und das EU-US Data Privacy Framework. Die vollständige Liste der Dienstleister von LUXCODE steht im Auftragsverarbeitungsvertrag.
+Unser Kassensystem und der Online-Shop laufen auf der Software OpenEOS, die von LUXCODE by Lukas Lukic-Spitznagel, Brunnenstraße 6, 78112 St. Georgen im Schwarzwald, als Dienstleister für uns betrieben wird. LUXCODE verarbeitet Ihre Daten nur in unserem Auftrag und nach unseren Weisungen auf Grundlage eines Auftragsverarbeitungsvertrags. Die Server stehen in Deutschland (IONOS SE, Montabaur; Datensicherungen bei Hetzner Online GmbH, Gunzenhausen); E-Mails werden über einen Server der Hetzner Online GmbH in Finnland versandt. Nehmen wir Bargeld an, erfolgt die Signatur der Kassenvorgänge über die zertifizierte Cloud-TSE der Swissbit AG, ebenfalls in einem deutschen Rechenzentrum. Der Online-Shop und die Helferseiten sind über den Dienst Cloudflare, Inc. (USA) erreichbar, der Anfragen weiterleitet und dabei Ihre IP-Adresse verarbeitet; eine Übermittlung in die USA stützt sich auf die Standardvertragsklauseln der EU-Kommission und das EU-US Data Privacy Framework. Die vollständige Liste der Dienstleister von LUXCODE steht im Auftragsverarbeitungsvertrag. Beim Aufruf des Online-Shops und der Helferseiten speichert der Server von LUXCODE technische Zugriffsdaten (IP-Adresse, Zeitpunkt, aufgerufene Adresse, Browser) in Logfiles; diese verarbeitet LUXCODE als eigener Verantwortlicher zur Sicherheit seiner Server und löscht sie nach 14 Tagen. Einzelheiten stehen in der Datenschutzerklärung von LUXCODE (openeos.de/datenschutz).
 
 ## 4. Wie lange wir die Daten speichern
 
