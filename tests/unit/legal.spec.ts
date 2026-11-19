@@ -7,7 +7,7 @@ import {
   parseLegalInline,
   parseLegalText,
 } from '@/lib/legal';
-import { pendingLegalDocuments } from '@/lib/legal-platform';
+import { isAcceptableLegalDocument, pendingLegalDocuments } from '@/lib/legal-platform';
 
 test.describe('legal: platform links', () => {
   test('English openeos.de pages live under /en', () => {
@@ -118,5 +118,15 @@ test.describe('legal: documents to accept again', () => {
       pendingLegalDocuments({ required: true, documents: { agb: state(true), avv: state(true) } })
     ).toEqual(['agb', 'avv']);
     expect(pendingLegalDocuments(undefined)).toEqual(['agb', 'avv']);
+  });
+});
+
+test.describe('legal: acceptable documents', () => {
+  test('AGB, Anlage 1 and AVV are accepted, privacy policy and imprint are not', () => {
+    expect(isAcceptableLegalDocument('agb')).toBe(true);
+    expect(isAcceptableLegalDocument('anlage1')).toBe(true);
+    expect(isAcceptableLegalDocument('avv')).toBe(true);
+    expect(isAcceptableLegalDocument('privacy')).toBe(false);
+    expect(isAcceptableLegalDocument('imprint')).toBe(false);
   });
 });

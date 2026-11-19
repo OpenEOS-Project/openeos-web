@@ -7,7 +7,13 @@ import { Link } from '@/i18n/routing';
 import { useLegalStatus, useLegalVersions } from '@/hooks/use-legal';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
-import { dataActUrl, formatLegalVersion, LEGAL_DOCUMENT_KEYS, subprocessorsUrl } from '@/lib/legal-platform';
+import {
+  dataActUrl,
+  formatLegalVersion,
+  isAcceptableLegalDocument,
+  LEGAL_DOCUMENT_KEYS,
+  subprocessorsUrl,
+} from '@/lib/legal-platform';
 import { useAuthStore } from '@/stores/auth-store';
 import type { LegalDocumentKey } from '@/types/legal';
 
@@ -29,7 +35,7 @@ export function LegalOverview() {
 
   const documentRow = (key: LegalDocumentKey) => {
     const doc = versions.documents[key];
-    const accepted = key === 'agb' || key === 'avv' ? status?.documents[key] : undefined;
+    const accepted = isAcceptableLegalDocument(key) ? status?.documents[key] : undefined;
     return (
       <li key={key} className="legal-doc" data-testid={`legal-doc-${key}`}>
         <span className="legal-doc__icon" aria-hidden="true">

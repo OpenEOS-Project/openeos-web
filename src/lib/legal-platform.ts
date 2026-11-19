@@ -99,6 +99,11 @@ export function subprocessorsUrl(avvUrl: string): string {
 
 const ACCEPTABLE: AcceptableLegalDocument[] = ['agb', 'avv', 'anlage1'];
 
+/** Dokumente, deren Annahme die API je Konto festhält (AGB, Anlage 1, AVV). */
+export function isAcceptableLegalDocument(key: LegalDocumentKey): key is AcceptableLegalDocument {
+  return (ACCEPTABLE as LegalDocumentKey[]).includes(key);
+}
+
 /**
  * Welche Dokumente der Dialog nennt und annimmt: die, für die die API eine
  * erneute Annahme verlangt. Ältere API-Stände kennen das Feld (und Anlage 1)
