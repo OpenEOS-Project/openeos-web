@@ -6314,6 +6314,7 @@
     "createAndStart": "Erstellen & Starten",
     "creating": "Wird erstellt…",
     "createError": "Fehler beim Erstellen der Inventur. Bitte erneut versuchen.",
+    "startError": "Die Inventur konnte nicht gestartet werden. Bitte versuche es erneut.",
     "noOrg": {
       "title": "Keine Organisation ausgewählt",
       "description": "Bitte wähle zuerst eine Organisation aus."
@@ -6356,6 +6357,8 @@
       "notes": "Notizen",
       "notesPlaceholder": "Optionale Anmerkungen zur Inventur",
       "bulkAddHint": "{count} Produkte mit Bestandsverfolgung werden automatisch hinzugefügt.",
+      "noTrackedProducts": "Keines deiner Produkte hat „Bestand verfolgen“ eingeschaltet – eine Inventur hätte nichts zu zählen. Schalte die Option bei den Produkten ein, die du zählen willst.",
+      "toProducts": "Zu den Produkten",
       "defaultName": "Tagesabschluss {date}"
     },
     "progress": {
