@@ -373,8 +373,13 @@ test.describe('Legal text announcements', () => {
     await expect(page.getByTestId('legal-reacceptance-objection')).toHaveCount(0);
 
     await page.getByTestId('legal-reacceptance-checkbox').check();
+    // Nach dem Akzeptieren lädt die App /auth/me neu – abwarten, sonst endet
+    // der Test mitten in der umgeleiteten Anfrage.
+    const reloaded = page.waitForResponse('**/api/auth/me');
     await page.getByTestId('legal-reacceptance-accept').click();
     await expect(dialog).toHaveCount(0);
+    await reloaded;
     expect(accepted).toEqual([{ context: 'reacceptance', documents: ['avv'] }]);
+    await page.unrouteAll({ behavior: 'ignoreErrors' });
   });
 });
