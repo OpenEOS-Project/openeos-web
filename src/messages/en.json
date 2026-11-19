@@ -6330,6 +6330,7 @@
     "createAndStart": "Create & Start",
     "creating": "Creating…",
     "createError": "Failed to create stocktake. Please try again.",
+    "startError": "The stocktake could not be started. Please try again.",
     "noOrg": {
       "title": "No organization selected",
       "description": "Please select an organization first."
@@ -6372,6 +6373,8 @@
       "notes": "Notes",
       "notesPlaceholder": "Optional notes for this stocktake",
       "bulkAddHint": "{count} products with inventory tracking will be added automatically.",
+      "noTrackedProducts": "None of your products has “Track inventory” turned on, so a stocktake would have nothing to count. Turn the option on for the products you want to count.",
+      "toProducts": "Go to products",
       "defaultName": "End of day {date}"
     },
     "progress": {
