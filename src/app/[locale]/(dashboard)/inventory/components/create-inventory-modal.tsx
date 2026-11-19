@@ -158,7 +158,7 @@ export function CreateInventoryModal({
               <div
                 role="note"
                 data-testid="inventory-no-tracked-products"
-                style={{ fontSize: 13, color: 'var(--ink)', padding: '8px 12px', background: 'color-mix(in oklab, var(--warning) 12%, transparent)', borderRadius: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}
+                style={{ fontSize: 13, color: 'var(--ink)', padding: '8px 12px', background: 'color-mix(in oklab, var(--warn) 14%, transparent)', borderRadius: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}
               >
                 <span aria-hidden="true" style={{ flexShrink: 0, marginTop: 2, display: 'inline-flex' }}>
                   <Icon name="info" size={14} />
