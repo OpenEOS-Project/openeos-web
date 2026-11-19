@@ -183,12 +183,12 @@ test.describe('Legal text announcements', () => {
     await expect(page.getByText('Noch keine Ankündigung.')).toBeVisible();
 
     // AVV: Zustimmung nach Ziffer 12.4, ausser nur Anhang B/C (Ziffer 6.3).
-    const avv = page.getByRole('group', { name: 'Geänderte Dokumente' }).getByText('Auftragsverarbeitungsvertrag', {
-      exact: true,
-    });
+    const avv = page
+      .getByRole('group', { name: 'Geänderte Dokumente' })
+      .getByText('Auftragsverarbeitungsvertrag (AVV)', { exact: true });
     await avv.click();
     await expect(page.getByTestId('admin-legal-avv-hint')).toContainText('AVV Ziffer 12.4');
-    await page.getByTestId('admin-legal-avv-annexes-only').click();
+    await page.getByText('Nur Anhang B/C geändert (Verfahren nach AVV Ziffer 6.3)').click();
     await expect(page.getByTestId('admin-legal-avv-hint')).toContainText('vier Wochen');
     await expect(page.getByText('frühestens zum 16. Dezember 2026')).toBeVisible();
     await avv.click();
