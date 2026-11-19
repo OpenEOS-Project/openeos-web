@@ -1,5 +1,6 @@
-import { type Page, type Request, expect, test } from '@playwright/test';
+import type { Page, Request } from '@playwright/test';
 
+import { expect, test } from '../fixtures/test';
 import { loginAs } from '../fixtures/auth.fixture';
 import { TEST_ADMIN } from '../fixtures/test-data';
 
@@ -380,6 +381,5 @@ test.describe('Legal text announcements', () => {
     await expect(dialog).toHaveCount(0);
     await reloaded;
     expect(accepted).toEqual([{ context: 'reacceptance', documents: ['avv'] }]);
-    await page.unrouteAll({ behavior: 'ignoreErrors' });
   });
 });

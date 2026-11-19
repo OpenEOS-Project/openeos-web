@@ -1,5 +1,6 @@
-import { type BrowserContextOptions, expect, test } from '@playwright/test';
+import type { BrowserContextOptions } from '@playwright/test';
 
+import { expect, test } from '../fixtures/test';
 import { apiLogin, apiPost, newApiContext } from '../fixtures/api';
 import { loginAs } from '../fixtures/auth.fixture';
 import { TEST_ADMIN, nowIso } from '../fixtures/test-data';

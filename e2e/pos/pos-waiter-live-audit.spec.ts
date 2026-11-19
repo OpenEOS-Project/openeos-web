@@ -1,5 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
+import { test, expect } from '../fixtures/test';
 import { apiPost, ensureOk } from '../fixtures/api';
 import { createPosEvent, installDevice, pairPosDevice, posAdmin, type PairedDevice, type PosAdmin } from '../fixtures/pos';
 import { POSPage } from '../pages/pos.page';

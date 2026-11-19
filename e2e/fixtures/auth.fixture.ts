@@ -1,5 +1,6 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
+import { test as base, expect } from './test';
 import { LoginPage } from '../pages/login.page';
 import { TEST_ADMIN, TEST_USER } from './test-data';
 
