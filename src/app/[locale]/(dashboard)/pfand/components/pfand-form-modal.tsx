@@ -31,10 +31,10 @@ const DEFAULT_PFAND_VAT_RATE = 19;
 function createPfandSchema(t: (key: string) => string) {
   return z.object({
     name: z.string().min(1, t('nameRequired')).max(255),
-    amount: z.coerce.number().min(0, t('amountNotNegative')),
-    vatRate: z.coerce.number().refine((rate) => PFAND_VAT_RATES.some((o) => o.rate === rate)),
+    amount: z.coerce.number<number>().min(0, t('amountNotNegative')),
+    vatRate: z.coerce.number<number>().refine((rate) => PFAND_VAT_RATES.some((o) => o.rate === rate)),
     isActive: z.boolean(),
-    sortOrder: z.coerce.number().min(0).optional(),
+    sortOrder: z.coerce.number<number>().min(0).optional(),
   });
 }
 
