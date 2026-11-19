@@ -7745,6 +7745,7 @@
       "acceptedOpen": "ansehen",
       "outdated": "nicht mehr aktuell",
       "notAccepted": "Von dir noch nicht akzeptiert.",
+      "legacyAccount": "Bestandskonto: Dein Vertrag wurde vor Einführung der Protokollierung geschlossen.",
       "subprocessors": "Unterauftragsverarbeiter (AVV Anhang B)",
       "tseConditionsTitle": "Einsatzbedingungen der Cloud-TSE (Umgebungsschutzkonzept)",
       "tseConditionsPending": "Der Hersteller der Cloud-TSE (Swissbit) legt fest, unter welchen Bedingungen die TSE eingesetzt werden darf. Die Einsatzbedingungen stellen wir hier bereit, sobald sie vorliegen; halte sie beim Kassieren mit Cloud-TSE ein.",

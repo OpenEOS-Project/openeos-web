@@ -7,7 +7,7 @@ import {
   parseLegalInline,
   parseLegalText,
 } from '@/lib/legal';
-import { isAcceptableLegalDocument, pendingLegalDocuments } from '@/lib/legal-platform';
+import { isAcceptableLegalDocument, isLegacyLegalAccount, pendingLegalDocuments } from '@/lib/legal-platform';
 
 test.describe('legal: platform links', () => {
   test('English openeos.de pages live under /en', () => {
@@ -128,5 +128,22 @@ test.describe('legal: acceptable documents', () => {
     expect(isAcceptableLegalDocument('avv')).toBe(true);
     expect(isAcceptableLegalDocument('privacy')).toBe(false);
     expect(isAcceptableLegalDocument('imprint')).toBe(false);
+  });
+});
+
+test.describe('legal: legacy accounts', () => {
+  test('accounts created before the recording start are legacy accounts', () => {
+    expect(isLegacyLegalAccount('2026-10-08T09:00:00Z')).toBe(true);
+    // 17.11. 23:30 in Berlin is still before the start.
+    expect(isLegacyLegalAccount('2026-11-17T22:30:00Z')).toBe(true);
+    // 18.11. 00:30 in Berlin is already recorded.
+    expect(isLegacyLegalAccount('2026-11-17T23:30:00Z')).toBe(false);
+    expect(isLegacyLegalAccount('2026-11-19T20:23:00Z')).toBe(false);
+  });
+
+  test('missing or invalid dates are not legacy', () => {
+    expect(isLegacyLegalAccount(undefined)).toBe(false);
+    expect(isLegacyLegalAccount(null)).toBe(false);
+    expect(isLegacyLegalAccount('kaputt')).toBe(false);
   });
 });
