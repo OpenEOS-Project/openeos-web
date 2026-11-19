@@ -4132,6 +4132,10 @@
   },
   "orders": {
     "title": "Orders",
+    "test": "Test",
+    "orderOnly": {
+      "banner": "Orders only: OpenEOS records no money. This list shows orders and items only – payment happens outside OpenEOS."
+    },
     "description": "Overview of all orders in your organization",
     "empty": "No orders",
     "noOrders": "No orders",

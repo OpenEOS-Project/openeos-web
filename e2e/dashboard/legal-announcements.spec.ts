@@ -382,4 +382,47 @@ test.describe('Legal text announcements', () => {
     await reloaded;
     expect(accepted).toEqual([{ context: 'reacceptance', documents: ['avv'] }]);
   });
+
+  test('the legal page shows the accepted version of every acceptable document', async ({ page }) => {
+    await mockLegal(page);
+    await page.route('**/api/legal/announcements', (route) => route.fulfill({ json: { data: [] } }));
+    const state = (current: string, accepted: string | null, path: string) => ({
+      currentVersion: current,
+      acceptedVersion: accepted,
+      acceptedAt: accepted ? '2026-11-18T10:00:00.000Z' : null,
+      upToDate: !!accepted && accepted >= current,
+      reacceptanceRequired: false,
+      acceptedUrl: accepted ? `${SITE}/${path}/${accepted}` : null,
+      acceptedPdfUrl: accepted ? `${SITE}/rechtstexte/${path}-${accepted}.pdf` : null,
+    });
+    await page.route('**/api/legal/status', (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            required: false,
+            documents: {
+              agb: state('2026-11-18', '2026-11-18', 'agb'),
+              avv: state('2026-11-18', null, 'avv'),
+              anlage1: state('2026-11-18', '2026-11-04', 'leistungsbeschreibung'),
+            },
+            change: null,
+          },
+        },
+      })
+    );
+
+    await loginAs(page, TEST_ADMIN);
+    await page.goto('/legal');
+    await expect(page.getByTestId('legal-doc-agb')).toContainText('Von dir akzeptiert: Fassung vom 18. November 2026');
+    const anlage1 = page.getByTestId('legal-doc-anlage1');
+    await expect(anlage1).toContainText('Von dir akzeptiert: Fassung vom 4. November 2026');
+    await expect(anlage1).toContainText('nicht mehr aktuell');
+    await expect(anlage1.getByRole('link', { name: 'ansehen' })).toHaveAttribute(
+      'href',
+      `${SITE}/leistungsbeschreibung/2026-11-04`
+    );
+    await expect(page.getByTestId('legal-doc-avv')).toContainText('Von dir noch nicht akzeptiert.');
+    // Datenschutz und Impressum werden nicht angenommen.
+    await expect(page.getByTestId('legal-doc-privacy')).not.toContainText('akzeptiert');
+  });
 });
