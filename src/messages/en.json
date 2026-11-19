@@ -2105,6 +2105,7 @@
       "deactivated": "Event deactivated"
     },
     "checkout": {
+      "eventOver": "This event is already over and can no longer be bought. Is it still taking place? Then change the date first.",
       "title": "Activate event",
       "success": "Event activated",
       "discount": "incl. {percent}% discount",
@@ -4902,6 +4903,7 @@
     "EVENT_ACTIVE_CANNOT_DELETE": "Active events cannot be deleted.",
     "EVENT_ALREADY_ACTIVE": "The event is already active.",
     "EVENT_ALREADY_PAID": "The event is already unlocked.",
+    "EVENT_OVER_CANNOT_PURCHASE": "The event is already over and can no longer be bought. Change the date if it is still taking place.",
     "EVENT_CANCELLATION_DEADLINE_PASSED": "The deadline for free cancellation has passed. Please contact support.",
     "EVENT_END_BEFORE_START": "The event cannot end before it starts.",
     "EVENT_HAS_ORDERS": "The event already has orders – free cancellation is no longer possible. Please contact support.",
