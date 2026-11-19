@@ -352,6 +352,16 @@
   text-decoration: line-through;
   opacity: 0.55;
 }
+.orders-list__status {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.orders-list__test {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 .orders-list__payment {
   display: inline-flex;
   gap: 6px;

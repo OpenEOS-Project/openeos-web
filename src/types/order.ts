@@ -83,6 +83,8 @@ export interface Order {
   discountAmount: number;
   discountReason: string | null;
   pfandTotal: number;
+  /** Im Testmodus der Veranstaltung entstanden (kein echter Umsatz). */
+  isTest?: boolean;
   notes: string | null;
   priority: OrderPriority;
   estimatedReadyAt: string | null;

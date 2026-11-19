@@ -4107,6 +4107,10 @@
   },
   "orders": {
     "title": "Bestellungen",
+    "test": "Test",
+    "orderOnly": {
+      "banner": "Nur Bons: OpenEOS erfasst kein Geld. Die Liste zeigt nur Bestellungen und Artikel – kassiert wird außerhalb von OpenEOS."
+    },
     "description": "Alle Bestellungen deiner Organisation im Überblick",
     "empty": "Keine Bestellungen",
     "noOrders": "Keine Bestellungen",

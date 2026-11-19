@@ -51,10 +51,12 @@ const channelBadge: Record<OrderChannel, string> = {
 interface OrderDetailModalProps {
   order: Order | null;
   creatorLabel: string | null;
+  /** Betriebsart „Nur Bons“: keine Preise, Summen und Zahlungen. */
+  orderOnly?: boolean;
   onClose: () => void;
 }
 
-export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailModalProps) {
+export function OrderDetailModal({ order, creatorLabel, orderOnly = false, onClose }: OrderDetailModalProps) {
   const t = useTranslations();
   const { formatCurrency, formatDateTime } = useLocaleFormat();
   const apiErrorMessage = useApiErrorMessage();
@@ -132,6 +134,11 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
                 const display = detail?.displayStatus ?? order.displayStatus ?? 'in_kitchen';
                 return <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>;
               })()}
+              {(detail?.isTest ?? order.isTest) && (
+                <span className="badge badge--neutral orders-list__test" data-testid="order-detail-test-badge">
+                  {t('orders.test')}
+                </span>
+              )}
             </div>
 
             {/* Meta grid */}
@@ -153,37 +160,39 @@ export function OrderDetailModal({ order, creatorLabel, onClose }: OrderDetailMo
             {/* Items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(detail?.items ?? order.items ?? []).map((item) => (
-                <ItemRow key={item.id} item={item} refillLabel={t('orders.detail.refill')} />
+                <ItemRow key={item.id} item={item} refillLabel={t('orders.detail.refill')} showPrice={!orderOnly} />
               ))}
             </div>
 
-            {/* Totals */}
-            <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <TotalRow label={t('orders.detail.subtotal')} value={formatCurrency(subtotal)} />
-              {discount > 0 && (
-                <TotalRow
-                  label={order.discountReason ? `${t('orders.detail.discount')} (${order.discountReason})` : t('orders.detail.discount')}
-                  value={`−${formatCurrency(discount)}`}
-                />
-              )}
-              {pfand > 0 && <TotalRow label={t('orders.detail.pfand')} value={formatCurrency(pfand)} />}
-              {tip > 0 && <TotalRow label={t('orders.detail.tip')} value={formatCurrency(tip)} />}
-              <TotalRow label={t('orders.detail.total')} value={formatCurrency(total)} strong />
-              {paidAmount > 0 && (
-                <TotalRow label={t('orders.paid')} value={formatCurrency(paidAmount)} />
-              )}
-              {Number(detail?.refundedAmount ?? 0) > 0 && (
-                <>
-                  <TotalRow label={t('orders.history.refunded')} value={formatCurrency(-Number(detail!.refundedAmount))} />
+            {/* Totals — nicht in „Nur Bons“ (OpenEOS erfasst dort kein Geld). */}
+            {!orderOnly && (
+              <div style={{ borderTop: '1px solid color-mix(in oklab, var(--ink) 10%, transparent)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <TotalRow label={t('orders.detail.subtotal')} value={formatCurrency(subtotal)} />
+                {discount > 0 && (
                   <TotalRow
-                    label={t('orders.history.netTotal')}
-                    value={formatCurrency(paidAmount - Number(detail!.refundedAmount))}
+                    label={order.discountReason ? `${t('orders.detail.discount')} (${order.discountReason})` : t('orders.detail.discount')}
+                    value={`−${formatCurrency(discount)}`}
                   />
-                </>
-              )}
-            </div>
+                )}
+                {pfand > 0 && <TotalRow label={t('orders.detail.pfand')} value={formatCurrency(pfand)} />}
+                {tip > 0 && <TotalRow label={t('orders.detail.tip')} value={formatCurrency(tip)} />}
+                <TotalRow label={t('orders.detail.total')} value={formatCurrency(total)} strong />
+                {paidAmount > 0 && (
+                  <TotalRow label={t('orders.paid')} value={formatCurrency(paidAmount)} />
+                )}
+                {Number(detail?.refundedAmount ?? 0) > 0 && (
+                  <>
+                    <TotalRow label={t('orders.history.refunded')} value={formatCurrency(-Number(detail!.refundedAmount))} />
+                    <TotalRow
+                      label={t('orders.history.netTotal')}
+                      value={formatCurrency(paidAmount - Number(detail!.refundedAmount))}
+                    />
+                  </>
+                )}
+              </div>
+            )}
 
-            {detail && <HistorySections detail={detail} onReprint={(id) => reprint.mutate(id)} reprinting={reprint.isPending} />}
+            {detail && <HistorySections detail={detail} orderOnly={orderOnly} onReprint={(id) => reprint.mutate(id)} reprinting={reprint.isPending} />}
 
             {orderTse.data && orderTse.data.length > 0 && <OrderTseSection views={orderTse.data} />}
           </div>
@@ -280,7 +289,7 @@ type ItemLike = {
   options: { selected?: { option: string; excluded?: boolean }[] } | { option: string; excluded?: boolean }[];
 };
 
-function ItemRow({ item, refillLabel }: { item: ItemLike; refillLabel: string }) {
+function ItemRow({ item, refillLabel, showPrice }: { item: ItemLike; refillLabel: string; showPrice: boolean }) {
   const t = useTranslations('orders.history');
   const { formatCurrency } = useLocaleFormat();
   const options = Array.isArray(item.options) ? item.options : (item.options?.selected ?? []);
@@ -315,9 +324,11 @@ function ItemRow({ item, refillLabel }: { item: ItemLike; refillLabel: string })
           </div>
         )}
       </div>
-      <div className="mono" style={{ flexShrink: 0, fontWeight: 600, textDecoration: cancelled ? 'line-through' : undefined }}>
-        {formatCurrency(item.totalPrice)}
-      </div>
+      {showPrice && (
+        <div className="mono" style={{ flexShrink: 0, fontWeight: 600, textDecoration: cancelled ? 'line-through' : undefined }}>
+          {formatCurrency(item.totalPrice)}
+        </div>
+      )}
     </div>
   );
 }
@@ -335,10 +346,12 @@ function TotalRow({ label, value, strong }: { label: string; value: string; stro
 
 function HistorySections({
   detail,
+  orderOnly,
   onReprint,
   reprinting,
 }: {
   detail: OrderDetail;
+  orderOnly: boolean;
   onReprint: (refundId: string) => void;
   reprinting: boolean;
 }) {
@@ -360,7 +373,7 @@ function HistorySections({
 
   return (
     <>
-      {detail.payments.length > 0 && (
+      {!orderOnly && detail.payments.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: muted, textTransform: 'uppercase', letterSpacing: '.05em' }}>
             {t('payments')}

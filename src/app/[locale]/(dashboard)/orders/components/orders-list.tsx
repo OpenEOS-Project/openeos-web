@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
+  Banner,
   Dropdown,
   DropdownCaption,
   DropdownOption,
@@ -21,6 +22,7 @@ import { ordersApi, eventsApi } from '@/lib/api-client';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
 import { toast } from '@/components/shared/toast';
 import { saveBlob } from '@/lib/dsfinvk';
 import { getOrderChannel, type Order, type OrderChannel, type OrdersExportVariant } from '@/types/order';
@@ -54,6 +56,9 @@ const channelQuery: Record<OrderChannel, Record<string, string>> = {
 
 const PAGE_LIMIT = 50;
 
+/** Spalten mit Geld — im Modus „Nur Bons“ ausgeblendet. */
+const MONEY_COLUMNS = new Set(['payment', 'total']);
+
 const EXPORT_VARIANTS: OrdersExportVariant[] = ['orders', 'items'];
 
 /** Heutiges Datum (lokal) für den Ersatz-Dateinamen. */
@@ -86,6 +91,9 @@ export function OrdersList() {
   const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const phone = useMediaQuery(PHONE_QUERY);
+  // „Nur Bons“: OpenEOS erfasst kein Geld — keine Beträge, keine Zahlungen
+  // (wie in der Auswertung).
+  const orderOnly = useOperatingMode().ordersOnly;
 
   // Every filter change invalidates the current page — always jump back to page 1.
   const updateFilter = <T,>(setter: (value: T) => void) => (value: T) => {
@@ -114,7 +122,7 @@ export function OrdersList() {
   if (statusFilter !== 'all') {
     filterParams.displayStatus = (STATUS_FILTERS.find((f) => f.id === statusFilter)?.statuses ?? []).join(',');
   }
-  if (paymentFilter !== 'all') filterParams.paymentMethod = paymentFilter;
+  if (paymentFilter !== 'all' && !orderOnly) filterParams.paymentMethod = paymentFilter;
   if (query) filterParams.q = query;
   if (eventFilter !== 'all') filterParams.eventId = eventFilter;
   if (channelFilter !== 'all') Object.assign(filterParams, channelQuery[channelFilter]);
@@ -277,7 +285,12 @@ export function OrdersList() {
       mobile: 'subtitle',
       cell: (order) => {
         const display = order.displayStatus ?? 'in_kitchen';
-        return <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>;
+        return (
+          <span className="orders-list__status">
+            <span className={displayStatusBadge[display]}>{t(`orders.displayStatus.${display}`)}</span>
+            {order.isTest && <TestBadge label={t('orders.test')} />}
+          </span>
+        );
       },
     },
     {
@@ -287,6 +300,10 @@ export function OrdersList() {
       mobile: 'meta',
       cell: (order) => {
         const methods = [...new Set((order as Order & { paymentMethods?: string[] }).paymentMethods ?? [])];
+        const discounted = Number(order.discountAmount) > 0;
+        // Leer: nichts rendern, sonst setzt die Telefon-Ansicht einen
+        // Trenner „·“ vor eine leere Zelle.
+        if (methods.length === 0 && !discounted) return null;
         return (
           <span className="orders-list__payment">
             {methods.map((m) => (
@@ -294,7 +311,7 @@ export function OrdersList() {
                 <Icon name={paymentIcon(m)} size={16} />
               </span>
             ))}
-            {Number(order.discountAmount) > 0 && (
+            {discounted && (
               <span title={t('orders.history.payment.discount')}>
                 <Icon name="percent" size={16} />
               </span>
@@ -332,10 +349,11 @@ export function OrdersList() {
       cell: (order) => formatDateTime(order.createdAt),
     },
   ];
+  const visibleColumns = orderOnly ? columns.filter((c) => !MONEY_COLUMNS.has(c.id)) : columns;
 
   const activeFilters = [
     statusFilter !== 'all',
-    paymentFilter !== 'all',
+    paymentFilter !== 'all' && !orderOnly,
     channelFilter !== 'all',
     !!dateFrom,
     !!dateTo,
@@ -364,6 +382,7 @@ export function OrdersList() {
     <>
       {/* Summary tiles */}
       <div
+        data-testid="orders-summary"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
@@ -372,11 +391,23 @@ export function OrdersList() {
           borderBottom: '1px solid color-mix(in oklab, var(--ink) 6%, transparent)',
         }}
       >
-        <SummaryTile label={t('orders.summary.orders')} value={String(summary.count)} />
-        <SummaryTile label={t('orders.summary.revenue')} value={formatCurrency(summary.revenue)} accent />
-        <SummaryTile label={t('orders.summary.average')} value={formatCurrency(summary.average)} />
-        <SummaryTile label={t('orders.summary.pfand')} value={formatCurrency(summary.pfand)} />
+        <SummaryTile label={t('orders.summary.orders')} value={String(summary.count)} accent={orderOnly} />
+        {!orderOnly && (
+          <>
+            <SummaryTile label={t('orders.summary.revenue')} value={formatCurrency(summary.revenue)} accent />
+            <SummaryTile label={t('orders.summary.average')} value={formatCurrency(summary.average)} />
+            <SummaryTile label={t('orders.summary.pfand')} value={formatCurrency(summary.pfand)} />
+          </>
+        )}
       </div>
+
+      {orderOnly && (
+        <div style={{ padding: '12px 20px 0' }} data-testid="orders-order-only-hint">
+          <Banner tone="info" icon={<Icon name="info" />}>
+            {t('orders.orderOnly.banner')}
+          </Banner>
+        </div>
+      )}
 
       {/* Filter: Suche immer sichtbar, die übrigen Felder auf dem Telefon
           hinter dem Filter-Knopf (Sheet). */}
@@ -444,19 +475,21 @@ export function OrdersList() {
           ))}
         </Select>
 
-        <Select
-          label={phone ? t('orders.columns.payment') : undefined}
-          value={paymentFilter}
-          onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as HistoryPaymentFilter | 'all')}
-          aria-label={t('orders.columns.payment')}
-        >
-          <option value="all">{t('orders.filters.allPayments')}</option>
-          {PAYMENT_FILTERS.map((m) => (
-            <option key={m} value={m}>
-              {t(`orders.history.payment.${m}`)}
-            </option>
-          ))}
-        </Select>
+        {!orderOnly && (
+          <Select
+            label={phone ? t('orders.columns.payment') : undefined}
+            value={paymentFilter}
+            onChange={(e) => updateFilter(setPaymentFilter)(e.target.value as HistoryPaymentFilter | 'all')}
+            aria-label={t('orders.columns.payment')}
+          >
+            <option value="all">{t('orders.filters.allPayments')}</option>
+            {PAYMENT_FILTERS.map((m) => (
+              <option key={m} value={m}>
+                {t(`orders.history.payment.${m}`)}
+              </option>
+            ))}
+          </Select>
+        )}
 
         <Select
           label={phone ? t('orders.columns.channel') : undefined}
@@ -508,7 +541,7 @@ export function OrdersList() {
         caption={t('orders.title')}
         rows={orders}
         rowKey="id"
-        columns={columns}
+        columns={visibleColumns}
         onRowClick={(order) => setSelectedOrder(order)}
         loading={isPreviousOrders && isFetchingOrders}
         empty={
@@ -530,9 +563,19 @@ export function OrdersList() {
       <OrderDetailModal
         order={selectedOrder}
         creatorLabel={selectedOrder ? creatorLabel(selectedOrder) : null}
+        orderOnly={orderOnly}
         onClose={() => setSelectedOrder(null)}
       />
     </>
+  );
+}
+
+/** Markiert Bestellungen aus dem Testmodus, wie der Verlauf an der Kasse. */
+export function TestBadge({ label }: { label: string }) {
+  return (
+    <span className="badge badge--neutral orders-list__test" data-testid="order-test-badge">
+      {label}
+    </span>
   );
 }
 
