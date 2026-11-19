@@ -7721,7 +7721,7 @@
       "later": "Später erinnern",
       "titleAnlage1": "Neue Leistungsbeschreibung und Preisliste",
       "titleMany": "Neue Fassungen unserer Vertragsbedingungen",
-      "names": {"agb": "die AGB", "avv": "den Auftragsverarbeitungsvertrag", "anlage1": "die Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste)"},
+      "names": {"agb": "die AGB", "avv": "den Auftragsverarbeitungsvertrag", "anlage1": "die Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste)", "anlage1WithAgb": "die Anlage 1 (Leistungsbeschreibung und Preisliste)"},
       "objectionNoteAvvAnnex": "Am Auftragsverarbeitungsvertrag haben sich nur Anhang B (Unterauftragsverarbeiter) bzw. Anhang C (technische und organisatorische Maßnahmen) geändert (AVV Ziffer 6.3). Die Änderung gilt als genehmigt, wenn du nicht innerhalb von vier Wochen nach unserer Mitteilung in Textform widersprichst, z. B. per E-Mail an {email}. Widersprichst du und findet sich keine Lösung, kann jede Seite den Nutzungsvertrag mit einer Frist von einem Monat zum Monatsende kündigen (AVV Ziffer 6.4)."
     },
     "overview": {

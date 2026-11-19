@@ -7733,7 +7733,7 @@
       "later": "Remind me later",
       "titleAnlage1": "New service description and price list",
       "titleMany": "New versions of our contract terms",
-      "names": {"agb": "the terms and conditions", "avv": "the data processing agreement", "anlage1": "annex 1 to the terms and conditions (service description and price list)"},
+      "names": {"agb": "the terms and conditions", "avv": "the data processing agreement", "anlage1": "annex 1 to the terms and conditions (service description and price list)", "anlage1WithAgb": "annex 1 (service description and price list)"},
       "objectionNoteAvvAnnex": "Only annex B (sub-processors) or annex C (technical and organizational measures) of the data processing agreement has changed (AVV clause 6.3). The change counts as approved unless you object in text form within four weeks of our notice, e.g. by e-mail to {email}. If you object and no solution is found, either party may terminate the contract with one month's notice to the end of a month (AVV clause 6.4)."
     },
     "overview": {

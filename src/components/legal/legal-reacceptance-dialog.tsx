@@ -132,7 +132,9 @@ export function LegalReacceptanceDialog() {
         ? t('title')
         : t('titleMany');
   /* „die AGB und den Auftragsverarbeitungsvertrag“ – genau die genannten Dokumente. */
-  const names = new Intl.ListFormat(locale, { type: 'conjunction' }).format(pending.map((d) => t(`names.${d}`)));
+  const names = new Intl.ListFormat(locale, { type: 'conjunction' }).format(
+    pending.map((d) => t(d === 'anlage1' && pending.includes('agb') ? 'names.anlage1WithAgb' : `names.${d}`))
+  );
   const pronoun = pending.length === 1 && pending[0] === 'avv' ? 'ihn' : 'sie';
   /* Widerspruch: AVV nur Anhang B/C nach AVV 6.3, sonst AGB 13.4. */
   const avvAnnex = !!change?.avvAnnexesOnly && change.documents.includes('avv');
