@@ -7,6 +7,7 @@ import {
   parseLegalInline,
   parseLegalText,
 } from '@/lib/legal';
+import { pendingLegalDocuments } from '@/lib/legal-platform';
 
 test.describe('legal: platform links', () => {
   test('English openeos.de pages live under /en', () => {
@@ -70,5 +71,52 @@ test.describe('legal: markdown-light', () => {
     expect(parseLegalInline('<script>alert(1)</script> javascript:alert(1)')).toEqual([
       { type: 'text', text: '<script>alert(1)</script> javascript:alert(1)' },
     ]);
+  });
+});
+
+test.describe('legal: documents to accept again', () => {
+  const state = (upToDate: boolean, reacceptanceRequired?: boolean) => ({
+    currentVersion: '2027-01-15',
+    acceptedVersion: '2026-11-18',
+    acceptedAt: null,
+    upToDate,
+    ...(reacceptanceRequired === undefined ? {} : { reacceptanceRequired }),
+    acceptedUrl: null,
+    acceptedPdfUrl: null,
+  });
+
+  test('names exactly the documents the API asks for', () => {
+    expect(
+      pendingLegalDocuments({
+        required: true,
+        documents: { agb: state(false, true), avv: state(true, false), anlage1: state(true, false) },
+      })
+    ).toEqual(['agb']);
+    expect(
+      pendingLegalDocuments({
+        required: true,
+        documents: { agb: state(true, false), avv: state(false, true), anlage1: state(false, true) },
+      })
+    ).toEqual(['avv', 'anlage1']);
+  });
+
+  test('ignores outdated documents the API does not ask for', () => {
+    // Anlage 1 ohne Zeile in der Ausgangsfassung: nicht fällig.
+    expect(
+      pendingLegalDocuments({
+        required: true,
+        documents: { agb: state(false, true), avv: state(true, false), anlage1: state(false, false) },
+      })
+    ).toEqual(['agb']);
+  });
+
+  test('falls back to outdated AGB/AVV for older API versions', () => {
+    expect(
+      pendingLegalDocuments({ required: true, documents: { agb: state(true), avv: state(false) } })
+    ).toEqual(['avv']);
+    expect(
+      pendingLegalDocuments({ required: true, documents: { agb: state(true), avv: state(true) } })
+    ).toEqual(['agb', 'avv']);
+    expect(pendingLegalDocuments(undefined)).toEqual(['agb', 'avv']);
   });
 });

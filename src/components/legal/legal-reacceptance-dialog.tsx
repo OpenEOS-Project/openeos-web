@@ -7,7 +7,7 @@ import { Clock, ExternalLink, FileText, LogOut } from 'lucide-react';
 import { useAcceptLegal, useLegalStatus, useLegalVersions } from '@/hooks/use-legal';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useLocaleFormat } from '@/hooks/use-locale-format';
-import { formatLegalVersion } from '@/lib/legal-platform';
+import { formatLegalVersion, pendingLegalDocuments } from '@/lib/legal-platform';
 import { useAuthStore } from '@/stores/auth-store';
 import type { AcceptableLegalDocument, LegalAcceptanceState } from '@/types/legal';
 
@@ -112,7 +112,8 @@ export function LegalReacceptanceDialog() {
   const onAccept = async () => {
     setError(null);
     try {
-      await accept.mutateAsync({ context: 'reacceptance' });
+      /* Nur die genannten Dokumente festhalten. */
+      await accept.mutateAsync({ context: 'reacceptance', documents: pending });
     } catch (err) {
       setError(apiErrorMessage(err, t('error')));
     }
@@ -122,13 +123,28 @@ export function LegalReacceptanceDialog() {
   const change = status?.change ?? null;
   const since = change ? formatLegalVersion(change.version, locale) : null;
   const summary = change ? (locale.startsWith('en') && change.summaryEn ? change.summaryEn : change.summaryDe) : null;
-  const outdated = (['agb', 'avv'] as const).filter((doc) => status?.documents[doc] && !status.documents[doc].upToDate);
+  const pending = pendingLegalDocuments(status);
+  const TITLES = { agb: 'titleAgb', avv: 'titleAvv', anlage1: 'titleAnlage1' } as const;
   const title =
-    outdated.length === 1 ? t(outdated[0] === 'agb' ? 'titleAgb' : 'titleAvv') : t('title');
+    pending.length === 1
+      ? t(TITLES[pending[0]])
+      : pending.length === 2 && pending.includes('agb') && pending.includes('avv')
+        ? t('title')
+        : t('titleMany');
+  /* „die AGB und den Auftragsverarbeitungsvertrag“ – genau die genannten Dokumente. */
+  const names = new Intl.ListFormat(locale, { type: 'conjunction' }).format(
+    pending.map((d) => t(d === 'anlage1' && pending.includes('agb') ? 'names.anlage1WithAgb' : `names.${d}`))
+  );
+  const pronoun = pending.length === 1 && pending[0] === 'avv' ? 'ihn' : 'sie';
+  /* Widerspruch: AVV nur Anhang B/C nach AVV 6.3, sonst AGB 13.4. */
+  const avvAnnex = !!change?.avvAnnexesOnly && change.documents.includes('avv');
+  const agbObjection = !!change && change.documents.some((d) => d === 'agb' || d === 'anlage1' || (d === 'avv' && !avvAnnex));
 
   const documentRow = (doc: AcceptableLegalDocument) => {
     const current = versions.documents[doc];
-    const previous: LegalAcceptanceState | undefined = status?.documents[doc];
+    const previous: LegalAcceptanceState | undefined = (
+      status?.documents as Partial<Record<AcceptableLegalDocument, LegalAcceptanceState>> | undefined
+    )?.[doc];
     const outdated = previous && !previous.upToDate;
     return (
       <li key={doc} className="legal-accept__doc">
@@ -203,16 +219,28 @@ export function LegalReacceptanceDialog() {
               )}
             </>
           ) : (
-            <p className="legal-accept__text">{t('text')}</p>
+            <p className="legal-accept__text">{t('text', { documents: names })}</p>
           )}
-          <ul className="legal-accept__docs">{(['agb', 'avv'] as const).map(documentRow)}</ul>
-          {change && (
-            <p className="legal-accept__note" data-testid="legal-reacceptance-objection">
-              {change.explicitConsent
-                ? t('consentNote', { email: CONTACT_EMAIL })
-                : t('objectionNote', { email: CONTACT_EMAIL })}
-            </p>
-          )}
+          <ul className="legal-accept__docs">{pending.map(documentRow)}</ul>
+          {change &&
+            (change.explicitConsent ? (
+              <p className="legal-accept__note" data-testid="legal-reacceptance-objection">
+                {t('consentNote', { email: CONTACT_EMAIL })}
+              </p>
+            ) : (
+              <>
+                {agbObjection && (
+                  <p className="legal-accept__note" data-testid="legal-reacceptance-objection">
+                    {t('objectionNote', { email: CONTACT_EMAIL })}
+                  </p>
+                )}
+                {avvAnnex && (
+                  <p className="legal-accept__note" data-testid="legal-reacceptance-objection-avv">
+                    {t('objectionNoteAvvAnnex', { email: CONTACT_EMAIL })}
+                  </p>
+                )}
+              </>
+            ))}
           {locale.startsWith('en') && <p className="legal-accept__note">{t('germanNote')}</p>}
 
           <label className="auth-check auth-check--block legal-accept__check">
@@ -223,7 +251,7 @@ export function LegalReacceptanceDialog() {
               onChange={(e) => setChecked(e.target.checked)}
               data-testid="legal-reacceptance-checkbox"
             />
-            <span>{t('checkbox')}</span>
+            <span data-testid="legal-reacceptance-checkbox-label">{t('checkbox', { documents: names, pronoun })}</span>
           </label>
 
           {error && (

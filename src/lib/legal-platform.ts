@@ -6,7 +6,14 @@
  * ist (oder wenn die API sie nicht kennt), gelten die Seiten auf
  * openeos.de; ein Link soll nie ins Leere zeigen.
  */
-import type { LegalDocumentKey, LegalDocumentVersion, LegalVersions } from '@/types/legal';
+import type {
+  AcceptableLegalDocument,
+  LegalAcceptanceState,
+  LegalDocumentKey,
+  LegalDocumentVersion,
+  LegalStatus,
+  LegalVersions,
+} from '@/types/legal';
 
 export const FALLBACK_LEGAL_SITE = 'https://openeos.de';
 
@@ -88,4 +95,22 @@ export function dataActUrl(siteUrl: string): string {
 /** Sprungmarke auf Anhang B des AVV (Unterauftragsverarbeiter). */
 export function subprocessorsUrl(avvUrl: string): string {
   return `${avvUrl.replace(/#.*$/, '')}#anhang-b`;
+}
+
+const ACCEPTABLE: AcceptableLegalDocument[] = ['agb', 'avv', 'anlage1'];
+
+/**
+ * Welche Dokumente der Dialog nennt und annimmt: die, für die die API eine
+ * erneute Annahme verlangt. Ältere API-Stände kennen das Feld (und Anlage 1)
+ * nicht — dann AGB und AVV, die nicht auf dem aktuellen Stand sind, und
+ * notfalls beide.
+ */
+export function pendingLegalDocuments(status: LegalStatus | undefined): AcceptableLegalDocument[] {
+  if (!status) return ['agb', 'avv'];
+  const documents = status.documents as Partial<Record<AcceptableLegalDocument, LegalAcceptanceState>>;
+  const flagged = ACCEPTABLE.some((d) => documents[d]?.reacceptanceRequired !== undefined);
+  const pending = flagged
+    ? ACCEPTABLE.filter((d) => documents[d]?.reacceptanceRequired)
+    : (['agb', 'avv'] as const).filter((d) => documents[d] && !documents[d].upToDate);
+  return pending.length ? pending : ['agb', 'avv'];
 }
