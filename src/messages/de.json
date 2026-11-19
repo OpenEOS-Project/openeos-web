@@ -1558,6 +1558,7 @@
       "deactivated": "Veranstaltung deaktiviert"
     },
     "checkout": {
+      "eventOver": "Diese Veranstaltung ist schon vorbei und lässt sich nicht mehr kaufen. Findet sie noch statt? Dann passe zuerst das Datum an.",
       "title": "Veranstaltung aktivieren",
       "success": "Veranstaltung aktiviert",
       "discount": "inkl. {percent} % Rabatt",
@@ -4894,6 +4895,7 @@
     "EVENT_ACTIVE_CANNOT_DELETE": "Aktive Veranstaltungen können nicht gelöscht werden.",
     "EVENT_ALREADY_ACTIVE": "Die Veranstaltung ist bereits aktiv.",
     "EVENT_ALREADY_PAID": "Die Veranstaltung ist bereits freigeschaltet.",
+    "EVENT_OVER_CANNOT_PURCHASE": "Die Veranstaltung ist schon vorbei und lässt sich nicht mehr kaufen. Passe das Datum an, wenn sie noch stattfindet.",
     "EVENT_CANCELLATION_DEADLINE_PASSED": "Die Frist für eine kostenlose Stornierung ist abgelaufen. Bitte wende dich an den Support.",
     "EVENT_END_BEFORE_START": "Das Ende der Veranstaltung darf nicht vor dem Beginn liegen.",
     "EVENT_HAS_ORDERS": "In der Veranstaltung gibt es schon Bestellungen – eine kostenlose Stornierung ist nicht mehr möglich. Bitte wende dich an den Support.",
