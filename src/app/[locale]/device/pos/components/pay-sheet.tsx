@@ -23,7 +23,7 @@ import type { AppliedVoucher } from '@/stores/cart-store';
 import type { DiscountVoucher } from '@/types/discount-voucher';
 import { tokenTenders, tokenValue, tokensValueCents, type TokenTender, type TokenType } from '@/types/token';
 import { shouldOpenCashDrawer } from '@/utils/cash-drawer';
-import { initialPayMethod, type PayMethod, type PosCardMode } from '@/utils/pos-card-mode';
+import { initialPayMethod, isTestPayMethod, type PayMethod, type PosCardMode } from '@/utils/pos-card-mode';
 import { usePosCompact } from '../hooks/use-pos-compact';
 import { useSumupCheckout } from '../hooks/use-sumup-checkout';
 import { PosSheet } from './pos-sheet';
@@ -34,9 +34,10 @@ type Method = PayMethod | 'tokens';
 export interface PayResult {
   /**
    * `sumup` = Lesegerät, `card` = externes Terminal (nur Buchung), `free` =
-   * Betrag 0, `tokens` = nur mit Wertmarken bezahlt.
+   * Betrag 0, `tokens` = nur mit Wertmarken bezahlt, `test_cash`/`test_card`
+   * = simulierte Testzahlung (Testbestellungen, kein Geld).
    */
-  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens';
+  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens' | 'test_cash' | 'test_card';
   amountReceived?: number;
   tip: number;
   transactionId?: string | null;
@@ -82,6 +83,12 @@ interface PaySheetProps {
    * Wertmarken (nur „Alle Funktionen“, in DE mit Cloud-TSE).
    */
   tokenTypes?: TokenType[];
+  /**
+   * Testbestellungen (Testmodus): statt echter Zahlarten „Bar (Test)“ und
+   * „Karte (Test)“ — simuliert, ohne Kassenlade, Kassenbuch und TSE. Gilt
+   * in jeder Betriebsart außer „Nur Bons“ (dort gibt es kein Blatt).
+   */
+  testMode?: boolean;
   /**
    * Schlüssel in `sessionStorage`, unter dem eine erfolgreiche, aber nicht
    * gespeicherte Kartenzahlung liegt — nach Neuladen bleibt „Erneut
@@ -136,6 +143,11 @@ function writeUnsaved(key: string | undefined, value: PayResult | null) {
  * Deutschland) gibt es keine Bar-Zahlart, keine Schnellwahl und kein Rückgeld; Karte (mit Trinkgeld), Rabatt und
  * „Rechnung teilen“ bleiben. Gilt für jede Stelle, die dieses Blatt nutzt
  * (Warenkorb, offene Bestellungen, Verlauf, Teilen).
+ *
+ * Testbestellungen (`testMode`): „Bar (Test)“ (mit Rückgeldrechner, ohne
+ * Kassenlade) und „Karte (Test)“ statt Bar/Karte — auch ohne Bargeld,
+ * TSE oder SumUp. So lässt sich der Kassenablauf im Testmodus immer
+ * durchspielen; echtes Geld wird dabei nie gebucht.
  */
 export function PaySheet({
   open,
@@ -151,6 +163,7 @@ export function PaySheet({
   disabled = false,
   persistKey,
   tokenTypes = [],
+  testMode = false,
 }: PaySheetProps) {
   const t = useTranslations('pos.pay');
   const formatPrice = useFormatPrice();
@@ -161,6 +174,7 @@ export function PaySheet({
     cashless,
     card,
     hasVouchers: !!discount && discount.vouchers.length > 0,
+    testMode,
   });
 
   const [method, setMethod] = useState<Method | null>(firstMethod);
@@ -265,14 +279,29 @@ export function PaySheet({
   const cardBusy = sumup.busy || sumup.state === 'success';
   const locked = busy || cardBusy || !!unsaved;
 
-  // Modus wechselt bei offenem Blatt (Socket): Bar nicht stehen lassen.
+  // Modus wechselt bei offenem Blatt (Socket): Bar nicht stehen lassen;
+  // Testmodus endet/beginnt: echte bzw. Testzahlart nicht stehen lassen.
   useEffect(() => {
-    if (open && cashless && method === 'cash') setMethod(firstMethod);
-  }, [open, cashless, method, firstMethod]);
+    if (!open) return;
+    const stale =
+      (cashless && method === 'cash') ||
+      (testMode && (method === 'cash' || method === 'card')) ||
+      (!testMode && isTestPayMethod(method));
+    if (stale) setMethod(firstMethod);
+  }, [open, cashless, method, firstMethod, testMode]);
+
+  /** Bar oder „Bar (Test)“: Eingabe „Gegeben“ mit Rückgeld. */
+  const cashInput = method === 'cash' || method === 'test_cash';
+
+  const testOptions: ChoiceOption<Method>[] = [
+    { id: 'test_cash', label: t('testCash'), icon: 'cash', hint: t('testHint') },
+    { id: 'test_card', label: t('testCard'), icon: 'contactless', hint: t('testHint') },
+  ];
 
   const methodOptions: ChoiceOption<Method>[] = [
-    ...(cashless ? [] : [{ id: 'cash' as const, label: t('cash'), icon: 'cash' as const }]),
-    ...(card
+    ...(testMode ? testOptions : []),
+    ...(cashless || testMode ? [] : [{ id: 'cash' as const, label: t('cash'), icon: 'cash' as const }]),
+    ...(card && !testMode
       ? [
           {
             id: 'card' as const,
@@ -385,7 +414,13 @@ export function PaySheet({
     );
   } else if (method === 'tokens') {
     // Marken decken nicht alles: weiter zur Zahlart für den Rest.
-    const restMethod: Method | null = !cashless ? 'cash' : card && card !== 'sumup_test' ? 'card' : null;
+    const restMethod: Method | null = testMode
+      ? 'test_cash'
+      : !cashless
+        ? 'cash'
+        : card && card !== 'sumup_test'
+          ? 'card'
+          : null;
     primary = (
       <Button
         variant="primary"
@@ -398,7 +433,7 @@ export function PaySheet({
         {tokenCents > 0 ? t('tokensRest', { amount: formatPrice(moneyDue) }) : t('continue')}
       </Button>
     );
-  } else if (method === 'cash') {
+  } else if (method === 'cash' || method === 'test_cash') {
     primary = (
       <Button
         variant="primary"
@@ -406,10 +441,24 @@ export function PaySheet({
         className="oe-grow"
         loading={busy}
         disabled={disabled || !given || change < -0.0001}
-        onClick={() => run({ method: 'cash', amountReceived: givenAmount, tip: 0 })}
+        onClick={() => run({ method, amountReceived: givenAmount, tip: 0 })}
       >
         {!busy && <Icon name="check" />}
-        {t('complete')}
+        {method === 'test_cash' ? t('testComplete') : t('complete')}
+      </Button>
+    );
+  } else if (method === 'test_card') {
+    primary = (
+      <Button
+        variant="primary"
+        size="lg"
+        className="oe-grow"
+        loading={busy}
+        disabled={disabled}
+        onClick={() => run({ method: 'test_card', tip: 0 })}
+      >
+        {!busy && <Icon name="check" />}
+        {t('testCardBook', { amount: formatPrice(moneyDue) })}
       </Button>
     );
   } else if (method === 'card' && card === 'manual') {
@@ -542,9 +591,14 @@ export function PaySheet({
         )}
       </>
     );
-  } else if (method === 'cash') {
+  } else if (cashInput) {
     right = (
       <>
+        {method === 'test_cash' && (
+          <Banner tone="info" icon={<Icon name="info" />} title={t('testTitle')}>
+            {t('testCashText')}
+          </Banner>
+        )}
         <div className="oe-given">
           <span className="oe-label">{t('given')}</span>
           <b>{given ? formatPrice(givenAmount) : ''}</b>
@@ -573,6 +627,10 @@ export function PaySheet({
           aria-label={t('keypad')}
         />
       </>
+    );
+  } else if (method === 'test_card') {
+    right = (
+      <Prompt icon="card" title={t('testCardTitle')} text={t('testCardText', { amount: formatPrice(moneyDue) })} />
     );
   } else if (method === 'card' && card === 'manual') {
     right = <Prompt icon="card" title={t('cardManualTitle')} text={t('cardManualText', { amount: formatPrice(moneyDue) })} />;

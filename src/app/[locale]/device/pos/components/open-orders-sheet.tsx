@@ -8,7 +8,7 @@ import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useFormatPrice } from '@/hooks/use-format-price';
 import { deviceTablesApi } from '@/lib/device-tables-api';
 import { canCompleteOrder, itemsInProduction } from '@/lib/operating-mode';
-import type { PosCardMode } from '@/utils/pos-card-mode';
+import { testCheckout, type PosCardMode } from '@/utils/pos-card-mode';
 import { errorReason } from '../hooks/use-pos-checkout';
 import { useOpenOrders } from '../hooks/use-open-orders';
 import { remainingOf } from '../utils/tables';
@@ -33,6 +33,8 @@ interface OpenOrdersSheetProps {
    * wird bei der Ausgabe mit „Abgeholt“ abgeschlossen.
    */
   orderOnly?: boolean;
+  /** Veranstaltung im Testmodus (Rückfall, wenn Bestellungen kein `isTest` tragen). */
+  testMode?: boolean;
 }
 
 /**
@@ -49,6 +51,7 @@ export function OpenOrdersSheet({
   onSplit,
   onPaid,
   orderOnly = false,
+  testMode = false,
 }: OpenOrdersSheetProps) {
   const t = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
@@ -298,6 +301,7 @@ export function OpenOrdersSheet({
         card={card}
         onPay={pay}
         disabled={disabled}
+        testMode={testCheckout(selected, testMode)}
       />
     </>
   );

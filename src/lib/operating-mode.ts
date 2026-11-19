@@ -6,9 +6,14 @@
  *   Preise und ohne Zahlungen. Kassiert wird außerhalb von OpenEOS.
  * - `cashless` („Bargeldlos“): alle Funktionen mit Karte (SumUp) und
  *   Online-Vorkasse; Bargeld gibt es in OpenEOS nicht.
- * - `full` („Alle Funktionen“): Bargeld, Karte und online. In Deutschland
- *   nur mit aktiver Cloud-TSE wählbar und – außer im Bestand – nur dann
- *   mit Bargeld.
+ * - `full` („Alle Funktionen“): Bargeld, Karte und online. Auch in
+ *   Deutschland jederzeit wählbar (Standard für neue Organisationen); dort
+ *   gibt es Bargeld – außer im Bestand – erst mit aktiver Cloud-TSE, bis
+ *   dahin kassiert die Kasse mit Karte und online.
+ *
+ * Im Testmodus bietet die Kasse in jeder Betriebsart außer „Nur Bons“
+ * simulierte Testzahlungen an („Bar (Test)“, „Karte (Test)“, siehe
+ * `testCheckout` in utils/pos-card-mode.ts).
  *
  * Bestandsorganisationen (`operatingModeLegacy`) laufen als `full` ohne TSE
  * weiter, bis sie eine Betriebsart wählen („Alle Funktionen (Bestand)“).
@@ -22,11 +27,8 @@ import type { OrderItem } from '@/types/order';
 export type OperatingMode = 'orders_only' | 'cashless' | 'full';
 /** Werte im Verlauf: `full_legacy` = „Alle Funktionen (Bestand)“. */
 export type OperatingModeHistoryValue = OperatingMode | 'full_legacy';
-export type OperatingModeUnavailableReason =
-  | 'tse_required'
-  | 'tse_coming_soon'
-  | 'paid_event_required'
-  | 'country_required';
+/** Seit 2026-11-19 nur noch ohne Land: `full` ist auch in DE ohne TSE wählbar. */
+export type OperatingModeUnavailableReason = 'country_required';
 
 /** Reihenfolge in Auswahl und Texten. */
 export const OPERATING_MODES: readonly OperatingMode[] = ['orders_only', 'cashless', 'full'];
@@ -137,14 +139,11 @@ export function resolveOperatingMode(org: OperatingModeOrg | null | undefined): 
 
 /**
  * Wählbarkeit einer Betriebsart (Rückfall, wenn die API keine `options`
- * liefert): ohne Land keine; `full` in Deutschland nur mit aktiver TSE.
+ * liefert): ohne Land keine, sonst jede — auch `full` in Deutschland ohne
+ * TSE (Bargeld bleibt dort gesperrt, bis eine TSE aktiv ist).
  */
 export function operatingModeOption(org: OperatingModeOrg | null | undefined, mode: OperatingMode): OperatingModeOption {
-  const country = normalizedCountry(org);
-  if (!country) return { mode, available: false, unavailableReason: 'country_required' };
-  if (mode === 'full' && country === 'DE' && !org?.tseActive) {
-    return { mode, available: false, unavailableReason: 'tse_required' };
-  }
+  if (!normalizedCountry(org)) return { mode, available: false, unavailableReason: 'country_required' };
   return { mode, available: true, unavailableReason: null };
 }
 
@@ -173,19 +172,24 @@ export function canSwitchTo(
 }
 
 /**
- * Gibt es nach dem Wechsel keinen Weg zurück zu „Alle Funktionen“? In
- * Deutschland ohne TSE nicht (und der Bestand ist weg) — die Rückfrage
- * verlangt dann eine ausdrückliche Bestätigung.
+ * Geht mit dem Wechsel etwas verloren, das sich nicht zurückholen lässt?
+ * Nur der Bestand in Deutschland ohne TSE: Bargeld ohne TSE endet mit jeder
+ * Wahl (auch beim Bestätigen von „Alle Funktionen“) — die Rückfrage
+ * verlangt dann eine ausdrückliche Bestätigung. „Alle Funktionen“ selbst
+ * ist jederzeit wieder wählbar.
  */
-export function switchIsOneWay(org: OperatingModeOrg | null | undefined, target: OperatingMode): boolean {
+export function switchIsOneWay(org: OperatingModeOrg | null | undefined): boolean {
   return (
-    normalizedCountry(org) === 'DE' && !org?.tseActive && getOperatingMode(org) === 'full' && target !== 'full'
+    normalizedCountry(org) === 'DE' && !org?.tseActive && getOperatingMode(org) === 'full' && !!org?.operatingModeLegacy
   );
 }
 
-/** Herstellerbescheinigung: Deutschland in „Nur Bons“ oder „Bargeldlos“. */
+/**
+ * Herstellerbescheinigung: Deutschland, solange OpenEOS kein Bargeld
+ * erfassen kann („Nur Bons“, „Bargeldlos“, „Alle Funktionen“ ohne TSE).
+ */
 export function certificateAvailable(org: OperatingModeOrg | null | undefined): boolean {
-  return normalizedCountry(org) === 'DE' && getOperatingMode(org) !== 'full';
+  return normalizedCountry(org) === 'DE' && !isCashAllowed(org);
 }
 
 /** Anzeigewert (wie im Verlauf): der Bestand hat einen eigenen Namen. */

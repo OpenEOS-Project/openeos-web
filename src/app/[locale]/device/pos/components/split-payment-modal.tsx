@@ -10,7 +10,8 @@ import { deviceApi } from '@/lib/api-client';
 import { amountReceivedFor } from '@/utils/cash-tender';
 import type { OrderItem } from '@/types/order';
 import type { PaymentMethod } from '@/types/payment';
-import type { PosCardMode } from '@/utils/pos-card-mode';
+import { testCheckout, type PosCardMode } from '@/utils/pos-card-mode';
+import { paymentMethodOf } from '../utils/pay-result';
 import { useOpenOrders, type OpenOrdersScope } from '../hooks/use-open-orders';
 import { PaySheet, type PayResult } from './pay-sheet';
 import { PosSheet } from './pos-sheet';
@@ -28,6 +29,8 @@ interface SplitPaymentModalProps {
   /** Karte: Lesegerät, Buchung ohne Gerät oder gar nicht. */
   card: PosCardMode;
   disabled?: boolean;
+  /** Veranstaltung im Testmodus (Rückfall, wenn Bestellungen kein `isTest` tragen). */
+  testMode?: boolean;
 }
 
 interface UnpaidItem {
@@ -44,7 +47,15 @@ type GroupBy = 'order' | 'category';
  * kassieren (`/payments/split` je Bestellung). Nach jeder Teilzahlung
  * lädt die Liste neu; ist alles bezahlt, schließt das Blatt.
  */
-export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disabled }: SplitPaymentModalProps) {
+export function SplitPaymentModal({
+  isOpen,
+  onClose,
+  eventId,
+  scope,
+  card,
+  disabled,
+  testMode = false,
+}: SplitPaymentModalProps) {
   const t = useTranslations('pos.splitPayment');
   const tTabs = useTranslations('pos.openTabs');
   const tPay = useTranslations('pos.pay');
@@ -132,7 +143,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
     }
     const payments = [...byOrder.entries()];
     const amounts = payments.map(([, p]) => p.amount);
-    const method: PaymentMethod = result.method === 'sumup' ? 'sumup_terminal' : result.method === 'card' ? 'card' : 'cash';
+    const method: PaymentMethod = paymentMethodOf(result);
     const tseViews: Array<TseReceiptView | null | undefined> = [];
     try {
       for (const [index, [orderId, p]] of payments.entries()) {
@@ -277,6 +288,7 @@ export function SplitPaymentModal({ isOpen, onClose, eventId, scope, card, disab
         card={card}
         onPay={pay}
         disabled={disabled}
+        testMode={testCheckout(orders, testMode)}
       />
 
       <PosTseSheet receipt={receipt} onClose={() => setReceipt(null)} />

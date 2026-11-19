@@ -158,7 +158,7 @@
           "copy": "Verein, Veranstalter oder Betrieb. Unter diesem Namen laufen später deine Veranstaltungen, Produkte und Kassen.",
           "name": "Name der Organisation",
           "country": "Land",
-          "countryHint": "Davon hängt ab, welche Betriebsarten du wählen kannst – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support."
+          "countryHint": "Davon hängt ab, welche Kassenregeln gelten – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support."
         },
         "confirm": {
           "label": "Bestätigung",
@@ -2765,7 +2765,7 @@
       "tse": "TSE",
       "tseActive": "aktiv",
       "tseInactive": "nicht aktiv",
-      "explain": "Hier wechselst du Betriebsart und Land einer Organisation – immer mit Grund. Es gelten dieselben Regeln wie für den Verein: „Alle Funktionen“ in Deutschland nur mit aktiver TSE. Jede Änderung steht im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
+      "explain": "Hier wechselst du Betriebsart und Land einer Organisation – immer mit Grund. Es gelten dieselben Regeln wie für den Verein: Bargeld in Deutschland nur mit aktiver TSE, auch in „Alle Funktionen“. Jede Änderung steht im Verlauf, im Admin-Protokoll und auf der Bescheinigung der Organisation.",
       "modeTitle": "Betriebsart",
       "newMode": "Neue Betriebsart",
       "reason": "Grund (Pflicht)",
@@ -3500,7 +3500,9 @@
         "sumup": "SumUp",
         "discount": "Rabatt-Bon",
         "tokens": "Wertmarken",
-        "paypal": "PayPal"
+        "paypal": "PayPal",
+        "test_cash": "Bar (Test)",
+        "test_card": "Karte (Test)"
       },
       "reprintSuccess": "Druckauftrag wurde gesendet",
       "noPrinter": "Kein Bondrucker eingerichtet – Gegenbeleg nicht gedruckt",
@@ -3844,7 +3846,7 @@
       "noMethod": "Keine Zahlart",
       "cashlessNoMethodTitle": "Keine Zahlart verfügbar",
       "cashlessNoMethodText": "Deine Organisation nimmt kein Bargeld an, und an dieser Kasse ist kein SumUp-Lesegerät eingerichtet. Kassieren lässt sich hier nur, was online oder vorab bezahlt ist.",
-      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus, und Bargeld ist gesperrt.",
+      "cashlessNoMethodTest": "Im Testmodus löst die Kasse keine echte Kartenzahlung aus. Kassiere mit „Bar (Test)“ oder „Karte (Test)“.",
       "tokens": "Wertmarken",
       "tokensWithValue": "Wertmarken · {amount}",
       "tokensComplete": "Mit Wertmarken bezahlen",
@@ -3860,7 +3862,16 @@
       "tokensCoveredHint": "Die Marken decken alles.",
       "tokensHint": "Tippe ein, wie viele Marken der Gast dir gibt. Den Rest zahlt er bar oder mit Karte.",
       "tokensApplied": "abzgl. Wertmarken {amount}",
-      "tokensRestShort": "Rest {amount}"
+      "tokensRestShort": "Rest {amount}",
+      "testCash": "Bar (Test)",
+      "testCard": "Karte (Test)",
+      "testHint": "Testmodus · kein Geld",
+      "testTitle": "Testzahlung – kein echtes Geld",
+      "testCashText": "Simuliert: Der Rückgeldrechner hilft beim Üben, die Kassenlade bleibt zu. Nichts davon steht im Kassenbuch oder in der Abrechnung – beim Aktivieren der Veranstaltung wird alles gelöscht.",
+      "testComplete": "Testzahlung abschließen",
+      "testCardBook": "Testzahlung buchen · {amount}",
+      "testCardTitle": "Karte (Test)",
+      "testCardText": "Simuliert {amount} per Karte – ohne Lesegerät, ohne echte Abbuchung. Die Testzahlung wird beim Aktivieren der Veranstaltung gelöscht."
     },
     "done": {
       "change": "Rückgeld {amount}",
@@ -3871,7 +3882,9 @@
         "cash": "Bar",
         "free": "ohne Zahlung",
         "sumup": "Karte · SumUp",
-        "tokens": "Wertmarken"
+        "tokens": "Wertmarken",
+        "test_cash": "Bar (Test) · kein Geld",
+        "test_card": "Karte (Test) · kein Geld"
       },
       "next": "Nächster Bon",
       "pfand": "Pfand",
@@ -4234,7 +4247,9 @@
         "sumup": "SumUp",
         "discount": "Rabatt-Bon",
         "tokens": "Wertmarken",
-        "paypal": "PayPal"
+        "paypal": "PayPal",
+        "test_cash": "Bar (Test)",
+        "test_card": "Karte (Test)"
       },
       "kind": {
         "cancellation": "Storno",
@@ -5127,6 +5142,7 @@
     "ORGANIZATION_LIMIT_REACHED": "Du kannst höchstens {limit} Organisationen anlegen.",
     "MEMBER_LIMIT_REACHED": "Diese Organisation hat die Höchstzahl von {limit} Mitgliedern erreicht (inklusive offener Einladungen).",
     "ORDER_ONLY_MODE": "Deine Organisation nutzt „Nur Bons“. Zahlungen, Erstattungen, Trinkgeld, Rabatte, Kassenlade, Pfand und Online-Bestellungen gibt es darin nicht – kassiert wird außerhalb von OpenEOS.",
+    "TEST_PAYMENT_REQUIRES_TEST_ORDER": "Testzahlungen („Bar (Test)“, „Karte (Test)“) gehen nur für Testbestellungen im Testmodus. Kassiere echte Bestellungen mit einer echten Zahlart.",
     "ORDER_ITEMS_IN_PRODUCTION": "Es ist noch etwas in Zubereitung. Schließe die Bestellung ab, wenn alles fertig ist.",
     "OPERATING_MODE_UNCHANGED": "Die Organisation ist bereits in dieser Betriebsart.",
     "COUNTRY_ALREADY_SET": "Das Land deiner Organisation ist schon festgelegt. Ändern kann es nur der OpenEOS-Support.",
@@ -5153,7 +5169,7 @@
     "TOKEN_LINES_INVALID": "Die Auswahl der Marken passt nicht. Prüfe Marken, Kategorien und Artikel.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "„Alle Funktionen“ gibt es in Deutschland nur mit einer aktiven Cloud-TSE.",
     "COUNTRY_REQUIRED": "Lege zuerst das Land deiner Organisation fest.",
-    "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland in den Betriebsarten „Nur Bons“ und „Bargeldlos“.",
+    "CERTIFICATE_NOT_AVAILABLE": "Die Bescheinigung gibt es nur in Deutschland, solange OpenEOS kein Bargeld erfassen kann: in „Nur Bons“, „Bargeldlos“ und „Alle Funktionen“ ohne aktive Cloud-TSE.",
     "TSE_NOT_AVAILABLE": "Auf diesem Server ist keine Cloud-TSE eingerichtet.",
     "TSE_COUNTRY_NOT_SUPPORTED": "Die Cloud-TSE gibt es nur für Organisationen in Deutschland.",
     "TSE_REQUIRES_PAID_EVENT": "Eine Cloud-TSE kostet ab dem Anlegen jeden Monat. Sie wird deshalb erst eingerichtet, wenn eine bezahlte Veranstaltung ansteht – schalte zuerst eine Veranstaltung frei.",
@@ -6531,7 +6547,7 @@
       "deactivateBlocked": "Deine Cloud-TSE ist eingerichtet. Ausschalten kannst du die Integration erst, wenn du die TSE in der Gefahrenzone unten endgültig deaktiviert hast – danach geschieht es automatisch.",
       "onlyGermany": "Die Cloud-TSE nach KassenSichV gibt es nur für Organisationen in Deutschland. Hinweise für dein Land findest du in den Einstellungen unter „Betriebsart“.",
       "serverUnavailable": "Auf diesem Server ist keine Cloud-TSE eingerichtet. Frag den Betreiber deiner Installation.",
-      "comingSoonHint": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.",
+      "comingSoonHint": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online.",
       "hint": {
         "unavailable": {
           "short": "Auf diesem Server nicht eingerichtet",
@@ -6539,9 +6555,9 @@
           "text": "Hier bietet niemand eine Cloud-TSE an. Frag den Betreiber deiner Installation."
         },
         "comingSoon": {
-          "short": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.",
+          "short": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online.",
           "title": "Bald verfügbar",
-          "text": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen."
+          "text": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online."
         },
         "countryMissing": {
           "short": "Lege zuerst das Land deiner Organisation fest",
@@ -7031,7 +7047,7 @@
     "createFailed": "Fehler beim Erstellen der Organisation",
     "limitReached": "Du kannst höchstens {limit} Organisationen anlegen oder ihnen beitreten. Für weitere wende dich an den Support.",
     "country": "Land",
-    "countryHint": "Davon hängt ab, welche Betriebsarten die Organisation wählen kann – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support.",
+    "countryHint": "Davon hängt ab, welche Kassenregeln gelten – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Ändern kann das Land später nur unser Support.",
     "countryRequired": "Bitte wähle das Land der Organisation."
   },
   "validation": {
@@ -7365,15 +7381,12 @@
       "cashless": "Alle Funktionen mit Kartenzahlung (SumUp) und Online-Vorkasse. Bargeld gibt es in OpenEOS nicht.",
       "full": "Bargeld, Karte und Online-Zahlung."
     },
-    "fullDeHint": "In Deutschland nur mit aktiver Cloud-TSE.",
+    "fullDeHint": "In Deutschland kommt Bargeld mit der Cloud-TSE. Ohne TSE kassierst du mit Karte und online, im Testmodus mit „Bar (Test)“ und „Karte (Test)“.",
     "availability": {
       "current": "Aktiv",
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
-      "tse_required": "benötigt eine aktive Cloud-TSE",
-      "tse_coming_soon": "Bald verfügbar – mit Cloud-TSE",
-      "country_required": "Lege zuerst das Land fest",
-      "paid_event_required": "braucht eine freigeschaltete Veranstaltung"
+          "country_required": "Lege zuerst das Land fest"
     },
     "section": {
       "title": "Betriebsart",
@@ -7391,8 +7404,8 @@
       "noCountry": "Noch nicht hinterlegt",
       "countryLocked": "Ändern nur über den Support",
       "cashBlocked": {
-        "title": "Bargeld ist gesperrt",
-        "text": "Deine Organisation nutzt „Alle Funktionen“, aber es ist keine Cloud-TSE aktiv. In Deutschland nehmen die Kassen deshalb kein Bargeld an, bis die TSE wieder aktiv ist – Karte und Online-Zahlung gehen weiter."
+        "title": "Bargeld kommt mit der Cloud-TSE",
+        "text": "Deine Organisation nutzt „Alle Funktionen“, es ist aber keine Cloud-TSE aktiv. In Deutschland nehmen die Kassen Bargeld erst mit aktiver TSE an – bis dahin kassierst du mit Karte und online. Im Testmodus probierst du die Kasse mit „Bar (Test)“ und „Karte (Test)“ aus."
       },
       "noSumup": {
         "title": "SumUp ist nicht eingeschaltet",
@@ -7429,13 +7442,13 @@
           "pos": "Kasse: Bargeld mit Rückgeld und Kassenlade, Karte (SumUp) und Online-Zahlung.",
           "pfand": "Pfand und Erstattungen gehen auch in bar.",
           "rest": "Preise, Bons, Shop, Rabatte und Gutscheine wie gewohnt.",
-          "countryDe": "In Deutschland nimmt die Kasse Bargeld nur mit aktiver Cloud-TSE an.",
+          "countryDe": "In Deutschland nimmt die Kasse Bargeld erst mit aktiver Cloud-TSE an – bis dahin Karte und Online-Zahlung.",
           "countryOther": "Für Bargeld gelten die Kassenregeln deines Landes – prüfe sie selbst. Das ist keine Steuerberatung."
         }
       },
-      "oneWay": "Achtung: In Deutschland kommst du ohne aktive Cloud-TSE nicht zurück zu „Alle Funktionen“. Bargeld kann OpenEOS dann erst wieder mit TSE erfassen.",
-      "oneWayLegacy": "Achtung: Den Bestand kannst du nicht wiederherstellen. In Deutschland geht es ohne aktive Cloud-TSE nicht zurück zu „Alle Funktionen“ – Bargeld kann OpenEOS dann erst wieder mit TSE erfassen.",
-      "oneWayCheck": "Ich habe verstanden, dass ich ohne TSE nicht zu „Alle Funktionen“ zurückwechseln kann.",
+      "oneWay": "Achtung: Bargeld kann OpenEOS in Deutschland danach erst wieder mit aktiver Cloud-TSE erfassen.",
+      "oneWayLegacy": "Achtung: Den Bestand kannst du nicht wiederherstellen. Bargeld nimmt OpenEOS in Deutschland danach erst wieder mit aktiver Cloud-TSE an – auch in „Alle Funktionen“. Karte und Online-Zahlung gehen weiter.",
+      "oneWayCheck": "Ich habe verstanden, dass Bargeld danach erst mit Cloud-TSE wieder geht.",
       "logged": "Die Kassen stellen sich sofort um. Der Wechsel wird mit Zeitpunkt und deinem Namen im Verlauf gespeichert.",
       "button": "Wechseln",
       "buttonOneWay": "Verbindlich wechseln",
@@ -7455,8 +7468,8 @@
     "legacy": {
       "de": {
         "title": "Bargeld braucht in Deutschland eine TSE – bitte wähle deine Betriebsart",
-        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Wähle deshalb „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online) – oder schalte unter Integrationen die Cloud-TSE ein, dann bleibt „Alle Funktionen“ mit Bargeld möglich. Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
-        "textComingSoon": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Die Cloud-TSE von OpenEOS kommt in Kürze – bis dahin wähle „Nur Bons“ (ohne Preise und Zahlungen) oder „Bargeldlos“ (Karte und online). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
+        "text": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Wähle deshalb „Alle Funktionen“ (Karte und online sofort, Bargeld mit der Cloud-TSE unter Integrationen), „Bargeldlos“ (Karte und online) oder „Nur Bons“ (ohne Preise und Zahlungen). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
+        "textComingSoon": "Deine Organisation läuft noch als „Alle Funktionen (Bestand)“: mit Bargeld, aber ohne TSE. In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE. Die Cloud-TSE von OpenEOS kommt in Kürze. Wähle „Alle Funktionen“ (Karte und online sofort, Bargeld mit der Cloud-TSE), „Bargeldlos“ (Karte und online) oder „Nur Bons“ (ohne Preise und Zahlungen). Bis du wählst, bleibt alles wie bisher – OpenEOS stellt nichts automatisch um.",
         "noCountry": "Lege dafür zuerst das Land deiner Organisation fest."
       },
       "confirm": {
@@ -7469,7 +7482,7 @@
     },
     "setCountry": {
       "title": "Land deiner Organisation",
-      "text": "Bitte hinterlege das Land deiner Organisation. Davon hängt ab, welche Betriebsarten du wählen kannst – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Du legst das Land einmal selbst fest; ändern kann es danach nur unser Support.",
+      "text": "Bitte hinterlege das Land deiner Organisation. Davon hängt ab, welche Kassenregeln gelten – in Deutschland gibt es Bargeld zum Beispiel nur mit TSE. Du legst das Land einmal selbst fest; ändern kann es danach nur unser Support.",
       "adminOnly": "Das Land kann ein Admin deiner Organisation festlegen.",
       "label": "Land",
       "submit": "Land festlegen",
@@ -7484,8 +7497,8 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Kassenregeln in Deutschland",
-        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE (Integrationen → Cloud-TSE). In „Nur Bons“ und „Bargeldlos“ erfasst OpenEOS kein Bargeld; dafür bekommst du eine Herstellerbescheinigung für deine Unterlagen.",
-        "textComingSoon": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es „Alle Funktionen“ mit Bargeld nur mit aktiver Cloud-TSE – die kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen: Dort erfasst OpenEOS kein Bargeld, und du bekommst eine Herstellerbescheinigung für deine Unterlagen."
+        "text": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es Bargeld in „Alle Funktionen“ nur mit aktiver Cloud-TSE (Integrationen → Cloud-TSE); ohne TSE kassierst du dort mit Karte und online. Solange OpenEOS kein Bargeld erfassen kann („Nur Bons“, „Bargeldlos“ oder „Alle Funktionen“ ohne TSE), bekommst du eine Herstellerbescheinigung für deine Unterlagen.",
+        "textComingSoon": "In Deutschland braucht eine Kasse, mit der sich Bargeld erfassen lässt, eine zertifizierte TSE (KassenSichV). Deshalb gibt es Bargeld in „Alle Funktionen“ nur mit aktiver Cloud-TSE – die kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online. Solange OpenEOS kein Bargeld erfassen kann, bekommst du eine Herstellerbescheinigung für deine Unterlagen."
       },
       "at": {
         "title": "Registrierkassenpflicht in Österreich",
@@ -7513,7 +7526,7 @@
     "tseFollows": {
       "scheduled": "Cloud-TSE wird am {date} automatisch eingerichtet („{name}“). Bargeld geht ab dann.",
       "missing": "Trag vorher Steuernummer und Anschrift ein.",
-      "needsEvent": "Schalte zuerst eine Veranstaltung frei – die Cloud-TSE wird dann automatisch eingerichtet.",
+      "needsEvent": "Die Cloud-TSE richtet OpenEOS automatisch ein, sobald du eine Veranstaltung freischaltest. Ab dann geht Bargeld.",
       "toEvents": "Zu den Veranstaltungen",
       "confirm": "Die Cloud-TSE wird am {date} automatisch eingerichtet. Bis dahin nimmt die Kasse kein Bargeld an."
     }

@@ -166,7 +166,7 @@ export function OperatingModeModal({ organization, onClose }: OperatingModeModal
                       {!option.available && (
                         <span style={{ color: 'var(--ink-faint)' }}>
                           {' – '}
-                          {tMode(`availability.${option.unavailableReason ?? 'tse_required'}`)}
+                          {tMode(`availability.${option.unavailableReason ?? 'country_required'}`)}
                         </span>
                       )}
                     </span>

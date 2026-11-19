@@ -24,7 +24,7 @@ import { deviceTablesApi } from '@/lib/device-tables-api';
 import { canCompleteOrder } from '@/lib/operating-mode';
 
 import type { OrderDetail, OrderDetailItem } from '@/types/order-history';
-import type { PosCardMode } from '@/utils/pos-card-mode';
+import { testCheckout, type PosCardMode } from '@/utils/pos-card-mode';
 
 import { useInvalidateOrders, useOrderDetail, useOrderTse, useRefundGate } from '../hooks/use-order-history';
 import type { DoneInfo } from './done-sheet';
@@ -326,6 +326,7 @@ export function OrderDetailSheet({
             card={card}
             onPay={pay}
             disabled={disabled}
+            testMode={testCheckout([order], false)}
           />
           )}
         </>

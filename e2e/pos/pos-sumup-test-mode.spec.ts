@@ -11,10 +11,11 @@ import {
 import { POSPage } from '../pages/pos.page';
 
 /*
- * Testmodus: Die Kasse löst keine echten SumUp-Kartenzahlungen aus. Die
- * Zahlart erscheint ausgegraut mit Hinweis, es gibt keinen Aufruf am
+ * Testmodus: Die Kasse löst keine echten SumUp-Kartenzahlungen aus. Statt
+ * echter Zahlarten bietet sie „Bar (Test)“ und „Karte (Test)“ an
+ * (simuliert, kein Geld, keine Kassenlade), es gibt keinen Aufruf am
  * Lesegerät; die API lehnt Checkout und SumUp-Zahlungen mit
- * SUMUP_DISABLED_IN_TEST_MODE ab. Bar und manuelle Kartenbuchung gehen.
+ * SUMUP_DISABLED_IN_TEST_MODE ab. Manuelle Kartenbuchung geht per API.
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -24,6 +25,8 @@ let admin: PosAdmin;
 let device: PairedDevice;
 let eventId: string;
 let productId: string;
+/** API mit Testzahlungen (test_cash/test_card)? Ältere API-Images: ohne. */
+let apiHasTestPayments = false;
 
 async function setSumup(enabled: boolean) {
   return admin.api.patch(`organizations/${admin.organizationId}/integrations/sumup`, {
@@ -48,6 +51,12 @@ test.beforeAll(async () => {
   expect(testMode.ok()).toBeTruthy();
   expect((await setSumup(true)).ok()).toBeTruthy();
   device = await pairPosDevice(admin, 'Testmodus 1', { serviceMode: 'counter', sumupReaderId: 'rdr_e2e_test' });
+  const probe = await postDeviceOrder(admin, device, {
+    eventId,
+    items: [{ productId, quantity: 1 }],
+    payment: { paymentMethod: 'test_card' },
+  });
+  apiHasTestPayments = probe.ok();
 });
 
 test.afterAll(async () => {
@@ -63,10 +72,12 @@ test.describe('POS - SumUp in test mode', () => {
     await installDevice(page, device);
   });
 
-  test('card payment is shown disabled with a hint, no reader call, cash still works', async ({ page }) => {
+  test('offers „Bar (Test)“ and „Karte (Test)“ instead of real payments, no reader call', async ({ page }) => {
     const readerCalls: string[] = [];
+    const drawerCalls: string[] = [];
     page.on('request', (request) => {
       if (request.url().includes('/device-api/sumup/')) readerCalls.push(request.url());
+      if (request.url().includes('/device-api/cash-drawer/')) drawerCalls.push(request.url());
     });
 
     const pos = new POSPage(page);
@@ -79,14 +90,35 @@ test.describe('POS - SumUp in test mode', () => {
     await pos.addProduct(PRODUCT);
     await pos.checkout();
 
-    const card = pos.paySheet.getByRole('radio', { name: /Karte/ });
-    await expect(card).toBeVisible();
-    await expect(card).toBeDisabled();
-    await expect(card).toContainText('Im Testmodus ohne echte Kartenzahlung');
+    const radios = pos.paySheet.getByRole('radio');
+    await expect(pos.paySheet.getByRole('radio', { name: /Bar \(Test\)/ })).toBeEnabled();
+    await expect(pos.paySheet.getByRole('radio', { name: /Karte \(Test\)/ })).toBeEnabled();
+    // Keine echte Zahlart, kein „Keine Zahlart verfügbar“.
+    await expect(radios.filter({ hasNotText: '(Test)' })).toHaveCount(0);
+    await expect(pos.paySheet.getByText('Keine Zahlart verfügbar')).toHaveCount(0);
+    await expect(pos.paySheet.getByText('Testzahlung – kein echtes Geld')).toBeVisible();
 
-    await pos.payCash();
-    await pos.completePayment();
+    if (apiHasTestPayments) {
+      await pos.paySheet.getByRole('button', { name: 'Passend', exact: true }).click();
+      await pos.paySheet.getByRole('button', { name: 'Testzahlung abschließen' }).click();
+      await expect(pos.doneSheet).toBeVisible();
+      await expect(pos.doneSheet).toContainText('Bar (Test)');
+    }
     expect(readerCalls).toEqual([]);
+    expect(drawerCalls).toEqual([]);
+  });
+
+  test('the API takes test payments only for test orders', async () => {
+    test.skip(!apiHasTestPayments, 'API without test payments (test_cash/test_card)');
+    const order = await postDeviceOrder(admin, device, {
+      eventId,
+      items: [{ productId, quantity: 1 }],
+      payment: { paymentMethod: 'test_cash', amountReceived: 5 },
+    });
+    expect(order.ok()).toBeTruthy();
+    const body = await order.json();
+    expect(body.data.isTest).toBe(true);
+    expect(body.data.paymentStatus).toBe('paid');
   });
 
   test('the API refuses SumUp checkouts and SumUp payments, manual card is booked', async () => {

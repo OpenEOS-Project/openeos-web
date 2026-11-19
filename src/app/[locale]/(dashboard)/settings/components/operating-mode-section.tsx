@@ -152,10 +152,10 @@ export function OperatingModeSection() {
   const availability = (option: OperatingModeOption) => {
     if (option.mode === current) return view.legacy ? t('availability.legacy') : t('availability.current');
     if (option.available) return t('availability.available');
-    return t(`availability.${option.unavailableReason ?? 'tse_required'}`);
+    return t(`availability.${option.unavailableReason ?? 'country_required'}`);
   };
 
-  const oneWay = confirming ? switchIsOneWay(org, confirming) : false;
+  const oneWay = confirming ? switchIsOneWay(org) : false;
   const confirmsLegacy = confirming !== null && confirming === current && view.legacy;
 
   return (
@@ -175,7 +175,7 @@ export function OperatingModeSection() {
         </div>
 
         {view.cashBlockedWithoutTse && (
-          <Banner tone="warn" icon={<Icon name="alert" />} title={t('section.cashBlocked.title')}>
+          <Banner tone="info" icon={<Icon name="info" />} title={t('section.cashBlocked.title')}>
             {t('section.cashBlocked.text')}
           </Banner>
         )}
@@ -228,13 +228,11 @@ export function OperatingModeSection() {
                       ) : null}
                       {/* Woran „Alle Funktionen“ hängt: die Voraussetzungen der
                           Cloud-TSE in kurz (GET …/tse nur für Admins). */}
-                      {isAdmin && !option.available && !view.tseActive && (
-                        <TseModeChecklist organizationId={organizationId} />
-                      )}
+                      {isAdmin && !view.tseActive && <TseModeChecklist organizationId={organizationId} />}
                       <TseFollowsHint
                         setup={state.data?.tseSetup ?? null}
                         tseActive={view.tseActive}
-                        unavailableReason={option.unavailableReason}
+                        tseAvailable={!!tse?.available}
                         isAdmin={isAdmin}
                       />
                     </>
@@ -406,20 +404,21 @@ function TseModeBadge({
 }
 
 /**
- * „Alle Funktionen“ in Deutschland ohne aktive TSE: mit bezahlter
- * Veranstaltung wählbar — die Cloud-TSE wird dann automatisch eingerichtet
- * (Datum). Ohne bezahlte Veranstaltung bleibt die Karte gesperrt, mit dem
- * Hinweis, zuerst eine Veranstaltung freizuschalten.
+ * „Alle Funktionen“ in Deutschland ohne aktive TSE (jederzeit wählbar,
+ * Bargeld erst mit TSE): mit bezahlter Veranstaltung wird die Cloud-TSE
+ * automatisch eingerichtet (Datum). Ohne bezahlte Veranstaltung der
+ * Hinweis, dass sie mit der ersten freigeschalteten Veranstaltung kommt —
+ * nur, wenn der Server die Cloud-TSE anbietet.
  */
 function TseFollowsHint({
   setup,
   tseActive,
-  unavailableReason,
+  tseAvailable,
   isAdmin,
 }: {
   setup: OperatingModeState['tseSetup'] | null;
   tseActive: boolean;
-  unavailableReason: OperatingModeOption['unavailableReason'];
+  tseAvailable: boolean;
   isAdmin: boolean;
 }) {
   const t = useTranslations('operatingMode.tseFollows');
@@ -433,7 +432,7 @@ function TseFollowsHint({
       </span>
     );
   }
-  if (unavailableReason !== 'paid_event_required') return null;
+  if (!tseAvailable) return null;
   return (
     <span className="mode-card__text mode-card__text--muted" data-testid="operating-mode-tse-needs-event">
       {t('needsEvent')}{' '}

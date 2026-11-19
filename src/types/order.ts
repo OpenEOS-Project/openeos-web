@@ -108,6 +108,8 @@ export interface Order {
   refundedAmount?: number;
   /** Ein Status je Bestellung, gleich in Kasse und Verwaltung. */
   displayStatus?: import('./order-history').OrderDisplayStatus;
+  /** Testbestellung (Testmodus/„Geplant“), wird beim Aktivieren gelöscht. */
+  isTest?: boolean;
 }
 
 export type OrderChannel = 'service' | 'counter' | 'online';

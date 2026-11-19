@@ -720,6 +720,7 @@ function PosApp() {
           disabled={offline}
           persistKey={UNSAVED_KEY}
           tokenTypes={tokenTypes}
+          testMode={isTest}
         />
         )}
         <DoneSheet
@@ -752,6 +753,7 @@ function PosApp() {
           onSplit={() => setSheet('split')}
           onPaid={setDone}
           orderOnly={orderOnly}
+          testMode={isTest}
         />
         {!orderOnly && (
         <SplitPaymentModal
@@ -761,6 +763,7 @@ function PosApp() {
           scope={context?.kind === 'table' ? { kind: 'table', tableKey: context.key } : { kind: 'counter' }}
           card={card ?? 'manual'}
           disabled={offline}
+          testMode={isTest}
         />
         )}
         {!orderOnly && (
