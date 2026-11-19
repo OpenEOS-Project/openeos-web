@@ -41,7 +41,7 @@ function tseSummary(availability: Availability) {
   };
 }
 
-/** Deutschland, „Bargeldlos“, ohne TSE — wie eine neue Organisation. */
+/** Deutschland, „Bargeldlos“, ohne TSE — „Alle Funktionen“ ist trotzdem wählbar (Bargeld erst mit TSE). */
 async function pretend(page: Page, availability: Availability, { hosted }: { hosted: boolean }) {
   if (hosted) {
     await page.route(/\/setup\/status$/, (route) =>
@@ -73,11 +73,7 @@ async function pretend(page: Page, availability: Availability, { hosted }: { hos
       options: [
         { mode: 'orders_only', available: true, unavailableReason: null },
         { mode: 'cashless', available: true, unavailableReason: null },
-        {
-          mode: 'full',
-          available: false,
-          unavailableReason: availability === 'coming_soon' ? 'tse_coming_soon' : 'tse_required',
-        },
+        { mode: 'full', available: true, unavailableReason: null },
       ],
       tseSetup: null,
     })),
@@ -96,7 +92,7 @@ async function pretend(page: Page, availability: Availability, { hosted }: { hos
 }
 
 const SOON_TEXT =
-  'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.';
+  'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online.';
 
 test.describe('Cloud-TSE coming soon', () => {
   test('hosted without provider: catalog, info dialog, TSE page and operating modes say „Bald verfügbar“', async ({
@@ -128,8 +124,10 @@ test.describe('Cloud-TSE coming soon', () => {
 
     await adminPage.goto('/settings?tab=org-mode');
     const full = adminPage.getByTestId('operating-mode-option-full');
-    await expect(full).toContainText('Bald verfügbar – mit Cloud-TSE');
-    await expect(full.getByRole('radio')).toBeDisabled();
+    // Wählbar ohne TSE: kein „Bald verfügbar“-Sperrvermerk, Bargeld kommt mit der Cloud-TSE.
+    await expect(full).toContainText('Verfügbar');
+    await expect(full).toContainText('In Deutschland kommt Bargeld mit der Cloud-TSE.');
+    await expect(full.getByRole('radio')).toBeEnabled();
     await expect(full.getByTestId('operating-mode-tse')).toContainText('Cloud-TSE bald verfügbar');
     await expect(adminPage.getByTestId('country-notice-de')).toContainText('die kommt in Kürze');
   });
@@ -195,7 +193,8 @@ test.describe('Cloud-TSE coming soon', () => {
 
     await adminPage.goto('/settings?tab=org-mode');
     const full = adminPage.getByTestId('operating-mode-option-full');
-    await expect(full).toContainText('benötigt eine aktive Cloud-TSE');
+    await expect(full).toContainText('Verfügbar');
+    await expect(full.getByRole('radio')).toBeEnabled();
     await expect(full).not.toContainText('Bald verfügbar');
     await expect(adminPage.getByTestId('country-notice-de')).not.toContainText('die kommt in Kürze');
   });

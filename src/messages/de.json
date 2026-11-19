@@ -7390,7 +7390,8 @@
       "current": "Aktiv",
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
-          "country_required": "Lege zuerst das Land fest"
+          "country_required": "Lege zuerst das Land fest",
+      "unavailable": "Nicht wählbar"
     },
     "section": {
       "title": "Betriebsart",

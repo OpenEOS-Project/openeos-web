@@ -152,7 +152,9 @@ export function OperatingModeSection() {
   const availability = (option: OperatingModeOption) => {
     if (option.mode === current) return view.legacy ? t('availability.legacy') : t('availability.current');
     if (option.available) return t('availability.available');
-    return t(`availability.${option.unavailableReason ?? 'country_required'}`);
+    // Ältere API-Antworten können noch frühere Gründe liefern.
+    const key = `availability.${option.unavailableReason ?? 'country_required'}`;
+    return t.has(key) ? t(key) : t('availability.unavailable');
   };
 
   const oneWay = confirming ? switchIsOneWay(org) : false;

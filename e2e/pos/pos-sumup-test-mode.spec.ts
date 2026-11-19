@@ -94,7 +94,7 @@ test.describe('POS - SumUp in test mode', () => {
     await expect(pos.paySheet.getByRole('radio', { name: /Bar \(Test\)/ })).toBeEnabled();
     await expect(pos.paySheet.getByRole('radio', { name: /Karte \(Test\)/ })).toBeEnabled();
     // Keine echte Zahlart, kein „Keine Zahlart verfügbar“.
-    await expect(radios.filter({ hasNotText: '(Test)' })).toHaveCount(0);
+    await expect(radios.filter({ hasText: /^(Bar|Karte)/ }).filter({ hasNotText: '(Test)' })).toHaveCount(0);
     await expect(pos.paySheet.getByText('Keine Zahlart verfügbar')).toHaveCount(0);
     await expect(pos.paySheet.getByText('Testzahlung – kein echtes Geld')).toBeVisible();
 

@@ -7402,7 +7402,8 @@
       "current": "Active",
       "legacy": "Active (existing)",
       "available": "Available",
-          "country_required": "Set the country first"
+          "country_required": "Set the country first",
+      "unavailable": "Not available"
     },
     "section": {
       "title": "Operating mode",
