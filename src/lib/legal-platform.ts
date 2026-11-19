@@ -99,6 +99,30 @@ export function subprocessorsUrl(avvUrl: string): string {
 
 const ACCEPTABLE: AcceptableLegalDocument[] = ['agb', 'avv', 'anlage1'];
 
+/**
+ * Ausgangsfassung der Rechtstexte (wie `LEGAL_INITIAL_VERSION` der API).
+ * Erst ab hier hält OpenEOS Annahmen je Konto fest.
+ */
+export const LEGAL_RECORDING_START = '2026-11-18';
+
+/**
+ * Bestandskonto: angelegt, bevor Annahmen festgehalten wurden. Für solche
+ * Konten fehlt der Nachweis nicht, weil etwas versäumt wurde — der Vertrag
+ * wurde vorher geschlossen. Verglichen wird das Datum in deutscher Zeit.
+ */
+export function isLegacyLegalAccount(createdAt: string | null | undefined): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  if (Number.isNaN(created.getTime())) return false;
+  const day = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(created);
+  return day < LEGAL_RECORDING_START;
+}
+
 /** Dokumente, deren Annahme die API je Konto festhält (AGB, Anlage 1, AVV). */
 export function isAcceptableLegalDocument(key: LegalDocumentKey): key is AcceptableLegalDocument {
   return (ACCEPTABLE as LegalDocumentKey[]).includes(key);

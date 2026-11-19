@@ -7762,6 +7762,7 @@
       "acceptedOpen": "view",
       "outdated": "outdated",
       "notAccepted": "Not accepted by you yet.",
+      "legacyAccount": "Existing account: your contract was concluded before acceptances were recorded.",
       "subprocessors": "Subprocessors (AVV annex B)",
       "tseConditionsTitle": "Conditions of use of the Cloud-TSE (environmental protection concept)",
       "tseConditionsPending": "The manufacturer of the Cloud-TSE (Swissbit) defines the conditions under which the TSE may be used. We will provide them here as soon as they are available; follow them when you take payments with the Cloud-TSE.",
