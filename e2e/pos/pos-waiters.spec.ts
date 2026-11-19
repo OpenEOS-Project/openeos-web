@@ -1,5 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
+import { test, expect } from '../fixtures/test';
 import { apiPost, ensureOk } from '../fixtures/api';
 import {
   createPosEvent,
@@ -156,11 +157,15 @@ test.describe('POS - Bedienungen (gemeinsame Kasse)', () => {
     await installDevice(page, lockDevice);
     const pos = new POSPage(page);
     await pos.goto();
-    for (const pin of ['5020', '5021', '5022', '5023', '5024']) {
+    // Fünfstellig: die API vergibt nur vier- oder sechsstellige PINs. Feste
+    // vierstellige Fehl-PINs trafen mitunter die PIN einer Bedienung, die ein
+    // anderer Test in derselben Organisation angelegt hatte — dann zählte der
+    // Versuch nicht als Fehlversuch, und die Sperre kam nicht.
+    for (const pin of ['50200', '50201', '50202', '50203', '50204']) {
       await pos.enterPin(pin);
       await expect(pos.pinScreen.getByRole('alert')).toBeVisible();
     }
-    await pos.enterPin('5025');
+    await pos.enterPin('50205');
     await expect(pos.pinScreen.getByRole('alert')).toContainText(/gesperrt/);
     await shot(page, '04-pos-pin-gesperrt');
   });

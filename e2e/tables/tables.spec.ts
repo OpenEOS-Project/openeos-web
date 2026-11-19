@@ -1,5 +1,6 @@
-import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import type { APIRequestContext, Page } from '@playwright/test';
 
+import { expect, test } from '../fixtures/test';
 import { apiLogin, apiPost, ensureOk, newApiContext } from '../fixtures/api';
 import { loginAs } from '../fixtures/auth.fixture';
 import { TEST_ADMIN, nowIso } from '../fixtures/test-data';

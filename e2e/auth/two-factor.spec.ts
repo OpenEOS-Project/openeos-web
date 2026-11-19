@@ -1,5 +1,6 @@
-import { test, expect, type Request } from '@playwright/test';
+import type { Request } from '@playwright/test';
 
+import { test, expect } from '../fixtures/test';
 import { LoginPage } from '../pages/login.page';
 
 /*
