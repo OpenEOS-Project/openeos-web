@@ -76,7 +76,7 @@ test.describe('Inventory - create and start', () => {
       (res) => res.request().method() === 'DELETE' && /\/inventory\/counts\/[^/]+$/.test(res.url())
     );
     await adminPage.getByRole('button', { name: 'Erstellen & Starten' }).click();
-    await expect(adminPage.getByRole('alert')).toHaveText('Die Inventur enthält keine Artikel zum Zählen.');
+    await expect(adminPage.locator('.modal__panel').getByRole('alert')).toHaveText('Die Inventur enthält keine Artikel zum Zählen.');
     expect((await deleted).ok()).toBeTruthy();
     // Der Dialog bleibt offen, der Entwurf ist wieder weg.
     await expect(adminPage.getByRole('button', { name: 'Erstellen & Starten' })).toBeEnabled();
