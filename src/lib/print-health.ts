@@ -51,6 +51,8 @@ export function printHealthNotice(health: PrintHealth | null | undefined): Print
       printers: names(health.printers.filter((p) => p.failedJobs > 0)),
     };
   }
+  // Nur offline, aber keine Veranstaltung läuft: zwischen Festen normal.
+  if (health.eventRunning === false) return null;
   const agentOffline = health.printers.filter((p) => p.issues.includes('agent_offline'));
   if (agentOffline.length > 0) {
     return { ...base, kind: 'agentOffline', tone: 'warn', printers: names(agentOffline) };

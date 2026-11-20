@@ -41,4 +41,10 @@ export interface PrintHealth {
   /** Nur Drucker mit mindestens einem Problem. */
   printers: PrintHealthPrinter[];
   thresholds: { waitingSeconds: number; failedWindowMinutes: number };
+  /**
+   * Läuft eine Veranstaltung (aktiv, Testmodus, Testbetrieb)? Ohne sie ist
+   * „nur offline“ kein Hinweis (die API meldet dann `ok`). `null`, wenn es
+   * für die Entscheidung nicht nötig war; fehlt bei älteren APIs.
+   */
+  eventRunning?: boolean | null;
 }

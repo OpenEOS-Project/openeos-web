@@ -94,6 +94,17 @@ test.describe('printHealthNotice (admin banner)', () => {
   });
 });
 
+test.describe('printHealthNotice between events', () => {
+  test('offline alone is no notice when no event runs, waiting tickets still are', () => {
+    const agentOff = printer('Küche', { agentOnline: false, issues: ['agent_offline'] });
+    expect(printHealthNotice(health([agentOff], { status: 'warning', eventRunning: false }))).toBeNull();
+    expect(printHealthNotice(health([agentOff], { eventRunning: true }))).toMatchObject({ kind: 'agentOffline' });
+    expect(printHealthNotice(health([offlineKitchen], { eventRunning: false }))).toMatchObject({
+      kind: 'offlineWaiting',
+    });
+  });
+});
+
 test.describe('posPrintWarning (POS header)', () => {
   test('only for waiting or failed tickets, never for a printer that is merely offline', () => {
     expect(posPrintWarning(null)).toBeNull();
