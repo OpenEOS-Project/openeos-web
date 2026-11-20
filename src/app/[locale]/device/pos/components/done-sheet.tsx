@@ -17,8 +17,8 @@ export interface DoneInfo {
   /** Kopf bei mehreren Bestellungen, z. B. „Tisch A05 · 3 Bestellungen“. */
   heading?: string | null;
   amount: number;
-  /** `tokens`: nur mit Wertmarken bezahlt. */
-  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens';
+  /** `tokens`: nur mit Wertmarken bezahlt; `test_*`: Testzahlung (kein Geld). */
+  method: 'cash' | 'card' | 'sumup' | 'free' | 'tokens' | 'test_cash' | 'test_card';
   change: number;
   /** Wert der angenommenen Wertmarken (Euro). */
   tokenValue?: number;
@@ -78,7 +78,7 @@ export function DoneSheet({
   const t = useTranslations('pos.done');
   const formatPrice = useFormatPrice();
 
-  const hasChange = !!info && info.method === 'cash' && info.change > 0.0001;
+  const hasChange = !!info && (info.method === 'cash' || info.method === 'test_cash') && info.change > 0.0001;
   // „Ohne Zahlung abschließen“ hat keinen Kassenbeleg.
   const hasReceipt = !!info && receiptAvailable(info.method, info.orderIds);
   const [interacted, setInteracted] = useState(false);

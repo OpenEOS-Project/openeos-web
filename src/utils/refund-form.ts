@@ -138,6 +138,8 @@ export function refundMethod(
 ): RefundMethodKey | null {
   if (!payment) return null;
   const key = paymentKey(payment.paymentMethod);
+  // Testzahlungen gehen nie als Geld zurück, nur als Testbuchung.
+  if (key === 'test_cash' || key === 'test_card') return 'test';
   if (order.isTest && key !== 'cash') return 'test';
   return key;
 }

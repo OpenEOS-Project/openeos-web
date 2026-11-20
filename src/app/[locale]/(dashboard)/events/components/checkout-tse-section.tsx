@@ -17,10 +17,11 @@ interface CheckoutTseSectionProps {
 }
 
 /**
- * Cloud-TSE im Bezahldialog (Deutschland). „Alle Funktionen“: eine Zeile,
- * dass die TSE dazugehört und automatisch eingerichtet wird. Bestand
- * (Bargeld ohne TSE): die Frage „Mit Cloud-TSE?“ — „Ja“ stellt beim
- * Freischalten auf „Alle Funktionen“ um. Ein Zuschlag erscheint nur, wenn
+ * Cloud-TSE im Bezahldialog (Deutschland, „Alle Funktionen“ inkl. Bestand):
+ * die Frage „Mit Cloud-TSE?“, vorausgewählt „Nein“ — nur ein
+ * ausdrückliches „Ja“ bucht die TSE (und einen etwaigen Zuschlag); im
+ * Bestand stellt „Ja“ beim Freischalten auf „Alle Funktionen“ um. Die
+ * Zeile `included` zeigen nur noch ältere API-Antworten. Ein Zuschlag erscheint nur, wenn
  * der Betreiber einen eingestellt hat (derzeit inklusive). Fehlende
  * Steuerangaben fragt der Dialog im Schritt „Angaben zu deiner
  * Organisation“ ab (PurchaseMasterDataStep). Ist die Cloud-TSE auf dem

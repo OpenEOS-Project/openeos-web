@@ -158,7 +158,7 @@
           "copy": "Club, promoter or business. Your events, products and tills run under this name.",
           "name": "Organization name",
           "country": "Country",
-          "countryHint": "It decides which operating modes you can choose – in Germany, for example, cash is only available with a TSE. Afterwards only our support can change the country."
+          "countryHint": "It decides which till rules apply – in Germany, for example, cash is only available with a TSE. Afterwards only our support can change the country."
         },
         "confirm": {
           "label": "Confirmation",
@@ -2143,9 +2143,9 @@
         "surchargeLine": "+ {amount} per event",
         "question": "With cloud TSE (legally compliant cash)?",
         "yes": "Yes, with cloud TSE",
-        "yesHint": "OpenEOS sets up the TSE automatically for the first event day. Your operating mode becomes “All features” – cash then works with the TSE.",
-        "no": "No, keep it as it is",
-        "noHint": "Nothing changes. In Germany, cash needs a TSE – you can add it later at any time.",
+        "yesHint": "OpenEOS sets up the TSE automatically for the first event day. From then on the till accepts cash in “All features”.",
+        "no": "No, without cloud TSE",
+        "noHint": "Without the cloud TSE you take card and online payments; in Germany cash needs a TSE. You can add it later at any time.",
         "total": "+ {surcharge} cloud TSE · total {total}",
         "comingSoonBadge": "Coming soon",
         "comingSoon": "The cloud TSE for cash payments in Germany is coming soon. Once it's here, you can add it to your events."
@@ -3313,7 +3313,7 @@
       "tse": "TSE",
       "tseActive": "active",
       "tseInactive": "not active",
-      "explain": "Change an organization's operating mode and country here – always with a reason. The same rules apply as for the club: “All features” in Germany only with an active TSE. Every change appears in the history, the admin log and on the organization's certificate.",
+      "explain": "Change an organization's operating mode and country here – always with a reason. The same rules apply as for the club: cash in Germany only with an active TSE, also in “All features”. Every change appears in the history, the admin log and on the organization's certificate.",
       "modeTitle": "Operating mode",
       "newMode": "New operating mode",
       "reason": "Reason (required)",
@@ -3513,7 +3513,9 @@
         "sumup": "SumUp",
         "discount": "Voucher",
         "tokens": "Tokens",
-        "paypal": "PayPal"
+        "paypal": "PayPal",
+        "test_cash": "Cash (test)",
+        "test_card": "Card (test)"
       },
       "reprintSuccess": "Print job has been sent",
       "noPrinter": "No receipt printer set up – counter-receipt not printed",
@@ -3857,7 +3859,7 @@
       "noMethod": "No payment method",
       "cashlessNoMethodTitle": "No payment method available",
       "cashlessNoMethodText": "Your organization does not accept cash, and no SumUp card reader is set up on this till. Only orders paid online or in advance can be completed here.",
-      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments, and cash is blocked.",
+      "cashlessNoMethodTest": "In test mode the till does not trigger real card payments. Use “Cash (test)” or “Card (test)”.",
       "tokens": "Tokens",
       "tokensWithValue": "Tokens · {amount}",
       "tokensComplete": "Pay with tokens",
@@ -3873,7 +3875,16 @@
       "tokensCoveredHint": "The tokens cover everything.",
       "tokensHint": "Enter how many tokens the guest hands over. The rest is paid in cash or by card.",
       "tokensApplied": "less tokens {amount}",
-      "tokensRestShort": "Rest {amount}"
+      "tokensRestShort": "Rest {amount}",
+      "testCash": "Cash (test)",
+      "testCard": "Card (test)",
+      "testHint": "Test mode · no money",
+      "testTitle": "Test payment – no real money",
+      "testCashText": "Simulated: the change calculator helps you practise, the cash drawer stays closed. None of this is in the cash book or the settlement – everything is deleted when you activate the event.",
+      "testComplete": "Complete test payment",
+      "testCardBook": "Book test payment · {amount}",
+      "testCardTitle": "Card (test)",
+      "testCardText": "Simulates {amount} by card – no reader, no real charge. The test payment is deleted when you activate the event."
     },
     "done": {
       "change": "Change {amount}",
@@ -3884,7 +3895,9 @@
         "cash": "Cash",
         "free": "no payment",
         "sumup": "Card · SumUp",
-        "tokens": "Tokens"
+        "tokens": "Tokens",
+        "test_cash": "Cash (test) · no money",
+        "test_card": "Card (test) · no money"
       },
       "next": "Next receipt",
       "pfand": "Deposit",
@@ -4251,7 +4264,9 @@
         "sumup": "SumUp",
         "discount": "Voucher",
         "tokens": "Tokens",
-        "paypal": "PayPal"
+        "paypal": "PayPal",
+        "test_cash": "Cash (test)",
+        "test_card": "Card (test)"
       },
       "kind": {
         "cancellation": "Cancellation",
@@ -5145,6 +5160,7 @@
     "ORGANIZATION_LIMIT_REACHED": "You can create at most {limit} organizations.",
     "MEMBER_LIMIT_REACHED": "This organization has reached its maximum of {limit} members (including pending invitations).",
     "ORDER_ONLY_MODE": "Your organization uses “Orders only”. Payments, refunds, tips, discounts, cash drawer, deposits and online orders are not available – payment happens outside OpenEOS.",
+    "TEST_PAYMENT_REQUIRES_TEST_ORDER": "Test payments (“Cash (test)”, “Card (test)”) only work for test orders in test mode. Take real orders with a real payment method.",
     "ORDER_ITEMS_IN_PRODUCTION": "Something is still being prepared. Complete the order once everything is ready.",
     "OPERATING_MODE_UNCHANGED": "The organization already uses this operating mode.",
     "COUNTRY_ALREADY_SET": "The country of your organization is already set. Only OpenEOS support can change it.",
@@ -5171,7 +5187,7 @@
     "TOKEN_LINES_INVALID": "The token selection does not fit. Check tokens, categories and items.",
     "OPERATING_MODE_FULL_REQUIRES_TSE": "In Germany “All features” is only available with an active cloud TSE.",
     "COUNTRY_REQUIRED": "Set the country of your organization first.",
-    "CERTIFICATE_NOT_AVAILABLE": "The certificate is only available in Germany in the operating modes “Orders only” and “Cashless”.",
+    "CERTIFICATE_NOT_AVAILABLE": "The certificate is only available in Germany as long as OpenEOS cannot record cash: in “Orders only”, “Cashless” and “All features” without an active cloud TSE.",
     "TSE_NOT_AVAILABLE": "No cloud TSE is set up on this server.",
     "TSE_COUNTRY_NOT_SUPPORTED": "The cloud TSE is only available for organizations in Germany.",
     "TSE_REQUIRES_PAID_EVENT": "A cloud TSE costs a monthly fee from the moment it is created. It is therefore only set up when a paid event is coming up – unlock an event first.",
@@ -6552,7 +6568,7 @@
       "deactivateBlocked": "Your cloud TSE is set up. You can only switch the integration off after you have permanently deactivated the TSE in the danger zone below – it then happens automatically.",
       "onlyGermany": "The cloud TSE under the German KassenSichV is only available for organizations in Germany. Notes for your country are in the settings under “Operating mode”.",
       "serverUnavailable": "No cloud TSE is set up on this server. Ask the operator of your installation.",
-      "comingSoonHint": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”.",
+      "comingSoonHint": "The cloud TSE for cash payments in Germany is coming soon. Until then you take card and online payments in “All features”.",
       "hint": {
         "unavailable": {
           "short": "Not set up on this server",
@@ -6560,9 +6576,9 @@
           "text": "This installation does not offer a cloud TSE. Ask its operator."
         },
         "comingSoon": {
-          "short": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”.",
+          "short": "The cloud TSE for cash payments in Germany is coming soon. Until then you take card and online payments in “All features”.",
           "title": "Coming soon",
-          "text": "The cloud TSE for cash payments in Germany is coming soon. Until then you can use “Orders only” or “Cashless”."
+          "text": "The cloud TSE for cash payments in Germany is coming soon. Until then you take card and online payments in “All features”."
         },
         "countryMissing": {
           "short": "Set your organization's country first",
@@ -7052,7 +7068,7 @@
     "createFailed": "Failed to create the organization",
     "limitReached": "You can create or join at most {limit} organizations. Contact support for more.",
     "country": "Country",
-    "countryHint": "It decides which operating modes the organization can choose – in Germany, for example, cash is only available with a TSE. Afterwards only our support can change the country.",
+    "countryHint": "It decides which till rules apply – in Germany, for example, cash is only available with a TSE. Afterwards only our support can change the country.",
     "countryRequired": "Please choose the country of the organization."
   },
   "validation": {
@@ -7386,15 +7402,13 @@
       "cashless": "All features with card payments (SumUp) and online prepayment. There is no cash in OpenEOS.",
       "full": "Cash, card and online payment."
     },
-    "fullDeHint": "In Germany only with an active cloud TSE.",
+    "fullDeHint": "In Germany cash comes with the cloud TSE. Without a TSE you take card and online payments, in test mode “Cash (test)” and “Card (test)”.",
     "availability": {
       "current": "Active",
       "legacy": "Active (existing)",
       "available": "Available",
-      "tse_required": "requires an active cloud TSE",
-      "tse_coming_soon": "Coming soon – with cloud TSE",
-      "country_required": "Set the country first",
-      "paid_event_required": "needs an activated event"
+          "country_required": "Set the country first",
+      "unavailable": "Not available"
     },
     "section": {
       "title": "Operating mode",
@@ -7412,8 +7426,8 @@
       "noCountry": "Not set yet",
       "countryLocked": "Can only be changed by support",
       "cashBlocked": {
-        "title": "Cash is blocked",
-        "text": "Your organization uses “All features”, but no cloud TSE is active. In Germany the tills therefore accept no cash until the TSE is active again – card and online payments keep working."
+        "title": "Cash comes with the cloud TSE",
+        "text": "Your organization uses “All features”, but no cloud TSE is active. In Germany the tills only accept cash with an active TSE – until then you take card and online payments. In test mode you can try the till with “Cash (test)” and “Card (test)”."
       },
       "noSumup": {
         "title": "SumUp is not switched on",
@@ -7450,13 +7464,13 @@
           "pos": "Till: cash with change and cash drawer, card (SumUp) and online payment.",
           "pfand": "Deposits and refunds can also be paid in cash.",
           "rest": "Prices, tickets, shop, discounts and vouchers as usual.",
-          "countryDe": "In Germany the till only accepts cash with an active cloud TSE.",
+          "countryDe": "In Germany the till only accepts cash with an active cloud TSE – until then card and online payments.",
           "countryOther": "Cash is subject to the till rules of your country – check them yourself. This is not tax advice."
         }
       },
-      "oneWay": "Note: in Germany you cannot return to “All features” without an active cloud TSE. OpenEOS can only record cash again with a TSE.",
-      "oneWayLegacy": "Note: the “existing” status cannot be restored. In Germany you cannot return to “All features” without an active cloud TSE – OpenEOS can only record cash again with a TSE.",
-      "oneWayCheck": "I understand that I cannot switch back to “All features” without a TSE.",
+      "oneWay": "Note: in Germany OpenEOS can only record cash again with an active cloud TSE.",
+      "oneWayLegacy": "Note: the “existing” status cannot be restored. In Germany OpenEOS then only accepts cash again with an active cloud TSE – also in “All features”. Card and online payments keep working.",
+      "oneWayCheck": "I understand that cash only works again with a cloud TSE.",
       "logged": "The tills switch right away. The change is saved in the history with time and your name.",
       "button": "Switch",
       "buttonOneWay": "Switch for good",
@@ -7476,8 +7490,8 @@
     "legacy": {
       "de": {
         "title": "Cash requires a TSE in Germany – please choose your operating mode",
-        "text": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. Please choose “Orders only” (no prices and payments) or “Cashless” (card and online) – or switch on the cloud TSE under Integrations to keep “All features” with cash. Until you choose, everything stays as it is – OpenEOS switches nothing automatically.",
-        "textComingSoon": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. The OpenEOS cloud TSE is coming soon – until then, choose “Orders only” (no prices or payments) or “Cashless” (card and online). Until you choose, everything stays as it is – OpenEOS doesn't switch anything automatically.",
+        "text": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. Please choose “All features” (card and online right away, cash with the cloud TSE under Integrations), “Cashless” (card and online) or “Orders only” (no prices and payments). Until you choose, everything stays as it is – OpenEOS switches nothing automatically.",
+        "textComingSoon": "Your organization still runs as “All features (existing)”: with cash, but without a TSE. In Germany a till that can record cash needs a certified TSE. The OpenEOS cloud TSE is coming soon. Choose “All features” (card and online right away, cash with the cloud TSE), “Cashless” (card and online) or “Orders only” (no prices or payments). Until you choose, everything stays as it is – OpenEOS doesn't switch anything automatically.",
         "noCountry": "Set the country of your organization first."
       },
       "confirm": {
@@ -7490,7 +7504,7 @@
     },
     "setCountry": {
       "title": "Country of your organization",
-      "text": "Please set the country of your organization. It decides which operating modes you can choose – in Germany, for example, cash is only available with a TSE. You set the country once yourself; afterwards only our support can change it.",
+      "text": "Please set the country of your organization. It decides which till rules apply – in Germany, for example, cash is only available with a TSE. You set the country once yourself; afterwards only our support can change it.",
       "adminOnly": "An admin of your organization can set the country.",
       "label": "Country",
       "submit": "Set country",
@@ -7505,8 +7519,8 @@
       "faqLink": "FAQ",
       "de": {
         "title": "Till rules in Germany",
-        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why “All features” with cash is only available with an active cloud TSE (Integrations → Cloud TSE). In “Orders only” and “Cashless” OpenEOS records no cash; you get a manufacturer certificate for your records.",
-        "textComingSoon": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That's why “All features” with cash is only available with an active cloud TSE – which is coming soon. Until then you can use “Orders only” or “Cashless”: OpenEOS records no cash there, and you get a manufacturer's certificate for your records."
+        "text": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That is why cash in “All features” is only available with an active cloud TSE (Integrations → Cloud TSE); without a TSE you take card and online payments there. As long as OpenEOS cannot record cash (“Orders only”, “Cashless” or “All features” without a TSE), you get a manufacturer certificate for your records.",
+        "textComingSoon": "In Germany a till that can record cash needs a certified TSE (KassenSichV). That's why cash in “All features” is only available with an active cloud TSE – which is coming soon. Until then you take card and online payments in “All features”. As long as OpenEOS cannot record cash, you get a manufacturer's certificate for your records."
       },
       "at": {
         "title": "Cash register obligation in Austria",
@@ -7534,7 +7548,7 @@
     "tseFollows": {
       "scheduled": "The cloud TSE will be set up automatically on {date} (“{name}”). Cash works from then on.",
       "missing": "Add your tax number and address first.",
-      "needsEvent": "Activate an event first – the cloud TSE is then set up automatically.",
+      "needsEvent": "OpenEOS sets up the cloud TSE automatically as soon as you activate an event. Cash works from then on.",
       "toEvents": "Go to events",
       "confirm": "The cloud TSE will be set up automatically on {date}. Until then the till accepts no cash."
     }

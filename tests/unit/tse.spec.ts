@@ -329,7 +329,7 @@ test.describe('Cloud-TSE reason → message', () => {
     expect(hints.unavailable.title).toBe('Auf diesem Server nicht eingerichtet');
     expect(hints.comingSoon.title).toBe('Bald verfügbar');
     expect(hints.comingSoon.short).toBe(
-      'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kannst du „Nur Bons“ oder „Bargeldlos“ nutzen.',
+      'Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Bis dahin kassierst du in „Alle Funktionen“ mit Karte und online.',
     );
     expect(hints.paidEventRequired.text).toContain(
       'Die Cloud-TSE wird mit deiner ersten bezahlten Veranstaltung eingerichtet',
@@ -507,7 +507,7 @@ test.describe('integration availability', () => {
       expect(messages.integrations.tse.comingSoonHint).toBeTruthy();
       expect(messages.integrations.tse.setup.check.serverComingSoon).toBeTruthy();
     }
-    expect(de.integrations.tse.comingSoonHint).toContain('„Nur Bons“ oder „Bargeldlos“');
+    expect(de.integrations.tse.comingSoonHint).toContain('„Alle Funktionen“ mit Karte und online');
   });
 
   test('switching off is blocked while a TSE is set up', () => {

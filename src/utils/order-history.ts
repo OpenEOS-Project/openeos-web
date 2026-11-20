@@ -50,7 +50,7 @@ export const ITEM_STATUS_TONE: Record<OrderItemStatus, BadgeTone> = {
 };
 
 export function paymentIcon(method: PaymentMethod | string): IconName {
-  if (method === 'cash') return 'cash';
+  if (method === 'cash' || method === 'test_cash') return 'cash';
   if (method === 'tokens') return 'ticket';
   if (method === 'sumup_terminal' || method === 'sumup_online') return 'contactless';
   return 'card';
@@ -58,12 +58,15 @@ export function paymentIcon(method: PaymentMethod | string): IconName {
 
 /**
  * Zahlart-Schlüssel für Texte (cash, card, sumup, tokens = Wertmarken,
- * paypal = frühere PayPal-Zahlungen; die Anbindung ist seit 1.8 entfernt).
+ * paypal = frühere PayPal-Zahlungen; die Anbindung ist seit 1.8 entfernt,
+ * test_cash/test_card = Testzahlungen „Bar (Test)“/„Karte (Test)“ ohne Geld).
  */
-export type PaymentKey = 'cash' | 'card' | 'sumup' | 'tokens' | 'paypal';
+export type PaymentKey = 'cash' | 'card' | 'sumup' | 'tokens' | 'paypal' | 'test_cash' | 'test_card';
 
 export function paymentKey(method: PaymentMethod | string): PaymentKey {
   if (method === 'cash') return 'cash';
+  if (method === 'test_cash') return 'test_cash';
+  if (method === 'test_card') return 'test_card';
   if (method === 'tokens') return 'tokens';
   if (method === 'paypal') return 'paypal';
   if (method === 'sumup_terminal' || method === 'sumup_online') return 'sumup';

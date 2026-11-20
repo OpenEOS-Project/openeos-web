@@ -3,9 +3,24 @@
  * `tokens`: nur mit Wertmarken bezahlt (Betrag 0, Wert in `tokenAmount`).
  * `paypal`: nur frühere Zahlungen – die PayPal-Anbindung ist seit 1.8
  * entfernt, neu gebucht wird PayPal nicht mehr.
+ * `test_cash`/`test_card`: Testzahlung („Bar (Test)“, „Karte (Test)“) –
+ * simuliert, nur für Testbestellungen, nie Geld.
  */
-export type PaymentMethod = 'cash' | 'card' | 'sumup_terminal' | 'sumup_online' | 'tokens' | 'paypal';
-export type PaymentProvider = 'CASH' | 'CARD' | 'SUMUP' | 'TOKENS';
+export type PaymentMethod =
+  | 'cash'
+  | 'card'
+  | 'sumup_terminal'
+  | 'sumup_online'
+  | 'tokens'
+  | 'paypal'
+  | 'test_cash'
+  | 'test_card';
+export type PaymentProvider = 'CASH' | 'CARD' | 'SUMUP' | 'TOKENS' | 'TEST';
+
+/** Testzahlung (simuliert, kein Geld)? */
+export function isTestPaymentMethod(method: string | null | undefined): boolean {
+  return method === 'test_cash' || method === 'test_card';
+}
 export type PaymentTransactionStatus = 'pending' | 'authorized' | 'captured' | 'failed' | 'refunded';
 
 // Payment Metadata

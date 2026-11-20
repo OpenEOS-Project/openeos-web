@@ -71,14 +71,14 @@ test.describe('operating mode matrix (country × mode × legacy × TSE)', () => 
             expect(view.ordersOnly).toBe(mode === 'orders_only');
             expect(view.cashBlockedWithoutTse).toBe(mode === 'full' && !cash);
 
-            // Wählbar: `orders_only` und `cashless` immer, `full` außerhalb DE oder mit TSE.
-            const fullSelectable = country !== 'DE' || tseActive;
+            // Wählbar: alle drei, seit 2026-11-19 auch `full` in DE ohne TSE.
+            const fullSelectable = true;
             expect(operatingModeOption(org, 'orders_only').available).toBe(true);
             expect(operatingModeOption(org, 'cashless').available).toBe(true);
             expect(operatingModeOption(org, 'full')).toEqual({
               mode: 'full',
               available: fullSelectable,
-              unavailableReason: fullSelectable ? null : 'tse_required',
+              unavailableReason: null,
             });
 
             // Wechsel: auf eine andere wählbare Betriebsart; `full` noch einmal nur im Bestand.
@@ -88,11 +88,11 @@ test.describe('operating mode matrix (country × mode × legacy × TSE)', () => 
               expect(canSwitchTo(org, target)).toBe(expected);
             }
 
-            // Ohne TSE in DE gibt es aus `full` keinen Weg zurück.
-            expect(switchIsOneWay(org, 'cashless')).toBe(country === 'DE' && !tseActive && mode === 'full');
-            expect(switchIsOneWay(org, 'full')).toBe(false);
+            // Unwiederbringlich ist nur der Bestand in DE ohne TSE (Bargeld ohne TSE).
+            expect(switchIsOneWay(org)).toBe(country === 'DE' && !tseActive && mode === 'full' && legacy);
 
-            expect(certificateAvailable(org)).toBe(country === 'DE' && mode !== 'full');
+            // Bescheinigung in DE, solange kein Bargeld möglich ist.
+            expect(certificateAvailable(org)).toBe(country === 'DE' && !cash);
             // Bestand in Deutschland: Hinweis nur ohne aktive TSE.
             expect(legacyNoticeKind(org)).toBe(
               legacy ? (country === 'DE' ? (tseActive ? null : 'de') : 'confirm') : null,
@@ -205,7 +205,9 @@ test.describe('switch by support', () => {
 
   test('needs another selectable mode and a reason of at least 5 characters', () => {
     expect(operatingModeSwitchError(de, 'cashless', 'Antrag vom 01.11.')).toBe('unchanged');
-    expect(operatingModeSwitchError(de, 'full', 'Antrag vom 01.11.')).toBe('unavailable');
+    // Seit 2026-11-19 auch ohne TSE wählbar (Bargeld bleibt gesperrt).
+    expect(operatingModeSwitchError(de, 'full', 'Antrag vom 01.11.')).toBeNull();
+    expect(operatingModeSwitchError({ ...de, country: null }, 'full', 'Antrag vom 01.11.')).toBe('unavailable');
     expect(operatingModeSwitchError({ ...de, tseActive: true }, 'full', 'TSE ist aktiv')).toBeNull();
     expect(operatingModeSwitchError(de, 'orders_only', '  abc  ')).toBe('reasonTooShort');
     expect(operatingModeSwitchError(de, 'orders_only', 'x'.repeat(501))).toBe('reasonTooLong');
@@ -272,31 +274,30 @@ test.describe('reports and dashboard without revenue', () => {
   });
 });
 
-test.describe('Cloud-TSE bald verfügbar', () => {
-  test('every unavailable reason has a label, incl. tse_coming_soon', () => {
-    const reasons: OperatingModeUnavailableReason[] = [
-      'tse_required',
-      'tse_coming_soon',
-      'paid_event_required',
-      'country_required',
-    ];
+test.describe('„Alle Funktionen“ in Deutschland ohne TSE', () => {
+  test('the only unavailable reason left has a label; the TSE reasons are gone', () => {
+    const reasons: OperatingModeUnavailableReason[] = ['country_required'];
     for (const messages of [de, en]) {
       const labels = messages.operatingMode.availability as Record<string, string>;
       for (const reason of reasons) expect(labels[reason], reason).toBeTruthy();
+      for (const gone of ['tse_required', 'tse_coming_soon', 'paid_event_required']) expect(labels[gone]).toBeUndefined();
       expect(messages.operatingMode.tseBadge.comingSoon).toBeTruthy();
       expect(messages.operatingMode.legacy.de.textComingSoon).toBeTruthy();
       expect(messages.operatingMode.countryNotice.de.textComingSoon).toBeTruthy();
     }
-    expect(de.operatingMode.availability.tse_coming_soon).toBe('Bald verfügbar – mit Cloud-TSE');
   });
 
-  test('the API reason blocks the switch to full like tse_required', () => {
-    const org: OperatingModeOrg = { country: 'DE', operatingMode: 'cashless' };
-    const options = operatingModeOptions(org, [
-      { mode: 'full', available: false, unavailableReason: 'tse_coming_soon' },
-    ]);
-    expect(options[2]).toEqual({ mode: 'full', available: false, unavailableReason: 'tse_coming_soon' });
-    expect(canSwitchTo(org, 'full', options)).toBe(false);
-    expect(canSwitchTo(org, 'orders_only', options)).toBe(true);
+  test('full is selectable without TSE, cash stays blocked and the certificate stays', () => {
+    const org: OperatingModeOrg = { country: 'DE', operatingMode: 'cashless', tseActive: false };
+    expect(canSwitchTo(org, 'full')).toBe(true);
+    const full: OperatingModeOrg = { ...org, operatingMode: 'full', operatingModeLegacy: false };
+    const view = resolveOperatingMode(full);
+    expect(view.cashAllowed).toBe(false);
+    expect(view.cashBlockedWithoutTse).toBe(true);
+    expect(certificateAvailable(full)).toBe(true);
+    expect(certificateAvailable({ ...full, tseActive: true })).toBe(false);
+    // Hinweis in den Einstellungen: Bargeld kommt mit der Cloud-TSE, kein „Bald verfügbar“.
+    expect(de.operatingMode.section.cashBlocked.title).toBe('Bargeld kommt mit der Cloud-TSE');
+    expect(de.operatingMode.fullDeHint).toContain('Bar (Test)');
   });
 });
