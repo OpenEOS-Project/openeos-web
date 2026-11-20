@@ -14,6 +14,7 @@ import {
   type IconName,
 } from '@openeos/ui';
 import type { PosConnectionState } from '@/hooks/use-pos-connection';
+import { joinPrinterNames, type PosPrintWarning } from '@/lib/print-health';
 import { getSourceUrl } from '@/lib/runtime-config';
 import type { PosTheme } from '@/stores/device-store';
 
@@ -45,6 +46,10 @@ interface PosHeaderProps {
   connection: PosConnectionState;
   /** Bondrucker des Geräts — nur gesetzt, wenn die API einen Zustand liefert. */
   printer: PosPrinterStatus | null;
+  /** Bons warten bzw. wurden nicht gedruckt (Drucker dieser Kasse). */
+  printWarning?: PosPrintWarning | null;
+  /** Tippen auf den Hinweis: Verlauf öffnen (dort nachdrucken). */
+  onPrintWarning?: () => void;
   user: { firstName: string; lastName: string } | null;
   onLock?: () => void;
   /** Bedienung (Chip mit Farbe und Kurzname), ersetzt `user`. */
@@ -83,6 +88,8 @@ export function PosHeader({
   table,
   connection,
   printer,
+  printWarning = null,
+  onPrintWarning,
   user,
   onLock,
   waiter,
@@ -92,6 +99,15 @@ export function PosHeader({
   onLogout,
 }: PosHeaderProps) {
   const t = useTranslations('pos');
+  const locale = useLocale();
+  const printWarningLabel = printWarning
+    ? t(`printHealth.${printWarning.kind}`, { count: printWarning.count })
+    : '';
+  const printWarningHint = printWarning
+    ? t(printWarning.offline ? 'printHealth.hintOffline' : 'printHealth.hint', {
+        printers: joinPrinterNames(printWarning.printers, locale),
+      })
+    : '';
 
   const connectionLabel = t(`status.${connection}`);
   const printerProblem = printer && !printer.isOnline;
@@ -152,6 +168,24 @@ export function PosHeader({
           label={connectionLabel}
           title={connectionLabel}
         />
+        {printWarning && (
+          <button
+            type="button"
+            className="pos-printwarn"
+            onClick={onPrintWarning}
+            title={printWarningHint}
+            aria-label={`${printWarningLabel}. ${printWarningHint}`}
+            data-testid="pos-print-warning"
+          >
+            <Icon name="printer" />
+            <span className="pos-printwarn__count" aria-hidden>
+              {printWarning.count}
+            </span>
+            <span className="pos-printwarn__txt" aria-hidden>
+              {printWarningLabel}
+            </span>
+          </button>
+        )}
         {printer && (
           <StatusPill
             className="pos-hide-md"

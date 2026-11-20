@@ -52,6 +52,7 @@ import { usePosTheme } from './hooks/use-pos-theme';
 import {
   PosLiveProvider,
   usePosDeviceStatus,
+  usePosPrintWarning,
   usePosSocketEvents,
   usePosTseStatus,
   type OrderTransferredPayload,
@@ -295,11 +296,14 @@ function PosApp() {
   const { orders: scopeOrders, refetch: refetchScope } = useOpenOrders(eventId, scope, inOrderView);
   const sentOrders = useMemo(() => (context?.kind === 'table' ? scopeOrders : []), [context, scopeOrders]);
   const counterOrderCount = context?.kind === 'table' ? 0 : scopeOrders.length;
-  const printer = usePosDeviceStatus();
+  const printer = usePosDeviceStatus(eventId);
+  // Bons warten bzw. wurden nicht gedruckt: Hinweis im Kopf, tippen öffnet
+  // den Verlauf zum Nachdrucken.
+  const printWarning = usePosPrintWarning(eventId);
   // Cloud-TSE: Ausfall-Hinweis (letzter Vorgang ohne Signatur oder offener
   // Ausfall laut Server). Trainingsbuchungen im Testbetrieb deckt dessen
   // Hinweis ab.
-  const tseStatus = usePosTseStatus();
+  const tseStatus = usePosTseStatus(eventId);
   const tseOutage = usePosTseOutage(tseStatus);
   // Genau ein Hinweis unter dem Kopf (Reihenfolge siehe posNotice).
   const notice = posNotice({
@@ -630,6 +634,8 @@ function PosApp() {
           }
           connection={connection}
           printer={printer}
+          printWarning={printWarning}
+          onPrintWarning={() => setSheet('history')}
           user={null}
           waiter={
             waiter ? (

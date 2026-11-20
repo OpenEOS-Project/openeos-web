@@ -326,6 +326,12 @@ export interface DevicePosStatusResponse {
   printer: { id: string; name: string; isOnline: boolean; lastSeenAt: string | null } | null;
   /** `null` ohne Cloud-TSE-Integration; sonst Zustand und offener Ausfall. */
   tse: import('@/types/tse').DeviceTseStatus | null;
+  /**
+   * Druck-Zustand der Drucker, auf die diese Kasse druckt (eigener
+   * Standarddrucker, Bestellablauf, Stationen der Veranstaltung); `null`
+   * ohne solche Drucker. Fehlt bei älteren APIs.
+   */
+  printHealth?: import('@/types/print-health').PrintHealth | null;
 }
 
 /* ---------- Kassen-Kontext ---------- */

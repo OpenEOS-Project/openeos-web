@@ -5,8 +5,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { io, type Socket } from 'socket.io-client';
 import { sessionSocketOptions } from '@/lib/session-socket';
 
-import { apiClient, printerAgentsApi, printersApi } from '@/lib/api-client';
+import { apiClient, printerAgentsApi, printJobsApi, printersApi } from '@/lib/api-client';
 import { getApiBaseUrl } from '@/lib/runtime-config';
+import type { PrintHealth } from '@/types/print-health';
 import type {
   AdoptDiscoveredPrinterData,
   CreatePrinterData,
@@ -24,7 +25,60 @@ export const printerKeys = {
   // discovered list of an agent that was just removed (404 race).
   discovered: (organizationId: string, deviceId: string) =>
     ['discovered-printers', organizationId, deviceId] as const,
+  health: (organizationId: string) => ['print-health', organizationId] as const,
 };
+
+/**
+ * Fallback cadence of the print health: the API announces changes
+ * (`printHealthChanged`) every 30 s at most, so polling at the same pace
+ * only matters when the socket is down.
+ */
+export const PRINT_HEALTH_POLL_INTERVAL_MS = 30_000;
+
+/**
+ * Print health of the organization (agents offline, jobs waiting or
+ * failed). With `live` (default) it opens its own socket and refetches on
+ * `printHealthChanged`, `printerStatusChanged` and `printJobStatusChanged`;
+ * pages that already run `usePrinterLiveUpdates` pass `live: false`.
+ */
+export function usePrintHealth(organizationId: string, options: { live?: boolean } = {}) {
+  const live = options.live ?? true;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!live || !organizationId || typeof window === 'undefined') return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const socket: Socket = io(getApiBaseUrl(), sessionSocketOptions(() => apiClient.getAccessToken()));
+    const join = () => socket.emit('joinRoom', { organizationId });
+    const refresh = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: printerKeys.health(organizationId) });
+      }, 500);
+    };
+    socket.on('connected', join);
+    socket.on('printHealthChanged', refresh);
+    socket.on('printerStatusChanged', refresh);
+    socket.on('printJobStatusChanged', refresh);
+    return () => {
+      clearTimeout(timer);
+      socket.removeAllListeners();
+      socket.disconnect();
+    };
+  }, [live, organizationId, queryClient]);
+
+  return useQuery({
+    queryKey: printerKeys.health(organizationId),
+    queryFn: async () => {
+      const res = await printJobsApi.health(organizationId);
+      return res.data as unknown as PrintHealth;
+    },
+    enabled: !!organizationId,
+    refetchInterval: PRINT_HEALTH_POLL_INTERVAL_MS,
+    // A failing health check must never get in the way of the page.
+    retry: false,
+  });
+}
 
 /**
  * Fallback cadence when the socket is not connected (or an event got lost):
@@ -178,11 +232,13 @@ export function usePrinterLiveUpdates(organizationId: string) {
       timer = setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: printerKeys.printers(organizationId) });
         queryClient.invalidateQueries({ queryKey: printerKeys.agents(organizationId) });
+        queryClient.invalidateQueries({ queryKey: printerKeys.health(organizationId) });
       }, 300);
     };
     socket.on('connected', join);
     socket.on('printerStatusChanged', refresh);
     socket.on('printJobStatusChanged', refresh);
+    socket.on('printHealthChanged', refresh);
     return () => {
       clearTimeout(timer);
       socket.removeAllListeners();
