@@ -8,6 +8,7 @@ import { deviceTablesApi } from '@/lib/device-tables-api';
 import { useDeviceStore } from '@/stores/device-store';
 import type { Product } from '@/types/product';
 import type { DeviceTseStatus } from '@/types/tse';
+import { posPrintWarning, type PosPrintWarning } from '@/lib/print-health';
 import type { PosPrinterStatus } from '../components/pos-header';
 
 interface ProductUpdatedPayload {
@@ -165,6 +166,8 @@ export function usePosSocketEvents(
         refreshDevice();
       },
       printerStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
+      // Druck-Zustand: Bons warten/fehlgeschlagen (vom Server höchstens alle 30 s).
+      printHealthChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
       // Cloud-TSE: Ausfall auf/zu, aktiviert, deaktiviert — Pille und Hinweis neu.
       tseStatusChanged: () => queryClient.invalidateQueries({ queryKey: ['device-status'] }),
       // Bedienung deaktiviert, neue PIN, Rechte geändert: Sitzung prüfen.
@@ -191,13 +194,15 @@ export function usePosSocketEvents(
 
 /**
  * Zustand des Bondruckers aus `GET /device-api/status` (Antwort in `data`
- * verpackt: `{ printer, tse }`). Ohne zugewiesenen Drucker (`printer: null`)
- * bleibt die Pille aus; bei einem Fehler wird nicht erneut gefragt.
+ * verpackt: `{ printer, tse, printHealth }`). Ohne zugewiesenen Drucker
+ * (`printer: null`) bleibt die Pille aus; bei einem Fehler wird nicht
+ * erneut gefragt. Die Veranstaltung bestimmt, welche Stationsdrucker zum
+ * Druck-Zustand zählen.
  */
-function useDeviceStatusQuery() {
+function useDeviceStatusQuery(eventId: string | null) {
   return useQuery({
-    queryKey: ['device-status'],
-    queryFn: () => deviceTablesApi.getDeviceStatus(),
+    queryKey: ['device-status', eventId],
+    queryFn: () => deviceTablesApi.getDeviceStatus(eventId),
     retry: false,
     staleTime: 60_000,
     refetchInterval: (query) => (query.state.status === 'error' ? false : 60_000),
@@ -205,8 +210,8 @@ function useDeviceStatusQuery() {
   });
 }
 
-export function usePosDeviceStatus(): PosPrinterStatus | null {
-  const { data, isError } = useDeviceStatusQuery();
+export function usePosDeviceStatus(eventId: string | null): PosPrinterStatus | null {
+  const { data, isError } = useDeviceStatusQuery(eventId);
   if (isError) return null;
   const printer = data?.data?.printer;
   return printer ? { name: printer.name, isOnline: printer.isOnline } : null;
@@ -216,8 +221,18 @@ export function usePosDeviceStatus(): PosPrinterStatus | null {
  * Cloud-TSE aus derselben Abfrage: `null` ohne Integration, sonst Zustand
  * (`ok`, `error`, `creating`, `inactive`) samt offenem Ausfall.
  */
-export function usePosTseStatus(): DeviceTseStatus | null {
-  const { data, isError } = useDeviceStatusQuery();
+export function usePosTseStatus(eventId: string | null): DeviceTseStatus | null {
+  const { data, isError } = useDeviceStatusQuery(eventId);
   if (isError) return null;
   return data?.data?.tse ?? null;
+}
+
+/**
+ * Bons dieser Kasse, die warten oder nicht gedruckt wurden (Hinweis im
+ * Kopf mit Weg zum Nachdruck im Verlauf). `null`, solange alles druckt.
+ */
+export function usePosPrintWarning(eventId: string | null): PosPrintWarning | null {
+  const { data, isError } = useDeviceStatusQuery(eventId);
+  if (isError) return null;
+  return posPrintWarning(data?.data?.printHealth);
 }

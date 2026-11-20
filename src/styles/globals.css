@@ -128,6 +128,10 @@ input[type="search"]::-webkit-search-cancel-button {
 .mode-notice__dismiss:focus-visible { outline: 2px solid var(--oe-info); outline-offset: 2px; }
 .mode-notice__content { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
 .mode-notice__content > b { margin-bottom: 0; }
+/* Druck-Zustand (Dashboard, Druckerseite): Titel, Satz, Link untereinander */
+.print-health-banner__content { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.print-health-banner__content > .notice-link { align-self: flex-start; margin-top: 2px; }
+.print-health-banner--page { margin-bottom: 20px; }
 .mode-notice__p { margin: 0; line-height: 1.5; }
 .mode-notice__muted { opacity: .85; font-size: 12px; }
 /* Notfall-Support: Rufnummer in der Überschrift, ohne Umbruch. */

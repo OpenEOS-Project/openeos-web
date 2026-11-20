@@ -1710,6 +1710,14 @@ export const printersApi = {
     ),
 };
 
+// Print jobs: health of the organization's printing (agents, waiting/failed jobs).
+export const printJobsApi = {
+  health: (organizationId: string) =>
+    apiClient.get<ApiResponse<import('@/types/print-health').PrintHealth>>(
+      `/organizations/${organizationId}/print-jobs/health`
+    ),
+};
+
 // Printer agents (devices of type printer_agent) and what they discovered.
 // Pairing itself goes through devicesApi.link.
 export const printerAgentsApi = {

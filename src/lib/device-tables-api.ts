@@ -84,6 +84,13 @@ export const deviceTablesApi = {
   payBatch: (data: PaymentsBatchData) =>
     apiClient.post<ApiResponse<PaymentsBatchResponse>>('/device-api/payments/batch', data, device),
 
-  /** Bondrucker und TSE für die Kopf-Pillen. */
-  getDeviceStatus: () => apiClient.get<ApiResponse<DevicePosStatusResponse>>('/device-api/status', device),
+  /**
+   * Bondrucker, TSE und Druck-Zustand für den Kopf. `eventId` bestimmt die
+   * Stationsdrucker, die zum Druck-Zustand zählen.
+   */
+  getDeviceStatus: (eventId?: string | null) =>
+    apiClient.get<ApiResponse<DevicePosStatusResponse>>(
+      `/device-api/status${query({ eventId: eventId ?? undefined })}`,
+      device,
+    ),
 };

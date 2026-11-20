@@ -3715,6 +3715,12 @@
       "printer": "Printer {name}",
       "printerOffline": "Printer {name} offline"
     },
+    "printHealth": {
+      "waiting": "{count, plural, one {# ticket waiting} other {# tickets waiting}}",
+      "failed": "{count, plural, one {# ticket not printed} other {# tickets not printed}}",
+      "hint": "Not printing on {printers}. Tap for the order history – you can reprint tickets there.",
+      "hintOffline": "{printers} offline. Waiting tickets print by themselves once everything is back – or reprint them from the order history."
+    },
     "order": {
       "allItems": "All items",
       "categories": "Categories",
@@ -8367,5 +8373,23 @@
       "email": "Please enter a valid email address, e.g. name@example.com.",
       "goodFaith": "Please confirm the statement."
     }
+  },
+  "printHealth": {
+    "title": {
+      "offlineWaiting": "{printers} offline – {count, plural, one {# ticket waiting} other {# tickets waiting}}",
+      "waiting": "Not printing on {printers} – {count, plural, one {# ticket waiting} other {# tickets waiting}}",
+      "failed": "{count, plural, one {# ticket was} other {# tickets were}} not printed ({printers})",
+      "agentOffline": "{printers} offline",
+      "printerOffline": "{printers} not reachable"
+    },
+    "body": {
+      "agentOffline": "The printer agent “{agents}” is not connected. Check that the computer is running and online.",
+      "agentOfflineUnnamed": "The printer agent is not connected. Check that the computer is running and online.",
+      "printerOffline": "The printer agent is connected but cannot reach the printer. Check power, cable and paper.",
+      "waiting": "The printer agent is connected but has not printed the tickets yet. Check the printer and the agent.",
+      "autoResend": "Waiting tickets print automatically once everything is back.",
+      "failed": "{count, plural, one {# ticket} other {# tickets}} failed in the last {minutes} minutes – you can reprint them at the till in the order history."
+    },
+    "link": "Go to printers"
   }
 }

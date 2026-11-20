@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { PrintHealthBanner } from '@/components/printers/print-health-banner';
+import { useAuthStore } from '@/stores/auth-store';
 import { PrintersList } from './printers-list';
 import { TemplatesTab } from './templates-tab';
 import { OrderFlowTab } from './order-flow-tab';
@@ -9,6 +11,7 @@ import { OrderFlowTab } from './order-flow-tab';
 export function PrintersContainer() {
   const t = useTranslations('printers');
   const [activeTab, setActiveTab] = useState<string>('printers');
+  const organizationId = useAuthStore((state) => state.currentOrganization?.organizationId) || '';
 
   const tabs = [
     { id: 'printers', label: t('tabs.printers') },
@@ -18,6 +21,16 @@ export function PrintersContainer() {
 
   return (
     <div>
+      {/* Auf jedem Reiter sichtbar. Auf dem Reiter „Drucker“ laeuft schon
+          die Live-Verbindung der Liste (usePrinterLiveUpdates), die den
+          Zustand mit auffrischt. */}
+      {organizationId && (
+        <PrintHealthBanner
+          organizationId={organizationId}
+          live={activeTab !== 'printers'}
+          className="print-health-banner--page"
+        />
+      )}
       {/* Tab bar */}
       <div style={{
         borderBottom: '1px solid color-mix(in oklab, var(--ink) 8%, transparent)',

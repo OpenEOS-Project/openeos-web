@@ -54,6 +54,10 @@ body:has(.pos-root) { overscroll-behavior: none; }
 .pos-more .oe-dd__panel { min-width: 240px; }
 .pos-more .oe-dd__opt { min-height: 44px; }
 .pos-show-md { display: none !important; }
+/* Bons warten / nicht gedruckt: ruhig, aber nicht zu übersehen; tippen öffnet den Verlauf */
+.pos-printwarn { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px 0 10px; border-radius: var(--oe-r-full); background: var(--oe-danger-soft); border: 1px solid color-mix(in oklab, var(--oe-danger) 30%, transparent); color: var(--oe-danger-ink); cursor: pointer; font: 600 13px var(--oe-f-sans); white-space: nowrap; --oe-ico: 15px; }
+.pos-printwarn:hover { background: color-mix(in oklab, var(--oe-danger-soft) 70%, var(--oe-danger) 12%); }
+.pos-printwarn__count { display: none; }
 .pos-head__user .oe-userchip__lock { min-width: 36px; min-height: 36px; }
 .pos-head > .oe-btn--icon { min-width: 44px; min-height: 44px; }
 /* Testmodus: ein schmaler Streifen unter dem Kopf, eine Zeile */
@@ -353,6 +357,9 @@ body:has(.pos-root) { overscroll-behavior: none; }
   .pos-head__ctx { flex: 1 1 0; }
   .pos-head__ctx b { font-size: 13px; }
   .pos-head__stat { gap: 0; }
+  .pos-printwarn { min-width: 44px; min-height: 40px; padding: 0 10px; margin-right: 4px; justify-content: center; }
+  .pos-printwarn__txt { display: none; }
+  .pos-printwarn__count { display: inline; font-variant-numeric: tabular-nums; }
   .pos-head__online > span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* Bleibt beim Scrollen unter dem Kopf stehen (26 px) */
   .pos-app .pos-testband { position: sticky; top: 56px; z-index: 59; padding: 0 12px; }

@@ -26,6 +26,7 @@ import { QuickStartCard } from './onboarding/quick-start-card';
 import { OperatingModeHint } from './operating-mode-hint';
 import { SmallBusinessHint } from './small-business-hint';
 import { EventEmergencySupportNotice } from '@/components/shared/event-emergency-support-notice';
+import { PrintHealthBanner } from '@/components/printers/print-health-banner';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useOperatingMode } from '@/hooks/use-operating-mode';
 
@@ -298,6 +299,10 @@ export function DashboardContainer() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Bons werden nicht gedruckt (Agent offline, Bons warten oder
+            fehlgeschlagen): betrifft den laufenden Betrieb, daher zuerst. */}
+        <PrintHealthBanner organizationId={organizationId} showLink />
+
         {/* Ganz oben, solange die Einrichtung laeuft — sie blendet sich
             selbst aus, sobald alle Schritte sitzen. */}
         <QuickStartCard organizationId={organizationId} />

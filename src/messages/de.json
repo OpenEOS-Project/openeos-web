@@ -3703,6 +3703,12 @@
       "printer": "Drucker {name}",
       "printerOffline": "Drucker {name} offline"
     },
+    "printHealth": {
+      "waiting": "{count, plural, one {# Bon wartet} other {# Bons warten}}",
+      "failed": "{count, plural, one {# Bon nicht gedruckt} other {# Bons nicht gedruckt}}",
+      "hint": "Kein Druck auf {printers}. Tippe für den Verlauf – dort kannst du Bons nachdrucken.",
+      "hintOffline": "{printers} offline. Wartende Bons kommen von selbst, sobald alles wieder läuft – oder du druckst sie im Verlauf nach."
+    },
     "order": {
       "allItems": "Alle Artikel",
       "categories": "Kategorien",
@@ -8355,5 +8361,23 @@
       "email": "Bitte gib eine gültige E-Mail-Adresse an, z. B. name@beispiel.de.",
       "goodFaith": "Bitte bestätige die Erklärung."
     }
+  },
+  "printHealth": {
+    "title": {
+      "offlineWaiting": "{printers} offline – {count, plural, one {# Bon wartet} other {# Bons warten}}",
+      "waiting": "Kein Druck auf {printers} – {count, plural, one {# Bon wartet} other {# Bons warten}}",
+      "failed": "{count, plural, one {# Bon wurde} other {# Bons wurden}} nicht gedruckt ({printers})",
+      "agentOffline": "{printers} offline",
+      "printerOffline": "{printers} nicht erreichbar"
+    },
+    "body": {
+      "agentOffline": "Der Drucker-Agent „{agents}“ ist nicht verbunden. Prüfe, ob der Rechner läuft und Internet hat.",
+      "agentOfflineUnnamed": "Der Drucker-Agent ist nicht verbunden. Prüfe, ob der Rechner läuft und Internet hat.",
+      "printerOffline": "Der Drucker-Agent ist verbunden, erreicht den Drucker aber nicht. Prüfe Strom, Kabel und Papier.",
+      "waiting": "Der Drucker-Agent ist verbunden, hat die Bons aber noch nicht gedruckt. Prüfe Drucker und Agent.",
+      "autoResend": "Wartende Bons werden automatisch gedruckt, sobald alles wieder läuft.",
+      "failed": "{count, plural, one {# Bon ist} other {# Bons sind}} in den letzten {minutes} Minuten fehlgeschlagen – du kannst sie an der Kasse im Verlauf nachdrucken."
+    },
+    "link": "Zu den Druckern"
   }
 }
