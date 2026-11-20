@@ -73,7 +73,7 @@
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "//pnpm.overrides": "next 15 pins postcss 8.4.31 and the Sentry webpack plugin pulls an older 8.5; both run at build time only. Remove once next and @sentry/nextjs ship a current postcss. postcss-selector-parser: @tailwindcss/typography still asks for 6.0.x; 6.1.x is API-compatible.",
   "pnpm": {
