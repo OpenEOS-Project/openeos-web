@@ -59,7 +59,8 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Bestand in Deutschland: Antwort auf „Mit Cloud-TSE?“ (keine Vorauswahl).
-  const [withTse, setWithTse] = useState<boolean | null>(null);
+  // Cloud-TSE nur mit ausdrücklichem „Ja“ – vorausgewählt ist „Nein“.
+  const [withTse, setWithTse] = useState<boolean | null>(false);
   // Pflichtangaben vor dem Bezahlen: Stand der API, nach dem Speichern aktualisiert.
   const [masterData, setMasterData] = useState<PurchaseMasterDataStatus | undefined>(billing?.masterData);
   const [step, setStep] = useState<'pay' | 'masterData'>('pay');
@@ -79,7 +80,7 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
     setCity(billing?.billingAddress?.city || '');
     setConfirmed(false);
     setError(null);
-    setWithTse(null);
+    setWithTse(false);
     setMasterData(billing?.masterData);
     setStep('pay');
     setCompanyResults([]);

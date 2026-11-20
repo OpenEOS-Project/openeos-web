@@ -2143,9 +2143,9 @@
         "surchargeLine": "+ {amount} per event",
         "question": "With cloud TSE (legally compliant cash)?",
         "yes": "Yes, with cloud TSE",
-        "yesHint": "OpenEOS sets up the TSE automatically for the first event day. Your operating mode becomes “All features” – cash then works with the TSE.",
-        "no": "No, keep it as it is",
-        "noHint": "Nothing changes. In Germany, cash needs a TSE – you can add it later at any time.",
+        "yesHint": "OpenEOS sets up the TSE automatically for the first event day. From then on the till accepts cash in “All features”.",
+        "no": "No, without cloud TSE",
+        "noHint": "Without the cloud TSE you take card and online payments; in Germany cash needs a TSE. You can add it later at any time.",
         "total": "+ {surcharge} cloud TSE · total {total}",
         "comingSoonBadge": "Coming soon",
         "comingSoon": "The cloud TSE for cash payments in Germany is coming soon. Once it's here, you can add it to your events."

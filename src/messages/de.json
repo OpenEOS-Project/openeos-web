@@ -1596,9 +1596,9 @@
         "surchargeLine": "+ {amount} je Veranstaltung",
         "question": "Mit Cloud-TSE (Bargeld rechtssicher)?",
         "yes": "Ja, mit Cloud-TSE",
-        "yesHint": "OpenEOS richtet die TSE zum ersten Veranstaltungstag automatisch ein. Deine Betriebsart wird „Alle Funktionen“ – Bargeld geht dann mit TSE.",
-        "no": "Nein, so lassen",
-        "noHint": "Alles bleibt wie bisher. In Deutschland braucht Bargeld eine TSE – du kannst sie später jederzeit dazunehmen.",
+        "yesHint": "OpenEOS richtet die TSE zum ersten Veranstaltungstag automatisch ein. Ab dann nimmt die Kasse in „Alle Funktionen“ Bargeld an.",
+        "no": "Nein, ohne Cloud-TSE",
+        "noHint": "Ohne Cloud-TSE kassierst du mit Karte und online; in Deutschland braucht Bargeld eine TSE. Du kannst sie später jederzeit dazunehmen.",
         "total": "+ {surcharge} Cloud-TSE · gesamt {total}",
         "comingSoonBadge": "Bald verfügbar",
         "comingSoon": "Die Cloud-TSE für Barzahlungen in Deutschland kommt in Kürze. Sobald sie da ist, kannst du sie für deine Veranstaltungen dazunehmen."
