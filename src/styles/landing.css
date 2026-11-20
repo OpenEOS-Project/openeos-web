@@ -2611,7 +2611,7 @@ body:has(.landing) {
   background: var(--surface);
   border: 1px solid var(--oe-line);
   border-radius: var(--oe-r);
-  overflow: hidden;
+  overflow-x: clip;
   padding: 20px;
 }
 /* When a card uses the explicit __head / __body composition, the padding is on
