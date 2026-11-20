@@ -28,8 +28,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0(react@19.3.1)
       '@openeos/ui':
-        specifier: 0.7.0
-        version: 0.7.0(next@15.5.29(@babel/core@7.29.13)(@opentelemetry/api@1.10.0)(@playwright/test@1.57.0)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.7.1
+        version: 0.7.1(next@15.5.29(@babel/core@7.29.13)(@opentelemetry/api@1.10.0)(@playwright/test@1.57.0)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@react-stately/utils':
         specifier: ^3.12.1
         version: 3.12.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -746,8 +746,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@openeos/ui@0.7.0':
-    resolution: {integrity: sha512-L0s8d/CMtEcapVirX/lvJ85SxN0eh7caRMppfO1gRLECadG/7Sd7GeHa4DvzaD6/riyRgeHwYgUOee6t/uQpEA==}
+  '@openeos/ui@0.7.1':
+    resolution: {integrity: sha512-Kmoks28h8WwcqfQzRiAPe6WJPqURrnQrHrJKn3oUnTVn/zemeErvGmNVUsVcXe51ZmiodUD8vMqYJdlPV26WgA==}
     peerDependencies:
       next: '>=15'
       react: '>=18'
@@ -4748,7 +4748,7 @@ snapshots:
     dependencies:
       react: 19.3.1
 
-  '@openeos/ui@0.7.0(next@15.5.29(@babel/core@7.29.13)(@opentelemetry/api@1.10.0)(@playwright/test@1.57.0)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@openeos/ui@0.7.1(next@15.5.29(@babel/core@7.29.13)(@opentelemetry/api@1.10.0)(@playwright/test@1.57.0)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
