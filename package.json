@@ -24,7 +24,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.9.2",
     "@openeos/pos-icons": "0.4.0",
-    "@openeos/ui": "0.7.0",
+    "@openeos/ui": "0.7.1",
     "@react-stately/utils": "^3.12.1",
     "@react-types/overlays": "^3.10.0",
     "@react-types/shared": "^3.37.0",
