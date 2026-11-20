@@ -33,7 +33,7 @@ export interface PosEventOptions {
   name: string;
   tables: { mode: 'none' | 'free' | 'predefined'; areaIds?: string[] | null };
   orderingMode: 'immediate' | 'tab';
-  products: Array<{ name: string; price: number }>;
+  products: Array<{ name: string; price: number; trackInventory?: boolean; stockQuantity?: number }>;
 }
 
 /** Veranstaltung anlegen, aktivieren, Tischmodus setzen, eine Kategorie mit Produkten. */

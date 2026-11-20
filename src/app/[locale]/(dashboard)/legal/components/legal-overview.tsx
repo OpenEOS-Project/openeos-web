@@ -11,6 +11,7 @@ import {
   dataActUrl,
   formatLegalVersion,
   isAcceptableLegalDocument,
+  isLegacyLegalAccount,
   LEGAL_DOCUMENT_KEYS,
   subprocessorsUrl,
 } from '@/lib/legal-platform';
@@ -30,6 +31,9 @@ export function LegalOverview() {
   const { formatDate } = useLocaleFormat();
   const { isAdmin } = usePermissions();
   const hasOrganization = !!useAuthStore((s) => s.currentOrganization);
+  // Vor der Protokollierung registriert: kein „nicht akzeptiert“, sondern
+  // ein sachlicher Hinweis — es wird kein Nachweis nachgetragen.
+  const legacyAccount = isLegacyLegalAccount(useAuthStore((s) => s.user?.createdAt));
   const { versions, localize } = useLegalVersions();
   const { data: status } = useLegalStatus(versions.enabled);
 
@@ -80,6 +84,10 @@ export function LegalOverview() {
                 </>
               )}
               {!accepted.upToDate && <span className="badge badge--warning">{t('outdated')}</span>}
+            </span>
+          ) : accepted && legacyAccount ? (
+            <span className="legal-doc__accepted" data-testid={`legal-doc-${key}-legacy`}>
+              {t('legacyAccount')}
             </span>
           ) : accepted && isAdmin ? (
             <span className="legal-doc__accepted">{t('notAccepted')}</span>

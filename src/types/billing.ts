@@ -84,6 +84,8 @@ export interface EventBilling {
   finalPrice: number;
   /** Ob Stripe konfiguriert ist — sonst bleibt nur der Kauf auf Rechnung. */
   onlinePaymentAvailable: boolean;
+  /** Letzter Veranstaltungstag vorbei: kaufen geht nicht mehr (API ab 1.8.1). */
+  eventOver?: boolean;
   billingMode: EventBillingMode;
   billingStatus: EventBillingStatus;
   organizationName: string;

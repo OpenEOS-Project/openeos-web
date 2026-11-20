@@ -2105,6 +2105,7 @@
       "deactivated": "Event deactivated"
     },
     "checkout": {
+      "eventOver": "This event is already over and can no longer be bought. Is it still taking place? Then change the date first.",
       "title": "Activate event",
       "success": "Event activated",
       "discount": "incl. {percent}% discount",
@@ -4921,6 +4922,7 @@
     "EVENT_ACTIVE_CANNOT_DELETE": "Active events cannot be deleted.",
     "EVENT_ALREADY_ACTIVE": "The event is already active.",
     "EVENT_ALREADY_PAID": "The event is already unlocked.",
+    "EVENT_OVER_CANNOT_PURCHASE": "The event is already over and can no longer be bought. Change the date if it is still taking place.",
     "EVENT_CANCELLATION_DEADLINE_PASSED": "The deadline for free cancellation has passed. Please contact support.",
     "EVENT_END_BEFORE_START": "The event cannot end before it starts.",
     "EVENT_HAS_ORDERS": "The event already has orders – free cancellation is no longer possible. Please contact support.",
@@ -6346,6 +6348,7 @@
     "createAndStart": "Create & Start",
     "creating": "Creating…",
     "createError": "Failed to create stocktake. Please try again.",
+    "startError": "The stocktake could not be started. Please try again.",
     "noOrg": {
       "title": "No organization selected",
       "description": "Please select an organization first."
@@ -6388,6 +6391,8 @@
       "notes": "Notes",
       "notesPlaceholder": "Optional notes for this stocktake",
       "bulkAddHint": "{count} products with inventory tracking will be added automatically.",
+      "noTrackedProducts": "None of your products has “Track inventory” turned on, so a stocktake would have nothing to count. Turn the option on for the products you want to count.",
+      "toProducts": "Go to products",
       "defaultName": "End of day {date}"
     },
     "progress": {
@@ -7771,6 +7776,7 @@
       "acceptedOpen": "view",
       "outdated": "outdated",
       "notAccepted": "Not accepted by you yet.",
+      "legacyAccount": "Existing account: your contract was concluded before acceptances were recorded.",
       "subprocessors": "Subprocessors (AVV annex B)",
       "tseConditionsTitle": "Conditions of use of the Cloud-TSE (environmental protection concept)",
       "tseConditionsPending": "The manufacturer of the Cloud-TSE (Swissbit) defines the conditions under which the TSE may be used. We will provide them here as soon as they are available; follow them when you take payments with the Cloud-TSE.",

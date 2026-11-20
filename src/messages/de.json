@@ -1558,6 +1558,7 @@
       "deactivated": "Veranstaltung deaktiviert"
     },
     "checkout": {
+      "eventOver": "Diese Veranstaltung ist schon vorbei und lässt sich nicht mehr kaufen. Findet sie noch statt? Dann passe zuerst das Datum an.",
       "title": "Veranstaltung aktivieren",
       "success": "Veranstaltung aktiviert",
       "discount": "inkl. {percent} % Rabatt",
@@ -4909,6 +4910,7 @@
     "EVENT_ACTIVE_CANNOT_DELETE": "Aktive Veranstaltungen können nicht gelöscht werden.",
     "EVENT_ALREADY_ACTIVE": "Die Veranstaltung ist bereits aktiv.",
     "EVENT_ALREADY_PAID": "Die Veranstaltung ist bereits freigeschaltet.",
+    "EVENT_OVER_CANNOT_PURCHASE": "Die Veranstaltung ist schon vorbei und lässt sich nicht mehr kaufen. Passe das Datum an, wenn sie noch stattfindet.",
     "EVENT_CANCELLATION_DEADLINE_PASSED": "Die Frist für eine kostenlose Stornierung ist abgelaufen. Bitte wende dich an den Support.",
     "EVENT_END_BEFORE_START": "Das Ende der Veranstaltung darf nicht vor dem Beginn liegen.",
     "EVENT_HAS_ORDERS": "In der Veranstaltung gibt es schon Bestellungen – eine kostenlose Stornierung ist nicht mehr möglich. Bitte wende dich an den Support.",
@@ -6334,6 +6336,7 @@
     "createAndStart": "Erstellen & Starten",
     "creating": "Wird erstellt…",
     "createError": "Fehler beim Erstellen der Inventur. Bitte erneut versuchen.",
+    "startError": "Die Inventur konnte nicht gestartet werden. Bitte versuche es erneut.",
     "noOrg": {
       "title": "Keine Organisation ausgewählt",
       "description": "Bitte wähle zuerst eine Organisation aus."
@@ -6376,6 +6379,8 @@
       "notes": "Notizen",
       "notesPlaceholder": "Optionale Anmerkungen zur Inventur",
       "bulkAddHint": "{count} Produkte mit Bestandsverfolgung werden automatisch hinzugefügt.",
+      "noTrackedProducts": "Keines deiner Produkte hat „Bestand verfolgen“ eingeschaltet – eine Inventur hätte nichts zu zählen. Schalte die Option bei den Produkten ein, die du zählen willst.",
+      "toProducts": "Zu den Produkten",
       "defaultName": "Tagesabschluss {date}"
     },
     "progress": {
@@ -7759,6 +7764,7 @@
       "acceptedOpen": "ansehen",
       "outdated": "nicht mehr aktuell",
       "notAccepted": "Von dir noch nicht akzeptiert.",
+      "legacyAccount": "Bestandskonto: Dein Vertrag wurde vor Einführung der Protokollierung geschlossen.",
       "subprocessors": "Unterauftragsverarbeiter (AVV Anhang B)",
       "tseConditionsTitle": "Einsatzbedingungen der Cloud-TSE (Umgebungsschutzkonzept)",
       "tseConditionsPending": "Der Hersteller der Cloud-TSE (Swissbit) legt fest, unter welchen Bedingungen die TSE eingesetzt werden darf. Die Einsatzbedingungen stellen wir hier bereit, sobald sie vorliegen; halte sie beim Kassieren mit Cloud-TSE ein.",

@@ -242,6 +242,8 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
   // ließe — wer erst kurz vor Beginn bezahlt, soll vorher wissen, dass es
   // dann keinen kostenlosen Rückweg mehr gibt.
   const cancellationHint = checkoutCancellationHint(billing);
+  // Vorbei: die API lehnt den Kauf ab (EVENT_OVER_CANNOT_PURCHASE).
+  const eventOver = billing?.eventOver === true;
 
   return (
     <div className="modal__overlay" onClick={onClose}>
@@ -259,7 +261,21 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
             )}
           </div>
 
-          {step === 'masterData' && masterData ? (
+          {eventOver ? (
+            <div
+              role="alert"
+              data-testid="checkout-event-over"
+              style={{
+                padding: '10px 14px',
+                borderRadius: 8,
+                background: 'color-mix(in oklab, var(--warn) 14%, var(--paper))',
+                color: 'var(--ink)',
+                fontSize: 13,
+              }}
+            >
+              {t('eventOver')}
+            </div>
+          ) : step === 'masterData' && masterData ? (
             <PurchaseMasterDataStep
               organizationId={organizationId}
               status={masterData}
@@ -521,7 +537,11 @@ export function EventCheckoutDialog({ event, billing, organizationId, onClose }:
         </div>
 
         <div className="modal__foot">
-          {step === 'masterData' ? (
+          {eventOver ? (
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {tCommon('close')}
+            </button>
+          ) : step === 'masterData' ? (
             <>
               <button type="button" className="btn btn--ghost" onClick={() => setStep('pay')} disabled={isSubmitting}>
                 {tCommon('back')}
