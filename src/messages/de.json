@@ -4624,7 +4624,7 @@
       "cta": "Gerät verbinden",
       "namePlaceholder": "z. B. Kasse Theke 1",
       "wrongType": "Dieser Code gehört zu keinem {type}. Für Kassen und Displays nutze „Gerät verbinden“ unter Geräte.",
-      "enterCodeDescriptionPrinterAgent": "Gib den achtstelligen Code ein, den der Agent beim Start anzeigt (Konsole, Logdatei oder http://localhost:8080 auf dem Rechner).",
+      "enterCodeDescriptionPrinterAgent": "Gib den achtstelligen Code ein, den das Fenster „OpenEOS Drucker-Agent“ auf dem PC groß anzeigt. Ohne Bildschirm (z. B. Raspberry Pi) steht er im Protokoll und auf der Statusseite http://IP-des-Geräts:8080.",
       "successDescriptionPrinterAgent": "Der Drucker-Agent gehört jetzt zu deiner Organisation. Er erscheint gleich in der Liste und meldet die Drucker, die er findet."
     },
     "detail": {
@@ -5852,8 +5852,8 @@
         "stepsTitle": "So geht es",
         "steps": {
           "download": "Agent für Windows oder Linux herunterladen.",
-          "install": "Auf dem PC installieren und starten (Windows: als Dienst, Linux: install.sh).",
-          "code": "Der Agent zeigt beim Start einen achtstelligen Code.",
+          "install": "Auf dem PC installieren (Windows: Installer, Linux: install.sh).",
+          "code": "Das Fenster des Agents zeigt einen achtstelligen Code.",
           "enter": "Code hier eingeben — der Agent erscheint danach in der Liste."
         },
         "downloadWindows": "Download Windows",

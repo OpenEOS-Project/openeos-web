@@ -4636,7 +4636,7 @@
       "cta": "Connect device",
       "namePlaceholder": "e.g. Bar till 1",
       "wrongType": "This code does not belong to a {type}. For tills and displays use \"Connect device\" under Devices.",
-      "enterCodeDescriptionPrinterAgent": "Enter the eight-digit code the agent shows on start-up (console, log file or http://localhost:8080 on that machine).",
+      "enterCodeDescriptionPrinterAgent": "Enter the eight-digit code shown in large digits in the \"OpenEOS Printer Agent\" window on the PC. Without a screen (e.g. Raspberry Pi) it is in the log and on the status page http://device-IP:8080.",
       "successDescriptionPrinterAgent": "The printer agent now belongs to your organization. It will show up in the list in a moment and report the printers it finds."
     },
     "detail": {
@@ -5864,8 +5864,8 @@
         "stepsTitle": "How it works",
         "steps": {
           "download": "Download the agent for Windows or Linux.",
-          "install": "Install and start it on the PC (Windows: as a service, Linux: install.sh).",
-          "code": "On start-up the agent shows an eight-digit code.",
+          "install": "Install it on the PC (Windows: installer, Linux: install.sh).",
+          "code": "The agent's window shows an eight-digit code.",
           "enter": "Enter the code here — the agent then appears in the list."
         },
         "downloadWindows": "Download for Windows",
