@@ -678,7 +678,7 @@ export function AppSidebar() {
                     <DropdownLink
                       key={item.href}
                       href={`/${locale}${item.href}${item.search ? `?${item.search}` : ''}`}
-                      selected={activeUrl === item.href}
+                      selected={!item.search && activeUrl === item.href}
                       icon={item.icon ? <item.icon /> : undefined}
                     >
                       {navLabel(item)}
@@ -765,7 +765,7 @@ export function AppSidebar() {
                   href={(item.search ? `${item.href}?${item.search}` : item.href) as never}
                   className={cx(
                     'app-sidebar__item',
-                    activeUrl === item.href && 'app-sidebar__item--active',
+                    !item.search && activeUrl === item.href && 'app-sidebar__item--active',
                   )}
                   aria-label={navLabel(item)}
                   title={navLabel(item)}
