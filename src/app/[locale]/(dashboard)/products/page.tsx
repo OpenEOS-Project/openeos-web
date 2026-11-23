@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
+import { CatalogTabs } from '@/components/shared/catalog-tabs';
 import { ModuleGuard } from '@/components/shared/module-guard';
 
 import { ProductsContainer } from './components/products-container';
@@ -26,6 +27,8 @@ export default async function ProductsPage() {
             <p className="app-page-head__sub">{t('subtitle')}</p>
           </div>
         </div>
+
+        <CatalogTabs active="products" />
 
         {/* useSearchParams (Filter ?category=) braucht eine Suspense-Grenze. */}
         <Suspense>

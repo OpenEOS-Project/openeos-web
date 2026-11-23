@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Banner,
@@ -23,6 +23,7 @@ import { useLocaleFormat } from '@/hooks/use-locale-format';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
 import { useOperatingMode } from '@/hooks/use-operating-mode';
+import { useActiveEvent } from '@/hooks/use-events';
 import { toast } from '@/components/shared/toast';
 import { saveBlob } from '@/lib/dsfinvk';
 import { getOrderChannel, type Order, type OrderChannel, type OrdersExportVariant } from '@/types/order';
@@ -117,6 +118,16 @@ export function OrdersList() {
   });
 
   const events = eventsData?.data || [];
+
+  /* Vorauswahl: die gewählte Veranstaltung (wie Auswertung und Inventur),
+     solange niemand den Filter selbst angefasst hat — auch „Alle“ bleibt
+     dann stehen. */
+  const { data: activeEvent } = useActiveEvent(organizationId ?? '');
+  const activeEventId = activeEvent?.id;
+  const eventFilterTouched = useRef(false);
+  useEffect(() => {
+    if (activeEventId && !eventFilterTouched.current) setEventFilter(activeEventId);
+  }, [activeEventId]);
 
   const filterParams: Record<string, string> = {};
   if (statusFilter !== 'all') {
@@ -366,6 +377,7 @@ export function OrdersList() {
     setDateFrom('');
     setDateTo('');
     setEventFilter('all');
+    eventFilterTouched.current = true;
     setPage(1);
   };
 
@@ -526,7 +538,10 @@ export function OrdersList() {
           <Select
             label={phone ? t('orders.filters.event') : undefined}
             value={eventFilter}
-            onChange={(e) => updateFilter(setEventFilter)(e.target.value)}
+            onChange={(e) => {
+              eventFilterTouched.current = true;
+              updateFilter(setEventFilter)(e.target.value);
+            }}
             aria-label={t('orders.filters.allEvents')}
           >
             <option value="all">{t('orders.filters.allEvents')}</option>

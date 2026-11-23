@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   BookOpenText,
   Building,
   Calendar,
@@ -25,10 +26,11 @@ import {
   Tag,
   Trash2,
   UserRoundCheck,
+  UserRoundCog,
   Users,
 } from 'lucide-react';
 
-import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
+import type { NavItemType, NavSectionType } from '@/components/app-navigation/config';
 import { getEnabledIntegrations, integrationHref } from '@/config/integrations';
 import type { OrganizationSettings } from '@/types/organization';
 
@@ -108,154 +110,238 @@ export const superAdminNavItems: NavItemType[] = [
   },
 ];
 
-// Organization admin/member navigation items, grouped by domain:
-// laufender Betrieb → Sortiment → Hardware/Standorte → Organisation & Auswertung
-export const dashboardNavItems: (NavItemType | NavItemDividerType)[] = [
+/** Dokumentation je Sprache (liegt an der Wurzel von docs.openeos.de). */
+export function docsUrl(locale: string): string {
+  return locale === 'en' ? 'https://docs.openeos.de/en' : 'https://docs.openeos.de';
+}
+
+/*
+ * Navigation für Admins und Mitglieder einer Organisation, in Gruppen:
+ *
+ * - oben ohne Überschrift: Dashboard und Veranstaltungen
+ * - die gewählte Veranstaltung (Überschrift = ihr Name): was nur für sie gilt
+ * - Kasse & Geräte: Hardware und Personal, für alle Veranstaltungen
+ * - Bezahlen: entfällt in „Nur Bons“ ganz, dort kassiert niemand in OpenEOS
+ * - Organisation: Mitglieder, Abrechnung, Integrationen, Einstellungen
+ * - unten Hilfe & Support
+ *
+ * Die Flags je Eintrag (requiredPermission, adminOnly, cashOnly, saasOnly)
+ * gelten unverändert; leere Gruppen blendet die Seitenleiste aus.
+ */
+export const dashboardNavSections: NavSectionType[] = [
   {
-    labelKey: 'dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
+    id: 'main',
+    items: [
+      {
+        labelKey: 'dashboard',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+      },
+      {
+        labelKey: 'events',
+        href: '/events',
+        icon: Calendar,
+        requiredPermission: 'events',
+      },
+    ],
   },
   {
-    labelKey: 'orders',
-    href: '/orders',
-    icon: ReceiptText,
+    id: 'event',
+    labelKey: 'event',
+    dynamicLabel: 'eventName',
+    items: [
+      {
+        // Produkte und Kategorien in einem Eintrag; /categories ist der
+        // zweite Reiter der Produktseite.
+        labelKey: 'products',
+        href: '/products',
+        icon: ShoppingBag,
+        requiredPermission: 'products',
+        activePaths: ['/categories'],
+      },
+      {
+        labelKey: 'productionStations',
+        href: '/production-stations',
+        icon: MapPin,
+        requiredPermission: 'products',
+      },
+      {
+        labelKey: 'shiftPlan',
+        href: '/shifts',
+        icon: ClipboardCheck,
+        requiredPermission: 'shiftPlans',
+      },
+      {
+        labelKey: 'orders',
+        href: '/orders',
+        icon: ReceiptText,
+      },
+      {
+        labelKey: 'inventory',
+        href: '/inventory',
+        icon: PackageSearch,
+        requiredPermission: 'inventory',
+      },
+      {
+        labelKey: 'reports',
+        href: '/reports',
+        icon: ChartLine,
+        requiredPermission: 'reports',
+      },
+    ],
   },
   {
-    // Bargeld der Kasse (Anfangsbestand, Einlagen, Entnahmen, Kassensturz).
-    // Nur mit Bargeld — sonst gibt es nichts zu buchen.
-    labelKey: 'cashbook',
-    href: '/cashbook',
-    icon: BookOpenText,
-    adminOnly: true,
-    cashOnly: true,
-  },
-  { divider: true },
-  {
-    labelKey: 'products',
-    href: '/products',
-    icon: ShoppingBag,
-    requiredPermission: 'products',
-  },
-  {
-    labelKey: 'inventory',
-    href: '/inventory',
-    icon: PackageSearch,
-    requiredPermission: 'inventory',
-  },
-  {
-    labelKey: 'discounts',
-    href: '/discounts',
-    icon: Tag,
-    requiredPermission: 'discounts',
-  },
-  {
-    labelKey: 'pfand',
-    href: '/pfand',
-    icon: Recycle,
-    requiredPermission: 'pfand',
-  },
-  {
-    // Wertmarken: Markentypen und Auswertung. Auch sichtbar, wo die Kasse
-    // keine Marken annimmt — die Seite erklärt dann, warum.
-    labelKey: 'tokens',
-    href: '/tokens',
-    icon: Coins,
-    requiredPermission: 'products',
-  },
-  { divider: true },
-  {
-    labelKey: 'devices',
-    href: '/devices',
-    icon: TabletSmartphone,
-    requiredPermission: 'devices',
+    id: 'till',
+    labelKey: 'till',
+    items: [
+      {
+        labelKey: 'devices',
+        href: '/devices',
+        icon: TabletSmartphone,
+        requiredPermission: 'devices',
+      },
+      {
+        labelKey: 'printers',
+        href: '/printers',
+        icon: Printer,
+        requiredPermission: 'devices',
+      },
+      {
+        // Bereiche, Tische und Tischplan der Organisation. Recht wie die API:
+        // wer Veranstaltungen verwaltet, verwaltet auch deren Tische.
+        labelKey: 'tables',
+        href: '/tables',
+        icon: LayoutGrid,
+        requiredPermission: 'events',
+      },
+      {
+        // Kassenprofile mit PIN (ohne Konto) fuer gemeinsam genutzte Kassen.
+        labelKey: 'waiters',
+        href: '/waiters',
+        icon: UserRoundCheck,
+        requiredPermission: 'waiters',
+      },
+    ],
   },
   {
-    labelKey: 'printers',
-    href: '/printers',
-    icon: Printer,
-    requiredPermission: 'devices',
+    id: 'payments',
+    labelKey: 'payments',
+    // „Nur Bons“: kassiert wird außerhalb von OpenEOS — Pfand, Rabatt,
+    // Wertmarken und Kassenbuch haben dort keinen Gegenstand.
+    isVisible: ({ ordersOnly }) => !ordersOnly,
+    items: [
+      {
+        labelKey: 'pfand',
+        href: '/pfand',
+        icon: Recycle,
+        requiredPermission: 'pfand',
+      },
+      {
+        labelKey: 'discounts',
+        href: '/discounts',
+        icon: Tag,
+        requiredPermission: 'discounts',
+      },
+      {
+        // Wertmarken: Markentypen und Auswertung. Auch sichtbar, wo die Kasse
+        // keine Marken annimmt — die Seite erklärt dann, warum.
+        labelKey: 'tokens',
+        href: '/tokens',
+        icon: Coins,
+        requiredPermission: 'products',
+      },
+      {
+        // Bargeld der Kasse (Anfangsbestand, Einlagen, Entnahmen, Kassensturz).
+        // Nur mit Bargeld — sonst gibt es nichts zu buchen.
+        labelKey: 'cashbook',
+        href: '/cashbook',
+        icon: BookOpenText,
+        adminOnly: true,
+        cashOnly: true,
+      },
+    ],
   },
   {
-    labelKey: 'productionStations',
-    href: '/production-stations',
-    icon: MapPin,
-    requiredPermission: 'products',
+    id: 'organization',
+    labelKey: 'organization',
+    items: [
+      {
+        labelKey: 'members',
+        href: '/members',
+        icon: Users,
+        requiredPermission: 'members',
+      },
+      {
+        // Abrechnungsdaten der Organisation — es gibt kein Berechtigungsmodul
+        // dafuer, und Mitglieder haben darin nichts zu suchen.
+        labelKey: 'invoices',
+        href: '/invoices',
+        saasOnly: true,
+        icon: ReceiptEuro,
+        adminOnly: true,
+      },
+      {
+        // Zugangsdaten zu fremden Diensten; dasselbe Argument wie oben.
+        labelKey: 'integrations',
+        href: '/integrations',
+        icon: Puzzle,
+        adminOnly: true,
+      },
+      {
+        // Öffnet direkt die Organisationsreiter; die persönlichen
+        // Einstellungen liegen im Menü am Benutzer unten.
+        labelKey: 'settings',
+        href: '/settings',
+        search: 'tab=org-general',
+        icon: Settings,
+      },
+      {
+        // Rechtstexte von OpenEOS, Angaben fuers Finanzamt, Vorlage fuer den
+        // Datenschutzhinweis im Shop.
+        labelKey: 'legal',
+        href: '/legal',
+        icon: Scale,
+      },
+    ],
   },
   {
-    // Bereiche, Tische und Tischplan der Organisation. Recht wie die API:
-    // wer Veranstaltungen verwaltet, verwaltet auch deren Tische.
-    labelKey: 'tables',
-    href: '/tables',
-    icon: LayoutGrid,
-    requiredPermission: 'events',
-  },
-  { divider: true },
-  {
-    labelKey: 'members',
-    href: '/members',
-    icon: Users,
-    requiredPermission: 'members',
-  },
-  {
-    // Kassenprofile mit PIN (ohne Konto) fuer gemeinsam genutzte Kassen.
-    labelKey: 'waiters',
-    href: '/waiters',
-    icon: UserRoundCheck,
-    requiredPermission: 'waiters',
-  },
-  {
-    labelKey: 'shifts',
-    href: '/shifts',
-    icon: ClipboardCheck,
-    requiredPermission: 'shiftPlans',
-  },
-  {
-    labelKey: 'events',
-    href: '/events',
-    icon: Calendar,
-    requiredPermission: 'events',
-  },
-  {
-    labelKey: 'reports',
-    href: '/reports',
-    icon: ChartLine,
-    requiredPermission: 'reports',
-  },
-  {
-    // Abrechnungsdaten der Organisation — es gibt kein Berechtigungsmodul
-    // dafuer, und Mitglieder haben darin nichts zu suchen.
-    labelKey: 'invoices',
-    href: '/invoices',
-    saasOnly: true,
-    icon: ReceiptEuro,
-    adminOnly: true,
-  },
-  {
-    // Zugangsdaten zu fremden Diensten; dasselbe Argument wie oben.
-    labelKey: 'integrations',
-    href: '/integrations',
-    icon: Puzzle,
-    adminOnly: true,
-  },
-  { divider: true },
-  {
-    labelKey: 'support',
-    href: '/support',
-    saasOnly: true,
-    icon: MessagesSquare,
+    id: 'help',
+    items: [
+      {
+        // Chat mit dem Support — nur im gehosteten Betrieb.
+        labelKey: 'help',
+        href: '/support',
+        saasOnly: true,
+        icon: MessagesSquare,
+      },
+      {
+        labelKey: 'docs',
+        externalHref: docsUrl,
+        tourId: 'docs',
+        icon: BookOpen,
+      },
+    ],
   },
 ];
 
+/** Menü am Benutzer: nur Persönliches (Profil, Konto, Sicherheit …). */
 export const dashboardFooterItems: NavItemType[] = [
+  {
+    labelKey: 'personalSettings',
+    href: '/settings',
+    search: 'tab=profile',
+    icon: UserRoundCog,
+  },
+];
+
+/** Super-Admins ohne Organisationsnavigation: Einstellungen und Rechtliches bleiben im Menü. */
+export const superAdminFooterItems: NavItemType[] = [
   {
     labelKey: 'settings',
     href: '/settings',
     icon: Settings,
   },
   {
-    // Rechtstexte von OpenEOS, Angaben fuers Finanzamt, Vorlage fuer den
-    // Datenschutzhinweis im Shop.
     labelKey: 'legal',
     href: '/legal',
     icon: Scale,
@@ -264,7 +350,7 @@ export const dashboardFooterItems: NavItemType[] = [
 
 /**
  * Fügt für jede aktive Integration einen Eintrag direkt unter
- * "Integrationen" ein.
+ * "Integrationen" ein (in derselben Gruppe).
  *
  * Dynamisch statt fest in der Liste oben: welche Einträge es gibt, hängt
  * vom Schalter in den Organisationseinstellungen ab. Die Einträge sind wie
@@ -272,12 +358,9 @@ export const dashboardFooterItems: NavItemType[] = [
  * danach mit denselben Regeln wie alle anderen.
  */
 export function withIntegrationNavItems(
-  items: (NavItemType | NavItemDividerType)[],
+  sections: NavSectionType[],
   settings: Partial<OrganizationSettings> | null | undefined,
-): (NavItemType | NavItemDividerType)[] {
-  const index = items.findIndex((item) => !item.divider && item.href === '/integrations');
-  if (index === -1) return items;
-
+): NavSectionType[] {
   const integrationItems: NavItemType[] = getEnabledIntegrations(settings).map((integration) => ({
     label: integration.name,
     href: integrationHref(integration.id),
@@ -285,7 +368,14 @@ export function withIntegrationNavItems(
     adminOnly: true,
     nested: true,
   }));
-  if (integrationItems.length === 0) return items;
+  if (integrationItems.length === 0) return sections;
 
-  return [...items.slice(0, index + 1), ...integrationItems, ...items.slice(index + 1)];
+  return sections.map((section) => {
+    const index = section.items.findIndex((item) => item.href === '/integrations');
+    if (index === -1) return section;
+    return {
+      ...section,
+      items: [...section.items.slice(0, index + 1), ...integrationItems, ...section.items.slice(index + 1)],
+    };
+  });
 }
