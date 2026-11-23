@@ -3615,6 +3615,11 @@ body:has(.landing) {
   flex-direction: column;
   gap: 2px;
 }
+/* Kompakter als die Einträge im Fuß, damit die Gruppen mit ihren
+   Überschriften möglichst ohne Scrollen auf den Bildschirm passen. */
+@media (min-width: 961px) {
+  .landing .app-sidebar__nav .app-sidebar__item { padding-top: 6px; padding-bottom: 6px; }
+}
 .landing h2.app-sidebar__group-label {
   margin: 0;
   padding: 14px 12px 4px;
