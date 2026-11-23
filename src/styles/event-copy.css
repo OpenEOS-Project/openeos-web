@@ -73,3 +73,18 @@
   font-weight: 400;
   color: color-mix(in oklab, var(--ink) 55%, transparent);
 }
+.event-copy-tree .oe-check {
+  display: flex;
+  padding: 3px 0;
+}
+/* Teilauswahl: Strich statt Häkchen. */
+.event-copy-tree input:indeterminate + .oe-check__box {
+  background: var(--oe-green-ink);
+  border-color: var(--oe-green-ink);
+}
+.event-copy-tree input:indeterminate + .oe-check__box::after {
+  content: '';
+  width: 9px;
+  height: 2px;
+  background: var(--oe-on-accent);
+}

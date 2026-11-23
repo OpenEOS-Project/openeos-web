@@ -104,11 +104,11 @@ test('products page: merges categories, skips existing products and reports it',
   await expect(tree.getByRole('checkbox', { name: /Wasser/ })).toBeChecked();
 
   // Teilauswahl: die Kategorie zeigt den Zwischenzustand, nichts sperrt den Knopf.
-  await tree.getByRole('checkbox', { name: /Wasser/ }).uncheck();
+  await tree.locator('label').filter({ hasText: 'Wasser' }).click();
   await expect(tree.getByRole('checkbox', { name: /Getränke/ })).toHaveJSProperty('indeterminate', true);
-  await tree.getByRole('checkbox', { name: /Apfelschorle/ }).uncheck();
+  await tree.locator('label').filter({ hasText: 'Apfelschorle' }).click();
   await expect(dialog.getByRole('button', { name: /übernehmen/ })).toBeDisabled();
-  await tree.getByRole('checkbox', { name: 'Alles auswählen' }).check();
+  await tree.getByText('Alles auswählen').click();
 
   await dialog.getByRole('button', { name: '2 Produkte übernehmen' }).click();
   const result = dialog.getByTestId('copy-result');
