@@ -163,7 +163,7 @@ export function SettingsContainer() {
       {activeMain === 'personal' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Personal sub-tabs */}
-          <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={setActivePersonal} />
+          <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={(id) => { dropTabParam(); setActivePersonal(id); }} />
           {personalTabs.find((tab) => tab.id === activePersonal)?.children}
         </div>
       )}
@@ -173,7 +173,7 @@ export function SettingsContainer() {
         <>
           {currentOrganization ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              <TabBar tabs={organizationTabs} activeId={activeOrg} onSelect={setActiveOrg} />
+              <TabBar tabs={organizationTabs} activeId={activeOrg} onSelect={(id) => { dropTabParam(); setActiveOrg(id); }} />
               {organizationTabs.find((tab) => tab.id === activeOrg)?.children}
             </div>
           ) : (
