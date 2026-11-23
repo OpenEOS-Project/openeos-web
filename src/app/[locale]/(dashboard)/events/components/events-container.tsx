@@ -18,9 +18,14 @@ import { useDeployment } from '@/components/providers/setup-provider';
 import { toast } from '@/components/shared/toast';
 import { ModalPanel } from '@/components/shared/modal-panel';
 import type { Event } from '@/types';
+import type { DuplicateEventResult } from '@/types/event';
 import type { EventBilling } from '@/types/billing';
 
+import '@/styles/waiters.css';
+import { PinRevealModal, type RevealedPin } from '../../waiters/components/pin-reveal-modal';
+
 import { EventCheckoutDialog } from './event-checkout-dialog';
+import { EventDuplicateDialog } from './event-duplicate-dialog';
 import { EventFormModal } from './event-form-modal';
 import { EventUnlockDialog } from './event-unlock-dialog';
 import { EventsList } from './events-list';
@@ -35,6 +40,9 @@ export function EventsContainer() {
   const [checkout, setCheckout] = useState<{ event: Event; billing: EventBilling } | null>(null);
   const [checkingEventId, setCheckingEventId] = useState<string | null>(null);
   const [unlockEvent, setUnlockEvent] = useState<Event | null>(null);
+
+  const [duplicatingEvent, setDuplicatingEvent] = useState<Event | null>(null);
+  const [revealed, setRevealed] = useState<{ pins: RevealedPin[]; eventName: string } | null>(null);
 
   const currentOrganization = useAuthStore((state) => state.currentOrganization);
   const organizationId = currentOrganization?.organizationId || '';
@@ -182,6 +190,17 @@ export function EventsContainer() {
     }
   };
 
+  const handleDuplicated = ({ event, copied, waiters, skipped }: DuplicateEventResult) => {
+    setDuplicatingEvent(null);
+    toast.success(
+      t('duplicate.success', { name: event.name, products: copied.productsCopied, plans: copied.shiftPlans }),
+    );
+    if (skipped.shiftPlans) toast.error(t('duplicate.skippedShiftPlans'));
+    if (skipped.waiters) toast.error(t('duplicate.skippedWaiters'));
+    // Neue PINs sind nur jetzt sichtbar — wie beim Anlegen mehrerer Bedienungen.
+    if (waiters.length > 0) setRevealed({ pins: waiters, eventName: event.name });
+  };
+
   const handleModalClose = () => {
     setIsCreateModalOpen(false);
     setEditingEvent(null);
@@ -193,12 +212,31 @@ export function EventsContainer() {
         onCreateClick={handleCreateClick}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
+        onDuplicateClick={setDuplicatingEvent}
         onActivateClick={handleActivateClick}
         onDeactivateClick={handleDeactivateClick}
         onSetTestModeClick={handleSetTestModeClick}
         onUnlockClick={deployment.billingEnabled ? setUnlockEvent : undefined}
         activatingEventId={checkingEventId}
       />
+
+      {duplicatingEvent && (
+        <EventDuplicateDialog
+          event={duplicatingEvent}
+          organizationId={organizationId}
+          onClose={() => setDuplicatingEvent(null)}
+          onDuplicated={handleDuplicated}
+        />
+      )}
+
+      {revealed && (
+        <PinRevealModal
+          pins={revealed.pins}
+          organizationName={currentOrganization?.organization?.name ?? ''}
+          eventName={() => revealed.eventName}
+          onClose={() => setRevealed(null)}
+        />
+      )}
 
       <EventUnlockDialog
         event={unlockEvent}

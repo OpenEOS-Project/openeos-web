@@ -1,0 +1,75 @@
+/* Übernahme aus einer anderen Veranstaltung: Zeile im Anlegen-Dialog,
+   Baum auf der Produktseite, Dialog „Veranstaltung duplizieren“. */
+
+.event-copy-source {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--ink) 4%, transparent);
+  font-size: 13px;
+  color: var(--ink);
+}
+.event-copy-source > svg {
+  flex: none;
+}
+.event-copy-source__text {
+  flex: 1 1 240px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.event-copy-source .event-copy-source__select {
+  flex: 0 1 220px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.event-copy-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.event-copy-dialog__hint,
+.event-copy-dialog__list {
+  margin: 0;
+  font-size: 13px;
+  color: color-mix(in oklab, var(--ink) 70%, transparent);
+}
+.event-copy-dialog__list {
+  padding-left: 18px;
+  list-style: disc;
+}
+.event-copy-dialog__error {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--danger) 10%, var(--paper));
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.event-copy-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(46vh, 420px);
+  padding: 10px 12px;
+  overflow-y: auto;
+  border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+  border-radius: 10px;
+}
+.event-copy-tree__category {
+  margin-top: 6px;
+  font-weight: 600;
+}
+.event-copy-tree__product {
+  margin-left: 26px;
+}
+.event-copy-tree__meta {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
+}

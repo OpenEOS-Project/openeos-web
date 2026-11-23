@@ -43,7 +43,17 @@ export class EventsPage {
     await this.page.getByRole('menuitem', { name: label, exact: true }).click();
   }
 
-  async createEvent(data: { name: string; description?: string; startDate: string; endDate?: string }) {
+  /**
+   * Ohne `copyFrom` entsteht eine leere Veranstaltung („Nichts übernehmen“) —
+   * sonst nähme jeder Test die Karte des vorigen mit.
+   */
+  async createEvent(data: {
+    name: string;
+    description?: string;
+    startDate: string;
+    endDate?: string;
+    copyFrom?: string;
+  }) {
     await this.createButton.click();
     await this.modal.getByRole('textbox', { name: 'Name' }).fill(data.name);
     if (data.description) {
@@ -53,7 +63,12 @@ export class EventsPage {
     if (data.endDate) {
       await this.modal.getByLabel('Enddatum').fill(data.endDate);
     }
-    await this.modal.getByRole('button', { name: 'Erstellen' }).click();
+    const submit = this.modal.getByRole('button', { name: 'Erstellen' });
+    // Erst mit geladenen Vorlagen lässt sich absenden.
+    await expect(submit).toBeEnabled();
+    const source = this.modal.getByLabel('Übernehmen aus');
+    if (await source.isVisible()) await source.selectOption(data.copyFrom ?? '');
+    await submit.click();
     // Der Dialog schliesst erst, wenn die API das Anlegen bestaetigt hat.
     await expect(this.modal).toHaveCount(0);
     await expect(this.row(data.name)).toBeVisible();

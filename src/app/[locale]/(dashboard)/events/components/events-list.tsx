@@ -19,6 +19,7 @@ interface EventsListProps {
   onCreateClick: () => void;
   onEditClick: (event: Event) => void;
   onDeleteClick: (event: Event) => void;
+  onDuplicateClick: (event: Event) => void;
   onActivateClick: (event: Event) => void;
   onDeactivateClick: (event: Event) => void;
   onSetTestModeClick: (event: Event) => void;
@@ -35,6 +36,7 @@ export function EventsList({
   onCreateClick,
   onEditClick,
   onDeleteClick,
+  onDuplicateClick,
   onActivateClick,
   onDeactivateClick,
   onSetTestModeClick,
@@ -196,6 +198,7 @@ export function EventsList({
       // Neuer Tab wie zuvor (RowAction kennt kein target).
       onClick: () => window.open(shopUrlForEvent(event.id), '_blank', 'noopener,noreferrer'),
     },
+    { id: 'duplicate', label: t('actions.duplicate'), icon: 'copy', onClick: () => onDuplicateClick(event) },
     { id: 'delete', label: t('actions.delete'), icon: 'trash', danger: true, onClick: () => onDeleteClick(event) },
   ];
 
