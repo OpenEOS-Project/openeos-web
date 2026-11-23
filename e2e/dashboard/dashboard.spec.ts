@@ -33,13 +33,57 @@ test.describe('Dashboard', () => {
       }
     });
 
-    // Rechnungen und Support gibt es nur im gehosteten Betrieb.
+    // Rechnungen und Support gibt es nur im gehosteten Betrieb; die
+    // Dokumentation ist überall verlinkt.
     test('hides SaaS-only entries on a self-hosted install', async ({ adminPage }) => {
       const dashboard = new DashboardPage(adminPage);
       await expect(dashboard.navLink('Dashboard')).toBeVisible();
       await expect(dashboard.navLink('Rechnungen')).toHaveCount(0);
-      await expect(dashboard.navLink('Support')).toHaveCount(0);
+      await expect(dashboard.navLink('Hilfe & Support')).toHaveCount(0);
       await expect(dashboard.navLink('Organisationen')).toHaveCount(0);
+      await expect(dashboard.navLink('Dokumentation')).toHaveAttribute('href', 'https://docs.openeos.de');
+    });
+
+    // Gruppen statt Trennlinien (src/config/navigation.ts).
+    test('groups the sidebar into event, till, payments and organization', async ({ adminPage }) => {
+      const dashboard = new DashboardPage(adminPage);
+      const group = (name: string) => dashboard.navigation.getByRole('group', { name, exact: true });
+
+      await expect(group('Kasse & Geräte').getByRole('link', { name: 'Geräte', exact: true })).toBeVisible();
+      await expect(group('Kasse & Geräte').getByRole('link', { name: 'Bedienungen', exact: true })).toBeVisible();
+      await expect(group('Bezahlen').getByRole('link', { name: 'Pfand', exact: true })).toBeVisible();
+      await expect(group('Organisation').getByRole('link', { name: 'Mitglieder', exact: true })).toBeVisible();
+      await expect(group('Organisation').getByRole('link', { name: 'Rechtliches', exact: true })).toBeVisible();
+      // Die Veranstaltungsgruppe heißt wie die gewählte Veranstaltung —
+      // gefunden wird sie deshalb über ihren Inhalt.
+      const eventGroup = dashboard.navigation.locator('[data-section="event"]');
+      await expect(eventGroup.getByRole('link', { name: 'Produkte', exact: true })).toBeVisible();
+      await expect(eventGroup.getByRole('link', { name: 'Auswertung', exact: true })).toBeVisible();
+      await expect(eventGroup.getByRole('heading', { level: 2 })).not.toBeEmpty();
+      // Kategorien sind kein eigener Eintrag mehr, sondern ein Reiter der Produkte.
+      await expect(dashboard.navLink('Kategorien')).toHaveCount(0);
+    });
+
+    test('organization settings open from the Organisation group', async ({ adminPage }) => {
+      const dashboard = new DashboardPage(adminPage);
+      await dashboard.navigation
+        .getByRole('group', { name: 'Organisation', exact: true })
+        .getByRole('link', { name: 'Einstellungen', exact: true })
+        .click();
+      await expect(adminPage).toHaveURL(/\/settings\?tab=org-general$/);
+      await expect(adminPage.getByRole('tab', { name: 'Organisation', exact: true })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    test('categories are a tab of the products page', async ({ adminPage }) => {
+      const dashboard = new DashboardPage(adminPage);
+      await dashboard.navLink('Produkte').click();
+      await expect(adminPage).toHaveURL(/\/products$/);
+      const tabs = adminPage.getByRole('navigation', { name: 'Produkte und Kategorien' });
+      await tabs.getByRole('link', { name: 'Kategorien' }).click();
+      await expect(adminPage).toHaveURL(/\/categories$/);
+      await expect(adminPage.getByRole('heading', { name: 'Kategorien', level: 1 })).toBeVisible();
+      // „Produkte“ bleibt in der Seitenleiste hervorgehoben.
+      await expect(dashboard.navLink('Produkte')).toHaveAttribute('aria-current', 'page');
     });
 
     test('member without module rights sees only the basics', async ({ memberPage }) => {
@@ -61,8 +105,11 @@ test.describe('Dashboard', () => {
     test('can navigate to settings via the account menu', async ({ adminPage }) => {
       const dashboard = new DashboardPage(adminPage);
       const menu = await dashboard.openUserMenu(ADMIN_NAME);
-      await menu.getByRole('menuitem', { name: 'Einstellungen' }).click();
-      await expect(adminPage).toHaveURL(/\/settings$/);
+      // Im Menü am Benutzer steht nur noch Persönliches; Einstellungen der
+      // Organisation und Rechtliches liegen in der Gruppe Organisation.
+      await expect(menu.getByRole('menuitem', { name: 'Rechtliches' })).toHaveCount(0);
+      await menu.getByRole('menuitem', { name: 'Persönliche Einstellungen' }).click();
+      await expect(adminPage).toHaveURL(/\/settings\?tab=profile$/);
       await expect(adminPage.getByRole('heading', { name: 'Einstellungen', level: 1 })).toBeVisible();
     });
   });

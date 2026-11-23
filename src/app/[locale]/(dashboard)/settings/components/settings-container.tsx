@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { ProfileSection } from './profile-section';
@@ -75,6 +75,33 @@ export function SettingsContainer() {
   const [activeOrg, setActiveOrg] = useState(
     requestedTab && orgTabIds.includes(requestedTab) ? requestedTab : 'org-general',
   );
+  /* Die Seitenleiste verlinkt /settings (persönlich, im Menü am Benutzer)
+     und /settings?tab=org-general (Gruppe Organisation). Wechselt nur der
+     Suchteil, bleibt die Seite eingehängt — die Reiter folgen dann hier. */
+  const skipSync = useRef(false);
+  useEffect(() => {
+    if (skipSync.current) {
+      skipSync.current = false;
+      return;
+    }
+    if (requestedTab && orgTabIds.includes(requestedTab)) {
+      setActiveMain('organization');
+      setActiveOrg(requestedTab);
+    } else if (!requestedTab || personalTabIds.includes(requestedTab)) {
+      setActiveMain('personal');
+      setActivePersonal(requestedTab ?? 'profile');
+    }
+    // orgTabIds/personalTabIds sind feste Listen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedTab]);
+
+  /* Von Hand gewählter Reiter: ?tab= passt nicht mehr und entfällt, damit
+     derselbe Link in der Seitenleiste danach wieder greift. */
+  const dropTabParam = () => {
+    if (!rawTab) return;
+    skipSync.current = true;
+    window.history.replaceState(null, '', window.location.pathname);
+  };
 
   const personalTabs: SettingsTab[] = [
     { id: 'profile', label: t('profile.title'), children: <ProfileSection /> },
@@ -126,14 +153,17 @@ export function SettingsContainer() {
           ...(isSuperAdmin ? [{ id: 'platform', label: t('tabs.platform') }] : []),
         ]}
         activeId={activeMain}
-        onSelect={(id) => setActiveMain(id as 'personal' | 'organization' | 'platform')}
+        onSelect={(id) => {
+          dropTabParam();
+          setActiveMain(id as 'personal' | 'organization' | 'platform');
+        }}
       />
 
       {/* Personal settings */}
       {activeMain === 'personal' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Personal sub-tabs */}
-          <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={setActivePersonal} />
+          <TabBar tabs={personalTabs} activeId={activePersonal} onSelect={(id) => { dropTabParam(); setActivePersonal(id); }} />
           {personalTabs.find((tab) => tab.id === activePersonal)?.children}
         </div>
       )}
@@ -143,7 +173,7 @@ export function SettingsContainer() {
         <>
           {currentOrganization ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              <TabBar tabs={organizationTabs} activeId={activeOrg} onSelect={setActiveOrg} />
+              <TabBar tabs={organizationTabs} activeId={activeOrg} onSelect={(id) => { dropTabParam(); setActiveOrg(id); }} />
               {organizationTabs.find((tab) => tab.id === activeOrg)?.children}
             </div>
           ) : (

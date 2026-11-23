@@ -41,6 +41,45 @@ export type NavItemType = {
     nested?: boolean;
     /** Nur, wenn die Organisation Bargeld annehmen darf (z. B. Kassenbuch). */
     cashOnly?: boolean;
+    /**
+     * Weitere Pfade, unter denen der Eintrag als aktiv gilt — etwa
+     * /categories, das als Reiter unter "Produkte" liegt.
+     */
+    activePaths?: string[];
+    /** Suchteil für den Link (ohne "?"), z. B. `tab=org-general`. Zählt nicht für die Hervorhebung. */
+    search?: string;
+    /** Externer Link (öffnet in neuem Tab); `href` bleibt dann leer. */
+    externalHref?: (locale: string) => string;
+    /** Eigener Anker für die Tour (`data-tour="nav-<tourId>"`), sonst aus `href` abgeleitet. */
+    tourId?: string;
+};
+
+/** Was eine Gruppe braucht, um über ihre Sichtbarkeit zu entscheiden. */
+export type NavSectionContext = {
+    /** Betriebsart „Nur Bons“: keine Zahlungen in OpenEOS. */
+    ordersOnly: boolean;
+};
+
+/**
+ * Gruppe in der Seitenleiste: Überschrift plus Einträge.
+ *
+ * Ersetzt die früheren Trennlinien. Ohne Überschrift (`labelKey` und
+ * `dynamicLabel` leer) stehen die Einträge einfach untereinander — so oben
+ * Dashboard und Veranstaltungen.
+ */
+export type NavSectionType = {
+    /** Stabiler Schlüssel (React-Key, gemerkter Auf-/Zuklapp-Zustand). */
+    id: string;
+    /** Übersetzungsschlüssel unter `navigation.groups.*`. */
+    labelKey?: string;
+    /**
+     * Überschrift zur Laufzeit statt fester Übersetzung: `eventName` = Name
+     * der gewählten Veranstaltung (Rückfall auf `labelKey`).
+     */
+    dynamicLabel?: "eventName";
+    /** Ganze Gruppe nur, wenn das hier `true` liefert (z. B. nicht in „Nur Bons“). */
+    isVisible?: (context: NavSectionContext) => boolean;
+    items: NavItemType[];
 };
 
 export type NavItemDividerType = Omit<NavItemType, "icon" | "label" | "divider"> & {

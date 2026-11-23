@@ -597,7 +597,18 @@
     "legalElster": "ELSTER-Angaben",
     "legalShop": "Shop-Rechtstexte",
     "waiters": "Bedienungen",
-    "adminLegal": "Rechtstexte"
+    "adminLegal": "Rechtstexte",
+    "shiftPlan": "Schichtplan",
+    "help": "Hilfe & Support",
+    "docs": "Dokumentation",
+    "personalSettings": "Persönliche Einstellungen",
+    "catalogTabs": "Produkte und Kategorien",
+    "groups": {
+      "event": "Veranstaltung",
+      "till": "Kasse & Geräte",
+      "payments": "Bezahlen",
+      "organization": "Organisation"
+    }
   },
   "settings": {
     "title": "Einstellungen",
@@ -7058,7 +7069,7 @@
         },
         "help": {
           "title": "Wenn etwas klemmt",
-          "text": "Über den Support erreichst du uns direkt. Den Rundgang kannst du in den Einstellungen jederzeit erneut starten."
+          "text": "Über den Support erreichst du uns direkt. Den Rundgang kannst du in den persönlichen Einstellungen jederzeit erneut starten."
         }
       }
     }
@@ -7096,7 +7107,8 @@
     "appearance": "Erscheinungsbild",
     "breadcrumb": "Seitenpfad",
     "organizationLimitReached": "Du bist in {limit} Organisationen – mehr geht nicht. Für weitere wende dich an den Support.",
-    "organizationCreateDeletionScheduled": "Dein Konto wird gelöscht – neue Organisationen kannst du nicht mehr anlegen."
+    "organizationCreateDeletionScheduled": "Dein Konto wird gelöscht – neue Organisationen kannst du nicht mehr anlegen.",
+    "navigation": "Hauptnavigation"
   },
   "createOrganization": {
     "steps": {
