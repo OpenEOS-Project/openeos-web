@@ -21,7 +21,7 @@
   overflow-wrap: anywhere;
 }
 .event-copy-source .event-copy-source__select {
-  flex: 0 1 220px;
+  flex: 0 1 300px;
   width: auto;
   min-width: 0;
   max-width: 100%;
@@ -40,6 +40,7 @@
 }
 .event-copy-dialog__list {
   padding-left: 18px;
+  margin: 4px 0 8px;
   list-style: disc;
 }
 .event-copy-dialog__error {

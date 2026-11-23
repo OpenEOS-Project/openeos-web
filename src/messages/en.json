@@ -2304,7 +2304,7 @@
       "suffix": "copy",
       "intro": "Taken over from “{name}”:",
       "itemCatalog": "Categories, products and stations",
-      "itemSettings": "Settings: payment mode, tables, lead time, shop including its opening days",
+      "itemSettings": "Settings: checkout mode, tables, lead time, shop including its opening days",
       "itemShifts": "Shift plans as drafts, without sign-ups – dates moved accordingly",
       "itemStaff": "Servers and tokens that belong only to this event – servers get new PINs",
       "never": "Activation, TSE, orders and settlements stay with the old event.",
