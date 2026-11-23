@@ -597,7 +597,18 @@
     "legalElster": "ELSTER details",
     "legalShop": "Shop legal texts",
     "waiters": "Servers",
-    "adminLegal": "Legal texts"
+    "adminLegal": "Legal texts",
+    "shiftPlan": "Shift plan",
+    "help": "Help & support",
+    "docs": "Documentation",
+    "personalSettings": "Personal settings",
+    "catalogTabs": "Products and categories",
+    "groups": {
+      "event": "Event",
+      "till": "Till & devices",
+      "payments": "Payments",
+      "organization": "Organization"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -7052,7 +7063,8 @@
     "appearance": "Appearance",
     "breadcrumb": "Breadcrumb",
     "organizationLimitReached": "You are in {limit} organizations – that is the maximum. Contact support for more.",
-    "organizationCreateDeletionScheduled": "Your account is being deleted – you can no longer create organizations."
+    "organizationCreateDeletionScheduled": "Your account is being deleted – you can no longer create organizations.",
+    "navigation": "Main navigation"
   },
   "createOrganization": {
     "steps": {

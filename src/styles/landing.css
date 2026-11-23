@@ -3601,6 +3601,86 @@ body:has(.landing) {
   .landing .app-sidebar .app-sidebar__item.app-sidebar__item--nested { padding-left: 30px; }
 }
 
+/* Gruppen der Seitenleiste (Veranstaltung, Kasse & Geräte, Bezahlen,
+   Organisation). Die Überschrift ist eine h2 in der Optik der bisherigen
+   Gruppenlabels; die der Veranstaltung trägt deren Namen und wird
+   abgeschnitten, der volle Name steht im title. */
+.landing .app-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.landing .app-sidebar__section-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.landing h2.app-sidebar__group-label {
+  margin: 0;
+  padding: 14px 12px 4px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+}
+.landing .app-sidebar__section:first-child h2.app-sidebar__group-label {
+  padding-top: 4px;
+}
+.landing .app-sidebar__section-gap {
+  height: 10px;
+  flex-shrink: 0;
+}
+.landing .app-sidebar__section-sep {
+  /* Linie mittig in 13 px, damit der Tooltip unter der Maus erreichbar ist. */
+  height: 13px;
+  margin: 0 14px;
+  background: linear-gradient(color-mix(in oklab, var(--ink) 14%, transparent) 0 0) center / 100% 1px no-repeat;
+  flex-shrink: 0;
+}
+.landing .app-sidebar__item-external {
+  width: 13px !important;
+  height: 13px !important;
+  opacity: 0.45 !important;
+}
+/* Schublade (Telefon, Tablet): Überschrift als Knopf zum Zuklappen. */
+.landing h2.app-sidebar__group-label--toggle {
+  padding: 10px 4px 2px;
+}
+.landing .app-sidebar__group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.landing .app-sidebar__group-toggle:hover {
+  background: color-mix(in oklab, var(--ink) 5%, transparent);
+  color: var(--ink);
+}
+.landing .app-sidebar__group-toggle-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.landing .app-sidebar__group-chev {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.landing .app-sidebar__group-toggle[aria-expanded="false"] .app-sidebar__group-chev {
+  transform: rotate(-90deg);
+}
+
 /* ---------- Willkommens-Tour ----------
    Das Loch im Schleier entsteht ueber einen sehr weiten Schatten am
    hervorgehobenen Rechteck statt ueber eine Maske: so ist es eine

@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  ExternalLink,
   Globe,
   LogOut,
   Mail,
@@ -25,6 +26,7 @@ import {
   DropdownLink,
   DropdownOption,
   DropdownSeparator,
+  useMediaQuery,
 } from '@openeos/ui';
 
 import { useTheme } from 'next-themes';
@@ -36,7 +38,8 @@ import {
 } from '@/i18n/routing';
 import {
   dashboardFooterItems,
-  dashboardNavItems,
+  dashboardNavSections,
+  superAdminFooterItems,
   superAdminNavItems,
   withIntegrationNavItems,
 } from '@/config/navigation';
@@ -47,13 +50,29 @@ import { useIntlLocale } from '@/hooks/use-locale-format';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { isCashAllowed } from '@/lib/operating-mode';
-import type { NavItemDividerType, NavItemType } from '@/components/app-navigation/config';
+import { useOperatingMode } from '@/hooks/use-operating-mode';
+import type { NavItemType, NavSectionType } from '@/components/app-navigation/config';
 import { cx } from '@/utils/cx';
 import { seatUsage } from '@/utils/limits';
 import { APP_VERSION } from '@/lib/version';
 import { SourceCodeLink } from '@/components/shared/source-code-link';
 import { useReleaseVersion } from '@/hooks/use-release-version';
 import { useDeployment } from '@/components/providers/setup-provider';
+
+/** Mobil zugeklappte Gruppen (ids), gemerkt über Sitzungen hinweg. */
+const CLOSED_GROUPS_KEY = 'openeos.sidebar.closedGroups';
+/** Ab hier ist die Seitenleiste eine Schublade (siehe landing.css). */
+const DRAWER_QUERY = '(max-width: 960px)';
+
+function readClosedGroups(): string[] {
+  try {
+    const raw = window.localStorage.getItem(CLOSED_GROUPS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -147,7 +166,7 @@ export function AppSidebar() {
   const deletionScheduled = !!user?.deletionDueAt;
   const orgLimitReached = (orgSeats.full && !isSuperAdmin) || deletionScheduled;
 
-  const canSeeNavItem = (item: NavItemType | NavItemDividerType): boolean => {
+  const canSeeNavItem = (item: NavItemType): boolean => {
     // Fuehrt eigenstaendig ins Leere: die Endpunkte dahinter antworten mit 404.
     if (item.saasOnly && !deployment.multiTenant) return false;
     if (item.cashOnly && !isCashAllowed(currentOrganization?.organization)) return false;
@@ -157,15 +176,27 @@ export function AppSidebar() {
     return !!currentPermissions?.[item.requiredPermission];
   };
 
-  // Drop dividers that end up leading, trailing, or back-to-back after permission filtering
-  const stripOrphanedDividers = (items: (NavItemType | NavItemDividerType)[]) =>
-    items.filter((item, index, arr) => {
-      if (!item.divider) return true;
-      const hasItemBefore = arr.slice(0, index).some((prev) => !prev.divider);
-      const hasItemAfter = arr.slice(index + 1).some((next) => !next.divider);
-      const nextIsDivider = !!arr[index + 1]?.divider;
-      return hasItemBefore && hasItemAfter && !nextIsDivider;
+  /* „Nur Bons“ blendet die Gruppe Bezahlen ganz aus. */
+  const { ordersOnly } = useOperatingMode();
+
+  /* In der Schublade (Telefon, Tablet) lassen sich Gruppen zuklappen; der
+     Zustand bleibt im Browser. Eingeklappt (nur Symbole) gilt nur am
+     Desktop — die Schublade ist immer breit. */
+  const isDrawer = useMediaQuery(DRAWER_QUERY);
+  const iconOnly = isCollapsed && !isDrawer;
+  const [closedGroups, setClosedGroups] = React.useState<string[]>([]);
+  React.useEffect(() => setClosedGroups(readClosedGroups()), []);
+  const toggleGroup = (id: string) => {
+    setClosedGroups((prev) => {
+      const next = prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id];
+      try {
+        window.localStorage.setItem(CLOSED_GROUPS_KEY, JSON.stringify(next));
+      } catch {
+        /* Privater Modus o. Ä.: dann eben nur für diese Sitzung. */
+      }
+      return next;
     });
+  };
 
   /* Eigenstaendig ist der Administrator zwar technisch Super-Admin — sonst
      kaeme er an Geraete, Drucker und Protokoll nicht heran — aber es gibt
@@ -175,17 +206,24 @@ export function AppSidebar() {
      gibt. */
   const zeigeBetreiberNavigation = isSuperAdmin && deployment.multiTenant;
 
-  const navItems = zeigeBetreiberNavigation
-    ? superAdminNavItems.filter(canSeeNavItem)
-    : stripOrphanedDividers(
-        withIntegrationNavItems(
-          dashboardNavItems,
-          currentOrganization?.organization?.settings,
-        ).filter(canSeeNavItem),
-      );
+  const navSections: NavSectionType[] = zeigeBetreiberNavigation
+    ? [{ id: 'main', items: superAdminNavItems.filter(canSeeNavItem) }]
+    : withIntegrationNavItems(dashboardNavSections, currentOrganization?.organization?.settings)
+        .filter((section) => !section.isVisible || section.isVisible({ ordersOnly }))
+        .map((section) => ({ ...section, items: section.items.filter(canSeeNavItem) }))
+        // Gruppen, von denen nach den Rechten nichts übrig bleibt, entfallen samt Überschrift.
+        .filter((section) => section.items.length > 0);
+  const navItems = navSections.flatMap((section) => section.items);
   const filteredFooterItems = zeigeBetreiberNavigation
-    ? dashboardFooterItems.filter((item) => !item.adminOnly)
+    ? superAdminFooterItems.filter((item) => !item.adminOnly)
     : dashboardFooterItems.filter(canSeeNavItem);
+
+  /* Überschrift der Gruppe: die Veranstaltungsgruppe heißt wie die gewählte
+     Veranstaltung; ohne eine steht neutral „Veranstaltung“. */
+  const sectionLabel = (section: NavSectionType): string | null => {
+    if (section.dynamicLabel === 'eventName' && activeEvent?.name) return activeEvent.name;
+    return section.labelKey ? tNav(`groups.${section.labelKey}`) : null;
+  };
 
 
   const orgs = organizations.filter((o) => o?.organization);
@@ -206,6 +244,101 @@ export function AppSidebar() {
     isCollapsed && 'app-sidebar--collapsed',
     isMobileOpen && 'app-sidebar--mobile-open'
   );
+
+  const matchesUrl = (href: string) => activeUrl === href || activeUrl.startsWith(href + '/');
+
+  const renderNavItem = (item: NavItemType) => {
+    const Icon = item.icon;
+    const text = navLabel(item);
+
+    /* Externe Ziele (Dokumentation) öffnen in einem neuen Tab. */
+    if (item.externalHref) {
+      return (
+        <div
+          key={`external-${item.labelKey ?? item.label}`}
+          className="app-sidebar__group"
+          data-tour={item.tourId ? `nav-${item.tourId}` : undefined}
+        >
+          <a
+            href={item.externalHref(locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="app-sidebar__item"
+            title={iconOnly ? text : undefined}
+            aria-label={iconOnly ? text : undefined}
+          >
+            {Icon && <Icon className="" />}
+            <span className="app-sidebar__item-label">{text}</span>
+            {!iconOnly && <ExternalLink className="app-sidebar__item-external" aria-hidden="true" />}
+          </a>
+        </div>
+      );
+    }
+
+    if (!item.href) return null;
+    const href = item.href;
+    const subItems = item.items ?? [];
+    const ownPaths = [href, ...(item.activePaths ?? [])];
+    /* Liegt ein anderer Eintrag genauer auf der Adresse — etwa
+       /integrations/sumup unter /integrations —, gehoert die
+       Hervorhebung ihm allein, sonst leuchteten beide. */
+    const hasMoreSpecificMatch = navItems.some(
+      (other) => !!other.href && other.href.startsWith(href + '/') && matchesUrl(other.href),
+    );
+    const isActiveBranch =
+      !hasMoreSpecificMatch &&
+      (ownPaths.some(matchesUrl) || subItems.some((sub) => matchesUrl(sub.href)));
+
+    return (
+      /* Anker fuer die Tour, aus dem Pfad abgeleitet: /events wird
+         zu nav-events. Kein Sonderfall je Eintrag, und ein neuer
+         Navigationspunkt bringt seinen Anker von selbst mit. */
+      <div
+        key={href}
+        className="app-sidebar__group"
+        data-tour={`nav-${item.tourId ?? href.replace(/^\//, '').replace(/\//g, '-')}`}
+      >
+        <Link
+          href={(item.search ? `${href}?${item.search}` : href) as never}
+          className={cx(
+            'app-sidebar__item',
+            item.nested && 'app-sidebar__item--nested',
+            isActiveBranch && 'app-sidebar__item--active',
+          )}
+          aria-current={isActiveBranch ? 'page' : undefined}
+          /* Eingeklappt ist nur das Symbol zu sehen — Name als Tooltip
+             und fuer Screenreader. */
+          title={iconOnly ? text : undefined}
+          aria-label={iconOnly ? text : undefined}
+        >
+          {Icon && <Icon className="" />}
+          <span className="app-sidebar__item-label">{text}</span>
+          {item.badge && !iconOnly && (
+            <span className="app-sidebar__item-badge">{item.badge}</span>
+          )}
+        </Link>
+        {!iconOnly && subItems.length > 0 && isActiveBranch && (
+          <div className="app-sidebar__subnav">
+            {subItems.map((sub) => {
+              const isSubActive = matchesUrl(sub.href);
+              return (
+                <Link
+                  key={sub.href}
+                  href={sub.href as never}
+                  className={cx(
+                    'app-sidebar__subitem',
+                    isSubActive && 'app-sidebar__subitem--active',
+                  )}
+                >
+                  <span className="app-sidebar__subitem-label">{sub.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -456,85 +589,58 @@ export function AppSidebar() {
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="app-sidebar__nav" data-tour="nav">
-          {navItems.map((item, index) => {
-            if (item.divider) {
-              return (
-                <div
-                  key={`divider-${index}`}
-                  aria-hidden="true"
-                  style={{
-                    height: 1,
-                    background: 'color-mix(in oklab, var(--ink) 8%, transparent)',
-                    margin: '6px 10px',
-                    flexShrink: 0,
-                  }}
-                />
-              );
-            }
-            if (!item.href) return null;
-            const Icon = item.icon;
-            const subItems = item.items ?? [];
-            const isExactActive = activeUrl === item.href;
-            const matches = (href: string) => activeUrl === href || activeUrl.startsWith(href + '/');
-            /* Liegt ein anderer Eintrag genauer auf der Adresse — etwa
-               /integrations/sumup unter /integrations —, gehoert die
-               Hervorhebung ihm allein, sonst leuchteten beide. */
-            const hasMoreSpecificMatch = navItems.some(
-              (other) =>
-                !other.divider &&
-                !!other.href &&
-                other.href.startsWith(item.href + '/') &&
-                matches(other.href),
-            );
-            const isActiveBranch =
-              !hasMoreSpecificMatch &&
-              (isExactActive ||
-                activeUrl.startsWith(item.href + '/') ||
-                subItems.some((sub) => matches(sub.href)));
-
+        {/* Navigation, in Gruppen (src/config/navigation.ts) */}
+        <nav className="app-sidebar__nav" data-tour="nav" aria-label={t('navigation')}>
+          {navSections.map((section, sectionIndex) => {
+            const label = sectionLabel(section);
+            const headingId = `app-sidebar-group-${section.id}`;
+            const collapsible = isDrawer && !!label;
+            const open = !collapsible || !closedGroups.includes(section.id);
             return (
-              /* Anker fuer die Tour, aus dem Pfad abgeleitet: /events wird
-                 zu nav-events. Kein Sonderfall je Eintrag, und ein neuer
-                 Navigationspunkt bringt seinen Anker von selbst mit. */
               <div
-                key={item.href}
-                className="app-sidebar__group"
-                data-tour={`nav-${item.href.replace(/^\//, '').replace(/\//g, '-')}`}
+                key={section.id}
+                role={label ? 'group' : undefined}
+                aria-label={label ?? undefined}
+                className="app-sidebar__section"
+                data-section={section.id}
               >
-                <Link
-                  href={item.href as never}
-                  className={cx(
-                    'app-sidebar__item',
-                    item.nested && 'app-sidebar__item--nested',
-                    isActiveBranch && 'app-sidebar__item--active',
-                  )}
-                >
-                  {Icon && <Icon className="" />}
-                  <span className="app-sidebar__item-label">{navLabel(item)}</span>
-                  {item.badge && !isCollapsed && (
-                    <span className="app-sidebar__item-badge">{item.badge}</span>
-                  )}
-                </Link>
-                {!isCollapsed && subItems.length > 0 && isActiveBranch && (
-                  <div className="app-sidebar__subnav">
-                    {subItems.map((sub) => {
-                      const isSubActive =
-                        activeUrl === sub.href || activeUrl.startsWith(sub.href + '/');
-                      return (
-                        <Link
-                          key={sub.href}
-                          href={sub.href as never}
-                          className={cx(
-                            'app-sidebar__subitem',
-                            isSubActive && 'app-sidebar__subitem--active',
-                          )}
-                        >
-                          <span className="app-sidebar__subitem-label">{sub.label}</span>
-                        </Link>
-                      );
-                    })}
+                {/* Eingeklappt bleibt von der Überschrift eine Linie mit
+                    Tooltip; ohne Überschrift nur die Linie (nicht vor der
+                    ersten Gruppe). */}
+                {iconOnly && sectionIndex > 0 && (
+                  <div
+                    className="app-sidebar__section-sep"
+                    role="separator"
+                    title={label ?? undefined}
+                  />
+                )}
+                {!iconOnly && label && !collapsible && (
+                  <h2 id={headingId} className="app-sidebar__group-label" title={label}>
+                    {label}
+                  </h2>
+                )}
+                {!iconOnly && label && collapsible && (
+                  <h2 className="app-sidebar__group-label app-sidebar__group-label--toggle">
+                    <button
+                      type="button"
+                      id={headingId}
+                      className="app-sidebar__group-toggle"
+                      aria-expanded={open}
+                      aria-controls={open ? `${headingId}-items` : undefined}
+                      title={label}
+                      onClick={() => toggleGroup(section.id)}
+                    >
+                      <span className="app-sidebar__group-toggle-text">{label}</span>
+                      <ChevronDown className="app-sidebar__group-chev" aria-hidden="true" />
+                    </button>
+                  </h2>
+                )}
+                {!iconOnly && !label && sectionIndex > 0 && (
+                  <div className="app-sidebar__section-gap" aria-hidden="true" />
+                )}
+                {open && (
+                  <div id={`${headingId}-items`} className="app-sidebar__section-items">
+                    {section.items.map((item) => renderNavItem(item))}
                   </div>
                 )}
               </div>
@@ -567,12 +673,11 @@ export function AppSidebar() {
                   </>
                 }
               >
-                <DropdownCaption>{currentOrganization?.organization?.name}</DropdownCaption>
                 {filteredFooterItems.map((item) =>
                   item.href ? (
                     <DropdownLink
                       key={item.href}
-                      href={`/${locale}${item.href}`}
+                      href={`/${locale}${item.href}${item.search ? `?${item.search}` : ''}`}
                       selected={activeUrl === item.href}
                       icon={item.icon ? <item.icon /> : undefined}
                     >
@@ -657,7 +762,7 @@ export function AppSidebar() {
               item.href ? (
                 <Link
                   key={item.href}
-                  href={item.href as never}
+                  href={(item.search ? `${item.href}?${item.search}` : item.href) as never}
                   className={cx(
                     'app-sidebar__item',
                     activeUrl === item.href && 'app-sidebar__item--active',

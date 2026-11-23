@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
+import { CatalogTabs } from '@/components/shared/catalog-tabs';
+
 import { CategoriesContainer } from './components/categories-container';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +24,8 @@ export default async function CategoriesPage() {
           <p className="app-page-head__sub">{t('subtitle')}</p>
         </div>
       </div>
+
+      <CatalogTabs active="categories" />
 
       <CategoriesContainer />
     </div>

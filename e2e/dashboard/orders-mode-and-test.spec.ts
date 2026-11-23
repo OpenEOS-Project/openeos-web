@@ -152,3 +152,17 @@ test.describe('Orders - test badge, phone list and orders-only mode', () => {
     await expect(detail).not.toContainText('€');
   });
 });
+
+test.describe('Sidebar in orders-only mode', () => {
+  test('hides the whole Bezahlen group', async ({ page }) => {
+    await ordersOnly(page);
+    await loginAs(page, TEST_ADMIN);
+
+    const nav = page.getByRole('complementary').getByRole('navigation');
+    await expect(nav.getByRole('group', { name: 'Kasse & Geräte', exact: true })).toBeVisible();
+    await expect(nav.getByRole('group', { name: 'Bezahlen', exact: true })).toHaveCount(0);
+    for (const label of ['Pfand', 'Rabatt-Bons', 'Wertmarken', 'Kassenbuch']) {
+      await expect(nav.getByRole('link', { name: label, exact: true })).toHaveCount(0);
+    }
+  });
+});
