@@ -109,6 +109,9 @@ export interface Event {
   updatedAt: string;
 }
 
+/** Antwort beim Anlegen mit Vorlage. */
+export type CreatedEvent = Event & { copySummary?: CatalogCopyResult };
+
 export interface CreateEventData {
   name: string;
   description?: string;
@@ -116,6 +119,48 @@ export interface CreateEventData {
   startDate: string;
   endDate?: string;
   settings?: Partial<EventSettings>;
+  /** Vorlage: Kategorien, Produkte und Standorte übernehmen; ohne = leer. */
+  copyFromEventId?: string;
+}
+
+/** Ergebnis einer Übernahme (neu, zusammengeführt, übersprungen). */
+export interface CatalogCopyResult {
+  categoriesCopied: number;
+  categoriesMerged: number;
+  productsCopied: number;
+  productsSkipped: number;
+  skippedProducts: Array<{ name: string; category: string }>;
+  stationsCopied: number;
+  stationsMerged: number;
+}
+
+export interface CopyCatalogData {
+  categoryIds?: string[];
+  productIds?: string[];
+  includeDuplicates?: boolean;
+}
+
+export interface DuplicateEventData {
+  name: string;
+  startDate: string;
+  endDate?: string;
+  copyStock?: boolean;
+}
+
+export interface DuplicateEventResult {
+  event: Event;
+  copied: CatalogCopyResult & { tokenTypes: number; shiftPlans: number; shifts: number; waiters: number };
+  /** Bedienungen mit neuen PINs — nur in dieser Antwort. */
+  waiters: Array<{
+    id: string;
+    name: string;
+    shortName: string | null;
+    color: string | null;
+    eventId: string | null;
+    pin: string;
+  }>;
+  /** Ohne Recht nicht übernommen. */
+  skipped: { shiftPlans: boolean; waiters: boolean };
 }
 
 export interface UpdateEventData {

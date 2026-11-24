@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { eventsApi } from '@/lib/api-client';
 
+import { categoryKeys } from './use-categories';
 import { invoiceKeys } from './use-invoices';
 import { onboardingKeys } from './use-onboarding';
-import type { CreateEventData, Event, UpdateEventData } from '@/types/event';
+import { productKeys } from './use-products';
+import type { CopyCatalogData, CreateEventData, DuplicateEventData, Event, UpdateEventData } from '@/types/event';
 import type { OrderInvoiceData } from '@/types/billing';
 
 export const eventKeys = {
@@ -27,6 +29,55 @@ export function useEvents(organizationId: string) {
       return response.data;
     },
     enabled: !!organizationId,
+  });
+}
+
+/** Alle Veranstaltungen, auch jenseits der ersten Listenseite (Auswahl der Vorlage). */
+export function useAllEvents(organizationId: string) {
+  return useQuery({
+    queryKey: [...eventKeys.list(organizationId), 'all'] as const,
+    queryFn: () => eventsApi.listAll(organizationId),
+    enabled: !!organizationId,
+  });
+}
+
+export function useDuplicateEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ organizationId, id, data }: { organizationId: string; id: string; data: DuplicateEventData }) => {
+      const response = await eventsApi.duplicate(organizationId, id, data);
+      return response.data;
+    },
+    onSuccess: (_, { organizationId }) => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.list(organizationId) });
+    },
+  });
+}
+
+export function useCopyCatalog() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      organizationId,
+      targetEventId,
+      sourceEventId,
+      data,
+    }: {
+      organizationId: string;
+      targetEventId: string;
+      sourceEventId: string;
+      data: CopyCatalogData;
+    }) => {
+      const response = await eventsApi.copyFrom(organizationId, targetEventId, sourceEventId, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['productionStations'] });
+    },
   });
 }
 
@@ -258,32 +309,6 @@ export function useCancelEventUnlock() {
       queryClient.invalidateQueries({ queryKey: eventKeys.active(organizationId) });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.list(organizationId) });
       queryClient.invalidateQueries({ queryKey: onboardingKeys.status(organizationId) });
-    },
-  });
-}
-
-export function useCopyProductsFromEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      organizationId,
-      targetEventId,
-      sourceEventId,
-      options,
-    }: {
-      organizationId: string;
-      targetEventId: string;
-      sourceEventId: string;
-      options?: { categoryIds?: string[]; productIds?: string[]; copyStock?: boolean };
-    }) => {
-      const response = await eventsApi.copyProductsFrom(organizationId, targetEventId, sourceEventId, options);
-      return response.data;
-    },
-    onSuccess: (_, { targetEventId }) => {
-      // Invalidate categories and products for the target event
-      queryClient.invalidateQueries({ queryKey: ['categories', 'list', targetEventId] });
-      queryClient.invalidateQueries({ queryKey: ['products', 'list', targetEventId] });
     },
   });
 }

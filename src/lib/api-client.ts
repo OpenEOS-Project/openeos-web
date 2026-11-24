@@ -810,6 +810,18 @@ export const eventsApi = {
   list: (organizationId: string) =>
     apiClient.get<ApiResponse<import('@/types/event').Event[]>>(`/organizations/${organizationId}/events`),
 
+  /** Alle Veranstaltungen (die Liste oben liefert nur die erste Seite). */
+  listAll: async (organizationId: string) => {
+    const all: import('@/types/event').Event[] = [];
+    for (let page = 1; ; page++) {
+      const { data } = await apiClient.get<ApiResponse<import('@/types/event').Event[]>>(
+        `/organizations/${organizationId}/events?limit=500&page=${page}`
+      );
+      all.push(...data);
+      if (data.length < 500) return all;
+    }
+  },
+
   active: (organizationId: string) =>
     apiClient.get<ApiResponse<import('@/types/event').Event | null>>(`/organizations/${organizationId}/events/active`),
 
@@ -817,7 +829,7 @@ export const eventsApi = {
     apiClient.get<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}`),
 
   create: (organizationId: string, data: import('@/types/event').CreateEventData) =>
-    apiClient.post<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events`, data),
+    apiClient.post<ApiResponse<import('@/types/event').CreatedEvent>>(`/organizations/${organizationId}/events`, data),
 
   update: (organizationId: string, id: string, data: import('@/types/event').UpdateEventData) =>
     apiClient.patch<ApiResponse<import('@/types/event').Event>>(`/organizations/${organizationId}/events/${id}`, data),
@@ -870,15 +882,21 @@ export const eventsApi = {
       `/organizations/${organizationId}/events/${id}/billing/cancel`
     ),
 
-  copyProductsFrom: (
+  copyFrom: (
     organizationId: string,
     targetEventId: string,
     sourceEventId: string,
-    options?: { categoryIds?: string[]; productIds?: string[]; copyStock?: boolean }
+    data: import('@/types/event').CopyCatalogData
   ) =>
-    apiClient.post<ApiResponse<{ categoriesCopied: number; productsCopied: number }>>(
+    apiClient.post<ApiResponse<import('@/types/event').CatalogCopyResult>>(
       `/organizations/${organizationId}/events/${targetEventId}/copy-from/${sourceEventId}`,
-      options || {}
+      data
+    ),
+
+  duplicate: (organizationId: string, id: string, data: import('@/types/event').DuplicateEventData) =>
+    apiClient.post<ApiResponse<import('@/types/event').DuplicateEventResult>>(
+      `/organizations/${organizationId}/events/${id}/duplicate`,
+      data
     ),
 };
 
@@ -987,6 +1005,9 @@ export const productsApi = {
 
   reorder: (eventId: string, items: { id: string; sortOrder: number }[]) =>
     apiClient.post(`/events/${eventId}/products/reorder`, { items }),
+
+  /** CSV im Format des Imports. */
+  exportCsv: (eventId: string) => authorizedDownload(`/events/${eventId}/products/export`),
 
   import: (eventId: string, data: { csv: string; mode: 'skip' | 'update' | 'create'; dryRun: boolean }) =>
     apiClient.post<ApiResponse<import('@/types/product').ProductImportResult>>(`/events/${eventId}/products/import`, data),

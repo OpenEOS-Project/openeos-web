@@ -1554,7 +1554,8 @@
       "deactivate": "Deaktivieren",
       "testMode": "Testmodus",
       "openShop": "Shop öffnen",
-      "unlock": "Freischaltung"
+      "unlock": "Freischaltung",
+      "duplicate": "Veranstaltung duplizieren"
     },
     "deleteConfirm": {
       "title": "Veranstaltung löschen",
@@ -1745,6 +1746,28 @@
         "active": "Verkauf bis {date}, {time} Uhr",
         "ended": "Beendet am {date} um {time} Uhr – offene Bestellungen kannst du weiter kassieren"
       }
+    },
+    "copyFrom": {
+      "line": "Karte, Kategorien und Standorte werden aus „{name}“ übernommen.",
+      "lineNone": "Die Veranstaltung beginnt ohne Karte, Kategorien und Standorte.",
+      "label": "Übernehmen aus",
+      "none": "Nichts übernehmen",
+      "created": "Aus „{name}“ übernommen: {products} Produkte, {categories} Kategorien, {stations} Standorte."
+    },
+    "duplicate": {
+      "title": "Veranstaltung duplizieren",
+      "suffix": "Kopie",
+      "intro": "Aus „{name}“ kommt mit:",
+      "itemCatalog": "Kategorien, Produkte und Standorte",
+      "itemSettings": "Einstellungen: Kassiermodus, Tische, Vorlauf, Shop samt Öffnungstagen",
+      "itemShifts": "Schichtpläne als Entwurf, ohne Anmeldungen – Daten passend verschoben",
+      "itemStaff": "Bedienungen und Wertmarken, die nur für diese Veranstaltung gelten – Bedienungen bekommen neue PINs",
+      "never": "Freischaltung, TSE, Bestellungen und Abrechnungen bleiben bei der alten Veranstaltung.",
+      "copyStock": "Bestand der Produkte übernehmen",
+      "submit": "Duplizieren",
+      "success": "„{name}“ angelegt: {products} Produkte, {plans, plural, one {ein Schichtplan} other {# Schichtpläne}}.",
+      "skippedShiftPlans": "Schichtpläne nicht übernommen – dir fehlt das Recht „Schichtpläne“.",
+      "skippedWaiters": "Bedienungen nicht übernommen – dir fehlt das Recht „Bedienungen“."
     }
   },
   "categories": {
@@ -1969,7 +1992,7 @@
       },
       "columnHint": {
         "title": "Spalten-Erklärung",
-        "body": "category, name, description, price, pfand, icon – Pflichtfelder: category, name, price. ingredients: Zutaten mit | getrennt (z.B. Salat | Tomate). choices: Gruppe mit Optionen (z.B. Sauce: Ketchup | Mayonnaise). extras: Zusatz mit Aufpreis (z.B. Extra Käse +0.50)."
+        "body": "category, name, description, price, pfand, icon – Pflichtfelder: category, name, price. ingredients: Zutaten mit | getrennt (z.B. Salat | Tomate). choices: Gruppe mit Optionen (z.B. Sauce: Ketchup | Mayonnaise). extras: Zusatz mit Aufpreis (z.B. Extra Käse +0.50). taxRate: Steuersatz in Prozent. Ein ? nach dem Gruppennamen macht eine Auswahl optional, * markiert die Vorauswahl, Aufpreise gehen auch bei choices. Mehrere Extra-Gruppen mit || trennen (z.B. Saucen: Mayo | Senf || Beilage!: Pommes), ! = Pflicht. Ein CSV-Export lässt sich unverändert wieder importieren."
       },
       "fatalError": "Kritischer Fehler:",
       "summary": {
@@ -2140,6 +2163,25 @@
       "clear": "Alle Produkte zeigen",
       "emptyTitle": "Keine Produkte in dieser Kategorie",
       "emptyText": "Die Kategorie ist leer – du kannst sie jetzt löschen."
+    },
+    "copyFrom": {
+      "trigger": "Aus Veranstaltung übernehmen",
+      "title": "Aus Veranstaltung übernehmen",
+      "source": "Veranstaltung",
+      "noSources": "Es gibt noch keine andere Veranstaltung.",
+      "emptySource": "In dieser Veranstaltung gibt es keine Kategorien und Produkte.",
+      "selectAll": "Alles auswählen",
+      "emptyCategory": "ohne Produkte",
+      "includeDuplicates": "Doppelte trotzdem übernehmen",
+      "hint": "Gleichnamige Kategorien werden zusammengeführt, schon vorhandene Produkte übersprungen. Standorte der Produkte kommen mit, der Bestand nicht.",
+      "submit": "{count, plural, one {Ein Produkt übernehmen} other {# Produkte übernehmen}}",
+      "result": "{copied} übernommen",
+      "resultSkipped": "{copied} übernommen, {skipped} übersprungen (schon vorhanden)",
+      "resultDetails": "Kategorien: {categories} neu, {categoriesMerged} zusammengeführt. Standorte: {stations} neu, {stationsMerged} zusammengeführt."
+    },
+    "export": {
+      "trigger": "Als CSV exportieren",
+      "filename": "produkte.csv"
     }
   },
   "productionStations": {
@@ -2888,8 +2930,17 @@
       "title": "Inhaltsmeldungen",
       "description": "Meldungen über „Inhalt melden“ aus Shops und von Helferseiten (Digital Services Act): prüfen, entscheiden, begründen.",
       "filterLabel": "Status",
-      "filter": { "open": "Offen", "in_review": "In Prüfung", "closed": "Abgeschlossen", "all": "Alle" },
-      "status": { "open": "Offen", "in_review": "In Prüfung", "closed": "Abgeschlossen" },
+      "filter": {
+        "open": "Offen",
+        "in_review": "In Prüfung",
+        "closed": "Abgeschlossen",
+        "all": "Alle"
+      },
+      "status": {
+        "open": "Offen",
+        "in_review": "In Prüfung",
+        "closed": "Abgeschlossen"
+      },
       "target": {
         "shop": "Shop „{event}“ von {organization}",
         "helper_page": "Helferseite „{plan}“ von {organization}",
@@ -5282,7 +5333,8 @@
     "TIP_PAYOUT_NOT_EMPLOYEE": "Kartentrinkgeld auszahlen geht nur für Bedienungen mit „Arbeitnehmer (Lohnkonto)“. Bei Ehrenamtlichen gehört das Trinkgeld dem Verein.",
     "TIP_PAYOUT_AMOUNT_INVALID": "Der Betrag passt nicht: höchstens das offene Kartentrinkgeld und mehr als 0 €.",
     "CURRENT_PASSWORD_REQUIRED": "Gib dein aktuelles Passwort ein.",
-    "EMAIL_CHANGE_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen."
+    "EMAIL_CHANGE_LINK_INVALID": "Der Bestätigungslink ist ungültig oder abgelaufen.",
+    "EVENT_COPY_IN_PROGRESS": "Diese Veranstaltung wurde gerade schon angelegt. Lade die Liste neu."
   },
   "shifts": {
     "title": "Schichtpläne",
@@ -5712,7 +5764,11 @@
     "count": "{count, plural, =0 {Keine Schichtpläne} =1 {1 Schichtplan} other {# Schichtpläne}}"
   },
   "setup": {
-    "token": {"sectionTitle": "Einrichtungscode", "label": "Einrichtungscode", "hint": "Steht beim ersten Start im Protokoll der API (z. B. docker compose logs api) oder in SETUP_TOKEN."},
+    "token": {
+      "sectionTitle": "Einrichtungscode",
+      "label": "Einrichtungscode",
+      "hint": "Steht beim ersten Start im Protokoll der API (z. B. docker compose logs api) oder in SETUP_TOKEN."
+    },
     "title": "Willkommen bei OpenEOS",
     "submit": "Einrichtung abschließen",
     "modeSelect": {
@@ -7413,7 +7469,7 @@
       "current": "Aktiv",
       "legacy": "Aktiv (Bestand)",
       "available": "Verfügbar",
-          "country_required": "Lege zuerst das Land fest",
+      "country_required": "Lege zuerst das Land fest",
       "unavailable": "Nicht wählbar"
     },
     "section": {
@@ -7762,7 +7818,12 @@
       "later": "Später erinnern",
       "titleAnlage1": "Neue Leistungsbeschreibung und Preisliste",
       "titleMany": "Neue Fassungen unserer Vertragsbedingungen",
-      "names": {"agb": "die AGB", "avv": "den Auftragsverarbeitungsvertrag", "anlage1": "die Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste)", "anlage1WithAgb": "die Anlage 1 (Leistungsbeschreibung und Preisliste)"},
+      "names": {
+        "agb": "die AGB",
+        "avv": "den Auftragsverarbeitungsvertrag",
+        "anlage1": "die Anlage 1 zu den AGB (Leistungsbeschreibung und Preisliste)",
+        "anlage1WithAgb": "die Anlage 1 (Leistungsbeschreibung und Preisliste)"
+      },
       "objectionNoteAvvAnnex": "Am Auftragsverarbeitungsvertrag haben sich nur Anhang B (Unterauftragsverarbeiter) bzw. Anhang C (technische und organisatorische Maßnahmen) geändert (AVV Ziffer 6.3). Die Änderung gilt als genehmigt, wenn du nicht innerhalb von vier Wochen nach unserer Mitteilung in Textform widersprichst, z. B. per E-Mail an {email}. Widersprichst du und findet sich keine Lösung, kann jede Seite den Nutzungsvertrag mit einer Frist von einem Monat zum Monatsende kündigen (AVV Ziffer 6.4)."
     },
     "overview": {

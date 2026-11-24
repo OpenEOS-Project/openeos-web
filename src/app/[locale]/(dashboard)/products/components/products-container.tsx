@@ -12,12 +12,17 @@ import { useDeleteProduct } from '@/hooks/use-products';
 import { useActiveEvent } from '@/hooks/use-events';
 import { usePermissions } from '@/hooks/use-permissions';
 import { assistantUsable } from '@/lib/assistant';
+import { saveBlob } from '@/lib/dsfinvk';
+import { productsApi } from '@/lib/api-client';
+import { useApiErrorMessage } from '@/hooks/use-api-error-message';
+import { toast } from '@/components/shared/toast';
 import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/stores/auth-store';
 import { ListLoading, ListEmpty } from '@/components/shared/list-states';
 import type { Product } from '@/types/product';
 
 import { CategoriesManagementModal } from './categories-management-modal';
+import { CopyFromEventDialog } from './copy-from-event-dialog';
 import { ImportDialog } from './import-dialog';
 import { ProductFormModal } from './product-form-modal';
 import { ProductsList } from './products-list';
@@ -28,6 +33,9 @@ export function ProductsContainer() {
   const tCommon = useTranslations('common');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isCopyOpen, setIsCopyOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const apiErrorMessage = useApiErrorMessage();
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -42,7 +50,7 @@ export function ProductsContainer() {
      Assistent-Funktionen; Admins sehen sonst einen Hinweis auf die
      Einstellung — aber nur, wenn der Server die Funktionen überhaupt anbietet. */
   const { data: assistant } = useAssistantStatus(organizationId || undefined);
-  const { isAdmin } = usePermissions();
+  const { isAdmin, hasPermission } = usePermissions();
   const menuImportAvailable = assistantUsable(assistant);
   const menuImportHint = !!assistant?.available && !assistant.enabled && isAdmin;
 
@@ -54,6 +62,19 @@ export function ProductsContainer() {
   const categoryFilter = useSearchParams().get('category');
   const setCategoryFilter = (categoryId: string | null) => {
     router.replace(categoryId ? `/products?category=${encodeURIComponent(categoryId)}` : '/products');
+  };
+
+  const handleExport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      const { blob, filename } = await productsApi.exportCsv(eventId);
+      saveBlob(blob, filename ?? t('export.filename'));
+    } catch (err) {
+      toast.error(apiErrorMessage(err));
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleCreateClick = () => {
@@ -127,6 +148,9 @@ export function ProductsContainer() {
         eventId={eventId}
         onCreateClick={handleCreateClick}
         onImportClick={() => setIsImportOpen(true)}
+        onCopyClick={hasPermission('events') ? () => setIsCopyOpen(true) : undefined}
+        onExportClick={handleExport}
+        exporting={isExporting}
         menuImportHint={menuImportHint}
         onManageCategoriesClick={() => setIsCategoriesModalOpen(true)}
         onEditClick={handleEditClick}
@@ -152,6 +176,14 @@ export function ProductsContainer() {
           eventId={eventId}
           menuAvailable={menuImportAvailable}
           onClose={() => setIsImportOpen(false)}
+        />
+      )}
+
+      {isCopyOpen && (
+        <CopyFromEventDialog
+          organizationId={organizationId}
+          eventId={eventId}
+          onClose={() => setIsCopyOpen(false)}
         />
       )}
 

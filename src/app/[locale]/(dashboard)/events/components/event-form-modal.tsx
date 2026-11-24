@@ -7,7 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { useApiErrorMessage } from '@/hooks/use-api-error-message';
-import { useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
+import { useAllEvents, useCreateEvent, useUpdateEvent } from '@/hooks/use-events';
+import { EventSourceSelect } from '@/components/shared/event-source-select';
+import { toast } from '@/components/shared/toast';
+import { eventsByStart } from '@/lib/event-copy';
 import { useEventPricePreview } from '@/hooks/use-event-price-preview';
 import { useDeployment } from '@/components/providers/setup-provider';
 import { useLocaleFormat, useIntlLocale } from '@/hooks/use-locale-format';
@@ -39,6 +42,7 @@ import type { TableMode } from '@/types/table';
 import { Banner, Checkbox, Icon } from '@openeos/ui';
 import { currentEventPhase, phaseMoment } from '@/lib/event-phase';
 import '@/styles/event-tables.css';
+import '@/styles/event-copy.css';
 
 // Als Factory, damit die Meldungen ueber next-intl uebersetzt werden —
 // ausserhalb der Komponente gibt es noch kein t().
@@ -116,6 +120,14 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const { data: organization } = useOrganization(isOpen ? organizationId : '');
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
+
+  /* Vorlage beim Anlegen: ohne eigene Wahl die Veranstaltung mit dem
+     juengsten Beginn. '' heisst „Nichts übernehmen“. */
+  const { data: allEvents, isLoading: loadingSources } = useAllEvents(isOpen && !isEditing ? organizationId : '');
+  const sourceEvents = useMemo(() => eventsByStart(allEvents ?? []), [allEvents]);
+  const [chosenSource, setChosenSource] = useState<string | null>(null);
+  const copySourceId = chosenSource ?? sourceEvents[0]?.id ?? '';
+  const copySource = sourceEvents.find((candidate) => candidate.id === copySourceId);
 
   /* Die Oeffnungstage stehen neben dem Formular, nicht darin: sie haengen am
      Zeitraum und werden bei jeder Datumsaenderung angeglichen. Ein
@@ -275,14 +287,26 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
           },
         });
       } else {
-        await createEvent.mutateAsync({
+        const created = await createEvent.mutateAsync({
           organizationId,
           data: {
             ...payload,
             startDate: toIsoAtMidnight(data.startDate),
             settings: { ...orderingMode, shop: shopSettings, tables, sales },
+            ...(copySource ? { copyFromEventId: copySource.id } : {}),
           },
         });
+        if (copySource && created.copySummary) {
+          toast.success(
+            t('copyFrom.created', {
+              name: copySource.name,
+              products: created.copySummary.productsCopied,
+              categories: created.copySummary.categoriesCopied,
+              stations: created.copySummary.stationsCopied,
+            }),
+          );
+        }
+        setChosenSource(null);
       }
       onClose();
     } catch (err) {
@@ -293,6 +317,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
   const handleClose = () => {
     reset();
     setError(null);
+    setChosenSource(null);
     onClose();
   };
 
@@ -427,6 +452,23 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
                 </div>
               )}
             </div>
+
+            {!isEditing && sourceEvents.length > 0 && (
+              <div className="event-copy-source" data-testid="event-copy-source">
+                <Icon name="copy" size={16} />
+                <span className="event-copy-source__text">
+                  {copySource ? t('copyFrom.line', { name: copySource.name }) : t('copyFrom.lineNone')}
+                </span>
+                <EventSourceSelect
+                  events={sourceEvents}
+                  value={copySourceId}
+                  onChange={setChosenSource}
+                  label={t('copyFrom.label')}
+                  noneLabel={t('copyFrom.none')}
+                  className="event-copy-source__select"
+                />
+              </div>
+            )}
 
             <Controller
               name="orderingMode"
@@ -747,7 +789,7 @@ export function EventFormModal({ isOpen, event, onClose }: EventFormModalProps) 
             <button type="button" className="btn btn--ghost" onClick={handleClose} disabled={isSubmitting}>
               {tCommon('cancel')}
             </button>
-            <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+            <button type="submit" className="btn btn--primary" disabled={isSubmitting || loadingSources}>
               {isSubmitting ? tCommon('saving') : isEditing ? tCommon('save') : tCommon('create')}
             </button>
           </div>

@@ -1555,8 +1555,17 @@
       "title": "Content reports",
       "description": "Reports via “Report content” from shops and helper pages (Digital Services Act): review, decide, give reasons.",
       "filterLabel": "Status",
-      "filter": { "open": "Open", "in_review": "In review", "closed": "Closed", "all": "All" },
-      "status": { "open": "Open", "in_review": "In review", "closed": "Closed" },
+      "filter": {
+        "open": "Open",
+        "in_review": "In review",
+        "closed": "Closed",
+        "all": "All"
+      },
+      "status": {
+        "open": "Open",
+        "in_review": "In review",
+        "closed": "Closed"
+      },
       "target": {
         "shop": "Shop “{event}” of {organization}",
         "helper_page": "Helper page “{plan}” of {organization}",
@@ -2101,7 +2110,8 @@
       "deactivate": "Deactivate",
       "testMode": "Test Mode",
       "openShop": "Open shop",
-      "unlock": "Activation"
+      "unlock": "Activation",
+      "duplicate": "Duplicate event"
     },
     "deleteConfirm": {
       "title": "Delete Event",
@@ -2292,6 +2302,28 @@
         "active": "Sales until {date}, {time}",
         "ended": "Ended on {date} at {time} – you can still settle open orders"
       }
+    },
+    "copyFrom": {
+      "line": "Menu, categories and stations are taken over from “{name}”.",
+      "lineNone": "The event starts without a menu, categories and stations.",
+      "label": "Take over from",
+      "none": "Take over nothing",
+      "created": "Taken over from “{name}”: {products} products, {categories} categories, {stations} stations."
+    },
+    "duplicate": {
+      "title": "Duplicate event",
+      "suffix": "copy",
+      "intro": "Taken over from “{name}”:",
+      "itemCatalog": "Categories, products and stations",
+      "itemSettings": "Settings: checkout mode, tables, lead time, shop including its opening days",
+      "itemShifts": "Shift plans as drafts, without sign-ups – dates moved accordingly",
+      "itemStaff": "Servers and tokens that belong only to this event – servers get new PINs",
+      "never": "Activation, TSE, orders and settlements stay with the old event.",
+      "copyStock": "Take over product stock",
+      "submit": "Duplicate",
+      "success": "“{name}” created: {products} products, {plans, plural, one {one shift plan} other {# shift plans}}.",
+      "skippedShiftPlans": "Shift plans were not taken over – you don’t have the “Shift plans” permission.",
+      "skippedWaiters": "Servers were not taken over – you don’t have the “Servers” permission."
     }
   },
   "categories": {
@@ -2516,7 +2548,7 @@
       },
       "columnHint": {
         "title": "Column reference",
-        "body": "category, name, description, price, pfand, icon – Required: category, name, price. ingredients: separated by | (e.g. Lettuce | Tomato). choices: group with options (e.g. Sauce: Ketchup | Mayonnaise). extras: add-on with surcharge (e.g. Extra Cheese +0.50)."
+        "body": "category, name, description, price, pfand, icon – Required: category, name, price. ingredients: separated by | (e.g. Lettuce | Tomato). choices: group with options (e.g. Sauce: Ketchup | Mayonnaise). extras: add-on with surcharge (e.g. Extra Cheese +0.50). taxRate: VAT rate in percent. A ? after the group name makes a choice optional, * marks the preselected option, surcharges also work in choices. Separate several extra groups with || (e.g. Sauces: Mayo | Mustard || Side!: Fries), ! = required. A CSV export can be imported again unchanged."
       },
       "fatalError": "Fatal error:",
       "summary": {
@@ -2687,6 +2719,25 @@
       "clear": "Show all products",
       "emptyTitle": "No products in this category",
       "emptyText": "The category is empty – you can delete it now."
+    },
+    "copyFrom": {
+      "trigger": "Take over from event",
+      "title": "Take over from event",
+      "source": "Event",
+      "noSources": "There is no other event yet.",
+      "emptySource": "This event has no categories or products.",
+      "selectAll": "Select all",
+      "emptyCategory": "no products",
+      "includeDuplicates": "Take over duplicates anyway",
+      "hint": "Categories with the same name are merged, existing products are skipped. The products’ stations come along, stock does not.",
+      "submit": "{count, plural, one {Take over one product} other {Take over # products}}",
+      "result": "{copied} taken over",
+      "resultSkipped": "{copied} taken over, {skipped} skipped (already exist)",
+      "resultDetails": "Categories: {categories} new, {categoriesMerged} merged. Stations: {stations} new, {stationsMerged} merged."
+    },
+    "export": {
+      "trigger": "Export as CSV",
+      "filename": "products.csv"
     }
   },
   "productionStations": {
@@ -5294,7 +5345,8 @@
     "TIP_PAYOUT_NOT_EMPLOYEE": "Card tips can only be paid out to servers marked “Employee (payroll account)”. For volunteers, tips belong to the club.",
     "TIP_PAYOUT_AMOUNT_INVALID": "The amount does not fit: at most the open card tips and more than €0.",
     "CURRENT_PASSWORD_REQUIRED": "Enter your current password.",
-    "EMAIL_CHANGE_LINK_INVALID": "The confirmation link is invalid or has expired."
+    "EMAIL_CHANGE_LINK_INVALID": "The confirmation link is invalid or has expired.",
+    "EVENT_COPY_IN_PROGRESS": "This event was just created. Reload the list."
   },
   "shifts": {
     "title": "Shift Plans",
@@ -5724,7 +5776,11 @@
     "count": "{count, plural, =0 {No shift plans} =1 {1 shift plan} other {# shift plans}}"
   },
   "setup": {
-    "token": {"sectionTitle": "Setup code", "label": "Setup code", "hint": "Printed to the API log on first start (e.g. docker compose logs api) or set in SETUP_TOKEN."},
+    "token": {
+      "sectionTitle": "Setup code",
+      "label": "Setup code",
+      "hint": "Printed to the API log on first start (e.g. docker compose logs api) or set in SETUP_TOKEN."
+    },
     "title": "Welcome to OpenEOS",
     "submit": "Complete Setup",
     "modeSelect": {
@@ -7425,7 +7481,7 @@
       "current": "Active",
       "legacy": "Active (existing)",
       "available": "Available",
-          "country_required": "Set the country first",
+      "country_required": "Set the country first",
       "unavailable": "Not available"
     },
     "section": {
@@ -7774,7 +7830,12 @@
       "later": "Remind me later",
       "titleAnlage1": "New service description and price list",
       "titleMany": "New versions of our contract terms",
-      "names": {"agb": "the terms and conditions", "avv": "the data processing agreement", "anlage1": "annex 1 to the terms and conditions (service description and price list)", "anlage1WithAgb": "annex 1 (service description and price list)"},
+      "names": {
+        "agb": "the terms and conditions",
+        "avv": "the data processing agreement",
+        "anlage1": "annex 1 to the terms and conditions (service description and price list)",
+        "anlage1WithAgb": "annex 1 (service description and price list)"
+      },
       "objectionNoteAvvAnnex": "Only annex B (sub-processors) or annex C (technical and organizational measures) of the data processing agreement has changed (AVV clause 6.3). The change counts as approved unless you object in text form within four weeks of our notice, e.g. by e-mail to {email}. If you object and no solution is found, either party may terminate the contract with one month's notice to the end of a month (AVV clause 6.4)."
     },
     "overview": {

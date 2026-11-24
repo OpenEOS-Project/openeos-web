@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import '@/styles/products.css';
 import { Icon, IconButton, useMediaQuery, type DataColumn, type RowAction } from '@openeos/ui';
-import { ShoppingBag, Upload } from 'lucide-react';
+import { CopyPlus, Download, ShoppingBag, Upload } from 'lucide-react';
 import Link from 'next/link';
 
 import { useLocaleFormat } from '@/hooks/use-locale-format';
@@ -29,6 +29,10 @@ interface ProductsListProps {
   onCreateClick: () => void;
   /** Öffnet den Import-Dialog (Speisekarte und CSV). */
   onImportClick: () => void;
+  /** „Aus Veranstaltung übernehmen“; fehlt ohne das Recht Veranstaltungen. */
+  onCopyClick?: () => void;
+  onExportClick: () => void;
+  exporting?: boolean;
   /** Admin-Hinweis auf die Einstellung, solange der Assistent aus ist. */
   menuImportHint?: boolean;
   onManageCategoriesClick: () => void;
@@ -44,6 +48,9 @@ export function ProductsList({
   eventId,
   onCreateClick,
   onImportClick,
+  onCopyClick,
+  onExportClick,
+  exporting = false,
   menuImportHint = false,
   onManageCategoriesClick,
   onEditClick,
@@ -114,6 +121,11 @@ export function ProductsList({
             <button className="btn btn--ghost" onClick={onImportClick}>
               {t('import.trigger')}
             </button>
+            {onCopyClick && (
+              <button className="btn btn--ghost" onClick={onCopyClick}>
+                {t('copyFrom.trigger')}
+              </button>
+            )}
           </div>
         }
       />
@@ -228,8 +240,10 @@ export function ProductsList({
              Speisekarte und CSV. */
           <>
             <ListAction icon="tag" label={t('manageCategories')} onClick={onManageCategoriesClick} />
+            {onCopyClick && <ListAction icon={<CopyPlus />} label={t('copyFrom.trigger')} onClick={onCopyClick} />}
             {/* Hochladen statt Download-Pfeil: der steht beim Export. */}
             <ListAction icon={<Upload />} label={t('import.trigger')} onClick={onImportClick} />
+            <ListAction icon={<Download />} label={t('export.trigger')} onClick={onExportClick} disabled={exporting} />
             <ListAction variant="primary" icon="plus" label={t('create')} onClick={onCreateClick} />
           </>
         }
